@@ -17,6 +17,7 @@ const {ScopesValidator} = require('../security/scopesValidator');
 const {ResourceValidator} = require('../common/resourceValidator');
 const {isTrue} = require('../../utils/isTrue');
 const {DatabaseBulkInserter} = require('../../dataLayer/databaseBulkInserter');
+const {getCircularReplacer} = require('../../utils/getCircularReplacer');
 
 class CreateOperation {
     /**
@@ -93,7 +94,7 @@ class CreateOperation {
      * @param {string} resourceType
      * @returns {Resource}
      */
-    async create(requestInfo, args, path, resourceType) {
+    async create({requestInfo, args, path, resourceType}) {
         assertIsValid(requestInfo !== undefined);
         assertIsValid(args !== undefined);
         assertIsValid(resourceType !== undefined);
@@ -102,7 +103,7 @@ class CreateOperation {
          * @type {number}
          */
         const startTime = Date.now();
-        const {user, body, /** @type {string} */ requestId} = requestInfo;
+        const {user, body, /** @type {string} */ requestId, /** @type {string} */ method} = requestInfo;
 
         await this.scopesValidator.verifyHasValidScopesAsync(
             {
@@ -219,7 +220,7 @@ class CreateOperation {
                         operation: currentOperationName, args, ids: [resource['id']]
                     }
                 );
-                await this.auditLogger.flushAsync({requestId, currentDate});
+                await this.auditLogger.flushAsync({requestId, currentDate, method});
             }
             // Create a clone of the object without the _id parameter before assigning a value to
             // the _id parameter in the original document
@@ -227,19 +228,24 @@ class CreateOperation {
             logDebug({user, args: {message: 'Inserting', doc: doc}});
 
             // Insert our resource record
-            await this.databaseBulkInserter.insertOneAsync({resourceType, doc});
-            await this.databaseBulkInserter.insertOneHistoryAsync({resourceType, doc: doc.clone()});
+            await this.databaseBulkInserter.insertOneAsync({requestId, resourceType, doc});
             /**
              * @type {MergeResultEntry[]}
              */
             const mergeResults = await this.databaseBulkInserter.executeAsync(
                 {
-                    requestId, currentDate, base_version: base_version
+                    requestId, currentDate, base_version: base_version,
+                    method
                 }
             );
 
             if (!mergeResults || mergeResults.length === 0 || (!mergeResults[0].created && !mergeResults[0].updated)) {
-                throw new BadRequestError(new Error(mergeResults.length > 0 ? JSON.stringify(mergeResults[0].issue) : 'No merge result'));
+                throw new BadRequestError(
+                    new Error(mergeResults.length > 0 ?
+                        JSON.stringify(mergeResults[0].issue, getCircularReplacer()) :
+                        'No merge result'
+                    )
+                );
             }
 
             // log operation
@@ -250,12 +256,18 @@ class CreateOperation {
                     resourceType,
                     startTime,
                     action: currentOperationName,
-                    result: JSON.stringify(doc)
+                    result: JSON.stringify(doc, getCircularReplacer())
                 });
-            await this.changeEventProducer.fireEventsAsync({
-                requestId, eventType: 'U', resourceType, doc
+
+            this.postRequestProcessor.add({
+                requestId,
+                fnTask: async () => {
+                    await this.changeEventProducer.fireEventsAsync({
+                        requestId, eventType: 'U', resourceType, doc
+                    });
+                    await this.changeEventProducer.flushAsync({requestId});
+                }
             });
-            this.postRequestProcessor.add(async () => await this.changeEventProducer.flushAsync(requestId));
 
             return doc;
         } catch (/** @type {Error} */ e) {

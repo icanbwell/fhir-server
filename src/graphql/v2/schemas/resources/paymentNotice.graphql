@@ -113,7 +113,7 @@ type PaymentNotice {
     """
     A reference to the payment which is the subject of this notice.
     """
-    payment: PaymentReconciliation!        
+    payment: PaymentReconciliation        
     """
     The date when the above payment action occurred.
     """
@@ -126,7 +126,7 @@ type PaymentNotice {
     """
     The party who is notified of the payment status.
     """
-    recipient: Organization!        
+    recipient: Organization        
     """
     The amount sent to the payee.
     """

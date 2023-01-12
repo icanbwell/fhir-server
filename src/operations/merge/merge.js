@@ -20,6 +20,7 @@ const {getResource} = require('../common/getResource');
 const Bundle = require('../../fhir/classes/4_0_0/resources/bundle');
 const Parameters = require('../../fhir/classes/4_0_0/resources/parameters');
 const {ResourceValidator} = require('../common/resourceValidator');
+const {getCircularReplacer} = require('../../utils/getCircularReplacer');
 
 class MergeOperation {
     /**
@@ -152,7 +153,7 @@ class MergeOperation {
      * @param {string} resourceType
      * @returns {Promise<MergeResultEntry[]> | Promise<MergeResultEntry>| Promise<Resource>}
      */
-    async merge(requestInfo, args, resourceType) {
+    async merge({requestInfo, args, resourceType}) {
         assertIsValid(requestInfo !== undefined);
         assertIsValid(args !== undefined);
         assertIsValid(resourceType !== undefined);
@@ -181,7 +182,9 @@ class MergeOperation {
             /** @type {string|null} */
             path,
             /** @type {Object | Object[] | null} */
-            body
+            body,
+            /** @type {string} */
+            method
         } = requestInfo;
 
 
@@ -334,6 +337,7 @@ class MergeOperation {
             // Load the resources from the database
             await this.databaseBulkLoader.loadResourcesAsync(
                 {
+                    requestId,
                     base_version,
                     requestedResources: resourcesIncomingArray
                 }
@@ -360,11 +364,15 @@ class MergeOperation {
             let mergeResults = await this.databaseBulkInserter.executeAsync(
                 {
                     requestId, currentDate,
-                    base_version
+                    base_version,
+                    method
                 });
 
             // flush any event handlers
-            this.postRequestProcessor.add(async () => await this.changeEventProducer.flushAsync(requestId));
+            this.postRequestProcessor.add({
+                requestId,
+                fnTask: async () => await this.changeEventProducer.flushAsync({requestId})
+            });
 
             // add in any pre-merge failures
             mergeResults = mergeResults.concat(mergePreCheckErrors);
@@ -377,7 +385,8 @@ class MergeOperation {
                 this.addSuccessfulMergesToMergeResult(incomingResourceTypeAndIds, idsInMergeResults));
             await this.mergeManager.logAuditEntriesForMergeResults(
                 {
-                    requestInfo, requestId, base_version, args, mergeResults
+                    requestInfo, requestId, base_version, args, mergeResults,
+                    method
                 });
 
             await this.fhirLoggingManager.logOperationSuccessAsync(
@@ -387,7 +396,7 @@ class MergeOperation {
                     resourceType,
                     startTime,
                     action: currentOperationName,
-                    result: JSON.stringify(mergeResults)
+                    result: JSON.stringify(mergeResults, getCircularReplacer())
                 });
 
             /**

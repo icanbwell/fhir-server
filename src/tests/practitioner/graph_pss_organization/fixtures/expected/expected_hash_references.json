@@ -1,6 +1,7 @@
 {
   "entry": [
     {
+      "id": "Medstar-Alias-MPF-MPCR",
       "resource": {
         "active": true,
         "address": [
@@ -616,5 +617,6 @@
     }
   ],
   "resourceType": "Bundle",
-  "type": "collection"
+  "total": 1,
+  "type": "searchset"
 }

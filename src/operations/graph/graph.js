@@ -11,8 +11,8 @@ const {ScopesValidator} = require('../security/scopesValidator');
 const {getFirstElementOrNull} = require('../../utils/list.util');
 const {ResourceValidator} = require('../common/resourceValidator');
 const moment = require('moment-timezone');
-const {MongoError} = require('../../utils/mongoErrors');
 const {ResourceLocatorFactory} = require('../common/resourceLocatorFactory');
+const deepcopy = require('deepcopy');
 
 class GraphOperation {
     /**
@@ -63,13 +63,16 @@ class GraphOperation {
     /**
      * Supports $graph
      * @param {FhirRequestInfo} requestInfo
+     * @param {import('express').Response} res
      * @param {Object} args
      * @param {string} resourceType
+     * @param {BaseResponseStreamer|undefined} [responseStreamer]
      * @return {Promise<Bundle>}
      */
-    async graph(requestInfo, args, resourceType) {
+    async graph({requestInfo, res, args, resourceType, responseStreamer}) {
         assertIsValid(requestInfo !== undefined);
         assertIsValid(args !== undefined);
+        assertIsValid(res !== undefined);
         assertIsValid(resourceType !== undefined);
         const currentOperationName = 'graph';
 
@@ -87,7 +90,7 @@ class GraphOperation {
             /**
              * @type {string}
              */
-            requestId
+            method,
         } = requestInfo;
 
         await this.scopesValidator.verifyHasValidScopesAsync({
@@ -104,6 +107,12 @@ class GraphOperation {
              * @type {string}
              */
             let {base_version, id} = args;
+
+            const originalArgs = deepcopy(args);
+
+            if (!id) {
+                throw new BadRequestError(new Error('No id parameter was passed'));
+            }
 
             id = id.split(',');
             /**
@@ -126,7 +135,8 @@ class GraphOperation {
             /**
              * @type {Object|null}
              */
-            let graphDefinitionRaw = args.resource ? args.resource : body;
+            let graphDefinitionRaw = args.resource && Object.keys(args.resource).length > 0 ?
+                args.resource : body;
 
             // check if this is a Parameters resourceType
             if (graphDefinitionRaw.resourceType === 'Parameters') {
@@ -148,13 +158,15 @@ class GraphOperation {
             /**
              * @type {OperationOutcome|null}
              */
-            const validationOperationOutcome = await this.resourceValidator.validateResourceAsync({
-                id: graphDefinitionRaw.id,
-                resourceType: 'GraphDefinition',
-                resourceToValidate: graphDefinitionRaw,
-                path: path,
-                currentDate: currentDate
-            });
+            const validationOperationOutcome = await this.resourceValidator.validateResourceAsync(
+                {
+                    id: graphDefinitionRaw.id,
+                    resourceType: 'GraphDefinition',
+                    resourceToValidate: graphDefinitionRaw,
+                    path: path,
+                    currentDate: currentDate
+                }
+            );
             if (validationOperationOutcome) {
                 validationsFailedCounter.inc({action: currentOperationName, resourceType}, 1);
                 logDebug({user, args: {message: 'GraphDefinition schema failed validation'}});
@@ -176,18 +188,32 @@ class GraphOperation {
             /**
              * @type {Bundle}
              */
-            const resultBundle = await this.graphHelper.processGraphAsync(
-                {
-                    requestInfo,
-                    base_version,
-                    resourceType,
-                    id,
-                    graphDefinitionJson: graphDefinitionRaw,
-                    contained,
-                    hash_references,
-                    args
-                }
-            );
+            const resultBundle = (method.toLowerCase() === 'delete') ?
+                await this.graphHelper.deleteGraphAsync(
+                    {
+                        requestInfo,
+                        base_version,
+                        resourceType,
+                        id,
+                        graphDefinitionJson: graphDefinitionRaw,
+                        args,
+                        originalArgs,
+                        responseStreamer
+                    }
+                ) : await this.graphHelper.processGraphAsync(
+                    {
+                        requestInfo,
+                        base_version,
+                        resourceType,
+                        id,
+                        graphDefinitionJson: graphDefinitionRaw,
+                        contained,
+                        hash_references,
+                        args,
+                        originalArgs,
+                        responseStreamer
+                    }
+                );
 
             await this.fhirLoggingManager.logOperationSuccessAsync(
                 {
@@ -197,6 +223,7 @@ class GraphOperation {
                     startTime,
                     action: currentOperationName
                 });
+
             return resultBundle;
         } catch (err) {
             await this.fhirLoggingManager.logOperationFailureAsync(
@@ -208,7 +235,7 @@ class GraphOperation {
                     action: currentOperationName,
                     error: err
                 });
-            throw new MongoError(requestId, err.message, err, resourceType, {}, (Date.now() - startTime), {});
+            throw err;
         }
     }
 }

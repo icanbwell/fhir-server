@@ -108,7 +108,7 @@ class PractitionerRole extends Resource {
                     this.__data.meta = undefined;
                     return;
                 }
-                let Meta = require('../complex_types/meta.js');
+                const Meta = require('../complex_types/meta.js');
                 this.__data.meta = new Meta(valueProvided);
             }
         });
@@ -171,7 +171,7 @@ class PractitionerRole extends Resource {
                     this.__data.text = undefined;
                     return;
                 }
-                let Narrative = require('../complex_types/narrative.js');
+                const Narrative = require('../complex_types/narrative.js');
                 this.__data.text = new Narrative(valueProvided);
             }
         });
@@ -192,7 +192,7 @@ class PractitionerRole extends Resource {
                     this.__data.contained = undefined;
                     return;
                 }
-                let ResourceContainer = require('../simple_types/resourceContainer.js');
+                const ResourceContainer = require('../simple_types/resourceContainer.js');
                 const {getResource} = require('../../../../operations/common/getResource');
                 if (Array.isArray(valueProvided)) {
                     this.__data.contained = valueProvided.filter(v => v).map(v => {
@@ -224,7 +224,7 @@ class PractitionerRole extends Resource {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -255,7 +255,7 @@ class PractitionerRole extends Resource {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -274,7 +274,7 @@ class PractitionerRole extends Resource {
                     this.__data.identifier = undefined;
                     return;
                 }
-                let Identifier = require('../complex_types/identifier.js');
+                const Identifier = require('../complex_types/identifier.js');
                 this.__data.identifier = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Identifier(v)) : [new Identifier(valueProvided)];
             }
         });
@@ -312,7 +312,7 @@ class PractitionerRole extends Resource {
                     this.__data.period = undefined;
                     return;
                 }
-                let Period = require('../complex_types/period.js');
+                const Period = require('../complex_types/period.js');
                 this.__data.period = new Period(valueProvided);
             }
         });
@@ -332,7 +332,7 @@ class PractitionerRole extends Resource {
                     this.__data.practitioner = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.practitioner = new Reference(valueProvided);
             }
         });
@@ -351,7 +351,7 @@ class PractitionerRole extends Resource {
                     this.__data.organization = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.organization = new Reference(valueProvided);
             }
         });
@@ -370,7 +370,7 @@ class PractitionerRole extends Resource {
                     this.__data.code = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.code = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
             }
         });
@@ -389,7 +389,7 @@ class PractitionerRole extends Resource {
                     this.__data.specialty = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.specialty = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
             }
         });
@@ -408,7 +408,7 @@ class PractitionerRole extends Resource {
                     this.__data.location = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.location = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
             }
         });
@@ -428,7 +428,7 @@ class PractitionerRole extends Resource {
                     this.__data.healthcareService = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.healthcareService = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
             }
         });
@@ -447,7 +447,7 @@ class PractitionerRole extends Resource {
                     this.__data.telecom = undefined;
                     return;
                 }
-                let ContactPoint = require('../complex_types/contactPoint.js');
+                const ContactPoint = require('../complex_types/contactPoint.js');
                 this.__data.telecom = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ContactPoint(v)) : [new ContactPoint(valueProvided)];
             }
         });
@@ -467,7 +467,7 @@ class PractitionerRole extends Resource {
                     this.__data.availableTime = undefined;
                     return;
                 }
-                let PractitionerRoleAvailableTime = require('../backbone_elements/practitionerRoleAvailableTime.js');
+                const PractitionerRoleAvailableTime = require('../backbone_elements/practitionerRoleAvailableTime.js');
                 this.__data.availableTime = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new PractitionerRoleAvailableTime(v)) : [new PractitionerRoleAvailableTime(valueProvided)];
             }
         });
@@ -487,7 +487,7 @@ class PractitionerRole extends Resource {
                     this.__data.notAvailable = undefined;
                     return;
                 }
-                let PractitionerRoleNotAvailable = require('../backbone_elements/practitionerRoleNotAvailable.js');
+                const PractitionerRoleNotAvailable = require('../backbone_elements/practitionerRoleNotAvailable.js');
                 this.__data.notAvailable = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new PractitionerRoleNotAvailable(v)) : [new PractitionerRoleNotAvailable(valueProvided)];
             }
         });
@@ -527,7 +527,7 @@ class PractitionerRole extends Resource {
                     this.__data.endpoint = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.endpoint = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
             }
         });
@@ -616,8 +616,10 @@ class PractitionerRole extends Resource {
             _sourceId,
         });
 
-        // Define a default non-writable resourceType property
-
+        /**
+         * @description Define a default non-writable resourceType property
+         * @property {string|undefined}
+         */
         Object.defineProperty(this, 'resourceType', {
             value: 'PractitionerRole',
             enumerable: true,
@@ -626,6 +628,10 @@ class PractitionerRole extends Resource {
         });
     }
 
+    /**
+     * @description Define a default non-writable resourceType property
+     * @property {string|undefined}
+     */
     static get resourceType() {
         return 'PractitionerRole';
     }
@@ -761,6 +767,31 @@ class PractitionerRole extends Resource {
             availabilityExceptions: this.availabilityExceptions,
             endpoint: this.endpoint && this.endpoint.map(v => v.toJSON()),
         });
+    }
+
+    /**
+     * Returns JSON representation of entity
+     * @param {function(Reference): Reference} fnUpdateReference
+     * @return {void}
+     */
+    updateReferences({fnUpdateReference}) {
+            if (this.meta) {this.meta.updateReferences({fnUpdateReference});}
+            if (this.text) {this.text.updateReferences({fnUpdateReference});}
+            if (this.contained) {this.contained.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.extension) {this.extension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.identifier) {this.identifier.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.period) {this.period.updateReferences({fnUpdateReference});}
+            if (this.practitioner) {this.practitioner.updateReferences({fnUpdateReference});}
+            if (this.organization) {this.organization.updateReferences({fnUpdateReference});}
+            if (this.code) {this.code.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.specialty) {this.specialty.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.location) {this.location.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.healthcareService) {this.healthcareService.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.telecom) {this.telecom.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.availableTime) {this.availableTime.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.notAvailable) {this.notAvailable.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.endpoint) {this.endpoint.forEach(v => v.updateReferences({fnUpdateReference}));}
     }
 
     /**

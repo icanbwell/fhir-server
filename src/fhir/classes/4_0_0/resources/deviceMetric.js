@@ -100,7 +100,7 @@ class DeviceMetric extends Resource {
                     this.__data.meta = undefined;
                     return;
                 }
-                let Meta = require('../complex_types/meta.js');
+                const Meta = require('../complex_types/meta.js');
                 this.__data.meta = new Meta(valueProvided);
             }
         });
@@ -163,7 +163,7 @@ class DeviceMetric extends Resource {
                     this.__data.text = undefined;
                     return;
                 }
-                let Narrative = require('../complex_types/narrative.js');
+                const Narrative = require('../complex_types/narrative.js');
                 this.__data.text = new Narrative(valueProvided);
             }
         });
@@ -184,7 +184,7 @@ class DeviceMetric extends Resource {
                     this.__data.contained = undefined;
                     return;
                 }
-                let ResourceContainer = require('../simple_types/resourceContainer.js');
+                const ResourceContainer = require('../simple_types/resourceContainer.js');
                 const {getResource} = require('../../../../operations/common/getResource');
                 if (Array.isArray(valueProvided)) {
                     this.__data.contained = valueProvided.filter(v => v).map(v => {
@@ -216,7 +216,7 @@ class DeviceMetric extends Resource {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -247,7 +247,7 @@ class DeviceMetric extends Resource {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -268,7 +268,7 @@ class DeviceMetric extends Resource {
                     this.__data.identifier = undefined;
                     return;
                 }
-                let Identifier = require('../complex_types/identifier.js');
+                const Identifier = require('../complex_types/identifier.js');
                 this.__data.identifier = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Identifier(v)) : [new Identifier(valueProvided)];
             }
         });
@@ -287,7 +287,7 @@ class DeviceMetric extends Resource {
                     this.__data.type = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.type = new CodeableConcept(valueProvided);
             }
         });
@@ -307,7 +307,7 @@ class DeviceMetric extends Resource {
                     this.__data.unit = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.unit = new CodeableConcept(valueProvided);
             }
         });
@@ -328,7 +328,7 @@ class DeviceMetric extends Resource {
                     this.__data.source = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.source = new Reference(valueProvided);
             }
         });
@@ -352,7 +352,7 @@ class DeviceMetric extends Resource {
                     this.__data.parent = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.parent = new Reference(valueProvided);
             }
         });
@@ -438,7 +438,7 @@ class DeviceMetric extends Resource {
                     this.__data.measurementPeriod = undefined;
                     return;
                 }
-                let Timing = require('../backbone_elements/timing.js');
+                const Timing = require('../backbone_elements/timing.js');
                 this.__data.measurementPeriod = new Timing(valueProvided);
             }
         });
@@ -458,7 +458,7 @@ class DeviceMetric extends Resource {
                     this.__data.calibration = undefined;
                     return;
                 }
-                let DeviceMetricCalibration = require('../backbone_elements/deviceMetricCalibration.js');
+                const DeviceMetricCalibration = require('../backbone_elements/deviceMetricCalibration.js');
                 this.__data.calibration = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new DeviceMetricCalibration(v)) : [new DeviceMetricCalibration(valueProvided)];
             }
         });
@@ -543,8 +543,10 @@ class DeviceMetric extends Resource {
             _sourceId,
         });
 
-        // Define a default non-writable resourceType property
-
+        /**
+         * @description Define a default non-writable resourceType property
+         * @property {string|undefined}
+         */
         Object.defineProperty(this, 'resourceType', {
             value: 'DeviceMetric',
             enumerable: true,
@@ -553,6 +555,10 @@ class DeviceMetric extends Resource {
         });
     }
 
+    /**
+     * @description Define a default non-writable resourceType property
+     * @property {string|undefined}
+     */
     static get resourceType() {
         return 'DeviceMetric';
     }
@@ -672,6 +678,26 @@ class DeviceMetric extends Resource {
             measurementPeriod: this.measurementPeriod && this.measurementPeriod.toJSON(),
             calibration: this.calibration && this.calibration.map(v => v.toJSON()),
         });
+    }
+
+    /**
+     * Returns JSON representation of entity
+     * @param {function(Reference): Reference} fnUpdateReference
+     * @return {void}
+     */
+    updateReferences({fnUpdateReference}) {
+            if (this.meta) {this.meta.updateReferences({fnUpdateReference});}
+            if (this.text) {this.text.updateReferences({fnUpdateReference});}
+            if (this.contained) {this.contained.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.extension) {this.extension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.identifier) {this.identifier.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.type) {this.type.updateReferences({fnUpdateReference});}
+            if (this.unit) {this.unit.updateReferences({fnUpdateReference});}
+            if (this.source) {this.source.updateReferences({fnUpdateReference});}
+            if (this.parent) {this.parent.updateReferences({fnUpdateReference});}
+            if (this.measurementPeriod) {this.measurementPeriod.updateReferences({fnUpdateReference});}
+            if (this.calibration) {this.calibration.forEach(v => v.updateReferences({fnUpdateReference}));}
     }
 
     /**

@@ -48,7 +48,7 @@ type ContractSubject {
     """
     The entity the action is performed or not performed on or for.
     """
-    reference: [ContractSubjectReference]!        
+    reference: [ContractSubjectReference]        
     """
     Role type of agent assigned roles in this Contract.
     """

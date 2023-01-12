@@ -1,0 +1,42 @@
+query my_patient {
+    patient(_explain: true) {
+        entry {
+            resource {
+                id
+                name {
+                    family
+                    given
+                }
+                birthDate
+                explanationOfBenefit {
+                    id
+                    identifier {
+                        system
+                        value
+                    }
+                }
+                allergyIntolerance {
+                    id
+                    type
+                    category
+                    criticality
+                    code {
+                        text
+                    }
+                }
+                careTeam {
+                    id
+                    resourceType
+                    category {
+                        coding {
+                            system
+                            code
+                        }
+                    }
+                    name
+                    status
+                }
+            }
+        }
+    }
+}

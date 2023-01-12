@@ -97,7 +97,7 @@ class MedicinalProductPackaged extends Resource {
                     this.__data.meta = undefined;
                     return;
                 }
-                let Meta = require('../complex_types/meta.js');
+                const Meta = require('../complex_types/meta.js');
                 this.__data.meta = new Meta(valueProvided);
             }
         });
@@ -160,7 +160,7 @@ class MedicinalProductPackaged extends Resource {
                     this.__data.text = undefined;
                     return;
                 }
-                let Narrative = require('../complex_types/narrative.js');
+                const Narrative = require('../complex_types/narrative.js');
                 this.__data.text = new Narrative(valueProvided);
             }
         });
@@ -181,7 +181,7 @@ class MedicinalProductPackaged extends Resource {
                     this.__data.contained = undefined;
                     return;
                 }
-                let ResourceContainer = require('../simple_types/resourceContainer.js');
+                const ResourceContainer = require('../simple_types/resourceContainer.js');
                 const {getResource} = require('../../../../operations/common/getResource');
                 if (Array.isArray(valueProvided)) {
                     this.__data.contained = valueProvided.filter(v => v).map(v => {
@@ -213,7 +213,7 @@ class MedicinalProductPackaged extends Resource {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -244,7 +244,7 @@ class MedicinalProductPackaged extends Resource {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -263,7 +263,7 @@ class MedicinalProductPackaged extends Resource {
                     this.__data.identifier = undefined;
                     return;
                 }
-                let Identifier = require('../complex_types/identifier.js');
+                const Identifier = require('../complex_types/identifier.js');
                 this.__data.identifier = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Identifier(v)) : [new Identifier(valueProvided)];
             }
         });
@@ -282,7 +282,7 @@ class MedicinalProductPackaged extends Resource {
                     this.__data.subject = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.subject = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
             }
         });
@@ -320,7 +320,7 @@ class MedicinalProductPackaged extends Resource {
                     this.__data.legalStatusOfSupply = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.legalStatusOfSupply = new CodeableConcept(valueProvided);
             }
         });
@@ -339,7 +339,7 @@ class MedicinalProductPackaged extends Resource {
                     this.__data.marketingStatus = undefined;
                     return;
                 }
-                let MarketingStatus = require('../backbone_elements/marketingStatus.js');
+                const MarketingStatus = require('../backbone_elements/marketingStatus.js');
                 this.__data.marketingStatus = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new MarketingStatus(v)) : [new MarketingStatus(valueProvided)];
             }
         });
@@ -358,7 +358,7 @@ class MedicinalProductPackaged extends Resource {
                     this.__data.marketingAuthorization = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.marketingAuthorization = new Reference(valueProvided);
             }
         });
@@ -377,7 +377,7 @@ class MedicinalProductPackaged extends Resource {
                     this.__data.manufacturer = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.manufacturer = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
             }
         });
@@ -396,7 +396,7 @@ class MedicinalProductPackaged extends Resource {
                     this.__data.batchIdentifier = undefined;
                     return;
                 }
-                let MedicinalProductPackagedBatchIdentifier = require('../backbone_elements/medicinalProductPackagedBatchIdentifier.js');
+                const MedicinalProductPackagedBatchIdentifier = require('../backbone_elements/medicinalProductPackagedBatchIdentifier.js');
                 this.__data.batchIdentifier = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new MedicinalProductPackagedBatchIdentifier(v)) : [new MedicinalProductPackagedBatchIdentifier(valueProvided)];
             }
         });
@@ -416,7 +416,7 @@ class MedicinalProductPackaged extends Resource {
                     this.__data.packageItem = undefined;
                     return;
                 }
-                let MedicinalProductPackagedPackageItem = require('../backbone_elements/medicinalProductPackagedPackageItem.js');
+                const MedicinalProductPackagedPackageItem = require('../backbone_elements/medicinalProductPackagedPackageItem.js');
                 this.__data.packageItem = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new MedicinalProductPackagedPackageItem(v)) : [new MedicinalProductPackagedPackageItem(valueProvided)];
             }
         });
@@ -500,8 +500,10 @@ class MedicinalProductPackaged extends Resource {
             _sourceId,
         });
 
-        // Define a default non-writable resourceType property
-
+        /**
+         * @description Define a default non-writable resourceType property
+         * @property {string|undefined}
+         */
         Object.defineProperty(this, 'resourceType', {
             value: 'MedicinalProductPackaged',
             enumerable: true,
@@ -510,6 +512,10 @@ class MedicinalProductPackaged extends Resource {
         });
     }
 
+    /**
+     * @description Define a default non-writable resourceType property
+     * @property {string|undefined}
+     */
     static get resourceType() {
         return 'MedicinalProductPackaged';
     }
@@ -625,6 +631,27 @@ class MedicinalProductPackaged extends Resource {
             batchIdentifier: this.batchIdentifier && this.batchIdentifier.map(v => v.toJSON()),
             packageItem: this.packageItem && this.packageItem.map(v => v.toJSON()),
         });
+    }
+
+    /**
+     * Returns JSON representation of entity
+     * @param {function(Reference): Reference} fnUpdateReference
+     * @return {void}
+     */
+    updateReferences({fnUpdateReference}) {
+            if (this.meta) {this.meta.updateReferences({fnUpdateReference});}
+            if (this.text) {this.text.updateReferences({fnUpdateReference});}
+            if (this.contained) {this.contained.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.extension) {this.extension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.identifier) {this.identifier.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.subject) {this.subject.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.legalStatusOfSupply) {this.legalStatusOfSupply.updateReferences({fnUpdateReference});}
+            if (this.marketingStatus) {this.marketingStatus.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.marketingAuthorization) {this.marketingAuthorization.updateReferences({fnUpdateReference});}
+            if (this.manufacturer) {this.manufacturer.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.batchIdentifier) {this.batchIdentifier.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.packageItem) {this.packageItem.forEach(v => v.updateReferences({fnUpdateReference}));}
     }
 
     /**

@@ -15,9 +15,11 @@ class MockIndexProvider extends IndexProvider {
 describe('Synchronize Index Tests', () => {
     beforeEach(async () => {
         await commonBeforeEach();
-        await createTestRequest((c) => {
-            c.register('indexProvider', () => new MockIndexProvider());
-            return c;
+        await createTestRequest((container) => {
+            container.register('indexProvider', (c) => new MockIndexProvider({
+                configManager: c.configManager
+            }));
+            return container;
         });
     });
 

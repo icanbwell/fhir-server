@@ -1,0 +1,35 @@
+{
+  "resourceType": "CodeSystem",
+  "id": "loinc-consumer",
+  "meta": {
+    "versionId": "1",
+    "lastUpdated": "2021-11-02T22:07:58+00:00",
+    "profile": [
+      "http://hl7.org/fhir/us/core/StructureDefinition/us-core-careplan"
+    ],
+    "security": [
+      {
+        "system": "https://www.icanbwell.com/access",
+        "code": "mps-api"
+      }
+    ]
+  },
+  "status": "active",
+  "content": "complete",
+  "concept": [
+    {
+      "code": "3584-4",
+      "display": "hemoglobin A1C (HbA1C) test",
+      "property": [
+        {
+          "code": "medline-plus-summary",
+          "valueString": "Binary/medline-loinc-3584-4"
+        }
+      ]
+    },
+    {
+      "code": "4000-4",
+      "display": "I am bad"
+    }
+  ]
+}

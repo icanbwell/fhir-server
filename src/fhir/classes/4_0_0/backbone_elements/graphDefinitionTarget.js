@@ -73,7 +73,7 @@ class GraphDefinitionTarget extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -104,7 +104,7 @@ class GraphDefinitionTarget extends Element {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -177,7 +177,7 @@ class GraphDefinitionTarget extends Element {
                     this.__data.compartment = undefined;
                     return;
                 }
-                let GraphDefinitionCompartment = require('../backbone_elements/graphDefinitionCompartment.js');
+                const GraphDefinitionCompartment = require('../backbone_elements/graphDefinitionCompartment.js');
                 this.__data.compartment = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new GraphDefinitionCompartment(v)) : [new GraphDefinitionCompartment(valueProvided)];
             }
         });
@@ -196,7 +196,7 @@ class GraphDefinitionTarget extends Element {
                     this.__data.link = undefined;
                     return;
                 }
-                let GraphDefinitionLink = require('../backbone_elements/graphDefinitionLink.js');
+                const GraphDefinitionLink = require('../backbone_elements/graphDefinitionLink.js');
                 this.__data.link = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new GraphDefinitionLink(v)) : [new GraphDefinitionLink(valueProvided)];
             }
         });
@@ -236,6 +236,18 @@ class GraphDefinitionTarget extends Element {
             compartment: this.compartment && this.compartment.map(v => v.toJSON()),
             link: this.link && this.link.map(v => v.toJSON()),
         });
+    }
+
+    /**
+     * Returns JSON representation of entity
+     * @param {function(Reference): Reference} fnUpdateReference
+     * @return {void}
+     */
+    updateReferences({fnUpdateReference}) {
+            if (this.extension) {this.extension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.compartment) {this.compartment.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.link) {this.link.forEach(v => v.updateReferences({fnUpdateReference}));}
     }
 
     /**

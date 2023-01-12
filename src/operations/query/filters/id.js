@@ -2,11 +2,15 @@
  * Filters by id
  * https://www.hl7.org/fhir/search.html#id
  * @param {string | string[]} queryParameterValue
- * @param {Object[]} and_segments
- * @param {import('../common/types').SearchParameterDefinition} propertyObj
+ * @param {import('../../common/types').SearchParameterDefinition} propertyObj
  * @param {Set} columns
+ * @return {Object[]}
  */
-function filterById({queryParameterValue, and_segments, propertyObj, columns}) {
+function filterById({queryParameterValue, propertyObj, columns}) {
+    /**
+     * @type {Object[]}
+     */
+    const and_segments = [];
     if (Array.isArray(queryParameterValue)) {
         // if array is passed then check in array
         and_segments.push({
@@ -29,8 +33,9 @@ function filterById({queryParameterValue, and_segments, propertyObj, columns}) {
         });
     }
     columns.add(`${propertyObj.field}`);
+    return and_segments;
 }
 
 module.exports = {
-    filterById: filterById
+    filterById
 };

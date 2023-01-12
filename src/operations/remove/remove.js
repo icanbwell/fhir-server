@@ -82,7 +82,7 @@ class RemoveOperation {
      * @param {Object} args
      * @param {string} resourceType
      */
-    async remove(requestInfo, args, resourceType) {
+    async remove({requestInfo, args, resourceType}) {
         assertIsValid(requestInfo !== undefined);
         assertIsValid(args !== undefined);
         assertIsValid(resourceType !== undefined);
@@ -92,7 +92,7 @@ class RemoveOperation {
          * @type {number}
          */
         const startTime = Date.now();
-        const {user, scope, /** @type {string|null} */ requestId} = requestInfo;
+        const {user, scope, /** @type {string|null} */ requestId, /** @type {string} */ method} = requestInfo;
 
         if (args['id'] === '0') {
             delete args['id'];
@@ -181,7 +181,10 @@ class RemoveOperation {
                 /**
                  * @type {DeleteManyResult}
                  */
-                res = await databaseQueryManager.deleteManyAsync({query});
+                res = await databaseQueryManager.deleteManyAsync({
+                    requestId,
+                    query
+                });
 
                 // log access to audit logs
                 await this.auditLogger.logAuditEntryAsync(
@@ -191,7 +194,7 @@ class RemoveOperation {
                     }
                 );
                 const currentDate = moment.utc().format('YYYY-MM-DD');
-                await this.auditLogger.flushAsync({requestId, currentDate});
+                await this.auditLogger.flushAsync({requestId, currentDate, method});
 
             } catch (e) {
                 throw new NotAllowedError(e.message);

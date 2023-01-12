@@ -4,6 +4,7 @@
 
 const {WebClient} = require('@slack/web-api');
 const env = require('var');
+const {getCircularReplacer} = require('./getCircularReplacer');
 
 /**
  * This class reports errors to external sources
@@ -47,7 +48,7 @@ class ErrorReporter {
                 for (const [key, value] of Object.entries(args)) {
                     fields.push({
                         title: key,
-                        value: (typeof value === 'string') ? value : JSON.stringify(value),
+                        value: (typeof value === 'string') ? value : JSON.stringify(value, getCircularReplacer()),
                         short: true
                     });
                 }
@@ -109,7 +110,7 @@ class ErrorReporter {
                 for (const [key, value] of Object.entries(args)) {
                     fields.push({
                         title: key,
-                        value: (typeof value === 'string') ? value : JSON.stringify(value),
+                        value: (typeof value === 'string') ? value : JSON.stringify(value, getCircularReplacer()),
                         short: true
                     });
                 }
@@ -161,8 +162,6 @@ class ErrorReporter {
 
     /**
      * logs error and request to Slack
-     * @param {string} token
-     * @param {string} channel
      * @param {Error} error
      * @param {import('http').IncomingMessage} req
      * @param {Object} args
@@ -170,13 +169,40 @@ class ErrorReporter {
      */
     async reportErrorAndRequestAsync(
         {
+            error, req, args
+        }
+    ) {
+        if (env.SLACK_TOKEN && env.SLACK_CHANNEL) {
+            await this.reportErrorAndRequestWithTokenAsync(
+                {
+                    token: env.SLACK_TOKEN,
+                    channel: env.SLACK_CHANNEL,
+                    error,
+                    req,
+                    args
+                }
+            );
+        }
+    }
+
+    /**
+     * logs error and request to Slack
+     * @param {string} token
+     * @param {string} channel
+     * @param {Error} error
+     * @param {import('http').IncomingMessage} req
+     * @param {Object} args
+     * @returns {Promise<void>}
+     */
+    async reportErrorAndRequestWithTokenAsync(
+        {
             token, channel, error, req, args
         }
     ) {
         /**
          * @type {string|null}
          */
-        const user = (!req.user || typeof req.user === 'string') ? req.user : req.user.id;
+        const user = (!req.user || typeof req.user === 'string') ? req.user : req.user.name || req.user.id;
         const self = this;
         const request = {
             method: req.method,
@@ -193,6 +219,11 @@ class ErrorReporter {
             {
                 title: 'Request Id',
                 value: req.id,
+                short: true
+            },
+            {
+                title: 'Request Id Lookup',
+                value: `${req.protocol}://${req.host}/admin/searchLogResults?id=${req.id}`,
                 short: true
             },
             {
@@ -230,7 +261,7 @@ class ErrorReporter {
             for (const [key, value] of Object.entries(args)) {
                 fields.push({
                     title: key,
-                    value: (typeof value === 'string') ? value : JSON.stringify(value),
+                    value: (typeof value === 'string') ? value : JSON.stringify(value, getCircularReplacer()),
                     short: true
                 });
             }
@@ -261,7 +292,7 @@ class ErrorReporter {
         const text = [
             {
                 title: 'Error:',
-                code: Object.hasOwn(error, 'toString') ? error.toString() : JSON.stringify(error)
+                code: Object.hasOwn(error, 'toString') ? error.toString() : JSON.stringify(error, getCircularReplacer())
             },
             {
                 title: 'Stack trace:', code: error.stack

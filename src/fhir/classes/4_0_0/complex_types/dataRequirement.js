@@ -80,7 +80,7 @@ class DataRequirement extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -137,7 +137,7 @@ class DataRequirement extends Element {
                     this.__data.subjectCodeableConcept = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.subjectCodeableConcept = new CodeableConcept(valueProvided);
             }
         });
@@ -156,7 +156,7 @@ class DataRequirement extends Element {
                     this.__data.subjectReference = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.subjectReference = new Reference(valueProvided);
             }
         });
@@ -204,7 +204,7 @@ class DataRequirement extends Element {
                     this.__data.codeFilter = undefined;
                     return;
                 }
-                let DataRequirementCodeFilter = require('../complex_types/dataRequirementCodeFilter.js');
+                const DataRequirementCodeFilter = require('../complex_types/dataRequirementCodeFilter.js');
                 this.__data.codeFilter = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new DataRequirementCodeFilter(v)) : [new DataRequirementCodeFilter(valueProvided)];
             }
         });
@@ -225,7 +225,7 @@ class DataRequirement extends Element {
                     this.__data.dateFilter = undefined;
                     return;
                 }
-                let DataRequirementDateFilter = require('../complex_types/dataRequirementDateFilter.js');
+                const DataRequirementDateFilter = require('../complex_types/dataRequirementDateFilter.js');
                 this.__data.dateFilter = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new DataRequirementDateFilter(v)) : [new DataRequirementDateFilter(valueProvided)];
             }
         });
@@ -263,7 +263,7 @@ class DataRequirement extends Element {
                     this.__data.sort = undefined;
                     return;
                 }
-                let DataRequirementSort = require('../complex_types/dataRequirementSort.js');
+                const DataRequirementSort = require('../complex_types/dataRequirementSort.js');
                 this.__data.sort = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new DataRequirementSort(v)) : [new DataRequirementSort(valueProvided)];
             }
         });
@@ -309,6 +309,20 @@ class DataRequirement extends Element {
             limit: this.limit,
             sort: this.sort && this.sort.map(v => v.toJSON()),
         });
+    }
+
+    /**
+     * Returns JSON representation of entity
+     * @param {function(Reference): Reference} fnUpdateReference
+     * @return {void}
+     */
+    updateReferences({fnUpdateReference}) {
+            if (this.extension) {this.extension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.subjectCodeableConcept) {this.subjectCodeableConcept.updateReferences({fnUpdateReference});}
+            if (this.subjectReference) {this.subjectReference.updateReferences({fnUpdateReference});}
+            if (this.codeFilter) {this.codeFilter.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.dateFilter) {this.dateFilter.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.sort) {this.sort.forEach(v => v.updateReferences({fnUpdateReference}));}
     }
 
     /**

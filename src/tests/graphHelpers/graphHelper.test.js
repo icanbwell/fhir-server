@@ -53,6 +53,7 @@ describe('graphHelper Tests', () => {
         originalUrl: '',
         host: 'host',
         headers: {},
+        method: 'post'
     });
 
     describe('graphHelper Tests', () => {
@@ -66,13 +67,15 @@ describe('graphHelper Tests', () => {
                 graphDefinitionJson: graphSimpleReverseDefinition,
                 contained: false,
                 hash_references: false,
-                args: {}
+                args: {'base_version': '4_0_0'},
+                originalArgs: {}
             });
             expect(result).not.toBeNull();
             delete result['timestamp'];
             expect(result.toJSON()).toStrictEqual({
                 entry: [
                     {
+                        id: '1',
                         fullUrl: 'https://host/4_0_0/Practitioner/1',
                         resource: {
                             id: '1',
@@ -82,7 +85,7 @@ describe('graphHelper Tests', () => {
                 ],
                 id: '1',
                 resourceType: 'Bundle',
-                type: 'collection',
+                type: 'searchset',
             });
         });
         test('graphHelper multiple Practitioners works', async () => {
@@ -108,13 +111,15 @@ describe('graphHelper Tests', () => {
                 graphDefinitionJson: graphSimpleReverseDefinition,
                 contained: false,
                 hash_references: false,
-                args: {}
+                args: {'base_version': '4_0_0'},
+                originalArgs: {}
             });
             expect(result).not.toBeNull();
             delete result['timestamp'];
             expect(result.toJSON()).toStrictEqual({
                 entry: [
                     {
+                        id: '1',
                         fullUrl: 'https://host/4_0_0/Practitioner/1',
                         resource: {
                             id: '1',
@@ -122,6 +127,7 @@ describe('graphHelper Tests', () => {
                         },
                     },
                     {
+                        id: '2',
                         fullUrl: 'https://host/4_0_0/Practitioner/2',
                         resource: {
                             id: '2',
@@ -131,7 +137,7 @@ describe('graphHelper Tests', () => {
                 ],
                 id: '1',
                 resourceType: 'Bundle',
-                type: 'collection',
+                type: 'searchset',
             });
         });
         test('graphHelper simple single Practitioner with 1 level reverse nesting works', async () => {
@@ -162,13 +168,15 @@ describe('graphHelper Tests', () => {
                 graphDefinitionJson: graphSimpleReverseDefinition,
                 contained: false,
                 hash_references: false,
-                args: {}
+                args: {'base_version': '4_0_0'},
+                originalArgs: {}
             });
             expect(result).not.toBeNull();
             delete result['timestamp'];
             expect(result.toJSON()).toStrictEqual({
                 entry: [
                     {
+                        id: '1',
                         fullUrl: 'https://host/4_0_0/Practitioner/1',
                         resource: {
                             id: '1',
@@ -176,6 +184,7 @@ describe('graphHelper Tests', () => {
                         },
                     },
                     {
+                        id: '10',
                         fullUrl: 'https://host/4_0_0/PractitionerRole/10',
                         resource: {
                             id: '10',
@@ -188,7 +197,7 @@ describe('graphHelper Tests', () => {
                 ],
                 id: '1',
                 resourceType: 'Bundle',
-                type: 'collection',
+                type: 'searchset',
             });
         });
         test('graphHelper single Practitioner with 1 level reverse nesting works', async () => {
@@ -219,13 +228,15 @@ describe('graphHelper Tests', () => {
                 graphDefinitionJson: graphDefinition,
                 contained: false,
                 hash_references: false,
-                args: {}
+                args: {'base_version': '4_0_0'},
+                originalArgs: {}
             });
             expect(result).not.toBeNull();
             delete result['timestamp'];
             expect(result.toJSON()).toStrictEqual({
                 entry: [
                     {
+                        id: '1',
                         fullUrl: 'https://host/4_0_0/Practitioner/1',
                         resource: {
                             id: '1',
@@ -233,6 +244,7 @@ describe('graphHelper Tests', () => {
                         },
                     },
                     {
+                        id: '10',
                         fullUrl: 'https://host/4_0_0/PractitionerRole/10',
                         resource: {
                             id: '10',
@@ -245,7 +257,7 @@ describe('graphHelper Tests', () => {
                 ],
                 id: '1',
                 resourceType: 'Bundle',
-                type: 'collection',
+                type: 'searchset',
             });
         });
         test('graphHelper simple single Practitioner with 1 level nesting and contained works', async () => {
@@ -276,13 +288,15 @@ describe('graphHelper Tests', () => {
                 graphDefinitionJson: graphSimpleReverseDefinition,
                 contained: true,
                 hash_references: false,
-                args: {}
+                args: {'base_version': '4_0_0'},
+                originalArgs: {}
             });
             expect(result).not.toBeNull();
             delete result['timestamp'];
             expect(result.toJSON()).toStrictEqual({
                 entry: [
                     {
+                        id: '1',
                         fullUrl: 'https://host/4_0_0/Practitioner/1',
                         resource: {
                             contained: [
@@ -301,7 +315,7 @@ describe('graphHelper Tests', () => {
                 ],
                 id: '1',
                 resourceType: 'Bundle',
-                type: 'collection',
+                type: 'searchset',
             });
         });
         test('graphHelper single Practitioner with 1 level nesting and contained works', async () => {
@@ -332,13 +346,15 @@ describe('graphHelper Tests', () => {
                 graphDefinitionJson: graphDefinition,
                 contained: true,
                 hash_references: false,
-                args: {}
+                args: {'base_version': '4_0_0'},
+                originalArgs: {}
             });
             expect(result).not.toBeNull();
             delete result['timestamp'];
             expect(result.toJSON()).toStrictEqual({
                 entry: [
                     {
+                        id: '1',
                         fullUrl: 'https://host/4_0_0/Practitioner/1',
                         resource: {
                             contained: [
@@ -357,7 +373,7 @@ describe('graphHelper Tests', () => {
                 ],
                 id: '1',
                 resourceType: 'Bundle',
-                type: 'collection',
+                type: 'searchset',
             });
         });
         test('graphHelper simple single Practitioner with 1 level forward nesting works', async () => {
@@ -398,13 +414,15 @@ describe('graphHelper Tests', () => {
                 graphDefinitionJson: graphSimpleForwardDefinition,
                 contained: false,
                 hash_references: false,
-                args: {}
+                args: {'base_version': '4_0_0'},
+                originalArgs: {}
             });
             expect(result).not.toBeNull();
             delete result['timestamp'];
             expect(result.toJSON()).toStrictEqual({
                 entry: [
                     {
+                        id: '10',
                         fullUrl: 'https://host/4_0_0/PractitionerRole/10',
                         resource: {
                             id: '10',
@@ -418,6 +436,7 @@ describe('graphHelper Tests', () => {
                         },
                     },
                     {
+                        id: '100',
                         fullUrl: 'https://host/4_0_0/Organization/100',
                         resource: {
                             id: '100',
@@ -427,7 +446,7 @@ describe('graphHelper Tests', () => {
                 ],
                 id: '1',
                 resourceType: 'Bundle',
-                type: 'collection',
+                type: 'searchset',
             });
         });
         test('graphHelper single Practitioner with 1 level nesting and contained and hash_references works', async () => {
@@ -458,13 +477,15 @@ describe('graphHelper Tests', () => {
                 graphDefinitionJson: graphSimpleReverseDefinition,
                 contained: true,
                 hash_references: true,
-                args: {}
+                args: {'base_version': '4_0_0'},
+                originalArgs: {}
             });
             expect(result).not.toBeNull();
             delete result['timestamp'];
             expect(result.toJSON()).toStrictEqual({
                 entry: [
                     {
+                        id: '1',
                         fullUrl: 'https://host/4_0_0/Practitioner/1',
                         resource: {
                             contained: [
@@ -483,7 +504,7 @@ describe('graphHelper Tests', () => {
                 ],
                 id: '1',
                 resourceType: 'Bundle',
-                type: 'collection',
+                type: 'searchset',
             });
         });
         test('graphHelper single Practitioner with 2 level nesting works', async () => {
@@ -524,13 +545,15 @@ describe('graphHelper Tests', () => {
                 graphDefinitionJson: graphDefinition,
                 contained: false,
                 hash_references: false,
-                args: {}
+                args: {'base_version': '4_0_0'},
+                originalArgs: {}
             });
             expect(result).not.toBeNull();
             delete result['timestamp'];
             expect(result.toJSON()).toStrictEqual({
                 entry: [
                     {
+                        id: '1',
                         fullUrl: 'https://host/4_0_0/Practitioner/1',
                         resource: {
                             id: '1',
@@ -538,6 +561,7 @@ describe('graphHelper Tests', () => {
                         },
                     },
                     {
+                        id: '10',
                         fullUrl: 'https://host/4_0_0/PractitionerRole/10',
                         resource: {
                             id: '10',
@@ -551,6 +575,7 @@ describe('graphHelper Tests', () => {
                         },
                     },
                     {
+                        id: '100',
                         fullUrl: 'https://host/4_0_0/Organization/100',
                         resource: {
                             id: '100',
@@ -560,7 +585,7 @@ describe('graphHelper Tests', () => {
                 ],
                 id: '1',
                 resourceType: 'Bundle',
-                type: 'collection',
+                type: 'searchset',
             });
         });
         test('graphHelper multiple Practitioners with 2 level nesting works', async () => {
@@ -616,13 +641,15 @@ describe('graphHelper Tests', () => {
                 graphDefinitionJson: graphDefinition,
                 contained: false,
                 hash_references: false,
-                args: {}
+                args: {'base_version': '4_0_0'},
+                originalArgs: {}
             });
             expect(result).not.toBeNull();
             delete result['timestamp'];
             expect(result.toJSON()).toStrictEqual({
                 entry: [
                     {
+                        id: '1',
                         fullUrl: 'https://host/4_0_0/Practitioner/1',
                         resource: {
                             id: '1',
@@ -630,6 +657,7 @@ describe('graphHelper Tests', () => {
                         },
                     },
                     {
+                        id: '2',
                         fullUrl: 'https://host/4_0_0/Practitioner/2',
                         resource: {
                             id: '2',
@@ -637,6 +665,7 @@ describe('graphHelper Tests', () => {
                         },
                     },
                     {
+                        id: '10',
                         fullUrl: 'https://host/4_0_0/PractitionerRole/10',
                         resource: {
                             id: '10',
@@ -650,6 +679,7 @@ describe('graphHelper Tests', () => {
                         },
                     },
                     {
+                        id: '100',
                         fullUrl: 'https://host/4_0_0/Organization/100',
                         resource: {
                             id: '100',
@@ -657,6 +687,7 @@ describe('graphHelper Tests', () => {
                         },
                     },
                     {
+                        id: '20',
                         fullUrl: 'https://host/4_0_0/PractitionerRole/20',
                         resource: {
                             id: '20',
@@ -670,6 +701,7 @@ describe('graphHelper Tests', () => {
                         },
                     },
                     {
+                        id: '200',
                         fullUrl: 'https://host/4_0_0/Organization/200',
                         resource: {
                             id: '200',
@@ -679,7 +711,7 @@ describe('graphHelper Tests', () => {
                 ],
                 id: '1',
                 resourceType: 'Bundle',
-                type: 'collection',
+                type: 'searchset',
             });
         });
         test('graphHelper multiple Practitioners with 2 level nesting and contained works', async () => {
@@ -735,13 +767,15 @@ describe('graphHelper Tests', () => {
                 graphDefinitionJson: graphDefinition,
                 contained: true,
                 hash_references: false,
-                args: {}
+                args: {'base_version': '4_0_0'},
+                originalArgs: {}
             });
             expect(result).not.toBeNull();
             delete result['timestamp'];
             expect(result.toJSON()).toStrictEqual({
                 entry: [
                     {
+                        id: '1',
                         fullUrl: 'https://host/4_0_0/Practitioner/1',
                         resource: {
                             contained: [
@@ -765,6 +799,7 @@ describe('graphHelper Tests', () => {
                         },
                     },
                     {
+                        id: '2',
                         fullUrl: 'https://host/4_0_0/Practitioner/2',
                         resource: {
                             contained: [
@@ -790,7 +825,7 @@ describe('graphHelper Tests', () => {
                 ],
                 id: '1',
                 resourceType: 'Bundle',
-                type: 'collection',
+                type: 'searchset',
             });
         });
         test('graphHelper simple single Practitioner with 1 level nesting and extension works', async () => {
@@ -862,13 +897,15 @@ describe('graphHelper Tests', () => {
                 graphDefinitionJson: graphSimpleWithExtensionDefinition,
                 contained: false,
                 hash_references: false,
-                args: {}
+                args: {'base_version': '4_0_0'},
+                originalArgs: {}
             });
             expect(result).not.toBeNull();
             delete result['timestamp'];
             expect(result.toJSON()).toStrictEqual({
                 entry: [
                     {
+                        id: '10',
                         fullUrl: 'https://host/4_0_0/PractitionerRole/10',
                         resource: {
                             extension: [
@@ -910,6 +947,7 @@ describe('graphHelper Tests', () => {
                         },
                     },
                     {
+                        id: 'AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He',
                         fullUrl:
                             'https://host/4_0_0/InsurancePlan/AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He',
                         resource: {
@@ -920,7 +958,7 @@ describe('graphHelper Tests', () => {
                 ],
                 id: '1',
                 resourceType: 'Bundle',
-                type: 'collection',
+                type: 'searchset',
             });
         });
         test('graphHelper multiple Practitioners with 2 level nesting and extension works', async () => {
@@ -1025,13 +1063,15 @@ describe('graphHelper Tests', () => {
                 graphDefinitionJson: graphWithExtensionDefinition,
                 contained: false,
                 hash_references: false,
-                args: {}
+                args: {'base_version': '4_0_0'},
+                originalArgs: {}
             });
             expect(result).not.toBeNull();
             delete result['timestamp'];
             expect(result.toJSON()).toStrictEqual({
                 entry: [
                     {
+                        id: '1',
                         fullUrl: 'https://host/4_0_0/Practitioner/1',
                         resource: {
                             id: '1',
@@ -1039,6 +1079,7 @@ describe('graphHelper Tests', () => {
                         },
                     },
                     {
+                        id: '2',
                         fullUrl: 'https://host/4_0_0/Practitioner/2',
                         resource: {
                             extension: [
@@ -1058,6 +1099,7 @@ describe('graphHelper Tests', () => {
                         },
                     },
                     {
+                        id: '10',
                         fullUrl: 'https://host/4_0_0/PractitionerRole/10',
                         resource: {
                             extension: [
@@ -1099,6 +1141,7 @@ describe('graphHelper Tests', () => {
                         },
                     },
                     {
+                        id: '100',
                         fullUrl: 'https://host/4_0_0/Organization/100',
                         resource: {
                             id: '100',
@@ -1106,6 +1149,7 @@ describe('graphHelper Tests', () => {
                         },
                     },
                     {
+                        id: 'AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He',
                         fullUrl:
                             'https://host/4_0_0/InsurancePlan/AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He',
                         resource: {
@@ -1114,6 +1158,7 @@ describe('graphHelper Tests', () => {
                         },
                     },
                     {
+                        id: '20',
                         fullUrl: 'https://host/4_0_0/PractitionerRole/20',
                         resource: {
                             id: '20',
@@ -1127,6 +1172,7 @@ describe('graphHelper Tests', () => {
                         },
                     },
                     {
+                        id: '200',
                         fullUrl: 'https://host/4_0_0/Organization/200',
                         resource: {
                             id: '200',
@@ -1136,7 +1182,7 @@ describe('graphHelper Tests', () => {
                 ],
                 id: '1',
                 resourceType: 'Bundle',
-                type: 'collection',
+                type: 'searchset',
             });
         });
         test('graphHelper multiple Practitioners with 2 level nesting and extension and contained works', async () => {
@@ -1240,13 +1286,15 @@ describe('graphHelper Tests', () => {
                 graphDefinitionJson: graphWithExtensionDefinition,
                 contained: true,
                 hash_references: false,
-                args: {}
+                args: {'base_version': '4_0_0'},
+                originalArgs: {}
             });
             expect(result).not.toBeNull();
             delete result['timestamp'];
             expect(result.toJSON()).toStrictEqual({
                 entry: [
                     {
+                        id: '1',
                         fullUrl: 'https://host/4_0_0/Practitioner/1',
                         resource: {
                             contained: [
@@ -1302,6 +1350,7 @@ describe('graphHelper Tests', () => {
                         },
                     },
                     {
+                        id: '2',
                         fullUrl: 'https://host/4_0_0/Practitioner/2',
                         resource: {
                             contained: [
@@ -1339,7 +1388,7 @@ describe('graphHelper Tests', () => {
                 ],
                 id: '1',
                 resourceType: 'Bundle',
-                type: 'collection',
+                type: 'searchset',
             });
         });
         test('graphHelper multiple Practitioners with 2 level nesting and extension and contained works with debug', async () => {
@@ -1442,7 +1491,8 @@ describe('graphHelper Tests', () => {
                 graphDefinitionJson: graphWithExtensionDefinition,
                 contained: true,
                 hash_references: false,
-                args: {_debug: 1}
+                args: {'base_version': '4_0_0', _debug: 1},
+                originalArgs: {_debug: 1}
             });
             expect(result).not.toBeNull();
             delete result['timestamp'];
@@ -1463,6 +1513,7 @@ describe('graphHelper Tests', () => {
             expect(result.toJSON()).toStrictEqual({
                 entry: [
                     {
+                        id: '1',
                         fullUrl: 'https://host/4_0_0/Practitioner/1',
                         resource: {
                             contained: [
@@ -1518,6 +1569,7 @@ describe('graphHelper Tests', () => {
                         },
                     },
                     {
+                        id: '2',
                         fullUrl: 'https://host/4_0_0/Practitioner/2',
                         resource: {
                             contained: [
@@ -1556,7 +1608,7 @@ describe('graphHelper Tests', () => {
                 'meta': {
                     'tag': [
                         {
-                            'display': "db.Practitioner_4_0_0.find({'$and':[{'id':{'$in':['1','2']}}]}, {'_id':0})  | db.Practitioner_4_0_0.find({'$and':[{'practitioner.reference':{'$in':['Practitioner/1','Practitioner/2']}}]}, {}) | db.Practitioner_4_0_0.find({'$and':[{'id':{'$in':['100','200']}}]}, {}) | db.Practitioner_4_0_0.find({'$and':[{'id':{'$in':['AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He']}}]}, {})",
+                            'display': 'db.Practitioner_4_0_0.find({\'$and\':[{\'id\':{\'$in\':[\'1\',\'2\']}}]}, {\'_id\':0})  | db.Practitioner_4_0_0.find({\'$and\':[{\'practitioner.reference\':{\'$in\':[\'Practitioner/1\',\'Practitioner/2\']}}]}, {}) | db.Practitioner_4_0_0.find({\'$and\':[{\'id\':{\'$in\':[\'100\',\'200\']}}]}, {}) | db.Practitioner_4_0_0.find({\'$and\':[{\'id\':{\'$in\':[\'AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He\']}}]}, {})',
                             'system': 'https://www.icanbwell.com/query'
                         },
                         {
@@ -1589,7 +1641,7 @@ describe('graphHelper Tests', () => {
 
                 id: '1',
                 resourceType: 'Bundle',
-                type: 'collection',
+                type: 'searchset',
             });
         });
         test('graphHelper multiple Practitioners with 2 level nesting and extension and contained works with explain', async () => {
@@ -1692,7 +1744,8 @@ describe('graphHelper Tests', () => {
                 graphDefinitionJson: graphWithExtensionDefinition,
                 contained: true,
                 hash_references: false,
-                args: {_explain: 1}
+                args: {'base_version': '4_0_0', _explain: 1},
+                originalArgs: {_explain: 1}
             });
             expect(result).not.toBeNull();
             delete result['timestamp'];
@@ -1717,7 +1770,7 @@ describe('graphHelper Tests', () => {
                     'tag': [
                         {
                             'system': 'https://www.icanbwell.com/query',
-                            'display': "db.Practitioner_4_0_0.find({'$and':[{'id':{'$in':['1','2']}}]}, {'_id':0})  | db.Practitioner_4_0_0.find({'$and':[{'practitioner.reference':'Practitioner/1'}]}, {}) | db.Practitioner_4_0_0.find({'$and':[{'id':{'$in':['100']}}]}, {}) | db.Practitioner_4_0_0.find({'$and':[{'id':{'$in':['AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He']}}]}, {})",
+                            'display': 'db.Practitioner_4_0_0.find({\'$and\':[{\'id\':{\'$in\':[\'1\',\'2\']}}]}, {\'_id\':0})  | db.Practitioner_4_0_0.find({\'$and\':[{\'practitioner.reference\':\'Practitioner/1\'}]}, {}) | db.Practitioner_4_0_0.find({\'$and\':[{\'id\':{\'$in\':[\'100\']}}]}, {}) | db.Practitioner_4_0_0.find({\'$and\':[{\'id\':{\'$in\':[\'AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He\']}}]}, {})',
                         },
                         {
                             'system': 'https://www.icanbwell.com/queryCollection',
@@ -1746,9 +1799,10 @@ describe('graphHelper Tests', () => {
                         }
                     ]
                 },
-                'type': 'collection',
+                'type': 'searchset',
                 'entry': [
                     {
+                        'id': '1',
                         'fullUrl': 'https://host/4_0_0/Practitioner/1',
                         'resource': {
                             'resourceType': 'Practitioner',

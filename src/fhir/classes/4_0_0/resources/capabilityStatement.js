@@ -134,7 +134,7 @@ class CapabilityStatement extends Resource {
                     this.__data.meta = undefined;
                     return;
                 }
-                let Meta = require('../complex_types/meta.js');
+                const Meta = require('../complex_types/meta.js');
                 this.__data.meta = new Meta(valueProvided);
             }
         });
@@ -197,7 +197,7 @@ class CapabilityStatement extends Resource {
                     this.__data.text = undefined;
                     return;
                 }
-                let Narrative = require('../complex_types/narrative.js');
+                const Narrative = require('../complex_types/narrative.js');
                 this.__data.text = new Narrative(valueProvided);
             }
         });
@@ -218,7 +218,7 @@ class CapabilityStatement extends Resource {
                     this.__data.contained = undefined;
                     return;
                 }
-                let ResourceContainer = require('../simple_types/resourceContainer.js');
+                const ResourceContainer = require('../simple_types/resourceContainer.js');
                 const {getResource} = require('../../../../operations/common/getResource');
                 if (Array.isArray(valueProvided)) {
                     this.__data.contained = valueProvided.filter(v => v).map(v => {
@@ -250,7 +250,7 @@ class CapabilityStatement extends Resource {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -281,7 +281,7 @@ class CapabilityStatement extends Resource {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -465,7 +465,7 @@ class CapabilityStatement extends Resource {
                     this.__data.contact = undefined;
                     return;
                 }
-                let ContactDetail = require('../complex_types/contactDetail.js');
+                const ContactDetail = require('../complex_types/contactDetail.js');
                 this.__data.contact = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ContactDetail(v)) : [new ContactDetail(valueProvided)];
             }
         });
@@ -509,7 +509,7 @@ class CapabilityStatement extends Resource {
                     this.__data.useContext = undefined;
                     return;
                 }
-                let UsageContext = require('../complex_types/usageContext.js');
+                const UsageContext = require('../complex_types/usageContext.js');
                 this.__data.useContext = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new UsageContext(v)) : [new UsageContext(valueProvided)];
             }
         });
@@ -529,7 +529,7 @@ class CapabilityStatement extends Resource {
                     this.__data.jurisdiction = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.jurisdiction = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
             }
         });
@@ -652,7 +652,7 @@ class CapabilityStatement extends Resource {
                     this.__data.software = undefined;
                     return;
                 }
-                let CapabilityStatementSoftware = require('../backbone_elements/capabilityStatementSoftware.js');
+                const CapabilityStatementSoftware = require('../backbone_elements/capabilityStatementSoftware.js');
                 this.__data.software = new CapabilityStatementSoftware(valueProvided);
             }
         });
@@ -673,7 +673,7 @@ class CapabilityStatement extends Resource {
                     this.__data.implementation = undefined;
                     return;
                 }
-                let CapabilityStatementImplementation = require('../backbone_elements/capabilityStatementImplementation.js');
+                const CapabilityStatementImplementation = require('../backbone_elements/capabilityStatementImplementation.js');
                 this.__data.implementation = new CapabilityStatementImplementation(valueProvided);
             }
         });
@@ -769,7 +769,7 @@ class CapabilityStatement extends Resource {
                     this.__data.rest = undefined;
                     return;
                 }
-                let CapabilityStatementRest = require('../backbone_elements/capabilityStatementRest.js');
+                const CapabilityStatementRest = require('../backbone_elements/capabilityStatementRest.js');
                 this.__data.rest = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CapabilityStatementRest(v)) : [new CapabilityStatementRest(valueProvided)];
             }
         });
@@ -788,7 +788,7 @@ class CapabilityStatement extends Resource {
                     this.__data.messaging = undefined;
                     return;
                 }
-                let CapabilityStatementMessaging = require('../backbone_elements/capabilityStatementMessaging.js');
+                const CapabilityStatementMessaging = require('../backbone_elements/capabilityStatementMessaging.js');
                 this.__data.messaging = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CapabilityStatementMessaging(v)) : [new CapabilityStatementMessaging(valueProvided)];
             }
         });
@@ -807,7 +807,7 @@ class CapabilityStatement extends Resource {
                     this.__data.document = undefined;
                     return;
                 }
-                let CapabilityStatementDocument = require('../backbone_elements/capabilityStatementDocument.js');
+                const CapabilityStatementDocument = require('../backbone_elements/capabilityStatementDocument.js');
                 this.__data.document = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CapabilityStatementDocument(v)) : [new CapabilityStatementDocument(valueProvided)];
             }
         });
@@ -908,8 +908,10 @@ class CapabilityStatement extends Resource {
             _sourceId,
         });
 
-        // Define a default non-writable resourceType property
-
+        /**
+         * @description Define a default non-writable resourceType property
+         * @property {string|undefined}
+         */
         Object.defineProperty(this, 'resourceType', {
             value: 'CapabilityStatement',
             enumerable: true,
@@ -918,6 +920,10 @@ class CapabilityStatement extends Resource {
         });
     }
 
+    /**
+     * @description Define a default non-writable resourceType property
+     * @property {string|undefined}
+     */
     static get resourceType() {
         return 'CapabilityStatement';
     }
@@ -1101,6 +1107,27 @@ class CapabilityStatement extends Resource {
             messaging: this.messaging && this.messaging.map(v => v.toJSON()),
             document: this.document && this.document.map(v => v.toJSON()),
         });
+    }
+
+    /**
+     * Returns JSON representation of entity
+     * @param {function(Reference): Reference} fnUpdateReference
+     * @return {void}
+     */
+    updateReferences({fnUpdateReference}) {
+            if (this.meta) {this.meta.updateReferences({fnUpdateReference});}
+            if (this.text) {this.text.updateReferences({fnUpdateReference});}
+            if (this.contained) {this.contained.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.extension) {this.extension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.contact) {this.contact.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.useContext) {this.useContext.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.jurisdiction) {this.jurisdiction.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.software) {this.software.updateReferences({fnUpdateReference});}
+            if (this.implementation) {this.implementation.updateReferences({fnUpdateReference});}
+            if (this.rest) {this.rest.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.messaging) {this.messaging.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.document) {this.document.forEach(v => v.updateReferences({fnUpdateReference}));}
     }
 
     /**

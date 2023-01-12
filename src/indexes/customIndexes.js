@@ -19,7 +19,8 @@ module.exports = {
             },
             {
                 keys: {
-                    'meta.lastUpdated': 1
+                    'meta.lastUpdated': 1,
+                    'id': 1
                 },
                 options: {
                     name: 'meta.lastUpdated_1'
@@ -27,7 +28,8 @@ module.exports = {
             },
             {
                 keys: {
-                    'meta.source': 1
+                    'meta.source': 1,
+                    'id': 1
                 },
                 options: {
                     name: 'meta.source_1'
@@ -36,7 +38,8 @@ module.exports = {
             {
                 keys: {
                     'meta.security.system': 1,
-                    'meta.security.code': 1
+                    'meta.security.code': 1,
+                    'id': 1
                 },
                 options: {
                     name: 'security.system_code_1'
@@ -48,6 +51,7 @@ module.exports = {
             {
                 keys: {
                     '_access.medstar': 1,
+                    'id': 1
                 },
                 options: {
                     name: 'security._access_medstar'
@@ -59,6 +63,7 @@ module.exports = {
             {
                 keys: {
                     '_access.Thedacare': 1,
+                    'id': 1
                 },
                 options: {
                     name: 'security._access_Thedacare'
@@ -102,62 +107,6 @@ module.exports = {
                 }
             }
         ],
-        'ExplanationOfBenefit_4_0_0': [
-            {
-                keys: {
-                    'patient.reference': 1
-                },
-                options: {
-                    name: 'patient.reference_1'
-                }
-            }
-        ],
-        'PractitionerRole_4_0_0': [
-            {
-                keys: {
-                    'practitioner.reference': 1
-                },
-                options: {
-                    name: 'practitioner.reference_1'
-                }
-            },
-            {
-                keys: {
-                    'organization.reference': 1
-                },
-                options: {
-                    name: 'organization.reference_1'
-                }
-            },
-            {
-                keys: {
-                    'location.reference': 1
-                },
-                options: {
-                    name: 'location.reference_1'
-                }
-            }
-        ],
-        'Schedule_4_0_0': [
-            {
-                keys: {
-                    'actor.reference': 1
-                },
-                options: {
-                    name: 'actor.reference_1'
-                }
-            }
-        ],
-        'Location_4_0_0': [
-            {
-                keys: {
-                    'managingOrganization.reference': 1
-                },
-                options: {
-                    name: 'managingOrganization.reference_1'
-                }
-            }
-        ],
         'AuditEvent_4_0_0': [
             {
                 keys: {
@@ -188,6 +137,92 @@ module.exports = {
                     name: 'helix_auditEvent_recorded_access_medstar'
                 }
             },
+            {
+                keys: {
+                    'entity.what.reference': 1,
+                    'id': 1,
+                    'recorded': 1
+                },
+                options: {
+                    name: 'helix_auditEvent_recorded_entity'
+                }
+            },
+            {
+                keys: {
+                    'agent.who.reference': 1,
+                    'id': 1,
+                    'recorded': 1
+                },
+                options: {
+                    name: 'helix_auditEvent_recorded_who'
+                }
+            },
+        ],
+        'Coverage_4_0_0': [
+            {
+                keys: {
+                    'beneficiary.reference': 1,
+                    'id': 1,
+                },
+                options: {
+                    name: 'helix_coverage_1'
+                }
+            }
+        ],
+        'Encounter_4_0_0': [
+            {
+                keys: {
+                    'subject.reference': 1,
+                    'id': 1,
+                },
+                options: {
+                    name: 'helix_encounter_1'
+                }
+            }
+        ],
+        'ExplanationOfBenefit_4_0_0': [
+            {
+                keys: {
+                    'patient.reference': 1,
+                    'id': 1,
+                },
+                options: {
+                    name: 'patient.reference_1'
+                }
+            }
+        ],
+        'Location_4_0_0': [
+            {
+                keys: {
+                    'managingOrganization.reference': 1,
+                    'id': 1,
+                },
+                options: {
+                    name: 'managingOrganization.reference_1'
+                }
+            }
+        ],
+        'MedicationRequest_4_0_0': [
+            {
+                keys: {
+                    'subject.reference': 1,
+                    'id': 1,
+                },
+                options: {
+                    name: 'helix_medication_request_1'
+                }
+            }
+        ],
+        'MedicationDispense_4_0_0': [
+            {
+                keys: {
+                    'subject.reference': 1,
+                    'id': 1,
+                },
+                options: {
+                    name: 'helix_medication_dispense_1'
+                }
+            }
         ],
         'Observation_4_0_0': [
             {
@@ -211,11 +246,53 @@ module.exports = {
                 }
             }
         ],
+        'OrganizationAffiliation_4_0_0': [
+            {
+                keys: {
+                    'participatingOrganization.reference': 1,
+                    'id': 1
+                },
+                options: {
+                    name: 'helix_organization_reference_1'
+                }
+            }
+        ],
+        'Patient_4_0_0': [
+            {
+                keys: {
+                    'identifier.value': 1,
+                    'identifier.system': 1,
+                    'id': 1
+                },
+                options: {
+                    name: 'identifier.value_1'
+                }
+            },
+            {
+                keys: {
+                    'name.family': 1,
+                    'name.given': 1
+                },
+                options: {
+                    name: 'name.family_1'
+                }
+            },
+            {
+                keys: {
+                    'name.given': 1,
+                    'id': 1
+                },
+                options: {
+                    name: 'name.given_1'
+                }
+            }
+        ],
         'Person_4_0_0': [
             {
                 keys: {
                     'telecom.system': 1,
-                    'telecom.code': 1
+                    'telecom.code': 1,
+                    'id': 1
                 },
                 options: {
                     name: 'telecom.system_code_1'
@@ -225,6 +302,7 @@ module.exports = {
                 keys: {
                     'identifier.value': 1,
                     'identifier.system': 1,
+                    'id': 1
                 },
                 options: {
                     name: 'identifier.value_1'
@@ -233,30 +311,101 @@ module.exports = {
             {
                 keys: {
                     'name.family': 1,
-                    'name.given': 1
+                    'name.given': 1,
+                    'id': 1
                 },
                 options: {
                     name: 'name.family_1'
+                }
+            },
+            {
+                keys: {
+                    '_access.bwell': 1,
+                    'name.text': 1,
+                    'id': 1
+                },
+                options: {
+                    name: 'bwell_name.text_1'
+                }
+            },
+            {
+                keys: {
+                    '_access.bwell': 1,
+                    'name.family': 1,
+                    'id': 1
+                },
+                options: {
+                    name: 'bwell_name.family_1'
+                }
+            },
+            {
+                keys: {
+                    '_access.bwell': 1,
+                    'name.suffix': 1,
+                    'id': 1
+                },
+                options: {
+                    name: 'bwell_name.suffix_1'
+                }
+            },
+            {
+                keys: {
+                    '_access.bwell': 1,
+                    'name.given': 1,
+                    'id': 1
+                },
+                options: {
+                    name: 'bwell_name.given_1'
+                }
+            },
+            {
+                keys: {
+                    '_access.bwell': 1,
+                    'name.prefix': 1,
+                    'id': 1
+                },
+                options: {
+                    name: 'bwell_name.prefix_1'
                 }
             }
         ],
-        'Patient_4_0_0': [
+        'PractitionerRole_4_0_0': [
             {
                 keys: {
-                    'identifier.value': 1,
-                    'identifier.system': 1
+                    'practitioner.reference': 1,
+                    'id': 1
                 },
                 options: {
-                    name: 'identifier.value_1'
+                    name: 'practitioner.reference_1'
                 }
             },
             {
                 keys: {
-                    'name.family': 1,
-                    'name.given': 1
+                    'organization.reference': 1,
+                    'id': 1
                 },
                 options: {
-                    name: 'name.family_1'
+                    name: 'organization.reference_1'
+                }
+            },
+            {
+                keys: {
+                    'location.reference': 1,
+                    'id': 1
+                },
+                options: {
+                    name: 'location.reference_1'
+                }
+            }
+        ],
+        'Schedule_4_0_0': [
+            {
+                keys: {
+                    'actor.reference': 1,
+                    'id': 1
+                },
+                options: {
+                    name: 'actor.reference_1'
                 }
             }
         ],

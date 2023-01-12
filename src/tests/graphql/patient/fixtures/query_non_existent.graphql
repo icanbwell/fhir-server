@@ -6,7 +6,8 @@ query {
         system: "http://www.walgreens.com/profileid"
         value: "1000000-a-01"
       }
-    }
+    },
+    _debug: true
   ) {
     entry {
       resource {

@@ -1,18 +1,19 @@
-// provider file
 const patient1Resource = require('./fixtures/patient/patient1.json');
 const person1withlinkResource = require('./fixtures/person/person1_withlink.json');
 const person1nolinkResource = require('./fixtures/person/person1_nolink.json');
 const observation1Resource = require('./fixtures/observation/observation1.json');
+const observation2Resource = require('./fixtures/observation/observation2.json');
 
-// expected
 const {
     commonBeforeEach,
     commonAfterEach,
     getHeaders,
     createTestRequest,
-    getTestContainer,
+    getTestContainer, getRequestId,
 } = require('../../common');
-const {describe, beforeEach, afterEach, expect, test } = require('@jest/globals');
+const {describe, beforeEach, afterEach, expect, test} = require('@jest/globals');
+const {assertTypeEquals} = require('../../../utils/assertType');
+const {MockKafkaClient} = require('../../mocks/mockKafkaClient');
 
 describe('Patient Change Event Tests', () => {
     beforeEach(async () => {
@@ -24,6 +25,7 @@ describe('Patient Change Event Tests', () => {
     });
 
     describe('Patient Change Event Tests', () => {
+        // noinspection JSValidateTypes
         test('creating a new patient works', async () => {
             const request = await createTestRequest();
             /**
@@ -31,9 +33,14 @@ describe('Patient Change Event Tests', () => {
              */
             const postRequestProcessor = getTestContainer().postRequestProcessor;
             /**
+             * @type {MockKafkaClientFactory}
+             */
+            const mockKafkaClientFactory = getTestContainer().kafkaClientFactory;
+            /**
              * @type {MockKafkaClient}
              */
-            const mockKafkaClient = getTestContainer().kafkaClient;
+            const mockKafkaClient = await mockKafkaClientFactory.createKafkaClientAsync();
+            assertTypeEquals(mockKafkaClient, MockKafkaClient);
             mockKafkaClient.clear();
             let resp = await request.get('/4_0_0/Patient').set(getHeaders());
             // noinspection JSUnresolvedFunction
@@ -47,7 +54,7 @@ describe('Patient Change Event Tests', () => {
             expect(resp).toHaveMergeResponse({created: true});
 
             // wait for post request processing to finish
-            await postRequestProcessor.waitTillDoneAsync();
+            await postRequestProcessor.waitTillDoneAsync({requestId: getRequestId(resp)});
             /**
              * @type {KafkaClientMessage[]}
              */
@@ -65,9 +72,14 @@ describe('Patient Change Event Tests', () => {
              */
             const postRequestProcessor = getTestContainer().postRequestProcessor;
             /**
+             * @type {MockKafkaClientFactory}
+             */
+            const mockKafkaClientFactory = getTestContainer().kafkaClientFactory;
+            /**
              * @type {MockKafkaClient}
              */
-            const mockKafkaClient = getTestContainer().kafkaClient;
+            const mockKafkaClient = await mockKafkaClientFactory.createKafkaClientAsync();
+            assertTypeEquals(mockKafkaClient, MockKafkaClient);
             mockKafkaClient.clear();
             let resp = await request.get('/4_0_0/Patient').set(getHeaders());
             // noinspection JSUnresolvedFunction
@@ -77,6 +89,7 @@ describe('Patient Change Event Tests', () => {
                 .post('/4_0_0/Patient/2354/$merge?validate=true')
                 .send(patient1Resource)
                 .set(getHeaders());
+            // noinspection JSUnresolvedFunction
             expect(resp).toHaveMergeResponse({created: true});
 
             resp = await request
@@ -87,7 +100,7 @@ describe('Patient Change Event Tests', () => {
             expect(resp).toHaveMergeResponse({created: true});
 
             // wait for post request processing to finish
-            await postRequestProcessor.waitTillDoneAsync();
+            await postRequestProcessor.waitTillDoneAsync({requestId: getRequestId(resp)});
             /**
              * @type {KafkaClientMessage[]}
              */
@@ -109,9 +122,14 @@ describe('Patient Change Event Tests', () => {
              */
             const postRequestProcessor = getTestContainer().postRequestProcessor;
             /**
+             * @type {MockKafkaClientFactory}
+             */
+            const mockKafkaClientFactory = getTestContainer().kafkaClientFactory;
+            /**
              * @type {MockKafkaClient}
              */
-            const mockKafkaClient = getTestContainer().kafkaClient;
+            const mockKafkaClient = await mockKafkaClientFactory.createKafkaClientAsync();
+            assertTypeEquals(mockKafkaClient, MockKafkaClient);
             mockKafkaClient.clear();
             let resp = await request.get('/4_0_0/Patient').set(getHeaders());
             // noinspection JSUnresolvedFunction
@@ -122,13 +140,14 @@ describe('Patient Change Event Tests', () => {
                 .send(person1nolinkResource)
                 .set(getHeaders());
 
-            await postRequestProcessor.waitTillDoneAsync();
+            await postRequestProcessor.waitTillDoneAsync({requestId: getRequestId(resp)});
             mockKafkaClient.clear();
 
             resp = await request
                 .post('/4_0_0/Patient/2354/$merge?validate=true')
                 .send(patient1Resource)
                 .set(getHeaders());
+            // noinspection JSUnresolvedFunction
             expect(resp).toHaveMergeResponse({created: true});
 
             resp = await request
@@ -139,7 +158,7 @@ describe('Patient Change Event Tests', () => {
             expect(resp).toHaveStatusCode(200);
 
             // wait for post request processing to finish
-            await postRequestProcessor.waitTillDoneAsync();
+            await postRequestProcessor.waitTillDoneAsync({requestId: getRequestId(resp)});
             /**
              * @type {KafkaClientMessage[]}
              */
@@ -163,9 +182,14 @@ describe('Patient Change Event Tests', () => {
              */
             const postRequestProcessor = getTestContainer().postRequestProcessor;
             /**
+             * @type {MockKafkaClientFactory}
+             */
+            const mockKafkaClientFactory = getTestContainer().kafkaClientFactory;
+            /**
              * @type {MockKafkaClient}
              */
-            const mockKafkaClient = getTestContainer().kafkaClient;
+            const mockKafkaClient = await mockKafkaClientFactory.createKafkaClientAsync();
+            assertTypeEquals(mockKafkaClient, MockKafkaClient);
 
             let resp = await request
                 .post('/4_0_0/Person/81236/$merge')
@@ -174,7 +198,7 @@ describe('Patient Change Event Tests', () => {
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveMergeResponse({created: true});
 
-            await postRequestProcessor.waitTillDoneAsync();
+            await postRequestProcessor.waitTillDoneAsync({requestId: getRequestId(resp)});
             mockKafkaClient.clear();
 
             resp = await request
@@ -191,7 +215,7 @@ describe('Patient Change Event Tests', () => {
             expect(resp).toHaveMergeResponse({created: true});
 
             // wait for post request processing to finish
-            await postRequestProcessor.waitTillDoneAsync();
+            await postRequestProcessor.waitTillDoneAsync({requestId: getRequestId(resp)});
             /**
              * @type {KafkaClientMessage[]}
              */
@@ -217,9 +241,14 @@ describe('Patient Change Event Tests', () => {
              */
             const postRequestProcessor = getTestContainer().postRequestProcessor;
             /**
+             * @type {MockKafkaClientFactory}
+             */
+            const mockKafkaClientFactory = getTestContainer().kafkaClientFactory;
+            /**
              * @type {MockKafkaClient}
              */
-            const mockKafkaClient = getTestContainer().kafkaClient;
+            const mockKafkaClient = await mockKafkaClientFactory.createKafkaClientAsync();
+            assertTypeEquals(mockKafkaClient, MockKafkaClient);
             mockKafkaClient.clear();
 
             let resp = await request
@@ -236,7 +265,7 @@ describe('Patient Change Event Tests', () => {
             expect(resp).toHaveMergeResponse({created: true});
 
             // wait for post request processing to finish
-            await postRequestProcessor.waitTillDoneAsync();
+            await postRequestProcessor.waitTillDoneAsync({requestId: getRequestId(resp)});
             /**
              * @type {KafkaClientMessage[]}
              */
@@ -250,6 +279,57 @@ describe('Patient Change Event Tests', () => {
             expect(messageValue2.resourceType).toBe('AuditEvent');
             expect(messageValue2.action).toBe('C');
             expect(messageValue2.agent[0].who.reference).toBe('Observation/2354-InAgeCohort');
+        });
+        test('creating a new observation includes sourceType, if any', async () => {
+            const request = await createTestRequest();
+            /**
+             * @type {PostRequestProcessor}
+             */
+            const postRequestProcessor = getTestContainer().postRequestProcessor;
+            /**
+             * @type {MockKafkaClientFactory}
+             */
+            const mockKafkaClientFactory = getTestContainer().kafkaClientFactory;
+            /**
+             * @type {MockKafkaClient}
+             */
+            const mockKafkaClient = await mockKafkaClientFactory.createKafkaClientAsync();
+            assertTypeEquals(mockKafkaClient, MockKafkaClient);
+
+            let resp = await request
+                .post('/4_0_0/Person/81236/$merge')
+                .send(person1withlinkResource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
+
+            await postRequestProcessor.waitTillDoneAsync({requestId: getRequestId(resp)});
+            mockKafkaClient.clear();
+
+            resp = await request
+                .get('/4_0_0/Observation')
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResourceCount(0);
+
+            resp = await request
+                .post('/4_0_0/Observation/0/$merge')
+                .send(observation2Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
+
+            // wait for post request processing to finish
+            await postRequestProcessor.waitTillDoneAsync({requestId: getRequestId(resp)});
+            /**
+             * @type {KafkaClientMessage[]}
+             */
+            const messages = mockKafkaClient.getMessages();
+            expect(messages.length).toBe(3);
+            for (let message of messages) {
+                const messageValue = JSON.parse(message.value);
+                expect(messageValue.source.type[0].code).toBe('cql-engine');
+            }
         });
     });
 });

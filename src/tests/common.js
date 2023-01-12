@@ -1,5 +1,3 @@
-const {MongoMemoryServer} = require('mongodb-memory-server');
-
 const env = require('var');
 
 // const {getToken} = require('../../token');
@@ -13,9 +11,6 @@ const {createApp} = require('../app');
 const {createServer} = require('../server');
 const {TestMongoDatabaseManager} = require('./testMongoDatabaseManager');
 
-// let connection;
-// let db;
-let mongo;
 /**
  * @type {import('http').Server}
  */
@@ -52,7 +47,7 @@ module.exports.createTestApp = (fnUpdateContainer) => {
      * @type {SimpleContainer}
      */
     testContainer = createTestContainer(fnUpdateContainer);
-    return createApp(() => testContainer);
+    return createApp({fnCreateContainer: () => testContainer, trackMetrics: false});
 };
 
 /**
@@ -67,18 +62,8 @@ module.exports.createTestServer = async () => {
  * @return {import('supertest').Test}
  */
 module.exports.createTestRequest = async (fnUpdateContainer) => {
-    // https://levelup.gitconnected.com/testing-your-node-js-application-with-an-in-memory-mongodb-976c1da1288f
-    /**
-     * 1.1
-     * Start in-memory MongoDB
-     */
-    if (!mongo) {
-        mongo = await MongoMemoryServer.create();
-    }
-
     if (!app) {
         app = await module.exports.createTestApp((c) => {
-            c.register('mongoDatabaseManager', () => new TestMongoDatabaseManager());
             if (fnUpdateContainer) {
                 fnUpdateContainer(c);
             }
@@ -129,18 +114,20 @@ module.exports.commonAfterEach = async () => {
          * @type {PostRequestProcessor}
          */
         const postRequestProcessor = testContainer.postRequestProcessor;
-        await postRequestProcessor.waitTillDoneAsync(20);
+        await postRequestProcessor.waitTillAllRequestsDoneAsync({timeoutInSeconds: 20});
         await testContainer.mongoDatabaseManager.dropDatabasesAsync();
+        /**
+         * @type {RequestSpecificCache}
+         */
+        const requestSpecificCache = testContainer.requestSpecificCache;
+        await requestSpecificCache.clearAllAsync();
+        // testContainer = null;
     }
     nock.cleanAll();
     nock.restore();
+
     const testMongoDatabaseManager = new TestMongoDatabaseManager();
     await testMongoDatabaseManager.dropDatabasesAsync();
-
-    if (mongo) {
-        await mongo.stop();
-        mongo = null;
-    }
     if (server) {
         await server.close();
         server = null;
@@ -177,7 +164,7 @@ const getTokenWithCustomClaims = (module.exports.getTokenWithCustomClaims = (sco
     });
 });
 
-const getTokenWithCustomPayload = (module.exports.getTokenWithCustomClaims = (payload) => {
+const getTokenWithCustomPayload = (module.exports.getTokenWithCustomPayload = (payload) => {
     return createToken(privateKey, '123', {
         sub: 'john',
         custom_client_id: 'my_custom_client_id',
@@ -345,4 +332,13 @@ module.exports.wrapResourceInBundle = (resource) => {
             },
         ],
     };
+};
+
+
+/**
+ * @param resp
+ * @return {string|undefined}
+ */
+module.exports.getRequestId = (resp) => {
+    return resp.headers['x-request-id'];
 };

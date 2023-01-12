@@ -48,7 +48,7 @@ type CoverageEligibilityRequestSupportingInfo {
     Additional data or information such as resources, documents, images etc.
     including references to the data or the actual inclusion of the data.
     """
-    information: Resource!        
+    information: Resource        
     """
     The supporting materials are applicable for all detail items, product/servce
     categories and specific billing codes.

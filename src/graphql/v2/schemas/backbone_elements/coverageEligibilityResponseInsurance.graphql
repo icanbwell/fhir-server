@@ -44,7 +44,7 @@ type CoverageEligibilityResponseInsurance {
     resource. The coverage issuing insurer will use these details to locate the
     patient's actual coverage within the insurer's information system.
     """
-    coverage: Coverage!        
+    coverage: Coverage        
     """
     Flag indicating if the coverage provided is inforce currently if no service
     date(s) specified or for the whole duration of the service dates.

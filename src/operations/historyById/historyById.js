@@ -1,6 +1,4 @@
-// noinspection ExceptionCaughtLocallyJS
-
-const {BadRequestError, NotFoundError} = require('../../utils/httpErrors');
+const {NotFoundError} = require('../../utils/httpErrors');
 const env = require('var');
 const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
 const {DatabaseHistoryFactory} = require('../../dataLayer/databaseHistoryFactory');
@@ -12,6 +10,8 @@ const {ResourceLocatorFactory} = require('../common/resourceLocatorFactory');
 const {ConfigManager} = require('../../utils/configManager');
 const {SearchManager} = require('../search/searchManager');
 const {isTrue} = require('../../utils/isTrue');
+const BundleEntry = require('../../fhir/classes/4_0_0/backbone_elements/bundleEntry');
+const {ResourceManager} = require('../common/resourceManager');
 
 class HistoryByIdOperation {
     /**
@@ -24,6 +24,7 @@ class HistoryByIdOperation {
      * @param {ResourceLocatorFactory} resourceLocatorFactory
      * @param {ConfigManager} configManager
      * @param {SearchManager} searchManager
+     * @param {ResourceManager} resourceManager
      */
     constructor(
         {
@@ -34,7 +35,8 @@ class HistoryByIdOperation {
             bundleManager,
             resourceLocatorFactory,
             configManager,
-            searchManager
+            searchManager,
+            resourceManager
         }
     ) {
         /**
@@ -80,6 +82,12 @@ class HistoryByIdOperation {
          */
         this.searchManager = searchManager;
         assertTypeEquals(searchManager, SearchManager);
+
+        /**
+         * @type {ResourceManager}
+         */
+        this.resourceManager = resourceManager;
+        assertTypeEquals(resourceManager, ResourceManager);
     }
 
     /**
@@ -87,10 +95,8 @@ class HistoryByIdOperation {
      * @param {FhirRequestInfo} requestInfo
      * @param {Object} args
      * @param {string} resourceType
-     * @param {boolean} filter
      */
-    async historyById(requestInfo, args, resourceType,
-                      filter = true) {
+    async historyById({requestInfo, args, resourceType}) {
         assertIsValid(requestInfo !== undefined);
         assertIsValid(args !== undefined);
         assertIsValid(resourceType !== undefined);
@@ -111,11 +117,11 @@ class HistoryByIdOperation {
             /** @type {string | null} */
             host,
             /** @type {string[]} */
-            patients = [],
+            patientIdsFromJwtToken,
             /** @type {boolean} */
             isUser,
             /** @type {string} */
-            fhirPersonId,
+            personIdFromJwtToken,
         } = requestInfo;
 
         await this.scopesValidator.verifyHasValidScopesAsync({
@@ -145,12 +151,11 @@ class HistoryByIdOperation {
             user,
             scope,
             isUser,
-            patients,
+            patientIdsFromJwtToken,
             args: Object.assign(args, {id: id.toString()}), // add id filter to query
             resourceType,
             useAccessIndex,
-            fhirPersonId,
-            filter
+            personIdFromJwtToken
         });
 
         // noinspection JSValidateTypes
@@ -176,7 +181,7 @@ class HistoryByIdOperation {
                     }
                 ).findAsync({query, options});
             } catch (e) {
-                throw new BadRequestError(e);
+                throw new NotFoundError(new Error(`Resource not found: ${resourceType}/${id}`));
             }
             /**
              * @type {import('mongodb').Document[]}
@@ -187,22 +192,41 @@ class HistoryByIdOperation {
                 cursor.clear();
             }
             /**
-             * @type {Resource[]}
+             * @type {BundleEntry[]}
              */
-            const resources = [];
+            const entries = [];
             while (await cursor.hasNext()) {
                 /**
-                 * @type {Resource|null}
+                 * @type {Resource|BundleEntry|null}
                  */
-                const resource = await cursor.next();
+                let resource = await cursor.next();
+                /**
+                 * @type {BundleEntry|null}
+                 */
+                let bundleEntry = null;
                 if (resource) {
-                    if (this.scopesManager.isAccessToResourceAllowedBySecurityTags(resource, user, scope)) {
-                        resources.push(resource);
+                    if (!resource.resource) { // it is not a bundle entry
+                        bundleEntry = new BundleEntry(
+                            {
+                                id: resource.id,
+                                resource: resource,
+                                fullUrl: this.resourceManager.getFullUrlForResource(
+                                    {protocol, host, base_version, resource})
+                            }
+                        );
+                    } else {
+                        bundleEntry = resource;
+                    }
+                    if (this.scopesManager.isAccessToResourceAllowedBySecurityTags({
+                            resource: resource, user, scope
+                        }
+                    )) {
+                        entries.push(bundleEntry);
                     }
                 }
             }
-            if (resources.length === 0) {
-                throw new NotFoundError();
+            if (entries.length === 0) {
+                throw new NotFoundError('Resource not found');
             }
             await this.fhirLoggingManager.logOperationSuccessAsync(
                 {
@@ -234,19 +258,19 @@ class HistoryByIdOperation {
             //    rather than via the RESTful interface.
             //    If the entry.request.method is a PUT or a POST, the entry SHALL contain a resource.
             // return resources;
-            return this.bundleManager.createBundle(
+            return this.bundleManager.createBundleFromEntries(
                 {
                     type: 'history',
                     requestId: requestInfo.requestId,
                     originalUrl: url,
                     host,
                     protocol,
-                    resources,
+                    entries,
                     base_version,
-                    total_count: resources.length,
+                    total_count: entries.length,
                     args,
                     originalQuery: {},
-                    collectionName: resources.length > 0 ? (await resourceLocator.getHistoryCollectionNameAsync(resources[0])) : null,
+                    collectionName: entries.length > 0 ? (await resourceLocator.getHistoryCollectionNameAsync(entries[0].resource)) : null,
                     originalOptions: {},
                     stopTime,
                     startTime,

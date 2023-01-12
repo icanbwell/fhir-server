@@ -95,7 +95,7 @@ type ImmunizationEvaluation {
     """
     The individual for whom the evaluation is being done.
     """
-    patient: Patient!        
+    patient: Patient        
     """
     The date the evaluation of the vaccine administration event was performed.
     """
@@ -111,7 +111,7 @@ type ImmunizationEvaluation {
     """
     The vaccine administration event being evaluated.
     """
-    immunizationEvent: Immunization!        
+    immunizationEvent: Immunization        
     """
     Indicates if the dose is valid or not valid with respect to the published
     recommendations.

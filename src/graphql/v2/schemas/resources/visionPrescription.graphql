@@ -98,7 +98,7 @@ type VisionPrescription {
     """
     A resource reference to the person to whom the vision prescription applies.
     """
-    patient: Patient!        
+    patient: Patient        
     """
     A reference to a resource that identifies the particular occurrence of contact
     between patient and health care provider during which the prescription was
@@ -112,7 +112,7 @@ type VisionPrescription {
     """
     The healthcare professional responsible for authorizing the prescription.
     """
-    prescriber: VisionPrescriptionPrescriber!        
+    prescriber: VisionPrescriptionPrescriber        
     """
     Contain the details of  the individual lens specifications and serves as the
     authorization for the fullfillment by certified professionals.

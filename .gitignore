@@ -16,6 +16,7 @@ key.pem
 !/src/services/coverage/
 src/profiles.js
 .vscode
+.devcontainer
 globalConfig.json
 !/.vscode/launch.json
 .idea/
@@ -28,3 +29,4 @@ src/admin/scripts/.env
 src/admin/scripts/.env.prod
 src/admin/scripts/.env.staging
 .env.test
+src/fhir/generator/__pycache__

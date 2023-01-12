@@ -84,7 +84,7 @@ class SubstanceSpecificationName extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -115,7 +115,7 @@ class SubstanceSpecificationName extends Element {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -152,7 +152,7 @@ class SubstanceSpecificationName extends Element {
                     this.__data.type = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.type = new CodeableConcept(valueProvided);
             }
         });
@@ -171,7 +171,7 @@ class SubstanceSpecificationName extends Element {
                     this.__data.status = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.status = new CodeableConcept(valueProvided);
             }
         });
@@ -208,7 +208,7 @@ class SubstanceSpecificationName extends Element {
                     this.__data.language = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.language = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
             }
         });
@@ -228,7 +228,7 @@ class SubstanceSpecificationName extends Element {
                     this.__data.domain = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.domain = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
             }
         });
@@ -247,7 +247,7 @@ class SubstanceSpecificationName extends Element {
                     this.__data.jurisdiction = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.jurisdiction = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
             }
         });
@@ -302,7 +302,7 @@ class SubstanceSpecificationName extends Element {
                     this.__data.official = undefined;
                     return;
                 }
-                let SubstanceSpecificationOfficial = require('../backbone_elements/substanceSpecificationOfficial.js');
+                const SubstanceSpecificationOfficial = require('../backbone_elements/substanceSpecificationOfficial.js');
                 this.__data.official = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new SubstanceSpecificationOfficial(v)) : [new SubstanceSpecificationOfficial(valueProvided)];
             }
         });
@@ -321,7 +321,7 @@ class SubstanceSpecificationName extends Element {
                     this.__data.source = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.source = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
             }
         });
@@ -373,6 +373,25 @@ class SubstanceSpecificationName extends Element {
             official: this.official && this.official.map(v => v.toJSON()),
             source: this.source && this.source.map(v => v.toJSON()),
         });
+    }
+
+    /**
+     * Returns JSON representation of entity
+     * @param {function(Reference): Reference} fnUpdateReference
+     * @return {void}
+     */
+    updateReferences({fnUpdateReference}) {
+            if (this.extension) {this.extension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.type) {this.type.updateReferences({fnUpdateReference});}
+            if (this.status) {this.status.updateReferences({fnUpdateReference});}
+            if (this.language) {this.language.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.domain) {this.domain.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.jurisdiction) {this.jurisdiction.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.synonym) {this.synonym.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.translation) {this.translation.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.official) {this.official.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.source) {this.source.forEach(v => v.updateReferences({fnUpdateReference}));}
     }
 
     /**

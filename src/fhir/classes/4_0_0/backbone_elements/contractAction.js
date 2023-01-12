@@ -108,7 +108,7 @@ class ContractAction extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -139,7 +139,7 @@ class ContractAction extends Element {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -177,7 +177,7 @@ class ContractAction extends Element {
                     this.__data.type = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.type = new CodeableConcept(valueProvided);
             }
         });
@@ -196,7 +196,7 @@ class ContractAction extends Element {
                     this.__data.subject = undefined;
                     return;
                 }
-                let ContractSubject = require('../backbone_elements/contractSubject.js');
+                const ContractSubject = require('../backbone_elements/contractSubject.js');
                 this.__data.subject = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ContractSubject(v)) : [new ContractSubject(valueProvided)];
             }
         });
@@ -215,7 +215,7 @@ class ContractAction extends Element {
                     this.__data.intent = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.intent = new CodeableConcept(valueProvided);
             }
         });
@@ -253,7 +253,7 @@ class ContractAction extends Element {
                     this.__data.status = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.status = new CodeableConcept(valueProvided);
             }
         });
@@ -272,7 +272,7 @@ class ContractAction extends Element {
                     this.__data.context = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.context = new Reference(valueProvided);
             }
         });
@@ -328,7 +328,7 @@ class ContractAction extends Element {
                     this.__data.occurrencePeriod = undefined;
                     return;
                 }
-                let Period = require('../complex_types/period.js');
+                const Period = require('../complex_types/period.js');
                 this.__data.occurrencePeriod = new Period(valueProvided);
             }
         });
@@ -347,7 +347,7 @@ class ContractAction extends Element {
                     this.__data.occurrenceTiming = undefined;
                     return;
                 }
-                let Timing = require('../backbone_elements/timing.js');
+                const Timing = require('../backbone_elements/timing.js');
                 this.__data.occurrenceTiming = new Timing(valueProvided);
             }
         });
@@ -366,7 +366,7 @@ class ContractAction extends Element {
                     this.__data.requester = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.requester = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
             }
         });
@@ -405,7 +405,7 @@ class ContractAction extends Element {
                     this.__data.performerType = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.performerType = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
             }
         });
@@ -425,7 +425,7 @@ class ContractAction extends Element {
                     this.__data.performerRole = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.performerRole = new CodeableConcept(valueProvided);
             }
         });
@@ -444,7 +444,7 @@ class ContractAction extends Element {
                     this.__data.performer = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.performer = new Reference(valueProvided);
             }
         });
@@ -483,7 +483,7 @@ class ContractAction extends Element {
                     this.__data.reasonCode = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.reasonCode = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
             }
         });
@@ -503,7 +503,7 @@ class ContractAction extends Element {
                     this.__data.reasonReference = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.reasonReference = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
             }
         });
@@ -560,7 +560,7 @@ class ContractAction extends Element {
                     this.__data.note = undefined;
                     return;
                 }
-                let Annotation = require('../complex_types/annotation.js');
+                const Annotation = require('../complex_types/annotation.js');
                 this.__data.note = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Annotation(v)) : [new Annotation(valueProvided)];
             }
         });
@@ -654,6 +654,30 @@ class ContractAction extends Element {
             note: this.note && this.note.map(v => v.toJSON()),
             securityLabelNumber: this.securityLabelNumber,
         });
+    }
+
+    /**
+     * Returns JSON representation of entity
+     * @param {function(Reference): Reference} fnUpdateReference
+     * @return {void}
+     */
+    updateReferences({fnUpdateReference}) {
+            if (this.extension) {this.extension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.type) {this.type.updateReferences({fnUpdateReference});}
+            if (this.subject) {this.subject.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.intent) {this.intent.updateReferences({fnUpdateReference});}
+            if (this.status) {this.status.updateReferences({fnUpdateReference});}
+            if (this.context) {this.context.updateReferences({fnUpdateReference});}
+            if (this.occurrencePeriod) {this.occurrencePeriod.updateReferences({fnUpdateReference});}
+            if (this.occurrenceTiming) {this.occurrenceTiming.updateReferences({fnUpdateReference});}
+            if (this.requester) {this.requester.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.performerType) {this.performerType.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.performerRole) {this.performerRole.updateReferences({fnUpdateReference});}
+            if (this.performer) {this.performer.updateReferences({fnUpdateReference});}
+            if (this.reasonCode) {this.reasonCode.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.reasonReference) {this.reasonReference.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.note) {this.note.forEach(v => v.updateReferences({fnUpdateReference}));}
     }
 
     /**

@@ -103,7 +103,7 @@ class BiologicallyDerivedProduct extends Resource {
                     this.__data.meta = undefined;
                     return;
                 }
-                let Meta = require('../complex_types/meta.js');
+                const Meta = require('../complex_types/meta.js');
                 this.__data.meta = new Meta(valueProvided);
             }
         });
@@ -166,7 +166,7 @@ class BiologicallyDerivedProduct extends Resource {
                     this.__data.text = undefined;
                     return;
                 }
-                let Narrative = require('../complex_types/narrative.js');
+                const Narrative = require('../complex_types/narrative.js');
                 this.__data.text = new Narrative(valueProvided);
             }
         });
@@ -187,7 +187,7 @@ class BiologicallyDerivedProduct extends Resource {
                     this.__data.contained = undefined;
                     return;
                 }
-                let ResourceContainer = require('../simple_types/resourceContainer.js');
+                const ResourceContainer = require('../simple_types/resourceContainer.js');
                 const {getResource} = require('../../../../operations/common/getResource');
                 if (Array.isArray(valueProvided)) {
                     this.__data.contained = valueProvided.filter(v => v).map(v => {
@@ -219,7 +219,7 @@ class BiologicallyDerivedProduct extends Resource {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -250,7 +250,7 @@ class BiologicallyDerivedProduct extends Resource {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -272,7 +272,7 @@ class BiologicallyDerivedProduct extends Resource {
                     this.__data.identifier = undefined;
                     return;
                 }
-                let Identifier = require('../complex_types/identifier.js');
+                const Identifier = require('../complex_types/identifier.js');
                 this.__data.identifier = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Identifier(v)) : [new Identifier(valueProvided)];
             }
         });
@@ -310,7 +310,7 @@ class BiologicallyDerivedProduct extends Resource {
                     this.__data.productCode = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.productCode = new CodeableConcept(valueProvided);
             }
         });
@@ -347,7 +347,7 @@ class BiologicallyDerivedProduct extends Resource {
                     this.__data.request = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.request = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
             }
         });
@@ -384,7 +384,7 @@ class BiologicallyDerivedProduct extends Resource {
                     this.__data.parent = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.parent = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
             }
         });
@@ -403,7 +403,7 @@ class BiologicallyDerivedProduct extends Resource {
                     this.__data.collection = undefined;
                     return;
                 }
-                let BiologicallyDerivedProductCollection = require('../backbone_elements/biologicallyDerivedProductCollection.js');
+                const BiologicallyDerivedProductCollection = require('../backbone_elements/biologicallyDerivedProductCollection.js');
                 this.__data.collection = new BiologicallyDerivedProductCollection(valueProvided);
             }
         });
@@ -424,7 +424,7 @@ class BiologicallyDerivedProduct extends Resource {
                     this.__data.processing = undefined;
                     return;
                 }
-                let BiologicallyDerivedProductProcessing = require('../backbone_elements/biologicallyDerivedProductProcessing.js');
+                const BiologicallyDerivedProductProcessing = require('../backbone_elements/biologicallyDerivedProductProcessing.js');
                 this.__data.processing = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new BiologicallyDerivedProductProcessing(v)) : [new BiologicallyDerivedProductProcessing(valueProvided)];
             }
         });
@@ -445,7 +445,7 @@ class BiologicallyDerivedProduct extends Resource {
                     this.__data.manipulation = undefined;
                     return;
                 }
-                let BiologicallyDerivedProductManipulation = require('../backbone_elements/biologicallyDerivedProductManipulation.js');
+                const BiologicallyDerivedProductManipulation = require('../backbone_elements/biologicallyDerivedProductManipulation.js');
                 this.__data.manipulation = new BiologicallyDerivedProductManipulation(valueProvided);
             }
         });
@@ -464,7 +464,7 @@ class BiologicallyDerivedProduct extends Resource {
                     this.__data.storage = undefined;
                     return;
                 }
-                let BiologicallyDerivedProductStorage = require('../backbone_elements/biologicallyDerivedProductStorage.js');
+                const BiologicallyDerivedProductStorage = require('../backbone_elements/biologicallyDerivedProductStorage.js');
                 this.__data.storage = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new BiologicallyDerivedProductStorage(v)) : [new BiologicallyDerivedProductStorage(valueProvided)];
             }
         });
@@ -550,8 +550,10 @@ class BiologicallyDerivedProduct extends Resource {
             _sourceId,
         });
 
-        // Define a default non-writable resourceType property
-
+        /**
+         * @description Define a default non-writable resourceType property
+         * @property {string|undefined}
+         */
         Object.defineProperty(this, 'resourceType', {
             value: 'BiologicallyDerivedProduct',
             enumerable: true,
@@ -560,6 +562,10 @@ class BiologicallyDerivedProduct extends Resource {
         });
     }
 
+    /**
+     * @description Define a default non-writable resourceType property
+     * @property {string|undefined}
+     */
     static get resourceType() {
         return 'BiologicallyDerivedProduct';
     }
@@ -683,6 +689,27 @@ class BiologicallyDerivedProduct extends Resource {
             manipulation: this.manipulation && this.manipulation.toJSON(),
             storage: this.storage && this.storage.map(v => v.toJSON()),
         });
+    }
+
+    /**
+     * Returns JSON representation of entity
+     * @param {function(Reference): Reference} fnUpdateReference
+     * @return {void}
+     */
+    updateReferences({fnUpdateReference}) {
+            if (this.meta) {this.meta.updateReferences({fnUpdateReference});}
+            if (this.text) {this.text.updateReferences({fnUpdateReference});}
+            if (this.contained) {this.contained.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.extension) {this.extension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.identifier) {this.identifier.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.productCode) {this.productCode.updateReferences({fnUpdateReference});}
+            if (this.request) {this.request.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.parent) {this.parent.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.collection) {this.collection.updateReferences({fnUpdateReference});}
+            if (this.processing) {this.processing.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.manipulation) {this.manipulation.updateReferences({fnUpdateReference});}
+            if (this.storage) {this.storage.forEach(v => v.updateReferences({fnUpdateReference}));}
     }
 
     /**

@@ -134,7 +134,7 @@ type ExplanationOfBenefit {
     or are being considered and for whom actual for forecast reimbursement is
     sought.
     """
-    patient: Patient!        
+    patient: Patient        
     """
     The period for which charges are being submitted.
     """
@@ -150,12 +150,12 @@ type ExplanationOfBenefit {
     """
     The party responsible for authorization, adjudication and reimbursement.
     """
-    insurer: Organization!        
+    insurer: Organization        
     """
     The provider which is responsible for the claim, predetermination or
     preauthorization.
     """
-    provider: ExplanationOfBenefitProvider!        
+    provider: ExplanationOfBenefitProvider        
     """
     The provider-required urgency of processing the request. Typical values
     include: stat, routine deferred.

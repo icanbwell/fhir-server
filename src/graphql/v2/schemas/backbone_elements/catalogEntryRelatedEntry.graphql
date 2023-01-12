@@ -45,5 +45,5 @@ type CatalogEntryRelatedEntry {
     """
     The reference to the related item.
     """
-    item: CatalogEntry!        
+    item: CatalogEntry        
 }

@@ -1,0 +1,193 @@
+query {
+    explanationOfBenefit(
+        _id: { values: ["WPS-Claim-230916613369", "WPS-Claim-429017018331"] }
+        _sort: ["id"]
+        _count: 2
+        _explain: true
+    ) {
+        meta {
+            tag {
+                system
+                code
+                display
+            }
+        }
+        entry {
+            resource {
+                id
+                identifier {
+                    system
+                    type {
+                        coding {
+                            code
+                            display
+                            system
+                        }
+                        text
+                    }
+                    value
+                }
+                meta {
+                    source
+                    versionId
+                    security {
+                        system
+                        code
+                    }
+                    tag {
+                        system
+                        code
+                    }
+                }
+                careTeam {
+                    sequence
+                    provider {
+                        __typename
+                    }
+                }
+                diagnosis {
+                    sequence
+                    diagnosisCodeableConcept {
+                        coding {
+                            system
+                            code
+                            version
+                        }
+                        text
+                    }
+                    packageCode {
+                        coding {
+                            system
+                            version
+                        }
+                    }
+                    type {
+                        coding {
+                            code
+                            system
+                        }
+                    }
+                }
+                insurance {
+                    focal
+                    coverage {
+                        id
+                    }
+                }
+                insurer {
+                    id
+                }
+                item {
+                    adjudication {
+                        amount {
+                            value
+                        }
+                        category {
+                            coding {
+                                code
+                                display
+                                system
+                            }
+                        }
+                    }
+                    id
+                    locationCodeableConcept {
+                        coding {
+                            code
+                            system
+                        }
+                    }
+                    modifier {
+                        coding {
+                            system
+                            code
+                        }
+                        text
+                    }
+                    productOrService {
+                        coding {
+                            system
+                            code
+                        }
+                        text
+                    }
+                    quantity {
+                        system
+                        code
+                        value
+                    }
+                    revenue {
+                        coding {
+                            system
+                            code
+                        }
+                    }
+                    servicedPeriod {
+                        start
+                        end
+                    }
+                }
+                outcome
+                payee {
+                    type {
+                        coding {
+                            system
+                            code
+                        }
+                    }
+                    party {
+                        __typename
+                    }
+                }
+                procedure {
+                    sequence
+                    procedureCodeableConcept {
+                        coding {
+                            system
+                            code
+                        }
+                    }
+                }
+                provider {
+                    __typename
+                    ... on Organization {
+                        id
+                        identifier {
+                            system
+                            value
+                        }
+                    }
+                    ... on Practitioner {
+                        id
+                        name {
+                            family
+                            given
+                        }
+                    }
+                }
+                resourceType
+                status
+                supportingInfo {
+                    sequence
+                    category {
+                        coding {
+                            system
+                            code
+                        }
+                    }
+                }
+                type {
+                    coding {
+                        system
+                        code
+                    }
+                    text
+                }
+                use
+                patient {
+                    id
+                }
+            }
+        }
+    }
+}

@@ -15,6 +15,7 @@ const {ScopesValidator} = require('../security/scopesValidator');
 const {BundleManager} = require('../common/bundleManager');
 const {ConfigManager} = require('../../utils/configManager');
 const {BadRequestError} = require('../../utils/httpErrors');
+const deepcopy = require('deepcopy');
 
 class SearchBundleOperation {
     /**
@@ -92,12 +93,10 @@ class SearchBundleOperation {
      * @param {FhirRequestInfo} requestInfo
      * @param {Object} args
      * @param {string} resourceType
-     * @param {boolean} filter
      * @return {Promise<Bundle>} array of resources or a bundle
      */
     async searchBundle(
-        requestInfo, args, resourceType,
-        filter = true
+        {requestInfo, args, resourceType}
     ) {
         assertIsValid(requestInfo !== undefined);
         assertIsValid(args !== undefined);
@@ -117,9 +116,9 @@ class SearchBundleOperation {
             /** @type {string | null} */
             originalUrl: url,
             /** @type {string[] | null} */
-            patients = [],
+            patientIdsFromJwtToken,
             /** @type {string} */
-            fhirPersonId,
+            personIdFromJwtToken,
             /** @type {boolean} */
             isUser,
             /** @type {string | null} */
@@ -129,9 +128,13 @@ class SearchBundleOperation {
             /**
              * @type {string}
              */
-            requestId
+            requestId,
+            /** @type {string} */ method
         } = requestInfo;
 
+        const originalArgs = deepcopy(args);
+
+        assertIsValid(requestId, 'requestId is null');
         await this.scopesValidator.verifyHasValidScopesAsync({
             requestInfo,
             args,
@@ -180,8 +183,8 @@ class SearchBundleOperation {
                 columns
             } = await this.searchManager.constructQueryAsync(
                 {
-                    user, scope, isUser, patients, args, resourceType, useAccessIndex, filter,
-                    fhirPersonId
+                    user, scope, isUser, patientIdsFromJwtToken, args, resourceType, useAccessIndex,
+                    personIdFromJwtToken
                 }));
         } catch (e) {
             await this.fhirLoggingManager.logOperationFailureAsync(
@@ -280,7 +283,8 @@ class SearchBundleOperation {
                     {
                         cursor, user, scope, args,
                         resourceType,
-                        useAccessIndex
+                        useAccessIndex,
+                        originalArgs
                     }
                 );
 
@@ -297,7 +301,7 @@ class SearchBundleOperation {
                         }
                     );
                     const currentDate = moment.utc().format('YYYY-MM-DD');
-                    await this.auditLogger.flushAsync({requestId, currentDate});
+                    await this.auditLogger.flushAsync({requestId, currentDate, method});
                 }
             }
 

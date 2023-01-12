@@ -1,6 +1,4 @@
-// noinspection ExceptionCaughtLocallyJS
-
-const {BadRequestError, ForbiddenError, NotFoundError} = require('../../utils/httpErrors');
+const {ForbiddenError, NotFoundError} = require('../../utils/httpErrors');
 const {EnrichmentManager} = require('../../enrich/enrich');
 const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
 const {DatabaseHistoryFactory} = require('../../dataLayer/databaseHistoryFactory');
@@ -10,6 +8,7 @@ const {ScopesValidator} = require('../security/scopesValidator');
 const {isTrue} = require('../../utils/isTrue');
 const {ConfigManager} = require('../../utils/configManager');
 const {SearchManager} = require('../search/searchManager');
+const deepcopy = require('deepcopy');
 
 class SearchByVersionIdOperation {
     /**
@@ -77,10 +76,8 @@ class SearchByVersionIdOperation {
      * @param {FhirRequestInfo} requestInfo
      * @param {Object} args
      * @param {string} resourceType
-     * @param {boolean} filter
      */
-    async searchByVersionId(requestInfo, args, resourceType,
-                            filter = true) {
+    async searchByVersionId({requestInfo, args, resourceType}) {
         assertIsValid(requestInfo !== undefined);
         assertIsValid(args !== undefined);
         assertIsValid(resourceType !== undefined);
@@ -91,11 +88,11 @@ class SearchByVersionIdOperation {
         const startTime = Date.now();
         const {
             /** @type {string[]} */
-            patients = [],
+            patientIdsFromJwtToken,
             /** @type {boolean} */
             isUser,
             /** @type {string} */
-            fhirPersonId,
+            personIdFromJwtToken,
             /** @type {string | null} */
             user,
             /** @type {string | null} */
@@ -104,6 +101,7 @@ class SearchByVersionIdOperation {
             // requestId
         } = requestInfo;
 
+        const originalArgs = deepcopy(args);
         try {
 
             let {base_version, id, version_id} = args;
@@ -138,15 +136,28 @@ class SearchByVersionIdOperation {
                 user,
                 scope,
                 isUser,
-                patients,
+                patientIdsFromJwtToken,
                 args: Object.assign(args, {id: id.toString()}), // add id filter to query
                 resourceType,
                 useAccessIndex,
-                fhirPersonId,
-                filter
+                personIdFromJwtToken
             });
 
-            query['meta.versionId'] = `${version_id}`;
+            const queryForVersionId = {
+                '$or': [
+                    {
+                        'meta.versionId': version_id
+                    },
+                    {
+                        'resource.meta.versionId': version_id
+                    },
+                ]
+            };
+            if (query.$and) {
+                query.$and.push(queryForVersionId);
+            } else {
+                query.$and = [queryForVersionId];
+            }
             /**
              * @type {Resource|null}
              */
@@ -161,18 +172,20 @@ class SearchByVersionIdOperation {
                     query: query
                 });
             } catch (e) {
-                throw new BadRequestError(e);
+                throw new NotFoundError(new Error(`Resource not found: ${resourceType}/${id}`));
             }
 
             if (resource) {
-                if (!(this.scopesManager.isAccessToResourceAllowedBySecurityTags(resource, user, scope))) {
+                if (!(this.scopesManager.isAccessToResourceAllowedBySecurityTags({
+                    resource: resource, user, scope
+                }))) {
                     throw new ForbiddenError(
                         'user ' + user + ' with scopes [' + scope + '] has no access to resource ' +
                         resource.resourceType + ' with id ' + id);
                 }
                 // run any enrichment
                 resource = (await this.enrichmentManager.enrichAsync({
-                            resources: [resource], resourceType, args
+                            resources: [resource], args, originalArgs
                         }
                     )
                 )[0];
@@ -186,7 +199,7 @@ class SearchByVersionIdOperation {
                     });
                 return resource;
             } else {
-                throw new NotFoundError();
+                throw new NotFoundError('Resource not found');
             }
         } catch (e) {
             await this.fhirLoggingManager.logOperationFailureAsync(

@@ -70,7 +70,7 @@ class NutritionOrderAdministration extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -101,7 +101,7 @@ class NutritionOrderAdministration extends Element {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -121,7 +121,7 @@ class NutritionOrderAdministration extends Element {
                     this.__data.schedule = undefined;
                     return;
                 }
-                let Timing = require('../backbone_elements/timing.js');
+                const Timing = require('../backbone_elements/timing.js');
                 this.__data.schedule = new Timing(valueProvided);
             }
         });
@@ -141,7 +141,7 @@ class NutritionOrderAdministration extends Element {
                     this.__data.quantity = undefined;
                     return;
                 }
-                let Quantity = require('../complex_types/quantity.js');
+                const Quantity = require('../complex_types/quantity.js');
                 this.__data.quantity = new Quantity(valueProvided);
             }
         });
@@ -160,7 +160,7 @@ class NutritionOrderAdministration extends Element {
                     this.__data.rateQuantity = undefined;
                     return;
                 }
-                let Quantity = require('../complex_types/quantity.js');
+                const Quantity = require('../complex_types/quantity.js');
                 this.__data.rateQuantity = new Quantity(valueProvided);
             }
         });
@@ -179,7 +179,7 @@ class NutritionOrderAdministration extends Element {
                     this.__data.rateRatio = undefined;
                     return;
                 }
-                let Ratio = require('../complex_types/ratio.js');
+                const Ratio = require('../complex_types/ratio.js');
                 this.__data.rateRatio = new Ratio(valueProvided);
             }
         });
@@ -217,6 +217,20 @@ class NutritionOrderAdministration extends Element {
             rateQuantity: this.rateQuantity && this.rateQuantity.toJSON(),
             rateRatio: this.rateRatio && this.rateRatio.toJSON(),
         });
+    }
+
+    /**
+     * Returns JSON representation of entity
+     * @param {function(Reference): Reference} fnUpdateReference
+     * @return {void}
+     */
+    updateReferences({fnUpdateReference}) {
+            if (this.extension) {this.extension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.schedule) {this.schedule.updateReferences({fnUpdateReference});}
+            if (this.quantity) {this.quantity.updateReferences({fnUpdateReference});}
+            if (this.rateQuantity) {this.rateQuantity.updateReferences({fnUpdateReference});}
+            if (this.rateRatio) {this.rateRatio.updateReferences({fnUpdateReference});}
     }
 
     /**

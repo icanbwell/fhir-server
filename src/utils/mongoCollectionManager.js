@@ -6,22 +6,29 @@
 const Mutex = require('async-mutex').Mutex;
 const mutex = new Mutex();
 
-const {isTrue} = require('./isTrue');
-const env = require('var');
 const {IndexManager} = require('../indexes/indexManager');
 const {assertTypeEquals, assertIsValid} = require('./assertType');
+const {ConfigManager} = require('./configManager');
 
 class MongoCollectionManager {
     /**
      * Constructor
      * @param {IndexManager} indexManager
+     * @param {ConfigManager} configManager
      */
-    constructor({indexManager}) {
+    constructor({indexManager, configManager}) {
         assertTypeEquals(indexManager, IndexManager);
         /**
          * @type {IndexManager}
          */
         this.indexManager = indexManager;
+        assertTypeEquals(indexManager, IndexManager);
+
+        /**
+         * @type {ConfigManager}
+         */
+        this.configManager = configManager;
+        assertTypeEquals(configManager, ConfigManager);
     }
 
     /**
@@ -38,7 +45,7 @@ class MongoCollectionManager {
             const collectionExists = await db.listCollections({name: collectionName}, {nameOnly: true}).hasNext();
             if (!collectionExists) {
                 await db.createCollection(collectionName);
-                if (isTrue(env.CREATE_INDEX_ON_COLLECTION_CREATION)) {
+                if (this.configManager.createIndexOnCollectionCreation) {
                     // and index it
                     await this.indexManager.indexCollectionAsync({collectionName, db});
                 }
@@ -184,6 +191,20 @@ class MongoCollectionManager {
         return documents.map(x => {
             return {name: x.name, count: x.count};
         });
+    }
+
+    /**
+     * remove all documents in the collection but leave the collection
+     * @param {import('mongodb').Db} db
+     * @param {string} collectionName
+     * @return {Promise<import('mongodb').DeleteResult>}
+     */
+    async clearCollectionAsync({db, collectionName}) {
+        /**
+         * @type {Collection<Document>}
+         */
+        const collection = await this.getOrCreateCollectionAsync({db, collectionName});
+        return await collection.deleteMany({});
     }
 }
 

@@ -56,6 +56,7 @@ services:
             AUTH_CUSTOM_GROUP: "cognito:groups"
             AUTH_CUSTOM_SCOPE: "custom:scope"
             VALIDATE_SCHEMA: "1"
+            PERSON_MATCHING_SERVICE_URL: "https://person-matching.dev.bwell.zone/$$match"
         ports:
             - '3000:3000'
         volumes:
@@ -136,33 +137,6 @@ services:
         #      - "DISABLE_SECURITY_DASHBOARDS_PLUGIN=true" # disables security dashboards plugin in OpenSearch Dashboards
         healthcheck:
             test: ['CMD-SHELL', 'curl --silent --fail localhost:5601/login || exit 1']
-
-    prometheus:
-        # Following https://github.com/StackAbuse/node-prometheus-grafana
-        image: prom/prometheus:v2.38.0
-        container_name: prometheus
-        volumes:
-            - ./prometheus:/etc/prometheus
-            - prometheus_data:/prometheus
-        ports:
-            - '9090:9090'
-        expose:
-            - 9090
-
-    grafana:
-        image: grafana/grafana:9.1.0
-        container_name: grafana
-        volumes:
-            - grafana_data:/var/lib/grafana
-            - ./grafana/provisioning:/etc/grafana/provisioning
-        environment:
-            - GF_AUTH_DISABLE_LOGIN_FORM=true
-            - GF_AUTH_ANONYMOUS_ENABLED=true
-            - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
-        ports:
-            - '3010:3000'
-        expose:
-            - 3000
 
     zookeeper:
         image: 'docker.io/bitnami/zookeeper:3.8.0'

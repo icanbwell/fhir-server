@@ -6,6 +6,8 @@ const {getResource} = require('../operations/common/getResource');
 const async = require('async');
 const {RethrownError} = require('../utils/rethrownError');
 const {partitionedCollectionsCount} = require('../utils/prometheus.utils');
+const {logTraceSystemEventAsync} = require('../operations/common/logging');
+const BundleEntry = require('../fhir/classes/4_0_0/backbone_elements/bundleEntry');
 
 /**
  * @typedef CursorInfo
@@ -47,11 +49,11 @@ class DatabasePartitionedCursor {
          * @type {import('mongodb').Filter<import('mongodb').DefaultSchema>}
          */
         this.query = query;
-        console.log(JSON.stringify({
-            message: 'Created DatabasePartitionedCursor',
-            collections: this._cursors.map(c => c.collection),
-            query: query
-        }));
+        // console.log(JSON.stringify({
+        //     message: 'Created DatabasePartitionedCursor',
+        //     collections: this._cursors.map(c => c.collection),
+        //     query: query
+        // }));
 
         partitionedCollectionsCount.labels(resourceType).observe(cursors.length);
     }
@@ -74,11 +76,16 @@ class DatabasePartitionedCursor {
      */
     async hasNext() {
         while (this._cursors.length > 0) {
-            console.log(JSON.stringify({
-                message: 'DatabasePartitionedCursor: hasNext',
-                collections: this._cursors.map(c => c.collection),
-                query: this.query
-            }));
+            await logTraceSystemEventAsync(
+                {
+                    event: 'DatabasePartitionedCursor: hasNext',
+                    message: 'DatabasePartitionedCursor: hasNext',
+                    args: {
+                        collections: this._cursors.map(c => c.collection),
+                        query: this.query
+                    }
+                }
+            );
 
             // check if the first cursor has next.  If not, remove that cursor from the list
             try {
@@ -101,27 +108,37 @@ class DatabasePartitionedCursor {
 
     /**
      * Get the next available document from the cursors, returns null if no more documents are available
-     * @return {Promise<Resource|null>}
+     * @return {Promise<Resource|BundleEntry|null>}
      */
     async next() {
         while (this._cursors.length > 0) {
-            console.log(JSON.stringify({
-                message: 'DatabasePartitionedCursor: next',
-                collections: this._cursors.map(c => c.collection),
-                query: this.query
-            }));
+            await logTraceSystemEventAsync(
+                {
+                    event: 'DatabasePartitionedCursor: next',
+                    message: 'DatabasePartitionedCursor: next',
+                    args: {
+                        collections: this._cursors.map(c => c.collection),
+                        query: this.query
+                    }
+                }
+            );
 
             // check if the first cursor has next.  If not, remove that cursor from the list
             try {
                 // return Promise.reject(new Error('woops'));
                 const result = await this._cursors[0].cursor.next();
                 if (result !== null) {
+                    const resourceType = result.resource ? 'BundleEntry' : result.resourceType || this.resourceType;
                     try {
-                        const ResourceCreator = getResource(this.base_version, this.resourceType);
+                        if (resourceType === 'BundleEntry') {
+                            // noinspection JSCheckFunctionSignatures
+                            return new BundleEntry(result);
+                        }
+                        const ResourceCreator = getResource(this.base_version, resourceType);
                         return new ResourceCreator(result);
                     } catch (e) {
                         throw new RethrownError({
-                            message: `Error hydrating resource from database: ${this.resourceType}/${result.id}`,
+                            message: `Error hydrating resource from database: ${resourceType}/${result.id}`,
                             collections: this._cursors.map(c => c.collection),
                             databases: this._cursors.map(c => c.db),
                             error: e,
@@ -183,13 +200,18 @@ class DatabasePartitionedCursor {
      * In that case, cursor.rewind() can be used to reset the cursor.
      * @return {Promise<import('mongodb').DefaultSchema[]>}
      */
-    async toArray() {
+    async toArrayAsync() {
         try {
-            console.log(JSON.stringify({
-                message: 'DatabasePartitionedCursor: toArray',
-                collections: this._cursors.map(c => c.collection),
-                query: this.query
-            }));
+            await logTraceSystemEventAsync(
+                {
+                    event: 'DatabasePartitionedCursor: toArray',
+                    message: 'DatabasePartitionedCursor: toArray',
+                    args: {
+                        collections: this._cursors.map(c => c.collection),
+                        query: this.query
+                    }
+                }
+            );
 
             return await async.flatMap(this._cursors, async (c) => await c.cursor.toArray());
         } catch (e) {
@@ -244,11 +266,16 @@ class DatabasePartitionedCursor {
      */
     async explainAsync() {
         try {
-            console.log(JSON.stringify({
-                message: 'DatabasePartitionedCursor: explain',
-                collections: this._cursors.map(c => c.collection),
-                query: this.query
-            }));
+            await logTraceSystemEventAsync(
+                {
+                    event: 'DatabasePartitionedCursor: explain',
+                    message: 'DatabasePartitionedCursor: explain',
+                    args: {
+                        collections: this._cursors.map(c => c.collection),
+                        query: this.query
+                    }
+                }
+            );
             // explanation is needed only from the first collection
             return this._cursors.length > 0 ? [(await this._cursors[0].cursor.explain())] : [];
         } catch (e) {

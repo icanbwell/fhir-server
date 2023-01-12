@@ -1,5 +1,5 @@
 const {validateResource} = require('../utils/validator.util');
-const {assertFail} = require('../utils/assertType');
+const {assertFail, assertIsValid} = require('../utils/assertType');
 const {diff} = require('jest-diff');
 const deepEqual = require('fast-deep-equal');
 const {expect} = require('@jest/globals');
@@ -17,6 +17,7 @@ const {ndjsonToJsonText} = require('ndjson-to-json-text');
  */
 
 function cleanMeta(resource) {
+    assertIsValid(resource, 'resource is null');
     const fieldDate = new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ssZ'));
     /**
      * @type {string}
@@ -60,6 +61,16 @@ function cleanMeta(resource) {
 }
 
 /**
+ * cleans request Id
+ * @param {Object} request
+ */
+function cleanRequestId(request) {
+    if (request && request.id) {
+        delete request.id;
+    }
+}
+
+/**
  * compares two bundles
  * @param {Object} body
  * @param {Object} expected
@@ -79,6 +90,7 @@ function compareBundles({body, expected, fnCleanResource, ignoreMetaTags = false
     cleanMeta(body);
     if (body.entry) {
         body.entry.forEach((element) => {
+            cleanRequestId(element['request']);
             cleanMeta(element['resource']);
             if (fnCleanResource) {
                 fnCleanResource(element['resource']);
@@ -114,6 +126,7 @@ function compareBundles({body, expected, fnCleanResource, ignoreMetaTags = false
     }
     if (expected.entry) {
         expected.entry.forEach((element) => {
+            cleanRequestId(element['request']);
             cleanMeta(element['resource']);
             delete element['resource']['$schema'];
             if (fnCleanResource) {
@@ -307,6 +320,22 @@ function toHaveResponse(resp, expected, fnCleanResource) {
         } else {
             cleanMeta(expected);
         }
+
+        // clean out meta for graphql
+        if (expected.data) {
+            for (const [, value] of Object.entries(expected.data)) {
+                if (value) {
+                    cleanMeta(value);
+                }
+            }
+        }
+        if (body.data) {
+            for (const [, value] of Object.entries(body.data)) {
+                if (value) {
+                    cleanMeta(value);
+                }
+            }
+        }
     }
     return checkContent({
         actual: body, expected, utils, options, expand: this.expand,
@@ -389,7 +418,7 @@ function toHaveResourceCount(resp, expected) {
     const body = contentType === 'application/fhir+ndjson' ? JSON.parse(ndjsonToJsonText(resp.text)) : resp.body;
     if (!(Array.isArray(body))) {
         if (body.resourceType === 'Bundle') {
-            count = body.entry.length;
+            count = body.entry ? body.entry.length : 0;
         } else if (body.resourceType) {
             count = 1;
         } else {

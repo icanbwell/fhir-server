@@ -111,7 +111,7 @@ class MedicinalProductAuthorization extends Resource {
                     this.__data.meta = undefined;
                     return;
                 }
-                let Meta = require('../complex_types/meta.js');
+                const Meta = require('../complex_types/meta.js');
                 this.__data.meta = new Meta(valueProvided);
             }
         });
@@ -174,7 +174,7 @@ class MedicinalProductAuthorization extends Resource {
                     this.__data.text = undefined;
                     return;
                 }
-                let Narrative = require('../complex_types/narrative.js');
+                const Narrative = require('../complex_types/narrative.js');
                 this.__data.text = new Narrative(valueProvided);
             }
         });
@@ -195,7 +195,7 @@ class MedicinalProductAuthorization extends Resource {
                     this.__data.contained = undefined;
                     return;
                 }
-                let ResourceContainer = require('../simple_types/resourceContainer.js');
+                const ResourceContainer = require('../simple_types/resourceContainer.js');
                 const {getResource} = require('../../../../operations/common/getResource');
                 if (Array.isArray(valueProvided)) {
                     this.__data.contained = valueProvided.filter(v => v).map(v => {
@@ -227,7 +227,7 @@ class MedicinalProductAuthorization extends Resource {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -258,7 +258,7 @@ class MedicinalProductAuthorization extends Resource {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -278,7 +278,7 @@ class MedicinalProductAuthorization extends Resource {
                     this.__data.identifier = undefined;
                     return;
                 }
-                let Identifier = require('../complex_types/identifier.js');
+                const Identifier = require('../complex_types/identifier.js');
                 this.__data.identifier = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Identifier(v)) : [new Identifier(valueProvided)];
             }
         });
@@ -297,7 +297,7 @@ class MedicinalProductAuthorization extends Resource {
                     this.__data.subject = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.subject = new Reference(valueProvided);
             }
         });
@@ -316,7 +316,7 @@ class MedicinalProductAuthorization extends Resource {
                     this.__data.country = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.country = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
             }
         });
@@ -335,7 +335,7 @@ class MedicinalProductAuthorization extends Resource {
                     this.__data.jurisdiction = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.jurisdiction = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
             }
         });
@@ -354,7 +354,7 @@ class MedicinalProductAuthorization extends Resource {
                     this.__data.status = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.status = new CodeableConcept(valueProvided);
             }
         });
@@ -412,7 +412,7 @@ class MedicinalProductAuthorization extends Resource {
                     this.__data.validityPeriod = undefined;
                     return;
                 }
-                let Period = require('../complex_types/period.js');
+                const Period = require('../complex_types/period.js');
                 this.__data.validityPeriod = new Period(valueProvided);
             }
         });
@@ -432,7 +432,7 @@ class MedicinalProductAuthorization extends Resource {
                     this.__data.dataExclusivityPeriod = undefined;
                     return;
                 }
-                let Period = require('../complex_types/period.js');
+                const Period = require('../complex_types/period.js');
                 this.__data.dataExclusivityPeriod = new Period(valueProvided);
             }
         });
@@ -489,7 +489,7 @@ class MedicinalProductAuthorization extends Resource {
                     this.__data.legalBasis = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.legalBasis = new CodeableConcept(valueProvided);
             }
         });
@@ -508,7 +508,7 @@ class MedicinalProductAuthorization extends Resource {
                     this.__data.jurisdictionalAuthorization = undefined;
                     return;
                 }
-                let MedicinalProductAuthorizationJurisdictionalAuthorization = require('../backbone_elements/medicinalProductAuthorizationJurisdictionalAuthorization.js');
+                const MedicinalProductAuthorizationJurisdictionalAuthorization = require('../backbone_elements/medicinalProductAuthorizationJurisdictionalAuthorization.js');
                 this.__data.jurisdictionalAuthorization = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new MedicinalProductAuthorizationJurisdictionalAuthorization(v)) : [new MedicinalProductAuthorizationJurisdictionalAuthorization(valueProvided)];
             }
         });
@@ -527,7 +527,7 @@ class MedicinalProductAuthorization extends Resource {
                     this.__data.holder = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.holder = new Reference(valueProvided);
             }
         });
@@ -546,7 +546,7 @@ class MedicinalProductAuthorization extends Resource {
                     this.__data.regulator = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.regulator = new Reference(valueProvided);
             }
         });
@@ -565,7 +565,7 @@ class MedicinalProductAuthorization extends Resource {
                     this.__data.procedure = undefined;
                     return;
                 }
-                let MedicinalProductAuthorizationProcedure = require('../backbone_elements/medicinalProductAuthorizationProcedure.js');
+                const MedicinalProductAuthorizationProcedure = require('../backbone_elements/medicinalProductAuthorizationProcedure.js');
                 this.__data.procedure = new MedicinalProductAuthorizationProcedure(valueProvided);
             }
         });
@@ -656,8 +656,10 @@ class MedicinalProductAuthorization extends Resource {
             _sourceId,
         });
 
-        // Define a default non-writable resourceType property
-
+        /**
+         * @description Define a default non-writable resourceType property
+         * @property {string|undefined}
+         */
         Object.defineProperty(this, 'resourceType', {
             value: 'MedicinalProductAuthorization',
             enumerable: true,
@@ -666,6 +668,10 @@ class MedicinalProductAuthorization extends Resource {
         });
     }
 
+    /**
+     * @description Define a default non-writable resourceType property
+     * @property {string|undefined}
+     */
     static get resourceType() {
         return 'MedicinalProductAuthorization';
     }
@@ -809,6 +815,31 @@ class MedicinalProductAuthorization extends Resource {
             regulator: this.regulator && this.regulator.toJSON(),
             procedure: this.procedure && this.procedure.toJSON(),
         });
+    }
+
+    /**
+     * Returns JSON representation of entity
+     * @param {function(Reference): Reference} fnUpdateReference
+     * @return {void}
+     */
+    updateReferences({fnUpdateReference}) {
+            if (this.meta) {this.meta.updateReferences({fnUpdateReference});}
+            if (this.text) {this.text.updateReferences({fnUpdateReference});}
+            if (this.contained) {this.contained.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.extension) {this.extension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.identifier) {this.identifier.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.subject) {this.subject.updateReferences({fnUpdateReference});}
+            if (this.country) {this.country.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.jurisdiction) {this.jurisdiction.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.status) {this.status.updateReferences({fnUpdateReference});}
+            if (this.validityPeriod) {this.validityPeriod.updateReferences({fnUpdateReference});}
+            if (this.dataExclusivityPeriod) {this.dataExclusivityPeriod.updateReferences({fnUpdateReference});}
+            if (this.legalBasis) {this.legalBasis.updateReferences({fnUpdateReference});}
+            if (this.jurisdictionalAuthorization) {this.jurisdictionalAuthorization.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.holder) {this.holder.updateReferences({fnUpdateReference});}
+            if (this.regulator) {this.regulator.updateReferences({fnUpdateReference});}
+            if (this.procedure) {this.procedure.updateReferences({fnUpdateReference});}
     }
 
     /**

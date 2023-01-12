@@ -47,5 +47,5 @@ type ConsentData {
     A reference to a specific resource that defines which resources are covered by
     this consent.
     """
-    reference: Resource!        
+    reference: Resource        
 }

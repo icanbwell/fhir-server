@@ -94,6 +94,22 @@ function identifierField(params) {
 }
 
 /**
+ * @param {Object} params
+ * @param {string} tagName
+ * @return {FieldInfo}
+ */
+// eslint-disable-next-line no-unused-vars
+function securityTagField(params, tagName) {
+    return {
+        label: 'Security',
+        name: '_security',
+        sortField: '_security',
+        value: '',
+        useExactMatch: true
+    };
+}
+
+/**
  * @param params
  * @return {FieldInfo[]}
  */
@@ -105,6 +121,7 @@ function getPatientForm(params) {
     patientArray.push(givenNameField(params));
     patientArray.push(familyNameField(params));
     patientArray.push(emailField(params));
+    patientArray.push(securityTagField(params, 'owner'));
     return patientArray;
 }
 
@@ -121,6 +138,7 @@ function getPersonForm(params) {
         useExactMatch: true
     });
     personArray.push(emailField(params));
+    personArray.push(securityTagField(params, 'owner'));
     return personArray;
 }
 
@@ -141,6 +159,7 @@ function getPractitionerForm(params) {
         sortField: 'identifier',
         value: params.identifier ? params.identifier.replace(identifierUrl, '') : '',
     });
+    practitionerArray.push(securityTagField(params, 'owner'));
     return practitionerArray;
 }
 
@@ -159,6 +178,7 @@ function getOrganizationForm(params) {
         sortField: 'name',
         value: params.name ? params.name : '',
     });
+    formElements.push(securityTagField(params, 'owner'));
     return formElements;
 }
 
@@ -341,6 +361,8 @@ const getFieldValue = (res, name) => {
             return res.telecom ? res.telecom.filter(n => n.system === 'email').map((n) => n.value).join(', ') : '';
         case 'identifier':
             return res.identifier ? res.identifier.map((n) => `${n.value}(${n.system})`).join(', ') : '';
+        case '_security':
+            return res.meta && res.meta.security ? res.meta.security.map((n) => `${n.code}(${n.system.split('/').pop()})`).join(', ') : '';
     }
     if (Object.hasOwn(res, 'name')) {
         return res.name;

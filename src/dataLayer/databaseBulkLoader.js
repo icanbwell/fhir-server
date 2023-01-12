@@ -4,6 +4,7 @@ const {DatabaseQueryFactory} = require('./databaseQueryFactory');
 const {assertTypeEquals} = require('../utils/assertType');
 const {RethrownError} = require('../utils/rethrownError');
 const {databaseBulkLoaderTimer} = require('../utils/prometheus.utils');
+const {RequestSpecificCache} = require('../utils/requestSpecificCache');
 
 /**
  * This class loads data from Mongo into memory and allows updates to this cache
@@ -12,26 +13,34 @@ class DatabaseBulkLoader {
     /**
      * Constructor
      * @param {DatabaseQueryFactory} databaseQueryFactory
+     * @param {RequestSpecificCache} requestSpecificCache
      */
-    constructor({databaseQueryFactory}) {
-        assertTypeEquals(databaseQueryFactory, DatabaseQueryFactory);
+    constructor({
+                    databaseQueryFactory,
+                    requestSpecificCache
+                }) {
         /**
-         * @type {Map<string, Resource[]>}
+         * @type {RequestSpecificCache}
          */
-        this.bulkCache = new Map();
+        this.requestSpecificCache = requestSpecificCache;
+        assertTypeEquals(requestSpecificCache, RequestSpecificCache);
         /**
          * @type {DatabaseQueryFactory}
          */
         this.databaseQueryFactory = databaseQueryFactory;
+        assertTypeEquals(databaseQueryFactory, DatabaseQueryFactory);
+
+        this.cacheName = 'bulkLoaderCache';
     }
 
     /**
      * Finds all documents with the specified resource type and ids
+     * @param {string} requestId
      * @param {string} base_version
      * @param {Resource[]} requestedResources
      * @returns {Promise<{resources: Resource[], resourceType: string}[]>}
      */
-    async loadResourcesAsync({base_version, requestedResources}) {
+    async loadResourcesAsync({requestId, base_version, requestedResources}) {
         try {
             /**
              * merge results grouped by resourceType
@@ -49,15 +58,17 @@ class DatabaseBulkLoader {
                 Object.entries(groupByResourceType),
                 async x => await this.getResourcesAsync(
                     {
+                        requestId,
                         base_version,
                         resourceType: x[0],
                         resources: x[1]
                     }
                 )
             );
+            const bulkCache = this.requestSpecificCache.getMap({requestId, name: this.cacheName});
             // Now add them to our cache
             for (const {resourceType, resources} of result) {
-                this.bulkCache.set(resourceType, resources);
+                bulkCache.set(resourceType, resources);
             }
             return result;
         } catch (e) {
@@ -69,12 +80,14 @@ class DatabaseBulkLoader {
 
     /**
      * Get resources by id for this resourceType
+     * @param {string} requestId
      * @param {string} base_version
      * @param {string} resourceType
      * @param {Resource[]} resources
      * @returns {Promise<{resources: Resource[], resourceType: string}>}
      */
-    async getResourcesAsync({base_version, resourceType, resources}) {
+    // eslint-disable-next-line no-unused-vars
+    async getResourcesAsync({requestId, base_version, resourceType, resources}) {
         // Start the FHIR request timer, saving a reference to the returned method
         const timer = databaseBulkLoaderTimer.startTimer();
         try {
@@ -130,16 +143,18 @@ class DatabaseBulkLoader {
 
     /**
      * gets resources from list
+     * @param {string} requestId
      * @param {string} resourceType
      * @param {string} id
      * @return {null|Resource}
      */
-    getResourceFromExistingList({resourceType, id}) {
+    getResourceFromExistingList({requestId, resourceType, id}) {
+        const bulkCache = this.requestSpecificCache.getMap({requestId, name: this.cacheName});
         // see if there is cache for this resourceType
         /**
          * @type {Resource[]}
          */
-        const cacheEntryResources = this.bulkCache.get(resourceType);
+        const cacheEntryResources = bulkCache.get(resourceType);
         if (cacheEntryResources) {
             return getFirstResourceOrNull(
                 cacheEntryResources.filter(e => e.id === id.toString())
@@ -151,41 +166,45 @@ class DatabaseBulkLoader {
 
     /**
      * Adds a new resource to the cache
+     * @param {string} requestId
      * @param {Resource} resource
      */
-    addResourceToExistingList({resource}) {
+    addResourceToExistingList({requestId, resource}) {
+        const bulkCache = this.requestSpecificCache.getMap({requestId, name: this.cacheName});
         /**
          * @type {Resource[]}
          */
-        let cacheEntryResources = this.bulkCache.get(resource.resourceType);
+        let cacheEntryResources = bulkCache.get(resource.resourceType);
         const resourceCopy = resource.clone(); // copy to avoid someone changing this object in the future
         if (cacheEntryResources) {
             // remove the resource with same id
             cacheEntryResources = cacheEntryResources.filter(c => c.id !== resource.id);
             cacheEntryResources.push(resourceCopy);
-            this.bulkCache.set(resource.resourceType, cacheEntryResources);
+            bulkCache.set(resource.resourceType, cacheEntryResources);
         } else {
-            this.bulkCache.set(resource.resourceType, [resourceCopy]);
+            bulkCache.set(resource.resourceType, [resourceCopy]);
         }
     }
 
     /**
      * Updates an existing resource in the cache
+     * @param {string} requestId
      * @param {Resource} resource
      */
-    updateResourceInExistingList({resource}) {
+    updateResourceInExistingList({requestId, resource}) {
+        const bulkCache = this.requestSpecificCache.getMap({requestId, name: this.cacheName});
         /**
          * @type {Resource[]}
          */
-        let cacheEntryResources = this.bulkCache.get(resource.resourceType);
+        let cacheEntryResources = bulkCache.get(resource.resourceType);
         const resourceCopy = resource.clone(); // copy to avoid someone changing this object in the future
         if (cacheEntryResources) {
             // remove the resource with same id
             cacheEntryResources = cacheEntryResources.filter(c => c.id !== resource.id);
             cacheEntryResources.push(resourceCopy);
-            this.bulkCache.set(resource.resourceType, cacheEntryResources);
+            bulkCache.set(resource.resourceType, cacheEntryResources);
         } else {
-            this.bulkCache.set(resource.resourceType, [resourceCopy]);
+            bulkCache.set(resource.resourceType, [resourceCopy]);
         }
     }
 }

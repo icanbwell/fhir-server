@@ -1,0 +1,147 @@
+{
+  "resourceType": "GraphDefinition",
+  "id": "o",
+  "name": "person_everything",
+  "status": "active",
+  "start": "Person",
+  "link": [
+    {
+      "path": "link.target",
+      "target": [
+        {
+          "type": "Patient",
+          "link": [
+            {
+              "target": [
+                {
+                  "type": "AllergyIntolerance",
+                  "params": "patient={ref}"
+                }
+              ]
+            },
+            {
+              "target": [
+                {
+                  "type": "Appointment",
+                  "params": "patient={ref}"
+                }
+              ]
+            },
+            {
+              "target": [
+                {
+                  "type": "CarePlan",
+                  "params": "patient={ref}"
+                }
+              ]
+            },
+            {
+              "target": [
+                {
+                  "type": "CareTeam",
+                  "params": "patient={ref}"
+                }
+              ]
+            },
+            {
+              "target": [
+                {
+                  "type": "Condition",
+                  "params": "patient={ref}"
+                }
+              ]
+            },
+            {
+              "target": [
+                {
+                  "type": "Coverage",
+                  "params": "patient={ref}"
+                }
+              ]
+            },
+            {
+              "target": [
+                {
+                  "type": "Encounter",
+                  "params": "patient={ref}"
+                }
+              ]
+            },
+            {
+              "target": [
+                {
+                  "type": "ExplanationOfBenefit",
+                  "params": "patient={ref}"
+                }
+              ]
+            },
+            {
+              "target": [
+                {
+                  "type": "Immunization",
+                  "params": "patient={ref}"
+                }
+              ]
+            },
+            {
+              "target": [
+                {
+                  "type": "MedicationDispense",
+                  "params": "patient={ref}"
+                }
+              ]
+            },
+            {
+              "target": [
+                {
+                  "type": "MedicationRequest",
+                  "params": "patient={ref}"
+                }
+              ]
+            },
+            {
+              "target": [
+                {
+                  "type": "MedicationStatement",
+                  "params": "patient={ref}"
+                }
+              ]
+            },
+            {
+              "target": [
+                {
+                  "type": "Observation",
+                  "params": "patient={ref}"
+                }
+              ]
+            },
+            {
+              "target": [
+                {
+                  "type": "Procedure",
+                  "params": "patient={ref}"
+                }
+              ]
+            },
+            {
+              "target": [
+                {
+                  "type": "Person",
+                  "params": "patient={ref}"
+                }
+              ]
+            },
+            {
+              "target": [
+                {
+                  "type": "Task",
+                  "params": "patient={ref}"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

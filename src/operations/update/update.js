@@ -18,6 +18,7 @@ const {ResourceValidator} = require('../common/resourceValidator');
 const {DatabaseBulkInserter} = require('../../dataLayer/databaseBulkInserter');
 const {SecurityTagSystem} = require('../../utils/securityTagSystem');
 const {ResourceMerger} = require('../common/resourceMerger');
+const {getCircularReplacer} = require('../../utils/getCircularReplacer');
 
 /**
  * Update Operation
@@ -110,7 +111,7 @@ class UpdateOperation {
      * @param {string} resourceType
      * @returns {{id: string,created: boolean, resource_version: string, resource: Resource}}
      */
-    async update(requestInfo, args, resourceType) {
+    async update({requestInfo, args, resourceType}) {
         assertIsValid(requestInfo !== undefined);
         assertIsValid(args !== undefined);
         assertIsValid(resourceType !== undefined);
@@ -120,7 +121,14 @@ class UpdateOperation {
          * @type {number}
          */
         const startTime = Date.now();
-        const {user, scope, path, body, /** @type {string|null} */ requestId} = requestInfo;
+        const {
+            user,
+            scope,
+            path,
+            body, /** @type {string|null} */
+            requestId, /** @type {string} */
+            method
+        } = requestInfo;
 
         await this.scopesValidator.verifyHasValidScopesAsync(
             {
@@ -217,20 +225,29 @@ class UpdateOperation {
             if (data && data.meta) {
                 // found an existing resource
                 foundResource = data;
-                if (!(this.scopesManager.isAccessToResourceAllowedBySecurityTags(foundResource, user, scope))) {
+                if (!(this.scopesManager.isAccessToResourceAllowedBySecurityTags({
+                    resource: foundResource, user, scope
+                }))) {
                     // noinspection ExceptionCaughtLocallyJS
                     throw new ForbiddenError(
                         'user ' + user + ' with scopes [' + scope + '] has no access to resource ' +
                         foundResource.resourceType + ' with id ' + id);
                 }
 
-                doc = await this.resourceMerger.mergeResourceAsync({
+                const {updatedResource, patches} = await this.resourceMerger.mergeResourceAsync({
                     currentResource: foundResource,
                     resourceToMerge: resource_incoming,
                     smartMerge: false
                 });
+                doc = updatedResource;
                 if (doc) { // if there is a change
-                    await this.databaseBulkInserter.replaceOneAsync({resourceType, id, doc});
+                    await this.databaseBulkInserter.replaceOneAsync(
+                        {
+                            requestId, resourceType, doc,
+                            id,
+                            patches
+                        }
+                    );
                 }
             } else {
                 // not found so insert
@@ -261,22 +278,26 @@ class UpdateOperation {
                 }
 
                 doc = resource_incoming;
-                await this.databaseBulkInserter.insertOneAsync({resourceType, doc});
+                await this.databaseBulkInserter.insertOneAsync({requestId, resourceType, doc});
             }
 
             if (doc) {
-                // Insert/update our resource record
-                await this.databaseBulkInserter.insertOneHistoryAsync({resourceType, doc: doc.clone()});
                 /**
                  * @type {MergeResultEntry[]}
                  */
                 const mergeResults = await this.databaseBulkInserter.executeAsync(
                     {
-                        requestId, currentDate, base_version: base_version
+                        requestId, currentDate, base_version: base_version,
+                        method
                     }
                 );
                 if (!mergeResults || mergeResults.length === 0 || (!mergeResults[0].created && !mergeResults[0].updated)) {
-                    throw new BadRequestError(new Error(mergeResults.length > 0 ? JSON.stringify(mergeResults[0].issue) : 'No merge result'));
+                    throw new BadRequestError(
+                        new Error(mergeResults.length > 0 ?
+                            JSON.stringify(mergeResults[0].issue, getCircularReplacer()) :
+                            'No merge result'
+                        )
+                    );
                 }
 
                 if (resourceType !== 'AuditEvent') {
@@ -287,7 +308,7 @@ class UpdateOperation {
                             operation: currentOperationName, args, ids: [resource_incoming['id']]
                         }
                     );
-                    await this.auditLogger.flushAsync({requestId, currentDate});
+                    await this.auditLogger.flushAsync({requestId, currentDate, method});
                 }
 
                 const result = {
@@ -303,12 +324,17 @@ class UpdateOperation {
                         resourceType,
                         startTime,
                         action: currentOperationName,
-                        result: JSON.stringify(result)
+                        result: JSON.stringify(result, getCircularReplacer())
                     });
-                await this.changeEventProducer.fireEventsAsync({
-                    requestId, eventType: 'U', resourceType, doc
+                this.postRequestProcessor.add({
+                    requestId,
+                    fnTask: async () => {
+                        await this.changeEventProducer.fireEventsAsync({
+                            requestId, eventType: 'U', resourceType, doc
+                        });
+                        await this.changeEventProducer.flushAsync({requestId});
+                    }
                 });
-                this.postRequestProcessor.add(async () => await this.changeEventProducer.flushAsync(requestId));
                 return result;
             } else {
                 // not modified

@@ -2,6 +2,7 @@
  * Class for assertion errors
  */
 const {RethrownError} = require('./rethrownError');
+const {getCircularReplacer} = require('./getCircularReplacer');
 
 
 class AssertionError extends Error {
@@ -72,10 +73,10 @@ function assertFail({source, message, args, error}) {
         throw new RethrownError({message: text, error});
     } else {
         if (args) {
-            text += ' | ' + JSON.stringify(args);
+            text += ' | ' + JSON.stringify(args, getCircularReplacer());
         }
         if (error) {
-            text += '|' + JSON.stringify(error);
+            text += '|' + JSON.stringify(error, getCircularReplacer());
         }
         const assertionError = new AssertionError(text);
         throw assertionError;

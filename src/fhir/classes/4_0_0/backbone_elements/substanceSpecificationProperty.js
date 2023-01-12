@@ -76,7 +76,7 @@ class SubstanceSpecificationProperty extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -107,7 +107,7 @@ class SubstanceSpecificationProperty extends Element {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -126,7 +126,7 @@ class SubstanceSpecificationProperty extends Element {
                     this.__data.category = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.category = new CodeableConcept(valueProvided);
             }
         });
@@ -145,7 +145,7 @@ class SubstanceSpecificationProperty extends Element {
                     this.__data.code = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.code = new CodeableConcept(valueProvided);
             }
         });
@@ -183,7 +183,7 @@ class SubstanceSpecificationProperty extends Element {
                     this.__data.definingSubstanceReference = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.definingSubstanceReference = new Reference(valueProvided);
             }
         });
@@ -202,7 +202,7 @@ class SubstanceSpecificationProperty extends Element {
                     this.__data.definingSubstanceCodeableConcept = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.definingSubstanceCodeableConcept = new CodeableConcept(valueProvided);
             }
         });
@@ -221,7 +221,7 @@ class SubstanceSpecificationProperty extends Element {
                     this.__data.amountQuantity = undefined;
                     return;
                 }
-                let Quantity = require('../complex_types/quantity.js');
+                const Quantity = require('../complex_types/quantity.js');
                 this.__data.amountQuantity = new Quantity(valueProvided);
             }
         });
@@ -283,6 +283,21 @@ class SubstanceSpecificationProperty extends Element {
             amountQuantity: this.amountQuantity && this.amountQuantity.toJSON(),
             amountString: this.amountString,
         });
+    }
+
+    /**
+     * Returns JSON representation of entity
+     * @param {function(Reference): Reference} fnUpdateReference
+     * @return {void}
+     */
+    updateReferences({fnUpdateReference}) {
+            if (this.extension) {this.extension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.category) {this.category.updateReferences({fnUpdateReference});}
+            if (this.code) {this.code.updateReferences({fnUpdateReference});}
+            if (this.definingSubstanceReference) {this.definingSubstanceReference.updateReferences({fnUpdateReference});}
+            if (this.definingSubstanceCodeableConcept) {this.definingSubstanceCodeableConcept.updateReferences({fnUpdateReference});}
+            if (this.amountQuantity) {this.amountQuantity.updateReferences({fnUpdateReference});}
     }
 
     /**

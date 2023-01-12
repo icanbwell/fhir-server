@@ -79,7 +79,7 @@ class Binary extends Resource {
                     this.__data.meta = undefined;
                     return;
                 }
-                let Meta = require('../complex_types/meta.js');
+                const Meta = require('../complex_types/meta.js');
                 this.__data.meta = new Meta(valueProvided);
             }
         });
@@ -164,7 +164,7 @@ class Binary extends Resource {
                     this.__data.securityContext = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.securityContext = new Reference(valueProvided);
             }
         });
@@ -256,8 +256,10 @@ class Binary extends Resource {
             _sourceId,
         });
 
-        // Define a default non-writable resourceType property
-
+        /**
+         * @description Define a default non-writable resourceType property
+         * @property {string|undefined}
+         */
         Object.defineProperty(this, 'resourceType', {
             value: 'Binary',
             enumerable: true,
@@ -266,6 +268,10 @@ class Binary extends Resource {
         });
     }
 
+    /**
+     * @description Define a default non-writable resourceType property
+     * @property {string|undefined}
+     */
     static get resourceType() {
         return 'Binary';
     }
@@ -341,6 +347,16 @@ class Binary extends Resource {
             securityContext: this.securityContext && this.securityContext.toJSON(),
             data: this.data,
         });
+    }
+
+    /**
+     * Returns JSON representation of entity
+     * @param {function(Reference): Reference} fnUpdateReference
+     * @return {void}
+     */
+    updateReferences({fnUpdateReference}) {
+            if (this.meta) {this.meta.updateReferences({fnUpdateReference});}
+            if (this.securityContext) {this.securityContext.updateReferences({fnUpdateReference});}
     }
 
     /**

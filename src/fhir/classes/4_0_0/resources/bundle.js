@@ -85,7 +85,7 @@ class Bundle extends Resource {
                     this.__data.meta = undefined;
                     return;
                 }
-                let Meta = require('../complex_types/meta.js');
+                const Meta = require('../complex_types/meta.js');
                 this.__data.meta = new Meta(valueProvided);
             }
         });
@@ -144,7 +144,7 @@ class Bundle extends Resource {
                     this.__data.identifier = undefined;
                     return;
                 }
-                let Identifier = require('../complex_types/identifier.js');
+                const Identifier = require('../complex_types/identifier.js');
                 this.__data.identifier = new Identifier(valueProvided);
             }
         });
@@ -221,7 +221,7 @@ class Bundle extends Resource {
                     this.__data.link = undefined;
                     return;
                 }
-                let BundleLink = require('../backbone_elements/bundleLink.js');
+                const BundleLink = require('../backbone_elements/bundleLink.js');
                 this.__data.link = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new BundleLink(v)) : [new BundleLink(valueProvided)];
             }
         });
@@ -241,7 +241,7 @@ class Bundle extends Resource {
                     this.__data.entry = undefined;
                     return;
                 }
-                let BundleEntry = require('../backbone_elements/bundleEntry.js');
+                const BundleEntry = require('../backbone_elements/bundleEntry.js');
                 this.__data.entry = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new BundleEntry(v)) : [new BundleEntry(valueProvided)];
             }
         });
@@ -260,7 +260,7 @@ class Bundle extends Resource {
                     this.__data.signature = undefined;
                     return;
                 }
-                let Signature = require('../complex_types/signature.js');
+                const Signature = require('../complex_types/signature.js');
                 this.__data.signature = new Signature(valueProvided);
             }
         });
@@ -338,8 +338,10 @@ class Bundle extends Resource {
             _sourceId,
         });
 
-        // Define a default non-writable resourceType property
-
+        /**
+         * @description Define a default non-writable resourceType property
+         * @property {string|undefined}
+         */
         Object.defineProperty(this, 'resourceType', {
             value: 'Bundle',
             enumerable: true,
@@ -348,6 +350,10 @@ class Bundle extends Resource {
         });
     }
 
+    /**
+     * @description Define a default non-writable resourceType property
+     * @property {string|undefined}
+     */
     static get resourceType() {
         return 'Bundle';
     }
@@ -439,6 +445,19 @@ class Bundle extends Resource {
             entry: this.entry && this.entry.map(v => v.toJSON()),
             signature: this.signature && this.signature.toJSON(),
         });
+    }
+
+    /**
+     * Returns JSON representation of entity
+     * @param {function(Reference): Reference} fnUpdateReference
+     * @return {void}
+     */
+    updateReferences({fnUpdateReference}) {
+            if (this.meta) {this.meta.updateReferences({fnUpdateReference});}
+            if (this.identifier) {this.identifier.updateReferences({fnUpdateReference});}
+            if (this.link) {this.link.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.entry) {this.entry.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.signature) {this.signature.updateReferences({fnUpdateReference});}
     }
 
     /**

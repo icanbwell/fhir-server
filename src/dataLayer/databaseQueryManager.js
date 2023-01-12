@@ -4,6 +4,10 @@ const {ResourceLocator} = require('../operations/common/resourceLocator');
 const {assertTypeEquals} = require('../utils/assertType');
 const {getResource} = require('../operations/common/getResource');
 const {RethrownError} = require('../utils/rethrownError');
+const BundleEntry = require('../fhir/classes/4_0_0/backbone_elements/bundleEntry');
+const BundleRequest = require('../fhir/classes/4_0_0/backbone_elements/bundleRequest');
+const moment = require('moment-timezone');
+const {getCircularReplacer} = require('../utils/getCircularReplacer');
 
 /**
  * @typedef FindOneAndUpdateResult
@@ -57,35 +61,43 @@ class DatabaseQueryManager {
      * Finds one resource by looking in multiple partitions of a resource type
      * @param {import('mongodb').Filter<import('mongodb').DefaultSchema>} query
      * @param {import('mongodb').FindOptions<import('mongodb').DefaultSchema>} options
-     * @return {Promise<Resource|any>}
+     * @return {Promise<Resource|null>}
      */
     async findOneAsync({query, options = null}) {
-        /**
-         * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>[]}
-         */
-        const collections = await this.resourceLocator.getOrCreateCollectionsForQueryAsync({
-            query
-        });
-        for (const /** @type import('mongodb').Collection<import('mongodb').DefaultSchema> */ collection of collections) {
+        try {
             /**
-             * @type { Promise<Resource|null>}
+             * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>[]}
              */
-            const resource = await collection.findOne(query, options);
-            if (resource !== null) {
-                const ResourceCreator = getResource(this._base_version, this._resourceType);
-                return new ResourceCreator(resource);
+            const collections = await this.resourceLocator.getOrCreateCollectionsForQueryAsync({
+                query
+            });
+            for (const /** @type import('mongodb').Collection<import('mongodb').DefaultSchema> */ collection of collections) {
+                /**
+                 * @type { Promise<Resource|null>}
+                 */
+                const resource = await collection.findOne(query, options);
+                if (resource !== null) {
+                    const ResourceCreator = getResource(this._base_version, this._resourceType);
+                    return new ResourceCreator(resource);
+                }
             }
+            return null;
+        } catch (e) {
+            throw new RethrownError({
+                message: 'Error in findOneAsync(): ' + `query: ${JSON.stringify(query)}`, error: e,
+                args: {query, options}
+            });
         }
-        return null;
     }
 
     /**
-     * Finds one resource by looking in multiple partitions of a resource type
+     * Deletes resources
      * @param {import('mongodb').Filter<import('mongodb').DefaultSchema>} query
+     * @param {string} requestId
      * @param {import('mongodb').DeleteOptions} options
      * @return {Promise<DeleteManyResult>}
      */
-    async deleteManyAsync({query, options = {}}) {
+    async deleteManyAsync({query, requestId, options = {}}) {
         try {
             /**
              * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>[]}
@@ -96,6 +108,41 @@ class DatabaseQueryManager {
             let deletedCount = 0;
             for (const /** @type import('mongodb').Collection<import('mongodb').DefaultSchema> */ collection of collections) {
                 /**
+                 * @type {DatabasePartitionedCursor}
+                 */
+                const resourcesCursor = await this.findAsync({
+                    query, options
+                });
+                // find the history collection for each
+                while (await resourcesCursor.hasNext()) {
+                    /**
+                     * @type {Resource|null}
+                     */
+                    const resource = await resourcesCursor.next();
+                    if (resource) {
+                        /**
+                         * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>}
+                         */
+                        const historyCollection = await this.resourceLocator.getOrCreateHistoryCollectionAsync(resource);
+                        /**
+                         * @type {Resource}
+                         */
+                        const historyResource = resource.clone();
+                        historyResource.meta.lastUpdated = new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ssZ'));
+                        await historyCollection.insertOne(new BundleEntry({
+                            id: historyResource.id,
+                            resource: historyResource,
+                            request: new BundleRequest(
+                                {
+                                    id: requestId,
+                                    method: 'DELETE',
+                                    url: `${this._base_version}/${resource.resourceType}/${resource.id}`
+                                }
+                            )
+                        }));
+                    }
+                }
+                /**
                  * @type {import('mongodb').DeleteWriteOpResultObject}
                  */
                 const result = await collection.deleteMany(query, options);
@@ -105,7 +152,8 @@ class DatabaseQueryManager {
             return {deletedCount: deletedCount, error: null};
         } catch (e) {
             throw new RethrownError({
-                error: e
+                message: 'Error in deleteManyAsync(): ' + `query: ${JSON.stringify(query)}`, error: e,
+                args: {query, requestId, options}
             });
         }
     }
@@ -117,25 +165,32 @@ class DatabaseQueryManager {
      * @return {DatabasePartitionedCursor}
      */
     async findAsync({query, options = null}) {
-        /**
-         * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>[]}
-         */
-        const collections = await this.resourceLocator.getOrCreateCollectionsForQueryAsync({query});
-        /**
-         * @type {CursorInfo[]}
-         */
-        const cursors = [];
-        for (const /** @type import('mongodb').Collection<import('mongodb').DefaultSchema> */ collection of collections) {
+        try {
             /**
-             * @type {import('mongodb').FindCursor<import('mongodb').WithId<import('mongodb').DefaultSchema>>}
+             * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>[]}
              */
-            const cursor = collection.find(query, options);
-            cursors.push({cursor, db: collection.dbName, collection: collection.collectionName});
+            const collections = await this.resourceLocator.getOrCreateCollectionsForQueryAsync({query});
+            /**
+             * @type {CursorInfo[]}
+             */
+            const cursors = [];
+            for (const /** @type import('mongodb').Collection<import('mongodb').DefaultSchema> */ collection of collections) {
+                /**
+                 * @type {import('mongodb').FindCursor<import('mongodb').WithId<import('mongodb').DefaultSchema>>}
+                 */
+                const cursor = collection.find(query, options);
+                cursors.push({cursor, db: collection.dbName, collection: collection.collectionName});
+            }
+            return new DatabasePartitionedCursor({
+                base_version: this._base_version, resourceType: this._resourceType, cursors,
+                query
+            });
+        } catch (e) {
+            throw new RethrownError({
+                message: 'Error in findAsync(): ' + `query: ${JSON.stringify(query)}`, error: e,
+                args: {query, options}
+            });
         }
-        return new DatabasePartitionedCursor({
-            base_version: this._base_version, resourceType: this._resourceType, cursors,
-            query
-        });
     }
 
     /**
@@ -144,22 +199,29 @@ class DatabaseQueryManager {
      * @return {Promise<*>}
      */
     async estimatedDocumentCountAsync({options}) {
-        /**
-         * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>[]}
-         */
-        const collections = await this.resourceLocator.getOrCreateCollectionsForQueryAsync({
-            query: undefined
-        });
-        let count = 0;
-        for (const /** @type import('mongodb').Collection<import('mongodb').DefaultSchema> */ collection of collections) {
+        try {
             /**
-             * https://mongodb.github.io/node-mongodb-native/4.9/classes/Collection.html#estimatedDocumentCount
-             * @type {number}
+             * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>[]}
              */
-            const countInCollection = await collection.estimatedDocumentCount(options);
-            count += countInCollection;
+            const collections = await this.resourceLocator.getOrCreateCollectionsForQueryAsync({
+                query: undefined
+            });
+            let count = 0;
+            for (const /** @type import('mongodb').Collection<import('mongodb').DefaultSchema> */ collection of collections) {
+                /**
+                 * https://mongodb.github.io/node-mongodb-native/4.9/classes/Collection.html#estimatedDocumentCount
+                 * @type {number}
+                 */
+                const countInCollection = await collection.estimatedDocumentCount(options);
+                count += countInCollection;
+            }
+            return count;
+        } catch (e) {
+            throw new RethrownError({
+                message: 'Error in estimatedDocumentCountAsync(): ' + `options: ${JSON.stringify(options)}`, error: e,
+                args: {options}
+            });
         }
-        return count;
     }
 
     /**
@@ -169,21 +231,28 @@ class DatabaseQueryManager {
      * @return {Promise<*>}
      */
     async exactDocumentCountAsync({query, options}) {
-        /**
-         * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>[]}
-         */
-        const collections = await this.resourceLocator.getOrCreateCollectionsForQueryAsync({
-            query: undefined
-        });
-        let count = 0;
-        for (const /** @type import('mongodb').Collection<import('mongodb').DefaultSchema> */ collection of collections) {
+        try {
             /**
-             * @type {number}
+             * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>[]}
              */
-            const countInCollection = await collection.countDocuments(query, options);
-            count += countInCollection;
+            const collections = await this.resourceLocator.getOrCreateCollectionsForQueryAsync({
+                query: undefined
+            });
+            let count = 0;
+            for (const /** @type import('mongodb').Collection<import('mongodb').DefaultSchema> */ collection of collections) {
+                /**
+                 * @type {number}
+                 */
+                const countInCollection = await collection.countDocuments(query, options);
+                count += countInCollection;
+            }
+            return count;
+        } catch (e) {
+            throw new RethrownError({
+                message: 'Error in exactDocumentCountAsync(): ' + `query: ${JSON.stringify(query)}`, error: e,
+                args: {query, options}
+            });
         }
-        return count;
     }
 
     /**
@@ -192,29 +261,37 @@ class DatabaseQueryManager {
      * @return {Promise<DatabasePartitionedCursor>}
      */
     async findResourcesInDatabaseAsync({resources}) {
-        /**
-         * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>[]}
-         */
-        const collections = await this.resourceLocator.getOrCreateCollectionsAsync({resources: resources});
-        const query = {
-            id: {$in: resources.map(r => r.id)}
-        };
-        const options = {};
-        /**
-         * @type {CursorInfo[]}
-         */
-        const cursors = [];
-        for (const /** @type import('mongodb').Collection<import('mongodb').DefaultSchema> */ collection of collections) {
+        try {
             /**
-             * @type {import('mongodb').FindCursor<import('mongodb').WithId<import('mongodb').DefaultSchema>>}
+             * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>[]}
              */
-            const cursor = collection.find(query, options);
-            cursors.push({cursor, db: collection.dbName, collection: collection.collectionName});
+            const collections = await this.resourceLocator.getOrCreateCollectionsAsync({resources: resources});
+            const query = {
+                id: {$in: resources.map(r => r.id)}
+            };
+            const options = {};
+            /**
+             * @type {CursorInfo[]}
+             */
+            const cursors = [];
+            for (const /** @type import('mongodb').Collection<import('mongodb').DefaultSchema> */ collection of collections) {
+                /**
+                 * @type {import('mongodb').FindCursor<import('mongodb').WithId<import('mongodb').DefaultSchema>>}
+                 */
+                const cursor = collection.find(query, options);
+                cursors.push({cursor, db: collection.dbName, collection: collection.collectionName});
+            }
+            return new DatabasePartitionedCursor({
+                base_version: this._base_version, resourceType: this._resourceType, cursors,
+                query
+            });
+        } catch (e) {
+            throw new RethrownError({
+                message: 'Error in findResourcesInDatabaseAsync(): ' + `resources: ${JSON.stringify(resources, getCircularReplacer())}`,
+                error: e,
+                args: {resources}
+            });
         }
-        return new DatabasePartitionedCursor({
-            base_version: this._base_version, resourceType: this._resourceType, cursors,
-            query
-        });
     }
 }
 

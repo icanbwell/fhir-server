@@ -56,5 +56,5 @@ type MedicationDispensePerformer {
     The device, practitioner, etc. who performed the action.  It should be assumed
     that the actor is the dispenser of the medication.
     """
-    actor: MedicationDispensePerformerActor!        
+    actor: MedicationDispensePerformerActor        
 }

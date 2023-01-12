@@ -1,0 +1,27 @@
+{
+  "resourceType": "Person",
+  "id": "f924936d-e31e-45fe-a379-e13a9107f51a",
+  "meta": {
+    "source": "https://icanbwell.com",
+    "security": [
+      {
+        "system": "https://www.icanbwell.com/access",
+        "code": "bwell"
+      },
+      {
+        "system": "https://www.icanbwell.com/owner",
+        "code": "bwell"
+      }
+    ]
+  },
+  "link": [
+    {
+      "id": "c59156ea-a482-4587-9d2e-ff6af8ee7b5e",
+      "target": {
+        "reference": "Person/c59156ea-a482-4587-9d2e-ff6af8ee7b5e",
+        "type": "Person"
+      },
+      "assurance": "level4"
+    }
+  ]
+}

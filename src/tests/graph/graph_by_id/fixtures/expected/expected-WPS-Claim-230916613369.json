@@ -1,6 +1,7 @@
 {
   "entry": [
     {
+      "id": "WPS-Claim-230916613369",
       "resource": {
         "contained": [
           {
@@ -98,5 +99,6 @@
     }
   ],
   "resourceType": "Bundle",
-  "type": "collection"
+  "total": 1,
+  "type": "searchset"
 }

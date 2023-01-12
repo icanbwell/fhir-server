@@ -2,6 +2,7 @@ const {FhirOperationsManager} = require('../../../../operations/fhirOperationsMa
 const {PostRequestProcessor} = require('../../../../utils/postRequestProcessor');
 const {assertTypeEquals} = require('../../../../utils/assertType');
 const {FhirResponseWriter} = require('../../fhirResponseWriter');
+const {RequestSpecificCache} = require('../../../../utils/requestSpecificCache');
 
 class CustomOperationsController {
     /**
@@ -9,10 +10,13 @@ class CustomOperationsController {
      * @param {PostRequestProcessor} postRequestProcessor
      * @param {FhirOperationsManager} fhirOperationsManager
      * @param {FhirResponseWriter} fhirResponseWriter
+     * @param {RequestSpecificCache} requestSpecificCache
      */
     constructor({
-                    postRequestProcessor, fhirOperationsManager,
-                    fhirResponseWriter
+                    postRequestProcessor,
+                    fhirOperationsManager,
+                    fhirResponseWriter,
+                    requestSpecificCache
                 }) {
         assertTypeEquals(postRequestProcessor, PostRequestProcessor);
         /**
@@ -29,6 +33,12 @@ class CustomOperationsController {
          */
         this.fhirResponseWriter = fhirResponseWriter;
         assertTypeEquals(fhirResponseWriter, FhirResponseWriter);
+
+        /**
+         * @type {RequestSpecificCache}
+         */
+        this.requestSpecificCache = requestSpecificCache;
+        assertTypeEquals(requestSpecificCache, RequestSpecificCache);
     }
 
     /**
@@ -57,17 +67,62 @@ class CustomOperationsController {
 
             try {
                 const result = await this.fhirOperationsManager[`${name}`](args, {
-                    req
+                    req, res
                 }, resourceType);
                 if (name === 'merge') {
                     this.fhirResponseWriter.merge({req, res, result});
+                } else if (name === 'graph') {
+                    this.fhirResponseWriter.graph({req, res, result});
+                } else if (name === 'everything') {
+                    this.fhirResponseWriter.everything({req, res, result});
                 } else {
                     this.fhirResponseWriter.readCustomOperation({req, res, result});
                 }
             } catch (e) {
                 next(e);
             } finally {
-                await this.postRequestProcessor.executeAsync();
+                const requestId = req.id;
+                await this.postRequestProcessor.executeAsync({requestId});
+                await this.requestSpecificCache.clearAsync({requestId});
+            }
+        };
+    }
+
+    /**
+     * @description Controller for all DELETE operations
+     * @param {name: string, resourceType: string}
+     */
+    operationsDelete(
+        {
+            name,
+            resourceType
+        }) {
+        return async (
+            /** @type {import('http').IncomingMessage}*/req,
+            /** @type {import('http').ServerResponse}*/res,
+            /** @type {function() : void}*/next) => {
+            let {
+                base_version,
+                id
+            } = req.sanitized_args;
+            let resource_body = req.body;
+            let args = {
+                id,
+                base_version,
+                resource: resource_body
+            };
+
+            try {
+                const result = await this.fhirOperationsManager[`${name}`](args, {
+                    req, res
+                }, resourceType);
+                this.fhirResponseWriter.readCustomOperation({req, res, result});
+            } catch (e) {
+                next(e);
+            } finally {
+                const requestId = req.id;
+                await this.postRequestProcessor.executeAsync({requestId});
+                await this.requestSpecificCache.clearAsync({requestId});
             }
         };
     }
@@ -88,13 +143,21 @@ class CustomOperationsController {
             try {
                 const result = await
                     this.fhirOperationsManager[`${name}`](req.sanitized_args, {
-                        req
+                        req, res
                     }, resourceType);
-                this.fhirResponseWriter.readCustomOperation({req, res, result});
+                if (name === 'graph') {
+                    this.fhirResponseWriter.graph({req, res, result});
+                } else if (name === 'everything') {
+                    this.fhirResponseWriter.everything({req, res, result});
+                } else {
+                    this.fhirResponseWriter.readCustomOperation({req, res, result});
+                }
             } catch (e) {
                 next(e);
             } finally {
-                await this.postRequestProcessor.executeAsync();
+                const requestId = req.id;
+                await this.postRequestProcessor.executeAsync({requestId});
+                await this.requestSpecificCache.clearAsync({requestId});
             }
         };
     }

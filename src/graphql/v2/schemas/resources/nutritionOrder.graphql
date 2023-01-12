@@ -122,7 +122,7 @@ type NutritionOrder {
     The person (patient) who needs the nutrition order for an oral diet,
     nutritional supplement and/or enteral or formula feeding.
     """
-    patient: Patient!        
+    patient: Patient        
     """
     An encounter that provides additional information about the healthcare context
     in which this request is made.

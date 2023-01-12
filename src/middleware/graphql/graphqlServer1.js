@@ -13,6 +13,8 @@ const {
 } = require('apollo-server-core');
 const {getApolloServerLoggingPlugin} = require('./plugins/graphqlLoggingPlugin');
 const {getGraphqlContainerPlugin} = require('./plugins/graphqlContainerPlugin');
+const {generateUUID} = require('../../utils/uid.util');
+const {getAddRequestIdToResponseHeadersPlugin} = require('./plugins/graphqlAddRequestIdToResponseHeadersPlugin');
 
 /**
  * @param {function (): SimpleContainer} fnCreateContainer
@@ -22,6 +24,7 @@ const graphql = async (fnCreateContainer) => {
     const typesArray = loadFilesSync(join(__dirname, '../../graphql/v1/schemas/'), {recursive: true});
     const typeDefs = mergeTypeDefs(typesArray);
     // create the Apollo graphql middleware
+    // noinspection JSCheckFunctionSignatures
     const server = new ApolloServer(
         {
             // schema: schemaWithResolvers,
@@ -44,18 +47,20 @@ const graphql = async (fnCreateContainer) => {
                     }
                 ),
                 getApolloServerLoggingPlugin('graphqlv1'),
-                getGraphqlContainerPlugin()
+                getGraphqlContainerPlugin(),
+                getAddRequestIdToResponseHeadersPlugin()
                 // ApolloServerPluginLandingPageDisabled()
             ],
             context: async ({req, res}) => {
+                req.id = req.id || req.headers['X-REQUEST-ID'] || generateUUID();
                 return {
                     req,
                     res,
                     user: (req.authInfo && req.authInfo.context && req.authInfo.context.username) ||
                         (req.authInfo && req.authInfo.context && req.authInfo.context.subject) ||
-                        ((!req.user || typeof req.user === 'string') ? req.user : req.user.id),
+                        ((!req.user || typeof req.user === 'string') ? req.user : req.user.name || req.user.id),
                     scope: req.authInfo && req.authInfo.scope,
-                    remoteIpAddress: req.headers['x-forwarded-for'] || req.connection.remoteAddress,
+                    remoteIpAddress: req.headers['x-forwarded-for'] || req.socket.remoteAddress,
                     requestId: req.id,
                     protocol: req.protocol,
                     originalUrl: req.originalUrl,

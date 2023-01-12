@@ -126,12 +126,31 @@ const getFirstElementOrNull = (sourceArray) => sourceArray.length === 0 ? null :
 const getFirstResourceOrNull = (sourceArray) => sourceArray.length === 0 ? null : sourceArray[0];
 
 /**
+ * Gets the first element in an array if exists else returns null
+ * @param {BundleEntry[]} sourceArray
+ * @return {BundleEntry | null}
+ */
+const getFirstBundleEntryOrNull = (sourceArray) => sourceArray.length === 0 ? null : sourceArray[0];
+
+/**
  * @param {(*[])[]} array_of_arrays
  * @returns {Promise<*>}
  */
-async function removeEmptyEntries(array_of_arrays) {
+async function removeEmptyEntriesAsync(array_of_arrays) {
     return array_of_arrays.filter(a => a.length > 0);
 }
+
+/**
+ * removes duplicate items from array
+ * @param {*[]} array
+ * @param fnCompare
+ * @returns {*[]}
+ */
+function removeDuplicatesWithLambda(array, fnCompare)
+{
+    return array.filter((value, index, self) => index === self.findIndex((t) => (fnCompare(t, value))));
+}
+
 
 module.exports = {
     findDuplicates,
@@ -142,5 +161,7 @@ module.exports = {
     groupByLambda,
     getFirstElementOrNull,
     getFirstResourceOrNull,
-    removeEmptyEntries
+    getFirstBundleEntryOrNull,
+    removeEmptyEntriesAsync,
+    removeDuplicatesWithLambda
 };

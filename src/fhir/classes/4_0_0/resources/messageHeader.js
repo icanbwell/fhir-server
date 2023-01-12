@@ -107,7 +107,7 @@ class MessageHeader extends Resource {
                     this.__data.meta = undefined;
                     return;
                 }
-                let Meta = require('../complex_types/meta.js');
+                const Meta = require('../complex_types/meta.js');
                 this.__data.meta = new Meta(valueProvided);
             }
         });
@@ -170,7 +170,7 @@ class MessageHeader extends Resource {
                     this.__data.text = undefined;
                     return;
                 }
-                let Narrative = require('../complex_types/narrative.js');
+                const Narrative = require('../complex_types/narrative.js');
                 this.__data.text = new Narrative(valueProvided);
             }
         });
@@ -191,7 +191,7 @@ class MessageHeader extends Resource {
                     this.__data.contained = undefined;
                     return;
                 }
-                let ResourceContainer = require('../simple_types/resourceContainer.js');
+                const ResourceContainer = require('../simple_types/resourceContainer.js');
                 const {getResource} = require('../../../../operations/common/getResource');
                 if (Array.isArray(valueProvided)) {
                     this.__data.contained = valueProvided.filter(v => v).map(v => {
@@ -223,7 +223,7 @@ class MessageHeader extends Resource {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -254,7 +254,7 @@ class MessageHeader extends Resource {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -273,7 +273,7 @@ class MessageHeader extends Resource {
                     this.__data.eventCoding = undefined;
                     return;
                 }
-                let Coding = require('../complex_types/coding.js');
+                const Coding = require('../complex_types/coding.js');
                 this.__data.eventCoding = new Coding(valueProvided);
             }
         });
@@ -310,7 +310,7 @@ class MessageHeader extends Resource {
                     this.__data.destination = undefined;
                     return;
                 }
-                let MessageHeaderDestination = require('../backbone_elements/messageHeaderDestination.js');
+                const MessageHeaderDestination = require('../backbone_elements/messageHeaderDestination.js');
                 this.__data.destination = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new MessageHeaderDestination(v)) : [new MessageHeaderDestination(valueProvided)];
             }
         });
@@ -329,7 +329,7 @@ class MessageHeader extends Resource {
                     this.__data.sender = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.sender = new Reference(valueProvided);
             }
         });
@@ -350,7 +350,7 @@ class MessageHeader extends Resource {
                     this.__data.enterer = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.enterer = new Reference(valueProvided);
             }
         });
@@ -371,7 +371,7 @@ class MessageHeader extends Resource {
                     this.__data.author = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.author = new Reference(valueProvided);
             }
         });
@@ -390,7 +390,7 @@ class MessageHeader extends Resource {
                     this.__data.source = undefined;
                     return;
                 }
-                let MessageHeaderSource = require('../backbone_elements/messageHeaderSource.js');
+                const MessageHeaderSource = require('../backbone_elements/messageHeaderSource.js');
                 this.__data.source = new MessageHeaderSource(valueProvided);
             }
         });
@@ -411,7 +411,7 @@ class MessageHeader extends Resource {
                     this.__data.responsible = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.responsible = new Reference(valueProvided);
             }
         });
@@ -431,7 +431,7 @@ class MessageHeader extends Resource {
                     this.__data.reason = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.reason = new CodeableConcept(valueProvided);
             }
         });
@@ -451,7 +451,7 @@ class MessageHeader extends Resource {
                     this.__data.response = undefined;
                     return;
                 }
-                let MessageHeaderResponse = require('../backbone_elements/messageHeaderResponse.js');
+                const MessageHeaderResponse = require('../backbone_elements/messageHeaderResponse.js');
                 this.__data.response = new MessageHeaderResponse(valueProvided);
             }
         });
@@ -471,7 +471,7 @@ class MessageHeader extends Resource {
                     this.__data.focus = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.focus = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
             }
         });
@@ -576,8 +576,10 @@ class MessageHeader extends Resource {
             _sourceId,
         });
 
-        // Define a default non-writable resourceType property
-
+        /**
+         * @description Define a default non-writable resourceType property
+         * @property {string|undefined}
+         */
         Object.defineProperty(this, 'resourceType', {
             value: 'MessageHeader',
             enumerable: true,
@@ -586,6 +588,10 @@ class MessageHeader extends Resource {
         });
     }
 
+    /**
+     * @description Define a default non-writable resourceType property
+     * @property {string|undefined}
+     */
     static get resourceType() {
         return 'MessageHeader';
     }
@@ -713,6 +719,29 @@ class MessageHeader extends Resource {
             focus: this.focus && this.focus.map(v => v.toJSON()),
             definition: this.definition,
         });
+    }
+
+    /**
+     * Returns JSON representation of entity
+     * @param {function(Reference): Reference} fnUpdateReference
+     * @return {void}
+     */
+    updateReferences({fnUpdateReference}) {
+            if (this.meta) {this.meta.updateReferences({fnUpdateReference});}
+            if (this.text) {this.text.updateReferences({fnUpdateReference});}
+            if (this.contained) {this.contained.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.extension) {this.extension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.eventCoding) {this.eventCoding.updateReferences({fnUpdateReference});}
+            if (this.destination) {this.destination.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.sender) {this.sender.updateReferences({fnUpdateReference});}
+            if (this.enterer) {this.enterer.updateReferences({fnUpdateReference});}
+            if (this.author) {this.author.updateReferences({fnUpdateReference});}
+            if (this.source) {this.source.updateReferences({fnUpdateReference});}
+            if (this.responsible) {this.responsible.updateReferences({fnUpdateReference});}
+            if (this.reason) {this.reason.updateReferences({fnUpdateReference});}
+            if (this.response) {this.response.updateReferences({fnUpdateReference});}
+            if (this.focus) {this.focus.forEach(v => v.updateReferences({fnUpdateReference}));}
     }
 
     /**

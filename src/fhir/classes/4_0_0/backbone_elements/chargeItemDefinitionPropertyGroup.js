@@ -68,7 +68,7 @@ class ChargeItemDefinitionPropertyGroup extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -99,7 +99,7 @@ class ChargeItemDefinitionPropertyGroup extends Element {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -118,7 +118,7 @@ class ChargeItemDefinitionPropertyGroup extends Element {
                     this.__data.applicability = undefined;
                     return;
                 }
-                let ChargeItemDefinitionApplicability = require('../backbone_elements/chargeItemDefinitionApplicability.js');
+                const ChargeItemDefinitionApplicability = require('../backbone_elements/chargeItemDefinitionApplicability.js');
                 this.__data.applicability = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ChargeItemDefinitionApplicability(v)) : [new ChargeItemDefinitionApplicability(valueProvided)];
             }
         });
@@ -142,7 +142,7 @@ class ChargeItemDefinitionPropertyGroup extends Element {
                     this.__data.priceComponent = undefined;
                     return;
                 }
-                let ChargeItemDefinitionPriceComponent = require('../backbone_elements/chargeItemDefinitionPriceComponent.js');
+                const ChargeItemDefinitionPriceComponent = require('../backbone_elements/chargeItemDefinitionPriceComponent.js');
                 this.__data.priceComponent = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ChargeItemDefinitionPriceComponent(v)) : [new ChargeItemDefinitionPriceComponent(valueProvided)];
             }
         });
@@ -176,6 +176,18 @@ class ChargeItemDefinitionPropertyGroup extends Element {
             applicability: this.applicability && this.applicability.map(v => v.toJSON()),
             priceComponent: this.priceComponent && this.priceComponent.map(v => v.toJSON()),
         });
+    }
+
+    /**
+     * Returns JSON representation of entity
+     * @param {function(Reference): Reference} fnUpdateReference
+     * @return {void}
+     */
+    updateReferences({fnUpdateReference}) {
+            if (this.extension) {this.extension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.applicability) {this.applicability.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.priceComponent) {this.priceComponent.forEach(v => v.updateReferences({fnUpdateReference}));}
     }
 
     /**

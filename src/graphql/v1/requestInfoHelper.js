@@ -16,8 +16,9 @@ module.exports.getRequestInfo = (context) => {
         body: context.body,
         accept: context.accept,
         isUser: context.isUser,
-        patients: context.patients,
-        fhirPersonId: context.fhirPersonId,
+        patientIdsFromJwtToken: context.patients,
+        personIdFromJwtToken: context.personIdFromJwtToken,
         headers: context.headers,
+        method: context.method
     });
 };

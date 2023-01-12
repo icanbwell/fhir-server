@@ -57,7 +57,7 @@ type {{fhir_entity.cleaned_name}} {
     """
     {{ property.documentation[0] | wordwrap(78) | replace('\n', '\n    ') | replace('\r', '\n    ') }}
     """
-    {{ property.name -}} {{ ': ' -}}
+    {{ property.name -}}{% if fhir_entity.fhir_name == "CodeSystem" and property.name == "concept" %}(code: [String]){% endif %}{{ ': ' -}}
         {% if property.is_list -%}
             {{ '[' -}}
         {% endif -%}
@@ -77,7 +77,7 @@ type {{fhir_entity.cleaned_name}} {
         {% if property.is_list -%}
             {{ ']' -}}
         {% endif -%}
-        {% if not property.optional -%}
+        {% if not property.reference_target_resources and not property.optional -%}
             {{- '!' -}}
         {% else -%}
             {{ '' -}}

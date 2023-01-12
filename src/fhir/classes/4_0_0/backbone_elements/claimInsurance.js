@@ -77,7 +77,7 @@ class ClaimInsurance extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -108,7 +108,7 @@ class ClaimInsurance extends Element {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -166,7 +166,7 @@ class ClaimInsurance extends Element {
                     this.__data.identifier = undefined;
                     return;
                 }
-                let Identifier = require('../complex_types/identifier.js');
+                const Identifier = require('../complex_types/identifier.js');
                 this.__data.identifier = new Identifier(valueProvided);
             }
         });
@@ -187,7 +187,7 @@ class ClaimInsurance extends Element {
                     this.__data.coverage = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.coverage = new Reference(valueProvided);
             }
         });
@@ -246,7 +246,7 @@ class ClaimInsurance extends Element {
                     this.__data.claimResponse = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.claimResponse = new Reference(valueProvided);
             }
         });
@@ -290,6 +290,19 @@ class ClaimInsurance extends Element {
             preAuthRef: this.preAuthRef,
             claimResponse: this.claimResponse && this.claimResponse.toJSON(),
         });
+    }
+
+    /**
+     * Returns JSON representation of entity
+     * @param {function(Reference): Reference} fnUpdateReference
+     * @return {void}
+     */
+    updateReferences({fnUpdateReference}) {
+            if (this.extension) {this.extension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.identifier) {this.identifier.updateReferences({fnUpdateReference});}
+            if (this.coverage) {this.coverage.updateReferences({fnUpdateReference});}
+            if (this.claimResponse) {this.claimResponse.updateReferences({fnUpdateReference});}
     }
 
     /**

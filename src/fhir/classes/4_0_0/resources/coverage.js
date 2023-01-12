@@ -114,7 +114,7 @@ class Coverage extends Resource {
                     this.__data.meta = undefined;
                     return;
                 }
-                let Meta = require('../complex_types/meta.js');
+                const Meta = require('../complex_types/meta.js');
                 this.__data.meta = new Meta(valueProvided);
             }
         });
@@ -177,7 +177,7 @@ class Coverage extends Resource {
                     this.__data.text = undefined;
                     return;
                 }
-                let Narrative = require('../complex_types/narrative.js');
+                const Narrative = require('../complex_types/narrative.js');
                 this.__data.text = new Narrative(valueProvided);
             }
         });
@@ -198,7 +198,7 @@ class Coverage extends Resource {
                     this.__data.contained = undefined;
                     return;
                 }
-                let ResourceContainer = require('../simple_types/resourceContainer.js');
+                const ResourceContainer = require('../simple_types/resourceContainer.js');
                 const {getResource} = require('../../../../operations/common/getResource');
                 if (Array.isArray(valueProvided)) {
                     this.__data.contained = valueProvided.filter(v => v).map(v => {
@@ -230,7 +230,7 @@ class Coverage extends Resource {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -261,7 +261,7 @@ class Coverage extends Resource {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -280,7 +280,7 @@ class Coverage extends Resource {
                     this.__data.identifier = undefined;
                     return;
                 }
-                let Identifier = require('../complex_types/identifier.js');
+                const Identifier = require('../complex_types/identifier.js');
                 this.__data.identifier = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Identifier(v)) : [new Identifier(valueProvided)];
             }
         });
@@ -318,7 +318,7 @@ class Coverage extends Resource {
                     this.__data.type = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.type = new CodeableConcept(valueProvided);
             }
         });
@@ -337,7 +337,7 @@ class Coverage extends Resource {
                     this.__data.policyHolder = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.policyHolder = new Reference(valueProvided);
             }
         });
@@ -358,7 +358,7 @@ class Coverage extends Resource {
                     this.__data.subscriber = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.subscriber = new Reference(valueProvided);
             }
         });
@@ -396,7 +396,7 @@ class Coverage extends Resource {
                     this.__data.beneficiary = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.beneficiary = new Reference(valueProvided);
             }
         });
@@ -433,7 +433,7 @@ class Coverage extends Resource {
                     this.__data.relationship = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.relationship = new CodeableConcept(valueProvided);
             }
         });
@@ -454,7 +454,7 @@ class Coverage extends Resource {
                     this.__data.period = undefined;
                     return;
                 }
-                let Period = require('../complex_types/period.js');
+                const Period = require('../complex_types/period.js');
                 this.__data.period = new Period(valueProvided);
             }
         });
@@ -474,7 +474,7 @@ class Coverage extends Resource {
                     this.__data.payor = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.payor = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
             }
         });
@@ -493,7 +493,7 @@ class Coverage extends Resource {
                     this.__data.class = undefined;
                     return;
                 }
-                let CoverageClass = require('../backbone_elements/coverageClass.js');
+                const CoverageClass = require('../backbone_elements/coverageClass.js');
                 this.__data.class = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CoverageClass(v)) : [new CoverageClass(valueProvided)];
             }
         });
@@ -554,7 +554,7 @@ class Coverage extends Resource {
                     this.__data.costToBeneficiary = undefined;
                     return;
                 }
-                let CoverageCostToBeneficiary = require('../backbone_elements/coverageCostToBeneficiary.js');
+                const CoverageCostToBeneficiary = require('../backbone_elements/coverageCostToBeneficiary.js');
                 this.__data.costToBeneficiary = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CoverageCostToBeneficiary(v)) : [new CoverageCostToBeneficiary(valueProvided)];
             }
         });
@@ -592,7 +592,7 @@ class Coverage extends Resource {
                     this.__data.contract = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.contract = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
             }
         });
@@ -684,8 +684,10 @@ class Coverage extends Resource {
             _sourceId,
         });
 
-        // Define a default non-writable resourceType property
-
+        /**
+         * @description Define a default non-writable resourceType property
+         * @property {string|undefined}
+         */
         Object.defineProperty(this, 'resourceType', {
             value: 'Coverage',
             enumerable: true,
@@ -694,6 +696,10 @@ class Coverage extends Resource {
         });
     }
 
+    /**
+     * @description Define a default non-writable resourceType property
+     * @property {string|undefined}
+     */
     static get resourceType() {
         return 'Coverage';
     }
@@ -841,6 +847,30 @@ class Coverage extends Resource {
             subrogation: this.subrogation,
             contract: this.contract && this.contract.map(v => v.toJSON()),
         });
+    }
+
+    /**
+     * Returns JSON representation of entity
+     * @param {function(Reference): Reference} fnUpdateReference
+     * @return {void}
+     */
+    updateReferences({fnUpdateReference}) {
+            if (this.meta) {this.meta.updateReferences({fnUpdateReference});}
+            if (this.text) {this.text.updateReferences({fnUpdateReference});}
+            if (this.contained) {this.contained.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.extension) {this.extension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.identifier) {this.identifier.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.type) {this.type.updateReferences({fnUpdateReference});}
+            if (this.policyHolder) {this.policyHolder.updateReferences({fnUpdateReference});}
+            if (this.subscriber) {this.subscriber.updateReferences({fnUpdateReference});}
+            if (this.beneficiary) {this.beneficiary.updateReferences({fnUpdateReference});}
+            if (this.relationship) {this.relationship.updateReferences({fnUpdateReference});}
+            if (this.period) {this.period.updateReferences({fnUpdateReference});}
+            if (this.payor) {this.payor.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.class) {this.class.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.costToBeneficiary) {this.costToBeneficiary.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.contract) {this.contract.forEach(v => v.updateReferences({fnUpdateReference}));}
     }
 
     /**

@@ -76,7 +76,7 @@ class PatientContact extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -107,7 +107,7 @@ class PatientContact extends Element {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -126,7 +126,7 @@ class PatientContact extends Element {
                     this.__data.relationship = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.relationship = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
             }
         });
@@ -145,7 +145,7 @@ class PatientContact extends Element {
                     this.__data.name = undefined;
                     return;
                 }
-                let HumanName = require('../complex_types/humanName.js');
+                const HumanName = require('../complex_types/humanName.js');
                 this.__data.name = new HumanName(valueProvided);
             }
         });
@@ -164,7 +164,7 @@ class PatientContact extends Element {
                     this.__data.telecom = undefined;
                     return;
                 }
-                let ContactPoint = require('../complex_types/contactPoint.js');
+                const ContactPoint = require('../complex_types/contactPoint.js');
                 this.__data.telecom = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ContactPoint(v)) : [new ContactPoint(valueProvided)];
             }
         });
@@ -183,7 +183,7 @@ class PatientContact extends Element {
                     this.__data.address = undefined;
                     return;
                 }
-                let Address = require('../complex_types/address.js');
+                const Address = require('../complex_types/address.js');
                 this.__data.address = new Address(valueProvided);
             }
         });
@@ -222,7 +222,7 @@ class PatientContact extends Element {
                     this.__data.organization = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.organization = new Reference(valueProvided);
             }
         });
@@ -242,7 +242,7 @@ class PatientContact extends Element {
                     this.__data.period = undefined;
                     return;
                 }
-                let Period = require('../complex_types/period.js');
+                const Period = require('../complex_types/period.js');
                 this.__data.period = new Period(valueProvided);
             }
         });
@@ -286,6 +286,22 @@ class PatientContact extends Element {
             organization: this.organization && this.organization.toJSON(),
             period: this.period && this.period.toJSON(),
         });
+    }
+
+    /**
+     * Returns JSON representation of entity
+     * @param {function(Reference): Reference} fnUpdateReference
+     * @return {void}
+     */
+    updateReferences({fnUpdateReference}) {
+            if (this.extension) {this.extension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.relationship) {this.relationship.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.name) {this.name.updateReferences({fnUpdateReference});}
+            if (this.telecom) {this.telecom.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.address) {this.address.updateReferences({fnUpdateReference});}
+            if (this.organization) {this.organization.updateReferences({fnUpdateReference});}
+            if (this.period) {this.period.updateReferences({fnUpdateReference});}
     }
 
     /**

@@ -1,0 +1,616 @@
+{
+  "entry": [
+    {
+      "id": "medline-loinc-labs",
+      "request": {
+        "method": "POST",
+        "url": "/4_0_0/CodeSystem/medline-loinc-labs"
+      },
+      "resource": {
+        "content": "fragment",
+        "id": "medline-loinc-labs",
+        "meta": {
+          "security": [
+            {
+              "code": "medlineplus",
+              "system": "https://www.icanbwell.com/owner"
+            },
+            {
+              "code": "medlineplus",
+              "system": "https://www.icanbwell.com/access"
+            },
+            {
+              "code": "medlineplus",
+              "system": "https://www.icanbwell.com/vendor"
+            }
+          ],
+          "source": "https://connect.medlineplus.gov/service",
+          "versionId": "1"
+        },
+        "resourceType": "CodeSystem",
+        "status": "active"
+      }
+    },
+    {
+      "id": "medline-loinc-labs",
+      "request": {
+        "method": "POST",
+        "url": "/4_0_0/CodeSystem/medline-loinc-labs"
+      },
+      "resource": {
+        "caseSensitive": true,
+        "concept": [
+          {
+            "code": "26240-2",
+            "display": "MRI Scans",
+            "id": "26240-2",
+            "property": [
+              {
+                "code": "medline-plus-summary",
+                "id": "medline-plus-summary",
+                "valueString": "Binary/medline-loinc-26240-2"
+              }
+            ]
+          },
+          {
+            "code": "36842-3",
+            "display": "MRI Scans",
+            "id": "36842-3",
+            "property": [
+              {
+                "code": "medline-plus-summary",
+                "id": "medline-plus-summary",
+                "valueString": "Binary/medline-loinc-36842-3"
+              }
+            ]
+          },
+          {
+            "code": "36954-6",
+            "display": "MRI Scans",
+            "id": "36954-6",
+            "property": [
+              {
+                "code": "medline-plus-summary",
+                "id": "medline-plus-summary",
+                "valueString": "Binary/medline-loinc-36954-6"
+              }
+            ]
+          },
+          {
+            "code": "36488-5",
+            "display": "MRI Scans",
+            "id": "36488-5",
+            "property": [
+              {
+                "code": "medline-plus-summary",
+                "id": "medline-plus-summary",
+                "valueString": "Binary/medline-loinc-36488-5"
+              }
+            ]
+          },
+          {
+            "code": "24702-3",
+            "display": "MRI Scans",
+            "id": "24702-3",
+            "property": [
+              {
+                "code": "medline-plus-summary",
+                "id": "medline-plus-summary",
+                "valueString": "Binary/medline-loinc-24702-3"
+              }
+            ]
+          },
+          {
+            "code": "24761-9",
+            "display": "X-Rays",
+            "id": "24761-9",
+            "property": [
+              {
+                "code": "medline-plus-summary",
+                "id": "medline-plus-summary",
+                "valueString": "Binary/medline-loinc-24761-9"
+              }
+            ]
+          },
+          {
+            "code": "8295-8",
+            "display": "X-Rays",
+            "id": "8295-8",
+            "property": [
+              {
+                "code": "medline-plus-summary",
+                "id": "medline-plus-summary",
+                "valueString": "Binary/medline-loinc-8295-8"
+              }
+            ]
+          },
+          {
+            "code": "36351-5",
+            "display": "MRI Scans",
+            "id": "36351-5",
+            "property": [
+              {
+                "code": "medline-plus-summary",
+                "id": "medline-plus-summary",
+                "valueString": "Binary/medline-loinc-36351-5"
+              }
+            ]
+          },
+          {
+            "code": "26127-1",
+            "display": "X-Rays",
+            "id": "26127-1",
+            "property": [
+              {
+                "code": "medline-plus-summary",
+                "id": "medline-plus-summary",
+                "valueString": "Binary/medline-loinc-26127-1"
+              }
+            ]
+          },
+          {
+            "code": "36121-2",
+            "display": "MRI Scans",
+            "id": "36121-2",
+            "property": [
+              {
+                "code": "medline-plus-summary",
+                "id": "medline-plus-summary",
+                "valueString": "Binary/medline-loinc-36121-2"
+              }
+            ]
+          },
+          {
+            "code": "36305-1",
+            "display": "X-Rays",
+            "id": "36305-1",
+            "property": [
+              {
+                "code": "medline-plus-summary",
+                "id": "medline-plus-summary",
+                "valueString": "Binary/medline-loinc-36305-1"
+              }
+            ]
+          },
+          {
+            "code": "26087-7",
+            "display": "X-Rays",
+            "id": "26087-7",
+            "property": [
+              {
+                "code": "medline-plus-summary",
+                "id": "medline-plus-summary",
+                "valueString": "Binary/medline-loinc-26087-7"
+              }
+            ]
+          },
+          {
+            "code": "26191-7",
+            "display": "MRI Scans",
+            "id": "26191-7",
+            "property": [
+              {
+                "code": "medline-plus-summary",
+                "id": "medline-plus-summary",
+                "valueString": "Binary/medline-loinc-26191-7"
+              }
+            ]
+          },
+          {
+            "code": "24688-4",
+            "display": "MRI Scans",
+            "id": "24688-4",
+            "property": [
+              {
+                "code": "medline-plus-summary",
+                "id": "medline-plus-summary",
+                "valueString": "Binary/medline-loinc-24688-4"
+              }
+            ]
+          },
+          {
+            "code": "36291-3",
+            "display": "MRI Scans",
+            "id": "36291-3",
+            "property": [
+              {
+                "code": "medline-plus-summary",
+                "id": "medline-plus-summary",
+                "valueString": "Binary/medline-loinc-36291-3"
+              }
+            ]
+          },
+          {
+            "code": "69184-0",
+            "display": "MRI Scans",
+            "id": "69184-0",
+            "property": [
+              {
+                "code": "medline-plus-summary",
+                "id": "medline-plus-summary",
+                "valueString": "Binary/medline-loinc-69184-0"
+              }
+            ]
+          },
+          {
+            "code": "26285-7",
+            "display": "X-Rays",
+            "id": "26285-7",
+            "property": [
+              {
+                "code": "medline-plus-summary",
+                "id": "medline-plus-summary",
+                "valueString": "Binary/medline-loinc-26285-7"
+              }
+            ]
+          },
+          {
+            "code": "30654-8",
+            "display": "MRI Scans",
+            "id": "30654-8",
+            "property": [
+              {
+                "code": "medline-plus-summary",
+                "id": "medline-plus-summary",
+                "valueString": "Binary/medline-loinc-30654-8"
+              }
+            ]
+          },
+          {
+            "code": "43508-1",
+            "display": "MRI Scans",
+            "id": "43508-1",
+            "property": [
+              {
+                "code": "medline-plus-summary",
+                "id": "medline-plus-summary",
+                "valueString": "Binary/medline-loinc-43508-1"
+              }
+            ]
+          },
+          {
+            "code": "26227-9",
+            "display": "MRI Scans",
+            "id": "26227-9",
+            "property": [
+              {
+                "code": "medline-plus-summary",
+                "id": "medline-plus-summary",
+                "valueString": "Binary/medline-loinc-26227-9"
+              }
+            ]
+          },
+          {
+            "code": "36453-9",
+            "display": "MRI Scans",
+            "id": "36453-9",
+            "property": [
+              {
+                "code": "medline-plus-summary",
+                "id": "medline-plus-summary",
+                "valueString": "Binary/medline-loinc-36453-9"
+              }
+            ]
+          },
+          {
+            "code": "30674-6",
+            "display": "MRI Scans",
+            "id": "30674-6",
+            "property": [
+              {
+                "code": "medline-plus-summary",
+                "id": "medline-plus-summary",
+                "valueString": "Binary/medline-loinc-30674-6"
+              }
+            ]
+          },
+          {
+            "code": "24803-9",
+            "display": "MRI Scans",
+            "id": "24803-9",
+            "property": [
+              {
+                "code": "medline-plus-summary",
+                "id": "medline-plus-summary",
+                "valueString": "Binary/medline-loinc-24803-9"
+              }
+            ]
+          },
+          {
+            "code": "26220-4",
+            "display": "MRI Scans",
+            "id": "26220-4",
+            "property": [
+              {
+                "code": "medline-plus-summary",
+                "id": "medline-plus-summary",
+                "valueString": "Binary/medline-loinc-26220-4"
+              }
+            ]
+          },
+          {
+            "code": "36778-9",
+            "display": "MRI Scans",
+            "id": "36778-9",
+            "property": [
+              {
+                "code": "medline-plus-summary",
+                "id": "medline-plus-summary",
+                "valueString": "Binary/medline-loinc-36778-9"
+              }
+            ]
+          },
+          {
+            "code": "30669-6",
+            "display": "MRI Scans",
+            "id": "30669-6",
+            "property": [
+              {
+                "code": "medline-plus-summary",
+                "id": "medline-plus-summary",
+                "valueString": "Binary/medline-loinc-30669-6"
+              }
+            ]
+          },
+          {
+            "code": "36152-7",
+            "display": "MRI Scans",
+            "id": "36152-7",
+            "property": [
+              {
+                "code": "medline-plus-summary",
+                "id": "medline-plus-summary",
+                "valueString": "Binary/medline-loinc-36152-7"
+              }
+            ]
+          },
+          {
+            "code": "36236-8",
+            "display": "MRI Scans",
+            "id": "36236-8",
+            "property": [
+              {
+                "code": "medline-plus-summary",
+                "id": "medline-plus-summary",
+                "valueString": "Binary/medline-loinc-36236-8"
+              }
+            ]
+          },
+          {
+            "code": "36384-6",
+            "display": "X-Rays",
+            "id": "36384-6",
+            "property": [
+              {
+                "code": "medline-plus-summary",
+                "id": "medline-plus-summary",
+                "valueString": "Binary/medline-loinc-36384-6"
+              }
+            ]
+          }
+        ],
+        "content": "fragment",
+        "description": "This is MedlinePlus's LOINC lab code definitions.",
+        "id": "medline-loinc-labs",
+        "meta": {
+          "security": [
+            {
+              "code": "medlineplus",
+              "system": "https://www.icanbwell.com/owner"
+            },
+            {
+              "code": "medlineplus",
+              "system": "https://www.icanbwell.com/access"
+            },
+            {
+              "code": "medlineplus",
+              "system": "https://www.icanbwell.com/vendor"
+            }
+          ],
+          "source": "https://connect.medlineplus.gov/service",
+          "versionId": "2"
+        },
+        "name": "MedlineLoincLabs",
+        "property": [
+          {
+            "code": "medline-plus-summary",
+            "description": "MedlinePlus Connect full summary",
+            "id": "medline-plus-summary",
+            "type": "string",
+            "uri": "https://medlineplus.gov"
+          }
+        ],
+        "publisher": "b.Well Connected Health",
+        "resourceType": "CodeSystem",
+        "status": "active",
+        "url": "http://loinc.org"
+      },
+      "response": {
+        "outcome": {
+          "issue": [
+            {
+              "code": "informational",
+              "diagnostics": "{\"op\":\"add\",\"path\":\"/url\",\"value\":\"http://loinc.org\"}",
+              "severity": "information"
+            },
+            {
+              "code": "informational",
+              "diagnostics": "{\"op\":\"add\",\"path\":\"/name\",\"value\":\"MedlineLoincLabs\"}",
+              "severity": "information"
+            },
+            {
+              "code": "informational",
+              "diagnostics": "{\"op\":\"add\",\"path\":\"/publisher\",\"value\":\"b.Well Connected Health\"}",
+              "severity": "information"
+            },
+            {
+              "code": "informational",
+              "diagnostics": "{\"op\":\"add\",\"path\":\"/description\",\"value\":\"This is MedlinePlus's LOINC lab code definitions.\"}",
+              "severity": "information"
+            },
+            {
+              "code": "informational",
+              "diagnostics": "{\"op\":\"add\",\"path\":\"/caseSensitive\",\"value\":true}",
+              "severity": "information"
+            },
+            {
+              "code": "informational",
+              "diagnostics": "{\"op\":\"add\",\"path\":\"/property\",\"value\":[{\"id\":\"medline-plus-summary\",\"code\":\"medline-plus-summary\",\"uri\":\"https://medlineplus.gov\",\"description\":\"MedlinePlus Connect full summary\",\"type\":\"string\"}]}",
+              "severity": "information"
+            },
+            {
+              "code": "informational",
+              "diagnostics": "{\"op\":\"add\",\"path\":\"/concept\",\"value\":[{\"id\":\"26240-2\",\"code\":\"26240-2\",\"display\":\"MRI Scans\",\"property\":[{\"id\":\"medline-plus-summary\",\"code\":\"medline-plus-summary\",\"valueString\":\"Binary/medline-loinc-26240-2\"}]}]}",
+              "severity": "information"
+            },
+            {
+              "code": "informational",
+              "diagnostics": "[{\"op\":\"add\",\"path\":\"/concept/1\",\"value\":{\"id\":\"36842-3\",\"code\":\"36842-3\",\"display\":\"MRI Scans\",\"property\":[{\"id\":\"medline-plus-summary\",\"code\":\"medline-plus-summary\",\"valueString\":\"Binary/medline-loinc-36842-3\"}]}}]",
+              "severity": "information"
+            },
+            {
+              "code": "informational",
+              "diagnostics": "[{\"op\":\"add\",\"path\":\"/concept/2\",\"value\":{\"id\":\"36954-6\",\"code\":\"36954-6\",\"display\":\"MRI Scans\",\"property\":[{\"id\":\"medline-plus-summary\",\"code\":\"medline-plus-summary\",\"valueString\":\"Binary/medline-loinc-36954-6\"}]}}]",
+              "severity": "information"
+            },
+            {
+              "code": "informational",
+              "diagnostics": "[{\"op\":\"add\",\"path\":\"/concept/3\",\"value\":{\"id\":\"36488-5\",\"code\":\"36488-5\",\"display\":\"MRI Scans\",\"property\":[{\"id\":\"medline-plus-summary\",\"code\":\"medline-plus-summary\",\"valueString\":\"Binary/medline-loinc-36488-5\"}]}}]",
+              "severity": "information"
+            },
+            {
+              "code": "informational",
+              "diagnostics": "[{\"op\":\"add\",\"path\":\"/concept/4\",\"value\":{\"id\":\"24702-3\",\"code\":\"24702-3\",\"display\":\"MRI Scans\",\"property\":[{\"id\":\"medline-plus-summary\",\"code\":\"medline-plus-summary\",\"valueString\":\"Binary/medline-loinc-24702-3\"}]}}]",
+              "severity": "information"
+            },
+            {
+              "code": "informational",
+              "diagnostics": "[{\"op\":\"add\",\"path\":\"/concept/5\",\"value\":{\"id\":\"24761-9\",\"code\":\"24761-9\",\"display\":\"X-Rays\",\"property\":[{\"id\":\"medline-plus-summary\",\"code\":\"medline-plus-summary\",\"valueString\":\"Binary/medline-loinc-24761-9\"}]}}]",
+              "severity": "information"
+            },
+            {
+              "code": "informational",
+              "diagnostics": "[{\"op\":\"add\",\"path\":\"/concept/6\",\"value\":{\"id\":\"8295-8\",\"code\":\"8295-8\",\"display\":\"X-Rays\",\"property\":[{\"id\":\"medline-plus-summary\",\"code\":\"medline-plus-summary\",\"valueString\":\"Binary/medline-loinc-8295-8\"}]}}]",
+              "severity": "information"
+            },
+            {
+              "code": "informational",
+              "diagnostics": "[{\"op\":\"add\",\"path\":\"/concept/7\",\"value\":{\"id\":\"36351-5\",\"code\":\"36351-5\",\"display\":\"MRI Scans\",\"property\":[{\"id\":\"medline-plus-summary\",\"code\":\"medline-plus-summary\",\"valueString\":\"Binary/medline-loinc-36351-5\"}]}}]",
+              "severity": "information"
+            },
+            {
+              "code": "informational",
+              "diagnostics": "[{\"op\":\"add\",\"path\":\"/concept/8\",\"value\":{\"id\":\"26127-1\",\"code\":\"26127-1\",\"display\":\"X-Rays\",\"property\":[{\"id\":\"medline-plus-summary\",\"code\":\"medline-plus-summary\",\"valueString\":\"Binary/medline-loinc-26127-1\"}]}}]",
+              "severity": "information"
+            },
+            {
+              "code": "informational",
+              "diagnostics": "[{\"op\":\"add\",\"path\":\"/concept/9\",\"value\":{\"id\":\"36121-2\",\"code\":\"36121-2\",\"display\":\"MRI Scans\",\"property\":[{\"id\":\"medline-plus-summary\",\"code\":\"medline-plus-summary\",\"valueString\":\"Binary/medline-loinc-36121-2\"}]}}]",
+              "severity": "information"
+            },
+            {
+              "code": "informational",
+              "diagnostics": "[{\"op\":\"add\",\"path\":\"/concept/10\",\"value\":{\"id\":\"36305-1\",\"code\":\"36305-1\",\"display\":\"X-Rays\",\"property\":[{\"id\":\"medline-plus-summary\",\"code\":\"medline-plus-summary\",\"valueString\":\"Binary/medline-loinc-36305-1\"}]}}]",
+              "severity": "information"
+            },
+            {
+              "code": "informational",
+              "diagnostics": "[{\"op\":\"add\",\"path\":\"/concept/11\",\"value\":{\"id\":\"26087-7\",\"code\":\"26087-7\",\"display\":\"X-Rays\",\"property\":[{\"id\":\"medline-plus-summary\",\"code\":\"medline-plus-summary\",\"valueString\":\"Binary/medline-loinc-26087-7\"}]}}]",
+              "severity": "information"
+            },
+            {
+              "code": "informational",
+              "diagnostics": "[{\"op\":\"add\",\"path\":\"/concept/12\",\"value\":{\"id\":\"26191-7\",\"code\":\"26191-7\",\"display\":\"MRI Scans\",\"property\":[{\"id\":\"medline-plus-summary\",\"code\":\"medline-plus-summary\",\"valueString\":\"Binary/medline-loinc-26191-7\"}]}}]",
+              "severity": "information"
+            },
+            {
+              "code": "informational",
+              "diagnostics": "[{\"op\":\"add\",\"path\":\"/concept/13\",\"value\":{\"id\":\"24688-4\",\"code\":\"24688-4\",\"display\":\"MRI Scans\",\"property\":[{\"id\":\"medline-plus-summary\",\"code\":\"medline-plus-summary\",\"valueString\":\"Binary/medline-loinc-24688-4\"}]}}]",
+              "severity": "information"
+            },
+            {
+              "code": "informational",
+              "diagnostics": "[{\"op\":\"add\",\"path\":\"/concept/14\",\"value\":{\"id\":\"36291-3\",\"code\":\"36291-3\",\"display\":\"MRI Scans\",\"property\":[{\"id\":\"medline-plus-summary\",\"code\":\"medline-plus-summary\",\"valueString\":\"Binary/medline-loinc-36291-3\"}]}}]",
+              "severity": "information"
+            },
+            {
+              "code": "informational",
+              "diagnostics": "[{\"op\":\"add\",\"path\":\"/concept/15\",\"value\":{\"id\":\"69184-0\",\"code\":\"69184-0\",\"display\":\"MRI Scans\",\"property\":[{\"id\":\"medline-plus-summary\",\"code\":\"medline-plus-summary\",\"valueString\":\"Binary/medline-loinc-69184-0\"}]}}]",
+              "severity": "information"
+            },
+            {
+              "code": "informational",
+              "diagnostics": "[{\"op\":\"add\",\"path\":\"/concept/16\",\"value\":{\"id\":\"26285-7\",\"code\":\"26285-7\",\"display\":\"X-Rays\",\"property\":[{\"id\":\"medline-plus-summary\",\"code\":\"medline-plus-summary\",\"valueString\":\"Binary/medline-loinc-26285-7\"}]}}]",
+              "severity": "information"
+            },
+            {
+              "code": "informational",
+              "diagnostics": "[{\"op\":\"add\",\"path\":\"/concept/17\",\"value\":{\"id\":\"30654-8\",\"code\":\"30654-8\",\"display\":\"MRI Scans\",\"property\":[{\"id\":\"medline-plus-summary\",\"code\":\"medline-plus-summary\",\"valueString\":\"Binary/medline-loinc-30654-8\"}]}}]",
+              "severity": "information"
+            },
+            {
+              "code": "informational",
+              "diagnostics": "[{\"op\":\"add\",\"path\":\"/concept/18\",\"value\":{\"id\":\"43508-1\",\"code\":\"43508-1\",\"display\":\"MRI Scans\",\"property\":[{\"id\":\"medline-plus-summary\",\"code\":\"medline-plus-summary\",\"valueString\":\"Binary/medline-loinc-43508-1\"}]}}]",
+              "severity": "information"
+            },
+            {
+              "code": "informational",
+              "diagnostics": "[{\"op\":\"add\",\"path\":\"/concept/19\",\"value\":{\"id\":\"26227-9\",\"code\":\"26227-9\",\"display\":\"MRI Scans\",\"property\":[{\"id\":\"medline-plus-summary\",\"code\":\"medline-plus-summary\",\"valueString\":\"Binary/medline-loinc-26227-9\"}]}}]",
+              "severity": "information"
+            },
+            {
+              "code": "informational",
+              "diagnostics": "[{\"op\":\"add\",\"path\":\"/concept/20\",\"value\":{\"id\":\"36453-9\",\"code\":\"36453-9\",\"display\":\"MRI Scans\",\"property\":[{\"id\":\"medline-plus-summary\",\"code\":\"medline-plus-summary\",\"valueString\":\"Binary/medline-loinc-36453-9\"}]}}]",
+              "severity": "information"
+            },
+            {
+              "code": "informational",
+              "diagnostics": "[{\"op\":\"add\",\"path\":\"/concept/21\",\"value\":{\"id\":\"30674-6\",\"code\":\"30674-6\",\"display\":\"MRI Scans\",\"property\":[{\"id\":\"medline-plus-summary\",\"code\":\"medline-plus-summary\",\"valueString\":\"Binary/medline-loinc-30674-6\"}]}}]",
+              "severity": "information"
+            },
+            {
+              "code": "informational",
+              "diagnostics": "[{\"op\":\"add\",\"path\":\"/concept/22\",\"value\":{\"id\":\"24803-9\",\"code\":\"24803-9\",\"display\":\"MRI Scans\",\"property\":[{\"id\":\"medline-plus-summary\",\"code\":\"medline-plus-summary\",\"valueString\":\"Binary/medline-loinc-24803-9\"}]}}]",
+              "severity": "information"
+            },
+            {
+              "code": "informational",
+              "diagnostics": "[{\"op\":\"add\",\"path\":\"/concept/23\",\"value\":{\"id\":\"26220-4\",\"code\":\"26220-4\",\"display\":\"MRI Scans\",\"property\":[{\"id\":\"medline-plus-summary\",\"code\":\"medline-plus-summary\",\"valueString\":\"Binary/medline-loinc-26220-4\"}]}}]",
+              "severity": "information"
+            },
+            {
+              "code": "informational",
+              "diagnostics": "[{\"op\":\"add\",\"path\":\"/concept/24\",\"value\":{\"id\":\"36778-9\",\"code\":\"36778-9\",\"display\":\"MRI Scans\",\"property\":[{\"id\":\"medline-plus-summary\",\"code\":\"medline-plus-summary\",\"valueString\":\"Binary/medline-loinc-36778-9\"}]}}]",
+              "severity": "information"
+            },
+            {
+              "code": "informational",
+              "diagnostics": "[{\"op\":\"add\",\"path\":\"/concept/25\",\"value\":{\"id\":\"30669-6\",\"code\":\"30669-6\",\"display\":\"MRI Scans\",\"property\":[{\"id\":\"medline-plus-summary\",\"code\":\"medline-plus-summary\",\"valueString\":\"Binary/medline-loinc-30669-6\"}]}}]",
+              "severity": "information"
+            },
+            {
+              "code": "informational",
+              "diagnostics": "[{\"op\":\"add\",\"path\":\"/concept/26\",\"value\":{\"id\":\"36152-7\",\"code\":\"36152-7\",\"display\":\"MRI Scans\",\"property\":[{\"id\":\"medline-plus-summary\",\"code\":\"medline-plus-summary\",\"valueString\":\"Binary/medline-loinc-36152-7\"}]}}]",
+              "severity": "information"
+            },
+            {
+              "code": "informational",
+              "diagnostics": "[{\"op\":\"add\",\"path\":\"/concept/27\",\"value\":{\"id\":\"36236-8\",\"code\":\"36236-8\",\"display\":\"MRI Scans\",\"property\":[{\"id\":\"medline-plus-summary\",\"code\":\"medline-plus-summary\",\"valueString\":\"Binary/medline-loinc-36236-8\"}]}}]",
+              "severity": "information"
+            },
+            {
+              "code": "informational",
+              "diagnostics": "[{\"op\":\"add\",\"path\":\"/concept/28\",\"value\":{\"id\":\"36384-6\",\"code\":\"36384-6\",\"display\":\"X-Rays\",\"property\":[{\"id\":\"medline-plus-summary\",\"code\":\"medline-plus-summary\",\"valueString\":\"Binary/medline-loinc-36384-6\"}]}}]",
+              "severity": "information"
+            }
+          ],
+          "resourceType": "OperationOutcome"
+        },
+        "status": "200"
+      }
+    }
+  ],
+  "resourceType": "Bundle",
+  "total": 2,
+  "type": "history"
+}

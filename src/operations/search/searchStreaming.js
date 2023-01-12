@@ -15,6 +15,7 @@ const {ScopesValidator} = require('../security/scopesValidator');
 const {BundleManager} = require('../common/bundleManager');
 const {ConfigManager} = require('../../utils/configManager');
 const {BadRequestError} = require('../../utils/httpErrors');
+const deepcopy = require('deepcopy');
 
 
 class SearchStreamingOperation {
@@ -91,15 +92,13 @@ class SearchStreamingOperation {
     /**
      * does a FHIR Search
      * @param {FhirRequestInfo} requestInfo
-     * @param {import('http').ServerResponse} res
+     * @param {import('express').Response} res
      * @param {Object} args
      * @param {string} resourceType
-     * @param {boolean} filter
      * @return {Promise<Resource[] | {entry:{resource: Resource}[]}>} array of resources or a bundle
      */
     async searchStreaming(
-        requestInfo, res, args, resourceType,
-        filter = true) {
+        {requestInfo, res, args, resourceType}) {
         const currentOperationName = 'searchStreaming';
         // Start the FHIR request timer, saving a reference to the returned method
         const timer = fhirRequestTimer.startTimer();
@@ -120,15 +119,17 @@ class SearchStreamingOperation {
             /** @type {string | null} */
             host,
             /** @type {string[] | null} */
-            patients = [],
+            patientIdsFromJwtToken,
             /** @type {string} */
-            fhirPersonId,
+            personIdFromJwtToken,
             /** @type {boolean} */
             isUser,
             /** @type {string} */
-            requestId
+            requestId,
+            /** @type {string} */ method
         } = requestInfo;
 
+        const originalArgs = deepcopy(args);
         await this.scopesValidator.verifyHasValidScopesAsync(
             {
                 requestInfo,
@@ -179,8 +180,8 @@ class SearchStreamingOperation {
                 columns
             } = await this.searchManager.constructQueryAsync(
                 {
-                    user, scope, isUser, patients, args, resourceType, useAccessIndex, filter,
-                    fhirPersonId
+                    user, scope, isUser, patientIdsFromJwtToken, args, resourceType, useAccessIndex,
+                    personIdFromJwtToken
                 }));
         } catch (e) {
             await this.fhirLoggingManager.logOperationFailureAsync(
@@ -316,7 +317,8 @@ class SearchStreamingOperation {
                             resourceType,
                             useAccessIndex,
                             contentType: fhirContentTypes.ndJson,
-                            batchObjectCount
+                            batchObjectCount,
+                            originalArgs
                         });
                 } else {
                     // if env.RETURN_BUNDLE is set then return as a Bundle
@@ -370,7 +372,8 @@ class SearchStreamingOperation {
                                 args,
                                 resourceType,
                                 useAccessIndex,
-                                batchObjectCount
+                                batchObjectCount,
+                                originalArgs
                             });
                     } else {
                         resourceIds = await this.searchManager.streamResourcesFromCursorAsync(
@@ -380,7 +383,8 @@ class SearchStreamingOperation {
                                 resourceType,
                                 useAccessIndex,
                                 contentType: fhirContentTypes.fhirJson,
-                                batchObjectCount
+                                batchObjectCount,
+                                originalArgs
                             });
                     }
                 }
@@ -397,7 +401,7 @@ class SearchStreamingOperation {
                         }
                     );
                     const currentDate = moment.utc().format('YYYY-MM-DD');
-                    await this.auditLogger.flushAsync({requestId, currentDate});
+                    await this.auditLogger.flushAsync({requestId, currentDate, method});
                 }
             } else { // no records found
                 if (useNdJson) {

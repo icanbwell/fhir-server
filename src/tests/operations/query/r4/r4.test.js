@@ -34,14 +34,16 @@ describe('r4 search Tests', () => {
 
     describe('r4 search Tests', () => {
         test('r4 works for Patient without accessIndex', async () => {
-            await createTestRequest((c) => {
-                c.register('configManager', () => new MockConfigManager());
-                c.register('indexProvider', () => new MockIndexProvider());
-                c.register('accessIndexManager', (c1) => new MockAccessIndexManager({
+            await createTestRequest((container) => {
+                container.register('configManager', () => new MockConfigManager());
+                container.register('indexProvider', (c) => new MockIndexProvider({
+                    configManager: c.configManager
+                }));
+                container.register('accessIndexManager', (c1) => new MockAccessIndexManager({
                     configManager: c1.configManager,
                     indexProvider: c1.indexProvider
                 }));
-                return c;
+                return container;
             });
             const container = getTestContainer();
             const r4SearchQueryCreator = container.r4SearchQueryCreator;
@@ -52,18 +54,20 @@ describe('r4 search Tests', () => {
             const result = r4SearchQueryCreator.buildR4SearchQuery({
                 resourceType: 'Patient', args
             });
-            expect(result.query.$and['0'].birthDate.$lt).toStrictEqual('2021-09-22T00:00:00+00:00');
-            expect(result.query.$and['2']['meta.security.code']).toBe('https://www.icanbwell.com/access%7Cmedstar');
+            expect(result.query.$and['1'].birthDate.$lt).toStrictEqual('2021-09-22T00:00:00+00:00');
+            expect(result.query.$and['0']['meta.security.code']).toBe('https://www.icanbwell.com/access%7Cmedstar');
         });
         test('r4 works without accessIndex if access code does not have an index', async () => {
-            await createTestRequest((c) => {
-                c.register('configManager', () => new MockConfigManager());
-                c.register('indexProvider', () => new MockIndexProvider());
-                c.register('accessIndexManager', (c1) => new MockAccessIndexManager({
+            await createTestRequest((container) => {
+                container.register('configManager', () => new MockConfigManager());
+                container.register('indexProvider', (c) => new MockIndexProvider({
+                    configManager: c.configManager
+                }));
+                container.register('accessIndexManager', (c1) => new MockAccessIndexManager({
                     configManager: c1.configManager,
                     indexProvider: c1.indexProvider
                 }));
-                return c;
+                return container;
             });
             const container = getTestContainer();
             const r4SearchQueryCreator = container.r4SearchQueryCreator;
@@ -74,18 +78,20 @@ describe('r4 search Tests', () => {
             const result = r4SearchQueryCreator.buildR4SearchQuery({
                 resourceType: 'AuditEvent', args
             });
-            expect(result.query.$and['0'].recorded.$lt).toStrictEqual(new Date('2021-09-22T00:00:00.000Z'));
-            expect(result.query.$and['2']['meta.security.code']).toBe('https://www.icanbwell.com/access%7Cfoobar');
+            expect(result.query.$and['1'].recorded.$lt).toStrictEqual(new Date('2021-09-22T00:00:00.000Z'));
+            expect(result.query.$and['0']['meta.security.code']).toBe('https://www.icanbwell.com/access%7Cfoobar');
         });
         test('r4 works with accessIndex', async () => {
-            await createTestRequest((c) => {
-                c.register('configManager', () => new MockConfigManager());
-                c.register('indexProvider', () => new MockIndexProvider());
-                c.register('accessIndexManager', (c1) => new MockAccessIndexManager({
+            await createTestRequest((container) => {
+                container.register('configManager', () => new MockConfigManager());
+                container.register('indexProvider', (c) => new MockIndexProvider({
+                    configManager: c.configManager
+                }));
+                container.register('accessIndexManager', (c1) => new MockAccessIndexManager({
                     configManager: c1.configManager,
                     indexProvider: c1.indexProvider
                 }));
-                return c;
+                return container;
             });
             const container = getTestContainer();
             const r4SearchQueryCreator = container.r4SearchQueryCreator;
@@ -97,18 +103,20 @@ describe('r4 search Tests', () => {
             const result = r4SearchQueryCreator.buildR4SearchQuery({
                 resourceType: 'AuditEvent', args
             });
-            expect(result.query.$and['0'].recorded.$lt).toStrictEqual(new Date('2021-09-22T00:00:00.000Z'));
-            expect(result.query.$and['2']).toStrictEqual({'_access.medstar': 1});
+            expect(result.query.$and['1'].recorded.$lt).toStrictEqual(new Date('2021-09-22T00:00:00.000Z'));
+            expect(result.query.$and['0']).toStrictEqual({'_access.medstar': 1});
         });
         test('r4 works with Task and subject', async () => {
-            await createTestRequest((c) => {
-                c.register('configManager', () => new MockConfigManager());
-                c.register('indexProvider', () => new MockIndexProvider());
-                c.register('accessIndexManager', (c1) => new MockAccessIndexManager({
+            await createTestRequest((container) => {
+                container.register('configManager', () => new MockConfigManager());
+                container.register('indexProvider', (c) => new MockIndexProvider({
+                    configManager: c.configManager
+                }));
+                container.register('accessIndexManager', (c1) => new MockAccessIndexManager({
                     configManager: c1.configManager,
                     indexProvider: c1.indexProvider
                 }));
-                return c;
+                return container;
             });
             const container = getTestContainer();
             const r4SearchQueryCreator = container.r4SearchQueryCreator;
@@ -121,14 +129,16 @@ describe('r4 search Tests', () => {
             expect(result.query.$and['0']['for.reference']).toStrictEqual('Patient/1234');
         });
         test('r4 works with Person and multiple patients', async () => {
-            await createTestRequest((c) => {
-                c.register('configManager', () => new MockConfigManager());
-                c.register('indexProvider', () => new MockIndexProvider());
-                c.register('accessIndexManager', (c1) => new MockAccessIndexManager({
+            await createTestRequest((container) => {
+                container.register('configManager', () => new MockConfigManager());
+                container.register('indexProvider', (c) => new MockIndexProvider({
+                    configManager: c.configManager
+                }));
+                container.register('accessIndexManager', (c1) => new MockAccessIndexManager({
                     configManager: c1.configManager,
                     indexProvider: c1.indexProvider
                 }));
-                return c;
+                return container;
             });
             const container = getTestContainer();
             const r4SearchQueryCreator = container.r4SearchQueryCreator;
@@ -142,14 +152,16 @@ describe('r4 search Tests', () => {
             expect(result.query.$and['0']['link.target.reference'].$in[1]).toStrictEqual('Patient/4567');
         });
         test('r4 works with Person and multiple patients with reference type', async () => {
-            await createTestRequest((c) => {
-                c.register('configManager', () => new MockConfigManager());
-                c.register('indexProvider', () => new MockIndexProvider());
-                c.register('accessIndexManager', (c1) => new MockAccessIndexManager({
+            await createTestRequest((container) => {
+                container.register('configManager', () => new MockConfigManager());
+                container.register('indexProvider', (c) => new MockIndexProvider({
+                    configManager: c.configManager
+                }));
+                container.register('accessIndexManager', (c1) => new MockAccessIndexManager({
                     configManager: c1.configManager,
                     indexProvider: c1.indexProvider
                 }));
-                return c;
+                return container;
             });
             const container = getTestContainer();
             const r4SearchQueryCreator = container.r4SearchQueryCreator;
@@ -163,14 +175,16 @@ describe('r4 search Tests', () => {
             expect(result.query.$and['0']['link.target.reference'].$in[1]).toStrictEqual('Patient/4567');
         });
         test('r4 works with Task and multiple subjects', async () => {
-            await createTestRequest((c) => {
-                c.register('configManager', () => new MockConfigManager());
-                c.register('indexProvider', () => new MockIndexProvider());
-                c.register('accessIndexManager', (c1) => new MockAccessIndexManager({
+            await createTestRequest((container) => {
+                container.register('configManager', () => new MockConfigManager());
+                container.register('indexProvider', (c) => new MockIndexProvider({
+                    configManager: c.configManager
+                }));
+                container.register('accessIndexManager', (c1) => new MockAccessIndexManager({
                     configManager: c1.configManager,
                     indexProvider: c1.indexProvider
                 }));
-                return c;
+                return container;
             });
             const container = getTestContainer();
             const r4SearchQueryCreator = container.r4SearchQueryCreator;
@@ -184,14 +198,16 @@ describe('r4 search Tests', () => {
             expect(result.query.$and['0'].$or[0]['for.reference'].$in[1]).toStrictEqual('Account/4567');
         });
         test('r4 works with Task and multiple subjects with reference type', async () => {
-            await createTestRequest((c) => {
-                c.register('configManager', () => new MockConfigManager());
-                c.register('indexProvider', () => new MockIndexProvider());
-                c.register('accessIndexManager', (c1) => new MockAccessIndexManager({
+            await createTestRequest((container) => {
+                container.register('configManager', () => new MockConfigManager());
+                container.register('indexProvider', (c) => new MockIndexProvider({
+                    configManager: c.configManager
+                }));
+                container.register('accessIndexManager', (c1) => new MockAccessIndexManager({
                     configManager: c1.configManager,
                     indexProvider: c1.indexProvider
                 }));
-                return c;
+                return container;
             });
             const container = getTestContainer();
             const r4SearchQueryCreator = container.r4SearchQueryCreator;
@@ -205,14 +221,16 @@ describe('r4 search Tests', () => {
             expect(result.query.$and['0']['for.reference'].$in[1]).toStrictEqual('Patient/4567');
         });
         test('r4 works with boolean type true', async () => {
-            await createTestRequest((c) => {
-                c.register('configManager', () => new MockConfigManager());
-                c.register('indexProvider', () => new MockIndexProvider());
-                c.register('accessIndexManager', (c1) => new MockAccessIndexManager({
+            await createTestRequest((container) => {
+                container.register('configManager', () => new MockConfigManager());
+                container.register('indexProvider', (c) => new MockIndexProvider({
+                    configManager: c.configManager
+                }));
+                container.register('accessIndexManager', (c1) => new MockAccessIndexManager({
                     configManager: c1.configManager,
                     indexProvider: c1.indexProvider
                 }));
-                return c;
+                return container;
             });
             const container = getTestContainer();
             const r4SearchQueryCreator = container.r4SearchQueryCreator;
@@ -225,14 +243,16 @@ describe('r4 search Tests', () => {
             expect(result.query.$and['0'].active).toStrictEqual(true);
         });
         test('r4 works with boolean type false', async () => {
-            await createTestRequest((c) => {
-                c.register('configManager', () => new MockConfigManager());
-                c.register('indexProvider', () => new MockIndexProvider());
-                c.register('accessIndexManager', (c1) => new MockAccessIndexManager({
+            await createTestRequest((container) => {
+                container.register('configManager', () => new MockConfigManager());
+                container.register('indexProvider', (c) => new MockIndexProvider({
+                    configManager: c.configManager
+                }));
+                container.register('accessIndexManager', (c1) => new MockAccessIndexManager({
                     configManager: c1.configManager,
                     indexProvider: c1.indexProvider
                 }));
-                return c;
+                return container;
             });
             const container = getTestContainer();
             const r4SearchQueryCreator = container.r4SearchQueryCreator;
@@ -243,6 +263,79 @@ describe('r4 search Tests', () => {
                 resourceType: 'PractitionerRole', args
             });
             expect(result.query.$and['0'].active).toStrictEqual(false);
+        });
+        test('r4 works when both id and id:above are passed', async () => {
+            await createTestRequest((container) => {
+                container.register('configManager', () => new MockConfigManager());
+                container.register('indexProvider', (c) => new MockIndexProvider({
+                    configManager: c.configManager
+                }));
+                container.register('accessIndexManager', (c1) => new MockAccessIndexManager({
+                    configManager: c1.configManager,
+                    indexProvider: c1.indexProvider
+                }));
+                return container;
+            });
+            const container = getTestContainer();
+            const r4SearchQueryCreator = container.r4SearchQueryCreator;
+            const args = {
+                'id': 'john-muir-health-e.k-4ea143ZrQGvdUvf-b2y.tdyiVMBWgblY4f6y2zis3',
+                'id:above': 'john-muir-health-e.k-4ea143ZrQGvdUvf-b2y.tdyiVMBWgblY4f6y2zis3'
+            };
+            const result = r4SearchQueryCreator.buildR4SearchQuery({
+                resourceType: 'Patient', args
+            });
+            expect(result.query.$and['0'].id).toStrictEqual('john-muir-health-e.k-4ea143ZrQGvdUvf-b2y.tdyiVMBWgblY4f6y2zis3');
+            expect(result.query.$and['1'].$or[0].id).toStrictEqual({
+                '$gt': 'john-muir-health-e.k-4ea143ZrQGvdUvf-b2y.tdyiVMBWgblY4f6y2zis3'
+            });
+        });
+        test('r4 works with :not for id', async () => {
+            await createTestRequest((container) => {
+                container.register('configManager', () => new MockConfigManager());
+                container.register('indexProvider', (c) => new MockIndexProvider({
+                    configManager: c.configManager
+                }));
+                container.register('accessIndexManager', (c1) => new MockAccessIndexManager({
+                    configManager: c1.configManager,
+                    indexProvider: c1.indexProvider
+                }));
+                return container;
+            });
+            const container = getTestContainer();
+            const r4SearchQueryCreator = container.r4SearchQueryCreator;
+            const args = {
+                '_id:not': 'john-muir-health-e.k-4ea143ZrQGvdUvf-b2y.tdyiVMBWgblY4f6y2zis3',
+            };
+            const result = r4SearchQueryCreator.buildR4SearchQuery({
+                resourceType: 'Patient', args
+            });
+            expect(result.query.$and['0'].$nor['0'].id).toStrictEqual('john-muir-health-e.k-4ea143ZrQGvdUvf-b2y.tdyiVMBWgblY4f6y2zis3');
+        });
+        test('r4 works with :not for _security', async () => {
+            await createTestRequest((container) => {
+                container.register('configManager', () => new MockConfigManager());
+                container.register('indexProvider', (c) => new MockIndexProvider({
+                    configManager: c.configManager
+                }));
+                container.register('accessIndexManager', (c1) => new MockAccessIndexManager({
+                    configManager: c1.configManager,
+                    indexProvider: c1.indexProvider
+                }));
+                return container;
+            });
+            const container = getTestContainer();
+            const r4SearchQueryCreator = container.r4SearchQueryCreator;
+            const args = {
+                '_security:not': 'https://www.icanbwell.com/access|bwell',
+            };
+            const result = r4SearchQueryCreator.buildR4SearchQuery({
+                resourceType: 'Patient', args
+            });
+            expect(result.query.$and['0'].$nor['0']['meta.security'].$elemMatch).toStrictEqual({
+                'system': 'https://www.icanbwell.com/access',
+                'code': 'bwell'
+            });
         });
     });
 });

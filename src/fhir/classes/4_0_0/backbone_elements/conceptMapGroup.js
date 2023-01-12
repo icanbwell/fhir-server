@@ -75,7 +75,7 @@ class ConceptMapGroup extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -106,7 +106,7 @@ class ConceptMapGroup extends Element {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -202,7 +202,7 @@ class ConceptMapGroup extends Element {
                     this.__data.element = undefined;
                     return;
                 }
-                let ConceptMapElement = require('../backbone_elements/conceptMapElement.js');
+                const ConceptMapElement = require('../backbone_elements/conceptMapElement.js');
                 this.__data.element = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ConceptMapElement(v)) : [new ConceptMapElement(valueProvided)];
             }
         });
@@ -223,7 +223,7 @@ class ConceptMapGroup extends Element {
                     this.__data.unmapped = undefined;
                     return;
                 }
-                let ConceptMapUnmapped = require('../backbone_elements/conceptMapUnmapped.js');
+                const ConceptMapUnmapped = require('../backbone_elements/conceptMapUnmapped.js');
                 this.__data.unmapped = new ConceptMapUnmapped(valueProvided);
             }
         });
@@ -265,6 +265,18 @@ class ConceptMapGroup extends Element {
             element: this.element && this.element.map(v => v.toJSON()),
             unmapped: this.unmapped && this.unmapped.toJSON(),
         });
+    }
+
+    /**
+     * Returns JSON representation of entity
+     * @param {function(Reference): Reference} fnUpdateReference
+     * @return {void}
+     */
+    updateReferences({fnUpdateReference}) {
+            if (this.extension) {this.extension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.element) {this.element.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.unmapped) {this.unmapped.updateReferences({fnUpdateReference});}
     }
 
     /**

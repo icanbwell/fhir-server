@@ -89,7 +89,7 @@ class CompositionSection extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -120,7 +120,7 @@ class CompositionSection extends Element {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -159,7 +159,7 @@ class CompositionSection extends Element {
                     this.__data.code = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.code = new CodeableConcept(valueProvided);
             }
         });
@@ -179,7 +179,7 @@ class CompositionSection extends Element {
                     this.__data.author = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.author = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
             }
         });
@@ -205,7 +205,7 @@ class CompositionSection extends Element {
                     this.__data.focus = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.focus = new Reference(valueProvided);
             }
         });
@@ -227,7 +227,7 @@ class CompositionSection extends Element {
                     this.__data.text = undefined;
                     return;
                 }
-                let Narrative = require('../complex_types/narrative.js');
+                const Narrative = require('../complex_types/narrative.js');
                 this.__data.text = new Narrative(valueProvided);
             }
         });
@@ -267,7 +267,7 @@ class CompositionSection extends Element {
                     this.__data.orderedBy = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.orderedBy = new CodeableConcept(valueProvided);
             }
         });
@@ -287,7 +287,7 @@ class CompositionSection extends Element {
                     this.__data.entry = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.entry = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
             }
         });
@@ -307,7 +307,7 @@ class CompositionSection extends Element {
                     this.__data.emptyReason = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.emptyReason = new CodeableConcept(valueProvided);
             }
         });
@@ -375,6 +375,24 @@ class CompositionSection extends Element {
             emptyReason: this.emptyReason && this.emptyReason.toJSON(),
             section: this.section && this.section.map(v => v.toJSON()),
         });
+    }
+
+    /**
+     * Returns JSON representation of entity
+     * @param {function(Reference): Reference} fnUpdateReference
+     * @return {void}
+     */
+    updateReferences({fnUpdateReference}) {
+            if (this.extension) {this.extension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.code) {this.code.updateReferences({fnUpdateReference});}
+            if (this.author) {this.author.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.focus) {this.focus.updateReferences({fnUpdateReference});}
+            if (this.text) {this.text.updateReferences({fnUpdateReference});}
+            if (this.orderedBy) {this.orderedBy.updateReferences({fnUpdateReference});}
+            if (this.entry) {this.entry.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.emptyReason) {this.emptyReason.updateReferences({fnUpdateReference});}
+            if (this.section) {this.section.forEach(v => v.updateReferences({fnUpdateReference}));}
     }
 
     /**

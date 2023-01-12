@@ -52,7 +52,7 @@ type AdverseEventSuspectEntity {
     substance, medication, medication administration, medication statement or a
     device.
     """
-    instance: AdverseEventSuspectEntityInstance!        
+    instance: AdverseEventSuspectEntityInstance        
     """
     Information on the possible cause of the event.
     """

@@ -68,7 +68,7 @@ class MedicinalProductCountryLanguage extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -99,7 +99,7 @@ class MedicinalProductCountryLanguage extends Element {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -118,7 +118,7 @@ class MedicinalProductCountryLanguage extends Element {
                     this.__data.country = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.country = new CodeableConcept(valueProvided);
             }
         });
@@ -137,7 +137,7 @@ class MedicinalProductCountryLanguage extends Element {
                     this.__data.jurisdiction = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.jurisdiction = new CodeableConcept(valueProvided);
             }
         });
@@ -156,7 +156,7 @@ class MedicinalProductCountryLanguage extends Element {
                     this.__data.language = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.language = new CodeableConcept(valueProvided);
             }
         });
@@ -192,6 +192,19 @@ class MedicinalProductCountryLanguage extends Element {
             jurisdiction: this.jurisdiction && this.jurisdiction.toJSON(),
             language: this.language && this.language.toJSON(),
         });
+    }
+
+    /**
+     * Returns JSON representation of entity
+     * @param {function(Reference): Reference} fnUpdateReference
+     * @return {void}
+     */
+    updateReferences({fnUpdateReference}) {
+            if (this.extension) {this.extension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.country) {this.country.updateReferences({fnUpdateReference});}
+            if (this.jurisdiction) {this.jurisdiction.updateReferences({fnUpdateReference});}
+            if (this.language) {this.language.updateReferences({fnUpdateReference});}
     }
 
     /**

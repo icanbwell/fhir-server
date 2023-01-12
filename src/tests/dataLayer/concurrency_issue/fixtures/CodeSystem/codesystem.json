@@ -1,0 +1,1481 @@
+[
+  {
+    "resourceType": "CodeSystem",
+    "id": "medline-loinc-labs",
+    "meta": {
+      "source": "https://connect.medlineplus.gov/service",
+      "security": [
+        {
+          "system": "https://www.icanbwell.com/owner",
+          "code": "medlineplus"
+        },
+        {
+          "system": "https://www.icanbwell.com/access",
+          "code": "medlineplus"
+        },
+        {
+          "system": "https://www.icanbwell.com/vendor",
+          "code": "medlineplus"
+        }
+      ]
+    },
+    "url": "http://loinc.org",
+    "name": "MedlineLoincLabs",
+    "status": "active",
+    "publisher": "b.Well Connected Health",
+    "description": "This is MedlinePlus's LOINC lab code definitions.",
+    "caseSensitive": true,
+    "content": "fragment",
+    "property": [
+      {
+        "id": "medline-plus-summary",
+        "code": "medline-plus-summary",
+        "uri": "https://medlineplus.gov",
+        "description": "MedlinePlus Connect full summary",
+        "type": "string"
+      }
+    ],
+    "concept": [
+      {
+        "id": "26240-2",
+        "code": "26240-2",
+        "display": "MRI Scans",
+        "property": [
+          {
+            "id": "medline-plus-summary",
+            "code": "medline-plus-summary",
+            "valueString": "Binary/medline-loinc-26240-2"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "resourceType": "CodeSystem",
+    "id": "medline-loinc-labs",
+    "meta": {
+      "source": "https://connect.medlineplus.gov/service",
+      "security": [
+        {
+          "system": "https://www.icanbwell.com/owner",
+          "code": "medlineplus"
+        },
+        {
+          "system": "https://www.icanbwell.com/access",
+          "code": "medlineplus"
+        },
+        {
+          "system": "https://www.icanbwell.com/vendor",
+          "code": "medlineplus"
+        }
+      ]
+    },
+    "url": "http://loinc.org",
+    "name": "MedlineLoincLabs",
+    "status": "active",
+    "publisher": "b.Well Connected Health",
+    "description": "This is MedlinePlus's LOINC lab code definitions.",
+    "caseSensitive": true,
+    "content": "fragment",
+    "property": [
+      {
+        "id": "medline-plus-summary",
+        "code": "medline-plus-summary",
+        "uri": "https://medlineplus.gov",
+        "description": "MedlinePlus Connect full summary",
+        "type": "string"
+      }
+    ],
+    "concept": [
+      {
+        "id": "36842-3",
+        "code": "36842-3",
+        "display": "MRI Scans",
+        "property": [
+          {
+            "id": "medline-plus-summary",
+            "code": "medline-plus-summary",
+            "valueString": "Binary/medline-loinc-36842-3"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "resourceType": "CodeSystem",
+    "id": "medline-loinc-labs",
+    "meta": {
+      "source": "https://connect.medlineplus.gov/service",
+      "security": [
+        {
+          "system": "https://www.icanbwell.com/owner",
+          "code": "medlineplus"
+        },
+        {
+          "system": "https://www.icanbwell.com/access",
+          "code": "medlineplus"
+        },
+        {
+          "system": "https://www.icanbwell.com/vendor",
+          "code": "medlineplus"
+        }
+      ]
+    },
+    "url": "http://loinc.org",
+    "name": "MedlineLoincLabs",
+    "status": "active",
+    "publisher": "b.Well Connected Health",
+    "description": "This is MedlinePlus's LOINC lab code definitions.",
+    "caseSensitive": true,
+    "content": "fragment",
+    "property": [
+      {
+        "id": "medline-plus-summary",
+        "code": "medline-plus-summary",
+        "uri": "https://medlineplus.gov",
+        "description": "MedlinePlus Connect full summary",
+        "type": "string"
+      }
+    ],
+    "concept": [
+      {
+        "id": "36954-6",
+        "code": "36954-6",
+        "display": "MRI Scans",
+        "property": [
+          {
+            "id": "medline-plus-summary",
+            "code": "medline-plus-summary",
+            "valueString": "Binary/medline-loinc-36954-6"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "resourceType": "CodeSystem",
+    "id": "medline-loinc-labs",
+    "meta": {
+      "source": "https://connect.medlineplus.gov/service",
+      "security": [
+        {
+          "system": "https://www.icanbwell.com/owner",
+          "code": "medlineplus"
+        },
+        {
+          "system": "https://www.icanbwell.com/access",
+          "code": "medlineplus"
+        },
+        {
+          "system": "https://www.icanbwell.com/vendor",
+          "code": "medlineplus"
+        }
+      ]
+    },
+    "url": "http://loinc.org",
+    "name": "MedlineLoincLabs",
+    "status": "active",
+    "publisher": "b.Well Connected Health",
+    "description": "This is MedlinePlus's LOINC lab code definitions.",
+    "caseSensitive": true,
+    "content": "fragment",
+    "property": [
+      {
+        "id": "medline-plus-summary",
+        "code": "medline-plus-summary",
+        "uri": "https://medlineplus.gov",
+        "description": "MedlinePlus Connect full summary",
+        "type": "string"
+      }
+    ],
+    "concept": [
+      {
+        "id": "36488-5",
+        "code": "36488-5",
+        "display": "MRI Scans",
+        "property": [
+          {
+            "id": "medline-plus-summary",
+            "code": "medline-plus-summary",
+            "valueString": "Binary/medline-loinc-36488-5"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "resourceType": "CodeSystem",
+    "id": "medline-loinc-labs",
+    "meta": {
+      "source": "https://connect.medlineplus.gov/service",
+      "security": [
+        {
+          "system": "https://www.icanbwell.com/owner",
+          "code": "medlineplus"
+        },
+        {
+          "system": "https://www.icanbwell.com/access",
+          "code": "medlineplus"
+        },
+        {
+          "system": "https://www.icanbwell.com/vendor",
+          "code": "medlineplus"
+        }
+      ]
+    },
+    "url": "http://loinc.org",
+    "name": "MedlineLoincLabs",
+    "status": "active",
+    "publisher": "b.Well Connected Health",
+    "description": "This is MedlinePlus's LOINC lab code definitions.",
+    "caseSensitive": true,
+    "content": "fragment",
+    "property": [
+      {
+        "id": "medline-plus-summary",
+        "code": "medline-plus-summary",
+        "uri": "https://medlineplus.gov",
+        "description": "MedlinePlus Connect full summary",
+        "type": "string"
+      }
+    ],
+    "concept": [
+      {
+        "id": "24702-3",
+        "code": "24702-3",
+        "display": "MRI Scans",
+        "property": [
+          {
+            "id": "medline-plus-summary",
+            "code": "medline-plus-summary",
+            "valueString": "Binary/medline-loinc-24702-3"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "resourceType": "CodeSystem",
+    "id": "medline-loinc-labs",
+    "meta": {
+      "source": "https://connect.medlineplus.gov/service",
+      "security": [
+        {
+          "system": "https://www.icanbwell.com/owner",
+          "code": "medlineplus"
+        },
+        {
+          "system": "https://www.icanbwell.com/access",
+          "code": "medlineplus"
+        },
+        {
+          "system": "https://www.icanbwell.com/vendor",
+          "code": "medlineplus"
+        }
+      ]
+    },
+    "url": "http://loinc.org",
+    "name": "MedlineLoincLabs",
+    "status": "active",
+    "publisher": "b.Well Connected Health",
+    "description": "This is MedlinePlus's LOINC lab code definitions.",
+    "caseSensitive": true,
+    "content": "fragment",
+    "property": [
+      {
+        "id": "medline-plus-summary",
+        "code": "medline-plus-summary",
+        "uri": "https://medlineplus.gov",
+        "description": "MedlinePlus Connect full summary",
+        "type": "string"
+      }
+    ],
+    "concept": [
+      {
+        "id": "24761-9",
+        "code": "24761-9",
+        "display": "X-Rays",
+        "property": [
+          {
+            "id": "medline-plus-summary",
+            "code": "medline-plus-summary",
+            "valueString": "Binary/medline-loinc-24761-9"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "resourceType": "CodeSystem",
+    "id": "medline-loinc-labs",
+    "meta": {
+      "source": "https://connect.medlineplus.gov/service",
+      "security": [
+        {
+          "system": "https://www.icanbwell.com/owner",
+          "code": "medlineplus"
+        },
+        {
+          "system": "https://www.icanbwell.com/access",
+          "code": "medlineplus"
+        },
+        {
+          "system": "https://www.icanbwell.com/vendor",
+          "code": "medlineplus"
+        }
+      ]
+    },
+    "url": "http://loinc.org",
+    "name": "MedlineLoincLabs",
+    "status": "active",
+    "publisher": "b.Well Connected Health",
+    "description": "This is MedlinePlus's LOINC lab code definitions.",
+    "caseSensitive": true,
+    "content": "fragment",
+    "property": [
+      {
+        "id": "medline-plus-summary",
+        "code": "medline-plus-summary",
+        "uri": "https://medlineplus.gov",
+        "description": "MedlinePlus Connect full summary",
+        "type": "string"
+      }
+    ],
+    "concept": [
+      {
+        "id": "8295-8",
+        "code": "8295-8",
+        "display": "X-Rays",
+        "property": [
+          {
+            "id": "medline-plus-summary",
+            "code": "medline-plus-summary",
+            "valueString": "Binary/medline-loinc-8295-8"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "resourceType": "CodeSystem",
+    "id": "medline-loinc-labs",
+    "meta": {
+      "source": "https://connect.medlineplus.gov/service",
+      "security": [
+        {
+          "system": "https://www.icanbwell.com/owner",
+          "code": "medlineplus"
+        },
+        {
+          "system": "https://www.icanbwell.com/access",
+          "code": "medlineplus"
+        },
+        {
+          "system": "https://www.icanbwell.com/vendor",
+          "code": "medlineplus"
+        }
+      ]
+    },
+    "url": "http://loinc.org",
+    "name": "MedlineLoincLabs",
+    "status": "active",
+    "publisher": "b.Well Connected Health",
+    "description": "This is MedlinePlus's LOINC lab code definitions.",
+    "caseSensitive": true,
+    "content": "fragment",
+    "property": [
+      {
+        "id": "medline-plus-summary",
+        "code": "medline-plus-summary",
+        "uri": "https://medlineplus.gov",
+        "description": "MedlinePlus Connect full summary",
+        "type": "string"
+      }
+    ],
+    "concept": [
+      {
+        "id": "36351-5",
+        "code": "36351-5",
+        "display": "MRI Scans",
+        "property": [
+          {
+            "id": "medline-plus-summary",
+            "code": "medline-plus-summary",
+            "valueString": "Binary/medline-loinc-36351-5"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "resourceType": "CodeSystem",
+    "id": "medline-loinc-labs",
+    "meta": {
+      "source": "https://connect.medlineplus.gov/service",
+      "security": [
+        {
+          "system": "https://www.icanbwell.com/owner",
+          "code": "medlineplus"
+        },
+        {
+          "system": "https://www.icanbwell.com/access",
+          "code": "medlineplus"
+        },
+        {
+          "system": "https://www.icanbwell.com/vendor",
+          "code": "medlineplus"
+        }
+      ]
+    },
+    "url": "http://loinc.org",
+    "name": "MedlineLoincLabs",
+    "status": "active",
+    "publisher": "b.Well Connected Health",
+    "description": "This is MedlinePlus's LOINC lab code definitions.",
+    "caseSensitive": true,
+    "content": "fragment",
+    "property": [
+      {
+        "id": "medline-plus-summary",
+        "code": "medline-plus-summary",
+        "uri": "https://medlineplus.gov",
+        "description": "MedlinePlus Connect full summary",
+        "type": "string"
+      }
+    ],
+    "concept": [
+      {
+        "id": "26127-1",
+        "code": "26127-1",
+        "display": "X-Rays",
+        "property": [
+          {
+            "id": "medline-plus-summary",
+            "code": "medline-plus-summary",
+            "valueString": "Binary/medline-loinc-26127-1"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "resourceType": "CodeSystem",
+    "id": "medline-loinc-labs",
+    "meta": {
+      "source": "https://connect.medlineplus.gov/service",
+      "security": [
+        {
+          "system": "https://www.icanbwell.com/owner",
+          "code": "medlineplus"
+        },
+        {
+          "system": "https://www.icanbwell.com/access",
+          "code": "medlineplus"
+        },
+        {
+          "system": "https://www.icanbwell.com/vendor",
+          "code": "medlineplus"
+        }
+      ]
+    },
+    "url": "http://loinc.org",
+    "name": "MedlineLoincLabs",
+    "status": "active",
+    "publisher": "b.Well Connected Health",
+    "description": "This is MedlinePlus's LOINC lab code definitions.",
+    "caseSensitive": true,
+    "content": "fragment",
+    "property": [
+      {
+        "id": "medline-plus-summary",
+        "code": "medline-plus-summary",
+        "uri": "https://medlineplus.gov",
+        "description": "MedlinePlus Connect full summary",
+        "type": "string"
+      }
+    ],
+    "concept": [
+      {
+        "id": "36121-2",
+        "code": "36121-2",
+        "display": "MRI Scans",
+        "property": [
+          {
+            "id": "medline-plus-summary",
+            "code": "medline-plus-summary",
+            "valueString": "Binary/medline-loinc-36121-2"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "resourceType": "CodeSystem",
+    "id": "medline-loinc-labs",
+    "meta": {
+      "source": "https://connect.medlineplus.gov/service",
+      "security": [
+        {
+          "system": "https://www.icanbwell.com/owner",
+          "code": "medlineplus"
+        },
+        {
+          "system": "https://www.icanbwell.com/access",
+          "code": "medlineplus"
+        },
+        {
+          "system": "https://www.icanbwell.com/vendor",
+          "code": "medlineplus"
+        }
+      ]
+    },
+    "url": "http://loinc.org",
+    "name": "MedlineLoincLabs",
+    "status": "active",
+    "publisher": "b.Well Connected Health",
+    "description": "This is MedlinePlus's LOINC lab code definitions.",
+    "caseSensitive": true,
+    "content": "fragment",
+    "property": [
+      {
+        "id": "medline-plus-summary",
+        "code": "medline-plus-summary",
+        "uri": "https://medlineplus.gov",
+        "description": "MedlinePlus Connect full summary",
+        "type": "string"
+      }
+    ],
+    "concept": [
+      {
+        "id": "36305-1",
+        "code": "36305-1",
+        "display": "X-Rays",
+        "property": [
+          {
+            "id": "medline-plus-summary",
+            "code": "medline-plus-summary",
+            "valueString": "Binary/medline-loinc-36305-1"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "resourceType": "CodeSystem",
+    "id": "medline-loinc-labs",
+    "meta": {
+      "source": "https://connect.medlineplus.gov/service",
+      "security": [
+        {
+          "system": "https://www.icanbwell.com/owner",
+          "code": "medlineplus"
+        },
+        {
+          "system": "https://www.icanbwell.com/access",
+          "code": "medlineplus"
+        },
+        {
+          "system": "https://www.icanbwell.com/vendor",
+          "code": "medlineplus"
+        }
+      ]
+    },
+    "url": "http://loinc.org",
+    "name": "MedlineLoincLabs",
+    "status": "active",
+    "publisher": "b.Well Connected Health",
+    "description": "This is MedlinePlus's LOINC lab code definitions.",
+    "caseSensitive": true,
+    "content": "fragment",
+    "property": [
+      {
+        "id": "medline-plus-summary",
+        "code": "medline-plus-summary",
+        "uri": "https://medlineplus.gov",
+        "description": "MedlinePlus Connect full summary",
+        "type": "string"
+      }
+    ],
+    "concept": [
+      {
+        "id": "26087-7",
+        "code": "26087-7",
+        "display": "X-Rays",
+        "property": [
+          {
+            "id": "medline-plus-summary",
+            "code": "medline-plus-summary",
+            "valueString": "Binary/medline-loinc-26087-7"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "resourceType": "CodeSystem",
+    "id": "medline-loinc-labs",
+    "meta": {
+      "source": "https://connect.medlineplus.gov/service",
+      "security": [
+        {
+          "system": "https://www.icanbwell.com/owner",
+          "code": "medlineplus"
+        },
+        {
+          "system": "https://www.icanbwell.com/access",
+          "code": "medlineplus"
+        },
+        {
+          "system": "https://www.icanbwell.com/vendor",
+          "code": "medlineplus"
+        }
+      ]
+    },
+    "url": "http://loinc.org",
+    "name": "MedlineLoincLabs",
+    "status": "active",
+    "publisher": "b.Well Connected Health",
+    "description": "This is MedlinePlus's LOINC lab code definitions.",
+    "caseSensitive": true,
+    "content": "fragment",
+    "property": [
+      {
+        "id": "medline-plus-summary",
+        "code": "medline-plus-summary",
+        "uri": "https://medlineplus.gov",
+        "description": "MedlinePlus Connect full summary",
+        "type": "string"
+      }
+    ],
+    "concept": [
+      {
+        "id": "26191-7",
+        "code": "26191-7",
+        "display": "MRI Scans",
+        "property": [
+          {
+            "id": "medline-plus-summary",
+            "code": "medline-plus-summary",
+            "valueString": "Binary/medline-loinc-26191-7"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "resourceType": "CodeSystem",
+    "id": "medline-loinc-labs",
+    "meta": {
+      "source": "https://connect.medlineplus.gov/service",
+      "security": [
+        {
+          "system": "https://www.icanbwell.com/owner",
+          "code": "medlineplus"
+        },
+        {
+          "system": "https://www.icanbwell.com/access",
+          "code": "medlineplus"
+        },
+        {
+          "system": "https://www.icanbwell.com/vendor",
+          "code": "medlineplus"
+        }
+      ]
+    },
+    "url": "http://loinc.org",
+    "name": "MedlineLoincLabs",
+    "status": "active",
+    "publisher": "b.Well Connected Health",
+    "description": "This is MedlinePlus's LOINC lab code definitions.",
+    "caseSensitive": true,
+    "content": "fragment",
+    "property": [
+      {
+        "id": "medline-plus-summary",
+        "code": "medline-plus-summary",
+        "uri": "https://medlineplus.gov",
+        "description": "MedlinePlus Connect full summary",
+        "type": "string"
+      }
+    ],
+    "concept": [
+      {
+        "id": "24688-4",
+        "code": "24688-4",
+        "display": "MRI Scans",
+        "property": [
+          {
+            "id": "medline-plus-summary",
+            "code": "medline-plus-summary",
+            "valueString": "Binary/medline-loinc-24688-4"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "resourceType": "CodeSystem",
+    "id": "medline-loinc-labs",
+    "meta": {
+      "source": "https://connect.medlineplus.gov/service",
+      "security": [
+        {
+          "system": "https://www.icanbwell.com/owner",
+          "code": "medlineplus"
+        },
+        {
+          "system": "https://www.icanbwell.com/access",
+          "code": "medlineplus"
+        },
+        {
+          "system": "https://www.icanbwell.com/vendor",
+          "code": "medlineplus"
+        }
+      ]
+    },
+    "url": "http://loinc.org",
+    "name": "MedlineLoincLabs",
+    "status": "active",
+    "publisher": "b.Well Connected Health",
+    "description": "This is MedlinePlus's LOINC lab code definitions.",
+    "caseSensitive": true,
+    "content": "fragment",
+    "property": [
+      {
+        "id": "medline-plus-summary",
+        "code": "medline-plus-summary",
+        "uri": "https://medlineplus.gov",
+        "description": "MedlinePlus Connect full summary",
+        "type": "string"
+      }
+    ],
+    "concept": [
+      {
+        "id": "36291-3",
+        "code": "36291-3",
+        "display": "MRI Scans",
+        "property": [
+          {
+            "id": "medline-plus-summary",
+            "code": "medline-plus-summary",
+            "valueString": "Binary/medline-loinc-36291-3"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "resourceType": "CodeSystem",
+    "id": "medline-loinc-labs",
+    "meta": {
+      "source": "https://connect.medlineplus.gov/service",
+      "security": [
+        {
+          "system": "https://www.icanbwell.com/owner",
+          "code": "medlineplus"
+        },
+        {
+          "system": "https://www.icanbwell.com/access",
+          "code": "medlineplus"
+        },
+        {
+          "system": "https://www.icanbwell.com/vendor",
+          "code": "medlineplus"
+        }
+      ]
+    },
+    "url": "http://loinc.org",
+    "name": "MedlineLoincLabs",
+    "status": "active",
+    "publisher": "b.Well Connected Health",
+    "description": "This is MedlinePlus's LOINC lab code definitions.",
+    "caseSensitive": true,
+    "content": "fragment",
+    "property": [
+      {
+        "id": "medline-plus-summary",
+        "code": "medline-plus-summary",
+        "uri": "https://medlineplus.gov",
+        "description": "MedlinePlus Connect full summary",
+        "type": "string"
+      }
+    ],
+    "concept": [
+      {
+        "id": "69184-0",
+        "code": "69184-0",
+        "display": "MRI Scans",
+        "property": [
+          {
+            "id": "medline-plus-summary",
+            "code": "medline-plus-summary",
+            "valueString": "Binary/medline-loinc-69184-0"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "resourceType": "CodeSystem",
+    "id": "medline-loinc-labs",
+    "meta": {
+      "source": "https://connect.medlineplus.gov/service",
+      "security": [
+        {
+          "system": "https://www.icanbwell.com/owner",
+          "code": "medlineplus"
+        },
+        {
+          "system": "https://www.icanbwell.com/access",
+          "code": "medlineplus"
+        },
+        {
+          "system": "https://www.icanbwell.com/vendor",
+          "code": "medlineplus"
+        }
+      ]
+    },
+    "url": "http://loinc.org",
+    "name": "MedlineLoincLabs",
+    "status": "active",
+    "publisher": "b.Well Connected Health",
+    "description": "This is MedlinePlus's LOINC lab code definitions.",
+    "caseSensitive": true,
+    "content": "fragment",
+    "property": [
+      {
+        "id": "medline-plus-summary",
+        "code": "medline-plus-summary",
+        "uri": "https://medlineplus.gov",
+        "description": "MedlinePlus Connect full summary",
+        "type": "string"
+      }
+    ],
+    "concept": [
+      {
+        "id": "26285-7",
+        "code": "26285-7",
+        "display": "X-Rays",
+        "property": [
+          {
+            "id": "medline-plus-summary",
+            "code": "medline-plus-summary",
+            "valueString": "Binary/medline-loinc-26285-7"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "resourceType": "CodeSystem",
+    "id": "medline-loinc-labs",
+    "meta": {
+      "source": "https://connect.medlineplus.gov/service",
+      "security": [
+        {
+          "system": "https://www.icanbwell.com/owner",
+          "code": "medlineplus"
+        },
+        {
+          "system": "https://www.icanbwell.com/access",
+          "code": "medlineplus"
+        },
+        {
+          "system": "https://www.icanbwell.com/vendor",
+          "code": "medlineplus"
+        }
+      ]
+    },
+    "url": "http://loinc.org",
+    "name": "MedlineLoincLabs",
+    "status": "active",
+    "publisher": "b.Well Connected Health",
+    "description": "This is MedlinePlus's LOINC lab code definitions.",
+    "caseSensitive": true,
+    "content": "fragment",
+    "property": [
+      {
+        "id": "medline-plus-summary",
+        "code": "medline-plus-summary",
+        "uri": "https://medlineplus.gov",
+        "description": "MedlinePlus Connect full summary",
+        "type": "string"
+      }
+    ],
+    "concept": [
+      {
+        "id": "30654-8",
+        "code": "30654-8",
+        "display": "MRI Scans",
+        "property": [
+          {
+            "id": "medline-plus-summary",
+            "code": "medline-plus-summary",
+            "valueString": "Binary/medline-loinc-30654-8"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "resourceType": "CodeSystem",
+    "id": "medline-loinc-labs",
+    "meta": {
+      "source": "https://connect.medlineplus.gov/service",
+      "security": [
+        {
+          "system": "https://www.icanbwell.com/owner",
+          "code": "medlineplus"
+        },
+        {
+          "system": "https://www.icanbwell.com/access",
+          "code": "medlineplus"
+        },
+        {
+          "system": "https://www.icanbwell.com/vendor",
+          "code": "medlineplus"
+        }
+      ]
+    },
+    "url": "http://loinc.org",
+    "name": "MedlineLoincLabs",
+    "status": "active",
+    "publisher": "b.Well Connected Health",
+    "description": "This is MedlinePlus's LOINC lab code definitions.",
+    "caseSensitive": true,
+    "content": "fragment",
+    "property": [
+      {
+        "id": "medline-plus-summary",
+        "code": "medline-plus-summary",
+        "uri": "https://medlineplus.gov",
+        "description": "MedlinePlus Connect full summary",
+        "type": "string"
+      }
+    ],
+    "concept": [
+      {
+        "id": "43508-1",
+        "code": "43508-1",
+        "display": "MRI Scans",
+        "property": [
+          {
+            "id": "medline-plus-summary",
+            "code": "medline-plus-summary",
+            "valueString": "Binary/medline-loinc-43508-1"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "resourceType": "CodeSystem",
+    "id": "medline-loinc-labs",
+    "meta": {
+      "source": "https://connect.medlineplus.gov/service",
+      "security": [
+        {
+          "system": "https://www.icanbwell.com/owner",
+          "code": "medlineplus"
+        },
+        {
+          "system": "https://www.icanbwell.com/access",
+          "code": "medlineplus"
+        },
+        {
+          "system": "https://www.icanbwell.com/vendor",
+          "code": "medlineplus"
+        }
+      ]
+    },
+    "url": "http://loinc.org",
+    "name": "MedlineLoincLabs",
+    "status": "active",
+    "publisher": "b.Well Connected Health",
+    "description": "This is MedlinePlus's LOINC lab code definitions.",
+    "caseSensitive": true,
+    "content": "fragment",
+    "property": [
+      {
+        "id": "medline-plus-summary",
+        "code": "medline-plus-summary",
+        "uri": "https://medlineplus.gov",
+        "description": "MedlinePlus Connect full summary",
+        "type": "string"
+      }
+    ],
+    "concept": [
+      {
+        "id": "26227-9",
+        "code": "26227-9",
+        "display": "MRI Scans",
+        "property": [
+          {
+            "id": "medline-plus-summary",
+            "code": "medline-plus-summary",
+            "valueString": "Binary/medline-loinc-26227-9"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "resourceType": "CodeSystem",
+    "id": "medline-loinc-labs",
+    "meta": {
+      "source": "https://connect.medlineplus.gov/service",
+      "security": [
+        {
+          "system": "https://www.icanbwell.com/owner",
+          "code": "medlineplus"
+        },
+        {
+          "system": "https://www.icanbwell.com/access",
+          "code": "medlineplus"
+        },
+        {
+          "system": "https://www.icanbwell.com/vendor",
+          "code": "medlineplus"
+        }
+      ]
+    },
+    "url": "http://loinc.org",
+    "name": "MedlineLoincLabs",
+    "status": "active",
+    "publisher": "b.Well Connected Health",
+    "description": "This is MedlinePlus's LOINC lab code definitions.",
+    "caseSensitive": true,
+    "content": "fragment",
+    "property": [
+      {
+        "id": "medline-plus-summary",
+        "code": "medline-plus-summary",
+        "uri": "https://medlineplus.gov",
+        "description": "MedlinePlus Connect full summary",
+        "type": "string"
+      }
+    ],
+    "concept": [
+      {
+        "id": "36453-9",
+        "code": "36453-9",
+        "display": "MRI Scans",
+        "property": [
+          {
+            "id": "medline-plus-summary",
+            "code": "medline-plus-summary",
+            "valueString": "Binary/medline-loinc-36453-9"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "resourceType": "CodeSystem",
+    "id": "medline-loinc-labs",
+    "meta": {
+      "source": "https://connect.medlineplus.gov/service",
+      "security": [
+        {
+          "system": "https://www.icanbwell.com/owner",
+          "code": "medlineplus"
+        },
+        {
+          "system": "https://www.icanbwell.com/access",
+          "code": "medlineplus"
+        },
+        {
+          "system": "https://www.icanbwell.com/vendor",
+          "code": "medlineplus"
+        }
+      ]
+    },
+    "url": "http://loinc.org",
+    "name": "MedlineLoincLabs",
+    "status": "active",
+    "publisher": "b.Well Connected Health",
+    "description": "This is MedlinePlus's LOINC lab code definitions.",
+    "caseSensitive": true,
+    "content": "fragment",
+    "property": [
+      {
+        "id": "medline-plus-summary",
+        "code": "medline-plus-summary",
+        "uri": "https://medlineplus.gov",
+        "description": "MedlinePlus Connect full summary",
+        "type": "string"
+      }
+    ],
+    "concept": [
+      {
+        "id": "30674-6",
+        "code": "30674-6",
+        "display": "MRI Scans",
+        "property": [
+          {
+            "id": "medline-plus-summary",
+            "code": "medline-plus-summary",
+            "valueString": "Binary/medline-loinc-30674-6"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "resourceType": "CodeSystem",
+    "id": "medline-loinc-labs",
+    "meta": {
+      "source": "https://connect.medlineplus.gov/service",
+      "security": [
+        {
+          "system": "https://www.icanbwell.com/owner",
+          "code": "medlineplus"
+        },
+        {
+          "system": "https://www.icanbwell.com/access",
+          "code": "medlineplus"
+        },
+        {
+          "system": "https://www.icanbwell.com/vendor",
+          "code": "medlineplus"
+        }
+      ]
+    },
+    "url": "http://loinc.org",
+    "name": "MedlineLoincLabs",
+    "status": "active",
+    "publisher": "b.Well Connected Health",
+    "description": "This is MedlinePlus's LOINC lab code definitions.",
+    "caseSensitive": true,
+    "content": "fragment",
+    "property": [
+      {
+        "id": "medline-plus-summary",
+        "code": "medline-plus-summary",
+        "uri": "https://medlineplus.gov",
+        "description": "MedlinePlus Connect full summary",
+        "type": "string"
+      }
+    ],
+    "concept": [
+      {
+        "id": "24803-9",
+        "code": "24803-9",
+        "display": "MRI Scans",
+        "property": [
+          {
+            "id": "medline-plus-summary",
+            "code": "medline-plus-summary",
+            "valueString": "Binary/medline-loinc-24803-9"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "resourceType": "CodeSystem",
+    "id": "medline-loinc-labs",
+    "meta": {
+      "source": "https://connect.medlineplus.gov/service",
+      "security": [
+        {
+          "system": "https://www.icanbwell.com/owner",
+          "code": "medlineplus"
+        },
+        {
+          "system": "https://www.icanbwell.com/access",
+          "code": "medlineplus"
+        },
+        {
+          "system": "https://www.icanbwell.com/vendor",
+          "code": "medlineplus"
+        }
+      ]
+    },
+    "url": "http://loinc.org",
+    "name": "MedlineLoincLabs",
+    "status": "active",
+    "publisher": "b.Well Connected Health",
+    "description": "This is MedlinePlus's LOINC lab code definitions.",
+    "caseSensitive": true,
+    "content": "fragment",
+    "property": [
+      {
+        "id": "medline-plus-summary",
+        "code": "medline-plus-summary",
+        "uri": "https://medlineplus.gov",
+        "description": "MedlinePlus Connect full summary",
+        "type": "string"
+      }
+    ],
+    "concept": [
+      {
+        "id": "26220-4",
+        "code": "26220-4",
+        "display": "MRI Scans",
+        "property": [
+          {
+            "id": "medline-plus-summary",
+            "code": "medline-plus-summary",
+            "valueString": "Binary/medline-loinc-26220-4"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "resourceType": "CodeSystem",
+    "id": "medline-loinc-labs",
+    "meta": {
+      "source": "https://connect.medlineplus.gov/service",
+      "security": [
+        {
+          "system": "https://www.icanbwell.com/owner",
+          "code": "medlineplus"
+        },
+        {
+          "system": "https://www.icanbwell.com/access",
+          "code": "medlineplus"
+        },
+        {
+          "system": "https://www.icanbwell.com/vendor",
+          "code": "medlineplus"
+        }
+      ]
+    },
+    "url": "http://loinc.org",
+    "name": "MedlineLoincLabs",
+    "status": "active",
+    "publisher": "b.Well Connected Health",
+    "description": "This is MedlinePlus's LOINC lab code definitions.",
+    "caseSensitive": true,
+    "content": "fragment",
+    "property": [
+      {
+        "id": "medline-plus-summary",
+        "code": "medline-plus-summary",
+        "uri": "https://medlineplus.gov",
+        "description": "MedlinePlus Connect full summary",
+        "type": "string"
+      }
+    ],
+    "concept": [
+      {
+        "id": "36778-9",
+        "code": "36778-9",
+        "display": "MRI Scans",
+        "property": [
+          {
+            "id": "medline-plus-summary",
+            "code": "medline-plus-summary",
+            "valueString": "Binary/medline-loinc-36778-9"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "resourceType": "CodeSystem",
+    "id": "medline-loinc-labs",
+    "meta": {
+      "source": "https://connect.medlineplus.gov/service",
+      "security": [
+        {
+          "system": "https://www.icanbwell.com/owner",
+          "code": "medlineplus"
+        },
+        {
+          "system": "https://www.icanbwell.com/access",
+          "code": "medlineplus"
+        },
+        {
+          "system": "https://www.icanbwell.com/vendor",
+          "code": "medlineplus"
+        }
+      ]
+    },
+    "url": "http://loinc.org",
+    "name": "MedlineLoincLabs",
+    "status": "active",
+    "publisher": "b.Well Connected Health",
+    "description": "This is MedlinePlus's LOINC lab code definitions.",
+    "caseSensitive": true,
+    "content": "fragment",
+    "property": [
+      {
+        "id": "medline-plus-summary",
+        "code": "medline-plus-summary",
+        "uri": "https://medlineplus.gov",
+        "description": "MedlinePlus Connect full summary",
+        "type": "string"
+      }
+    ],
+    "concept": [
+      {
+        "id": "30669-6",
+        "code": "30669-6",
+        "display": "MRI Scans",
+        "property": [
+          {
+            "id": "medline-plus-summary",
+            "code": "medline-plus-summary",
+            "valueString": "Binary/medline-loinc-30669-6"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "resourceType": "CodeSystem",
+    "id": "medline-loinc-labs",
+    "meta": {
+      "source": "https://connect.medlineplus.gov/service",
+      "security": [
+        {
+          "system": "https://www.icanbwell.com/owner",
+          "code": "medlineplus"
+        },
+        {
+          "system": "https://www.icanbwell.com/access",
+          "code": "medlineplus"
+        },
+        {
+          "system": "https://www.icanbwell.com/vendor",
+          "code": "medlineplus"
+        }
+      ]
+    },
+    "url": "http://loinc.org",
+    "name": "MedlineLoincLabs",
+    "status": "active",
+    "publisher": "b.Well Connected Health",
+    "description": "This is MedlinePlus's LOINC lab code definitions.",
+    "caseSensitive": true,
+    "content": "fragment",
+    "property": [
+      {
+        "id": "medline-plus-summary",
+        "code": "medline-plus-summary",
+        "uri": "https://medlineplus.gov",
+        "description": "MedlinePlus Connect full summary",
+        "type": "string"
+      }
+    ],
+    "concept": [
+      {
+        "id": "36152-7",
+        "code": "36152-7",
+        "display": "MRI Scans",
+        "property": [
+          {
+            "id": "medline-plus-summary",
+            "code": "medline-plus-summary",
+            "valueString": "Binary/medline-loinc-36152-7"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "resourceType": "CodeSystem",
+    "id": "medline-loinc-labs",
+    "meta": {
+      "source": "https://connect.medlineplus.gov/service",
+      "security": [
+        {
+          "system": "https://www.icanbwell.com/owner",
+          "code": "medlineplus"
+        },
+        {
+          "system": "https://www.icanbwell.com/access",
+          "code": "medlineplus"
+        },
+        {
+          "system": "https://www.icanbwell.com/vendor",
+          "code": "medlineplus"
+        }
+      ]
+    },
+    "url": "http://loinc.org",
+    "name": "MedlineLoincLabs",
+    "status": "active",
+    "publisher": "b.Well Connected Health",
+    "description": "This is MedlinePlus's LOINC lab code definitions.",
+    "caseSensitive": true,
+    "content": "fragment",
+    "property": [
+      {
+        "id": "medline-plus-summary",
+        "code": "medline-plus-summary",
+        "uri": "https://medlineplus.gov",
+        "description": "MedlinePlus Connect full summary",
+        "type": "string"
+      }
+    ],
+    "concept": [
+      {
+        "id": "36236-8",
+        "code": "36236-8",
+        "display": "MRI Scans",
+        "property": [
+          {
+            "id": "medline-plus-summary",
+            "code": "medline-plus-summary",
+            "valueString": "Binary/medline-loinc-36236-8"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "resourceType": "CodeSystem",
+    "id": "medline-loinc-labs",
+    "meta": {
+      "source": "https://connect.medlineplus.gov/service",
+      "security": [
+        {
+          "system": "https://www.icanbwell.com/owner",
+          "code": "medlineplus"
+        },
+        {
+          "system": "https://www.icanbwell.com/access",
+          "code": "medlineplus"
+        },
+        {
+          "system": "https://www.icanbwell.com/vendor",
+          "code": "medlineplus"
+        }
+      ]
+    },
+    "url": "http://loinc.org",
+    "name": "MedlineLoincLabs",
+    "status": "active",
+    "publisher": "b.Well Connected Health",
+    "description": "This is MedlinePlus's LOINC lab code definitions.",
+    "caseSensitive": true,
+    "content": "fragment",
+    "property": [
+      {
+        "id": "medline-plus-summary",
+        "code": "medline-plus-summary",
+        "uri": "https://medlineplus.gov",
+        "description": "MedlinePlus Connect full summary",
+        "type": "string"
+      }
+    ],
+    "concept": [
+      {
+        "id": "36384-6",
+        "code": "36384-6",
+        "display": "X-Rays",
+        "property": [
+          {
+            "id": "medline-plus-summary",
+            "code": "medline-plus-summary",
+            "valueString": "Binary/medline-loinc-36384-6"
+          }
+        ]
+      }
+    ]
+  }
+]

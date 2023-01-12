@@ -5,9 +5,17 @@
 const {mongoConfig} = require('../config');
 const async = require('async');
 const env = require('var');
-const {MongoDatabaseManager} = require('../utils/mongoDatabaseManager');
+const {RethrownError} = require('../utils/rethrownError');
 
-module.exports.handleStats = async (req, res) => {
+/**
+ * Handles stats
+ * @param {function (): SimpleContainer} fnCreateContainer
+ * @param {import('http').IncomingMessage} req
+ * @param {import('express').Response} res
+ * @return {Promise<void>}
+ */
+// eslint-disable-next-line no-unused-vars
+module.exports.handleStats = async ({fnCreateContainer, req, res}) => {
     console.info('Running stats');
 
     /**
@@ -22,16 +30,17 @@ module.exports.handleStats = async (req, res) => {
         console.log(['Found: ', count, ' documents in ', collection_name].join(''));
         return {name: collection_name, count: count};
     }
-    const mongoDatabaseManager = new MongoDatabaseManager();
+
+    const container = fnCreateContainer();
     /**
-     * @type {import('mongodb').MongoClient}
+     * @type {MongoDatabaseManager}
      */
-    const client = await mongoDatabaseManager.createClientAsync(mongoConfig);
+    const mongoDatabaseManager = container.mongoDatabaseManager;
     try {
         /**
          * @type {import('mongodb').Db}
          */
-        const db = await new MongoDatabaseManager().getClientDbAsync();
+        const db = await mongoDatabaseManager.getClientDbAsync();
         let collection_names = [];
         // const collections = await db.listCollections().toArray();
 
@@ -55,7 +64,9 @@ module.exports.handleStats = async (req, res) => {
             database: mongoConfig.db_name,
             collections: collection_stats,
         });
-    } finally {
-        await mongoDatabaseManager.disconnectClientAsync(client);
+    } catch (error) {
+        throw new RethrownError({
+            error
+        });
     }
 };

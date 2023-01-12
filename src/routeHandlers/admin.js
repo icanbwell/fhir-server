@@ -1,42 +1,25 @@
 /**
  * This route handler implements the /stats endpoint which shows the collections in mongo and the number of records in each
  */
-const {mongoConfig} = require('../config');
 // const env = require('var');
 const {AdminLogManager} = require('../admin/adminLogManager');
 const sanitize = require('sanitize-filename');
-const {createContainer} = require('../createContainer');
 const {shouldReturnHtml} = require('../utils/requestHelpers');
 const env = require('var');
 const {isTrue} = require('../utils/isTrue');
-const {MongoDatabaseManager} = require('../utils/mongoDatabaseManager');
-
-/**
- * Gets admin scopes from the request
- * @param {import('http').IncomingMessage} req
- * @returns {{adminScopes: string[], scope: string}}
- */
-function getAdminScopes({req}) {
-    /**
-     * @type {string}
-     */
-    const scope = req.authInfo && req.authInfo.scope;
-    if (!scope) {
-        return {scope, adminScopes: []};
-    }
-    /**
-     * @type {string[]}
-     */
-    const scopes = scope.split(' ');
-    const adminScopes = scopes.filter(s => s.startsWith('admin/'));
-    return {scope, adminScopes};
-}
+const {HttpResponseStreamer} = require('../utils/httpResponseStreamer');
+const {assertIsValid} = require('../utils/assertType');
+const {FhirResponseStreamer} = require('../utils/fhirResponseStreamer');
+const {generateUUID} = require('../utils/uid.util');
+const scopeChecker = require('@asymmetrik/sof-scope-checker');
+const OperationOutcome = require('../fhir/classes/4_0_0/resources/operationOutcome');
+const OperationOutcomeIssue = require('../fhir/classes/4_0_0/backbone_elements/operationOutcomeIssue');
 
 /**
  * shows indexes
  * @param {import('http').IncomingMessage} req
  * @param {SimpleContainer} container
- * @param {import('http').ServerResponse} res
+ * @param {import('express').Response} res
  * @param {boolean|undefined} [filterToProblems]
  * @returns {Promise<*>}
  */
@@ -69,9 +52,9 @@ async function showIndexesAsync(
 
 /**
  * synchronizes indexes
- * @param {import('http').IncomingMessage} req
+ * @param {import('express').Request} req
  * @param {SimpleContainer} container
- * @param {import('http').ServerResponse} res
+ * @param {import('express').Response} res
  * @returns {Promise<void>}
  */
 async function synchronizeIndexesAsync(
@@ -100,26 +83,49 @@ async function synchronizeIndexesAsync(
     return;
 }
 
+/**
+ * Handles admin routes
+ * @param {function (): SimpleContainer} fnCreateContainer
+ * @param {import('http').IncomingMessage} req
+ * @param {import('express').Response} res
+ */
 async function handleAdmin(
-    /** @type {import('http').IncomingMessage} **/ req,
-    /** @type {import('http').ServerResponse} **/ res
+    fnCreateContainer,
+    req,
+    res
 ) {
-    console.info('Running admin');
-    const mongoDatabaseManager = new MongoDatabaseManager();
     /**
-     * @type {import('mongodb').MongoClient}
+     * converts bundleEntry to html
+     * @param {BundleEntry} bundleEntry
+     * @returns {string}
      */
-    const client = await mongoDatabaseManager.createClientAsync(mongoConfig);
+    function getHtmlForBundleEntry(bundleEntry) {
+        const operation = bundleEntry.request ? `${bundleEntry.request.method} ` : '';
+        return `<div>${operation}${bundleEntry.resource.resourceType}/${bundleEntry.resource.id}</div>\n`;
+    }
+
     try {
+        req.id = req.id || req.headers['X-REQUEST-ID'] || generateUUID();
         const operation = req.params['op'];
         console.log(`op=${operation}`);
-        const {scope, adminScopes} = getAdminScopes({req});
 
         // set up all the standard services in the container
         /**
          * @type {SimpleContainer}
          */
-        const container = createContainer();
+        const container = fnCreateContainer();
+        /**
+         * @type {ScopesManager}
+         */
+        const scopesManager = container.scopesManager;
+        /**
+         * @type {string|undefined}
+         */
+        const scope = scopesManager.getScopeFromRequest({req});
+        /**
+         * @type {string[]}
+         */
+        const adminScopes = scopesManager.getAdminScopes({scope});
 
         if (!isTrue(env.AUTH_ENABLED) || adminScopes.length > 0) {
             switch (operation) {
@@ -130,6 +136,18 @@ async function handleAdmin(
                 }
 
                 case 'personPatientLink': {
+                    const parameters = {};
+                    const filePath = __dirname + `/../views/admin/pages/${sanitize(operation)}`;
+                    return res.render(filePath, parameters);
+                }
+
+                case 'patientData': {
+                    const parameters = {};
+                    const filePath = __dirname + `/../views/admin/pages/${sanitize(operation)}`;
+                    return res.render(filePath, parameters);
+                }
+
+                case 'personMatch': {
                     const parameters = {};
                     const filePath = __dirname + `/../views/admin/pages/${sanitize(operation)}`;
                     return res.render(filePath, parameters);
@@ -172,49 +190,68 @@ async function handleAdmin(
                     });
                 }
 
+                case 'deletePerson': {
+                    console.log(`req.query: ${JSON.stringify(req.query)}`);
+                    const personId = req.query['personId'];
+                    if (personId) {
+                        /**
+                         * @type {AdminPersonPatientLinkManager}
+                         */
+                        const adminPersonPatientLinkManager = container.adminPersonPatientLinkManager;
+                        const json = await adminPersonPatientLinkManager.deletePersonAsync({
+                            requestId: req.id,
+                            personId
+                        });
+                        return res.json(json);
+                    }
+                    return res.json({
+                        message: `No personId: ${personId} passed`
+                    });
+                }
+
                 case 'createPersonToPersonLink': {
                     console.log(`req.query: ${JSON.stringify(req.query)}`);
                     const bwellPersonId = req.query['bwellPersonId'];
-                    const sourcePersonId = req.query['sourcePersonId'];
-                    if (bwellPersonId && sourcePersonId) {
+                    const externalPersonId = req.query['externalPersonId'];
+                    if (bwellPersonId && externalPersonId) {
                         /**
                          * @type {AdminPersonPatientLinkManager}
                          */
                         const adminPersonPatientLinkManager = container.adminPersonPatientLinkManager;
                         const json = await adminPersonPatientLinkManager.createPersonToPersonLinkAsync({
                             bwellPersonId,
-                            sourcePersonId
+                            externalPersonId
                         });
                         return res.json(json);
                     }
                     return res.json({
-                        message: `No bwellPersonId: ${bwellPersonId} or sourcePersonId: ${sourcePersonId} passed`
+                        message: `No bwellPersonId: ${bwellPersonId} or externalPersonId: ${externalPersonId} passed`
                     });
                 }
 
                 case 'removePersonToPersonLink': {
                     console.log(`req.query: ${JSON.stringify(req.query)}`);
                     const bwellPersonId = req.query['bwellPersonId'];
-                    const sourcePersonId = req.query['sourcePersonId'];
-                    if (bwellPersonId && sourcePersonId) {
+                    const externalPersonId = req.query['externalPersonId'];
+                    if (bwellPersonId && externalPersonId) {
                         /**
                          * @type {AdminPersonPatientLinkManager}
                          */
                         const adminPersonPatientLinkManager = container.adminPersonPatientLinkManager;
                         const json = await adminPersonPatientLinkManager.removePersonToPersonLinkAsync({
                             bwellPersonId,
-                            sourcePersonId
+                            externalPersonId
                         });
                         return res.json(json);
                     }
                     return res.json({
-                        message: `No bwellPersonId: ${bwellPersonId} or sourcePersonId: ${sourcePersonId} passed`
+                        message: `No bwellPersonId: ${bwellPersonId} or externalPersonId: ${externalPersonId} passed`
                     });
                 }
 
                 case 'createPersonToPatientLink': {
                     console.log(`req.query: ${JSON.stringify(req.query)}`);
-                    const sourcePersonId = req.query['sourcePersonId'];
+                    const externalPersonId = req.query['externalPersonId'];
                     const patientId = req.query['patientId'];
                     if (patientId) {
                         /**
@@ -222,7 +259,7 @@ async function handleAdmin(
                          */
                         const adminPersonPatientLinkManager = container.adminPersonPatientLinkManager;
                         const json = await adminPersonPatientLinkManager.createPersonToPatientLinkAsync({
-                            sourcePersonId,
+                            externalPersonId,
                             patientId
                         });
                         return res.json(json);
@@ -231,6 +268,156 @@ async function handleAdmin(
                         message: `No patientId: ${patientId} passed`
                     });
                 }
+
+                case 'deletePatientDataGraph': {
+                    console.log(`req.query: ${JSON.stringify(req.query)}`);
+                    const patientId = req.query['id'];
+                    const sync = req.query['sync'];
+                    if (patientId) {
+                        /**
+                         * @type {string[]}
+                         */
+                        let scopes = scopesManager.parseScopes(scope);
+                        const resourceType = 'Patient';
+                        const accessRequested = 'write';
+                        // eslint-disable-next-line no-unused-vars
+                        let {error, success} = scopeChecker(resourceType, accessRequested, scopes);
+                        if (!success) {
+                            let errorMessage = 'user with scopes [' + scopes +
+                                '] failed access check to [' + resourceType + '.' + accessRequested + ']';
+                            const operationOutcome = new OperationOutcome({
+                                issue: [
+                                    new OperationOutcomeIssue(
+                                        {
+                                            severity: 'error',
+                                            code: 'forbidden',
+                                            diagnostics: errorMessage
+                                        }
+                                    )
+                                ]
+                            });
+                            return res.json(operationOutcome.toJSON());
+                        }
+
+                        /**
+                         * @type {AdminPersonPatientDataManager}
+                         */
+                        const adminPersonPatientLinkManager = container.adminPersonPatientDataManager;
+                        if (sync) {
+                            const json = await adminPersonPatientLinkManager.deletePatientDataGraphAsync({
+                                req,
+                                res,
+                                patientId,
+                                responseStreamer: null
+                            });
+                            return res.json(json);
+                        } else {
+                            /**
+                             * @type {BaseResponseStreamer}
+                             */
+                            const responseStreamer = shouldReturnHtml(req) ?
+                                new HttpResponseStreamer({
+                                    response: res,
+                                    requestId: req.id,
+                                    title: 'Delete Patient Data Graph',
+                                    html: '<h1>Delete Patient Data Graph</h1>\n' + '<div>' +
+                                        `Started delete of ${patientId}.  This may take a few seconds.  ` +
+                                        '</div>\n',
+                                    fnGetHtmlForBundleEntry: getHtmlForBundleEntry
+                                }) :
+                                new FhirResponseStreamer({
+                                    response: res,
+                                    requestId: req.id,
+                                    bundleType: 'batch-response'
+                                });
+                            await responseStreamer.startAsync();
+                            await adminPersonPatientLinkManager.deletePatientDataGraphAsync({
+                                req,
+                                res,
+                                patientId,
+                                responseStreamer
+                            });
+                            await responseStreamer.writeAsync({
+                                content: '<div>Finished</div>\n'
+                            });
+                            await responseStreamer.endAsync();
+                            return;
+                        }
+                    }
+                    return res.json({
+                        message: `No id: ${patientId} passed`
+                    });
+                }
+
+                case 'deletePersonDataGraph': {
+                    console.log(`req.query: ${JSON.stringify(req.query)}`);
+                    const personId = req.query['id'];
+                    if (personId) {
+                        /**
+                         * @type {string[]}
+                         */
+                        let scopes = scopesManager.parseScopes(scope);
+                        const resourceType = 'Patient';
+                        const accessRequested = 'write';
+                        // eslint-disable-next-line no-unused-vars
+                        let {error, success} = scopeChecker(resourceType, accessRequested, scopes);
+                        if (!success) {
+                            let errorMessage = 'user with scopes [' + scopes +
+                                '] failed access check to [' + resourceType + '.' + accessRequested + ']';
+                            const operationOutcome = new OperationOutcome({
+                                issue: [
+                                    new OperationOutcomeIssue(
+                                        {
+                                            severity: 'error',
+                                            code: 'forbidden',
+                                            diagnostics: errorMessage
+                                        }
+                                    )
+                                ]
+                            });
+                            return res.json(operationOutcome.toJSON());
+                        }
+                        /**
+                         * @type {AdminPersonPatientDataManager}
+                         */
+                        const adminPersonPatientLinkManager = container.adminPersonPatientDataManager;
+                        /**
+                         * @type {BaseResponseStreamer}
+                         */
+                        const responseStreamer = shouldReturnHtml(req) ?
+                            new HttpResponseStreamer({
+                                response: res,
+                                requestId: req.id,
+                                title: 'Delete Person Data Graph',
+                                html: '<h1>Delete Person Data Graph</h1>\n' + '<div>' +
+                                    `Started delete of ${personId}.  This may take a few seconds.  ` +
+                                    '</div>\n',
+                                fnGetHtmlForBundleEntry: getHtmlForBundleEntry
+                            }) :
+                            new FhirResponseStreamer({
+                                response: res,
+                                requestId: req.id,
+                                bundleType: 'batch-response'
+                            });
+
+                        await responseStreamer.startAsync();
+                        await adminPersonPatientLinkManager.deletePersonDataGraphAsync({
+                            req,
+                            res,
+                            personId,
+                            responseStreamer
+                        });
+                        await responseStreamer.writeAsync({
+                            content: '<div>Finished</div>\n'
+                        });
+                        await responseStreamer.endAsync();
+                        return;
+                    }
+                    return res.json({
+                        message: `No id: ${personId} passed`
+                    });
+                }
+
 
                 case 'indexes': {
                     return await showIndexesAsync(
@@ -260,6 +447,23 @@ async function handleAdmin(
                     );
                 }
 
+                case 'runPersonMatch': {
+                    console.log(`req.query: ${JSON.stringify(req.query)}`);
+                    const sourceId = req.query['sourceId'];
+                    const sourceType = req.query['sourceType'];
+                    const targetId = req.query['targetId'];
+                    const targetType = req.query['targetType'];
+                    const personMatchManager = container.personMatchManager;
+                    assertIsValid(personMatchManager);
+                    const json = await personMatchManager.personMatchAsync({
+                        sourceType,
+                        sourceId,
+                        targetType,
+                        targetId
+                    });
+                    return res.json(json);
+                }
+
                 default: {
                     const filePath = __dirname + '/../views/admin/pages/index';
                     return res.render(filePath, {});
@@ -270,20 +474,23 @@ async function handleAdmin(
                 message: `Missing scopes for admin/*.read in ${scope}`
             });
         }
-        // }
-        //     res.status(200).json({
-        //         success: true,
-        //         image: env.DOCKER_IMAGE || '',
-        //     });
-        // res.set('Content-Type', 'text/html');
-        // res.send(Buffer.from('<html><body><h2>Test String</h2></body></html>'));
-    } finally {
-        await mongoDatabaseManager.disconnectClientAsync(client);
+    } catch (e) {
+        const operationOutcome = new OperationOutcome({
+            issue: [
+                new OperationOutcomeIssue(
+                    {
+                        severity: 'error',
+                        code: 'exception',
+                        diagnostics: e.message
+                    }
+                )
+            ]
+        });
+        return res.json(operationOutcome.toJSON());
     }
 }
 
 module.exports = {
-    handleAdmin,
-    getAdminScopes
+    handleAdmin
 };
 

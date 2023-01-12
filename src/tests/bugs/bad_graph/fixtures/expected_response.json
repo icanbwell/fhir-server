@@ -1,0 +1,168 @@
+{
+  "entry": [
+    {
+      "resource": {
+        "issue": [
+          {
+            "code": "invalid",
+            "details": {
+              "text": "/4_0_0/Patient/$graph should be string :{\"type\":\"string\"}: at position .link[0].path"
+            },
+            "severity": "error"
+          },
+          {
+            "code": "invalid",
+            "details": {
+              "text": "/4_0_0/Patient/$graph should be string :{\"type\":\"string\"}: at position .link[0].description"
+            },
+            "severity": "error"
+          },
+          {
+            "code": "invalid",
+            "details": {
+              "text": "/4_0_0/Patient/$graph should be array :{\"type\":\"array\"}: at position .link[0].target[0].link"
+            },
+            "severity": "error"
+          },
+          {
+            "code": "invalid",
+            "details": {
+              "text": "/4_0_0/Patient/$graph should be string :{\"type\":\"string\"}: at position .link[1].path"
+            },
+            "severity": "error"
+          },
+          {
+            "code": "invalid",
+            "details": {
+              "text": "/4_0_0/Patient/$graph should be string :{\"type\":\"string\"}: at position .link[1].description"
+            },
+            "severity": "error"
+          },
+          {
+            "code": "invalid",
+            "details": {
+              "text": "/4_0_0/Patient/$graph should be array :{\"type\":\"array\"}: at position .link[1].target[0].link"
+            },
+            "severity": "error"
+          },
+          {
+            "code": "invalid",
+            "details": {
+              "text": "/4_0_0/Patient/$graph should be string :{\"type\":\"string\"}: at position .link[2].path"
+            },
+            "severity": "error"
+          },
+          {
+            "code": "invalid",
+            "details": {
+              "text": "/4_0_0/Patient/$graph should be string :{\"type\":\"string\"}: at position .link[2].description"
+            },
+            "severity": "error"
+          },
+          {
+            "code": "invalid",
+            "details": {
+              "text": "/4_0_0/Patient/$graph should be array :{\"type\":\"array\"}: at position .link[2].target[0].link"
+            },
+            "severity": "error"
+          },
+          {
+            "code": "invalid",
+            "details": {
+              "text": "/4_0_0/Patient/$graph should be string :{\"type\":\"string\"}: at position .link[3].path"
+            },
+            "severity": "error"
+          },
+          {
+            "code": "invalid",
+            "details": {
+              "text": "/4_0_0/Patient/$graph should be string :{\"type\":\"string\"}: at position .link[3].description"
+            },
+            "severity": "error"
+          },
+          {
+            "code": "invalid",
+            "details": {
+              "text": "/4_0_0/Patient/$graph should be array :{\"type\":\"array\"}: at position .link[3].target[0].link"
+            },
+            "severity": "error"
+          },
+          {
+            "code": "invalid",
+            "details": {
+              "text": "/4_0_0/Patient/$graph should be string :{\"type\":\"string\"}: at position .link[4].path"
+            },
+            "severity": "error"
+          },
+          {
+            "code": "invalid",
+            "details": {
+              "text": "/4_0_0/Patient/$graph should be string :{\"type\":\"string\"}: at position .link[4].description"
+            },
+            "severity": "error"
+          },
+          {
+            "code": "invalid",
+            "details": {
+              "text": "/4_0_0/Patient/$graph should be array :{\"type\":\"array\"}: at position .link[4].target[0].link"
+            },
+            "severity": "error"
+          },
+          {
+            "code": "invalid",
+            "details": {
+              "text": "/4_0_0/Patient/$graph should be string :{\"type\":\"string\"}: at position .link[5].path"
+            },
+            "severity": "error"
+          },
+          {
+            "code": "invalid",
+            "details": {
+              "text": "/4_0_0/Patient/$graph should be string :{\"type\":\"string\"}: at position .link[5].description"
+            },
+            "severity": "error"
+          },
+          {
+            "code": "invalid",
+            "details": {
+              "text": "/4_0_0/Patient/$graph should be array :{\"type\":\"array\"}: at position .link[5].target[0].link"
+            },
+            "severity": "error"
+          },
+          {
+            "code": "invalid",
+            "details": {
+              "text": "/4_0_0/Patient/$graph should be string :{\"type\":\"string\"}: at position .link[6].path"
+            },
+            "severity": "error"
+          },
+          {
+            "code": "invalid",
+            "details": {
+              "text": "/4_0_0/Patient/$graph should be string :{\"type\":\"string\"}: at position .link[6].description"
+            },
+            "severity": "error"
+          },
+          {
+            "code": "invalid",
+            "details": {
+              "text": "/4_0_0/Patient/$graph should be array :{\"type\":\"array\"}: at position .link[6].target[0].link"
+            },
+            "severity": "error"
+          },
+          {
+            "code": "invalid",
+            "details": {
+              "text": "/4_0_0/Patient/$graph should match exactly one schema in oneOf :{\"passingSchemas\":null}: at position root"
+            },
+            "severity": "error"
+          }
+        ],
+        "resourceType": "OperationOutcome"
+      }
+    }
+  ],
+  "resourceType": "Bundle",
+  "total": 1,
+  "type": "searchset"
+}

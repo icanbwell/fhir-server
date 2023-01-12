@@ -47,6 +47,9 @@ For example:
 
 [Streaming](streaming.md)
 
+## Optimistic Concurrency Support
+[Optimistic Concurrency](concurrency.md)
+
 ## Contributing
 
 [Contributing](CONTRIBUTING.md)
@@ -55,7 +58,7 @@ For example:
 
 This project has continuous integration set up so GitHub will automatically run tests on your Pull Requests.
 
-## Building Docker image and pushing to DockerHub
+## Building the Docker image and pushing to DockerHub
 
 To deploy this code:
 

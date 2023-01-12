@@ -11,7 +11,7 @@ const {escapeRegExp} = require('./regexEscaper');
  * @param {string} target what we are querying for
  * @return a mongo regex query
  */
-const stringQueryBuilder = function (target) {
+const stringQueryBuilder = function ({target}) {
     // noinspection RegExpDuplicateCharacterInClass
     const t2 = target.replace(/[\\(\\)\\-\\_\\+\\=\\/\\.]/g, '\\$&');
     // eslint-disable-next-line security/detect-non-literal-regexp
@@ -25,7 +25,7 @@ const stringQueryBuilder = function (target) {
  * @param {string} target
  * @return {array} ors
  */
-const addressQueryBuilder = function (target) {
+const addressQueryBuilder = function ({target}) {
     // Tokenize the input as mush as possible
     const totalSplit = target.split(/[\s,]+/);
     const ors = [];
@@ -66,7 +66,7 @@ const addressQueryBuilder = function (target) {
  * @param {string} target
  * @return {array} ors
  */
-const nameQueryBuilder = function (target) {
+const nameQueryBuilder = function ({target}) {
     const split = target.split(/[\s.,]+/);
     const ors = [];
 
@@ -99,8 +99,8 @@ const nameQueryBuilder = function (target) {
  * @param {?string} target what we are searching for
  * @param {string} type codeable concepts use a code field and identifiers use a value
  * @param {string} field path to system and value from field
- * @param {string} required the required system if specified
- * @param {?boolean} exists_flag whether to check for existence
+ * @param {string|undefined} [required] the required system if specified
+ * @param {boolean|undefined} [exists_flag] whether to check for existence
  * @return {JSON} queryBuilder
  * Using to assign a single variable:
  *      const queryBuilder = tokenQueryBuilder(identifier, 'value', 'identifier');
@@ -110,7 +110,7 @@ const nameQueryBuilder = function (target) {
  * Use in an or query
  *      query.$or = [tokenQueryBuilder(identifier, 'value', 'identifier'), tokenQueryBuilder(type, 'code', 'type.coding')];
  */
-const tokenQueryBuilder = function (target, type, field, required, exists_flag = null) {
+const tokenQueryBuilder = function ({target, type, field, required, exists_flag}) {
     let queryBuilder = {};
     let system = '';
     let value;
@@ -168,8 +168,7 @@ const tokenQueryBuilder = function (target, type, field, required, exists_flag =
  * @name exactMatchQueryBuilder
  * @param {string|boolean|null} target what we are searching for
  * @param {string} field path to system and value from field
- * @param {string} required the required system if specified
- * @param {?boolean} exists_flag whether to check for existence
+ * @param {boolean|undefined} [exists_flag] whether to check for existence
  * @return {JSON} queryBuilder
  * Using to assign a single variable:
  *      const queryBuilder = tokenQueryBuilder(identifier, 'value', 'identifier');
@@ -179,7 +178,7 @@ const tokenQueryBuilder = function (target, type, field, required, exists_flag =
  * Use in an or query
  *      query.$or = [tokenQueryBuilder(identifier, 'value', 'identifier'), tokenQueryBuilder(type, 'code', 'type.coding')];
  */
-const exactMatchQueryBuilder = function (target, field, required, exists_flag = null) {
+const exactMatchQueryBuilder = function ({target, field, exists_flag}) {
     const queryBuilder = {};
     let value;
 
@@ -213,7 +212,7 @@ const exactMatchQueryBuilder = function (target, field, required, exists_flag = 
  * @param {string} target_type
  * @param {string} target
  * @param {string} field
- * @param {?boolean} [exists_flag]
+ * @param {boolean|undefined} [exists_flag]
  * @return {JSON} queryBuilder
  */
 const referenceQueryBuilder = function ({target_type, target, field, exists_flag}) {
@@ -270,16 +269,16 @@ const referenceQueryBuilder = function ({target_type, target, field, exists_flag
  * @name numberQueryBuilder
  * @description takes in number query and returns a mongo query. The target parameter can have a 2 constter prefix to
  *              specify a specific kind of query. Else, an approximation query will be returned.
- * @param target
+ * @param {string} target
  * @returns {Object} a mongo query
  */
-const numberQueryBuilder = function (target) {
+const numberQueryBuilder = function ({target}) {
     let prefix = '';
     let number;
     let sigfigs;
 
     // Check if there is a prefix
-    if (isNaN(target)) {
+    if (Number.isNaN(target)) {
         prefix = target.substring(0, 2);
         number = parseFloat(target.substring(2));
         sigfigs = target.substring(2);
@@ -318,10 +317,10 @@ const numberQueryBuilder = function (target) {
 /**
  * @name quantityQueryBuilder
  * @description builds quantity data types
- * @param target [prefix][number]|[system]|[code]
- * @param field path to specific field in the resource
+ * @param {string} target [prefix][number]|[system]|[code]
+ * @param {string} field path to specific field in the resource
  */
-const quantityQueryBuilder = function (target, field) {
+const quantityQueryBuilder = function ({target, field}) {
     const qB = {};
     //split by the two pipes
     let [num, system, code] = target.split('|');
@@ -333,7 +332,7 @@ const quantityQueryBuilder = function (target, field) {
         qB[`${field}.code`] = code;
     }
 
-    if (isNaN(num)) {
+    if (Number.isNaN(num)) {
         //with prefixes
         const prefix = num.substring(0, 2);
         num = Number(num.substring(2));
@@ -400,20 +399,28 @@ const getDateFromNum = function (days) {
     return year.toString() + '-' + ('0' + month).slice(-2) + '-' + ('0' + rDay).slice(-2);
 };
 
-//deals with date, dateTime, instant, period, and timing
-//use like this: query['whatever'] = dateQueryBuilder(whatever, 'dateTime'), but it's different for period and timing
-//the condition service has some examples you might want to look at.
-//can't handle prefixes yet!
-//Also doesn't work foe when things are stored in different time zones in the .json files (with the + or -)
-//  UNLESS, the search parameter is teh exact same as what is stored.  So, if something is stored as 2016-06-03T05:00-03:00, then the search parameter must be 2016-06-03T05:00-03:00
-//It's important to make sure formatting is right, don't forget a leading 0 when dealing with single digit times.
-const dateQueryBuilder = function (date, type, path) {
+
+/**
+ * Builds a date query
+ * deals with date, dateTime, instant, period, and timing
+ * use like this: query['whatever'] = dateQueryBuilder(whatever, 'dateTime'), but it's different for period and timing
+ * the condition service has some examples you might want to look at.
+ * can't handle prefixes yet!
+ * Also doesn't work for when things are stored in different time zones in the .json files (with the + or -)
+ *   UNLESS, the search parameter is teh exact same as what is stored.  So, if something is stored as 2016-06-03T05:00-03:00, then the search parameter must be 2016-06-03T05:00-03:00
+ * It's important to make sure formatting is right, don't forget a leading 0 when dealing with single digit times.
+ * @param {string} date
+ * @param {string} type
+ * @param {string|undefined} [path]
+ * @return {Object}
+ */
+const dateQueryBuilder = function ({date, type, path}) {
     // noinspection RegExpSingleCharAlternation
     // eslint-disable-next-line security/detect-unsafe-regex
     const regex = /^(\D{2})?(\d{4})(-\d{2})?(-\d{2})?(?:(T\d{2}:\d{2})(:\d{2})?)?(Z|(\+|-)(\d{2}):(\d{2}))?$/;
     const match = date.match(regex);
     let str = '';
-    let toRet = [];
+    let toReturn = [];
     const pArr = []; //will have other possibilities such as just year, just year and month, etc
     let prefix = '$eq';
     if (match && match.length >= 1) {
@@ -589,7 +596,7 @@ const dateQueryBuilder = function (date, type, path) {
                     str = str + 'Z';
                     const pS = path + '.start';
                     const pE = path + '.end';
-                    toRet = [
+                    toReturn = [
                         {
                             $and: [
                                 {[pS]: {$lte: str}},
@@ -599,14 +606,14 @@ const dateQueryBuilder = function (date, type, path) {
                         {$and: [{[pS]: {$lte: str}}, {[pE]: undefined}]},
                         {$and: [{$or: [{[pE]: {$gte: str}}, {[pE]: regPoss}]}, {[pS]: undefined}]},
                     ];
-                    return toRet;
+                    return toReturn;
                 }
                 const tempFill = pArr.toString().replace(/,/g, ')|(?:') + ')'; //turning the pArr to a string that can be used as a regex
                 if (type === 'timing') {
                     const pDT = path + '.event';
                     const pBPS = path + '.repeat.boundsPeriod.start';
                     const pBPE = path + '.repeat.boundsPeriod.end';
-                    toRet = [
+                    toReturn = [
                         {
                             [pDT]: {
                                 // eslint-disable-next-line security/detect-non-literal-regexp
@@ -630,7 +637,7 @@ const dateQueryBuilder = function (date, type, path) {
                             ],
                         },
                     ];
-                    return toRet;
+                    return toReturn;
                 }
                 return {
                     // eslint-disable-next-line security/detect-non-literal-regexp
@@ -656,9 +663,17 @@ const dateQueryBuilder = function (date, type, path) {
     }
 };
 
+
+/**
+ * Searches for date using the Date type
+ * @param {string} dateSearchParameter
+ * @param {string} type
+ * @param {string|undefined} [path]
+ * @return {Object}
+ */
 // noinspection JSUnusedLocalSymbols
 // eslint-disable-next-line no-unused-vars
-const dateQueryBuilderNative = function (dateSearchParameter, type, path) {
+const dateQueryBuilderNative = function ({dateSearchParameter, type, path}) {
     const regex = /([a-z]+)(.+)/;
     const matches = dateSearchParameter.match(regex);
     const operation = matches[1];
@@ -702,13 +717,90 @@ const dateQueryBuilderNative = function (dateSearchParameter, type, path) {
 };
 
 /**
+ * filters by date for a Period
+ * https://www.hl7.org/fhir/search.html#date
+ * https://www.hl7.org/fhir/search.html#prefix
+ * @param {string} dateQueryItem
+ * @param {string} fieldName
+ * @returns {Object[]}
+ */
+const datetimePeriodQueryBuilder = function ({ dateQueryItem, fieldName }) {
+    // eslint-disable-next-line security/detect-unsafe-regex
+    const regex = /([a-z]+)(.+)/;
+    const match = dateQueryItem.match(regex);
+
+    const [prefix, date] = (match && match.length >= 1 && match[1]) ?
+        [match[1], dateQueryItem.slice(match[1].length)] :
+        ['eq', dateQueryItem];
+
+    // Build query for period.start
+    let startQuery = {};
+    switch (prefix) {
+        case 'eq':
+        case 'le':
+        case 'lt':
+            startQuery = dateQueryBuilder({
+                date: `le${date}`,
+                type: 'date'
+            });
+            break;
+        case 'sa':
+            startQuery = dateQueryBuilder({
+                date: `ge${date}`,
+                type: 'date'
+            });
+            break;
+        case 'ge':
+        case 'gt':
+        case 'eb':
+            startQuery = {
+                $ne: null
+            };
+            break;
+    }
+    startQuery = { [`${fieldName}.start`]: startQuery };
+
+    // Build query for period.end
+    let endQuery = {};
+    switch (prefix) {
+        case 'eq':
+        case 'ge':
+        case 'gt':
+            endQuery = {
+                $or: [
+                    {
+                        [`${fieldName}.end`]: dateQueryBuilder({
+                            date: `ge${date}`,
+                            type: 'date'
+                        })
+                    },
+                    {
+                        [`${fieldName}.end`]: null
+                    }
+                ]
+            };
+            break;
+        case 'eb':
+            endQuery = {
+                [`${fieldName}.end`]: dateQueryBuilder({
+                    date: `le${date}`,
+                    type: 'date'
+                })
+            };
+            break;
+    }
+
+    return [startQuery, endQuery];
+};
+
+/**
  * @name compositeQueryBuilder
  * @description from looking at where composites are used, the fields seem to be implicit
- * @param target What we're querying for
- * @param field1 contains the path and search type
- * @param field2 contains the path and search type
+ * @param {string} target What we're querying for
+ * @param {string} field1 contains the path and search type
+ * @param {string} field2 contains the path and search type
  */
-const compositeQueryBuilder = function (target, field1, field2) {
+const compositeQueryBuilder = function ({target, field1, field2}) {
     const composite = [];
     let temp = {};
     const [target1, target2] = target.split(/[$,]/);
@@ -719,14 +811,14 @@ const compositeQueryBuilder = function (target, field1, field2) {
     switch (type1) {
         case 'string':
             temp = {};
-            temp[`${path1}`] = stringQueryBuilder(target1);
+            temp[`${path1}`] = stringQueryBuilder({target: target1});
             composite.push(temp);
             break;
         case 'token':
             composite.push({
                 $or: [
-                    {$and: [tokenQueryBuilder(target1, 'code', path1, '')]},
-                    {$and: [tokenQueryBuilder(target1, 'value', path1, '')]},
+                    {$and: [tokenQueryBuilder({target: target1, type: 'code', field: path1})]},
+                    {$and: [tokenQueryBuilder({target: target1, type: 'value', field: path1})]},
                 ],
             });
             break;
@@ -735,25 +827,44 @@ const compositeQueryBuilder = function (target, field1, field2) {
                 target_type: target,
                 target: target1,
                 field: path1,
-                exists_flag: null
             }));
             break;
         case 'quantity':
-            composite.push(quantityQueryBuilder(target1, path1));
+            composite.push(quantityQueryBuilder({target: target1, field: path1}));
             break;
         case 'number':
             temp = {};
-            temp[`${path1}`] = numberQueryBuilder(target1);
+            temp[`${path1}`] = numberQueryBuilder({target: target1});
             composite.push(temp);
             break;
         case 'date':
             composite.push({
                 $or: [
-                    {[path1]: dateQueryBuilder(target1, 'date', '')},
-                    {[path1]: dateQueryBuilder(target1, 'dateTime', '')},
-                    {[path1]: dateQueryBuilder(target1, 'instant', '')},
-                    {$or: dateQueryBuilder(target1, 'period', path1)},
-                    {$or: dateQueryBuilder(target1, 'timing', path1)},
+                    {
+                        [path1]: dateQueryBuilder({
+                            date: target1, type: 'date'
+                        })
+                    },
+                    {
+                        [path1]: dateQueryBuilder({
+                            date: target1, type: 'dateTime'
+                        })
+                    },
+                    {
+                        [path1]: dateQueryBuilder({
+                            date: target1, type: 'instant'
+                        })
+                    },
+                    {
+                        $or: dateQueryBuilder({
+                            date: target1, type: 'period', path: path1
+                        })
+                    },
+                    {
+                        $or: dateQueryBuilder({
+                            date: target1, type: 'timing', path: path1
+                        })
+                    },
                 ],
             });
             break;
@@ -765,36 +876,60 @@ const compositeQueryBuilder = function (target, field1, field2) {
     switch (type2) {
         case 'string':
             temp = {};
-            temp[`${path2}`] = stringQueryBuilder(target2);
+            temp[`${path2}`] = stringQueryBuilder({target: target2});
             composite.push(temp);
             break;
         case 'token':
             composite.push({
                 $or: [
-                    {$and: [tokenQueryBuilder(target2, 'code', path2, '')]},
-                    {$and: [tokenQueryBuilder(target2, 'value', path2, '')]},
+                    {$and: [tokenQueryBuilder({target: target2, type: 'code', field: path2})]},
+                    {$and: [tokenQueryBuilder({target: target2, type: 'value', field: path2})]},
                 ],
             });
             break;
         case 'reference':
-            composite.push(referenceQueryBuilder({target_type: target, target: target2, field: path2}));
+            composite.push(referenceQueryBuilder({
+                target_type: target,
+                target: target2,
+                field: path2
+            }));
             break;
         case 'quantity':
-            composite.push(quantityQueryBuilder(target2, path2));
+            composite.push(quantityQueryBuilder({target: target2, field: path2}));
             break;
         case 'number':
             temp = {};
-            temp[`${path2}`] = composite.push(numberQueryBuilder(target2));
+            temp[`${path2}`] = composite.push(numberQueryBuilder({target: target2}));
             composite.push(temp);
             break;
         case 'date':
             composite.push({
                 $or: [
-                    {[path2]: dateQueryBuilder(target2, 'date', '')},
-                    {[path2]: dateQueryBuilder(target2, 'dateTime', '')},
-                    {[path2]: dateQueryBuilder(target2, 'instant', '')},
-                    {$or: dateQueryBuilder(target2, 'period', path2)},
-                    {$or: dateQueryBuilder(target2, 'timing', path2)},
+                    {
+                        [path2]: dateQueryBuilder({
+                            date: target2, type: 'date'
+                        })
+                    },
+                    {
+                        [path2]: dateQueryBuilder({
+                            date: target2, type: 'dateTime'
+                        })
+                    },
+                    {
+                        [path2]: dateQueryBuilder({
+                            date: target2, type: 'instant'
+                        })
+                    },
+                    {
+                        $or: dateQueryBuilder({
+                            date: target2, type: 'period', path: path2
+                        })
+                    },
+                    {
+                        $or: dateQueryBuilder({
+                            date: target2, type: 'timing', path: path2
+                        })
+                    },
                 ],
             });
             break;
@@ -819,7 +954,7 @@ const compositeQueryBuilder = function (target, field1, field2) {
  * @param {boolean} ignoreCase
  * @return {JSON} queryBuilder
  */
-const partialTextQueryBuilder = function (field, partialText, ignoreCase) {
+const partialTextQueryBuilder = function ({field, partialText, ignoreCase}) {
     const queryBuilder = {};
     /**
      * @type {RegExp}
@@ -850,6 +985,7 @@ module.exports = {
     compositeQueryBuilder,
     dateQueryBuilder,
     dateQueryBuilderNative,
+    datetimePeriodQueryBuilder,
     partialTextQueryBuilder,
     exactMatchQueryBuilder
 };

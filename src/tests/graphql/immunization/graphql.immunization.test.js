@@ -19,7 +19,7 @@ const {
     getGraphQLHeaders,
     createTestRequest,
 } = require('../../common');
-const { describe, beforeEach, afterEach, expect, test } = require('@jest/globals');
+const {describe, beforeEach, afterEach, expect, test} = require('@jest/globals');
 
 describe('GraphQL Immunization Tests', () => {
     beforeEach(async () => {
@@ -74,7 +74,7 @@ describe('GraphQL Immunization Tests', () => {
             resp = await request
                 // .get('/graphql/?query=' + graphqlQueryText)
                 // .set(getHeaders())
-                .post('/graphql')
+                .post('/graphqlv2')
                 .send({
                     operationName: null,
                     variables: {},
@@ -82,26 +82,9 @@ describe('GraphQL Immunization Tests', () => {
                 })
                 .set(getGraphQLHeaders())
                 .expect(200);
-            // clear out the lastUpdated column since that changes
-            let body = resp.body;
-            console.log('------- response graphql ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response graphql  ------------');
-            if (body.errors) {
-                console.log(body.errors);
-                expect(body.errors).toBeUndefined();
-            }
-            expect(body.data.immunization.length).toBe(1);
-            let expected = expectedGraphQLResponse;
-            expected.forEach((element) => {
-                if ('meta' in element) {
-                    delete element['meta']['lastUpdated'];
-                }
-                if ('$schema' in element) {
-                    delete element['$schema'];
-                }
-            });
-            expect(body.data.immunization).toStrictEqual(expected);
+
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedGraphQLResponse);
         });
     });
 });

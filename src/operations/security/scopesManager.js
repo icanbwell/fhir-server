@@ -1,10 +1,19 @@
-const env = require('var');
 const {ForbiddenError} = require('../../utils/httpErrors');
-const {assertIsValid} = require('../../utils/assertType');
+const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
 const {SecurityTagSystem} = require('../../utils/securityTagSystem');
+const {ConfigManager} = require('../../utils/configManager');
 
 class ScopesManager {
-    constructor() {
+    /**
+     * constructor
+     * @param {ConfigManager} configManager
+     */
+    constructor({
+                    configManager
+                }) {
+
+        this.configManager = configManager;
+        assertTypeEquals(configManager, ConfigManager);
     }
 
     /**
@@ -27,7 +36,7 @@ class ScopesManager {
      * @return {string[]} security tags allowed by scopes
      */
     getAccessCodesFromScopes(action, user, scope) {
-        if (env.AUTH_ENABLED === '1') {
+        if (this.configManager.authEnabled) {
             assertIsValid(typeof user === 'string', `user is of type: ${typeof user} but should be string.`);
             // http://www.hl7.org/fhir/smart-app-launch/scopes-and-launch-context/index.html
             /**
@@ -69,7 +78,7 @@ class ScopesManager {
      * @return {boolean}
      */
     doesResourceHaveAnyAccessCodeFromThisList(accessCodes, user, scope, resource) {
-        if (env.AUTH_ENABLED !== '1') {
+        if (!this.configManager.authEnabled) {
             return true;
         }
 
@@ -112,8 +121,8 @@ class ScopesManager {
      * @param {string} scope
      * @return {boolean}
      */
-    isAccessToResourceAllowedBySecurityTags(resource, user, scope) {
-        if (env.AUTH_ENABLED !== '1') {
+    isAccessToResourceAllowedBySecurityTags({resource, user, scope}) {
+        if (!this.configManager.authEnabled) {
             return true;
         }
         // add any access codes from scopes
@@ -143,21 +152,48 @@ class ScopesManager {
     }
 
     /**
-     * Gets admin scopes from the request
-     * @param {import('http').IncomingMessage} req
-     * @returns {{adminScopes: string[], scope: string}}
+     * Gets admin scopes from the passed in scope string
+     * @param {string|undefined} scope
+     * @returns {string[]}
      */
-    getAdminScopes({req}) {
-        /**
-         * @type {string}
-         */
-        const scope = req.authInfo && req.authInfo.scope;
+    getAdminScopes({scope}) {
+        if (!scope) {
+            return [];
+        }
         /**
          * @type {string[]}
          */
         const scopes = scope.split(' ');
         const adminScopes = scopes.filter(s => s.startsWith('admin/'));
-        return {scope, adminScopes};
+        return adminScopes;
+    }
+
+    /**
+     * Gets scope from request
+     * @param {import('http').IncomingMessage} req
+     * @return {string|undefined}
+     */
+    getScopeFromRequest({req}) {
+        /**
+         * @type {string}
+         */
+        const scope = req.authInfo && req.authInfo.scope;
+        return scope;
+    }
+
+    /**
+     * returns whether the scope has a patient scope
+     * @param {string} scope
+     * @return {boolean}
+     */
+    hasPatientScope({scope}) {
+        if (this.configManager.authEnabled) {
+            assertIsValid(scope);
+            if (scope.includes('patient/')) {
+                return true;
+            }
+        }
+        return false;
     }
 }
 

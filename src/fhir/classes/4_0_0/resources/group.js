@@ -102,7 +102,7 @@ class Group extends Resource {
                     this.__data.meta = undefined;
                     return;
                 }
-                let Meta = require('../complex_types/meta.js');
+                const Meta = require('../complex_types/meta.js');
                 this.__data.meta = new Meta(valueProvided);
             }
         });
@@ -165,7 +165,7 @@ class Group extends Resource {
                     this.__data.text = undefined;
                     return;
                 }
-                let Narrative = require('../complex_types/narrative.js');
+                const Narrative = require('../complex_types/narrative.js');
                 this.__data.text = new Narrative(valueProvided);
             }
         });
@@ -186,7 +186,7 @@ class Group extends Resource {
                     this.__data.contained = undefined;
                     return;
                 }
-                let ResourceContainer = require('../simple_types/resourceContainer.js');
+                const ResourceContainer = require('../simple_types/resourceContainer.js');
                 const {getResource} = require('../../../../operations/common/getResource');
                 if (Array.isArray(valueProvided)) {
                     this.__data.contained = valueProvided.filter(v => v).map(v => {
@@ -218,7 +218,7 @@ class Group extends Resource {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -249,7 +249,7 @@ class Group extends Resource {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -268,7 +268,7 @@ class Group extends Resource {
                     this.__data.identifier = undefined;
                     return;
                 }
-                let Identifier = require('../complex_types/identifier.js');
+                const Identifier = require('../complex_types/identifier.js');
                 this.__data.identifier = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Identifier(v)) : [new Identifier(valueProvided)];
             }
         });
@@ -345,7 +345,7 @@ class Group extends Resource {
                     this.__data.code = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.code = new CodeableConcept(valueProvided);
             }
         });
@@ -401,7 +401,7 @@ class Group extends Resource {
                     this.__data.managingEntity = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.managingEntity = new Reference(valueProvided);
             }
         });
@@ -420,7 +420,7 @@ class Group extends Resource {
                     this.__data.characteristic = undefined;
                     return;
                 }
-                let GroupCharacteristic = require('../backbone_elements/groupCharacteristic.js');
+                const GroupCharacteristic = require('../backbone_elements/groupCharacteristic.js');
                 this.__data.characteristic = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new GroupCharacteristic(v)) : [new GroupCharacteristic(valueProvided)];
             }
         });
@@ -439,7 +439,7 @@ class Group extends Resource {
                     this.__data.member = undefined;
                     return;
                 }
-                let GroupMember = require('../backbone_elements/groupMember.js');
+                const GroupMember = require('../backbone_elements/groupMember.js');
                 this.__data.member = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new GroupMember(v)) : [new GroupMember(valueProvided)];
             }
         });
@@ -524,8 +524,10 @@ class Group extends Resource {
             _sourceId,
         });
 
-        // Define a default non-writable resourceType property
-
+        /**
+         * @description Define a default non-writable resourceType property
+         * @property {string|undefined}
+         */
         Object.defineProperty(this, 'resourceType', {
             value: 'Group',
             enumerable: true,
@@ -534,6 +536,10 @@ class Group extends Resource {
         });
     }
 
+    /**
+     * @description Define a default non-writable resourceType property
+     * @property {string|undefined}
+     */
     static get resourceType() {
         return 'Group';
     }
@@ -653,6 +659,24 @@ class Group extends Resource {
             characteristic: this.characteristic && this.characteristic.map(v => v.toJSON()),
             member: this.member && this.member.map(v => v.toJSON()),
         });
+    }
+
+    /**
+     * Returns JSON representation of entity
+     * @param {function(Reference): Reference} fnUpdateReference
+     * @return {void}
+     */
+    updateReferences({fnUpdateReference}) {
+            if (this.meta) {this.meta.updateReferences({fnUpdateReference});}
+            if (this.text) {this.text.updateReferences({fnUpdateReference});}
+            if (this.contained) {this.contained.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.extension) {this.extension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.identifier) {this.identifier.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.code) {this.code.updateReferences({fnUpdateReference});}
+            if (this.managingEntity) {this.managingEntity.updateReferences({fnUpdateReference});}
+            if (this.characteristic) {this.characteristic.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.member) {this.member.forEach(v => v.updateReferences({fnUpdateReference}));}
     }
 
     /**

@@ -1,6 +1,7 @@
 {
   "entry": [
     {
+      "id": "002126287fbd412d8b52115e48edbd4c",
       "resource": {
         "address": [
           {
@@ -430,5 +431,6 @@
     }
   ],
   "resourceType": "Bundle",
-  "type": "collection"
+  "total": 1,
+  "type": "searchset"
 }

@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%- include('./adminHead'); %>
+</head>
+<body class="container-fluid p-0">
+<main>
+    <h3>Run a Person Match diagnostic test</h3>
+    <h6>Calls Person Matching service to give a diagnostic report on trying to match these two records</h6>
+    <form
+            class="search-form ps-3"
+            action="/admin/runPersonMatch"
+            id="searchForm"
+            method="get"
+    >
+        <div class="form-group row">
+            <label for="sourceId" class="col-form-label">Source Id</label>
+            <select id="sourceType" name="sourceType">
+                <option value="Patient">Patient</option>
+                <option value="Person">Person</option>
+            </select>
+            <input
+                    id="sourceId"
+                    type="text"
+                    name=sourceId
+                    class="form-control form-control-sm clear-allowed"
+                    autocomplete="nope"
+            />
+        </div>
+        <div class="form-group row">
+            <label for="targetId" class="col-form-label">Target Id</label>
+            <select id="targetType" name="targetType">
+                <option value="Patient">Patient</option>
+                <option value="Person">Person</option>
+            </select>
+            <input
+                    id="targetId"
+                    type="text"
+                    name=targetId
+                    class="form-control form-control-sm clear-allowed"
+                    autocomplete="nope"
+            />
+        </div>
+        <button type="submit" class="btn btn-primary mb-2">Run Person Matching Service</button>
+    </form>
+    <hr>
+</main>
+
+</body>
+</html>
+

@@ -104,7 +104,7 @@ class PaymentNotice extends Resource {
                     this.__data.meta = undefined;
                     return;
                 }
-                let Meta = require('../complex_types/meta.js');
+                const Meta = require('../complex_types/meta.js');
                 this.__data.meta = new Meta(valueProvided);
             }
         });
@@ -167,7 +167,7 @@ class PaymentNotice extends Resource {
                     this.__data.text = undefined;
                     return;
                 }
-                let Narrative = require('../complex_types/narrative.js');
+                const Narrative = require('../complex_types/narrative.js');
                 this.__data.text = new Narrative(valueProvided);
             }
         });
@@ -188,7 +188,7 @@ class PaymentNotice extends Resource {
                     this.__data.contained = undefined;
                     return;
                 }
-                let ResourceContainer = require('../simple_types/resourceContainer.js');
+                const ResourceContainer = require('../simple_types/resourceContainer.js');
                 const {getResource} = require('../../../../operations/common/getResource');
                 if (Array.isArray(valueProvided)) {
                     this.__data.contained = valueProvided.filter(v => v).map(v => {
@@ -220,7 +220,7 @@ class PaymentNotice extends Resource {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -251,7 +251,7 @@ class PaymentNotice extends Resource {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -270,7 +270,7 @@ class PaymentNotice extends Resource {
                     this.__data.identifier = undefined;
                     return;
                 }
-                let Identifier = require('../complex_types/identifier.js');
+                const Identifier = require('../complex_types/identifier.js');
                 this.__data.identifier = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Identifier(v)) : [new Identifier(valueProvided)];
             }
         });
@@ -307,7 +307,7 @@ class PaymentNotice extends Resource {
                     this.__data.request = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.request = new Reference(valueProvided);
             }
         });
@@ -326,7 +326,7 @@ class PaymentNotice extends Resource {
                     this.__data.response = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.response = new Reference(valueProvided);
             }
         });
@@ -363,7 +363,7 @@ class PaymentNotice extends Resource {
                     this.__data.provider = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.provider = new Reference(valueProvided);
             }
         });
@@ -382,7 +382,7 @@ class PaymentNotice extends Resource {
                     this.__data.payment = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.payment = new Reference(valueProvided);
             }
         });
@@ -420,7 +420,7 @@ class PaymentNotice extends Resource {
                     this.__data.payee = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.payee = new Reference(valueProvided);
             }
         });
@@ -439,7 +439,7 @@ class PaymentNotice extends Resource {
                     this.__data.recipient = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.recipient = new Reference(valueProvided);
             }
         });
@@ -458,7 +458,7 @@ class PaymentNotice extends Resource {
                     this.__data.amount = undefined;
                     return;
                 }
-                let Money = require('../complex_types/money.js');
+                const Money = require('../complex_types/money.js');
                 this.__data.amount = new Money(valueProvided);
             }
         });
@@ -477,7 +477,7 @@ class PaymentNotice extends Resource {
                     this.__data.paymentStatus = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.paymentStatus = new CodeableConcept(valueProvided);
             }
         });
@@ -564,8 +564,10 @@ class PaymentNotice extends Resource {
             _sourceId,
         });
 
-        // Define a default non-writable resourceType property
-
+        /**
+         * @description Define a default non-writable resourceType property
+         * @property {string|undefined}
+         */
         Object.defineProperty(this, 'resourceType', {
             value: 'PaymentNotice',
             enumerable: true,
@@ -574,6 +576,10 @@ class PaymentNotice extends Resource {
         });
     }
 
+    /**
+     * @description Define a default non-writable resourceType property
+     * @property {string|undefined}
+     */
     static get resourceType() {
         return 'PaymentNotice';
     }
@@ -701,6 +707,28 @@ class PaymentNotice extends Resource {
             amount: this.amount && this.amount.toJSON(),
             paymentStatus: this.paymentStatus && this.paymentStatus.toJSON(),
         });
+    }
+
+    /**
+     * Returns JSON representation of entity
+     * @param {function(Reference): Reference} fnUpdateReference
+     * @return {void}
+     */
+    updateReferences({fnUpdateReference}) {
+            if (this.meta) {this.meta.updateReferences({fnUpdateReference});}
+            if (this.text) {this.text.updateReferences({fnUpdateReference});}
+            if (this.contained) {this.contained.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.extension) {this.extension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.identifier) {this.identifier.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.request) {this.request.updateReferences({fnUpdateReference});}
+            if (this.response) {this.response.updateReferences({fnUpdateReference});}
+            if (this.provider) {this.provider.updateReferences({fnUpdateReference});}
+            if (this.payment) {this.payment.updateReferences({fnUpdateReference});}
+            if (this.payee) {this.payee.updateReferences({fnUpdateReference});}
+            if (this.recipient) {this.recipient.updateReferences({fnUpdateReference});}
+            if (this.amount) {this.amount.updateReferences({fnUpdateReference});}
+            if (this.paymentStatus) {this.paymentStatus.updateReferences({fnUpdateReference});}
     }
 
     /**

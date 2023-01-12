@@ -6,7 +6,7 @@
 <body class="container-fluid p-0">
 <%- include('../partials/header', {resources: resources}); %>
 <main>
-    <% resources.forEach(function(res, index){ %>
+    <% resources.forEach(function(fullResource, index){ const res = fullResource.resource || fullResource; %>
         <div class="resource-item">
             <!-- prettier-ignore -->
             <%- include('../partials/resourceHeader', {res: res}); %>
@@ -49,17 +49,37 @@
             <%- include('../partials/reverse_reference', {reverseReferences: [{target:'Immunization', property:'patient'}], id:`Patient/person.${res.id}`, name: "Immunization" }); %>
             <%- include('../partials/reverse_reference', {reverseReferences: [{target:'ExplanationOfBenefit', property:'patient'}], id:`Patient/person.${res.id}`, name: "ExplanationOfBenefit" }); %>
             <%- include('../partials/reverse_reference', {reverseReferences: [{target:'MeasureReport', property:'patient'}], id:`Patient/person.${res.id}`, name: "MeasureReport" }); %>
+            <%- include('../partials/reverse_reference', {reverseReferences: [{target:'MedicationDispense', property:'patient'}], id:`Patient/person.${res.id}`, name: "MedicationDispense" }); %>
             <%- include('../partials/reverse_reference', {reverseReferences: [{target:'MedicationRequest', property:'patient'}], id:`Patient/person.${res.id}`, name: "MedicationRequest" }); %>
             <%- include('../partials/reverse_reference', {reverseReferences: [{target:'MedicationStatement', property:'patient'}], id:`Patient/person.${res.id}`, name: "MedicationStatement" }); %>
             <%- include('../partials/reverse_reference', {reverseReferences: [{target:'Observation', property:'patient'}], id:`Patient/person.${res.id}`, name: "Observation" }); %>
-            <%- include('../partials/reverse_reference', {reverseReferences: [{target:'Person', property:'patient'}], id:`Patient/person.${res.id}`, name: "Person" }); %>
+            <%- include('../partials/reverse_reference', {reverseReferences: [{target:'Person', property:'link'}], id:`Person/${res.id}`, name: "Person" }); %>
             <%- include('../partials/reverse_reference', {reverseReferences: [{target:'Procedure', property:'patient'}], id:`Patient/person.${res.id}`, name: "Procedure" }); %>
             <%- include('../partials/reverse_reference', {reverseReferences: [{target:'Schedule', property:'patient'}], id:`Patient/person.${res.id}`, name: "Schedule" }); %>
             <%- include('../partials/reverse_reference', {reverseReferences: [{target:'ServiceRequest', property:'patient'}], id:`Patient/person.${res.id}`, name: "ServiceRequest" }); %>
             <%- include('../partials/reverse_reference', {reverseReferences: [{target:'Task', property:'patient'}], id:`Patient/person.${res.id}`, name: "Task" }); %>
+            <hr>
+            <div>
+                <h4>Person Data Graph (in json)</h4>
+                <a href="/4_0_0/Person/<%= res.id; %>/$everything?contained=true&_format=json">/4_0_0/Person/<%= res.id; %>
+                    /$everything?contained=true&_format=jso</a>
+            </div>
+            <% if (admin) { %>
+                <hr>
+                <div>
+                    <h3>Admin Functions</h3>
+                    <div>
+                        <h4>Connected Person-Patient Graph</h4>
+                        <a href="/admin/showPersonToPersonLink?bwellPersonId=<%= res.id; %>">/admin/showPersonToPersonLink?bwellPersonId=<%= res.id; %></a>
+                    </div>
+                    <div>
+                        <h4>Delete all data</h4>
+                        <a href="/admin/deletePersonDataGraph?id=<%= res.id; %>">/admin/deletePersonDataGraph?id=<%= res.id; %></a>
+                    </div>
+                </div>
+            <% } %>
 
-
-            <%- include('../partials/json', {res: res, index: index}); %>
+            <%- include('../partials/json', {res: fullResource, index: index}); %>
         </div>
     <% }); %>
 </main>

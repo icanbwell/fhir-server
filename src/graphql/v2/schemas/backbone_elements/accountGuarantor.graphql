@@ -44,7 +44,7 @@ type AccountGuarantor {
     """
     The entity who is responsible.
     """
-    party: AccountGuarantorParty!        
+    party: AccountGuarantorParty        
     """
     A guarantor may be placed on credit hold or otherwise have their role
     temporarily suspended.

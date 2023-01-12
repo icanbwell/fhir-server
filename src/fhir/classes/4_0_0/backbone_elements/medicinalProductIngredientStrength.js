@@ -75,7 +75,7 @@ class MedicinalProductIngredientStrength extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -106,7 +106,7 @@ class MedicinalProductIngredientStrength extends Element {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -126,7 +126,7 @@ class MedicinalProductIngredientStrength extends Element {
                     this.__data.presentation = undefined;
                     return;
                 }
-                let Ratio = require('../complex_types/ratio.js');
+                const Ratio = require('../complex_types/ratio.js');
                 this.__data.presentation = new Ratio(valueProvided);
             }
         });
@@ -147,7 +147,7 @@ class MedicinalProductIngredientStrength extends Element {
                     this.__data.presentationLowLimit = undefined;
                     return;
                 }
-                let Ratio = require('../complex_types/ratio.js');
+                const Ratio = require('../complex_types/ratio.js');
                 this.__data.presentationLowLimit = new Ratio(valueProvided);
             }
         });
@@ -166,7 +166,7 @@ class MedicinalProductIngredientStrength extends Element {
                     this.__data.concentration = undefined;
                     return;
                 }
-                let Ratio = require('../complex_types/ratio.js');
+                const Ratio = require('../complex_types/ratio.js');
                 this.__data.concentration = new Ratio(valueProvided);
             }
         });
@@ -186,7 +186,7 @@ class MedicinalProductIngredientStrength extends Element {
                     this.__data.concentrationLowLimit = undefined;
                     return;
                 }
-                let Ratio = require('../complex_types/ratio.js');
+                const Ratio = require('../complex_types/ratio.js');
                 this.__data.concentrationLowLimit = new Ratio(valueProvided);
             }
         });
@@ -223,7 +223,7 @@ class MedicinalProductIngredientStrength extends Element {
                     this.__data.country = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.country = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
             }
         });
@@ -242,7 +242,7 @@ class MedicinalProductIngredientStrength extends Element {
                     this.__data.referenceStrength = undefined;
                     return;
                 }
-                let MedicinalProductIngredientReferenceStrength = require('../backbone_elements/medicinalProductIngredientReferenceStrength.js');
+                const MedicinalProductIngredientReferenceStrength = require('../backbone_elements/medicinalProductIngredientReferenceStrength.js');
                 this.__data.referenceStrength = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new MedicinalProductIngredientReferenceStrength(v)) : [new MedicinalProductIngredientReferenceStrength(valueProvided)];
             }
         });
@@ -286,6 +286,22 @@ class MedicinalProductIngredientStrength extends Element {
             country: this.country && this.country.map(v => v.toJSON()),
             referenceStrength: this.referenceStrength && this.referenceStrength.map(v => v.toJSON()),
         });
+    }
+
+    /**
+     * Returns JSON representation of entity
+     * @param {function(Reference): Reference} fnUpdateReference
+     * @return {void}
+     */
+    updateReferences({fnUpdateReference}) {
+            if (this.extension) {this.extension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.presentation) {this.presentation.updateReferences({fnUpdateReference});}
+            if (this.presentationLowLimit) {this.presentationLowLimit.updateReferences({fnUpdateReference});}
+            if (this.concentration) {this.concentration.updateReferences({fnUpdateReference});}
+            if (this.concentrationLowLimit) {this.concentrationLowLimit.updateReferences({fnUpdateReference});}
+            if (this.country) {this.country.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.referenceStrength) {this.referenceStrength.forEach(v => v.updateReferences({fnUpdateReference}));}
     }
 
     /**

@@ -118,7 +118,7 @@ class SubstanceSpecification extends Resource {
                     this.__data.meta = undefined;
                     return;
                 }
-                let Meta = require('../complex_types/meta.js');
+                const Meta = require('../complex_types/meta.js');
                 this.__data.meta = new Meta(valueProvided);
             }
         });
@@ -181,7 +181,7 @@ class SubstanceSpecification extends Resource {
                     this.__data.text = undefined;
                     return;
                 }
-                let Narrative = require('../complex_types/narrative.js');
+                const Narrative = require('../complex_types/narrative.js');
                 this.__data.text = new Narrative(valueProvided);
             }
         });
@@ -202,7 +202,7 @@ class SubstanceSpecification extends Resource {
                     this.__data.contained = undefined;
                     return;
                 }
-                let ResourceContainer = require('../simple_types/resourceContainer.js');
+                const ResourceContainer = require('../simple_types/resourceContainer.js');
                 const {getResource} = require('../../../../operations/common/getResource');
                 if (Array.isArray(valueProvided)) {
                     this.__data.contained = valueProvided.filter(v => v).map(v => {
@@ -234,7 +234,7 @@ class SubstanceSpecification extends Resource {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -265,7 +265,7 @@ class SubstanceSpecification extends Resource {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -284,7 +284,7 @@ class SubstanceSpecification extends Resource {
                     this.__data.identifier = undefined;
                     return;
                 }
-                let Identifier = require('../complex_types/identifier.js');
+                const Identifier = require('../complex_types/identifier.js');
                 this.__data.identifier = new Identifier(valueProvided);
             }
         });
@@ -303,7 +303,7 @@ class SubstanceSpecification extends Resource {
                     this.__data.type = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.type = new CodeableConcept(valueProvided);
             }
         });
@@ -322,7 +322,7 @@ class SubstanceSpecification extends Resource {
                     this.__data.status = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.status = new CodeableConcept(valueProvided);
             }
         });
@@ -341,7 +341,7 @@ class SubstanceSpecification extends Resource {
                     this.__data.domain = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.domain = new CodeableConcept(valueProvided);
             }
         });
@@ -378,7 +378,7 @@ class SubstanceSpecification extends Resource {
                     this.__data.source = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.source = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
             }
         });
@@ -415,7 +415,7 @@ class SubstanceSpecification extends Resource {
                     this.__data.moiety = undefined;
                     return;
                 }
-                let SubstanceSpecificationMoiety = require('../backbone_elements/substanceSpecificationMoiety.js');
+                const SubstanceSpecificationMoiety = require('../backbone_elements/substanceSpecificationMoiety.js');
                 this.__data.moiety = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new SubstanceSpecificationMoiety(v)) : [new SubstanceSpecificationMoiety(valueProvided)];
             }
         });
@@ -435,7 +435,7 @@ class SubstanceSpecification extends Resource {
                     this.__data.property = undefined;
                     return;
                 }
-                let SubstanceSpecificationProperty = require('../backbone_elements/substanceSpecificationProperty.js');
+                const SubstanceSpecificationProperty = require('../backbone_elements/substanceSpecificationProperty.js');
                 this.__data.property = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new SubstanceSpecificationProperty(v)) : [new SubstanceSpecificationProperty(valueProvided)];
             }
         });
@@ -454,7 +454,7 @@ class SubstanceSpecification extends Resource {
                     this.__data.referenceInformation = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.referenceInformation = new Reference(valueProvided);
             }
         });
@@ -473,7 +473,7 @@ class SubstanceSpecification extends Resource {
                     this.__data.structure = undefined;
                     return;
                 }
-                let SubstanceSpecificationStructure = require('../backbone_elements/substanceSpecificationStructure.js');
+                const SubstanceSpecificationStructure = require('../backbone_elements/substanceSpecificationStructure.js');
                 this.__data.structure = new SubstanceSpecificationStructure(valueProvided);
             }
         });
@@ -492,7 +492,7 @@ class SubstanceSpecification extends Resource {
                     this.__data.code = undefined;
                     return;
                 }
-                let SubstanceSpecificationCode = require('../backbone_elements/substanceSpecificationCode.js');
+                const SubstanceSpecificationCode = require('../backbone_elements/substanceSpecificationCode.js');
                 this.__data.code = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new SubstanceSpecificationCode(v)) : [new SubstanceSpecificationCode(valueProvided)];
             }
         });
@@ -511,7 +511,7 @@ class SubstanceSpecification extends Resource {
                     this.__data.name = undefined;
                     return;
                 }
-                let SubstanceSpecificationName = require('../backbone_elements/substanceSpecificationName.js');
+                const SubstanceSpecificationName = require('../backbone_elements/substanceSpecificationName.js');
                 this.__data.name = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new SubstanceSpecificationName(v)) : [new SubstanceSpecificationName(valueProvided)];
             }
         });
@@ -531,7 +531,7 @@ class SubstanceSpecification extends Resource {
                     this.__data.molecularWeight = undefined;
                     return;
                 }
-                let SubstanceSpecificationMolecularWeight = require('../backbone_elements/substanceSpecificationMolecularWeight.js');
+                const SubstanceSpecificationMolecularWeight = require('../backbone_elements/substanceSpecificationMolecularWeight.js');
                 this.__data.molecularWeight = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new SubstanceSpecificationMolecularWeight(v)) : [new SubstanceSpecificationMolecularWeight(valueProvided)];
             }
         });
@@ -550,7 +550,7 @@ class SubstanceSpecification extends Resource {
                     this.__data.relationship = undefined;
                     return;
                 }
-                let SubstanceSpecificationRelationship = require('../backbone_elements/substanceSpecificationRelationship.js');
+                const SubstanceSpecificationRelationship = require('../backbone_elements/substanceSpecificationRelationship.js');
                 this.__data.relationship = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new SubstanceSpecificationRelationship(v)) : [new SubstanceSpecificationRelationship(valueProvided)];
             }
         });
@@ -569,7 +569,7 @@ class SubstanceSpecification extends Resource {
                     this.__data.nucleicAcid = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.nucleicAcid = new Reference(valueProvided);
             }
         });
@@ -588,7 +588,7 @@ class SubstanceSpecification extends Resource {
                     this.__data.polymer = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.polymer = new Reference(valueProvided);
             }
         });
@@ -607,7 +607,7 @@ class SubstanceSpecification extends Resource {
                     this.__data.protein = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.protein = new Reference(valueProvided);
             }
         });
@@ -626,7 +626,7 @@ class SubstanceSpecification extends Resource {
                     this.__data.sourceMaterial = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.sourceMaterial = new Reference(valueProvided);
             }
         });
@@ -720,8 +720,10 @@ class SubstanceSpecification extends Resource {
             _sourceId,
         });
 
-        // Define a default non-writable resourceType property
-
+        /**
+         * @description Define a default non-writable resourceType property
+         * @property {string|undefined}
+         */
         Object.defineProperty(this, 'resourceType', {
             value: 'SubstanceSpecification',
             enumerable: true,
@@ -730,6 +732,10 @@ class SubstanceSpecification extends Resource {
         });
     }
 
+    /**
+     * @description Define a default non-writable resourceType property
+     * @property {string|undefined}
+     */
     static get resourceType() {
         return 'SubstanceSpecification';
     }
@@ -885,6 +891,36 @@ class SubstanceSpecification extends Resource {
             protein: this.protein && this.protein.toJSON(),
             sourceMaterial: this.sourceMaterial && this.sourceMaterial.toJSON(),
         });
+    }
+
+    /**
+     * Returns JSON representation of entity
+     * @param {function(Reference): Reference} fnUpdateReference
+     * @return {void}
+     */
+    updateReferences({fnUpdateReference}) {
+            if (this.meta) {this.meta.updateReferences({fnUpdateReference});}
+            if (this.text) {this.text.updateReferences({fnUpdateReference});}
+            if (this.contained) {this.contained.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.extension) {this.extension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.identifier) {this.identifier.updateReferences({fnUpdateReference});}
+            if (this.type) {this.type.updateReferences({fnUpdateReference});}
+            if (this.status) {this.status.updateReferences({fnUpdateReference});}
+            if (this.domain) {this.domain.updateReferences({fnUpdateReference});}
+            if (this.source) {this.source.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.moiety) {this.moiety.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.property) {this.property.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.referenceInformation) {this.referenceInformation.updateReferences({fnUpdateReference});}
+            if (this.structure) {this.structure.updateReferences({fnUpdateReference});}
+            if (this.code) {this.code.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.name) {this.name.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.molecularWeight) {this.molecularWeight.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.relationship) {this.relationship.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.nucleicAcid) {this.nucleicAcid.updateReferences({fnUpdateReference});}
+            if (this.polymer) {this.polymer.updateReferences({fnUpdateReference});}
+            if (this.protein) {this.protein.updateReferences({fnUpdateReference});}
+            if (this.sourceMaterial) {this.sourceMaterial.updateReferences({fnUpdateReference});}
     }
 
     /**

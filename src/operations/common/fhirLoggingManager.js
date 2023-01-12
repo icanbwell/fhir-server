@@ -3,6 +3,7 @@ const moment = require('moment-timezone');
 const {FhirLogger: fhirLogger} = require('../../utils/fhirLogger');
 const {assertTypeEquals} = require('../../utils/assertType');
 const {ScopesManager} = require('../security/scopesManager');
+const {getCircularReplacer} = require('../../utils/getCircularReplacer');
 
 class FhirLoggingManager {
     /**
@@ -36,7 +37,7 @@ class FhirLoggingManager {
     async logOperationSuccessAsync(
         {
             /** @type {FhirRequestInfo} */ requestInfo,
-            args = [],
+            args = {},
             resourceType,
             startTime,
             stopTime = Date.now(),
@@ -76,7 +77,7 @@ class FhirLoggingManager {
     async logOperationFailureAsync(
         {
             /** @type {FhirRequestInfo} */ requestInfo,
-            args = [],
+            args = {},
             resourceType,
             startTime,
             stopTime = Date.now(),
@@ -119,7 +120,7 @@ class FhirLoggingManager {
     async internalLogOperationAsync(
         {
             /** @type {FhirRequestInfo} */ requestInfo,
-            args = [],
+            args = {},
             resourceType,
             startTime,
             stopTime = Date.now(),
@@ -138,7 +139,7 @@ class FhirLoggingManager {
         const detail = Object.entries(args).filter(([k, _]) => k !== 'resource').map(([k, v]) => {
                 return {
                     type: k,
-                    valueString: (!v || typeof v === 'string') ? v : JSON.stringify(v)
+                    valueString: (!v || typeof v === 'string') ? v : JSON.stringify(v, getCircularReplacer())
                 };
             }
         );
@@ -198,7 +199,7 @@ class FhirLoggingManager {
                     },
                     altId: (!requestInfo.user || typeof requestInfo.user === 'string') ?
                         requestInfo.user :
-                        requestInfo.user.id,
+                        requestInfo.user.name || requestInfo.user.id,
                     network: {
                         address: requestInfo.remoteIpAddress
                     },
@@ -214,7 +215,7 @@ class FhirLoggingManager {
                     detail: detail
                 }
             ],
-            message: error ? `${message}: ${JSON.stringify(error)}` : message
+            message: error ? `${message}: ${JSON.stringify(error, getCircularReplacer())}` : message
         };
         const fhirInSecureLogger = await fhirLogger.getInSecureLoggerAsync();
         // write the insecure information to insecure log
@@ -225,7 +226,7 @@ class FhirLoggingManager {
                 type: 'body',
                 valueString: (!requestInfo.body || typeof requestInfo.body === 'string') ?
                     requestInfo.body :
-                    JSON.stringify(requestInfo.body)
+                    JSON.stringify(requestInfo.body, getCircularReplacer())
             });
         }
         if (query) {

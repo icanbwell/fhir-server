@@ -65,7 +65,7 @@ describe('GraphQL CarePlan Tests', () => {
             resp = await request
                 // .get('/graphql/?query=' + graphqlQueryText)
                 // .set(getHeaders())
-                .post('/graphql')
+                .post('/graphqlv2')
                 .send({
                     operationName: null,
                     variables: {},
@@ -73,23 +73,8 @@ describe('GraphQL CarePlan Tests', () => {
                 })
                 .set(getGraphQLHeaders())
                 .expect(200);
-            // clear out the lastUpdated column since that changes
-            let body = resp.body;
-            console.log('------- response graphql ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response graphql  ------------');
-            expect(body.data.carePlan.length).toBe(5);
-            let expected = expectedCarePlanBundleResource;
-            expected.forEach((element) => {
-                if ('meta' in element) {
-                    delete element['meta']['lastUpdated'];
-                }
-                // element['meta'] = {'versionId': '1'};
-                if ('$schema' in element) {
-                    delete element['$schema'];
-                }
-            });
-            expect(body.data.carePlan).toStrictEqual(expected);
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedCarePlanBundleResource);
         });
     });
 });

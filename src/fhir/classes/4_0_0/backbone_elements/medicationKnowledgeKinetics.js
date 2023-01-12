@@ -67,7 +67,7 @@ class MedicationKnowledgeKinetics extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -98,7 +98,7 @@ class MedicationKnowledgeKinetics extends Element {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -117,7 +117,7 @@ class MedicationKnowledgeKinetics extends Element {
                     this.__data.areaUnderCurve = undefined;
                     return;
                 }
-                let Quantity = require('../complex_types/quantity.js');
+                const Quantity = require('../complex_types/quantity.js');
                 this.__data.areaUnderCurve = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Quantity(v)) : [new Quantity(valueProvided)];
             }
         });
@@ -136,7 +136,7 @@ class MedicationKnowledgeKinetics extends Element {
                     this.__data.lethalDose50 = undefined;
                     return;
                 }
-                let Quantity = require('../complex_types/quantity.js');
+                const Quantity = require('../complex_types/quantity.js');
                 this.__data.lethalDose50 = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Quantity(v)) : [new Quantity(valueProvided)];
             }
         });
@@ -156,7 +156,7 @@ class MedicationKnowledgeKinetics extends Element {
                     this.__data.halfLifePeriod = undefined;
                     return;
                 }
-                let Quantity = require('../complex_types/quantity.js');
+                const Quantity = require('../complex_types/quantity.js');
                 this.__data.halfLifePeriod = new Quantity(valueProvided);
             }
         });
@@ -192,6 +192,19 @@ class MedicationKnowledgeKinetics extends Element {
             lethalDose50: this.lethalDose50 && this.lethalDose50.map(v => v.toJSON()),
             halfLifePeriod: this.halfLifePeriod && this.halfLifePeriod.toJSON(),
         });
+    }
+
+    /**
+     * Returns JSON representation of entity
+     * @param {function(Reference): Reference} fnUpdateReference
+     * @return {void}
+     */
+    updateReferences({fnUpdateReference}) {
+            if (this.extension) {this.extension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.areaUnderCurve) {this.areaUnderCurve.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.lethalDose50) {this.lethalDose50.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.halfLifePeriod) {this.halfLifePeriod.updateReferences({fnUpdateReference});}
     }
 
     /**

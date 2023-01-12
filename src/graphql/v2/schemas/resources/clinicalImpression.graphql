@@ -121,7 +121,7 @@ type ClinicalImpression {
     """
     The patient or group of individuals assessed as part of this record.
     """
-    subject: ClinicalImpressionSubject!        
+    subject: ClinicalImpressionSubject        
     """
     The Encounter during which this ClinicalImpression was created or to which the
     creation of this record is tightly associated.

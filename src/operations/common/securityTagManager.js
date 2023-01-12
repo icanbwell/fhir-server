@@ -1,10 +1,10 @@
 const env = require('var');
 const {ForbiddenError} = require('../../utils/httpErrors');
-const {profiles} = require('../../profiles');
 const {assertTypeEquals} = require('../../utils/assertType');
 const {ScopesManager} = require('../security/scopesManager');
 const {AccessIndexManager} = require('./accessIndexManager');
 const {SecurityTagSystem} = require('../../utils/securityTagSystem');
+const {PatientFilterManager} = require('../../fhir/patientFilterManager');
 
 /**
  * This class manages queries for security tags
@@ -14,8 +14,9 @@ class SecurityTagManager {
      * constructor
      * @param {ScopesManager} scopesManager
      * @param {AccessIndexManager} accessIndexManager
+     * @param {PatientFilterManager} patientFilterManager
      */
-    constructor({scopesManager, accessIndexManager}) {
+    constructor({scopesManager, accessIndexManager, patientFilterManager}) {
         /**
          * @type {ScopesManager}
          */
@@ -27,6 +28,9 @@ class SecurityTagManager {
          */
         this.accessIndexManager = accessIndexManager;
         assertTypeEquals(accessIndexManager, AccessIndexManager);
+
+        this.patientFilterManager = patientFilterManager;
+        assertTypeEquals(patientFilterManager, PatientFilterManager);
     }
 
     /**
@@ -70,6 +74,12 @@ class SecurityTagManager {
                 andQuery
             );
             return query;
+        } else if (Object.keys(query).length === 0) { // empty query then just replace
+            return {
+                $and: [
+                    andQuery
+                ]
+            };
         } else {
             return {
                 $and: [
@@ -143,24 +153,43 @@ class SecurityTagManager {
 
     /**
      * Gets Patient Filter Query
-     * @param {string[] | null} patients
+     * @param {string[] | null} patientIds
      * @param {import('mongodb').Document} query
      * @param {string} resourceType
      * @return {import('mongodb').Document}
      */
-    getQueryWithPatientFilter({patients, query, resourceType}) {
-        if (patients) {
+    getQueryWithPatientFilter({patientIds, query, resourceType}) {
+        if (!this.patientFilterManager.canAccessResourceWithPatientScope({resourceType})) {
+            throw new ForbiddenError(`Resource type ${resourceType} cannot be accessed via a patient scope`);
+        }
+        if (patientIds && patientIds.length > 0) {
             const inQuery = {
-                '$in': resourceType === 'Patient' ? patients : patients.map(p => `Patient/${p}`)
+                '$in': resourceType === 'Patient' ? patientIds : patientIds.map(p => `Patient/${p}`)
             };
-            /*
-            * Patients are filtered on id. For some reason, AllergyIntolerance and Immunization don't have a subject field
-            * like other Clinical Resources, filter on patient.reference. All other fields are filtered on subject.reference.
-            * */
-            let profile = profiles[`${resourceType}`];
-            if (profile.filterByPerson) {
-                const patientsQuery = {[profile.filterBy]: inQuery};
-                query = this.appendAndQuery(query, patientsQuery);
+            /**
+             * @type {string|string[]|null}
+             */
+            const patientFilterProperty = this.patientFilterManager.getPatientPropertyForResource({
+                resourceType
+            });
+            if (patientFilterProperty) {
+                if (Array.isArray(patientFilterProperty)) {
+                    /**
+                     * @type {string[]}
+                     */
+                    const patientFilterList = patientFilterProperty;
+                    const patientsQuery = {
+                        '$or': patientFilterList.map(p => {
+                                return {[p]: inQuery};
+                            }
+                        )
+                    };
+                    query = this.appendAndQuery(query, patientsQuery);
+                } else {
+                    const patientsQuery = {[patientFilterProperty]: inQuery};
+                    query = this.appendAndQuery(query, patientsQuery);
+                }
+
             }
         }
         return query;

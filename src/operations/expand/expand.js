@@ -1,4 +1,4 @@
-const {BadRequestError, ForbiddenError, NotFoundError} = require('../../utils/httpErrors');
+const {ForbiddenError, NotFoundError} = require('../../utils/httpErrors');
 const {EnrichmentManager} = require('../../enrich/enrich');
 const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
 const {DatabaseQueryFactory} = require('../../dataLayer/databaseQueryFactory');
@@ -6,6 +6,7 @@ const {ValueSetManager} = require('../../utils/valueSet.util');
 const {ScopesManager} = require('../security/scopesManager');
 const {FhirLoggingManager} = require('../common/fhirLoggingManager');
 const {ScopesValidator} = require('../security/scopesValidator');
+const deepcopy = require('deepcopy');
 
 class ExpandOperation {
     /**
@@ -68,7 +69,7 @@ class ExpandOperation {
      * @param {string} resourceType
      * @return {Resource}
      */
-    async expand(requestInfo, args, resourceType) {
+    async expand({requestInfo, args, resourceType}) {
         assertIsValid(requestInfo !== undefined);
         assertIsValid(args !== undefined);
         assertIsValid(resourceType !== undefined);
@@ -90,8 +91,10 @@ class ExpandOperation {
         });
 
         // Common search params
-        let {id} = args;
-        let {base_version} = args;
+        const {id} = args;
+        const {base_version} = args;
+
+        const originalArgs = deepcopy(args);
 
         // Search Result param
 
@@ -114,11 +117,13 @@ class ExpandOperation {
                 action: currentOperationName,
                 error: e
             });
-            throw new BadRequestError(e);
+            throw new NotFoundError(new Error(`Resource not found: ${resourceType}/${id}`));
         }
 
         if (resource) {
-            if (!(this.scopesManager.isAccessToResourceAllowedBySecurityTags(resource, user, scope))) {
+            if (!(this.scopesManager.isAccessToResourceAllowedBySecurityTags({
+                resource: resource, user, scope
+            }))) {
                 const forbiddenError = new ForbiddenError(
                     'user ' + user + ' with scopes [' + scope + '] has no access to resource ' +
                     resource.resourceType + ' with id ' + id);
@@ -139,7 +144,8 @@ class ExpandOperation {
 
             // run any enrichment
             resource = (await this.enrichmentManager.enrichAsync({
-                        resources: [resource], resourceType, args
+                        resources: [resource], args,
+                        originalArgs
                     }
                 )
             )[0];

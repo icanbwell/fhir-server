@@ -4,7 +4,8 @@
  */
 const {ErrorReporter} = require('./slack.logger');
 const {assertTypeEquals, assertIsValid} = require('./assertType');
-const {logSystemEventAsync, logSystemErrorAsync} = require('../operations/common/logging');
+const {logSystemErrorAsync, logTraceSystemEventAsync} = require('../operations/common/logging');
+const {RequestSpecificCache} = require('./requestSpecificCache');
 
 const Mutex = require('async-mutex').Mutex;
 const mutex = new Mutex();
@@ -17,51 +18,97 @@ class PostRequestProcessor {
     /**
      * Constructor
      * @param {ErrorReporter} errorReporter
+     * @param {RequestSpecificCache} requestSpecificCache
      */
-    constructor({errorReporter}) {
+    constructor({errorReporter, requestSpecificCache}) {
         assertTypeEquals(errorReporter, ErrorReporter);
-        /**
-         * queue
-         * @type {(() =>void)[]}
-         */
-        this.queue = [];
         /**
          * @type {ErrorReporter}
          */
         this.errorReporter = errorReporter;
         /**
-         * @type {boolean}
+         * @type {Map<string,boolean>}
          */
-        this.startedExecuting = false;
+        this.executionRunningForRequestIdMap = new Map();
+        /**
+         * @type {RequestSpecificCache}
+         */
+        this.requestSpecificCache = requestSpecificCache;
+        assertTypeEquals(requestSpecificCache, RequestSpecificCache);
+    }
+
+    /**
+     * Gets the queue
+     * @param {string} requestId
+     * @return {(() =>void)[]}
+     */
+    getQueue({requestId}) {
+        assertIsValid(requestId, 'requestId is null');
+        return this.requestSpecificCache.getList({requestId, name: 'PostRequestProcessorQueue'});
     }
 
     /**
      * Add a task to the queue
+     * @param {string} requestId
      * @param {() =>void} fnTask
      */
-    add(fnTask) {
-        this.queue.push(fnTask);
+    add({requestId, fnTask}) {
+        assertIsValid(requestId, 'requestId is null');
+        this.getQueue({requestId}).push(fnTask);
+    }
+
+    /**
+     * @param {string} requestId
+     * @return {boolean}
+     */
+    executionRunningForRequest({requestId}) {
+        return this.executionRunningForRequestIdMap.get(requestId) || false;
+    }
+
+    /**
+     * @param {string} requestId
+     * @param {boolean} value
+     */
+    setExecutionRunningForRequest({requestId, value}) {
+        if (value) {
+            this.executionRunningForRequestIdMap.set(requestId, true);
+        } else {
+            this.executionRunningForRequestIdMap.delete(requestId);
+        }
     }
 
     /**
      * Run all the tasks
+     * @param {string} requestId
      * @return {Promise<void>}
      */
-    async executeAsync() {
-        if (this.startedExecuting || this.queue.length === 0) {
+    async executeAsync({requestId}) {
+        assertIsValid(requestId, 'requestId is null');
+        const queue = this.getQueue({requestId});
+        if (this.executionRunningForRequest({requestId}) || queue.length === 0) {
             return;
         }
-        const tasksInQueueBefore = this.queue.length;
+        const tasksInQueueBefore = queue.length;
 
         await mutex.runExclusive(async () => {
-            if (this.queue.length === 0) {
+            if (queue.length === 0) {
                 return;
             }
-            this.startedExecuting = true;
+            this.setExecutionRunningForRequest({requestId, value: true});
+            await logTraceSystemEventAsync(
+                {
+                    event: 'executeAsync',
+                    message: `executeAsync: ${requestId}`,
+                    args: {
+                        requestId: requestId,
+                        count: queue.length
+                    }
+                }
+            );
             /**
              * @type {function(): void}
              */
-            let task = this.queue.shift();
+            let task = queue.shift();
             while (task !== undefined) {
                 try {
                     await task();
@@ -69,31 +116,37 @@ class PostRequestProcessor {
                     await this.errorReporter.reportErrorAsync({
                         source: 'PostRequestProcessor',
                         message: 'Error running post request task',
-                        error: e
+                        error: e,
+                        args: {
+                            requestId: requestId,
+                        }
                     });
                     await logSystemErrorAsync(
                         {
                             event: 'postRequestProcessor',
                             message: 'Error running task',
-                            args: {},
+                            args: {
+                                requestId: requestId,
+                            },
                             error: e
                         }
                     );
                     throw e;
                 }
-                task = this.queue.shift();
+                task = queue.shift();
             }
-            this.startedExecuting = false;
+            this.setExecutionRunningForRequest({requestId, value: false});
         });
         // If we processed any tasks then log it
         if (tasksInQueueBefore > 0) {
-            await logSystemEventAsync(
+            await logTraceSystemEventAsync(
                 {
                     event: 'postRequestProcessor',
                     message: 'Finished',
                     args: {
                         tasksInQueueBefore: tasksInQueueBefore,
-                        tasksInQueueAfter: this.queue.length
+                        tasksInQueueAfter: queue.length,
+                        requestId: requestId,
                     }
                 }
             );
@@ -102,23 +155,48 @@ class PostRequestProcessor {
 
     /**
      * Waits until the queue is empty
+     * @param {string} requestId
      * @param {number|null|undefined} [timeoutInSeconds]
      * @return {Promise<boolean>}
      */
-    async waitTillDoneAsync(timeoutInSeconds) {
-        if (this.queue.length === 0) {
+    async waitTillDoneAsync({requestId, timeoutInSeconds}) {
+        assertIsValid(requestId, 'requestId is null');
+        const queue = this.getQueue({requestId});
+        await logTraceSystemEventAsync(
+            {
+                event: 'waitTillDoneAsync',
+                message: `waitTillDoneAsync: ${requestId}`,
+                args: {
+                    requestId: requestId,
+                    count: queue.length
+                }
+            }
+        );
+        if (queue.length === 0) {
             return true;
         }
-        assertIsValid(this.startedExecuting || this.queue.length === 0, 'executeAsync is not running so queue will never empty');
+        assertIsValid(this.executionRunningForRequest({requestId}) || queue.length === 0, `executeAsync is not running so queue will never empty for requestId: ${requestId}`);
         let secondsWaiting = 0;
-        while (this.queue.length > 0) {
+        while (queue.length > 0) {
             await new Promise((r) => setTimeout(r, 1000));
             secondsWaiting += 1;
             if (timeoutInSeconds && secondsWaiting > timeoutInSeconds) {
-                throw new Error(`PostRequestProcessor.waitTillDoneAsync() did not finish in specified time: ${timeoutInSeconds}`);
+                throw new Error(`PostRequestProcessor.waitTillDoneAsync() for ${requestId} did not finish in specified time: ${timeoutInSeconds}`);
             }
         }
         return true;
+    }
+
+    /**
+     * Waits till all requests are done
+     * @param {number|null|undefined} [timeoutInSeconds]
+     * @return {Promise<void>}
+     */
+    async waitTillAllRequestsDoneAsync({timeoutInSeconds}) {
+        const requestIds = this.requestSpecificCache.getRequestIds();
+        for (const requestId of requestIds) {
+            await this.waitTillDoneAsync({requestId, timeoutInSeconds});
+        }
     }
 }
 

@@ -1,6 +1,7 @@
 /**
  * Implements enrich function that finds any registered enrichment providers for that resource and runs them
  */
+const {RethrownError} = require('../utils/rethrownError');
 
 class EnrichmentManager {
     /**
@@ -18,16 +19,55 @@ class EnrichmentManager {
      * Runs any registered enrichment providers
      * @param {Object} args
      * @param {Resource[]} resources
-     * @param {string} resourceType
+     * @param {Object} originalArgs
      * @return {Promise<Resource[]>}
      */
-    async enrichAsync({resources, resourceType, args}) {
-        for (const enrichmentProvider of this.enrichmentProviders) {
-            if (enrichmentProvider.canEnrich({resourceType})) {
-                resources = await enrichmentProvider.enrichAsync({resources, resourceType, args});
+    async enrichAsync({resources, args, originalArgs}) {
+        try {
+            for (const enrichmentProvider of this.enrichmentProviders) {
+                resources = await enrichmentProvider.enrichAsync(
+                    {
+                        resources, args, originalArgs
+                    }
+                );
+
             }
+            return resources;
+        } catch (e) {
+            throw new RethrownError({
+                    message: 'Error in enrichAsync()',
+                    error: e,
+                    args: {resources, args, originalArgs}
+                }
+            );
         }
-        return resources;
+    }
+
+    /**
+     * Runs any registered enrichment providers
+     * @param {Object} args
+     * @param {BundleEntry[]} entries
+     * @param {Object} originalArgs
+     * @return {Promise<BundleEntry[]>}
+     */
+    async enrichBundleEntriesAsync({entries, args, originalArgs}) {
+        try {
+            for (const enrichmentProvider of this.enrichmentProviders) {
+                entries = await enrichmentProvider.enrichBundleEntriesAsync(
+                    {
+                        entries, args, originalArgs
+                    }
+                );
+            }
+            return entries;
+        } catch (e) {
+            throw new RethrownError({
+                    message: 'Error in enrichBundleEntriesAsync()',
+                    error: e,
+                    args: {entries, args, originalArgs}
+                }
+            );
+        }
     }
 }
 

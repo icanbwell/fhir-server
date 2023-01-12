@@ -55,5 +55,5 @@ type ImagingStudyPerformer {
     """
     Indicates who or what performed the series.
     """
-    actor: ImagingStudyPerformerActor!        
+    actor: ImagingStudyPerformerActor        
 }

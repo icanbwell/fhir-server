@@ -73,7 +73,7 @@ class TerminologyCapabilitiesExpansion extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -104,7 +104,7 @@ class TerminologyCapabilitiesExpansion extends Element {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -177,7 +177,7 @@ class TerminologyCapabilitiesExpansion extends Element {
                     this.__data.parameter = undefined;
                     return;
                 }
-                let TerminologyCapabilitiesParameter = require('../backbone_elements/terminologyCapabilitiesParameter.js');
+                const TerminologyCapabilitiesParameter = require('../backbone_elements/terminologyCapabilitiesParameter.js');
                 this.__data.parameter = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new TerminologyCapabilitiesParameter(v)) : [new TerminologyCapabilitiesParameter(valueProvided)];
             }
         });
@@ -235,6 +235,17 @@ class TerminologyCapabilitiesExpansion extends Element {
             parameter: this.parameter && this.parameter.map(v => v.toJSON()),
             textFilter: this.textFilter,
         });
+    }
+
+    /**
+     * Returns JSON representation of entity
+     * @param {function(Reference): Reference} fnUpdateReference
+     * @return {void}
+     */
+    updateReferences({fnUpdateReference}) {
+            if (this.extension) {this.extension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.parameter) {this.parameter.forEach(v => v.updateReferences({fnUpdateReference}));}
     }
 
     /**

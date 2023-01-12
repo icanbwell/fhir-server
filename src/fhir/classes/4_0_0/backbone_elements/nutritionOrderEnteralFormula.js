@@ -80,7 +80,7 @@ class NutritionOrderEnteralFormula extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -111,7 +111,7 @@ class NutritionOrderEnteralFormula extends Element {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -131,7 +131,7 @@ class NutritionOrderEnteralFormula extends Element {
                     this.__data.baseFormulaType = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.baseFormulaType = new CodeableConcept(valueProvided);
             }
         });
@@ -170,7 +170,7 @@ class NutritionOrderEnteralFormula extends Element {
                     this.__data.additiveType = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.additiveType = new CodeableConcept(valueProvided);
             }
         });
@@ -211,7 +211,7 @@ class NutritionOrderEnteralFormula extends Element {
                     this.__data.caloricDensity = undefined;
                     return;
                 }
-                let Quantity = require('../complex_types/quantity.js');
+                const Quantity = require('../complex_types/quantity.js');
                 this.__data.caloricDensity = new Quantity(valueProvided);
             }
         });
@@ -232,7 +232,7 @@ class NutritionOrderEnteralFormula extends Element {
                     this.__data.routeofAdministration = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.routeofAdministration = new CodeableConcept(valueProvided);
             }
         });
@@ -254,7 +254,7 @@ class NutritionOrderEnteralFormula extends Element {
                     this.__data.administration = undefined;
                     return;
                 }
-                let NutritionOrderAdministration = require('../backbone_elements/nutritionOrderAdministration.js');
+                const NutritionOrderAdministration = require('../backbone_elements/nutritionOrderAdministration.js');
                 this.__data.administration = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new NutritionOrderAdministration(v)) : [new NutritionOrderAdministration(valueProvided)];
             }
         });
@@ -274,7 +274,7 @@ class NutritionOrderEnteralFormula extends Element {
                     this.__data.maxVolumeToDeliver = undefined;
                     return;
                 }
-                let Quantity = require('../complex_types/quantity.js');
+                const Quantity = require('../complex_types/quantity.js');
                 this.__data.maxVolumeToDeliver = new Quantity(valueProvided);
             }
         });
@@ -341,6 +341,22 @@ class NutritionOrderEnteralFormula extends Element {
             maxVolumeToDeliver: this.maxVolumeToDeliver && this.maxVolumeToDeliver.toJSON(),
             administrationInstruction: this.administrationInstruction,
         });
+    }
+
+    /**
+     * Returns JSON representation of entity
+     * @param {function(Reference): Reference} fnUpdateReference
+     * @return {void}
+     */
+    updateReferences({fnUpdateReference}) {
+            if (this.extension) {this.extension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.baseFormulaType) {this.baseFormulaType.updateReferences({fnUpdateReference});}
+            if (this.additiveType) {this.additiveType.updateReferences({fnUpdateReference});}
+            if (this.caloricDensity) {this.caloricDensity.updateReferences({fnUpdateReference});}
+            if (this.routeofAdministration) {this.routeofAdministration.updateReferences({fnUpdateReference});}
+            if (this.administration) {this.administration.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.maxVolumeToDeliver) {this.maxVolumeToDeliver.updateReferences({fnUpdateReference});}
     }
 
     /**

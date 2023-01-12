@@ -64,7 +64,7 @@ type ProvenanceAgent {
     """
     The individual, device or organization that participated in the event.
     """
-    who: ProvenanceAgentWho!        
+    who: ProvenanceAgentWho        
     """
     The individual, device, or organization for whom the change was made.
     """

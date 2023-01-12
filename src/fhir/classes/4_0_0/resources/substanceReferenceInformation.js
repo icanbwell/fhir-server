@@ -89,7 +89,7 @@ class SubstanceReferenceInformation extends Resource {
                     this.__data.meta = undefined;
                     return;
                 }
-                let Meta = require('../complex_types/meta.js');
+                const Meta = require('../complex_types/meta.js');
                 this.__data.meta = new Meta(valueProvided);
             }
         });
@@ -152,7 +152,7 @@ class SubstanceReferenceInformation extends Resource {
                     this.__data.text = undefined;
                     return;
                 }
-                let Narrative = require('../complex_types/narrative.js');
+                const Narrative = require('../complex_types/narrative.js');
                 this.__data.text = new Narrative(valueProvided);
             }
         });
@@ -173,7 +173,7 @@ class SubstanceReferenceInformation extends Resource {
                     this.__data.contained = undefined;
                     return;
                 }
-                let ResourceContainer = require('../simple_types/resourceContainer.js');
+                const ResourceContainer = require('../simple_types/resourceContainer.js');
                 const {getResource} = require('../../../../operations/common/getResource');
                 if (Array.isArray(valueProvided)) {
                     this.__data.contained = valueProvided.filter(v => v).map(v => {
@@ -205,7 +205,7 @@ class SubstanceReferenceInformation extends Resource {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -236,7 +236,7 @@ class SubstanceReferenceInformation extends Resource {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -273,7 +273,7 @@ class SubstanceReferenceInformation extends Resource {
                     this.__data.gene = undefined;
                     return;
                 }
-                let SubstanceReferenceInformationGene = require('../backbone_elements/substanceReferenceInformationGene.js');
+                const SubstanceReferenceInformationGene = require('../backbone_elements/substanceReferenceInformationGene.js');
                 this.__data.gene = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new SubstanceReferenceInformationGene(v)) : [new SubstanceReferenceInformationGene(valueProvided)];
             }
         });
@@ -292,7 +292,7 @@ class SubstanceReferenceInformation extends Resource {
                     this.__data.geneElement = undefined;
                     return;
                 }
-                let SubstanceReferenceInformationGeneElement = require('../backbone_elements/substanceReferenceInformationGeneElement.js');
+                const SubstanceReferenceInformationGeneElement = require('../backbone_elements/substanceReferenceInformationGeneElement.js');
                 this.__data.geneElement = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new SubstanceReferenceInformationGeneElement(v)) : [new SubstanceReferenceInformationGeneElement(valueProvided)];
             }
         });
@@ -311,7 +311,7 @@ class SubstanceReferenceInformation extends Resource {
                     this.__data.classification = undefined;
                     return;
                 }
-                let SubstanceReferenceInformationClassification = require('../backbone_elements/substanceReferenceInformationClassification.js');
+                const SubstanceReferenceInformationClassification = require('../backbone_elements/substanceReferenceInformationClassification.js');
                 this.__data.classification = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new SubstanceReferenceInformationClassification(v)) : [new SubstanceReferenceInformationClassification(valueProvided)];
             }
         });
@@ -330,7 +330,7 @@ class SubstanceReferenceInformation extends Resource {
                     this.__data.target = undefined;
                     return;
                 }
-                let SubstanceReferenceInformationTarget = require('../backbone_elements/substanceReferenceInformationTarget.js');
+                const SubstanceReferenceInformationTarget = require('../backbone_elements/substanceReferenceInformationTarget.js');
                 this.__data.target = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new SubstanceReferenceInformationTarget(v)) : [new SubstanceReferenceInformationTarget(valueProvided)];
             }
         });
@@ -410,8 +410,10 @@ class SubstanceReferenceInformation extends Resource {
             _sourceId,
         });
 
-        // Define a default non-writable resourceType property
-
+        /**
+         * @description Define a default non-writable resourceType property
+         * @property {string|undefined}
+         */
         Object.defineProperty(this, 'resourceType', {
             value: 'SubstanceReferenceInformation',
             enumerable: true,
@@ -420,6 +422,10 @@ class SubstanceReferenceInformation extends Resource {
         });
     }
 
+    /**
+     * @description Define a default non-writable resourceType property
+     * @property {string|undefined}
+     */
     static get resourceType() {
         return 'SubstanceReferenceInformation';
     }
@@ -519,6 +525,23 @@ class SubstanceReferenceInformation extends Resource {
             classification: this.classification && this.classification.map(v => v.toJSON()),
             target: this.target && this.target.map(v => v.toJSON()),
         });
+    }
+
+    /**
+     * Returns JSON representation of entity
+     * @param {function(Reference): Reference} fnUpdateReference
+     * @return {void}
+     */
+    updateReferences({fnUpdateReference}) {
+            if (this.meta) {this.meta.updateReferences({fnUpdateReference});}
+            if (this.text) {this.text.updateReferences({fnUpdateReference});}
+            if (this.contained) {this.contained.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.extension) {this.extension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.gene) {this.gene.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.geneElement) {this.geneElement.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.classification) {this.classification.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.target) {this.target.forEach(v => v.updateReferences({fnUpdateReference}));}
     }
 
     /**

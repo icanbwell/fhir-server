@@ -67,7 +67,7 @@ class SubstanceIngredient extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -98,7 +98,7 @@ class SubstanceIngredient extends Element {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -117,7 +117,7 @@ class SubstanceIngredient extends Element {
                     this.__data.quantity = undefined;
                     return;
                 }
-                let Ratio = require('../complex_types/ratio.js');
+                const Ratio = require('../complex_types/ratio.js');
                 this.__data.quantity = new Ratio(valueProvided);
             }
         });
@@ -136,7 +136,7 @@ class SubstanceIngredient extends Element {
                     this.__data.substanceCodeableConcept = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.substanceCodeableConcept = new CodeableConcept(valueProvided);
             }
         });
@@ -155,7 +155,7 @@ class SubstanceIngredient extends Element {
                     this.__data.substanceReference = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.substanceReference = new Reference(valueProvided);
             }
         });
@@ -191,6 +191,19 @@ class SubstanceIngredient extends Element {
             substanceCodeableConcept: this.substanceCodeableConcept && this.substanceCodeableConcept.toJSON(),
             substanceReference: this.substanceReference && this.substanceReference.toJSON(),
         });
+    }
+
+    /**
+     * Returns JSON representation of entity
+     * @param {function(Reference): Reference} fnUpdateReference
+     * @return {void}
+     */
+    updateReferences({fnUpdateReference}) {
+            if (this.extension) {this.extension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.quantity) {this.quantity.updateReferences({fnUpdateReference});}
+            if (this.substanceCodeableConcept) {this.substanceCodeableConcept.updateReferences({fnUpdateReference});}
+            if (this.substanceReference) {this.substanceReference.updateReferences({fnUpdateReference});}
     }
 
     /**

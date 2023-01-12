@@ -82,7 +82,7 @@ class PaymentReconciliationDetail extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -113,7 +113,7 @@ class PaymentReconciliationDetail extends Element {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -132,7 +132,7 @@ class PaymentReconciliationDetail extends Element {
                     this.__data.identifier = undefined;
                     return;
                 }
-                let Identifier = require('../complex_types/identifier.js');
+                const Identifier = require('../complex_types/identifier.js');
                 this.__data.identifier = new Identifier(valueProvided);
             }
         });
@@ -151,7 +151,7 @@ class PaymentReconciliationDetail extends Element {
                     this.__data.predecessor = undefined;
                     return;
                 }
-                let Identifier = require('../complex_types/identifier.js');
+                const Identifier = require('../complex_types/identifier.js');
                 this.__data.predecessor = new Identifier(valueProvided);
             }
         });
@@ -170,7 +170,7 @@ class PaymentReconciliationDetail extends Element {
                     this.__data.type = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.type = new CodeableConcept(valueProvided);
             }
         });
@@ -189,7 +189,7 @@ class PaymentReconciliationDetail extends Element {
                     this.__data.request = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.request = new Reference(valueProvided);
             }
         });
@@ -208,7 +208,7 @@ class PaymentReconciliationDetail extends Element {
                     this.__data.submitter = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.submitter = new Reference(valueProvided);
             }
         });
@@ -227,7 +227,7 @@ class PaymentReconciliationDetail extends Element {
                     this.__data.response = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.response = new Reference(valueProvided);
             }
         });
@@ -265,7 +265,7 @@ class PaymentReconciliationDetail extends Element {
                     this.__data.responsible = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.responsible = new Reference(valueProvided);
             }
         });
@@ -284,7 +284,7 @@ class PaymentReconciliationDetail extends Element {
                     this.__data.payee = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.payee = new Reference(valueProvided);
             }
         });
@@ -303,7 +303,7 @@ class PaymentReconciliationDetail extends Element {
                     this.__data.amount = undefined;
                     return;
                 }
-                let Money = require('../complex_types/money.js');
+                const Money = require('../complex_types/money.js');
                 this.__data.amount = new Money(valueProvided);
             }
         });
@@ -353,6 +353,25 @@ class PaymentReconciliationDetail extends Element {
             payee: this.payee && this.payee.toJSON(),
             amount: this.amount && this.amount.toJSON(),
         });
+    }
+
+    /**
+     * Returns JSON representation of entity
+     * @param {function(Reference): Reference} fnUpdateReference
+     * @return {void}
+     */
+    updateReferences({fnUpdateReference}) {
+            if (this.extension) {this.extension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.identifier) {this.identifier.updateReferences({fnUpdateReference});}
+            if (this.predecessor) {this.predecessor.updateReferences({fnUpdateReference});}
+            if (this.type) {this.type.updateReferences({fnUpdateReference});}
+            if (this.request) {this.request.updateReferences({fnUpdateReference});}
+            if (this.submitter) {this.submitter.updateReferences({fnUpdateReference});}
+            if (this.response) {this.response.updateReferences({fnUpdateReference});}
+            if (this.responsible) {this.responsible.updateReferences({fnUpdateReference});}
+            if (this.payee) {this.payee.updateReferences({fnUpdateReference});}
+            if (this.amount) {this.amount.updateReferences({fnUpdateReference});}
     }
 
     /**

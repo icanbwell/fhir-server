@@ -1,5 +1,6 @@
-const {commonBeforeEach, commonAfterEach, createTestRequest, getHtmlHeaders} = require('../../common');
+const {commonBeforeEach, commonAfterEach, createTestRequest, getHtmlHeaders, getHeaders} = require('../../common');
 const {describe, beforeEach, afterEach, test} = require('@jest/globals');
+const graphResource = require('./fixtures/graph.json');
 
 describe('Bad url Tests', () => {
     beforeEach(async () => {
@@ -33,6 +34,41 @@ describe('Bad url Tests', () => {
 
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveStatusCode(404);
+        });
+        test('url with missing / fails', async () => {
+            const request = await createTestRequest();
+            // ARRANGE
+            // add the resources to FHIR server
+            let resp = await request
+                .get('/4_0_0ActivityDefinition')
+                .set(getHtmlHeaders());
+
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveStatusCode(404);
+        });
+        test('patient graph missing 4_0_0 fails', async () => {
+            const request = await createTestRequest();
+            // ARRANGE
+            // add the resources to FHIR server
+            let resp = await request
+                .post('/Patient/$graph')
+                .send(graphResource)
+                .set(getHeaders());
+
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveStatusCode(404);
+            expect(resp.body).toStrictEqual({
+                'resourceType': 'OperationOutcome',
+                'issue': [
+                    {
+                        'severity': 'error',
+                        'code': 'not-found',
+                        'details': {
+                            'text': 'Invalid url: /Patient/$graph'
+                        }
+                    }
+                ]
+            });
         });
     });
 });

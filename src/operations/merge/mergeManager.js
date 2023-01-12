@@ -23,6 +23,7 @@ const Resource = require('../../fhir/classes/4_0_0/resources/resource');
 const {ResourceValidator} = require('../common/resourceValidator');
 const {RethrownError} = require('../../utils/rethrownError');
 const {PreSaveManager} = require('../../preSaveHandlers/preSave');
+const {ConfigManager} = require('../../utils/configManager');
 
 const Mutex = require('async-mutex').Mutex;
 const mutex = new Mutex();
@@ -38,6 +39,7 @@ class MergeManager {
      * @param {ResourceMerger} resourceMerger
      * @param {ResourceValidator} resourceValidator
      * @param {PreSaveManager} preSaveManager
+     * @param {ConfigManager} configManager
      */
     constructor(
         {
@@ -48,7 +50,8 @@ class MergeManager {
             scopesManager,
             resourceMerger,
             resourceValidator,
-            preSaveManager
+            preSaveManager,
+            configManager
         }
     ) {
         /**
@@ -94,6 +97,12 @@ class MergeManager {
          */
         this.preSaveManager = preSaveManager;
         assertTypeEquals(preSaveManager, PreSaveManager);
+
+        /**
+         * @type {ConfigManager}
+         */
+        this.configManager = configManager;
+        assertTypeEquals(configManager, ConfigManager);
     }
 
     /**
@@ -113,7 +122,7 @@ class MergeManager {
             user,
             scope,
             currentDate,
-            requestId
+            requestId,
         }) {
         /**
          * @type {string}
@@ -125,7 +134,10 @@ class MergeManager {
          * @type {Resource}
          */
         let foundResource = currentResource;
-        if (!(this.scopesManager.isAccessToResourceAllowedBySecurityTags(foundResource, user, scope))) {
+        if (!(this.scopesManager.isAccessToResourceAllowedBySecurityTags({
+                resource: foundResource, user, scope
+            }
+        ))) {
             throw new ForbiddenError(
                 'user ' + user + ' with scopes [' + scope + '] has no access to resource ' +
                 foundResource.resourceType + ' with id ' + id);
@@ -136,10 +148,10 @@ class MergeManager {
         /**
          * @type {Resource|null}
          */
-        const patched_resource_incoming = await this.resourceMerger.mergeResourceAsync(
+        const {updatedResource: patched_resource_incoming, patches} = await this.resourceMerger.mergeResourceAsync(
             {currentResource, resourceToMerge});
 
-        if (isTrue(env.LOG_ALL_MERGES)) {
+        if (this.configManager.logAllMerges) {
             await sendToS3('logs',
                 resourceToMerge.resourceType,
                 {
@@ -153,7 +165,10 @@ class MergeManager {
         }
         if (patched_resource_incoming) {
             await this.performMergeDbUpdateAsync({
-                    resourceToMerge: patched_resource_incoming
+                    requestId,
+                    resourceToMerge: patched_resource_incoming,
+                    previousVersionId: currentResource.meta.versionId,
+                    patches
                 }
             );
         }
@@ -161,6 +176,7 @@ class MergeManager {
 
     /**
      * merge insert
+     * @param {string} requestId
      * @param {Resource} resourceToMerge
      * @param {string} base_version
      * @param {string | null} user
@@ -169,6 +185,7 @@ class MergeManager {
      */
     async mergeInsertAsync(
         {
+            requestId,
             resourceToMerge,
             base_version,
             user,
@@ -187,7 +204,9 @@ class MergeManager {
             }
         }
 
-        if (!(this.scopesManager.isAccessToResourceAllowedBySecurityTags(resourceToMerge, user, scope))) {
+        if (!(this.scopesManager.isAccessToResourceAllowedBySecurityTags({
+            resource: resourceToMerge, user, scope
+        }))) {
             throw new ForbiddenError(
                 'user ' + user + ' with scopes [' + scope + '] has no access to resource ' +
                 resourceToMerge.resourceType + ' with id ' + resourceToMerge.id);
@@ -209,6 +228,7 @@ class MergeManager {
         }
 
         await this.performMergeDbInsertAsync({
+            requestId,
             resourceToMerge
         });
     }
@@ -271,6 +291,7 @@ class MergeManager {
                 let currentResource = this.databaseBulkLoader ?
                     this.databaseBulkLoader.getResourceFromExistingList(
                         {
+                            requestId,
                             resourceType: resourceToMerge.resourceType,
                             id: id.toString()
                         }
@@ -284,12 +305,11 @@ class MergeManager {
                             resourceToMerge, currentResource, user, scope, currentDate, requestId
                         }
                     );
-                    this.databaseBulkLoader.updateResourceInExistingList({resource: resourceToMerge});
                 } else {
                     await this.mergeInsertAsync({
+                        requestId,
                         resourceToMerge, base_version, user, scope
                     });
-                    this.databaseBulkLoader.addResourceToExistingList({resource: resourceToMerge});
                 }
             } catch (e) {
                 logError({
@@ -308,7 +328,7 @@ class MergeManager {
                             severity: 'error',
                             code: 'exception',
                             details: {
-                                text: 'Error merging: ' + JSON.stringify(resourceToMerge)
+                                text: 'Error merging: ' + JSON.stringify(resourceToMerge.toJSON())
                             },
                             diagnostics: e.toString(),
                             expression: [
@@ -465,12 +485,18 @@ class MergeManager {
 
     /**
      * performs the db update
+     * @param {string} requestId
      * @param {Resource} resourceToMerge
+     * @param {string} previousVersionId
+     * @param {MergePatchEntry[]} patches
      * @returns {Promise<void>}
      */
     async performMergeDbUpdateAsync(
         {
-            resourceToMerge
+            requestId,
+            resourceToMerge,
+            previousVersionId,
+            patches
         }
     ) {
         try {
@@ -480,26 +506,19 @@ class MergeManager {
             await this.preSaveManager.preSaveAsync(resourceToMerge);
 
             // Insert/update our resource record
-            await this.databaseBulkInserter.replaceOneAsync(
+            await this.databaseBulkInserter.mergeOneAsync(
                 {
+                    requestId,
                     resourceType: resourceToMerge.resourceType,
                     id: id.toString(),
-                    doc: resourceToMerge
+                    doc: resourceToMerge,
+                    previousVersionId,
+                    patches
                 }
             );
-
-            /**
-             * @type {Resource}
-             */
-            const historyResource = resourceToMerge.clone();
-
-            await this.databaseBulkInserter.insertOneHistoryAsync(
-                {
-                    resourceType: resourceToMerge.resourceType, doc: historyResource
-                });
         } catch (e) {
             throw new RethrownError({
-                message: `Error updating: ${JSON.stringify(resourceToMerge)}`,
+                message: `Error updating: ${JSON.stringify(resourceToMerge.toJSON())}`,
                 error: e
             });
         }
@@ -507,11 +526,13 @@ class MergeManager {
 
     /**
      * performs the db insert
+     * @param {string} requestId
      * @param {Resource} resourceToMerge
      * @returns {Promise<void>}
      */
     async performMergeDbInsertAsync(
         {
+            requestId,
             resourceToMerge
         }) {
         try {
@@ -520,21 +541,14 @@ class MergeManager {
 
             // Insert/update our resource record
             await this.databaseBulkInserter.insertOneAsync({
+                    requestId,
                     resourceType: resourceToMerge.resourceType,
                     doc: resourceToMerge
                 }
             );
-
-            const historyResource = resourceToMerge.clone();
-
-            await this.databaseBulkInserter.insertOneHistoryAsync({
-                    resourceType: resourceToMerge.resourceType,
-                    doc: historyResource
-                }
-            );
         } catch (e) {
             throw new RethrownError({
-                message: `Error inserting: ${JSON.stringify(resourceToMerge)}`,
+                message: `Error inserting: ${JSON.stringify(resourceToMerge.toJSON())}`,
                 error: e
             });
         }
@@ -575,7 +589,7 @@ class MergeManager {
                             severity: 'error',
                             code: 'exception',
                             details: new CodeableConcept({
-                                text: 'Error merging: ' + JSON.stringify(resourceToMerge)
+                                text: 'Error merging: ' + JSON.stringify(resourceToMerge.toJSON())
                             }),
                             diagnostics: 'resource is missing resourceType',
                             expression: [
@@ -595,7 +609,7 @@ class MergeManager {
                 };
             }
 
-            if (isTrue(env.AUTH_ENABLED)) {
+            if (isTrue(this.configManager.authEnabled)) {
                 let {success} = scopeChecker(resourceToMerge.resourceType, 'write', scopes);
                 if (!success) {
                     const operationOutcome = new OperationOutcome({
@@ -604,7 +618,7 @@ class MergeManager {
                                 severity: 'error',
                                 code: 'exception',
                                 details: new CodeableConcept({
-                                    text: 'Error merging: ' + JSON.stringify(resourceToMerge)
+                                    text: 'Error merging: ' + JSON.stringify(resourceToMerge.toJSON())
                                 }),
                                 diagnostics: 'user ' + user + ' with scopes [' + scopes + '] failed access check to [' + resourceToMerge.resourceType + '.' + 'write' + ']',
                                 expression: [
@@ -644,6 +658,7 @@ class MergeManager {
                 currentDate: currentDate
             });
             if (validationOperationOutcome) {
+                // noinspection JSValidateTypes
                 return {
                     id: id,
                     created: false,
@@ -664,7 +679,7 @@ class MergeManager {
                                 severity: 'error',
                                 code: 'exception',
                                 details: new CodeableConcept({
-                                    text: 'Error merging: ' + JSON.stringify(resourceToMerge)
+                                    text: 'Error merging: ' + JSON.stringify(resourceToMerge.toJSON())
                                 }),
                                 diagnostics: 'Resource is missing a meta.security tag with system: https://www.icanbwell.com/access',
                                 expression: [
@@ -687,7 +702,7 @@ class MergeManager {
             return null;
         } catch (e) {
             throw new RethrownError({
-                message: `Error pre merge checks: ${JSON.stringify(resourceToMerge)}`,
+                message: `Error pre merge checks: ${JSON.stringify(resourceToMerge.toJSON())}`,
                 error: e
             });
         }
@@ -751,6 +766,7 @@ class MergeManager {
      * @param {string} base_version
      * @param {Object} args
      * @param {MergeResultEntry[]} mergeResults
+     * @param {string} method
      * @returns {Promise<void>}
      */
     async logAuditEntriesForMergeResults(
@@ -758,7 +774,8 @@ class MergeManager {
             requestInfo,
             requestId,
             base_version, args,
-            mergeResults
+            mergeResults,
+            method
         }
     ) {
         try {
@@ -803,7 +820,7 @@ class MergeManager {
             }
 
             const currentDate = moment.utc().format('YYYY-MM-DD');
-            await this.auditLogger.flushAsync({requestId, currentDate});
+            await this.auditLogger.flushAsync({requestId, currentDate, method});
         } catch (e) {
             throw new RethrownError({
                 error: e

@@ -13,6 +13,7 @@ const {DatabaseBulkInserter} = require('../dataLayer/databaseBulkInserter');
 const {ErrorReporter} = require('./slack.logger');
 const {assertTypeEquals} = require('./assertType');
 const {SecurityTagSystem} = require('./securityTagSystem');
+const {getCircularReplacer} = require('./getCircularReplacer');
 
 class AuditLogger {
     /**
@@ -196,16 +197,17 @@ class AuditLogger {
      * Flush
      * @param {string} requestId
      * @param {string} currentDate
+     * @param {string} method
      * @return {Promise<void>}
      */
-    async flushAsync({requestId, currentDate}) {
+    async flushAsync({requestId, currentDate, method}) {
         /**
          * Audit entries are always of resource type AuditEvent
          * @type {string}
          */
         const resourceType = 'AuditEvent';
         for (const /** @type {Resource} */ doc of this.queue) {
-            await this.databaseBulkInserter.insertOneAsync({resourceType, doc});
+            await this.databaseBulkInserter.insertOneAsync({requestId, resourceType, doc});
         }
         this.queue = [];
         /**
@@ -213,7 +215,8 @@ class AuditLogger {
          */
         const mergeResults = await this.databaseBulkInserter.executeAsync(
             {
-                requestId, currentDate, base_version: this.base_version
+                requestId, currentDate, base_version: this.base_version,
+                method
             }
         );
         /**
@@ -224,7 +227,7 @@ class AuditLogger {
             await this.errorReporter.reportErrorAsync(
                 {
                     source: 'flushAsync',
-                    message: `Error creating audit entries: ${JSON.stringify(mergeResultErrors)}`,
+                    message: `Error creating audit entries: ${JSON.stringify(mergeResultErrors, getCircularReplacer())}`,
                     args: {
                         requestId: requestId,
                         errors: mergeResultErrors

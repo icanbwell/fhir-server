@@ -104,7 +104,7 @@ class ResearchElementDefinitionCharacteristic extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -135,7 +135,7 @@ class ResearchElementDefinitionCharacteristic extends Element {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -154,7 +154,7 @@ class ResearchElementDefinitionCharacteristic extends Element {
                     this.__data.definitionCodeableConcept = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.definitionCodeableConcept = new CodeableConcept(valueProvided);
             }
         });
@@ -191,7 +191,7 @@ class ResearchElementDefinitionCharacteristic extends Element {
                     this.__data.definitionExpression = undefined;
                     return;
                 }
-                let Expression = require('../complex_types/expression.js');
+                const Expression = require('../complex_types/expression.js');
                 this.__data.definitionExpression = new Expression(valueProvided);
             }
         });
@@ -210,7 +210,7 @@ class ResearchElementDefinitionCharacteristic extends Element {
                     this.__data.definitionDataRequirement = undefined;
                     return;
                 }
-                let DataRequirement = require('../complex_types/dataRequirement.js');
+                const DataRequirement = require('../complex_types/dataRequirement.js');
                 this.__data.definitionDataRequirement = new DataRequirement(valueProvided);
             }
         });
@@ -230,7 +230,7 @@ class ResearchElementDefinitionCharacteristic extends Element {
                     this.__data.usageContext = undefined;
                     return;
                 }
-                let UsageContext = require('../complex_types/usageContext.js');
+                const UsageContext = require('../complex_types/usageContext.js');
                 this.__data.usageContext = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new UsageContext(v)) : [new UsageContext(valueProvided)];
             }
         });
@@ -267,7 +267,7 @@ class ResearchElementDefinitionCharacteristic extends Element {
                     this.__data.unitOfMeasure = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.unitOfMeasure = new CodeableConcept(valueProvided);
             }
         });
@@ -322,7 +322,7 @@ class ResearchElementDefinitionCharacteristic extends Element {
                     this.__data.studyEffectivePeriod = undefined;
                     return;
                 }
-                let Period = require('../complex_types/period.js');
+                const Period = require('../complex_types/period.js');
                 this.__data.studyEffectivePeriod = new Period(valueProvided);
             }
         });
@@ -341,7 +341,7 @@ class ResearchElementDefinitionCharacteristic extends Element {
                     this.__data.studyEffectiveDuration = undefined;
                     return;
                 }
-                let Quantity = require('../complex_types/quantity.js');
+                const Quantity = require('../complex_types/quantity.js');
                 this.__data.studyEffectiveDuration = new Quantity(valueProvided);
             }
         });
@@ -360,7 +360,7 @@ class ResearchElementDefinitionCharacteristic extends Element {
                     this.__data.studyEffectiveTiming = undefined;
                     return;
                 }
-                let Timing = require('../backbone_elements/timing.js');
+                const Timing = require('../backbone_elements/timing.js');
                 this.__data.studyEffectiveTiming = new Timing(valueProvided);
             }
         });
@@ -379,7 +379,7 @@ class ResearchElementDefinitionCharacteristic extends Element {
                     this.__data.studyEffectiveTimeFromStart = undefined;
                     return;
                 }
-                let Quantity = require('../complex_types/quantity.js');
+                const Quantity = require('../complex_types/quantity.js');
                 this.__data.studyEffectiveTimeFromStart = new Quantity(valueProvided);
             }
         });
@@ -452,7 +452,7 @@ class ResearchElementDefinitionCharacteristic extends Element {
                     this.__data.participantEffectivePeriod = undefined;
                     return;
                 }
-                let Period = require('../complex_types/period.js');
+                const Period = require('../complex_types/period.js');
                 this.__data.participantEffectivePeriod = new Period(valueProvided);
             }
         });
@@ -471,7 +471,7 @@ class ResearchElementDefinitionCharacteristic extends Element {
                     this.__data.participantEffectiveDuration = undefined;
                     return;
                 }
-                let Quantity = require('../complex_types/quantity.js');
+                const Quantity = require('../complex_types/quantity.js');
                 this.__data.participantEffectiveDuration = new Quantity(valueProvided);
             }
         });
@@ -490,7 +490,7 @@ class ResearchElementDefinitionCharacteristic extends Element {
                     this.__data.participantEffectiveTiming = undefined;
                     return;
                 }
-                let Timing = require('../backbone_elements/timing.js');
+                const Timing = require('../backbone_elements/timing.js');
                 this.__data.participantEffectiveTiming = new Timing(valueProvided);
             }
         });
@@ -509,7 +509,7 @@ class ResearchElementDefinitionCharacteristic extends Element {
                     this.__data.participantEffectiveTimeFromStart = undefined;
                     return;
                 }
-                let Quantity = require('../complex_types/quantity.js');
+                const Quantity = require('../complex_types/quantity.js');
                 this.__data.participantEffectiveTimeFromStart = new Quantity(valueProvided);
             }
         });
@@ -599,6 +599,29 @@ class ResearchElementDefinitionCharacteristic extends Element {
             participantEffectiveTimeFromStart: this.participantEffectiveTimeFromStart && this.participantEffectiveTimeFromStart.toJSON(),
             participantEffectiveGroupMeasure: this.participantEffectiveGroupMeasure,
         });
+    }
+
+    /**
+     * Returns JSON representation of entity
+     * @param {function(Reference): Reference} fnUpdateReference
+     * @return {void}
+     */
+    updateReferences({fnUpdateReference}) {
+            if (this.extension) {this.extension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.definitionCodeableConcept) {this.definitionCodeableConcept.updateReferences({fnUpdateReference});}
+            if (this.definitionExpression) {this.definitionExpression.updateReferences({fnUpdateReference});}
+            if (this.definitionDataRequirement) {this.definitionDataRequirement.updateReferences({fnUpdateReference});}
+            if (this.usageContext) {this.usageContext.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.unitOfMeasure) {this.unitOfMeasure.updateReferences({fnUpdateReference});}
+            if (this.studyEffectivePeriod) {this.studyEffectivePeriod.updateReferences({fnUpdateReference});}
+            if (this.studyEffectiveDuration) {this.studyEffectiveDuration.updateReferences({fnUpdateReference});}
+            if (this.studyEffectiveTiming) {this.studyEffectiveTiming.updateReferences({fnUpdateReference});}
+            if (this.studyEffectiveTimeFromStart) {this.studyEffectiveTimeFromStart.updateReferences({fnUpdateReference});}
+            if (this.participantEffectivePeriod) {this.participantEffectivePeriod.updateReferences({fnUpdateReference});}
+            if (this.participantEffectiveDuration) {this.participantEffectiveDuration.updateReferences({fnUpdateReference});}
+            if (this.participantEffectiveTiming) {this.participantEffectiveTiming.updateReferences({fnUpdateReference});}
+            if (this.participantEffectiveTimeFromStart) {this.participantEffectiveTimeFromStart.updateReferences({fnUpdateReference});}
     }
 
     /**

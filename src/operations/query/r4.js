@@ -8,7 +8,7 @@ const {filterByToken} = require('./filters/token');
 const {filterByReference} = require('./filters/reference');
 const {filterByMissing} = require('./filters/missing');
 const {filterByContains} = require('./filters/contains');
-const {filterByAboveAndBelow, filterByAbove, filterByBelow} = require('./filters/aboveAndBelow');
+const {filterByAbove, filterByBelow} = require('./filters/aboveAndBelow');
 const {convertGraphQLParameters} = require('./convertGraphQLParameters');
 const {filterByPartialText} = require('./filters/partialText');
 const {filterByCanonical} = require('./filters/canonical');
@@ -19,9 +19,12 @@ const {AccessIndexManager} = require('../common/accessIndexManager');
 const {FhirTypesManager} = require('../../fhir/fhirTypesManager');
 
 function isUrl(queryParameterValue) {
-    return queryParameterValue.startsWith('http://') ||
-        queryParameterValue.startsWith('https://') ||
-        queryParameterValue.startsWith('ftp://');
+    return typeof queryParameterValue === 'string' &&
+        (
+            queryParameterValue.startsWith('http://') ||
+            queryParameterValue.startsWith('https://') ||
+            queryParameterValue.startsWith('ftp://')
+        );
 }
 
 class R4SearchQueryCreator {
@@ -101,128 +104,82 @@ class R4SearchQueryCreator {
          * this is used to pick index hints
          * @type {Set}
          */
-        let columns = new Set();
+        let totalColumns = new Set();
         /**
          * and segments
          * these are combined to create the query
          * @type {Object[]}
          */
-        let and_segments = [];
+        let totalAndSegments = [];
 
-        // add FHIR queries
-        for (const [searchParameterResourceType, searchParameterObj] of Object.entries(searchParameterQueries)) {
-            if (searchParameterResourceType === resourceType || searchParameterResourceType === 'Resource') {
-                for (const [
-                    /** @type {string} **/ queryParameter,
-                    /** @type {import('../common/types').SearchParameterDefinition} **/ propertyObj,
-                ] of Object.entries(searchParameterObj)) {
-                    // set type of field in propertyObj
-                    propertyObj.fieldType = this.fhirTypesManager.getTypeForField(
-                        {
-                            resourceType,
-                            field: propertyObj.field
-                        }
-                    );
-                    /**
-                     * @type {string | string[]}
-                     */
-                    let queryParameterValue = args[`${queryParameter}`];
-                    queryParameterValue = convertGraphQLParameters(
-                        queryParameterValue,
-                        args,
-                        queryParameter
-                    );
-                    // if just a query parameter is passed then check it
-                    if (queryParameterValue) {
-                        // handle id differently since it is a token, but we want to do exact match
-                        if (queryParameter === '_id') {
-                            filterById({
-                                queryParameterValue, and_segments, propertyObj, columns
-                            });
-                            continue; // skip processing rest of this loop
-                        }
-                        switch (propertyObj.type) {
-                            case fhirFilterTypes.string:
-                                filterByString({
-                                    queryParameterValue, and_segments, propertyObj, columns
-                                });
-                                break;
-                            case fhirFilterTypes.uri:
-                                filterByUri({
-                                    and_segments, propertyObj, queryParameterValue, columns
-                                });
-                                break;
-                            case fhirFilterTypes.dateTime:
-                            case fhirFilterTypes.date:
-                            case fhirFilterTypes.period:
-                            case fhirFilterTypes.instant:
-                                filterByDateTime(
-                                    {
-                                        queryParameterValue,
-                                        propertyObj,
-                                        and_segments,
-                                        resourceType,
-                                        columns
-                                    }
-                                );
-                                break;
-                            case fhirFilterTypes.token:
-                                if (propertyObj.field === 'meta.security') {
-                                    filterBySecurityTag({
-                                        queryParameterValue, propertyObj, and_segments, columns,
-                                        fnUseAccessIndex: (accessCode) =>
-                                            this.configManager.useAccessIndex &&
-                                            this.accessIndexManager.resourceHasAccessIndexForAccessCodes({
-                                                resourceType,
-                                                accessCodes: [accessCode]
-                                            })
-                                    });
-                                } else {
-                                    filterByToken({
-                                        queryParameterValue, propertyObj, and_segments, columns
-                                    });
-                                }
-                                break;
-                            case fhirFilterTypes.reference:
-                                if (isUrl(queryParameterValue)) {
-                                    filterByCanonical({
-                                        and_segments, propertyObj, queryParameterValue, columns
-                                    });
-                                } else {
-                                    filterByReference(
-                                        {
-                                            propertyObj,
-                                            and_segments,
-                                            queryParameterValue,
-                                            columns
-                                        }
-                                    );
-                                }
-                                break;
-                            default:
-                                throw new Error('Unknown type=' + propertyObj.type);
-                        }
-                    } else if (args[`${queryParameter}:missing`]) {
-                        filterByMissing({
-                            args, queryParameter, and_segments, propertyObj, columns
-                        });
-                    } else if (args[`${queryParameter}:contains`]) {
-                        filterByContains({
-                            and_segments, propertyObj, queryParameter, args, columns
-                        });
-                    } else if (args[`${queryParameter}:above`] && args[`${queryParameter}:below`]) {
-                        filterByAboveAndBelow({
-                            and_segments, propertyObj, args, queryParameter, columns
-                        });
-                    } else if (args[`${queryParameter}:above`]) {
-                        filterByAbove(and_segments, propertyObj, args, queryParameter, columns);
-                    } else if (args[`${queryParameter}:below`]) {
-                        filterByBelow(and_segments, propertyObj, args, queryParameter, columns);
-                    } else if (args[`${queryParameter}:text`]) {
-                        filterByPartialText({
-                            args, queryParameter, and_segments, propertyObj, columns
-                        });
-                    }
+        for (const argName in args) {
+            const [queryParameter, ...modifiers] = argName.split(':');
+
+            let propertyObj = searchParameterQueries[`${resourceType}`][`${queryParameter}`];
+            if (!propertyObj) {
+                propertyObj = searchParameterQueries['Resource'][`${queryParameter}`];
+            }
+            if (!propertyObj) {
+                // ignore this unrecognized arg
+                continue;
+            }
+
+            // set type of field in propertyObj
+            propertyObj.fieldType = this.fhirTypesManager.getTypeForField(
+                {
+                    resourceType,
+                    field: propertyObj.field
+                }
+            );
+            /**
+             * @type {string | string[]}
+             */
+            let queryParameterValue = args[`${argName}`];
+            queryParameterValue = convertGraphQLParameters(
+                queryParameterValue,
+                args,
+                queryParameter
+            );
+
+            if (queryParameterValue) {
+
+                let {columns, andSegments} = this.getColumnsAndSegmentsForParameterType({
+                    resourceType, queryParameter, queryParameterValue, propertyObj
+                });
+
+                // replace andSegments according to modifiers
+                if (modifiers.includes('missing')) {
+                    andSegments = filterByMissing({
+                        args, queryParameter, propertyObj, columns
+                    });
+                } else if (modifiers.includes('contains')) {
+                    andSegments = filterByContains({
+                        propertyObj, queryParameterValue, columns
+                    });
+                } else if (modifiers.includes('above')) {
+                    andSegments = filterByAbove({
+                        propertyObj, queryParameterValue, columns
+                    });
+                } else if (modifiers.includes('below')) {
+                    andSegments = filterByBelow({
+                        propertyObj, queryParameterValue, columns
+                    });
+                } else if (modifiers.includes('text')) {
+                    columns = new Set(); // text overrides datatype column logic
+                    andSegments = filterByPartialText({
+                        args, queryParameter, propertyObj, columns,
+                    });
+                }
+
+                // apply negation according to not modifier and add to final collection
+                if (modifiers.includes('not')) {
+                    andSegments.forEach(q => totalAndSegments.push({$nor: [q]}));
+                } else {
+                    andSegments.forEach(q => totalAndSegments.push(q));
+                }
+
+                for (const column of columns) {
+                    totalColumns.add(column);
                 }
             }
         }
@@ -233,15 +190,110 @@ class R4SearchQueryCreator {
          */
         let query = {};
 
-        if (and_segments.length !== 0) {
+        if (totalAndSegments.length !== 0) {
             // noinspection JSUndefinedPropertyAssignment
-            query.$and = and_segments;
+            query.$and = totalAndSegments;
         }
 
         return {
             query: query,
-            columns: columns,
+            columns: totalColumns,
         };
+    }
+
+    /**
+     * Builds a set of columns and list of segments to apply for a particular query parameter
+     * @param {string} resourceType
+     * @param {string} queryParameter
+     * @param {string} queryParameterValue
+     * @param {Object} propertyObj
+     * @returns {{columns: Set, andSegments: Object[]}} columns and andSegments for query parameter
+     */
+    getColumnsAndSegmentsForParameterType({resourceType, queryParameter, queryParameterValue, propertyObj}) {
+        /**
+         * list of columns used in the query for this parameter
+         * this is used to pick index hints
+         * @type {Set}
+         */
+        let columns = new Set();
+
+        /**
+         * and segments
+         * these are combined to create the query
+         * @type {Object[]}
+         */
+        let andSegments = [];
+
+
+        // get the set of columns required for the query
+        if (queryParameter === '_id') {
+            // handle id differently since it is a token, but we want to do exact match
+            andSegments = filterById({
+                queryParameterValue, propertyObj, columns
+            });
+        } else {
+            switch (propertyObj.type) {
+                case fhirFilterTypes.string:
+                    andSegments = filterByString({
+                        queryParameterValue, propertyObj, columns
+                    });
+                    break;
+                case fhirFilterTypes.uri:
+                    andSegments = filterByUri({
+                        propertyObj, queryParameterValue, columns
+                    });
+                    break;
+                case fhirFilterTypes.dateTime:
+                case fhirFilterTypes.date:
+                case fhirFilterTypes.period:
+                case fhirFilterTypes.instant:
+                    andSegments = filterByDateTime(
+                        {
+                            queryParameterValue,
+                            propertyObj,
+                            resourceType,
+                            columns
+                        }
+                    );
+                    break;
+                case fhirFilterTypes.token:
+                    if (propertyObj.field === 'meta.security') {
+                        andSegments = filterBySecurityTag({
+                            queryParameterValue, propertyObj, columns,
+                            fnUseAccessIndex: (accessCode) =>
+                                this.configManager.useAccessIndex &&
+                                this.accessIndexManager.resourceHasAccessIndexForAccessCodes({
+                                    resourceType,
+                                    accessCodes: [accessCode]
+                                })
+                        });
+                    } else {
+                        andSegments = filterByToken({
+                            queryParameterValue, propertyObj, columns
+                        });
+                    }
+                    break;
+                case fhirFilterTypes.reference:
+                    if (isUrl(queryParameterValue)) {
+                        andSegments = filterByCanonical({
+                            propertyObj, queryParameterValue, columns
+                        });
+                    } else {
+                        andSegments = filterByReference(
+                            {
+                                propertyObj,
+                                queryParameterValue,
+                                columns,
+                            }
+                        );
+                    }
+                    break;
+                default:
+                    throw new Error('Unknown type=' + propertyObj.type);
+            }
+        }
+
+        return {columns, andSegments};
     }
 }
 

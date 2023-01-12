@@ -85,7 +85,7 @@ class MedicinalProductPackagedPackageItem extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -116,7 +116,7 @@ class MedicinalProductPackagedPackageItem extends Element {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -135,7 +135,7 @@ class MedicinalProductPackagedPackageItem extends Element {
                     this.__data.identifier = undefined;
                     return;
                 }
-                let Identifier = require('../complex_types/identifier.js');
+                const Identifier = require('../complex_types/identifier.js');
                 this.__data.identifier = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Identifier(v)) : [new Identifier(valueProvided)];
             }
         });
@@ -154,7 +154,7 @@ class MedicinalProductPackagedPackageItem extends Element {
                     this.__data.type = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.type = new CodeableConcept(valueProvided);
             }
         });
@@ -174,7 +174,7 @@ class MedicinalProductPackagedPackageItem extends Element {
                     this.__data.quantity = undefined;
                     return;
                 }
-                let Quantity = require('../complex_types/quantity.js');
+                const Quantity = require('../complex_types/quantity.js');
                 this.__data.quantity = new Quantity(valueProvided);
             }
         });
@@ -193,7 +193,7 @@ class MedicinalProductPackagedPackageItem extends Element {
                     this.__data.material = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.material = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
             }
         });
@@ -212,7 +212,7 @@ class MedicinalProductPackagedPackageItem extends Element {
                     this.__data.alternateMaterial = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.alternateMaterial = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
             }
         });
@@ -231,7 +231,7 @@ class MedicinalProductPackagedPackageItem extends Element {
                     this.__data.device = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.device = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
             }
         });
@@ -250,7 +250,7 @@ class MedicinalProductPackagedPackageItem extends Element {
                     this.__data.manufacturedItem = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.manufacturedItem = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
             }
         });
@@ -287,7 +287,7 @@ class MedicinalProductPackagedPackageItem extends Element {
                     this.__data.physicalCharacteristics = undefined;
                     return;
                 }
-                let ProdCharacteristic = require('../backbone_elements/prodCharacteristic.js');
+                const ProdCharacteristic = require('../backbone_elements/prodCharacteristic.js');
                 this.__data.physicalCharacteristics = new ProdCharacteristic(valueProvided);
             }
         });
@@ -306,7 +306,7 @@ class MedicinalProductPackagedPackageItem extends Element {
                     this.__data.otherCharacteristics = undefined;
                     return;
                 }
-                let CodeableConcept = require('../complex_types/codeableConcept.js');
+                const CodeableConcept = require('../complex_types/codeableConcept.js');
                 this.__data.otherCharacteristics = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
             }
         });
@@ -325,7 +325,7 @@ class MedicinalProductPackagedPackageItem extends Element {
                     this.__data.shelfLifeStorage = undefined;
                     return;
                 }
-                let ProductShelfLife = require('../backbone_elements/productShelfLife.js');
+                const ProductShelfLife = require('../backbone_elements/productShelfLife.js');
                 this.__data.shelfLifeStorage = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ProductShelfLife(v)) : [new ProductShelfLife(valueProvided)];
             }
         });
@@ -344,7 +344,7 @@ class MedicinalProductPackagedPackageItem extends Element {
                     this.__data.manufacturer = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.manufacturer = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
             }
         });
@@ -398,6 +398,28 @@ class MedicinalProductPackagedPackageItem extends Element {
             shelfLifeStorage: this.shelfLifeStorage && this.shelfLifeStorage.map(v => v.toJSON()),
             manufacturer: this.manufacturer && this.manufacturer.map(v => v.toJSON()),
         });
+    }
+
+    /**
+     * Returns JSON representation of entity
+     * @param {function(Reference): Reference} fnUpdateReference
+     * @return {void}
+     */
+    updateReferences({fnUpdateReference}) {
+            if (this.extension) {this.extension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.identifier) {this.identifier.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.type) {this.type.updateReferences({fnUpdateReference});}
+            if (this.quantity) {this.quantity.updateReferences({fnUpdateReference});}
+            if (this.material) {this.material.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.alternateMaterial) {this.alternateMaterial.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.device) {this.device.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.manufacturedItem) {this.manufacturedItem.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.packageItem) {this.packageItem.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.physicalCharacteristics) {this.physicalCharacteristics.updateReferences({fnUpdateReference});}
+            if (this.otherCharacteristics) {this.otherCharacteristics.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.shelfLifeStorage) {this.shelfLifeStorage.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.manufacturer) {this.manufacturer.forEach(v => v.updateReferences({fnUpdateReference}));}
     }
 
     /**

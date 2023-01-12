@@ -1,6 +1,7 @@
 {
   "entry": [
     {
+      "id": "1003059437",
       "resource": {
         "active": true,
         "communication": [
@@ -1394,5 +1395,6 @@
     }
   ],
   "resourceType": "Bundle",
-  "type": "collection"
+  "total": 1,
+  "type": "searchset"
 }

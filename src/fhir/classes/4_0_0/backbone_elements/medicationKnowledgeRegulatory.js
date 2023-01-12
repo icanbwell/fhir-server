@@ -69,7 +69,7 @@ class MedicationKnowledgeRegulatory extends Element {
                     this.__data.extension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -100,7 +100,7 @@ class MedicationKnowledgeRegulatory extends Element {
                     this.__data.modifierExtension = undefined;
                     return;
                 }
-                let Extension = require('../extensions/extension.js');
+                const Extension = require('../complex_types/extension.js');
                 this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
             }
         });
@@ -119,7 +119,7 @@ class MedicationKnowledgeRegulatory extends Element {
                     this.__data.regulatoryAuthority = undefined;
                     return;
                 }
-                let Reference = require('../complex_types/reference.js');
+                const Reference = require('../complex_types/reference.js');
                 this.__data.regulatoryAuthority = new Reference(valueProvided);
             }
         });
@@ -139,7 +139,7 @@ class MedicationKnowledgeRegulatory extends Element {
                     this.__data.substitution = undefined;
                     return;
                 }
-                let MedicationKnowledgeSubstitution = require('../backbone_elements/medicationKnowledgeSubstitution.js');
+                const MedicationKnowledgeSubstitution = require('../backbone_elements/medicationKnowledgeSubstitution.js');
                 this.__data.substitution = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new MedicationKnowledgeSubstitution(v)) : [new MedicationKnowledgeSubstitution(valueProvided)];
             }
         });
@@ -158,7 +158,7 @@ class MedicationKnowledgeRegulatory extends Element {
                     this.__data.schedule = undefined;
                     return;
                 }
-                let MedicationKnowledgeSchedule = require('../backbone_elements/medicationKnowledgeSchedule.js');
+                const MedicationKnowledgeSchedule = require('../backbone_elements/medicationKnowledgeSchedule.js');
                 this.__data.schedule = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new MedicationKnowledgeSchedule(v)) : [new MedicationKnowledgeSchedule(valueProvided)];
             }
         });
@@ -178,7 +178,7 @@ class MedicationKnowledgeRegulatory extends Element {
                     this.__data.maxDispense = undefined;
                     return;
                 }
-                let MedicationKnowledgeMaxDispense = require('../backbone_elements/medicationKnowledgeMaxDispense.js');
+                const MedicationKnowledgeMaxDispense = require('../backbone_elements/medicationKnowledgeMaxDispense.js');
                 this.__data.maxDispense = new MedicationKnowledgeMaxDispense(valueProvided);
             }
         });
@@ -216,6 +216,20 @@ class MedicationKnowledgeRegulatory extends Element {
             schedule: this.schedule && this.schedule.map(v => v.toJSON()),
             maxDispense: this.maxDispense && this.maxDispense.toJSON(),
         });
+    }
+
+    /**
+     * Returns JSON representation of entity
+     * @param {function(Reference): Reference} fnUpdateReference
+     * @return {void}
+     */
+    updateReferences({fnUpdateReference}) {
+            if (this.extension) {this.extension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.modifierExtension) {this.modifierExtension.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.regulatoryAuthority) {this.regulatoryAuthority.updateReferences({fnUpdateReference});}
+            if (this.substitution) {this.substitution.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.schedule) {this.schedule.forEach(v => v.updateReferences({fnUpdateReference}));}
+            if (this.maxDispense) {this.maxDispense.updateReferences({fnUpdateReference});}
     }
 
     /**
