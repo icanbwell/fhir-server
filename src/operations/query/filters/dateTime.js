@@ -1,85 +1,8 @@
-const {dateQueryBuilder, dateQueryBuilderNative} = require('../../../utils/querybuilder.util');
+const {dateQueryBuilder, dateQueryBuilderNative, datetimePeriodQueryBuilder} = require('../../../utils/querybuilder.util');
 const {isColumnDateType} = require('../../common/isColumnDateType');
 
 function isPeriodField(fieldString) {
     return fieldString === 'period' || fieldString === 'effectivePeriod';
-}
-
-/**
- * filters by date for a Period
- * https://www.hl7.org/fhir/search.html#date
- * https://www.hl7.org/fhir/search.html#prefix
- * @param {string} dateQueryItem
- * @param {string} fieldName
- * @returns {Object[]}
- */
-function datetimePeriodQueryBuilder({ dateQueryItem, fieldName }) {
-    // eslint-disable-next-line security/detect-unsafe-regex
-    const regex = /([a-z]+)(.+)/;
-    const match = dateQueryItem.match(regex);
-
-    const [prefix, date] = (match && match.length >= 1 && match[1]) ?
-        [match[1], dateQueryItem.slice(match[1].length)] :
-        ['eq', dateQueryItem];
-
-    // Build query for period.start
-    let startQuery = {};
-    switch (prefix) {
-        case 'eq':
-        case 'le':
-        case 'lt':
-            startQuery = dateQueryBuilder({
-                date: `le${date}`,
-                type: 'date'
-            });
-            break;
-        case 'sa':
-            startQuery = dateQueryBuilder({
-                date: `ge${date}`,
-                type: 'date'
-            });
-            break;
-        case 'ge':
-        case 'gt':
-        case 'eb':
-            startQuery = {
-                $ne: null
-            };
-            break;
-    }
-    startQuery = { [`${fieldName}.start`]: startQuery };
-
-    // Build query for period.end
-    let endQuery = {};
-    switch (prefix) {
-        case 'eq':
-        case 'ge':
-        case 'gt':
-            endQuery = {
-                $or: [
-                    {
-                        [`${fieldName}.end`]: dateQueryBuilder({
-                            date: `ge${date}`,
-                            type: 'date'
-                        })
-                    },
-                    {
-                        [`${fieldName}.end`]: null
-                    }
-                ]
-            };
-            break;
-        case 'eb':
-            endQuery = {
-                [`${fieldName}.end`]: dateQueryBuilder({
-                    date: `le${date}`,
-                    type: 'date'
-                })
-            };
-            break;
-    }
-
-    return [startQuery, endQuery];
 }
 
 /**
