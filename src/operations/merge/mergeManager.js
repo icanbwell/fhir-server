@@ -305,13 +305,11 @@ class MergeManager {
                             resourceToMerge, currentResource, user, scope, currentDate, requestId
                         }
                     );
-                    this.databaseBulkLoader.updateResourceInExistingList({requestId, resource: resourceToMerge});
                 } else {
                     await this.mergeInsertAsync({
                         requestId,
                         resourceToMerge, base_version, user, scope
                     });
-                    this.databaseBulkLoader.addResourceToExistingList({requestId, resource: resourceToMerge});
                 }
             } catch (e) {
                 logError({
