@@ -49,10 +49,10 @@ function filterByString({queryParameterValue, propertyObj, columns}) {
     const andSegments = [];
 
     // If the field type is HumanName, use name query builder to apply the search in all the HumanName attributes.
-    if (propertyObj?.field === 'name') {
+    if (propertyObj?.fieldType?.toLowerCase() === 'humanname') {
         const ors = nameQueryBuilder({ target: queryParameterValue });
         andSegments.push({ $or: ors });
-        ['text', 'family', 'given', 'suffix', 'prefix'].forEach(columns.add, columns);
+        ['name.text', 'name.family', 'name.given', 'name.suffix', 'name.prefix'].forEach(columns.add, columns);
         return andSegments;
     }
 
