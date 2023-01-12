@@ -115,7 +115,7 @@ class R4SearchQueryCreator {
         let totalAndSegments = [];
 
         // Represents type of search to be conducted strict or lenient
-        const handlingType = args['handling']
+        const handlingType = args['handling'];
         delete args['handling'];
 
         for (const argName in args) {
