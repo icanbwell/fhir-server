@@ -52,7 +52,10 @@ function filterByString({queryParameterValue, propertyObj, columns}) {
     if (propertyObj?.fieldType?.toLowerCase() === 'humanname') {
         const ors = nameQueryBuilder({ target: queryParameterValue });
         andSegments.push({ $or: ors });
-        ['name.text', 'name.family', 'name.given', 'name.suffix', 'name.prefix'].forEach(columns.add, columns);
+        [
+            `${propertyObj.field}.text`, `${propertyObj.field}.family`, `${propertyObj.field}.given`,
+            `${propertyObj.field}.suffix`, `${propertyObj.field}.prefix`
+        ].forEach(columns.add, columns);
         return andSegments;
     }
 
