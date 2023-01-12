@@ -114,6 +114,10 @@ class R4SearchQueryCreator {
          */
         let totalAndSegments = [];
 
+        // Represents type of search to be conducted strict or lenient
+        const handlingType = args['handling']
+        delete args['handling'];
+
         for (const argName in args) {
             const [queryParameter, ...modifiers] = argName.split(':');
 
@@ -124,7 +128,7 @@ class R4SearchQueryCreator {
             if (!propertyObj) {
                 // In case of an unrecognized argument while searching and handling type is strict throw an error.
                 // https://www.hl7.org/fhir/search.html#errors
-                if (args['handling'] === STRICT_SEARCH_HANDLING && SPECIFIED_QUERY_PARAMS.indexOf(queryParameter) === -1) {
+                if (handlingType === STRICT_SEARCH_HANDLING && SPECIFIED_QUERY_PARAMS.indexOf(queryParameter) === -1) {
                     throw new BadRequestError(new Error(`${queryParameter} is not a parameter for ${resourceType}`));
                 }
                 continue;
