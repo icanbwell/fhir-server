@@ -93,6 +93,21 @@ class ResourceMerger {
         let patchContent = compare(currentResource.toJSON(), mergedObject);
         // ignore any changes to _id since that's an internal field
         patchContent = patchContent.filter(item => item.path !== '/_id');
+        // or any changes to id
+        patchContent = patchContent.filter(item => item.path !== '/id');
+        // or any changes to uuid
+        patchContent = patchContent.filter(
+            item => !(
+                item.path.startsWith('/identifier') && item.value && item.value.system === IdentifierSystem.uuid
+            )
+        );
+        // or any changes to sourceId
+        patchContent = patchContent.filter(
+            item => !(
+                item.path.startsWith('/identifier') && item.value && item.value.system === IdentifierSystem.sourceId
+            )
+        );
+
         // see if there are any changes
         if (patchContent.length === 0) {
             return {updatedResource: null, patches: null};
