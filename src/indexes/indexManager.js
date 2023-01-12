@@ -326,7 +326,7 @@ class IndexManager {
             const indexesMatchingByName = indexesToCreate.indexes.filter(
                 i => i.options.name === indexConfig.options.name
             );
-            if (indexesMatchingByName.length >= 0 || indexConfig.options.name === '_id_') {
+            if (indexesMatchingByName.length > 0 || indexConfig.options.name === '_id_') {
                 if (!filterToProblems) {
                     compareIndexesResult.indexes.push(
                         {

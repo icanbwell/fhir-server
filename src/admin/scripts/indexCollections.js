@@ -33,7 +33,8 @@ async function main() {
             useAuditDatabase: parameters.audit ? true : false,
             includeHistoryCollections: parameters.includeHistoryCollections ? true : false,
             adminLogger: new AdminLogger(),
-            synchronizeIndexes: parameters.synchronize ? true : false
+            synchronizeIndexes: parameters.synchronize ? true : false,
+            mongoDatabaseManager: c.mongoDatabaseManager,
         }));
 
     /**
