@@ -56,10 +56,9 @@ function filterByString({queryParameterValue, propertyObj, columns}) {
     }
 
     // If he field is adress, use address query builder to apply the search in all address attributes
-    if (propertyObj?.field === 'address') {
+    if (propertyObj?.fieldType?.toLowerCase() === 'address') {
         const ors = addressQueryBuilder({ target: queryParameterValue });
         andSegments.push({ $or: ors });
-        ['line', 'city', 'district', 'state', 'postalCode', 'country'].forEach(columns.add, columns);
         return andSegments;
     }
 
