@@ -1,4 +1,5 @@
 const { nameQueryBuilder, addressQueryBuilder } = require('../../../utils/querybuilder.util');
+
 /**
  * Get query segment for a single field
  * @param {string} field
