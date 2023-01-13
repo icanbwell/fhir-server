@@ -121,6 +121,39 @@ describe('Person Tests', () => {
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedPersonResources);
+        });
+
+        test('search_by_name with handling type as lenient', async () => {
+            const request = await createTestRequest();
+
+            // add the resources to FHIR server
+            let resp = await request
+                .post('/4_0_0/Person/1/$merge?validate=true')
+                .send(person1Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
+
+            resp = await request
+                .post('/4_0_0/Person/2/$merge?validate=true')
+                .send(person2Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
+
+            resp = await request
+                .post('/4_0_0/Person/3/$merge?validate=true')
+                .send(person3Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
+
+            resp = await request
+                .post('/4_0_0/Person/4/$merge?validate=true')
+                .send(person4Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
 
             // Search with invalid query parameters and handling type is lenient
             // Should return all the person resources
@@ -131,6 +164,24 @@ describe('Person Tests', () => {
                 .set(lenientHeader);
             expect(resp.status).toBe(200);
             expect(resp).toHaveResponse(expectedPersonWithLenientSearchResource);
+        });
+
+        test('search_by_name but handling type as strict', async () => {
+            const request = await createTestRequest();
+            // add the resources to FHIR server
+            let resp = await request
+                .post('/4_0_0/Person/1/$merge?validate=true')
+                .send(person1Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
+
+            resp = await request
+                .post('/4_0_0/Person/2/$merge?validate=true')
+                .send(person2Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
 
             // Search with invalid query parameters and handlig type as strict
             // Should return an error as fname is not a valid query param for Person
