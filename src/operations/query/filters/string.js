@@ -1,5 +1,4 @@
-const { nameQueryBuilder } = require('../../../utils/querybuilder.util');
-
+const { nameQueryBuilder, addressQueryBuilder } = require('../../../utils/querybuilder.util');
 /**
  * Get query segment for a single field
  * @param {string} field
@@ -53,6 +52,14 @@ function filterByString({queryParameterValue, propertyObj, columns}) {
         const ors = nameQueryBuilder({ target: queryParameterValue });
         andSegments.push({ $or: ors });
         ['text', 'family', 'given', 'suffix', 'prefix'].forEach(columns.add, columns);
+        return andSegments;
+    }
+
+    // If he field is adress, use address query builder to apply the search in all address attributes
+    if (propertyObj?.field === 'address') {
+        const ors = addressQueryBuilder({ target: queryParameterValue });
+        andSegments.push({ $or: ors });
+        ['line', 'city', 'district', 'state', 'postalCode', 'country'].forEach(columns.add, columns);
         return andSegments;
     }
 
