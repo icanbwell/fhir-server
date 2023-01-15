@@ -152,7 +152,8 @@ class R4SearchQueryCreator {
                     /** @type {import('mongodb').Filter<import('mongodb').DefaultSchema>[]} */
                     andSegments
                 } = this.getColumnsAndSegmentsForParameterType({
-                    resourceType, queryParameter, queryParameterValue, propertyObj
+                    resourceType, queryParameter, queryParameterValue, propertyObj,
+                    enableGlobalIdSupport: this.configManager.enableGlobalIdSupport
                 });
 
                 // replace andSegments according to modifiers
@@ -215,6 +216,7 @@ class R4SearchQueryCreator {
      * @param {string} queryParameter
      * @param {string} queryParameterValue
      * @param {SearchParameterDefinition} propertyObj
+     * @param {boolean} enableGlobalIdSupport
      * @returns {{columns: Set, andSegments: import('mongodb').Filter<import('mongodb').DefaultSchema>[]}} columns and andSegments for query parameter
      */
     getColumnsAndSegmentsForParameterType(
@@ -222,7 +224,8 @@ class R4SearchQueryCreator {
             resourceType,
             queryParameter,
             queryParameterValue,
-            propertyObj
+            propertyObj,
+            enableGlobalIdSupport
         }
     ) {
         /**
@@ -244,7 +247,8 @@ class R4SearchQueryCreator {
         if (queryParameter === '_id') {
             // handle id differently since it is a token, but we want to do exact match
             andSegments = filterById({
-                queryParameterValue, propertyObj, columns
+                queryParameterValue, propertyObj, columns,
+                enableGlobalIdSupport
             });
         } else {
             switch (propertyObj.type) {

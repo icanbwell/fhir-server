@@ -14,6 +14,13 @@ const {
 } = require('../../common');
 const {describe, beforeEach, afterEach, test} = require('@jest/globals');
 const {IdentifierSystem} = require('../../../utils/identifierSystem');
+const {ConfigManager} = require('../../../utils/configManager');
+
+class MockConfigManager extends ConfigManager {
+    get enableGlobalIdSupport() {
+        return true;
+    }
+}
 
 describe('Practitioner Tests', () => {
     beforeEach(async () => {
@@ -26,7 +33,10 @@ describe('Practitioner Tests', () => {
 
     describe('Practitioner search by uuid Tests', () => {
         test('search by uuid works for single resource', async () => {
-            const request = await createTestRequest();
+            const request = await createTestRequest((c) => {
+                c.register('configManager', () => new MockConfigManager());
+                return c;
+            });
             // ARRANGE
             // add the resources to FHIR server
             let resp = await request
@@ -53,7 +63,10 @@ describe('Practitioner Tests', () => {
             expect(resp).toHaveResponse(expectedPractitionerResources);
         });
         test('search by uuid works for multiple resources', async () => {
-            const request = await createTestRequest();
+            const request = await createTestRequest((c) => {
+                c.register('configManager', () => new MockConfigManager());
+                return c;
+            });
             // ARRANGE
             // add the resources to FHIR server
             let resp = await request

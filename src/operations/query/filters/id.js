@@ -8,9 +8,17 @@ const uuidFieldName = '_uuid';
  * @param {string | string[]} queryParameterValue
  * @param {SearchParameterDefinition} propertyObj
  * @param {Set} columns
+ * @param {boolean} enableGlobalIdSupport
  * @return {import('mongodb').Filter<import('mongodb').DefaultSchema>[]}
  */
-function filterById({queryParameterValue, propertyObj, columns}) {
+function filterById(
+    {
+        queryParameterValue,
+        propertyObj,
+        columns,
+        enableGlobalIdSupport
+    }
+) {
     /**
      * @type {Object[]}
      */
@@ -27,6 +35,14 @@ function filterById({queryParameterValue, propertyObj, columns}) {
      * @param {string[]} idAndUuidList
      */
     function getIdFilterForArray({idAndUuidList}) {
+        if (!enableGlobalIdSupport) {
+            and_segments.push({
+                [`${field}`]: {
+                    $in: idAndUuidList,
+                },
+            });
+            return;
+        }
         // see which ids are uuid
         /**
          * @type {string[]}
@@ -75,7 +91,7 @@ function filterById({queryParameterValue, propertyObj, columns}) {
         const value_list = queryParameterValue.split(',');
         getIdFilterForArray({idAndUuidList: value_list});
     } else {
-        if (isUuid(queryParameterValue)) {
+        if (enableGlobalIdSupport && isUuid(queryParameterValue)) {
             field = uuidFieldName;
         }
         // single value is passed
