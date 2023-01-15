@@ -6,7 +6,7 @@ const {referenceQueryBuilder} = require('../../../utils/querybuilder.util');
  * @param {SearchParameterDefinition} propertyObj
  * @param {string | string[]} queryParameterValue
  * @param {Set} columns
- * @return {Object[]}
+ * @return {import('mongodb').Filter<import('mongodb').DefaultSchema>[]}
  */
 function filterByReference({propertyObj, queryParameterValue, columns}) {
     /**

@@ -6,7 +6,7 @@ const {tokenQueryBuilder, exactMatchQueryBuilder} = require('../../../utils/quer
  * @param {string | string[]} queryParameterValue
  * @param {SearchParameterDefinition} propertyObj
  * @param {Set} columns
- * @returns {Object[]}
+ * @returns {import('mongodb').Filter<import('mongodb').DefaultSchema>[]}
  */
 function filterByToken({queryParameterValue, propertyObj, columns}) {
     /**

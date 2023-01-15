@@ -7,7 +7,7 @@ const {partialTextQueryBuilder} = require('../../../utils/querybuilder.util');
  * @param {string} queryParameter
  * @param {SearchParameterDefinition} propertyObj
  * @param {Set} columns
- * @return {Object[]}
+ * @return {import('mongodb').Filter<import('mongodb').DefaultSchema>[]}
  */
 function filterByPartialText({args, queryParameter, propertyObj, columns}) {
     /**

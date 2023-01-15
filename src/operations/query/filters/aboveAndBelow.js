@@ -4,7 +4,7 @@
  * @param {SearchParameterDefinition} propertyObj
  * @param {string} queryParameterValue
  * @param {Set} columns
- * @return {Object[]}
+ * @return {import('mongodb').Filter<import('mongodb').DefaultSchema>[]}
  */
 function filterByAbove({propertyObj, queryParameterValue, columns}) {
     /**

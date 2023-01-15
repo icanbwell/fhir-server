@@ -12,7 +12,7 @@ const {escapeRegExp} = require('../../../utils/regexEscaper');
  * @param {SearchParameterDefinition} propertyObj
  * @param {string} queryParameterValue
  * @param {Set} columns
- * @return {Object[]}
+ * @return {import('mongodb').Filter<import('mongodb').DefaultSchema>[]}
  */
 function filterByContains({propertyObj, queryParameterValue, columns}) {
     /**

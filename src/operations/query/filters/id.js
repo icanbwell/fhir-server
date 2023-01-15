@@ -8,7 +8,7 @@ const uuidFieldName = '_uuid';
  * @param {string | string[]} queryParameterValue
  * @param {SearchParameterDefinition} propertyObj
  * @param {Set} columns
- * @return {Object[]}
+ * @return {import('mongodb').Filter<import('mongodb').DefaultSchema>[]}
  */
 function filterById({queryParameterValue, propertyObj, columns}) {
     /**

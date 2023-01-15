@@ -146,7 +146,12 @@ class R4SearchQueryCreator {
 
             if (queryParameterValue) {
 
-                let {columns, andSegments} = this.getColumnsAndSegmentsForParameterType({
+                let {
+                    /** @type {Set} */
+                    columns,
+                    /** @type {import('mongodb').Filter<import('mongodb').DefaultSchema>[]} */
+                    andSegments
+                } = this.getColumnsAndSegmentsForParameterType({
                     resourceType, queryParameter, queryParameterValue, propertyObj
                 });
 
@@ -210,7 +215,7 @@ class R4SearchQueryCreator {
      * @param {string} queryParameter
      * @param {string} queryParameterValue
      * @param {SearchParameterDefinition} propertyObj
-     * @returns {{columns: Set, andSegments: Object[]}} columns and andSegments for query parameter
+     * @returns {{columns: Set, andSegments: import('mongodb').Filter<import('mongodb').DefaultSchema>[]}} columns and andSegments for query parameter
      */
     getColumnsAndSegmentsForParameterType(
         {
@@ -230,7 +235,7 @@ class R4SearchQueryCreator {
         /**
          * and segments
          * these are combined to create the query
-         * @type {Object[]}
+         * @type {import('mongodb').Filter<import('mongodb').DefaultSchema>[]}
          */
         let andSegments = [];
 

@@ -4,7 +4,7 @@ const { nameQueryBuilder } = require('../../../utils/querybuilder.util');
  * Get query segment for a single field
  * @param {string} field
  * @param {string | string[]} queryParameterValue
- * @return {Object}
+ * @return {import('mongodb').Filter<import('mongodb').DefaultSchema>}
  */
 function getSingleFieldSegment(field, queryParameterValue) {
     return {
@@ -19,7 +19,7 @@ function getSingleFieldSegment(field, queryParameterValue) {
  * Get query segment for a single field
  * @param {string[]} fields
  * @param {string | string[]} queryParameterValue
- * @return {Object}
+ * @return {import('mongodb').Filter<import('mongodb').DefaultSchema>}
  */
 function getMultiFieldSegment(fields, queryParameterValue) {
     return {
@@ -40,7 +40,7 @@ function getMultiFieldSegment(fields, queryParameterValue) {
  * @param {string | string[]} queryParameterValue
  * @param {SearchParameterDefinition} propertyObj
  * @param {Set} columns
- * @return {Object[]}
+ * @return {import('mongodb').Filter<import('mongodb').DefaultSchema>[]}
  */
 function filterByString({queryParameterValue, propertyObj, columns}) {
     /**

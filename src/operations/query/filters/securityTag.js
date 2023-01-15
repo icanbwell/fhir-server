@@ -8,7 +8,7 @@ const {SecurityTagSystem} = require('../../../utils/securityTagSystem');
  * @param {SearchParameterDefinition} propertyObj
  * @param {Set} columns
  * @param {function(code): boolean} fnUseAccessIndex function that returns whether to use access index for this code
- * @returns {Object[]}
+ * @returns {import('mongodb').Filter<import('mongodb').DefaultSchema>[]}
  */
 function filterBySecurityTag(
     {

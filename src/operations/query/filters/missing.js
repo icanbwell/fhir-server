@@ -7,7 +7,7 @@ const {isTrue} = require('../../../utils/isTrue');
  * @param {string} queryParameter
  * @param {SearchParameterDefinition} propertyObj
  * @param {Set} columns
- * @return {Object[]}
+ * @return {import('mongodb').Filter<import('mongodb').DefaultSchema>[]}
  */
 function filterByMissing({args, queryParameter, propertyObj, columns}) {
     /**

@@ -12,7 +12,7 @@ function isPeriodField(fieldString) {
  * @param {SearchParameterDefinition} propertyObj
  * @param {string} resourceType
  * @param {Set} columns
- * @returns {Object[]}
+ * @returns {import('mongodb').Filter<import('mongodb').DefaultSchema>[]}
  */
 function filterByDateTime({queryParameterValue, propertyObj, resourceType, columns}) {
     /**
