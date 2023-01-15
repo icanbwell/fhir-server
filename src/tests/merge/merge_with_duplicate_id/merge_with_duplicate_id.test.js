@@ -4,6 +4,7 @@ const observation2Resource = require('./fixtures/Observation/observation2.json')
 
 // expected
 const expectedObservationResources = require('./fixtures/expected/expected_observation.json');
+const expectedObservationAllResources = require('./fixtures/expected/expected_observation_all.json');
 
 const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest} = require('../../common');
 const {describe, beforeEach, afterEach, test} = require('@jest/globals');
@@ -47,7 +48,12 @@ describe('Observation Tests', () => {
             expect(resp).toHaveMergeResponse({created: true});
 
             // ACT & ASSERT
-            // search by token system and code and make sure we get the right Observation back
+            resp = await request
+                .get('/4_0_0/Observation/?_bundle=1')
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedObservationAllResources);
+
             resp = await request
                 .get('/4_0_0/Observation/?_bundle=1&id=1&_security=https://www.icanbwell.com/owner|C')
                 .set(getHeaders());

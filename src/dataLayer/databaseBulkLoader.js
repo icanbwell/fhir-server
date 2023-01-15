@@ -67,9 +67,14 @@ class DatabaseBulkLoader {
              * Load all specified resource groups in async
              * @type {{resources: Resource[], resourceType: string}[]}
              */
-            const result = await async.map(Object.entries(groupByResourceType), async x => await this.getResourcesAsync({
-                requestId, base_version, resourceType: x[0], resources: x[1]
-            }));
+            const result = await async.map(
+                Object.entries(groupByResourceType),
+                async x => await this.getResourcesAsync(
+                    {
+                        requestId, base_version, resourceType: x[0], resources: x[1]
+                    }
+                )
+            );
             /**
              * @type {Map<string, Resource[]>}
              */
@@ -172,75 +177,46 @@ class DatabaseBulkLoader {
          */
         const cacheEntryResources = bulkCache.get(resourceType);
         if (cacheEntryResources) {
-            /**
-             * @type {Resource[]}
-             */
-            let matchingResources = cacheEntryResources.filter(
-                resource => resource.id === id.toString()
+            return this.getMatchingResource(
+                {
+                    cacheEntryResources, id, securityTagStructure
+                }
             );
-            if (this.configManager.enableGlobalIdSupport) {
-                // match if sourceAssigningAuthority or owner tag matches
-                matchingResources = cacheEntryResources.filter(
-                    resource =>
-                        securityTagStructure.matchesOnSourceAssigningAuthority(
-                            {
-                                other: SecurityTagStructure.fromResource(
-                                    {
-                                        resource
-                                    }
-                                )
-                            }
-                        )
-                );
-            }
-            return getFirstResourceOrNull(matchingResources);
         } else {
             return null;
         }
     }
 
     /**
-     * Adds a new resource to the cache
-     * @param {string} requestId
-     * @param {Resource} resource
+     * Gets matching resources from list
+     * @param {Resource[]} cacheEntryResources
+     * @param {string} id
+     * @param {SecurityTagStructure} securityTagStructure
+     * @return {Resource|null}
      */
-    addResourceToExistingList({requestId, resource}) {
-        const bulkCache = this.getBulkCache({requestId});
+    getMatchingResource({cacheEntryResources, id, securityTagStructure}) {
         /**
          * @type {Resource[]}
          */
-        let cacheEntryResources = bulkCache.get(resource.resourceType);
-        const resourceCopy = resource.clone(); // copy to avoid someone changing this object in the future
-        if (cacheEntryResources) {
-            // remove the resource with same id
-            cacheEntryResources = cacheEntryResources.filter(c => c.id !== resource.id);
-            cacheEntryResources.push(resourceCopy);
-            bulkCache.set(resource.resourceType, cacheEntryResources);
-        } else {
-            bulkCache.set(resource.resourceType, [resourceCopy]);
+        let matchingResources = cacheEntryResources.filter(
+            resource => resource.id === id.toString()
+        );
+        if (this.configManager.enableGlobalIdSupport) {
+            // match if sourceAssigningAuthority or owner tag matches
+            matchingResources = cacheEntryResources.filter(
+                resource =>
+                    securityTagStructure.matchesOnSourceAssigningAuthority(
+                        {
+                            other: SecurityTagStructure.fromResource(
+                                {
+                                    resource
+                                }
+                            )
+                        }
+                    )
+            );
         }
-    }
-
-    /**
-     * Updates an existing resource in the cache
-     * @param {string} requestId
-     * @param {Resource} resource
-     */
-    updateResourceInExistingList({requestId, resource}) {
-        const bulkCache = this.getBulkCache({requestId});
-        /**
-         * @type {Resource[]}
-         */
-        let cacheEntryResources = bulkCache.get(resource.resourceType);
-        const resourceCopy = resource.clone(); // copy to avoid someone changing this object in the future
-        if (cacheEntryResources) {
-            // remove the resource with same id
-            cacheEntryResources = cacheEntryResources.filter(c => c.id !== resource.id);
-            cacheEntryResources.push(resourceCopy);
-            bulkCache.set(resource.resourceType, cacheEntryResources);
-        } else {
-            bulkCache.set(resource.resourceType, [resourceCopy]);
-        }
+        return getFirstResourceOrNull(matchingResources);
     }
 }
 
