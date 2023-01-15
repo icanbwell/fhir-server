@@ -1,6 +1,7 @@
 const {isUuid} = require('../../../utils/uid.util');
 
 const uuidFieldName = '_uuid';
+const sourceIdFieldName = '_sourceId';
 
 /**
  * Filters by id
@@ -29,7 +30,7 @@ function filterById(
     /**
      * @type {string}
      */
-    let field = propertyObj.field;
+    let field = enableGlobalIdSupport ? sourceIdFieldName : propertyObj.field;
 
     /**
      * @param {string[]} idAndUuidList
