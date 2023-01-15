@@ -278,7 +278,8 @@ const createContainer = function () {
     container.register('databaseBulkLoader', (c) => new DatabaseBulkLoader(
         {
             databaseQueryFactory: c.databaseQueryFactory,
-            requestSpecificCache: c.requestSpecificCache
+            requestSpecificCache: c.requestSpecificCache,
+            configManager: c.configManager
         }));
     container.register('postRequestProcessor', (c) => new PostRequestProcessor(
         {

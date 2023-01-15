@@ -5,6 +5,8 @@ const {assertTypeEquals} = require('../utils/assertType');
 const {RethrownError} = require('../utils/rethrownError');
 const {databaseBulkLoaderTimer} = require('../utils/prometheus.utils');
 const {RequestSpecificCache} = require('../utils/requestSpecificCache');
+const {SecurityTagStructure} = require('../operations/common/securityTagStructure');
+const {ConfigManager} = require('../utils/configManager');
 
 /**
  * This class loads data from Mongo into memory and allows updates to this cache
@@ -14,10 +16,12 @@ class DatabaseBulkLoader {
      * Constructor
      * @param {DatabaseQueryFactory} databaseQueryFactory
      * @param {RequestSpecificCache} requestSpecificCache
+     * @param {ConfigManager} configManager
      */
     constructor({
                     databaseQueryFactory,
-                    requestSpecificCache
+                    requestSpecificCache,
+                    configManager
                 }) {
         /**
          * @type {RequestSpecificCache}
@@ -30,6 +34,15 @@ class DatabaseBulkLoader {
         this.databaseQueryFactory = databaseQueryFactory;
         assertTypeEquals(databaseQueryFactory, DatabaseQueryFactory);
 
+        /**
+         * @type {ConfigManager}
+         */
+        this.configManager = configManager;
+        assertTypeEquals(configManager, ConfigManager);
+
+        /**
+         * @type {string}
+         */
         this.cacheName = 'bulkLoaderCache';
     }
 
@@ -54,18 +67,13 @@ class DatabaseBulkLoader {
              * Load all specified resource groups in async
              * @type {{resources: Resource[], resourceType: string}[]}
              */
-            const result = await async.map(
-                Object.entries(groupByResourceType),
-                async x => await this.getResourcesAsync(
-                    {
-                        requestId,
-                        base_version,
-                        resourceType: x[0],
-                        resources: x[1]
-                    }
-                )
-            );
-            const bulkCache = this.requestSpecificCache.getMap({requestId, name: this.cacheName});
+            const result = await async.map(Object.entries(groupByResourceType), async x => await this.getResourcesAsync({
+                requestId, base_version, resourceType: x[0], resources: x[1]
+            }));
+            /**
+             * @type {Map<string, Resource[]>}
+             */
+            const bulkCache = this.getBulkCache({requestId});
             // Now add them to our cache
             for (const {resourceType, resources} of result) {
                 bulkCache.set(resourceType, resources);
@@ -76,6 +84,15 @@ class DatabaseBulkLoader {
                 error: e
             });
         }
+    }
+
+    /**
+     * Gets bulk cache
+     * @param {string} requestId
+     * @returns {Map<string, Resource[]>}
+     */
+    getBulkCache({requestId}) {
+        return this.requestSpecificCache.getMap({requestId, name: this.cacheName});
     }
 
     /**
@@ -91,9 +108,7 @@ class DatabaseBulkLoader {
         // Start the FHIR request timer, saving a reference to the returned method
         const timer = databaseBulkLoaderTimer.startTimer();
         try {
-            const databaseQueryManager = this.databaseQueryFactory.createQuery(
-                {resourceType, base_version}
-            );
+            const databaseQueryManager = this.databaseQueryFactory.createQuery({resourceType, base_version});
             /**
              * cursor
              * @type {DatabasePartitionedCursor}
@@ -146,19 +161,39 @@ class DatabaseBulkLoader {
      * @param {string} requestId
      * @param {string} resourceType
      * @param {string} id
+     * @param {SecurityTagStructure} securityTagStructure
      * @return {null|Resource}
      */
-    getResourceFromExistingList({requestId, resourceType, id}) {
-        const bulkCache = this.requestSpecificCache.getMap({requestId, name: this.cacheName});
+    getResourceFromExistingList({requestId, resourceType, id, securityTagStructure}) {
+        const bulkCache = this.getBulkCache({requestId});
         // see if there is cache for this resourceType
         /**
          * @type {Resource[]}
          */
         const cacheEntryResources = bulkCache.get(resourceType);
         if (cacheEntryResources) {
-            return getFirstResourceOrNull(
-                cacheEntryResources.filter(e => e.id === id.toString())
+            /**
+             * @type {Resource[]}
+             */
+            let matchingResources = cacheEntryResources.filter(
+                resource => resource.id === id.toString()
             );
+            if (this.configManager.enableGlobalIdSupport) {
+                // match if sourceAssigningAuthority or owner tag matches
+                matchingResources = cacheEntryResources.filter(
+                    resource =>
+                        securityTagStructure.matchesOnSourceAssigningAuthority(
+                            {
+                                other: SecurityTagStructure.fromResource(
+                                    {
+                                        resource
+                                    }
+                                )
+                            }
+                        )
+                );
+            }
+            return getFirstResourceOrNull(matchingResources);
         } else {
             return null;
         }
@@ -170,7 +205,7 @@ class DatabaseBulkLoader {
      * @param {Resource} resource
      */
     addResourceToExistingList({requestId, resource}) {
-        const bulkCache = this.requestSpecificCache.getMap({requestId, name: this.cacheName});
+        const bulkCache = this.getBulkCache({requestId});
         /**
          * @type {Resource[]}
          */
@@ -192,7 +227,7 @@ class DatabaseBulkLoader {
      * @param {Resource} resource
      */
     updateResourceInExistingList({requestId, resource}) {
-        const bulkCache = this.requestSpecificCache.getMap({requestId, name: this.cacheName});
+        const bulkCache = this.getBulkCache({requestId});
         /**
          * @type {Resource[]}
          */
