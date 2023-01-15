@@ -209,10 +209,17 @@ class R4SearchQueryCreator {
      * @param {string} resourceType
      * @param {string} queryParameter
      * @param {string} queryParameterValue
-     * @param {Object} propertyObj
+     * @param {SearchParameterDefinition} propertyObj
      * @returns {{columns: Set, andSegments: Object[]}} columns and andSegments for query parameter
      */
-    getColumnsAndSegmentsForParameterType({resourceType, queryParameter, queryParameterValue, propertyObj}) {
+    getColumnsAndSegmentsForParameterType(
+        {
+            resourceType,
+            queryParameter,
+            queryParameterValue,
+            propertyObj
+        }
+    ) {
         /**
          * list of columns used in the query for this parameter
          * this is used to pick index hints
