@@ -115,6 +115,9 @@ class R4SearchQueryCreator {
         for (const argName in args) {
             const [queryParameter, ...modifiers] = argName.split(':');
 
+            /**
+             * @type {SearchParameterDefinition}
+             */
             let propertyObj = searchParameterQueries[`${resourceType}`][`${queryParameter}`];
             if (!propertyObj) {
                 propertyObj = searchParameterQueries['Resource'][`${queryParameter}`];

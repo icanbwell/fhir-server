@@ -5,7 +5,7 @@ const {partialTextQueryBuilder} = require('../../../utils/querybuilder.util');
  * https://www.hl7.org/fhir/search.html#modifiers
  * @param {Object} args
  * @param {string} queryParameter
- * @param {import('../../common/types').SearchParameterDefinition} propertyObj
+ * @param {SearchParameterDefinition} propertyObj
  * @param {Set} columns
  * @return {Object[]}
  */

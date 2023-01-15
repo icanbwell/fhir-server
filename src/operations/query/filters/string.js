@@ -38,7 +38,7 @@ function getMultiFieldSegment(fields, queryParameterValue) {
  * Filters by string
  * https://www.hl7.org/fhir/search.html#string
  * @param {string | string[]} queryParameterValue
- * @param {import('../../common/types').SearchParameterDefinition} propertyObj
+ * @param {SearchParameterDefinition} propertyObj
  * @param {Set} columns
  * @return {Object[]}
  */

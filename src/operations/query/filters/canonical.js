@@ -1,7 +1,7 @@
 /**
  * filters by canonical uri
  * https://www.hl7.org/fhir/search.html#uri
- * @param {import('../../common/types').SearchParameterDefinition} propertyObj
+ * @param {SearchParameterDefinition} propertyObj
  * @param {string | string[]} queryParameterValue
  * @param {Set} columns
  * @return {Object[]}

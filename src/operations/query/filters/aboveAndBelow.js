@@ -1,7 +1,7 @@
 /**
  * filters by above FHIR search parameters
  * https://www.hl7.org/fhir/search.html#modifiers
- * @param {import('../../common/types').SearchParameterDefinition} propertyObj
+ * @param {SearchParameterDefinition} propertyObj
  * @param {string} queryParameterValue
  * @param {Set} columns
  * @return {Object[]}

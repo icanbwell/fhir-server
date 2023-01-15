@@ -9,7 +9,7 @@ const {escapeRegExp} = require('../../../utils/regexEscaper');
 /**
  * filters by contains
  * https://www.hl7.org/fhir/search.html#string
- * @param {import('../../common/types').SearchParameterDefinition} propertyObj
+ * @param {SearchParameterDefinition} propertyObj
  * @param {string} queryParameterValue
  * @param {Set} columns
  * @return {Object[]}

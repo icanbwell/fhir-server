@@ -2,7 +2,7 @@
  * Filters by id
  * https://www.hl7.org/fhir/search.html#id
  * @param {string | string[]} queryParameterValue
- * @param {import('../../common/types').SearchParameterDefinition} propertyObj
+ * @param {SearchParameterDefinition} propertyObj
  * @param {Set} columns
  * @return {Object[]}
  */
@@ -11,10 +11,14 @@ function filterById({queryParameterValue, propertyObj, columns}) {
      * @type {Object[]}
      */
     const and_segments = [];
+    /**
+     * @type {string}
+     */
+    const field = propertyObj.field;
     if (Array.isArray(queryParameterValue)) {
         // if array is passed then check in array
         and_segments.push({
-            [`${propertyObj.field}`]: {
+            [`${field}`]: {
                 $in: queryParameterValue,
             },
         });
@@ -22,17 +26,17 @@ function filterById({queryParameterValue, propertyObj, columns}) {
         // see if this is a comma separated list
         const value_list = queryParameterValue.split(',');
         and_segments.push({
-            [`${propertyObj.field}`]: {
+            [`${field}`]: {
                 $in: value_list,
             },
         });
     } else {
         // single value is passed
         and_segments.push({
-            [`${propertyObj.field}`]: queryParameterValue,
+            [`${field}`]: queryParameterValue,
         });
     }
-    columns.add(`${propertyObj.field}`);
+    columns.add(`${field}`);
     return and_segments;
 }
 
