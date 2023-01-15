@@ -1,3 +1,5 @@
+const {isUuid} = require('../../../utils/uid.util');
+
 /**
  * Filters by id
  * https://www.hl7.org/fhir/search.html#id
@@ -14,7 +16,8 @@ function filterById({queryParameterValue, propertyObj, columns}) {
     /**
      * @type {string}
      */
-    const field = propertyObj.field;
+    let field = propertyObj.field;
+
     if (Array.isArray(queryParameterValue)) {
         // if array is passed then check in array
         and_segments.push({
@@ -31,6 +34,9 @@ function filterById({queryParameterValue, propertyObj, columns}) {
             },
         });
     } else {
+        if (isUuid(queryParameterValue)) {
+            field = '_uuid';
+        }
         // single value is passed
         and_segments.push({
             [`${field}`]: queryParameterValue,

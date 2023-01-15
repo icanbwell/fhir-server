@@ -27,11 +27,11 @@ const uuidRegex = new RegExp('[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0
 
 /**
  * Checks whether the provided string is a uuid using regex
- * @param {string} text
+ * @param {string|undefined|null} text
  * @return {boolean}
  */
 function isUuid(text) {
-    return uuidRegex.test(text);
+    return text && uuidRegex.test(text);
 }
 
 
