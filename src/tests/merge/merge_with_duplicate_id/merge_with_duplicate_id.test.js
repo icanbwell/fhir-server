@@ -5,6 +5,7 @@ const observation2Resource = require('./fixtures/Observation/observation2.json')
 // expected
 const expectedObservationResources = require('./fixtures/expected/expected_observation.json');
 const expectedObservationAllResources = require('./fixtures/expected/expected_observation_all.json');
+const expectedObservationAllByIdResources = require('./fixtures/expected/expected_observation_all_by_id.json');
 const expectedObservationsInDatabase = require('./fixtures/expected/expected_observation_in_database.json');
 
 const {
@@ -34,7 +35,7 @@ describe('Observation Tests', () => {
     });
 
     describe('Observation merge_with_duplicate_id Tests', () => {
-        test('merge_with_duplicate_id works', async () => {
+        test('merge_with_duplicate_id adds two resources with same id', async () => {
             const request = await createTestRequest((c) => {
                 c.register('configManager', () => new MockConfigManager());
                 return c;
@@ -99,11 +100,19 @@ describe('Observation Tests', () => {
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedObservationAllResources);
 
+            // search by security tag should only return 1
             resp = await request
                 .get('/4_0_0/Observation/?_bundle=1&id=1&_security=https://www.icanbwell.com/owner|C')
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedObservationResources);
+
+            // search by id but no security tag should return both
+            resp = await request
+                .get('/4_0_0/Observation/?_bundle=1&id=1&_debug=1')
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedObservationAllByIdResources);
         });
     });
 });
