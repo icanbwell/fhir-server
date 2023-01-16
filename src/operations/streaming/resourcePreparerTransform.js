@@ -1,6 +1,7 @@
 const {Transform} = require('stream');
 const {isTrue} = require('../../utils/isTrue');
 const env = require('var');
+const {ResourceWithSecurityTagStructure} = require('../common/resourceWithSecurityTagStructure');
 
 class ResourcePreparerTransform extends Transform {
     /**
@@ -62,7 +63,7 @@ class ResourcePreparerTransform extends Transform {
 
         /**
          * what resources have we already processed
-         * @type {{resourceType: string, id: string}[]}
+         * @type {ResourceWithSecurityTagStructure[]}
          */
         this.resourcesProcessed = [];
     }
@@ -110,25 +111,32 @@ class ResourcePreparerTransform extends Transform {
                 originalArgs: this.originalArgs
             })
             .then(
-                resources => {
+                /** @type {Resource[]} */resources => {
                     if (isTrue(env.LOG_STREAM_STEPS)) {
                         console.log(JSON.stringify({message: 'ResourcePreparerTransform: _transform'}));
                     }
                     if (resources.length > 0) {
-                        for (const resource of resources) {
+                        for (const /** @type {Resource} */ resource of resources) {
+                            /**
+                             * @type {ResourceWithSecurityTagStructure}
+                             */
+                            const resourceWithSecurityTagStructure = new ResourceWithSecurityTagStructure({
+                                resource
+                            });
+                            // Remove any duplicates
                             if (resource &&
-                                !this.resourcesProcessed.some(
-                                    a => a.resourceType === resource.resourceType && a.id === resource.id)
+                                !this.resourcesProcessed.some(a =>
+                                    resourceWithSecurityTagStructure.isSameResourceByIdAndSecurityTag({other: a})
+                                )
                             ) {
                                 if (isTrue(env.LOG_STREAM_STEPS)) {
                                     console.log(JSON.stringify({message: `ResourcePreparerTransform: push ${resource['id']}`}));
                                 }
                                 this.push(resource);
                                 this.resourcesProcessed.push(
-                                    {
-                                        resourceType: resource.resourceType,
-                                        id: resource.id
-                                    }
+                                    new ResourceWithSecurityTagStructure(
+                                        {resource}
+                                    )
                                 );
                             }
                         }

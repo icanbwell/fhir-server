@@ -3,7 +3,7 @@ const observation1Resource = require('./fixtures/Observation/observation1.json')
 const observation2Resource = require('./fixtures/Observation/observation2.json');
 
 // expected
-// const expectedObservationResources = require('./fixtures/expected/expected_observation.json');
+const expectedObservationResources = require('./fixtures/expected/expected_observation.json');
 const expectedObservationAllResources = require('./fixtures/expected/expected_observation_all.json');
 const expectedObservationsInDatabase = require('./fixtures/expected/expected_observation_in_database.json');
 
@@ -90,7 +90,7 @@ describe('Observation Tests', () => {
                 delete resource.meta.lastUpdated;
                 resource._uuid = '11111111-1111-1111-1111-111111111111';
             }
-            // expect(results).toStrictEqual(expectedObservationsInDatabase);
+            expect(results).toStrictEqual(expectedObservationsInDatabase);
 
             // ACT & ASSERT
             resp = await request
@@ -99,11 +99,11 @@ describe('Observation Tests', () => {
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedObservationAllResources);
 
-            // resp = await request
-            //     .get('/4_0_0/Observation/?_bundle=1&id=1&_security=https://www.icanbwell.com/owner|C')
-            //     .set(getHeaders());
-            // // noinspection JSUnresolvedFunction
-            // expect(resp).toHaveResponse(expectedObservationResources);
+            resp = await request
+                .get('/4_0_0/Observation/?_bundle=1&id=1&_security=https://www.icanbwell.com/owner|C')
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedObservationResources);
         });
     });
 });

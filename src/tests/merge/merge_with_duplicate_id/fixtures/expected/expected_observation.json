@@ -5,7 +5,7 @@
         "resourceType": "Observation",
         "id": "1",
         "meta": {
-          "versionId": "2",
+          "versionId": "1",
           "lastUpdated": "2021-12-15T15:30:30+00:00",
           "source": "/patients",
           "security": [
