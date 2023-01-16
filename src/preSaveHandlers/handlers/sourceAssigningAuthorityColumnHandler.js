@@ -1,5 +1,6 @@
 const {PreSaveHandler} = require('./preSaveHandler');
 const {SecurityTagSystem} = require('../../utils/securityTagSystem');
+const Coding = require('../../fhir/classes/4_0_0/complex_types/coding');
 
 class SourceAssigningAuthorityColumnHandler extends PreSaveHandler {
     async preSaveAsync({resource}) {
@@ -13,6 +14,13 @@ class SourceAssigningAuthorityColumnHandler extends PreSaveHandler {
             if (sourceAssigningAuthorityCodes.length === 0) {
                 sourceAssigningAuthorityCodes = resource.meta.security.filter(
                     s => s.system === SecurityTagSystem.owner).map(s => s.code);
+                // add security tags
+                for (const code of sourceAssigningAuthorityCodes) {
+                    resource.meta.security.push(new Coding({
+                        system: SecurityTagSystem.sourceAssigningAuthority,
+                        code: code
+                    }));
+                }
             }
             if (sourceAssigningAuthorityCodes.length > 0) {
                 resource._sourceAssigningAuthority = resource._sourceAssigningAuthority || {};

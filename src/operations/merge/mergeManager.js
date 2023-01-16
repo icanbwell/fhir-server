@@ -646,6 +646,10 @@ class MergeManager {
             if (resourceObjectToValidate.meta && resourceObjectToValidate.meta.lastUpdated) {
                 // noinspection JSValidateTypes
                 resourceObjectToValidate.meta.lastUpdated = new Date(resourceObjectToValidate.meta.lastUpdated).toISOString();
+                // also truncate id to 64 so it passes the validator since we support more than 64 internally
+                if (resourceObjectToValidate.id && resourceObjectToValidate.id.length > 64) {
+                    resourceObjectToValidate.id = resourceObjectToValidate.id.slice(0, 64);
+                }
             }
 
             /**
