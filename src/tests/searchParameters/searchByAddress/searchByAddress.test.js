@@ -36,7 +36,7 @@ describe('Person Tests', () => {
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveMergeResponse([{ created: true }, { created: true }, { created: true }]);
 
-            // search by token system and code and make sure we get the right Medication back
+            // search by address, were address line has been passed as address query parameter
             resp = await request
                 .get('/4_0_0/Person/?address=1%20Main%20St.&_bundle=1')
                 .set(getHeaders());
@@ -55,7 +55,7 @@ describe('Person Tests', () => {
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveMergeResponse([{ created: true }, { created: true }, { created: true }]);
 
-            // search by token system and code and make sure we get the right Medication back
+            // search by address, were country name has been passed as address query parameter
             resp = await request.get('/4_0_0/Person/?address=Berea&_bundle=1').set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedPersonResources2);
@@ -72,7 +72,7 @@ describe('Person Tests', () => {
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveMergeResponse([{ created: true }, { created: true }, { created: true }]);
 
-            // search by token system and code and make sure we get the right Medication back
+            // search by address, were [postal code] has been passed as address query parameter
             resp = await request.get('/4_0_0/Person/?address=50001&_bundle=1').set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedPersonResources3);
@@ -89,7 +89,7 @@ describe('Person Tests', () => {
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveMergeResponse([{ created: true }, { created: true }, { created: true }]);
 
-            // search by token system and code and make sure we get the right Medication back
+            // search by address, with incorrect address has been passed make sure no data is being returned.
             resp = await request.get('/4_0_0/Person/?address=Venice&_bundle=1').set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedPersonResources4);
