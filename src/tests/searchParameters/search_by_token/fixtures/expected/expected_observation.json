@@ -41,6 +41,10 @@
                         {
                             "code": "B",
                             "system": "https://www.icanbwell.com/access"
+                        },
+                        {
+                            "code": "A",
+                            "system": "https://www.icanbwell.com/sourceAssigningAuthority"
                         }
                     ],
                     "source": "/patients",

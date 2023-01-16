@@ -19,6 +19,10 @@
             {
               "code": "medstar",
               "system": "https://www.icanbwell.com/owner"
+            },
+            {
+              "code": "medstar",
+              "system": "https://www.icanbwell.com/sourceAssigningAuthority"
             }
           ],
           "source": "http://medstarhealth.org/provider",

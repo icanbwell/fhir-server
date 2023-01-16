@@ -33,6 +33,10 @@
             },
             {
               "code": "healthsystem1",
+              "system": "https://www.icanbwell.com/sourceAssigningAuthority"
+            },
+            {
+              "code": "healthsystem1",
               "system": "https://www.icanbwell.com/access"
             },
             {
@@ -70,6 +74,10 @@
             {
               "code": "healthsystem1",
               "system": "https://www.icanbwell.com/owner"
+            },
+            {
+              "code": "healthsystem1",
+              "system": "https://www.icanbwell.com/sourceAssigningAuthority"
             }
           ],
           "source": "http://healthsystem1health.org/provider",
@@ -112,6 +120,10 @@
             {
               "code": "medstar",
               "system": "https://www.icanbwell.com/owner"
+            },
+            {
+              "code": "medstar",
+              "system": "https://www.icanbwell.com/sourceAssigningAuthority"
             }
           ],
           "versionId": "1"
@@ -185,6 +197,10 @@
             {
               "code": "bwell",
               "system": "https://www.icanbwell.com/owner"
+            },
+            {
+              "code": "bwell",
+              "system": "https://www.icanbwell.com/sourceAssigningAuthority"
             },
             {
               "code": "bwell",
@@ -270,6 +286,10 @@
             {
               "code": "bwell",
               "system": "https://www.icanbwell.com/owner"
+            },
+            {
+              "code": "bwell",
+              "system": "https://www.icanbwell.com/sourceAssigningAuthority"
             },
             {
               "code": "bwell",

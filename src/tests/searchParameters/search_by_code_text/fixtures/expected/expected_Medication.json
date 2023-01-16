@@ -106,6 +106,10 @@
             {
               "code": "my-companyuat",
               "system": "https://www.icanbwell.com/vendor"
+            },
+            {
+              "code": "my-companyuat",
+              "system": "https://www.icanbwell.com/sourceAssigningAuthority"
             }
           ],
           "source": "https://epicfhir.my-company.org/NonProdFHIR/api/FHIR/R4/metadata",
@@ -221,6 +225,10 @@
             {
               "code": "my-companyuat",
               "system": "https://www.icanbwell.com/vendor"
+            },
+            {
+              "code": "my-companyuat",
+              "system": "https://www.icanbwell.com/sourceAssigningAuthority"
             }
           ],
           "source": "https://epicfhir.my-company.org/NonProdFHIR/api/FHIR/R4/metadata",

@@ -182,6 +182,10 @@
             {
               "code": "thedacare",
               "system": "https://www.icanbwell.com/vendor"
+            },
+            {
+              "code": "thedacare",
+              "system": "https://www.icanbwell.com/sourceAssigningAuthority"
             }
           ],
           "source": "https://data.medstar.com/api/2.0",
@@ -398,6 +402,10 @@
             {
               "code": "thedacare",
               "system": "https://www.icanbwell.com/vendor"
+            },
+            {
+              "code": "thedacare",
+              "system": "https://www.icanbwell.com/sourceAssigningAuthority"
             }
           ],
           "source": "https://data.medstar.com/api/2.0",
@@ -615,6 +623,10 @@
             {
               "code": "medstar",
               "system": "https://www.icanbwell.com/vendor"
+            },
+            {
+              "code": "medstar",
+              "system": "https://www.icanbwell.com/sourceAssigningAuthority"
             }
           ],
           "source": "https://data.medstar.com/api/2.0",

@@ -49,6 +49,10 @@
             {
               "code": "B",
               "system": "https://www.icanbwell.com/access"
+            },
+            {
+              "code": "healthsystem1",
+              "system": "https://www.icanbwell.com/sourceAssigningAuthority"
             }
           ],
           "source": "/patients",
@@ -108,6 +112,10 @@
             {
               "code": "B",
               "system": "https://www.icanbwell.com/access"
+            },
+            {
+              "code": "healthsystem2",
+              "system": "https://www.icanbwell.com/sourceAssigningAuthority"
             }
           ],
           "source": "/patients",

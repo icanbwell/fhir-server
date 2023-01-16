@@ -14,6 +14,10 @@
             {
               "code": "healthsystem2",
               "system": "https://www.icanbwell.com/owner"
+            },
+            {
+              "code": "healthsystem2",
+              "system": "https://www.icanbwell.com/sourceAssigningAuthority"
             }
           ],
           "source": "http://healthsystem1health.org/provider",

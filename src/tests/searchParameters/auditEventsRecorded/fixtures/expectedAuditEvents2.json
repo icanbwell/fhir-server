@@ -183,6 +183,10 @@
             {
               "code": "mixpanel",
               "system": "https://www.icanbwell.com/vendor"
+            },
+            {
+              "code": "mixpanel",
+              "system": "https://www.icanbwell.com/sourceAssigningAuthority"
             }
           ],
           "source": "https://data.mixpanel.com/api/2.0",

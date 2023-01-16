@@ -21,6 +21,10 @@
             {
               "code": "bwell",
               "system": "https://www.icanbwell.com/owner"
+            },
+            {
+              "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+              "code": "bwell"
             }
           ],
           "source": "https://icanbwell.com",
