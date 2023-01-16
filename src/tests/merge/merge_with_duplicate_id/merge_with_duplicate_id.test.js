@@ -100,9 +100,16 @@ describe('Observation Tests', () => {
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedObservationAllResources);
 
-            // search by security tag should only return 1
+            // search by owner security tag should only return 1
             resp = await request
                 .get('/4_0_0/Observation/?_bundle=1&id=1&_security=https://www.icanbwell.com/owner|C')
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedObservationResources);
+
+            // search by sourceAssigningAuthority security tag should only return 1
+            resp = await request
+                .get('/4_0_0/Observation/?_bundle=1&id=1&_security=https://www.icanbwell.com/sourceAssigningAuthority|C')
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedObservationResources);
