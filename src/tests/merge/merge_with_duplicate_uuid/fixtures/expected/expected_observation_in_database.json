@@ -1,0 +1,76 @@
+[
+  {
+    "_access": {
+      "A": 1,
+      "B": 1,
+      "C": 1
+    },
+    "_sourceAssigningAuthority": {
+      "A": 1
+    },
+    "_sourceId": "daf63d7b-4e99-4133-bd3f-83e24bf7987a",
+    "_uuid": "daf63d7b-4e99-4133-bd3f-83e24bf7987a",
+    "code": {
+      "coding": [
+        {
+          "code": "BMI001",
+          "system": "http://www.icanbwell.com/cql/library"
+        },
+        {
+          "code": "1.0.0",
+          "system": "http://www.icanbwell.com/cql/libraryVersion"
+        },
+        {
+          "code": "InAgeCohort",
+          "system": "http://www.icanbwell.com/cql/rule"
+        },
+        {
+          "code": "OtherRule",
+          "system": "http://www.icanbwell.com/cql/library"
+        },
+        {
+          "code": "1.0.0",
+          "system": "http://www.icanbwell.com/cql/libraryVersion2"
+        }
+      ]
+    },
+    "effectivePeriod": {
+      "end": "2021-12-31T00:00:00.000Z",
+      "start": "2021-01-01T00:00:00.000Z"
+    },
+    "id": "daf63d7b-4e99-4133-bd3f-83e24bf7987a",
+    "issued": "2021-01-01T12:00:00Z",
+    "meta": {
+      "security": [
+        {
+          "code": "A",
+          "system": "https://www.icanbwell.com/owner"
+        },
+        {
+          "code": "A",
+          "system": "https://www.icanbwell.com/access"
+        },
+        {
+          "code": "B",
+          "system": "https://www.icanbwell.com/vendor"
+        },
+        {
+          "code": "B",
+          "system": "https://www.icanbwell.com/access"
+        },
+        {
+          "code": "C",
+          "system": "https://www.icanbwell.com/access"
+        }
+      ],
+      "source": "/patients",
+      "versionId": "2"
+    },
+    "resourceType": "Observation",
+    "status": "final",
+    "subject": {
+      "reference": "Patient/2354"
+    },
+    "valueBoolean": false
+  }
+]
