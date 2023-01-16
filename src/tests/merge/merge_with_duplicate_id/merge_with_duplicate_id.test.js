@@ -20,7 +20,7 @@ const {ConfigManager} = require('../../../utils/configManager');
 
 class MockConfigManager extends ConfigManager {
     get enableGlobalIdSupport() {
-        return false;
+        return true;
     }
 }
 
