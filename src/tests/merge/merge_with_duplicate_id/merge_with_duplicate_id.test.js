@@ -5,8 +5,16 @@ const observation2Resource = require('./fixtures/Observation/observation2.json')
 // expected
 const expectedObservationResources = require('./fixtures/expected/expected_observation.json');
 const expectedObservationAllResources = require('./fixtures/expected/expected_observation_all.json');
+const expectedObservationsInDatabase = require('./fixtures/expected/expected_observation_in_database.json');
 
-const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest} = require('../../common');
+const {
+    commonBeforeEach,
+    commonAfterEach,
+    getHeaders,
+    createTestRequest,
+    getTestContainer,
+    getRequestId
+} = require('../../common');
 const {describe, beforeEach, afterEach, test} = require('@jest/globals');
 const {ConfigManager} = require('../../../utils/configManager');
 
@@ -31,6 +39,8 @@ describe('Observation Tests', () => {
                 c.register('configManager', () => new MockConfigManager());
                 return c;
             });
+
+            const container = getTestContainer();
             // ARRANGE
             // add the resources to FHIR server
             let resp = await request
@@ -40,12 +50,45 @@ describe('Observation Tests', () => {
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveMergeResponse({created: true});
 
+            /**
+             * @type {PostRequestProcessor}
+             */
+            const postRequestProcessor = container.postRequestProcessor;
+            await postRequestProcessor.waitTillDoneAsync({requestId: getRequestId(resp)});
+
             resp = await request
                 .post('/4_0_0/Observation/1/$merge?validate=true')
                 .send(observation2Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveMergeResponse({created: true});
+
+            /**
+             * @type {MongoDatabaseManager}
+             */
+            const mongoDatabaseManager = container.mongoDatabaseManager;
+
+            const fhirDb = await mongoDatabaseManager.getClientDbAsync();
+
+            const collection = fhirDb.collection('Observation_4_0_0');
+            /**
+             * @type {Object[]}
+             */
+            const results = await collection.find({}).sort({id: 1}).toArray();
+            // const resultsJson = JSON.stringify(results);
+
+            expect(results.length).toStrictEqual(2);
+            for (const resource of results) {
+                delete resource._id;
+                delete resource.meta.lastUpdated;
+                resource._uuid = '11111111-1111-1111-1111-111111111111';
+            }
+            for (const resource of expectedObservationsInDatabase) {
+                delete resource._id;
+                delete resource.meta.lastUpdated;
+                resource._uuid = '11111111-1111-1111-1111-111111111111';
+            }
+            expect(results).toStrictEqual(expectedObservationsInDatabase);
 
             // ACT & ASSERT
             resp = await request

@@ -26,6 +26,7 @@ const {getCircularReplacer} = require('../utils/getCircularReplacer');
 const Meta = require('../fhir/classes/4_0_0/complex_types/meta');
 const BundleResponse = require('../fhir/classes/4_0_0/backbone_elements/bundleResponse');
 const OperationOutcome = require('../fhir/classes/4_0_0/resources/operationOutcome');
+const {SecurityTagStructure} = require('../operations/common/securityTagStructure');
 
 const Mutex = require('async-mutex').Mutex;
 const mutex = new Mutex();
@@ -321,6 +322,30 @@ class DatabaseBulkInserter extends EventEmitter {
                             bufferLength: operationsByResourceTypeMap.size
                         }
                 });
+                let filter = {'id': doc.id.toString()};
+                if (this.configManager.enableGlobalIdSupport) {
+                    /**
+                     * @type {SecurityTagStructure}
+                     */
+                    const securityTagStructure = SecurityTagStructure.fromResource({resource: doc});
+                    const sourceAssigningAuthorityFilter = securityTagStructure.sourceAssigningAuthority.length > 1 ?
+                        {
+                            $or: securityTagStructure.sourceAssigningAuthority.map(
+                                sa => {
+                                    return {
+                                        [`_sourceAssigningAuthority.${sa}`]: 1
+                                    };
+                                }
+                            )
+                        } :
+                        {[`_sourceAssigningAuthority.${securityTagStructure.sourceAssigningAuthority[0]}`]: 1};
+                    filter = {
+                        $and: [
+                            {'_sourceId': doc.id.toString()},
+                            sourceAssigningAuthorityFilter
+                        ]
+                    };
+                }
                 this.addOperationForResourceType({
                     requestId,
                     resourceType,
@@ -328,7 +353,7 @@ class DatabaseBulkInserter extends EventEmitter {
                     operation: {
                         // use an updateOne instead of insertOne to handle concurrency when another entity may have already inserted this entity
                         updateOne: {
-                            filter: {'id': doc.id.toString()},
+                            filter: filter,
                             update: {
                                 $setOnInsert: doc.toJSONInternal()
                             },
