@@ -93,6 +93,11 @@ tests:
 	. ${NVM_DIR}/nvm.sh && nvm use ${NODE_VERSION} && \
 	npm run test_shards
 
+.PHONY:test_shards
+test_shards:
+	. ${NVM_DIR}/nvm.sh && nvm use ${NODE_VERSION} && \
+	npm run test_shards
+
 .PHONY:coverage
 coverage:
 	. ${NVM_DIR}/nvm.sh && nvm use ${NODE_VERSION} && \

@@ -47,18 +47,22 @@ class SecurityTagStructure {
     static fromResource({resource}) {
         return new SecurityTagStructure(
             {
-                owner: resource.meta.security
-                    .filter(s => s.system === SecurityTagSystem.owner)
-                    .map(s => s.code),
-                access: resource.meta.security
-                    .filter(s => s.system === SecurityTagSystem.access)
-                    .map(s => s.code),
-                vendor: resource.meta.security
-                    .filter(s => s.system === SecurityTagSystem.vendor)
-                    .map(s => s.code),
-                sourceAssigningAuthority: resource.meta.security
-                    .filter(s => s.system === SecurityTagSystem.sourceAssigningAuthority)
-                    .map(s => s.code),
+                owner: resource.meta && resource.meta.security ?
+                    resource.meta.security
+                        .filter(s => s.system === SecurityTagSystem.owner)
+                        .map(s => s.code) : [],
+                access: resource.meta && resource.meta.security ?
+                    resource.meta.security
+                        .filter(s => s.system === SecurityTagSystem.access)
+                        .map(s => s.code) : [],
+                vendor: resource.meta && resource.meta.security ?
+                    resource.meta.security
+                        .filter(s => s.system === SecurityTagSystem.vendor)
+                        .map(s => s.code) : [],
+                sourceAssigningAuthority: resource.meta && resource.meta.security ?
+                    resource.meta.security
+                        .filter(s => s.system === SecurityTagSystem.sourceAssigningAuthority)
+                        .map(s => s.code) : [],
             }
         );
     }
