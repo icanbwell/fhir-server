@@ -1,7 +1,6 @@
 const {Transform} = require('stream');
 const {isTrue} = require('../../utils/isTrue');
 const env = require('var');
-const {ResourceWithSecurityTagStructure} = require('../common/resourceWithSecurityTagStructure');
 
 class ResourcePreparerTransform extends Transform {
     /**
@@ -63,7 +62,7 @@ class ResourcePreparerTransform extends Transform {
 
         /**
          * what resources have we already processed
-         * @type {ResourceWithSecurityTagStructure[]}
+         * @type {Resource[]}
          */
         this.resourcesProcessed = [];
     }
@@ -117,16 +116,10 @@ class ResourcePreparerTransform extends Transform {
                     }
                     if (resources.length > 0) {
                         for (const /** @type {Resource} */ resource of resources) {
-                            /**
-                             * @type {ResourceWithSecurityTagStructure}
-                             */
-                            const resourceWithSecurityTagStructure = new ResourceWithSecurityTagStructure({
-                                resource
-                            });
                             // Remove any duplicates
                             if (resource &&
                                 !this.resourcesProcessed.some(a =>
-                                    resourceWithSecurityTagStructure.isSameResourceByIdAndSecurityTag({other: a})
+                                    resource.isSameResourceByIdAndSecurityTag({other: a})
                                 )
                             ) {
                                 if (isTrue(env.LOG_STREAM_STEPS)) {
@@ -134,9 +127,7 @@ class ResourcePreparerTransform extends Transform {
                                 }
                                 this.push(resource);
                                 this.resourcesProcessed.push(
-                                    new ResourceWithSecurityTagStructure(
-                                        {resource}
-                                    )
+                                    resource
                                 );
                             }
                         }

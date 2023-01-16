@@ -5,7 +5,6 @@ const {assertTypeEquals} = require('../utils/assertType');
 const {RethrownError} = require('../utils/rethrownError');
 const {databaseBulkLoaderTimer} = require('../utils/prometheus.utils');
 const {RequestSpecificCache} = require('../utils/requestSpecificCache');
-const {SecurityTagStructure} = require('../operations/common/securityTagStructure');
 const {ConfigManager} = require('../utils/configManager');
 
 /**
@@ -207,11 +206,7 @@ class DatabaseBulkLoader {
                 resource =>
                     securityTagStructure.matchesOnSourceAssigningAuthority(
                         {
-                            other: SecurityTagStructure.fromResource(
-                                {
-                                    resource
-                                }
-                            )
+                            other: resource.securityTagStructure
                         }
                     )
             );

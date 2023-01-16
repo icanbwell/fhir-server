@@ -26,7 +26,6 @@ const {getCircularReplacer} = require('../utils/getCircularReplacer');
 const Meta = require('../fhir/classes/4_0_0/complex_types/meta');
 const BundleResponse = require('../fhir/classes/4_0_0/backbone_elements/bundleResponse');
 const OperationOutcome = require('../fhir/classes/4_0_0/resources/operationOutcome');
-const {SecurityTagStructure} = require('../operations/common/securityTagStructure');
 
 const Mutex = require('async-mutex').Mutex;
 const mutex = new Mutex();
@@ -327,7 +326,7 @@ class DatabaseBulkInserter extends EventEmitter {
                     /**
                      * @type {SecurityTagStructure}
                      */
-                    const securityTagStructure = SecurityTagStructure.fromResource({resource: doc});
+                    const securityTagStructure = doc.securityTagStructure;
                     const sourceAssigningAuthorityFilter = securityTagStructure.sourceAssigningAuthority.length > 1 ?
                         {
                             $or: securityTagStructure.sourceAssigningAuthority.map(

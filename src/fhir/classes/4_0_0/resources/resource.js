@@ -293,6 +293,38 @@ class Resource extends ResourceContainer {
 
         return removeNull(json);
     }
+
+    /**
+     * Returns a structure based on values in meta.security tags
+     * @return {SecurityTagStructure}
+     */
+    get securityTagStructure() {
+        const {SecurityTagStructure} = require('../../../securityTagStructure');
+        return SecurityTagStructure.fromResource({resource: this});
+    }
+
+    /**
+     * Returns whether two resources are same
+     * @param {Resource} other
+     * @return {boolean}
+     */
+    isSameResourceByIdAndSecurityTag({other}) {
+        if (this.resourceType !== other.resourceType) {
+            return false;
+        }
+        return (
+            (this._uuid && (this._uuid === other._uuid)) || // either the uuid matches
+            (
+                // or id and sourceAssigningAuthority matches
+                this.id === other.id &&
+                this.securityTagStructure.matchesOnSourceAssigningAuthority(
+                    {
+                        other: other.securityTagStructure
+                    }
+                )
+            )
+        );
+    }
 }
 
 module.exports = Resource;

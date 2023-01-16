@@ -24,7 +24,6 @@ const {ResourceValidator} = require('../common/resourceValidator');
 const {RethrownError} = require('../../utils/rethrownError');
 const {PreSaveManager} = require('../../preSaveHandlers/preSave');
 const {ConfigManager} = require('../../utils/configManager');
-const {SecurityTagStructure} = require('../common/securityTagStructure');
 
 const Mutex = require('async-mutex').Mutex;
 const mutex = new Mutex();
@@ -295,11 +294,7 @@ class MergeManager {
                             requestId,
                             resourceType: resourceToMerge.resourceType,
                             id: id.toString(),
-                            securityTagStructure: SecurityTagStructure.fromResource(
-                                {
-                                    resource: resourceToMerge
-                                }
-                            )
+                            securityTagStructure: resourceToMerge.securityTagStructure
                         }
                     ) :
                     await databaseQueryManager.findOneAsync({query: {id: id.toString()}});

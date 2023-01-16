@@ -1,4 +1,4 @@
-const {SecurityTagSystem} = require('../../utils/securityTagSystem');
+const {SecurityTagSystem} = require('../utils/securityTagSystem');
 
 class SecurityTagStructure {
     /**
