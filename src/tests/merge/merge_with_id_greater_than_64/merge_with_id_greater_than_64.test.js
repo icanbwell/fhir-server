@@ -3,7 +3,10 @@ const observation1Resource = require('./fixtures/Observation/observation1.json')
 const observation2Resource = require('./fixtures/Observation/observation2.json');
 
 // expected
-const expectedObservationResources = require('./fixtures/expected/expected_observation.json');
+const expectedObservationByOwnerResources = require('./fixtures/expected/expected_observation_by_owner.json');
+const expectedObservationBySourceAssigningAuthorityResources = require('./fixtures/expected/expected_observation_by_sourceAssigningAuthority.json');
+const expectedObservationByAccessResources = require('./fixtures/expected/expected_observation_by_access.json');
+
 const expectedObservationAllResources = require('./fixtures/expected/expected_observation_all.json');
 const expectedObservationAllByIdResources = require('./fixtures/expected/expected_observation_all_by_id.json');
 const expectedObservationsInDatabase = require('./fixtures/expected/expected_observation_in_database.json');
@@ -18,6 +21,7 @@ const {
 } = require('../../common');
 const {describe, beforeEach, afterEach, test} = require('@jest/globals');
 const {ConfigManager} = require('../../../utils/configManager');
+const {IdentifierSystem} = require('../../../utils/identifierSystem');
 
 class MockConfigManager extends ConfigManager {
     get enableGlobalIdSupport() {
@@ -85,11 +89,29 @@ describe('Observation Tests', () => {
                 delete resource._id;
                 delete resource.meta.lastUpdated;
                 resource._uuid = '11111111-1111-1111-1111-111111111111';
+                if (resource.identifier) {
+                    resource.identifier
+                        .filter(i => i.system === IdentifierSystem.uuid)
+                        .forEach(i => {
+                                i.value = '11111111-1111-1111-1111-111111111111';
+                                return i;
+                            }
+                        );
+                }
             }
             for (const resource of expectedObservationsInDatabase) {
                 delete resource._id;
                 delete resource.meta.lastUpdated;
                 resource._uuid = '11111111-1111-1111-1111-111111111111';
+                if (resource.identifier) {
+                    resource.identifier
+                        .filter(i => i.system === IdentifierSystem.uuid)
+                        .forEach(i => {
+                                i.value = '11111111-1111-1111-1111-111111111111';
+                                return i;
+                            }
+                        );
+                }
             }
             expect(results).toStrictEqual(expectedObservationsInDatabase);
 
@@ -105,14 +127,14 @@ describe('Observation Tests', () => {
                 .get('/4_0_0/Observation/?_bundle=1&id=12345678901234567890123456789012345678901234567890123456789012345678901234567890&_security=https://www.icanbwell.com/owner|C')
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse(expectedObservationResources);
+            expect(resp).toHaveResponse(expectedObservationByOwnerResources);
 
             // search by sourceAssigningAuthority security tag should only return 1
             resp = await request
                 .get('/4_0_0/Observation/?_bundle=1&_debug=1&id=12345678901234567890123456789012345678901234567890123456789012345678901234567890&_security=https://www.icanbwell.com/sourceAssigningAuthority|C')
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse(expectedObservationResources);
+            expect(resp).toHaveResponse(expectedObservationBySourceAssigningAuthorityResources);
 
             // search by id but no security tag should return both
             resp = await request
@@ -126,7 +148,7 @@ describe('Observation Tests', () => {
                 .get('/4_0_0/Observation/?_bundle=1&id=12345678901234567890123456789012345678901234567890123456789012345678901234567890')
                 .set(getHeaders('user/*.read user/*.write access/C.*'));
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse(expectedObservationResources);
+            expect(resp).toHaveResponse(expectedObservationByAccessResources);
 
         });
     });

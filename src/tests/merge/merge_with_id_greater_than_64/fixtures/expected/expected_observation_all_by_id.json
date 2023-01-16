@@ -23,6 +23,15 @@
           "start": "2021-01-01T00:00:00.000Z"
         },
         "id": "12345678901234567890123456789012345678901234567890123456789012345678901234567890",
+        "identifier": [
+          {
+            "system": "https://www.icanbwell.com/sourceId",
+            "value": "12345678901234567890123456789012345678901234567890123456789012345678901234567890"
+          },
+          {
+            "system": "https://www.icanbwell.com/uuid"
+          }
+        ],
         "issued": "2021-01-01T12:00:00Z",
         "meta": {
           "security": [
@@ -41,6 +50,10 @@
             {
               "code": "B",
               "system": "https://www.icanbwell.com/access"
+            },
+            {
+              "code": "A",
+              "system": "https://www.icanbwell.com/sourceAssigningAuthority"
             }
           ],
           "source": "/patients",
@@ -76,7 +89,16 @@
           "end": "2021-12-31T00:00:00.000Z",
           "start": "2021-01-01T00:00:00.000Z"
         },
-        "id": "1",
+        "id": "12345678901234567890123456789012345678901234567890123456789012345678901234567890",
+        "identifier": [
+          {
+            "system": "https://www.icanbwell.com/sourceId",
+            "value": "12345678901234567890123456789012345678901234567890123456789012345678901234567890"
+          },
+          {
+            "system": "https://www.icanbwell.com/uuid"
+          }
+        ],
         "issued": "2021-01-01T12:00:00Z",
         "meta": {
           "security": [
@@ -95,6 +117,10 @@
             {
               "code": "B",
               "system": "https://www.icanbwell.com/access"
+            },
+            {
+              "code": "C",
+              "system": "https://www.icanbwell.com/sourceAssigningAuthority"
             }
           ],
           "source": "/patients",
@@ -112,7 +138,7 @@
   "meta": {
     "tag": [
       {
-        "display": "db.Observation_4_0_0.find({'$and':[{'_sourceId':'1'}]}, {}).sort({'id':1}).limit(10000)",
+        "display": "db.Observation_4_0_0.find({'$and':[{'_sourceId':'12345678901234567890123456789012345678901234567890123456789012345678901234567890'}]}, {}).sort({'id':1}).limit(10000)",
         "system": "https://www.icanbwell.com/query"
       },
       {
