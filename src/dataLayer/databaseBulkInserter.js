@@ -26,6 +26,7 @@ const {getCircularReplacer} = require('../utils/getCircularReplacer');
 const Meta = require('../fhir/classes/4_0_0/complex_types/meta');
 const BundleResponse = require('../fhir/classes/4_0_0/backbone_elements/bundleResponse');
 const OperationOutcome = require('../fhir/classes/4_0_0/resources/operationOutcome');
+const {MongoFilterGenerator} = require('../utils/mongoFilterGenerator');
 
 const Mutex = require('async-mutex').Mutex;
 const mutex = new Mutex();
@@ -82,6 +83,7 @@ class DatabaseBulkInserter extends EventEmitter {
      * @param {DatabaseUpdateFactory} databaseUpdateFactory
      * @param {ResourceMerger} resourceMerger
      * @param {ConfigManager} configManager
+     * @param {MongoFilterGenerator} mongoFilterGenerator
      */
     constructor({
                     resourceManager,
@@ -94,7 +96,8 @@ class DatabaseBulkInserter extends EventEmitter {
                     requestSpecificCache,
                     databaseUpdateFactory,
                     resourceMerger,
-                    configManager
+                    configManager,
+                    mongoFilterGenerator
                 }) {
         super();
 
@@ -164,6 +167,12 @@ class DatabaseBulkInserter extends EventEmitter {
          */
         this.configManager = configManager;
         assertTypeEquals(configManager, ConfigManager);
+
+        /**
+         * @type {MongoFilterGenerator}
+         */
+        this.mongoFilterGenerator = mongoFilterGenerator;
+        assertTypeEquals(mongoFilterGenerator, MongoFilterGenerator);
     }
 
     /**
@@ -321,30 +330,7 @@ class DatabaseBulkInserter extends EventEmitter {
                             bufferLength: operationsByResourceTypeMap.size
                         }
                 });
-                let filter = {'id': doc.id.toString()};
-                if (this.configManager.enableGlobalIdSupport) {
-                    /**
-                     * @type {SecurityTagStructure}
-                     */
-                    const securityTagStructure = doc.securityTagStructure;
-                    const sourceAssigningAuthorityFilter = securityTagStructure.sourceAssigningAuthority.length > 1 ?
-                        {
-                            $or: securityTagStructure.sourceAssigningAuthority.map(
-                                sa => {
-                                    return {
-                                        [`_sourceAssigningAuthority.${sa}`]: 1
-                                    };
-                                }
-                            )
-                        } :
-                        {[`_sourceAssigningAuthority.${securityTagStructure.sourceAssigningAuthority[0]}`]: 1};
-                    filter = {
-                        $and: [
-                            {'_sourceId': doc.id.toString()},
-                            sourceAssigningAuthorityFilter
-                        ]
-                    };
-                }
+
                 this.addOperationForResourceType({
                     requestId,
                     resourceType,
@@ -352,7 +338,10 @@ class DatabaseBulkInserter extends EventEmitter {
                     operation: {
                         // use an updateOne instead of insertOne to handle concurrency when another entity may have already inserted this entity
                         updateOne: {
-                            filter: filter,
+                            filter: this.mongoFilterGenerator.generateFilterForIdAndSecurityTags({
+                                id: doc.id,
+                                securityTagStructure: doc.securityTagStructure
+                            }),
                             update: {
                                 $setOnInsert: doc.toJSONInternal()
                             },
