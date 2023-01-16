@@ -1,0 +1,171 @@
+{
+  "resourceType": "Person",
+  "id": "f924936d-e31e-45fe-a379-e13a9107f51a",
+  "meta": {
+    "id": "bdbe5bf5-73d9-4d42-89b8-bd87d77bcb0d",
+    "versionId": "1",
+    "lastUpdated": "2023-01-09T22:56:42.000Z",
+    "source": "https://www.icanbwell.com",
+    "security": [
+      {
+        "system": "https://www.icanbwell.com/owner",
+        "code": "bwell"
+      },
+      {
+        "system": "https://www.icanbwell.com/access",
+        "code": "bwell"
+      }
+    ]
+  },
+  "extension": [
+    {
+      "id": "userType",
+      "url": "https://icanbwell.com/userType",
+      "valueCodeableConcept": {
+        "id": "userType",
+        "coding": [
+          {
+            "system": "https://icanbwell.com/userType",
+            "code": "RX_AUTH",
+            "display": "RX_AUTH"
+          }
+        ]
+      }
+    },
+    {
+      "id": "programs",
+      "url": "https://icanbwell.com/programs",
+      "valueCodeableConcept": {
+        "id": "programs",
+        "coding": [
+          {
+            "system": "https://icanbwell.com/programs",
+            "code": "mywag,harmony",
+            "display": "mywag,harmony"
+          }
+        ]
+      }
+    },
+    {
+      "id": "memberSince",
+      "url": "https://icanbwell.com/memberSince",
+      "valueCodeableConcept": {
+        "id": "memberSince",
+        "coding": [
+          {
+            "system": "https://icanbwell.com/memberSince",
+            "code": "2021-04-19 18:16:05:995",
+            "display": "2021-04-19 18:16:05:995"
+          }
+        ]
+      }
+    },
+    {
+      "id": "registrationDate",
+      "url": "https://icanbwell.com/registrationDate",
+      "valueCodeableConcept": {
+        "id": "registrationDate",
+        "coding": [
+          {
+            "system": "https://icanbwell.com/registrationDate",
+            "code": "2021-04-19 18:16:05:995",
+            "display": "2021-04-19 18:16:05:995"
+          }
+        ]
+      }
+    }
+  ],
+  "identifier": [
+    {
+      "type": {
+        "coding": [
+          {
+            "system": "http://www.icanbwell.com/identifier-types",
+            "code": "user-identifier"
+          }
+        ]
+      },
+      "system": "http://www.walgreens.com/profileid",
+      "value": "11111111111111"
+    },
+    {
+      "system": "https://www.icanbwell.com/sourceId",
+      "value": "f924936d-e31e-45fe-a379-e13a9107f51a"
+    },
+    {
+      "system": "https://www.icanbwell.com/uuid",
+      "value": "f924936d-e31e-45fe-a379-e13a9107f51a"
+    }
+  ],
+  "name": [
+    {
+      "family": "Family",
+      "given": [
+        "First"
+      ]
+    }
+  ],
+  "telecom": [
+    {
+      "system": "email",
+      "value": "first@email.me"
+    },
+    {
+      "system": "phone",
+      "value": "1111111111",
+      "use": "mobile"
+    }
+  ],
+  "gender": "male",
+  "birthDate": "1970-01-01",
+  "address": [
+    {
+      "id": "81b7b1fd-ba35-42e2-a1c3-2114eac4619e",
+      "line": [
+        "1 STREET"
+      ],
+      "city": "CITY",
+      "state": "SC",
+      "postalCode": "11111"
+    }
+  ],
+  "active": true,
+  "link": [
+    {
+      "id": "ce7ee76d-61c0-4696-8fb3-a2fedea9803c",
+      "target": {
+        "reference": "Patient/4b596e92-2baa-44bd-bc79-77f9c07cb075"
+      }
+    },
+    {
+      "id": "6fa1f50d-9c25-45bc-aca9-7e29a82fa02c",
+      "target": {
+        "reference": "Person/0457a3bf-cb48-4de0-ba20-fbb749d48a01"
+      }
+    },
+    {
+      "id": "c59156ea-a482-4587-9d2e-ff6af8ee7b5e",
+      "target": {
+        "reference": "Person/c59156ea-a482-4587-9d2e-ff6af8ee7b5e",
+        "type": "Person"
+      },
+      "assurance": "level4"
+    },
+    {
+      "id": "5a28d374-81e3-40a9-a1fb-929f830c2713",
+      "target": {
+        "reference": "Person/5a28d374-81e3-40a9-a1fb-929f830c2713",
+        "type": "Person"
+      },
+      "assurance": "level4"
+    },
+    {
+      "id": "ced9f39b-971b-4a8b-88ca-13a87c02d754",
+      "target": {
+        "reference": "Person/ced9f39b-971b-4a8b-88ca-13a87c02d754",
+        "type": "Person"
+      },
+      "assurance": "level4"
+    }
+  ]
+}
