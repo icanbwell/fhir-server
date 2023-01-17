@@ -1,19 +1,42 @@
 [
   {
-    "id": "test2",
+    "id": "test1",
     "identifier": [
       {
-        "type": {
-          "coding": [
-            {
-              "code": "XV",
-              "display": "Health Plan",
-              "system": "http://terminology.hl7.org/CodeSystem/v2-0203"
-            }
-          ]
-        },
-        "value": "test"
+        "system": "https://www.icanbwell.com/sourceId",
+        "value": "test1"
       },
+      {
+        "system": "https://www.icanbwell.com/uuid"
+      }
+    ],
+    "meta": {
+      "security": [
+        {
+          "code": "medstar",
+          "system": "https://www.icanbwell.com/access"
+        }
+      ],
+      "source": "http://medstarhealth.org/provider",
+      "versionId": "1"
+    },
+    "name": "Test1",
+    "resourceType": "Organization",
+    "type": [
+      {
+        "coding": [
+          {
+            "code": "edu",
+            "display": "Educational Institute",
+            "system": "http://terminology.hl7.org/CodeSystem/organization-type"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "test2",
+    "identifier": [
       {
         "system": "https://www.icanbwell.com/sourceId",
         "value": "test2"
@@ -33,6 +56,41 @@
       "versionId": "1"
     },
     "name": "test2",
+    "resourceType": "Organization",
+    "type": [
+      {
+        "coding": [
+          {
+            "code": "edu",
+            "display": "Educational Institute",
+            "system": "http://terminology.hl7.org/CodeSystem/organization-type"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "test3",
+    "identifier": [
+      {
+        "system": "https://www.icanbwell.com/sourceId",
+        "value": "test3"
+      },
+      {
+        "system": "https://www.icanbwell.com/uuid"
+      }
+    ],
+    "meta": {
+      "security": [
+        {
+          "code": "medstar",
+          "system": "https://www.icanbwell.com/access"
+        }
+      ],
+      "source": "http://medstarhealth.org/provider",
+      "versionId": "1"
+    },
+    "name": "Test3",
     "resourceType": "Organization",
     "type": [
       {
