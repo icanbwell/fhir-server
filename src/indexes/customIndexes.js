@@ -19,11 +19,11 @@ module.exports = {
             },
             {
                 keys: {
-                    'meta.lastUpdated': 1,
+                    'meta.lastUpdated': -1,
                     'id': 1
                 },
                 options: {
-                    name: 'meta.lastUpdated_1'
+                    name: 'reverse_meta.lastUpdated_1'
                 }
             },
             {
@@ -227,22 +227,22 @@ module.exports = {
         'Observation_4_0_0': [
             {
                 keys: {
-                    'effectiveDateTime': 1,
+                    'effectiveDateTime': -1,
                     'id': 1,
                     'subject.reference': 1
                 },
                 options: {
-                    name: 'helix_observation_effective_1'
+                    name: 'reverse_helix_observation_effective_1'
                 }
             },
             {
                 keys: {
                     'subject.reference': 1,
-                    'effectiveDateTime': 1,
+                    'effectiveDateTime': -1,
                     'id': 1,
                 },
                 options: {
-                    name: 'helix_observation_effective_2'
+                    name: 'reverse_helix_observation_effective_2'
                 }
             }
         ],

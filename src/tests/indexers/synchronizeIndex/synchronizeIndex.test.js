@@ -406,5 +406,124 @@ describe('Synchronize Index Tests', () => {
                 }
             });
         });
+
+        test('synchronizeIndex removes extra Patient index', async () => {
+            await createTestRequest();
+            /**
+             * @type {SimpleContainer}
+             */
+            const container = getTestContainer();
+            /**
+             * @type {IndexManager}
+             */
+            const indexManager = container.indexManager;
+            /**
+             * @type {MongoDatabaseManager}
+             */
+            const mongoDatabaseManager = container.mongoDatabaseManager;
+            // create collection
+            /**
+             * mongo auditEventDb connection
+             * @type {import('mongodb').Db}
+             */
+            const fhirDb = await mongoDatabaseManager.getClientDbAsync();
+            const collectionName = 'Patient_4_0_0';
+            /**
+             * mongo collection
+             * @type {import('mongodb').Collection}
+             */
+            const patientCollection = fhirDb.collection(collectionName);
+            await patientCollection.insertOne({id: '1', resourceType: 'Patient'});
+
+            /**
+             * @type {IndexConfig}
+             */
+            const extraIndex = {
+                keys: {
+                    'id': 1
+                },
+                options: {
+                    // unique: true,
+                    name: 'extra_patient_index'
+                }
+            };
+            const indexResult = await patientCollection.createIndex(extraIndex.keys, extraIndex.options);
+            expect(indexResult).toStrictEqual('extra_patient_index');
+            /**
+             * @type {{created: {indexes: IndexConfig[], collectionName: string}[], dropped: {indexes: IndexConfig[], collectionName: string}[]}}
+             */
+            const synchronizeIndexesResult = await indexManager.synchronizeIndexesWithConfigAsync({
+                audit: false
+            });
+            expect(synchronizeIndexesResult.created.length).toStrictEqual(1);
+            expect(synchronizeIndexesResult.dropped.length).toStrictEqual(1);
+            /**
+             * @type {IndexConfig[]}
+             */
+            const createdIndexes = synchronizeIndexesResult.created[0].indexes;
+            /**
+             * @type {IndexConfig[]}
+             */
+            const sortedIndexes = createdIndexes.sort((a, b) => (a.options.name > b.options.name) ? 1 : -1);
+            expect(sortedIndexes.length).toBe(4);
+            expect(sortedIndexes).toStrictEqual([
+                {
+                    keys: {
+                        'id': 1
+                    },
+                    options: {
+                        name: 'id_1'
+                    },
+                    exclude: [
+                        'AuditEvent_4_0_0'
+                    ]
+                },
+                {
+                    keys: {
+                        'meta.lastUpdated': 1
+                    },
+                    options: {
+                        name: 'meta.lastUpdated_1'
+                    },
+                    exclude: [
+                        'AuditEvent_4_0_0'
+                    ]
+                },
+                {
+                    keys: {
+                        'meta.source': 1
+                    },
+                    options: {
+                        name: 'meta.source_1'
+                    }
+                },
+                {
+                    keys: {
+                        'meta.security.system': 1,
+                        'meta.security.code': 1
+                    },
+                    options: {
+                        name: 'security.system_code_1'
+                    }
+                }
+            ]);
+
+            /**
+             * @type {IndexConfig[]}
+             */
+            const droppedIndexes = synchronizeIndexesResult.dropped[0].indexes;
+            expect(droppedIndexes.length).toStrictEqual(1);
+            expect(droppedIndexes[0]).toStrictEqual(
+                {
+                    keys: {
+                        'id': 1
+                    },
+                    options: {
+                        name: extraIndex.options.name,
+                        unique: undefined
+                    }
+                }
+            );
+        });
     });
 });
