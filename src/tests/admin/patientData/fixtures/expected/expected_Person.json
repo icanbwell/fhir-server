@@ -42,6 +42,15 @@
               "start": "2021-01-01T00:00:00.000Z"
             },
             "id": "observation1",
+            "identifier": [
+              {
+                "system": "https://www.icanbwell.com/sourceId",
+                "value": "observation1"
+              },
+              {
+                "system": "https://www.icanbwell.com/uuid"
+              }
+            ],
             "issued": "2021-01-01T12:00:00Z",
             "meta": {
               "security": [
@@ -80,6 +89,15 @@
             "birthDate": "2017-01-01",
             "gender": "female",
             "id": "patient1",
+            "identifier": [
+              {
+                "system": "https://www.icanbwell.com/sourceId",
+                "value": "patient1"
+              },
+              {
+                "system": "https://www.icanbwell.com/uuid"
+              }
+            ],
             "meta": {
               "security": [
                 {
