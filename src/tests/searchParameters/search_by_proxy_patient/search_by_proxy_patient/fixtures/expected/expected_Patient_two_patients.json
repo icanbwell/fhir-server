@@ -5,6 +5,15 @@
         "birthDate": "2017-01-01",
         "gender": "female",
         "id": "person.m65634",
+        "identifier": [
+          {
+            "system": "https://www.icanbwell.com/sourceId",
+            "value": "00100000000"
+          },
+          {
+            "system": "https://www.icanbwell.com/uuid"
+          }
+        ],
         "meta": {
           "security": [
             {
@@ -17,6 +26,51 @@
             },
             {
               "code": "healthsystem1",
+              "system": "https://www.icanbwell.com/sourceAssigningAuthority"
+            }
+          ],
+          "source": "http://healthsystem1health.org/provider",
+          "versionId": "1"
+        },
+        "name": [
+          {
+            "family": "PATIENT1",
+            "given": [
+              "SHYLA"
+            ],
+            "text": "t",
+            "use": "usual"
+          }
+        ],
+        "resourceType": "Patient"
+      }
+    },
+    {
+      "resource": {
+        "birthDate": "2017-01-01",
+        "gender": "female",
+        "id": "person.m65634",
+        "identifier": [
+          {
+            "system": "https://www.icanbwell.com/sourceId",
+            "value": "00200000000"
+          },
+          {
+            "system": "https://www.icanbwell.com/uuid"
+          }
+        ],
+        "meta": {
+          "security": [
+            {
+              "code": "healthsystem2",
+              "system": "https://www.icanbwell.com/access"
+            },
+            {
+              "code": "healthsystem2",
+              "system": "https://www.icanbwell.com/owner"
+            },
+            {
+              "code": "healthsystem2",
               "system": "https://www.icanbwell.com/sourceAssigningAuthority"
             }
           ],
