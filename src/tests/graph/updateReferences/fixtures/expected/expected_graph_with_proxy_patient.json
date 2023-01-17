@@ -32,6 +32,15 @@
           }
         ],
         "id": "2354-InAgeCohort",
+        "identifier": [
+          {
+            "system": "https://www.icanbwell.com/sourceId",
+            "value": "2354-InAgeCohort"
+          },
+          {
+            "system": "https://www.icanbwell.com/uuid"
+          }
+        ],
         "issued": "2021-01-01T12:00:00Z",
         "meta": {
           "security": [
@@ -78,6 +87,15 @@
         "birthDate": "2017-01-01",
         "gender": "female",
         "id": "person.m65633",
+        "identifier": [
+          {
+            "system": "https://www.icanbwell.com/sourceId",
+            "value": "00100000000"
+          },
+          {
+            "system": "https://www.icanbwell.com/uuid"
+          }
+        ],
         "meta": {
           "security": [
             {

@@ -21,6 +21,10 @@
       {
         "system": "https://www.icanbwell.com/access",
         "code": "B"
+      },
+      {
+        "code": "healthsystem1",
+        "system": "https://www.icanbwell.com/sourceAssigningAuthority"
       }
     ]
   },

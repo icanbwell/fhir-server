@@ -206,6 +206,15 @@
           },
           {
             "id": "Kaiser-Permanente-Kaiser-Permanente-Signature-Added-Choice",
+            "identifier": [
+              {
+                "system": "https://www.icanbwell.com/sourceId",
+                "value": "Kaiser-Permanente-Kaiser-Permanente-Signature-Added-Choice"
+              },
+              {
+                "system": "https://www.icanbwell.com/uuid"
+              }
+            ],
             "meta": {
               "security": [
                 {
@@ -950,6 +959,15 @@
               }
             ],
             "id": "1003059437-GP6-GGIM",
+            "identifier": [
+              {
+                "system": "https://www.icanbwell.com/sourceId",
+                "value": "1003059437-GP6-GGIM"
+              },
+              {
+                "system": "https://www.icanbwell.com/uuid"
+              }
+            ],
             "location": [
               {
                 "reference": "Location/myhealthsystem-Alias-GP6-GGIM"
@@ -1049,6 +1067,15 @@
               }
             ],
             "id": "1003059437-GP6-MVVM",
+            "identifier": [
+              {
+                "system": "https://www.icanbwell.com/sourceId",
+                "value": "1003059437-GP6-MVVM"
+              },
+              {
+                "system": "https://www.icanbwell.com/uuid"
+              }
+            ],
             "location": [
               {
                 "reference": "Location/myhealthsystem-Alias-GP6-GGIM"
@@ -1110,6 +1137,15 @@
               }
             ],
             "id": "1003059437-Kaiser-Permanente-Kaiser-Permanente-Signature-Added-",
+            "identifier": [
+              {
+                "system": "https://www.icanbwell.com/sourceId",
+                "value": "1003059437-Kaiser-Permanente-Kaiser-Permanente-Signature-Added-"
+              },
+              {
+                "system": "https://www.icanbwell.com/uuid"
+              }
+            ],
             "meta": {
               "security": [
                 {
@@ -1184,6 +1220,15 @@
               }
             ],
             "id": "1003059437-GP6-GGIM",
+            "identifier": [
+              {
+                "system": "https://www.icanbwell.com/sourceId",
+                "value": "1003059437-GP6-GGIM"
+              },
+              {
+                "system": "https://www.icanbwell.com/uuid"
+              }
+            ],
             "meta": {
               "security": [
                 {
@@ -1334,10 +1379,10 @@
               "code": "myhealthsystem",
               "system": "https://www.icanbwell.com/owner"
             },
-                {
-                  "code": "myhealthsystem",
-                  "system": "https://www.icanbwell.com/sourceAssigningAuthority"
-                }
+            {
+              "code": "myhealthsystem",
+              "system": "https://www.icanbwell.com/sourceAssigningAuthority"
+            }
           ],
           "source": "http://myhealthsystemhealth.org/provider",
           "versionId": "1"

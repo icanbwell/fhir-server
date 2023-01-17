@@ -17,6 +17,15 @@
         "contained": [
           {
             "id": "123456",
+            "identifier": [
+              {
+                "system": "https://www.icanbwell.com/sourceId",
+                "value": "123456"
+              },
+              {
+                "system": "https://www.icanbwell.com/uuid"
+              }
+            ],
             "meta": {
               "security": [
                 {
@@ -89,6 +98,15 @@
               }
             ],
             "id": "1881603751",
+            "identifier": [
+              {
+                "system": "https://www.icanbwell.com/sourceId",
+                "value": "1881603751"
+              },
+              {
+                "system": "https://www.icanbwell.com/uuid"
+              }
+            ],
             "location": [
               {
                 "reference": "Location/Medstar-Alias-ABC"
