@@ -46,6 +46,15 @@
           "text": "Solution"
         },
         "id": "medication-prednisolone",
+        "identifier": [
+          {
+            "system": "https://www.icanbwell.com/sourceId",
+            "value": "medication-prednisolone"
+          },
+          {
+            "system": "https://www.icanbwell.com/uuid"
+          }
+        ],
         "ingredient": [
           {
             "itemCodeableConcept": {
@@ -165,6 +174,15 @@
           "text": "Solution"
         },
         "id": "medication-prednisolone-display",
+        "identifier": [
+          {
+            "system": "https://www.icanbwell.com/sourceId",
+            "value": "medication-prednisolone-display"
+          },
+          {
+            "system": "https://www.icanbwell.com/uuid"
+          }
+        ],
         "ingredient": [
           {
             "itemCodeableConcept": {

@@ -23,6 +23,15 @@
           "start": "2021-01-01T00:00:00.000Z"
         },
         "id": "2354-InAgeCohort",
+        "identifier": [
+          {
+            "system": "https://www.icanbwell.com/sourceId",
+            "value": "2354-InAgeCohort"
+          },
+          {
+            "system": "https://www.icanbwell.com/uuid"
+          }
+        ],
         "issued": "2021-01-01T12:00:00Z",
         "meta": {
           "security": [
@@ -81,6 +90,15 @@
           "start": "2021-01-01T00:00:00.000Z"
         },
         "id": "2354-InGenderCohort",
+        "identifier": [
+          {
+            "system": "https://www.icanbwell.com/sourceId",
+            "value": "2354-InGenderCohort"
+          },
+          {
+            "system": "https://www.icanbwell.com/uuid"
+          }
+        ],
         "issued": "2021-01-01T12:00:00Z",
         "meta": {
           "security": [

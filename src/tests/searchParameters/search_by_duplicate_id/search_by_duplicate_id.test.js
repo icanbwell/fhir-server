@@ -7,6 +7,13 @@ const expectedObservationResources = require('./fixtures/expected/expected_obser
 
 const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest} = require('../../common');
 const {describe, beforeEach, afterEach, test} = require('@jest/globals');
+const {ConfigManager} = require('../../../utils/configManager');
+
+class MockConfigManager extends ConfigManager {
+    get enableGlobalIdSupport() {
+        return true;
+    }
+}
 
 describe('Observation Tests', () => {
     beforeEach(async () => {
@@ -19,7 +26,11 @@ describe('Observation Tests', () => {
 
     describe('Observation search_by_duplicate_id Tests', () => {
         test('search_by_duplicate_id works', async () => {
-            const request = await createTestRequest();
+            const request = await createTestRequest((c) => {
+                c.register('configManager', () => new MockConfigManager());
+                return c;
+            });
+
             // ARRANGE
             // add the resources to FHIR server
             let resp = await request
