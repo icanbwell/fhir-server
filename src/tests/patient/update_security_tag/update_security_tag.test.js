@@ -12,7 +12,7 @@ const {
     createTestRequest,
 } = require('../../common');
 const env = require('var');
-const { describe, beforeEach, afterEach, expect, test } = require('@jest/globals');
+const {describe, beforeEach, afterEach, expect, test} = require('@jest/globals');
 
 describe('PractitionerUpdateSecurityTagTests', () => {
     beforeEach(async () => {
@@ -65,18 +65,8 @@ describe('PractitionerUpdateSecurityTagTests', () => {
 
             resp = await request.get('/4_0_0/Patient/00100000000').set(getHeaders());
 
-            console.log('------- response Patient sorted ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response sort ------------');
-            // clear out the lastUpdated column since that changes
-            let body = resp.body;
-            delete body['meta']['lastUpdated'];
-
-            let expected = expectedSinglePatientResource[0];
-            delete expected['meta']['lastUpdated'];
-            delete expected['$schema'];
-
-            expect(body).toStrictEqual(expected);
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedSinglePatientResource);
         });
     });
 });

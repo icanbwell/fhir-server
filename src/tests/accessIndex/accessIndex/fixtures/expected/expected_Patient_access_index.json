@@ -5,6 +5,15 @@
         "birthDate": "2017-01-01",
         "gender": "female",
         "id": "00100000000",
+        "identifier": [
+          {
+            "system": "https://www.icanbwell.com/sourceId",
+            "value": "00100000000"
+          },
+          {
+            "system": "https://www.icanbwell.com/uuid"
+          }
+        ],
         "meta": {
           "security": [
             {
