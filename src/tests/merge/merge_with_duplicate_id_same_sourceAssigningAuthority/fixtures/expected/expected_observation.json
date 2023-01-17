@@ -60,12 +60,12 @@
               "system": "https://www.icanbwell.com/access"
             },
             {
-              "code": "C",
-              "system": "https://www.icanbwell.com/access"
-            },
-            {
               "code": "A",
               "system": "https://www.icanbwell.com/sourceAssigningAuthority"
+            },
+            {
+              "code": "C",
+              "system": "https://www.icanbwell.com/access"
             }
           ],
           "source": "/patients",
