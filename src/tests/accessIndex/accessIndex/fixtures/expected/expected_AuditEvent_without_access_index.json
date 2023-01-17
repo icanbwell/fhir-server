@@ -172,10 +172,6 @@
               "system": "https://www.icanbwell.com/owner"
             },
             {
-              "code": "thedacare",
-              "system": "https://www.icanbwell.com/sourceAssigningAuthority"
-            },
-            {
               "code": "fake",
               "system": "https://www.icanbwell.com/access"
             },
@@ -186,6 +182,10 @@
             {
               "code": "thedacare",
               "system": "https://www.icanbwell.com/vendor"
+            },
+            {
+              "code": "thedacare",
+              "system": "https://www.icanbwell.com/sourceAssigningAuthority"
             }
           ],
           "source": "https://data.medstar.com/api/2.0",

@@ -361,15 +361,15 @@
       },
       {
         "code": "medlineplus",
-        "system": "https://www.icanbwell.com/sourceAssigningAuthority"
-      },
-      {
-        "code": "medlineplus",
         "system": "https://www.icanbwell.com/access"
       },
       {
         "code": "medlineplus",
         "system": "https://www.icanbwell.com/vendor"
+      },
+      {
+        "code": "medlineplus",
+        "system": "https://www.icanbwell.com/sourceAssigningAuthority"
       }
     ],
     "source": "https://connect.medlineplus.gov/service",
