@@ -1,5 +1,6 @@
 const {fhirFilterTypes} = require('./customQueries');
 const {searchParameterQueries} = require('../../searchParameters/searchParameters');
+const {SPECIFIED_QUERY_PARAMS, STRICT_SEARCH_HANDLING} = require('../../constants');
 const {filterById} = require('./filters/id');
 const {filterByString} = require('./filters/string');
 const {filterByUri} = require('./filters/uri');
@@ -17,6 +18,7 @@ const {assertTypeEquals} = require('../../utils/assertType');
 const {ConfigManager} = require('../../utils/configManager');
 const {AccessIndexManager} = require('../common/accessIndexManager');
 const {FhirTypesManager} = require('../../fhir/fhirTypesManager');
+const {BadRequestError} = require('../../utils/httpErrors');
 
 function isUrl(queryParameterValue) {
     return typeof queryParameterValue === 'string' &&
@@ -112,6 +114,10 @@ class R4SearchQueryCreator {
          */
         let totalAndSegments = [];
 
+        // Represents type of search to be conducted strict or lenient
+        const handlingType = args['handling'];
+        delete args['handling'];
+
         for (const argName in args) {
             const [queryParameter, ...modifiers] = argName.split(':');
 
@@ -120,7 +126,11 @@ class R4SearchQueryCreator {
                 propertyObj = searchParameterQueries['Resource'][`${queryParameter}`];
             }
             if (!propertyObj) {
-                // ignore this unrecognized arg
+                // In case of an unrecognized argument while searching and handling type is strict throw an error.
+                // https://www.hl7.org/fhir/search.html#errors
+                if (handlingType === STRICT_SEARCH_HANDLING && SPECIFIED_QUERY_PARAMS.indexOf(queryParameter) === -1) {
+                    throw new BadRequestError(new Error(`${queryParameter} is not a parameter for ${resourceType}`));
+                }
                 continue;
             }
 
