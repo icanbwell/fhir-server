@@ -130,7 +130,7 @@ describe('GraphQL CodeSystem Tests', () => {
                     variables: {},
                     query: graphqlQueryText,
                 })
-                .set({'x-request-id': 'd4c5546f-cd8a-4447-83e0-201f0da08bef', ...getGraphQLHeaders()});
+                .set({'X-Request-Id': 'd4c5546f-cd8a-4447-83e0-201f0da08bef', ...getGraphQLHeaders()});
 
             console.log(resp.body);
 
