@@ -1,0 +1,25 @@
+{
+  "resourceType": "Patient",
+  "id": "1",
+  "meta": {
+    "source": "http://medstarhealth.org/provider",
+    "security": [
+      {
+        "system": "https://www.icanbwell.com/access",
+        "code": "medstar"
+      },
+      {
+        "system": "https://www.icanbwell.com/owner",
+        "code": "medstar"
+      }
+    ]
+  },
+  "generalPractitioner": [
+    {
+      "reference": "Practitioner/11"
+    }
+  ],
+  "managingOrganization": {
+    "reference": "Organization/22"
+  }
+}

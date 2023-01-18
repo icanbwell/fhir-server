@@ -1,0 +1,48 @@
+{
+  "entry": [
+    {
+      "resource": {
+        "generalPractitioner": [
+          {
+            "reference": "Practitioner/11"
+          }
+        ],
+        "id": "1",
+        "identifier": [
+          {
+            "system": "https://www.icanbwell.com/sourceId",
+            "value": "1"
+          },
+          {
+            "system": "https://www.icanbwell.com/uuid"
+          }
+        ],
+        "managingOrganization": {
+          "reference": "Organization/22"
+        },
+        "meta": {
+          "security": [
+            {
+              "code": "medstar",
+              "system": "https://www.icanbwell.com/access"
+            },
+            {
+              "code": "medstar",
+              "system": "https://www.icanbwell.com/owner"
+            },
+            {
+              "code": "medstar",
+              "system": "https://www.icanbwell.com/sourceAssigningAuthority"
+            }
+          ],
+          "source": "http://medstarhealth.org/provider",
+          "versionId": "1"
+        },
+        "resourceType": "Patient"
+      }
+    }
+  ],
+  "resourceType": "Bundle",
+  "total": 0,
+  "type": "searchset"
+}
