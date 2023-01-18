@@ -144,7 +144,7 @@ class ErrorReporter {
      * @returns {string | undefined}
      */
     getRemoteAddress(req) {
-        return req.headers['X-Forwarded-For'] || req['x-real-ip'] || req.ip || req._remoteAddress || undefined;
+        return req.header('X-Forwarded-For') || req['x-real-ip'] || req.ip || req._remoteAddress || undefined;
     }
 
     /**

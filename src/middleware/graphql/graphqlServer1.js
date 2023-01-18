@@ -53,7 +53,7 @@ const graphql = async (fnCreateContainer) => {
                 // ApolloServerPluginLandingPageDisabled()
             ],
             context: async ({req, res}) => {
-                req.id = req.id || req.headers[`${REQUEST_ID_HEADER}`] || generateUUID();
+                req.id = req.id || req.header(`${REQUEST_ID_HEADER}`) || generateUUID();
                 return {
                     req,
                     res,

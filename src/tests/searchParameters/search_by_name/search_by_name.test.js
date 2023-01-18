@@ -163,6 +163,7 @@ describe('Person Tests', () => {
                 .get('/4_0_0/Person?fname=singhal&_bundle=1')
                 .set(lenientHeader);
             expect(resp.status).toBe(200);
+            // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedPersonWithLenientSearchResource);
         });
 
