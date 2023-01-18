@@ -24,6 +24,15 @@
           "start": "2021-01-01T00:00:00.000Z"
         },
         "id": "2354-InAgeCohort",
+        "identifier": [
+          {
+            "system": "https://www.icanbwell.com/sourceId",
+            "value": "2354-InAgeCohort"
+          },
+          {
+            "system": "https://www.icanbwell.com/uuid"
+          }
+        ],
         "issued": "2021-01-01T12:00:00Z",
         "meta": {
           "security": [
@@ -42,6 +51,10 @@
             {
               "code": "B",
               "system": "https://www.icanbwell.com/access"
+            },
+            {
+              "code": "healthsystem1",
+              "system": "https://www.icanbwell.com/sourceAssigningAuthority"
             }
           ],
           "source": "/patients",
@@ -61,6 +74,15 @@
         "birthDate": "2017-01-01",
         "gender": "female",
         "id": "patient1",
+        "identifier": [
+          {
+            "system": "https://www.icanbwell.com/sourceId",
+            "value": "patient1"
+          },
+          {
+            "system": "https://www.icanbwell.com/uuid"
+          }
+        ],
         "meta": {
           "security": [
             {
@@ -70,6 +92,10 @@
             {
               "code": "healthsystem1",
               "system": "https://www.icanbwell.com/owner"
+            },
+            {
+              "code": "healthsystem1",
+              "system": "https://www.icanbwell.com/sourceAssigningAuthority"
             }
           ],
           "source": "http://healthsystem1health.org/provider",
@@ -94,6 +120,15 @@
         "birthDate": "1990-01-01",
         "gender": "male",
         "id": "person1",
+        "identifier": [
+          {
+            "system": "https://www.icanbwell.com/sourceId",
+            "value": "person1"
+          },
+          {
+            "system": "https://www.icanbwell.com/uuid"
+          }
+        ],
         "link": [
           {
             "assurance": "level4",
@@ -112,6 +147,10 @@
             {
               "code": "medstar",
               "system": "https://www.icanbwell.com/owner"
+            },
+            {
+              "code": "medstar",
+              "system": "https://www.icanbwell.com/sourceAssigningAuthority"
             }
           ],
           "versionId": "1"
@@ -189,6 +228,10 @@
             {
               "code": "bwell",
               "system": "https://www.icanbwell.com/access"
+            },
+            {
+              "code": "bwell",
+              "system": "https://www.icanbwell.com/sourceAssigningAuthority"
             }
           ],
           "source": "https://www.icanbwell.com",
@@ -274,6 +317,10 @@
             {
               "code": "bwell",
               "system": "https://www.icanbwell.com/access"
+            },
+            {
+              "code": "bwell",
+              "system": "https://www.icanbwell.com/sourceAssigningAuthority"
             }
           ],
           "source": "https://www.icanbwell.com",

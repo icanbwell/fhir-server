@@ -50,13 +50,13 @@ describe('Organization Response Tests', () => {
             expect(resp).toHaveMergeResponse({created: true});
 
             resp = await request
-                .get('/4_0_0/Organization?identifier:missing=true')
+                .get('/4_0_0/Organization?category:missing=true')
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedOrganizationResponseBundle);
 
             resp = await request
-                .get('/4_0_0/Organization?identifier:missing=false')
+                .get('/4_0_0/Organization?category:missing=false')
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedOrganizationResponseBundle2);

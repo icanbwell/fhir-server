@@ -142,6 +142,15 @@
           }
         ],
         "id": "1275501447-UHG-MMMA",
+        "identifier": [
+          {
+            "system": "https://www.icanbwell.com/sourceId",
+            "value": "1275501447-UHG-MMMA"
+          },
+          {
+            "system": "https://www.icanbwell.com/uuid"
+          }
+        ],
         "meta": {
           "security": [
             {
@@ -310,6 +319,15 @@
       "resource": {
         "end": "2021-11-04T14:00:00.000+08:00",
         "id": "1275501447-UHG-MMMA-existing",
+        "identifier": [
+          {
+            "system": "https://www.icanbwell.com/sourceId",
+            "value": "1275501447-UHG-MMMA-existing"
+          },
+          {
+            "system": "https://www.icanbwell.com/uuid"
+          }
+        ],
         "meta": {
           "security": [
             {

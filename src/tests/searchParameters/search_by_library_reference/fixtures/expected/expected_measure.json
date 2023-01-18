@@ -9,6 +9,15 @@
           "start": "2022-01-01T00:00:00.000Z"
         },
         "id": "AWVCNE",
+        "identifier": [
+          {
+            "system": "https://www.icanbwell.com/sourceId",
+            "value": "AWVCNE"
+          },
+          {
+            "system": "https://www.icanbwell.com/uuid"
+          }
+        ],
         "library": [
           "https://fhir.dev.icanbwell.com/4_0_0/Library/AWVCN"
         ],
@@ -21,6 +30,10 @@
             {
               "code": "bwell",
               "system": "https://www.icanbwell.com/owner"
+            },
+            {
+              "code": "bwell",
+              "system": "https://www.icanbwell.com/sourceAssigningAuthority"
             }
           ],
           "source": "https://icanbwell.com",

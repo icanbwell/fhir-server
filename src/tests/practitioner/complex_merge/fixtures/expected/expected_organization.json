@@ -196,6 +196,15 @@
   },
   {
     "id": "MedStar-Medical-Group",
+    "identifier": [
+      {
+        "system": "https://www.icanbwell.com/sourceId",
+        "value": "MedStar-Medical-Group"
+      },
+      {
+        "system": "https://www.icanbwell.com/uuid"
+      }
+    ],
     "meta": {
       "security": [
         {
@@ -222,6 +231,15 @@
   },
   {
     "id": "Stanford-Medical-School",
+    "identifier": [
+      {
+        "system": "https://www.icanbwell.com/sourceId",
+        "value": "Stanford-Medical-School"
+      },
+      {
+        "system": "https://www.icanbwell.com/uuid"
+      }
+    ],
     "meta": {
       "security": [
         {

@@ -30,6 +30,15 @@ class UuidColumnHandler extends PreSaveHandler {
                     }
                 )
             );
+        } else if (!resource.identifier && Object.hasOwn(resource, 'identifier')) {
+            resource.identifier = [
+                new Identifier(
+                    {
+                        'system': IdentifierSystem.uuid,
+                        'value': resource._uuid
+                    }
+                )
+            ];
         }
 
         return resource;

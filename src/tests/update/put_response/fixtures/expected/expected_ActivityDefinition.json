@@ -1,6 +1,15 @@
 {
   "approvalDate": "2022-09-12",
   "id": "ab2d17e3-3996-487c-bf81-cbe31abde0be",
+  "identifier": [
+    {
+      "system": "https://www.icanbwell.com/sourceId",
+      "value": "ab2d17e3-3996-487c-bf81-cbe31abde0be"
+    },
+    {
+      "system": "https://www.icanbwell.com/uuid"
+    }
+  ],
   "library": [
     "http://fhir.staging.icanbwell.com/4_0_0/Library/DIABETESTYPE2-ClinicalGrouping"
   ],
@@ -13,6 +22,10 @@
       {
         "code": "bwell",
         "system": "https://www.icanbwell.com/access"
+      },
+      {
+        "code": "bwell",
+        "system": "https://www.icanbwell.com/sourceAssigningAuthority"
       }
     ],
     "versionId": "1"

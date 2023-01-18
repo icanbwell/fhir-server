@@ -51,7 +51,7 @@ class MergeManager {
             resourceMerger,
             resourceValidator,
             preSaveManager,
-            configManager
+            configManager,
         }
     ) {
         /**
@@ -293,7 +293,8 @@ class MergeManager {
                         {
                             requestId,
                             resourceType: resourceToMerge.resourceType,
-                            id: id.toString()
+                            id: id.toString(),
+                            securityTagStructure: resourceToMerge.securityTagStructure
                         }
                     ) :
                     await databaseQueryManager.findOneAsync({query: {id: id.toString()}});
@@ -645,6 +646,10 @@ class MergeManager {
             if (resourceObjectToValidate.meta && resourceObjectToValidate.meta.lastUpdated) {
                 // noinspection JSValidateTypes
                 resourceObjectToValidate.meta.lastUpdated = new Date(resourceObjectToValidate.meta.lastUpdated).toISOString();
+                // also truncate id to 64 so it passes the validator since we support more than 64 internally
+                if (resourceObjectToValidate.id && resourceObjectToValidate.id.length > 64) {
+                    resourceObjectToValidate.id = resourceObjectToValidate.id.slice(0, 64);
+                }
             }
 
             /**

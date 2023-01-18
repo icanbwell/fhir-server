@@ -1,5 +1,15 @@
 {
   "id": "9b3326ba-2421-4b9a-9d57-1eba0481cbd4",
+  "identifier": [
+    {
+      "system": "https://www.icanbwell.com/sourceId",
+      "value": "9b3326ba-2421-4b9a-9d57-1eba0481cbd4"
+    },
+    {
+      "system": "https://www.icanbwell.com/uuid",
+      "value": "9b3326ba-2421-4b9a-9d57-1eba0481cbd4"
+    }
+  ],
   "link": [
     {
       "assurance": "level4",
@@ -47,6 +57,10 @@
       {
         "code": "bwell",
         "system": "https://www.icanbwell.com/access"
+      },
+      {
+        "code": "bwell",
+        "system": "https://www.icanbwell.com/sourceAssigningAuthority"
       }
     ],
     "source": "https://www.icanbwell.com",
