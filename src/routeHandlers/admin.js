@@ -106,7 +106,7 @@ async function handleAdmin(
     }
 
     try {
-        req.id = req.id || req.headers[REQUEST_ID_HEADER] || generateUUID();
+        req.id = req.id || req.headers[`${REQUEST_ID_HEADER}`] || generateUUID();
         const operation = req.params['op'];
         console.log(`op=${operation}`);
 

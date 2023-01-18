@@ -62,7 +62,7 @@ const graphql = async (fnCreateContainer) => {
     async function getContext({req, res}) {
         const container = fnCreateContainer();
 
-        req.id = req.id || req.headers[REQUEST_ID_HEADER] || generateUUID();
+        req.id = req.id || req.headers[`${REQUEST_ID_HEADER}`] || generateUUID();
 
         /**
          * @type {FhirRequestInfo}
