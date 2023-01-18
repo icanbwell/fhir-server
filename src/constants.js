@@ -167,4 +167,5 @@ module.exports = {
         '_summary', '_contained', '_containedType', '_query', '_filter', '_format', '_pretty', 'role', 'member',
         'onBehalfOf', 'period', 'practitionerId', 'patientId',
     ],
+    REQUEST_ID_HEADER: 'x-request-id',
 };

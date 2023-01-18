@@ -4,6 +4,7 @@
 const {ApolloServer} = require('apollo-server-express');
 const {join} = require('path');
 const resolvers = require('../../graphql/v2/resolvers');
+const { REQUEST_ID_HEADER } = require('../../constants');
 const {loadFilesSync} = require('@graphql-tools/load-files');
 const {mergeTypeDefs} = require('@graphql-tools/merge');
 const {FhirDataSource} = require('../../graphql/v2/dataSource');
@@ -61,7 +62,7 @@ const graphql = async (fnCreateContainer) => {
     async function getContext({req, res}) {
         const container = fnCreateContainer();
 
-        req.id = req.id || req.headers['X-REQUEST-ID'] || generateUUID();
+        req.id = req.id || req.headers[`${REQUEST_ID_HEADER}`] || generateUUID();
 
         /**
          * @type {FhirRequestInfo}

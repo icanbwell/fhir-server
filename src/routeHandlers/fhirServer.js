@@ -21,6 +21,7 @@ const {assertTypeEquals} = require('../utils/assertType');
 const passport = require('passport');
 const path = require('path');
 const contentType = require('content-type');
+const { REQUEST_ID_HEADER } = require('../constants');
 const {convertErrorToOperationOutcome} = require('../utils/convertErrorToOperationOutcome');
 
 class MyFHIRServer {
@@ -125,14 +126,14 @@ class MyFHIRServer {
             }
         });
 
-        // generate a unique ID for each request.  Use X-REQUEST-ID in header if sent.
+        // generate a unique ID for each request.  Use x-request-id in header if sent.
         this.app.use(
             (
                 /** @type {import('http').IncomingMessage} **/ req,
                 /** @type {import('http').ServerResponse} **/ res,
                 next
             ) => {
-                req.id = req.id || req.headers['X-REQUEST-ID'] || generateUUID();
+                req.id = req.id || req.headers[`${REQUEST_ID_HEADER}`] || generateUUID();
                 next();
             }
         );
