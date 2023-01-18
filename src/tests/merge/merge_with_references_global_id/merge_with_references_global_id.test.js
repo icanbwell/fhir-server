@@ -6,6 +6,13 @@ const expectedPatient1Resources = require('./fixtures/expected/expected_patient1
 
 const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest} = require('../../common');
 const {describe, beforeEach, afterEach, test} = require('@jest/globals');
+const {ConfigManager} = require('../../../utils/configManager');
+
+class MockConfigManager extends ConfigManager {
+    get enableGlobalIdSupport() {
+        return true;
+    }
+}
 
 describe('Patient Tests', () => {
     beforeEach(async () => {
@@ -18,7 +25,11 @@ describe('Patient Tests', () => {
 
     describe('Patient merge_with_references_global_id Tests', () => {
         test('merge_with_references_global_id works', async () => {
-            const request = await createTestRequest();
+            const request = await createTestRequest((c) => {
+                c.register('configManager', () => new MockConfigManager());
+                return c;
+            });
+
             // ARRANGE
             // add the resources to FHIR server
             let resp = await request
