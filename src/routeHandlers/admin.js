@@ -14,6 +14,7 @@ const {generateUUID} = require('../utils/uid.util');
 const scopeChecker = require('@asymmetrik/sof-scope-checker');
 const OperationOutcome = require('../fhir/classes/4_0_0/resources/operationOutcome');
 const OperationOutcomeIssue = require('../fhir/classes/4_0_0/backbone_elements/operationOutcomeIssue');
+const { REQUEST_ID_HEADER } = require('../constants');
 
 /**
  * shows indexes
@@ -105,7 +106,7 @@ async function handleAdmin(
     }
 
     try {
-        req.id = req.id || req.headers['X-REQUEST-ID'] || generateUUID();
+        req.id = req.id || req.headers[REQUEST_ID_HEADER] || generateUUID();
         const operation = req.params['op'];
         console.log(`op=${operation}`);
 
