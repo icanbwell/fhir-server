@@ -170,6 +170,68 @@ class DatabasePartitionedCursor {
     }
 
     /**
+     * Get the next available document from the cursors, returns null if no more documents are available
+     * @return {Promise<Object|null>}
+     */
+    async nextRaw() {
+        while (this._cursors.length > 0) {
+            await logTraceSystemEventAsync(
+                {
+                    event: 'DatabasePartitionedCursor: next',
+                    message: 'DatabasePartitionedCursor: next',
+                    args: {
+                        collections: this._cursors.map(c => c.collection),
+                        query: this.query
+                    }
+                }
+            );
+
+            // check if the first cursor has next.  If not, remove that cursor from the list
+            try {
+                // return Promise.reject(new Error('woops'));
+                const result = await this._cursors[0].cursor.next();
+                if (result !== null) {
+                    const resourceType = result.resource ? 'BundleEntry' : result.resourceType || this.resourceType;
+                    try {
+                        if (resourceType === 'BundleEntry') {
+                            // noinspection JSCheckFunctionSignatures
+                            return new BundleEntry(result);
+                        }
+                        return result;
+                    } catch (e) {
+                        throw new RethrownError({
+                            message: `Error hydrating resource from database: ${resourceType}/${result.id}`,
+                            collections: this._cursors.map(c => c.collection),
+                            databases: this._cursors.map(c => c.db),
+                            error: e,
+                            query: this.query,
+                            id: result.id
+                        });
+                    }
+                } else {
+                    assertFail({
+                        source: 'DatabasePartitionedCursor.next',
+                        message: 'Data is null',
+                        args: {
+                            value: result,
+                            query: this.query
+                        }
+                    });
+                }
+            } catch (e) {
+                throw new RethrownError({
+                    collections: this._cursors.map(c => c.collection),
+                    databases: this._cursors.map(c => c.db),
+                    error: e,
+                    query: this.query
+                });
+            }
+            this._cursors.shift();
+        }
+        return null;
+    }
+
+    /**
      * Sets a field projection for the query
      * @param { import('mongodb').SchemaMember<import('mongodb').DefaultSchema, any>} projection
      * @return {DatabasePartitionedCursor}

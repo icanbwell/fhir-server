@@ -8,6 +8,7 @@ const BundleEntry = require('../fhir/classes/4_0_0/backbone_elements/bundleEntry
 const BundleRequest = require('../fhir/classes/4_0_0/backbone_elements/bundleRequest');
 const moment = require('moment-timezone');
 const {getCircularReplacer} = require('../utils/getCircularReplacer');
+const {MongoFilterGenerator} = require('../utils/mongoFilterGenerator');
 
 /**
  * @typedef FindOneAndUpdateResult
@@ -34,8 +35,9 @@ class DatabaseQueryManager {
      * @param {ResourceLocatorFactory} resourceLocatorFactory
      * @param {string} resourceType
      * @param {string} base_version
+     * @param {MongoFilterGenerator} mongoFilterGenerator
      */
-    constructor({resourceLocatorFactory, resourceType, base_version}) {
+    constructor({resourceLocatorFactory, resourceType, base_version, mongoFilterGenerator}) {
         assertTypeEquals(resourceLocatorFactory, ResourceLocatorFactory);
         /**
          * @type {string}
@@ -55,6 +57,12 @@ class DatabaseQueryManager {
             base_version: this._base_version
         });
         assertTypeEquals(this.resourceLocator, ResourceLocator);
+
+        /**
+         * @type {MongoFilterGenerator}
+         */
+        this.mongoFilterGenerator = mongoFilterGenerator;
+        assertTypeEquals(mongoFilterGenerator, MongoFilterGenerator);
     }
 
     /**
@@ -292,6 +300,61 @@ class DatabaseQueryManager {
                 args: {resources}
             });
         }
+    }
+
+    /**
+     * Gets UUID from database
+     * @param {string} id
+     * @param {SecurityTagStructure} securityTagStructure
+     * @return {Promise<string>}
+     */
+    async getUuidForReferenceAsync({id, securityTagStructure}) {
+            /**
+             * @type {import('mongodb').Filter<import('mongodb').DefaultSchema>}
+             */
+            const query = this.mongoFilterGenerator.generateFilterForIdAndSecurityTags(
+                {
+                    id,
+                    securityTagStructure
+                }
+            );
+            /**
+             *
+             * @type {import('mongodb').FindOptions<import('mongodb').DefaultSchema>}
+             */
+            const options = {
+                projection: {
+                    'id': 1,
+                    '_uuid': 1,
+                    '_sourceId': 1,
+                    'meta': 1
+                }
+            };
+        try {
+            const cursor = this.findAsync(
+                {
+                    query,
+                    options
+                }
+            );
+            while (await cursor.hasNext()) {
+                /**
+                 * @type {Object|null}
+                 */
+                const doc = await cursor.nextRaw();
+                if (!doc) {
+                    return null;
+                }
+                return doc._uuid;
+            }
+            return null;
+        } catch (e) {
+            throw new RethrownError({
+                message: 'Error in getUuidForReferenceAsync(): ' + `query: ${JSON.stringify(query)}`, error: e,
+                args: {query, options}
+            });
+        }
+
     }
 }
 

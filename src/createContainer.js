@@ -192,7 +192,8 @@ const createContainer = function () {
 
     container.register('databaseQueryFactory', (c) => new DatabaseQueryFactory(
         {
-            resourceLocatorFactory: c.resourceLocatorFactory
+            resourceLocatorFactory: c.resourceLocatorFactory,
+            mongoFilterGenerator: c.mongoFilterGenerator
         }));
     container.register('databaseHistoryFactory', (c) => new DatabaseHistoryFactory(
         {
