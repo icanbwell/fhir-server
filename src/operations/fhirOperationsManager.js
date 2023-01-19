@@ -292,10 +292,16 @@ class FhirOperationsManager {
      * @param {string} resourceType
      */
     async searchById(args, {req}, resourceType) {
+        /**
+         * combined args
+         * @type {Object}
+         */
+        let combined_args = get_all_args(req, args);
+
         return this.searchByIdOperation.searchById(
             {
                 requestInfo: this.getRequestInfo(req),
-                args, resourceType
+                args: combined_args, resourceType
             }
         );
     }

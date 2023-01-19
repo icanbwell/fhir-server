@@ -1,178 +1,65 @@
 {
-  "entry": [
-    {
-      "resource": {
-        "code": {
-          "coding": [
-            {
-              "code": "BMI001",
-              "system": "http://www.icanbwell.com/cql/library"
-            },
-            {
-              "code": "1.0.0",
-              "system": "http://www.icanbwell.com/cql/libraryVersion"
-            },
-            {
-              "code": "InAgeCohort",
-              "system": "http://www.icanbwell.com/cql/rule"
-            }
-          ]
-        },
-        "effectivePeriod": {
-          "end": "2021-12-31T00:00:00.000Z",
-          "start": "2021-01-01T00:00:00.000Z"
-        },
-        "id": "1",
-        "identifier": [
-          {
-            "system": "https://www.icanbwell.com/sourceId",
-            "value": "1"
-          },
-          {
-            "system": "https://www.icanbwell.com/uuid"
-          }
-        ],
-        "issued": "2021-01-01T12:00:00Z",
-        "meta": {
-          "security": [
-            {
-              "code": "A",
-              "system": "https://www.icanbwell.com/owner"
-            },
-            {
-              "code": "A",
-              "system": "https://www.icanbwell.com/access"
-            },
-            {
-              "code": "B",
-              "system": "https://www.icanbwell.com/vendor"
-            },
-            {
-              "code": "B",
-              "system": "https://www.icanbwell.com/access"
-            },
-            {
-              "code": "A",
-              "system": "https://www.icanbwell.com/sourceAssigningAuthority"
-            }
-          ],
-          "source": "/patients",
-          "versionId": "1"
-        },
-        "resourceType": "Observation",
-        "status": "final",
-        "subject": {
-          "reference": "Patient/2354"
-        },
-        "valueBoolean": false
-      }
-    },
-    {
-      "resource": {
-        "code": {
-          "coding": [
-            {
-              "code": "OtherRule",
-              "system": "http://www.icanbwell.com/cql/library"
-            },
-            {
-              "code": "1.0.0",
-              "system": "http://www.icanbwell.com/cql/libraryVersion2"
-            },
-            {
-              "code": "InAgeCohort",
-              "system": "http://www.icanbwell.com/cql/rule"
-            }
-          ]
-        },
-        "effectivePeriod": {
-          "end": "2021-12-31T00:00:00.000Z",
-          "start": "2021-01-01T00:00:00.000Z"
-        },
-        "id": "1",
-        "identifier": [
-          {
-            "system": "https://www.icanbwell.com/sourceId",
-            "value": "1"
-          },
-          {
-            "system": "https://www.icanbwell.com/uuid"
-          }
-        ],
-        "issued": "2021-01-01T12:00:00Z",
-        "meta": {
-          "security": [
-            {
-              "code": "C",
-              "system": "https://www.icanbwell.com/owner"
-            },
-            {
-              "code": "C",
-              "system": "https://www.icanbwell.com/access"
-            },
-            {
-              "code": "B",
-              "system": "https://www.icanbwell.com/vendor"
-            },
-            {
-              "code": "B",
-              "system": "https://www.icanbwell.com/access"
-            },
-            {
-              "code": "C",
-              "system": "https://www.icanbwell.com/sourceAssigningAuthority"
-            }
-          ],
-          "source": "/patients",
-          "versionId": "1"
-        },
-        "resourceType": "Observation",
-        "status": "final",
-        "subject": {
-          "reference": "Patient/2354"
-        },
-        "valueBoolean": false
-      }
-    }
-  ],
-  "meta": {
-    "tag": [
+  "code": {
+    "coding": [
       {
-        "display": "db.Observation_4_0_0.find({'$and':[{'_sourceId':'1'}]}, {}).sort({'id':1}).limit(10000)",
-        "system": "https://www.icanbwell.com/query"
+        "code": "BMI001",
+        "system": "http://www.icanbwell.com/cql/library"
       },
       {
-        "code": "Observation_4_0_0",
-        "system": "https://www.icanbwell.com/queryCollection"
+        "code": "1.0.0",
+        "system": "http://www.icanbwell.com/cql/libraryVersion"
       },
       {
-        "display": "{'limit':10000,'sort':{'id':1}}",
-        "system": "https://www.icanbwell.com/queryOptions"
-      },
-      {
-        "display": "['_sourceId','id']",
-        "system": "https://www.icanbwell.com/queryFields"
-      },
-      {
-        "system": "https://www.icanbwell.com/queryTime"
-      },
-      {
-        "display": "{'useTwoStepSearchOptimization':false}",
-        "system": "https://www.icanbwell.com/queryOptimization"
-      },
-      {
-        "code": "fhir",
-        "system": "https://www.icanbwell.com/queryDatabase"
-      },
-      {
-        "system": "https://www.icanbwell.com/queryExplain"
-      },
-      {
-        "system": "https://www.icanbwell.com/queryExplainSimple"
+        "code": "InAgeCohort",
+        "system": "http://www.icanbwell.com/cql/rule"
       }
     ]
   },
-  "resourceType": "Bundle",
-  "total": 0,
-  "type": "searchset"
+  "effectivePeriod": {
+    "end": "2021-12-31T00:00:00.000Z",
+    "start": "2021-01-01T00:00:00.000Z"
+  },
+  "id": "1",
+  "identifier": [
+    {
+      "system": "https://www.icanbwell.com/sourceId",
+      "value": "1"
+    },
+    {
+      "system": "https://www.icanbwell.com/uuid"
+    }
+  ],
+  "issued": "2021-01-01T12:00:00Z",
+  "meta": {
+    "security": [
+      {
+        "code": "A",
+        "system": "https://www.icanbwell.com/owner"
+      },
+      {
+        "code": "A",
+        "system": "https://www.icanbwell.com/access"
+      },
+      {
+        "code": "B",
+        "system": "https://www.icanbwell.com/vendor"
+      },
+      {
+        "code": "B",
+        "system": "https://www.icanbwell.com/access"
+      },
+      {
+        "code": "A",
+        "system": "https://www.icanbwell.com/sourceAssigningAuthority"
+      }
+    ],
+    "source": "/patients",
+    "versionId": "1"
+  },
+  "resourceType": "Observation",
+  "status": "final",
+  "subject": {
+    "reference": "Patient/2354"
+  },
+  "valueBoolean": false
 }
