@@ -1,9 +1,18 @@
-const env = require('var');
 const {searchBundle} = require('./searchBundle');
-const {assertIsValid} = require('../../utils/assertType');
+const {assertIsValid, assertTypeEquals} = require('../../utils/assertType');
+const {ConfigManager} = require('../../utils/configManager');
 
 class SearchOperation {
-    constructor() {
+    /**
+     * constructor
+     * @param {ConfigManager} configManager
+     */
+    constructor({configManager}) {
+        /**
+         * @type {ConfigManager}
+         */
+        this.configManager = configManager;
+        assertTypeEquals(configManager, ConfigManager);
     }
 
     /**
@@ -29,7 +38,7 @@ class SearchOperation {
             requestInfo, args, resourceType,
             filter);
 
-        if (env.RETURN_BUNDLE || args['_bundle']) {
+        if (this.configManager.enableReturnBundle || args['_bundle']) {
             return bundle;
         } else {
             // return resources from bundle

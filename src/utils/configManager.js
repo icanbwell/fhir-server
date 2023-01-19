@@ -212,6 +212,14 @@ class ConfigManager {
     get enableGlobalIdSupport() {
         return isTrue(env.ENABLE_GLOBAL_ID);
     }
+
+    /**
+     * whether to return data as bundle
+     * @return {boolean}
+     */
+    get enableReturnBundle() {
+        return isTrue(env.RETURN_BUNDLE);
+    }
 }
 
 module.exports = {

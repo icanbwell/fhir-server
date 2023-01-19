@@ -322,7 +322,7 @@ class SearchStreamingOperation {
                         });
                 } else {
                     // if env.RETURN_BUNDLE is set then return as a Bundle
-                    if (env.RETURN_BUNDLE || args['_bundle']) {
+                    if (this.configManager.enableReturnBundle || args['_bundle']) {
                         /**
                          * @type {Resource[]}
                          */
@@ -413,7 +413,7 @@ class SearchStreamingOperation {
                     res.status(200).end();
                 } else {
                     // return empty bundle
-                    if (env.RETURN_BUNDLE || args['_bundle']) {
+                    if (this.configManager.enableReturnBundle || args['_bundle']) {
                         /**
                          * @type {Bundle}
                          */
