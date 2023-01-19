@@ -26,6 +26,10 @@ class MockConfigManager extends ConfigManager {
     get enableGlobalIdSupport() {
         return true;
     }
+
+    get enableReturnBundle() {
+        return true;
+    }
 }
 
 describe('Observation Tests', () => {
@@ -119,28 +123,28 @@ describe('Observation Tests', () => {
 
             // search by owner security tag should only return 1
             resp = await request
-                .get('/4_0_0/Observation/?_bundle=1&_debug=1&id=1&_security=https://www.icanbwell.com/owner|C')
+                .get('/4_0_0/Observation/?_debug=1&id=1&_security=https://www.icanbwell.com/owner|C')
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedObservationByOwnerResources);
 
             // search by sourceAssigningAuthority security tag should only return 1
             resp = await request
-                .get('/4_0_0/Observation/?_bundle=1&_debug=1&id=1&_security=https://www.icanbwell.com/sourceAssigningAuthority|C')
+                .get('/4_0_0/Observation/?_debug=1&id=1&_security=https://www.icanbwell.com/sourceAssigningAuthority|C')
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedObservationBySourceAssigningAuthorityResources);
 
             // search by id but no security tag should return both
             resp = await request
-                .get('/4_0_0/Observation/?_bundle=1&id=1&_debug=1')
+                .get('/4_0_0/Observation/?id=1&_debug=1')
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedObservationAllByIdResources);
 
             // search by id but with token limited to one access security tag should return 1
             resp = await request
-                .get('/4_0_0/Observation/?_bundle=1&id=1&_debug=1')
+                .get('/4_0_0/Observation/?id=1&_debug=1')
                 .set(getHeaders('user/*.read user/*.write access/C.*'));
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedObservationByAccessResources);
