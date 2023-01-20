@@ -5,8 +5,6 @@ const observation2Resource = require('./fixtures/Observation/observation2.json')
 // expected
 const expectedObservationByOwnerResources = require('./fixtures/expected/expected_observation_by_owner.json');
 const expectedObservationByAccessResources = require('./fixtures/expected/expected_observation_by_access.json');
-const expectedObservationBySourceAssigningAuthorityResources = require('./fixtures/expected/expected_observation_by_sourceAssigningAuthority.json');
-const expectedObservationAllByIdResources = require('./fixtures/expected/expected_observation_all_by_id.json');
 
 const {
     commonBeforeEach,
@@ -38,8 +36,8 @@ describe('Observation Tests', () => {
         await commonAfterEach();
     });
 
-    describe('Observation search_by_id_with_duplicate_id Tests', () => {
-        test('search_by_id_with_duplicate_id adds two resources with same id', async () => {
+    describe('Observation search_by_patient_with_duplicate_id Tests', () => {
+        test('search_by_patient_with_duplicate_id adds two resources with same id', async () => {
             const request = await createTestRequest((c) => {
                 c.register('configManager', () => new MockConfigManager());
                 return c;
@@ -69,36 +67,15 @@ describe('Observation Tests', () => {
             expect(resp).toHaveMergeResponse({created: true});
             await postRequestProcessor.waitTillDoneAsync({requestId: getRequestId(resp)});
 
-            // search by owner security tag should only return 1
             resp = await request
-                .get('/4_0_0/Observation/1/?_debug=1&_security=https://www.icanbwell.com/owner|C')
+                .get('/4_0_0/Observation/?_debug=1&patient=Patient/2354|C')
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedObservationByOwnerResources);
-
-            resp = await request
-                .get('/4_0_0/Observation/1|C/?_debug=1')
-                .set(getHeaders());
-            // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse(expectedObservationByOwnerResources);
-
-            // search by sourceAssigningAuthority security tag should only return 1
-            resp = await request
-                .get('/4_0_0/Observation/1|C/?_debug=1')
-                .set(getHeaders());
-            // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse(expectedObservationBySourceAssigningAuthorityResources);
-
-            // search by id but no security tag should return both
-            resp = await request
-                .get('/4_0_0/Observation/1/?_debug=1')
-                .set(getHeaders());
-            // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse(expectedObservationAllByIdResources);
 
             // search by id but with token limited to one access security tag should return 1
             resp = await request
-                .get('/4_0_0/Observation/1/?_debug=1')
+                .get('/4_0_0/Observation/1/?_debug=1&patient=Patient/2354|C')
                 .set(getHeaders('user/*.read user/*.write access/C.*'));
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedObservationByAccessResources);
