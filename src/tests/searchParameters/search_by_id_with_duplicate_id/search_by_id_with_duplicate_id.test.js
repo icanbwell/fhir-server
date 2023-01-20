@@ -70,15 +70,21 @@ describe('Observation Tests', () => {
             await postRequestProcessor.waitTillDoneAsync({requestId: getRequestId(resp)});
 
             // search by owner security tag should only return 1
+            // resp = await request
+            //     .get('/4_0_0/Observation/1/?_debug=1&_security=https://www.icanbwell.com/owner|C')
+            //     .set(getHeaders());
+            // // noinspection JSUnresolvedFunction
+            // expect(resp).toHaveResponse(expectedObservationByOwnerResources);
+            //
             resp = await request
-                .get('/4_0_0/Observation/1/?_debug=1&_security=https://www.icanbwell.com/owner|C')
+                .get('/4_0_0/Observation/1|C/?_debug=1')
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedObservationByOwnerResources);
 
             // search by sourceAssigningAuthority security tag should only return 1
             resp = await request
-                .get('/4_0_0/Observation/1/?_debug=1&_security=https://www.icanbwell.com/sourceAssigningAuthority|C')
+                .get('/4_0_0/Observation/1|C/?_debug=1')
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedObservationBySourceAssigningAuthorityResources);

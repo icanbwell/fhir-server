@@ -32,6 +32,31 @@ function filterById(
      */
     let field = enableGlobalIdSupport ? sourceIdFieldName : propertyObj.field;
 
+    function getFilterForIdList(idList) {
+        let idFilters = [];
+        if (idList.some(i => i.includes('|'))) {
+            idFilters = idList.map(i => {
+                return {
+                    $and: [
+                        {
+                            [`${field}`]: i.split('|')[0],
+                        },
+                        {
+                            [`_sourceAssigningAuthority.${i.split('|')[0]}`]: 1
+                        }
+                    ]
+                };
+            });
+        } else {
+            idFilters.push({
+                [`${field}`]: {
+                    $in: idList,
+                }
+            });
+        }
+        return idFilters;
+    }
+
     /**
      * @param {string[]} idAndUuidList
      */
@@ -55,25 +80,19 @@ function filterById(
         const idList = idAndUuidList.filter(i => !uuidList.includes(i));
 
         if (idList.length > 0 && uuidList.length > 0) {
+            const idFilters = getFilterForIdList(idList);
+            idFilters.push({
+                [`${uuidFieldName}`]: {
+                    $in: uuidList,
+                }
+            });
             and_segments.push({
-                $or: [
-                    {
-                        [`${field}`]: {
-                            $in: idList,
-                        }
-                    },
-                    {
-                        [`${uuidFieldName}`]: {
-                            $in: uuidList,
-                        }
-                    }
-                ]
+                $or: idFilters
             });
         } else if (idList.length > 0) {
+            const idFilters = getFilterForIdList(idList);
             and_segments.push({
-                [`${field}`]: {
-                    $in: idList,
-                },
+                $or: idFilters
             });
         } else if (uuidList.length > 0) {
             and_segments.push({
@@ -95,10 +114,31 @@ function filterById(
         if (enableGlobalIdSupport && isUuid(queryParameterValue)) {
             field = uuidFieldName;
         }
-        // single value is passed
-        and_segments.push({
-            [`${field}`]: queryParameterValue,
-        });
+        if (queryParameterValue.includes('|')) {
+            /**
+             * @type {string[]}
+             */
+            const idAndSourceAssigningAuthority = queryParameterValue.split('|');
+            if (idAndSourceAssigningAuthority.length > 1) {
+                const id = idAndSourceAssigningAuthority[0];
+                const sourceAssigningAuthority = idAndSourceAssigningAuthority[1];
+                and_segments.push({
+                    $and: [
+                        {
+                            [`${field}`]: id,
+                        },
+                        {
+                            [`_sourceAssigningAuthority.${sourceAssigningAuthority}`]: 1
+                        }
+                    ]
+                });
+            }
+        } else {
+            // single value is passed
+            and_segments.push({
+                [`${field}`]: queryParameterValue,
+            });
+        }
     }
     columns.add(`${field}`);
     return and_segments;
