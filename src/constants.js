@@ -156,5 +156,5 @@ module.exports = {
         VISIONPRESCRIPTION: 'VisionPrescription',
         CLIENT: 'Client',
     },
-    KAFKA_CONNECTION_TIME_OFFSET: 30000,
+    KAFKA_CONNECTION_HEALTHCHECK_INTERVAL: 30000, // In milliseconds
 };
