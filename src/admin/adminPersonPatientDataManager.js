@@ -227,7 +227,7 @@ class AdminPersonPatientDataManager {
                 /**
                  * @type {import('mongodb').DefaultSchema[]}
                  */
-                const personRecordsWithLinkToDeletedResourceId = await personRecordsWithLinkToDeletedResourceIdCursor.toArrayAsync();
+                const personRecordsWithLinkToDeletedResourceId = await personRecordsWithLinkToDeletedResourceIdCursor.toArrayRawAsync();
                 for (
                     const /** @type {import('mongodb').DefaultSchema} */
                     personRecordWithLinkToDeletedResourceId of personRecordsWithLinkToDeletedResourceId

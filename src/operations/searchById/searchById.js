@@ -1,4 +1,4 @@
-const {ForbiddenError, NotFoundError} = require('../../utils/httpErrors');
+const {ForbiddenError, NotFoundError, BadRequestError} = require('../../utils/httpErrors');
 const {EnrichmentManager} = require('../../enrich/enrich');
 const {removeNull} = require('../../utils/nullRemover');
 const moment = require('moment-timezone');
@@ -13,6 +13,8 @@ const {ScopesValidator} = require('../security/scopesValidator');
 const {isTrue} = require('../../utils/isTrue');
 const {ConfigManager} = require('../../utils/configManager');
 const deepcopy = require('deepcopy');
+const {getFirstResourceOrNull} = require('../../utils/list.util');
+const {SecurityTagSystem} = require('../../utils/securityTagSystem');
 
 class SearchByIdOperation {
     /**
@@ -167,14 +169,38 @@ class SearchByIdOperation {
                 useAccessIndex,
                 personIdFromJwtToken,
             });
-            try {
-                const databaseQueryManager = this.databaseQueryFactory.createQuery(
-                    {resourceType, base_version}
+
+            const databaseQueryManager = this.databaseQueryFactory.createQuery(
+                {resourceType, base_version}
+            );
+            /**
+             * @type {DatabasePartitionedCursor}
+             */
+            const cursor = await databaseQueryManager.findAsync({query});
+            // we can convert to array since we don't expect to be many resources that have same id
+            /**
+             * @type {Resource[]}
+             */
+            const resources = await cursor.toArrayAsync();
+            if (resources.length > 1) {
+                /**
+                 * @type {string[]}
+                 */
+                const sourceAssigningAuthorities = resources.flatMap(
+                    r => r.meta && r.meta.security ?
+                        r.meta.security
+                            .filter(tag => tag.system === SecurityTagSystem.sourceAssigningAuthority)
+                            .map(tag => tag.code)
+                        : []
                 );
-                resource = await databaseQueryManager.findOneAsync({query});
-            } catch (e) {
-                throw new NotFoundError(new Error(`Resource not found: ${resourceType}/${id}`));
+                throw new BadRequestError(new Error(
+                    `Multiple resources found with id ${id}.  ` +
+                    'Please either specify the owner/sourceAssigningAuthority tag: ' +
+                    sourceAssigningAuthorities.map(sa => `${id}|${sa}`).join(' or ') +
+                    ' OR use uuid to query.'
+                ));
             }
+            resource = getFirstResourceOrNull(resources);
 
             if (resource) {
                 if (!(this.scopesManager.isAccessToResourceAllowedBySecurityTags({
@@ -215,7 +241,7 @@ class SearchByIdOperation {
                     });
                 return resource;
             } else {
-                throw new NotFoundError(`Not Found: ${resourceType}.searchById: ${id.toString()}`);
+                throw new NotFoundError(`Resource not found: ${resourceType}/${id}`);
             }
         } catch (e) {
             await this.fhirLoggingManager.logOperationFailureAsync(

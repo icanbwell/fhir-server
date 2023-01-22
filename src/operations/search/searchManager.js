@@ -708,7 +708,7 @@ class SearchManager {
             let idResults = await cursor
                 .sort({sortOption})
                 .maxTimeMS({milliSecs: maxMongoTimeMS})
-                .toArrayAsync();
+                .toArrayRawAsync();
             if (idResults.length > 0) {
                 // now get the documents for those ids.  We can clear all the other query parameters
                 query = idResults.length === 1 ?

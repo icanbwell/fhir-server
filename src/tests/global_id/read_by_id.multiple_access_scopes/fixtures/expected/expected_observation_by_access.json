@@ -1,65 +1,13 @@
 {
-  "code": {
-    "coding": [
-      {
-        "code": "OtherRule",
-        "system": "http://www.icanbwell.com/cql/library"
-      },
-      {
-        "code": "1.0.0",
-        "system": "http://www.icanbwell.com/cql/libraryVersion2"
-      },
-      {
-        "code": "InAgeCohort",
-        "system": "http://www.icanbwell.com/cql/rule"
-      }
-    ]
-  },
-  "effectivePeriod": {
-    "end": "2021-12-31T00:00:00.000Z",
-    "start": "2021-01-01T00:00:00.000Z"
-  },
-  "id": "1",
-  "identifier": [
+  "issue": [
     {
-      "system": "https://www.icanbwell.com/sourceId",
-      "value": "1"
-    },
-    {
-      "system": "https://www.icanbwell.com/uuid"
+      "code": "invalid",
+      "details": {
+        "text": "Multiple resources found with id 1.  Please either specify the owner/sourceAssigningAuthority tag: 1|A or 1|C OR use uuid to query."
+      },
+      "diagnostics": "Error: Multiple resources found with id 1.  Please either specify the owner/sourceAssigningAuthority tag: 1|A or 1|C OR use uuid to query.",
+      "severity": "error"
     }
   ],
-  "issued": "2021-01-01T12:00:00Z",
-  "meta": {
-    "security": [
-      {
-        "code": "C",
-        "system": "https://www.icanbwell.com/owner"
-      },
-      {
-        "code": "C",
-        "system": "https://www.icanbwell.com/access"
-      },
-      {
-        "code": "B",
-        "system": "https://www.icanbwell.com/vendor"
-      },
-      {
-        "code": "B",
-        "system": "https://www.icanbwell.com/access"
-      },
-      {
-        "code": "C",
-        "system": "https://www.icanbwell.com/sourceAssigningAuthority"
-      }
-    ],
-    "source": "/patients",
-    "versionId": "1"
-  },
-  "resourceType": "Observation",
-  "status": "final",
-  "subject": {
-    "reference": "Patient/2354"
-  },
-  "valueBoolean": false
+  "resourceType": "OperationOutcome"
 }
