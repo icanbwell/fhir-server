@@ -1,6 +1,4 @@
 const {fhirFilterTypes} = require('./customQueries');
-const {searchParameterQueries} = require('../../searchParameters/searchParameters');
-const {SPECIFIED_QUERY_PARAMS, STRICT_SEARCH_HANDLING} = require('../../constants');
 const {filterById} = require('./filters/id');
 const {filterByString} = require('./filters/string');
 const {filterByUri} = require('./filters/uri');
@@ -10,15 +8,13 @@ const {filterByReference} = require('./filters/reference');
 const {filterByMissing} = require('./filters/missing');
 const {filterByContains} = require('./filters/contains');
 const {filterByAbove, filterByBelow} = require('./filters/aboveAndBelow');
-const {convertGraphQLParameters} = require('./convertGraphQLParameters');
 const {filterByPartialText} = require('./filters/partialText');
 const {filterByCanonical} = require('./filters/canonical');
 const {filterBySecurityTag} = require('./filters/securityTag');
 const {assertTypeEquals} = require('../../utils/assertType');
 const {ConfigManager} = require('../../utils/configManager');
 const {AccessIndexManager} = require('../common/accessIndexManager');
-const {FhirTypesManager} = require('../../fhir/fhirTypesManager');
-const {BadRequestError} = require('../../utils/httpErrors');
+const {R4ArgsParser} = require('./r4ArgsParser');
 
 function isUrl(queryParameterValue) {
     return typeof queryParameterValue === 'string' &&
@@ -34,12 +30,12 @@ class R4SearchQueryCreator {
      * constructor
      * @param {ConfigManager} configManager
      * @param {AccessIndexManager} accessIndexManager
-     * @param {FhirTypesManager} fhirTypesManager
+     * @param {R4ArgsParser} r4ArgsParser
      */
     constructor({
                     configManager,
                     accessIndexManager,
-                    fhirTypesManager
+                    r4ArgsParser
                 }) {
         /**
          * @type {ConfigManager}
@@ -51,11 +47,12 @@ class R4SearchQueryCreator {
          */
         this.accessIndexManager = accessIndexManager;
         assertTypeEquals(accessIndexManager, AccessIndexManager);
+
         /**
-         * @type {FhirTypesManager}
+         * @type {R4ArgsParser}
          */
-        this.fhirTypesManager = fhirTypesManager;
-        assertTypeEquals(fhirTypesManager, FhirTypesManager);
+        this.r4ArgsParser = r4ArgsParser;
+        assertTypeEquals(r4ArgsParser, R4ArgsParser);
     }
 
     /**
@@ -65,42 +62,10 @@ class R4SearchQueryCreator {
      * @returns {{query:import('mongodb').Document, columns: Set}} A query object to use with Mongo
      */
     buildR4SearchQuery({resourceType, args}) {
-        // some of these parameters we used wrong in the past but have to map them to maintain backwards compatibility
-        // ---- start of backward compatibility mappings ---
-        if (args['source'] && !args['_source']) {
-            args['_source'] = args['source'];
-        }
-        if (args['id'] && !args['_id']) {
-            args['_id'] = args['id'];
-        }
-        if (args['id:above'] && !args['_id:above']) {
-            args['_id:above'] = args['id:above'];
-        }
-        if (args['id:below'] && !args['_id:below']) {
-            args['_id:below'] = args['id:below'];
-        }
-        if (args['onset_date'] && !args['onset-date']) {
-            args['onset-date'] = args['onset_date'];
-        }
-        // ---- end of backward compatibility mappings ---
-
-        // ---- start of add range logic to args sent from the search form   ---
-        if (args['_lastUpdated'] && Array.isArray(args['_lastUpdated'])) {
-            const lastUpdatedArray = args['_lastUpdated'];
-            const newUpdatedArray = [];
-            lastUpdatedArray.forEach((value, i) => {
-                const currentPrefix = value.replace(/[^a-z]/gi, '');
-                const newPrefix = i === 0 ? 'gt' : 'lt';
-                if (currentPrefix.length === 0 && value !== '') {
-                    newUpdatedArray.push(newPrefix + value);
-                }
-            });
-            if (newUpdatedArray.length > 0) {
-                args['_lastUpdated'] = newUpdatedArray;
-            }
-        }
-        // ---- end of add range logic to args sent from the search form   ---
-
+        /**
+         * @type {ParsedArgsItem[]}
+         */
+        const parsedArgs = this.r4ArgsParser.parseArgs({resourceType, args});
         /**
          * list of columns used in the query
          * this is used to pick index hints
@@ -114,84 +79,47 @@ class R4SearchQueryCreator {
          */
         let totalAndSegments = [];
 
-        // Represents type of search to be conducted strict or lenient
-        const handlingType = args['handling'];
-        delete args['handling'];
-
-        for (const argName in args) {
-            const [queryParameter, ...modifiers] = argName.split(':');
-
-            /**
-             * @type {SearchParameterDefinition}
-             */
-            let propertyObj = searchParameterQueries[`${resourceType}`][`${queryParameter}`];
-            if (!propertyObj) {
-                propertyObj = searchParameterQueries['Resource'][`${queryParameter}`];
-            }
-            if (!propertyObj) {
-                // In case of an unrecognized argument while searching and handling type is strict throw an error.
-                // https://www.hl7.org/fhir/search.html#errors
-                if (handlingType === STRICT_SEARCH_HANDLING && SPECIFIED_QUERY_PARAMS.indexOf(queryParameter) === -1) {
-                    throw new BadRequestError(new Error(`${queryParameter} is not a parameter for ${resourceType}`));
-                }
-                continue;
-            }
-
-            // set type of field in propertyObj
-            propertyObj.fieldType = this.fhirTypesManager.getTypeForField(
-                {
-                    resourceType,
-                    field: propertyObj.field
-                }
-            );
-            /**
-             * @type {string | string[]}
-             */
-            let queryParameterValue = args[`${argName}`];
-            queryParameterValue = convertGraphQLParameters(
-                queryParameterValue,
-                args,
-                queryParameter
-            );
-
-            if (queryParameterValue) {
-
+        for (const /** @type {ParsedArgsItem} */ parsedArg of parsedArgs) {
+            if (parsedArg.queryParameterValue) {
                 let {
                     /** @type {Set} */
                     columns,
                     /** @type {import('mongodb').Filter<import('mongodb').DefaultSchema>[]} */
                     andSegments
                 } = this.getColumnsAndSegmentsForParameterType({
-                    resourceType, queryParameter, queryParameterValue, propertyObj,
+                    resourceType,
+                    queryParameter: parsedArg.queryParameter,
+                    queryParameterValue: parsedArg.queryParameterValue,
+                    propertyObj: parsedArg.propertyObj,
                     enableGlobalIdSupport: this.configManager.enableGlobalIdSupport
                 });
 
                 // replace andSegments according to modifiers
-                if (modifiers.includes('missing')) {
+                if (parsedArg.modifiers.includes('missing')) {
                     andSegments = filterByMissing({
-                        args, queryParameter, propertyObj, columns
+                        args, queryParameter: parsedArg.queryParameter, propertyObj: parsedArg.propertyObj, columns
                     });
-                } else if (modifiers.includes('contains')) {
+                } else if (parsedArg.modifiers.includes('contains')) {
                     andSegments = filterByContains({
-                        propertyObj, queryParameterValue, columns
+                        propertyObj: parsedArg.propertyObj, queryParameterValue: parsedArg.queryParameterValue, columns
                     });
-                } else if (modifiers.includes('above')) {
+                } else if (parsedArg.modifiers.includes('above')) {
                     andSegments = filterByAbove({
-                        propertyObj, queryParameterValue, columns
+                        propertyObj: parsedArg.propertyObj, queryParameterValue: parsedArg.queryParameterValue, columns
                     });
-                } else if (modifiers.includes('below')) {
+                } else if (parsedArg.modifiers.includes('below')) {
                     andSegments = filterByBelow({
-                        propertyObj, queryParameterValue, columns
+                        propertyObj: parsedArg.propertyObj, queryParameterValue: parsedArg.queryParameterValue, columns
                     });
-                } else if (modifiers.includes('text')) {
+                } else if (parsedArg.modifiers.includes('text')) {
                     columns = new Set(); // text overrides datatype column logic
                     andSegments = filterByPartialText({
-                        args, queryParameter, propertyObj, columns,
+                        args, queryParameter: parsedArg.queryParameter, propertyObj: parsedArg.propertyObj, columns,
                     });
                 }
 
                 // apply negation according to not modifier and add to final collection
-                if (modifiers.includes('not')) {
+                if (parsedArg.modifiers.includes('not')) {
                     andSegments.forEach(q => totalAndSegments.push({$nor: [q]}));
                 } else {
                     andSegments.forEach(q => totalAndSegments.push(q));

@@ -55,6 +55,19 @@ class MongoFilterGenerator {
         }
         return filter;
     }
+
+    /**
+     * generates a mongo filter for lookup by uuid
+     * @param {string} uuid
+     * @return {import('mongodb').Filter<import('mongodb').DefaultSchema>}
+     */
+    generateFilterForUuid({uuid}) {
+        /**
+         * @type {import('mongodb').Filter<import('mongodb').DefaultSchema>}
+         */
+        let filter = {'_uuid': uuid.toString()};
+        return filter;
+    }
 }
 
 module.exports = {

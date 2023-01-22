@@ -9,6 +9,7 @@ const BundleRequest = require('../fhir/classes/4_0_0/backbone_elements/bundleReq
 const moment = require('moment-timezone');
 const {getCircularReplacer} = require('../utils/getCircularReplacer');
 const {MongoFilterGenerator} = require('../utils/mongoFilterGenerator');
+const {SecurityTagStructure} = require('../fhir/securityTagStructure');
 
 /**
  * @typedef FindOneAndUpdateResult
@@ -23,7 +24,6 @@ const {MongoFilterGenerator} = require('../utils/mongoFilterGenerator');
  * @property {number|null} deletedCount
  * @property {Error|null} error
  */
-
 
 /**
  * This class manages access to the database by finding the appropriate partitioned collection to use for the
@@ -309,27 +309,27 @@ class DatabaseQueryManager {
      * @return {Promise<string>}
      */
     async getUuidForReferenceAsync({id, securityTagStructure}) {
-            /**
-             * @type {import('mongodb').Filter<import('mongodb').DefaultSchema>}
-             */
-            const query = this.mongoFilterGenerator.generateFilterForIdAndSecurityTags(
-                {
-                    id,
-                    securityTagStructure
-                }
-            );
-            /**
-             *
-             * @type {import('mongodb').FindOptions<import('mongodb').DefaultSchema>}
-             */
-            const options = {
-                projection: {
-                    'id': 1,
-                    '_uuid': 1,
-                    '_sourceId': 1,
-                    'meta': 1
-                }
-            };
+        /**
+         * @type {import('mongodb').Filter<import('mongodb').DefaultSchema>}
+         */
+        const query = this.mongoFilterGenerator.generateFilterForIdAndSecurityTags(
+            {
+                id,
+                securityTagStructure
+            }
+        );
+        /**
+         *
+         * @type {import('mongodb').FindOptions<import('mongodb').DefaultSchema>}
+         */
+        const options = {
+            projection: {
+                'id': 1,
+                '_uuid': 1,
+                '_sourceId': 1,
+                'meta': 1
+            }
+        };
         try {
             const cursor = this.findAsync(
                 {
@@ -346,6 +346,59 @@ class DatabaseQueryManager {
                     return null;
                 }
                 return doc._uuid;
+            }
+            return null;
+        } catch (e) {
+            throw new RethrownError({
+                message: 'Error in getUuidForReferenceAsync(): ' + `query: ${JSON.stringify(query)}`, error: e,
+                args: {query, options}
+            });
+        }
+
+    }
+
+    /**
+     * Gets UUID from database
+     * @param {string} uuid
+     * @return {Promise<{id: string, securityTagStructure: SecurityTagStructure}|null>}
+     */
+    async getIdAndSourceAssigningAuthorityForUuidAsync({uuid}) {
+        /**
+         * @type {import('mongodb').Filter<import('mongodb').DefaultSchema>}
+         */
+        const query = this.mongoFilterGenerator.generateFilterForUuid(
+            {
+                uuid
+            }
+        );
+        /**
+         *
+         * @type {import('mongodb').FindOptions<import('mongodb').DefaultSchema>}
+         */
+        const options = {
+            projection: {
+                'id': 1,
+                '_uuid': 1,
+                '_sourceId': 1,
+                'meta': 1
+            }
+        };
+        try {
+            const cursor = this.findAsync(
+                {
+                    query,
+                    options
+                }
+            );
+            while (await cursor.hasNext()) {
+                /**
+                 * @type {Object|null}
+                 */
+                const doc = await cursor.nextRaw();
+                if (!doc) {
+                    return null;
+                }
+                return {id: doc.id, securityTagStructure: SecurityTagStructure.fromDocument({doc})};
             }
             return null;
         } catch (e) {

@@ -77,6 +77,7 @@ const {KafkaClientFactory} = require('./utils/kafkaClientFactory');
 const {AwsSecretsClientFactory} = require('./utils/awsSecretsClientFactory');
 const {PersonMatchManager} = require('./admin/personMatchManager');
 const {MongoFilterGenerator} = require('./utils/mongoFilterGenerator');
+const {R4ArgsParser} = require('./operations/query/r4ArgsParser');
 
 /**
  * Creates a container and sets up all the services
@@ -559,7 +560,7 @@ const createContainer = function () {
         {
             configManager: c.configManager,
             accessIndexManager: c.accessIndexManager,
-            fhirTypesManager: c.fhirTypesManager
+            r4ArgsParser: c.r4ArgsParser
         }));
 
     container.register('adminPersonPatientLinkManager', (c) => new AdminPersonPatientLinkManager({
@@ -592,6 +593,10 @@ const createContainer = function () {
             configManager: c.configManager
         }
     ));
+
+    container.register('r4ArgsParser', (c) => new R4ArgsParser({
+        fhirTypesManager: c.fhirTypesManager
+    }));
 
     return container;
 };
