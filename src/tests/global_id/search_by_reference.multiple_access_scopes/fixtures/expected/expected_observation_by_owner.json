@@ -62,7 +62,7 @@
         "resourceType": "Observation",
         "status": "final",
         "subject": {
-          "reference": "Patient/2354"
+          "reference": "Patient/patient1"
         },
         "valueBoolean": false
       }
@@ -71,7 +71,7 @@
   "meta": {
     "tag": [
       {
-        "display": "db.Observation_4_0_0.find({'$and':[{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/owner','code':'C'}}},{'_sourceId':'1'},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':{'$in':['C','A']}}}}]}, {}).sort({'id':1}).limit(10000)",
+        "display": "db.Observation_4_0_0.find({'$and':[{'subject.reference':'Patient/patient1'},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/owner','code':'C'}}},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':{'$in':['C','A']}}}}]}, {}).sort({'id':1}).limit(100)",
         "system": "https://www.icanbwell.com/query"
       },
       {
@@ -79,18 +79,18 @@
         "system": "https://www.icanbwell.com/queryCollection"
       },
       {
-        "display": "{'limit':10000,'sort':{'id':1}}",
+        "display": "{'limit':100,'sort':{'id':1}}",
         "system": "https://www.icanbwell.com/queryOptions"
       },
       {
-        "display": "['meta.security.system','meta.security.code','_sourceId','id']",
+        "display": "['subject.reference','meta.security.system','meta.security.code','id']",
         "system": "https://www.icanbwell.com/queryFields"
       },
       {
         "system": "https://www.icanbwell.com/queryTime"
       },
       {
-        "display": "{'useTwoStepSearchOptimization':false}",
+        "display": "{'useTwoStepSearchOptimization':undefined}",
         "system": "https://www.icanbwell.com/queryOptimization"
       },
       {
