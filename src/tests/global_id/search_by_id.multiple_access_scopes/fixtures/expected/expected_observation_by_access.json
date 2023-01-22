@@ -29,13 +29,11 @@
             "value": "1"
           },
           {
-            "system": "https://www.icanbwell.com/uuid",
-            "value": "a28054a6-bf7f-4b3a-a8b3-d710f411ceb6"
+            "system": "https://www.icanbwell.com/uuid"
           }
         ],
         "issued": "2021-01-01T12:00:00Z",
         "meta": {
-          "lastUpdated": "2023-01-22T21:47:25.000Z",
           "security": [
             {
               "code": "A",
@@ -98,13 +96,11 @@
             "value": "1"
           },
           {
-            "system": "https://www.icanbwell.com/uuid",
-            "value": "6b913f10-6405-4589-9d1e-3b56b4440438"
+            "system": "https://www.icanbwell.com/uuid"
           }
         ],
         "issued": "2021-01-01T12:00:00Z",
         "meta": {
-          "lastUpdated": "2023-01-22T21:47:26.000Z",
           "security": [
             {
               "code": "C",
@@ -138,5 +134,45 @@
         "valueBoolean": false
       }
     }
-  ]
+  ],
+  "meta": {
+    "tag": [
+      {
+        "display": "db.Observation_4_0_0.find({'$and':[{'_sourceId':'1'},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':{'$in':['C','A']}}}}]}, {}).sort({'id':1}).limit(10000)",
+        "system": "https://www.icanbwell.com/query"
+      },
+      {
+        "code": "Observation_4_0_0",
+        "system": "https://www.icanbwell.com/queryCollection"
+      },
+      {
+        "display": "{'limit':10000,'sort':{'id':1}}",
+        "system": "https://www.icanbwell.com/queryOptions"
+      },
+      {
+        "display": "['_sourceId','id']",
+        "system": "https://www.icanbwell.com/queryFields"
+      },
+      {
+        "system": "https://www.icanbwell.com/queryTime"
+      },
+      {
+        "display": "{'useTwoStepSearchOptimization':false}",
+        "system": "https://www.icanbwell.com/queryOptimization"
+      },
+      {
+        "code": "fhir",
+        "system": "https://www.icanbwell.com/queryDatabase"
+      },
+      {
+        "system": "https://www.icanbwell.com/queryExplain"
+      },
+      {
+        "system": "https://www.icanbwell.com/queryExplainSimple"
+      }
+    ]
+  },
+  "resourceType": "Bundle",
+  "total": 0,
+  "type": "searchset"
 }
