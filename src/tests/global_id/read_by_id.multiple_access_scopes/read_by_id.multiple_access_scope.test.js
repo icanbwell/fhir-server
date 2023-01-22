@@ -29,7 +29,7 @@ class MockConfigManager extends ConfigManager {
     }
 }
 
-const headers = getHeaders('user/*.read user/*.write access/C.*');
+const headers = getHeaders('user/*.read user/*.write access/C.* access/A.*');
 describe('Observation Tests', () => {
     beforeEach(async () => {
         await commonBeforeEach();
@@ -39,7 +39,7 @@ describe('Observation Tests', () => {
         await commonAfterEach();
     });
 
-    describe('ReadById Tests for two resources with same id (single access scope)', () => {
+    describe('ReadById Tests for two resources with same id (multiple access scopes)', () => {
         test('using id only', async () => {
             const request = await createTestRequest((c) => {
                 c.register('configManager', () => new MockConfigManager());
