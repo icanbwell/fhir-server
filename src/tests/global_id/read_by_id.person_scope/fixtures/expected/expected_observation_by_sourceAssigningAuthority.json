@@ -59,7 +59,7 @@
   "resourceType": "Observation",
   "status": "final",
   "subject": {
-    "reference": "Patient/2354"
+    "reference": "Patient/patient1"
   },
   "valueBoolean": false
 }
