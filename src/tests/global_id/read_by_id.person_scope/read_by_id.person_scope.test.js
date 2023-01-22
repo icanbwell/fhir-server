@@ -1,6 +1,7 @@
 // test file
 const observation1Resource = require('./fixtures/Observation/observation1.json');
 const observation2Resource = require('./fixtures/Observation/observation2.json');
+const person1Resource = require('./fixtures/Person/person1.json');
 
 // expected
 const expectedObservationByOwnerResources = require('./fixtures/expected/expected_observation_by_owner.json');
@@ -76,6 +77,14 @@ describe('Observation Tests', () => {
             expect(resp).toHaveMergeResponse({created: true});
             await postRequestProcessor.waitTillDoneAsync({requestId: getRequestId(resp)});
 
+            resp = await request
+                .post('/4_0_0/Person/1/$merge?validate=true')
+                .send(person1Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
+            await postRequestProcessor.waitTillDoneAsync({requestId: getRequestId(resp)});
+
             // ACT AND ASSERT
             // search by owner security tag should only return 1
             resp = await request
@@ -109,6 +118,14 @@ describe('Observation Tests', () => {
             resp = await request
                 .post('/4_0_0/Observation/1/$merge?validate=true')
                 .send(observation2Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
+            await postRequestProcessor.waitTillDoneAsync({requestId: getRequestId(resp)});
+
+            resp = await request
+                .post('/4_0_0/Person/1/$merge?validate=true')
+                .send(person1Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveMergeResponse({created: true});
@@ -151,6 +168,15 @@ describe('Observation Tests', () => {
             expect(resp).toHaveMergeResponse({created: true});
             await postRequestProcessor.waitTillDoneAsync({requestId: getRequestId(resp)});
 
+            resp = await request
+                .post('/4_0_0/Person/1/$merge?validate=true')
+                .send(person1Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
+            await postRequestProcessor.waitTillDoneAsync({requestId: getRequestId(resp)});
+
+
             // search by sourceAssigningAuthority security tag should only return 1
             resp = await request
                 .get('/4_0_0/Observation/1|C/?_debug=1')
@@ -187,6 +213,15 @@ describe('Observation Tests', () => {
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveMergeResponse({created: true});
             await postRequestProcessor.waitTillDoneAsync({requestId: getRequestId(resp)});
+
+            resp = await request
+                .post('/4_0_0/Person/1/$merge?validate=true')
+                .send(person1Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
+            await postRequestProcessor.waitTillDoneAsync({requestId: getRequestId(resp)});
+
 
             // First call by id to find the uuid and then call by uuid
             resp = await request
