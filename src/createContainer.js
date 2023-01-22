@@ -76,6 +76,7 @@ const {AwsSecretsManager} = require('./utils/awsSecretsManager');
 const {KafkaClientFactory} = require('./utils/kafkaClientFactory');
 const {AwsSecretsClientFactory} = require('./utils/awsSecretsClientFactory');
 const {PersonMatchManager} = require('./admin/personMatchManager');
+const {MongoFilterGenerator} = require('./utils/mongoFilterGenerator');
 
 /**
  * Creates a container and sets up all the services
@@ -271,14 +272,16 @@ const createContainer = function () {
                 requestSpecificCache: c.requestSpecificCache,
                 databaseUpdateFactory: c.databaseUpdateFactory,
                 resourceMerger: c.resourceMerger,
-                configManager: c.configManager
+                configManager: c.configManager,
+                mongoFilterGenerator: c.mongoFilterGenerator
             }
         )
     );
     container.register('databaseBulkLoader', (c) => new DatabaseBulkLoader(
         {
             databaseQueryFactory: c.databaseQueryFactory,
-            requestSpecificCache: c.requestSpecificCache
+            requestSpecificCache: c.requestSpecificCache,
+            configManager: c.configManager
         }));
     container.register('postRequestProcessor', (c) => new PostRequestProcessor(
         {
@@ -578,6 +581,13 @@ const createContainer = function () {
     container.register('personMatchManager', (c) => new PersonMatchManager(
         {
             databaseQueryFactory: c.databaseQueryFactory,
+            configManager: c.configManager
+        }
+    ));
+
+
+    container.register('mongoFilterGenerator', (c) => new MongoFilterGenerator(
+        {
             configManager: c.configManager
         }
     ));

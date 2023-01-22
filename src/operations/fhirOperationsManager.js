@@ -176,7 +176,7 @@ class FhirOperationsManager {
         /**
          * @type {string|null}
          */
-        const remoteIpAddress = req.headers['X-Forwarded-For'] || req.socket.remoteAddress;
+        const remoteIpAddress = req.header('X-Forwarded-For') || req.socket.remoteAddress;
         /**
          * @type {string|null}
          */

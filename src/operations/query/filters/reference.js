@@ -3,10 +3,10 @@ const {referenceQueryBuilder} = require('../../../utils/querybuilder.util');
 /**
  * Filters by reference
  * https://www.hl7.org/fhir/search.html#reference
- * @param {import('../../common/types').SearchParameterDefinition} propertyObj
+ * @param {SearchParameterDefinition} propertyObj
  * @param {string | string[]} queryParameterValue
  * @param {Set} columns
- * @return {Object[]}
+ * @return {import('mongodb').Filter<import('mongodb').DefaultSchema>[]}
  */
 function filterByReference({propertyObj, queryParameterValue, columns}) {
     /**

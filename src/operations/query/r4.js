@@ -1,5 +1,6 @@
 const {fhirFilterTypes} = require('./customQueries');
 const {searchParameterQueries} = require('../../searchParameters/searchParameters');
+const {SPECIFIED_QUERY_PARAMS, STRICT_SEARCH_HANDLING} = require('../../constants');
 const {filterById} = require('./filters/id');
 const {filterByString} = require('./filters/string');
 const {filterByUri} = require('./filters/uri');
@@ -17,6 +18,7 @@ const {assertTypeEquals} = require('../../utils/assertType');
 const {ConfigManager} = require('../../utils/configManager');
 const {AccessIndexManager} = require('../common/accessIndexManager');
 const {FhirTypesManager} = require('../../fhir/fhirTypesManager');
+const {BadRequestError} = require('../../utils/httpErrors');
 
 function isUrl(queryParameterValue) {
     return typeof queryParameterValue === 'string' &&
@@ -112,15 +114,26 @@ class R4SearchQueryCreator {
          */
         let totalAndSegments = [];
 
+        // Represents type of search to be conducted strict or lenient
+        const handlingType = args['handling'];
+        delete args['handling'];
+
         for (const argName in args) {
             const [queryParameter, ...modifiers] = argName.split(':');
 
+            /**
+             * @type {SearchParameterDefinition}
+             */
             let propertyObj = searchParameterQueries[`${resourceType}`][`${queryParameter}`];
             if (!propertyObj) {
                 propertyObj = searchParameterQueries['Resource'][`${queryParameter}`];
             }
             if (!propertyObj) {
-                // ignore this unrecognized arg
+                // In case of an unrecognized argument while searching and handling type is strict throw an error.
+                // https://www.hl7.org/fhir/search.html#errors
+                if (handlingType === STRICT_SEARCH_HANDLING && SPECIFIED_QUERY_PARAMS.indexOf(queryParameter) === -1) {
+                    throw new BadRequestError(new Error(`${queryParameter} is not a parameter for ${resourceType}`));
+                }
                 continue;
             }
 
@@ -143,8 +156,14 @@ class R4SearchQueryCreator {
 
             if (queryParameterValue) {
 
-                let {columns, andSegments} = this.getColumnsAndSegmentsForParameterType({
-                    resourceType, queryParameter, queryParameterValue, propertyObj
+                let {
+                    /** @type {Set} */
+                    columns,
+                    /** @type {import('mongodb').Filter<import('mongodb').DefaultSchema>[]} */
+                    andSegments
+                } = this.getColumnsAndSegmentsForParameterType({
+                    resourceType, queryParameter, queryParameterValue, propertyObj,
+                    enableGlobalIdSupport: this.configManager.enableGlobalIdSupport
                 });
 
                 // replace andSegments according to modifiers
@@ -206,10 +225,19 @@ class R4SearchQueryCreator {
      * @param {string} resourceType
      * @param {string} queryParameter
      * @param {string} queryParameterValue
-     * @param {Object} propertyObj
-     * @returns {{columns: Set, andSegments: Object[]}} columns and andSegments for query parameter
+     * @param {SearchParameterDefinition} propertyObj
+     * @param {boolean} enableGlobalIdSupport
+     * @returns {{columns: Set, andSegments: import('mongodb').Filter<import('mongodb').DefaultSchema>[]}} columns and andSegments for query parameter
      */
-    getColumnsAndSegmentsForParameterType({resourceType, queryParameter, queryParameterValue, propertyObj}) {
+    getColumnsAndSegmentsForParameterType(
+        {
+            resourceType,
+            queryParameter,
+            queryParameterValue,
+            propertyObj,
+            enableGlobalIdSupport
+        }
+    ) {
         /**
          * list of columns used in the query for this parameter
          * this is used to pick index hints
@@ -220,7 +248,7 @@ class R4SearchQueryCreator {
         /**
          * and segments
          * these are combined to create the query
-         * @type {Object[]}
+         * @type {import('mongodb').Filter<import('mongodb').DefaultSchema>[]}
          */
         let andSegments = [];
 
@@ -229,7 +257,8 @@ class R4SearchQueryCreator {
         if (queryParameter === '_id') {
             // handle id differently since it is a token, but we want to do exact match
             andSegments = filterById({
-                queryParameterValue, propertyObj, columns
+                queryParameterValue, propertyObj, columns,
+                enableGlobalIdSupport
             });
         } else {
             switch (propertyObj.type) {

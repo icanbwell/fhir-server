@@ -27,6 +27,15 @@
               "start": "2021-01-01T00:00:00.000Z"
             },
             "id": "observation1",
+            "identifier": [
+              {
+                "system": "https://www.icanbwell.com/sourceId",
+                "value": "observation1"
+              },
+              {
+                "system": "https://www.icanbwell.com/uuid"
+              }
+            ],
             "issued": "2021-01-01T12:00:00Z",
             "meta": {
               "security": [
@@ -45,6 +54,10 @@
                 {
                   "code": "B",
                   "system": "https://www.icanbwell.com/access"
+                },
+                {
+                  "code": "A",
+                  "system": "https://www.icanbwell.com/sourceAssigningAuthority"
                 }
               ],
               "source": "/patients",
@@ -136,6 +149,10 @@
                 {
                   "code": "healthsystem1",
                   "system": "https://www.icanbwell.com/access"
+                },
+                {
+                  "code": "healthsystem1",
+                  "system": "https://www.icanbwell.com/sourceAssigningAuthority"
                 }
               ],
               "source": "https://www.icanbwell.com",
@@ -249,6 +266,10 @@
                 {
                   "code": "bwell",
                   "system": "https://www.icanbwell.com/access"
+                },
+                {
+                  "code": "bwell",
+                  "system": "https://www.icanbwell.com/sourceAssigningAuthority"
                 }
               ],
               "source": "https://www.icanbwell.com",
@@ -286,6 +307,15 @@
         ],
         "gender": "female",
         "id": "patient1",
+        "identifier": [
+          {
+            "system": "https://www.icanbwell.com/sourceId",
+            "value": "patient1"
+          },
+          {
+            "system": "https://www.icanbwell.com/uuid"
+          }
+        ],
         "meta": {
           "security": [
             {
@@ -295,6 +325,10 @@
             {
               "code": "medstar",
               "system": "https://www.icanbwell.com/owner"
+            },
+            {
+              "code": "medstar",
+              "system": "https://www.icanbwell.com/sourceAssigningAuthority"
             }
           ],
           "source": "http://medstarhealth.org/provider",

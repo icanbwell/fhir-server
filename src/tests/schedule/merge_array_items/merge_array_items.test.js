@@ -11,7 +11,7 @@ const {
     getHeaders,
     createTestRequest,
 } = require('../../common');
-const {describe, beforeEach, afterEach, test } = require('@jest/globals');
+const {describe, beforeEach, afterEach, test} = require('@jest/globals');
 
 describe('Schedule Tests', () => {
     beforeEach(async () => {
@@ -42,7 +42,6 @@ describe('Schedule Tests', () => {
             expect(resp).toHaveMergeResponse({updated: true});
 
             // ACT & ASSERT
-            // search by token system and code and make sure we get the right Schedule back
             resp = await request.get('/4_0_0/Schedule/?_bundle=1').set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedScheduleResources);

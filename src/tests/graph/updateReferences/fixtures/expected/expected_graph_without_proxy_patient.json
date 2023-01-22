@@ -6,6 +6,15 @@
         "birthDate": "2017-01-01",
         "gender": "female",
         "id": "00100000000",
+        "identifier": [
+          {
+            "system": "https://www.icanbwell.com/sourceId",
+            "value": "00100000000"
+          },
+          {
+            "system": "https://www.icanbwell.com/uuid"
+          }
+        ],
         "meta": {
           "security": [
             {
@@ -15,6 +24,10 @@
             {
               "code": "healthsystem1",
               "system": "https://www.icanbwell.com/owner"
+            },
+            {
+              "code": "healthsystem1",
+              "system": "https://www.icanbwell.com/sourceAssigningAuthority"
             }
           ],
           "source": "http://healthsystem1health.org/provider",
@@ -65,6 +78,15 @@
           }
         ],
         "id": "2354-InAgeCohort",
+        "identifier": [
+          {
+            "system": "https://www.icanbwell.com/sourceId",
+            "value": "2354-InAgeCohort"
+          },
+          {
+            "system": "https://www.icanbwell.com/uuid"
+          }
+        ],
         "issued": "2021-01-01T12:00:00Z",
         "meta": {
           "security": [
@@ -83,6 +105,10 @@
             {
               "code": "B",
               "system": "https://www.icanbwell.com/access"
+            },
+            {
+              "code": "healthsystem1",
+              "system": "https://www.icanbwell.com/sourceAssigningAuthority"
             }
           ],
           "source": "/patients",

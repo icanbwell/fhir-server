@@ -130,7 +130,7 @@ describe('GraphQL CodeSystem Tests', () => {
                     variables: {},
                     query: graphqlQueryText,
                 })
-                .set(getGraphQLHeaders());
+                .set({'X-Request-Id': 'd4c5546f-cd8a-4447-83e0-201f0da08bef', ...getGraphQLHeaders()});
 
             console.log(resp.body);
 
@@ -144,6 +144,7 @@ describe('GraphQL CodeSystem Tests', () => {
                 return r;
             });
             expect(resp.headers['x-request-id']).toBeDefined();
+            expect(resp.headers['x-request-id']).toEqual('d4c5546f-cd8a-4447-83e0-201f0da08bef');
 
             // uncomment this to test out timing of events
             // await new Promise(resolve => setTimeout(resolve, 30 * 1000));

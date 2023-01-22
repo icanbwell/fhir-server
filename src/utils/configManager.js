@@ -204,6 +204,14 @@ class ConfigManager {
     get replaceRetries() {
         return env.REPLACE_RETRIES || 10;
     }
+
+    /**
+     * whether to enable Global Unique Id support
+     * @returns {boolean}
+     */
+    get enableGlobalIdSupport() {
+        return isTrue(env.ENABLE_GLOBAL_ID);
+    }
 }
 
 module.exports = {

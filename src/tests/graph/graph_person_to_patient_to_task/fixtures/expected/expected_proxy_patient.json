@@ -45,6 +45,10 @@
                 {
                   "code": "bwell",
                   "system": "https://www.icanbwell.com/access"
+                },
+                {
+                  "code": "bwell",
+                  "system": "https://www.icanbwell.com/sourceAssigningAuthority"
                 }
               ],
               "versionId": "1"
@@ -89,6 +93,10 @@
             {
               "code": "healthsystem1",
               "system": "https://www.icanbwell.com/owner"
+            },
+            {
+              "code": "healthsystem1",
+              "system": "https://www.icanbwell.com/sourceAssigningAuthority"
             }
           ],
           "versionId": "1"

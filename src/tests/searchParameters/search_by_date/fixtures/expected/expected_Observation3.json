@@ -2,30 +2,13 @@
   "entry": [
     {
       "resource": {
-        "resourceType": "Observation",
-        "id": "c4171fee-aaa6-4526-a377-ea39860a5c76",
-        "meta": {
-          "source": "https://www.icanbwell.com",
-          "versionId": "1",
-          "security": [
-            {
-              "system": "https://www.icanbwell.com/owner",
-              "code": "bwell"
-            },
-            {
-              "system": "https://www.icanbwell.com/access",
-              "code": "bwell"
-            }
-          ]
-        },
-        "status": "final",
         "category": [
           {
             "coding": [
               {
-                "system": "http://terminology.hl7.org/CodeSystem/observation-category",
                 "code": "vital-signs",
-                "display": "Vital Signs"
+                "display": "Vital Signs",
+                "system": "http://terminology.hl7.org/CodeSystem/observation-category"
               }
             ]
           }
@@ -33,53 +16,83 @@
         "code": {
           "coding": [
             {
-              "system": "http://loinc.org",
               "code": "96607-7",
-              "display": "Blood pressure panel mean systolic and mean diastolic"
+              "display": "Blood pressure panel mean systolic and mean diastolic",
+              "system": "http://loinc.org"
             }
           ]
         },
-        "subject": {
-          "reference": "Patient/1"
-        },
-        "effectiveDateTime": "2019-10-16T22:12:29.000Z",
-        "issued": "2019-10-16T12:12:29-10:00",
         "component": [
           {
             "code": {
               "coding": [
                 {
-                  "system": "http://loinc.org",
                   "code": "96608-5",
-                  "display": "Systolic blood pressure mean"
+                  "display": "Systolic blood pressure mean",
+                  "system": "http://loinc.org"
                 }
               ]
             },
             "valueQuantity": {
-              "value": 120,
-              "unit": "mm[Hg]",
+              "code": "mm[Hg]",
               "system": "http://unitsofmeasure.org",
-              "code": "mm[Hg]"
+              "unit": "mm[Hg]",
+              "value": 120
             }
           },
           {
             "code": {
               "coding": [
                 {
-                  "system": "http://loinc.org",
                   "code": "96609-3",
-                  "display": "Diastolic blood pressure mean"
+                  "display": "Diastolic blood pressure mean",
+                  "system": "http://loinc.org"
                 }
               ]
             },
             "valueQuantity": {
-              "value": 80,
-              "unit": "mm[Hg]",
+              "code": "mm[Hg]",
               "system": "http://unitsofmeasure.org",
-              "code": "mm[Hg]"
+              "unit": "mm[Hg]",
+              "value": 80
             }
           }
-        ]
+        ],
+        "effectiveDateTime": "2019-10-16T22:12:29.000Z",
+        "id": "c4171fee-aaa6-4526-a377-ea39860a5c76",
+        "identifier": [
+          {
+            "system": "https://www.icanbwell.com/sourceId",
+            "value": "c4171fee-aaa6-4526-a377-ea39860a5c76"
+          },
+          {
+            "system": "https://www.icanbwell.com/uuid"
+          }
+        ],
+        "issued": "2019-10-16T12:12:29-10:00",
+        "meta": {
+          "security": [
+            {
+              "code": "bwell",
+              "system": "https://www.icanbwell.com/owner"
+            },
+            {
+              "code": "bwell",
+              "system": "https://www.icanbwell.com/access"
+            },
+            {
+              "code": "bwell",
+              "system": "https://www.icanbwell.com/sourceAssigningAuthority"
+            }
+          ],
+          "source": "https://www.icanbwell.com",
+          "versionId": "1"
+        },
+        "resourceType": "Observation",
+        "status": "final",
+        "subject": {
+          "reference": "Patient/1"
+        }
       }
     }
   ],

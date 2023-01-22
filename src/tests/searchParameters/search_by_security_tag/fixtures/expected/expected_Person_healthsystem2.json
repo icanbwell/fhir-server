@@ -56,6 +56,10 @@
             {
               "code": "healthsystem2",
               "system": "https://www.icanbwell.com/owner"
+            },
+            {
+              "code": "healthsystem2",
+              "system": "https://www.icanbwell.com/sourceAssigningAuthority"
             }
           ],
           "versionId": "1"

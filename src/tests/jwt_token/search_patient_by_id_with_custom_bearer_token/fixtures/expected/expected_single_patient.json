@@ -1,30 +1,43 @@
-[
+{
+  "birthDate": "2017-01-01",
+  "gender": "female",
+  "id": "00100000000",
+  "identifier": [
     {
-        "birthDate": "2017-01-01",
-        "gender": "female",
-        "id": "00100000000",
-        "meta": {
-            "security": [
-                {
-                    "code": "medstar",
-                    "system": "https://www.icanbwell.com/access"
-                },
-                {
-                    "code": "medstar",
-                    "system": "https://www.icanbwell.com/owner"
-                }
-            ],
-            "source": "http://medstarhealth.org/provider",
-            "versionId": "1"
-        },
-        "name": [
-            {
-                "family": "PATIENT1",
-                "given": ["SHYLA"],
-                "text": "t",
-                "use": "usual"
-            }
-        ],
-        "resourceType": "Patient"
+      "system": "https://www.icanbwell.com/sourceId",
+      "value": "00100000000"
+    },
+    {
+      "system": "https://www.icanbwell.com/uuid"
     }
-]
+  ],
+  "meta": {
+    "security": [
+      {
+        "code": "medstar",
+        "system": "https://www.icanbwell.com/access"
+      },
+      {
+        "code": "medstar",
+        "system": "https://www.icanbwell.com/owner"
+      },
+      {
+        "code": "medstar",
+        "system": "https://www.icanbwell.com/sourceAssigningAuthority"
+      }
+    ],
+    "source": "http://medstarhealth.org/provider",
+    "versionId": "1"
+  },
+  "name": [
+    {
+      "family": "PATIENT1",
+      "given": [
+        "SHYLA"
+      ],
+      "text": "t",
+      "use": "usual"
+    }
+  ],
+  "resourceType": "Patient"
+}

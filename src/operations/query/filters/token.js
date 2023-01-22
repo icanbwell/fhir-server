@@ -4,9 +4,9 @@ const {tokenQueryBuilder, exactMatchQueryBuilder} = require('../../../utils/quer
  * Filters by token
  * https://www.hl7.org/fhir/search.html#token
  * @param {string | string[]} queryParameterValue
- * @param {import('../../common/types').SearchParameterDefinition} propertyObj
+ * @param {SearchParameterDefinition} propertyObj
  * @param {Set} columns
- * @returns {Object[]}
+ * @returns {import('mongodb').Filter<import('mongodb').DefaultSchema>[]}
  */
 function filterByToken({queryParameterValue, propertyObj, columns}) {
     /**

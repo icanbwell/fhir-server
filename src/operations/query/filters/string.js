@@ -4,7 +4,7 @@ const { nameQueryBuilder, addressQueryBuilder } = require('../../../utils/queryb
  * Get query segment for a single field
  * @param {string} field
  * @param {string | string[]} queryParameterValue
- * @return {Object}
+ * @return {import('mongodb').Filter<import('mongodb').DefaultSchema>}
  */
 function getSingleFieldSegment(field, queryParameterValue) {
     return {
@@ -19,7 +19,7 @@ function getSingleFieldSegment(field, queryParameterValue) {
  * Get query segment for a single field
  * @param {string[]} fields
  * @param {string | string[]} queryParameterValue
- * @return {Object}
+ * @return {import('mongodb').Filter<import('mongodb').DefaultSchema>}
  */
 function getMultiFieldSegment(fields, queryParameterValue) {
     return {
@@ -38,9 +38,9 @@ function getMultiFieldSegment(fields, queryParameterValue) {
  * Filters by string
  * https://www.hl7.org/fhir/search.html#string
  * @param {string | string[]} queryParameterValue
- * @param {import('../../common/types').SearchParameterDefinition} propertyObj
+ * @param {SearchParameterDefinition} propertyObj
  * @param {Set} columns
- * @return {Object[]}
+ * @return {import('mongodb').Filter<import('mongodb').DefaultSchema>[]}
  */
 function filterByString({queryParameterValue, propertyObj, columns}) {
     /**

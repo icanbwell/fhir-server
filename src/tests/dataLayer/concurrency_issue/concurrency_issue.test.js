@@ -202,6 +202,7 @@ describe('CodeSystem Tests', () => {
             resource.meta.lastUpdated = null;
             const expectedCodeSystemsFromDatabaseCopy = deepcopy(expectedCodeSystemsFromDatabase);
             expectedCodeSystemsFromDatabaseCopy.meta.versionId = '29'; // in case of databaseUpdateManager we expect the versionId to increment
+            expectedCodeSystemsFromDatabaseCopy.identifier[1].value = resource.identifier[1].value;
             expect(resource.toJSON()).toStrictEqual(expectedCodeSystemsFromDatabaseCopy);
 
             expect(resource.toJSON().meta.versionId).toStrictEqual(`${countOfUpdates}`);
@@ -310,7 +311,7 @@ describe('CodeSystem Tests', () => {
 
             const expectedCodeSystemsFromDatabaseCopy = deepcopy(expectedCodeSystemsFromDatabase);
             expectedCodeSystemsFromDatabaseCopy.meta.versionId = '1';
-
+            expectedCodeSystemsFromDatabaseCopy.identifier[1].value = resource.identifier[1].value;
             expect(resource.toJSON()).toStrictEqual(expectedCodeSystemsFromDatabaseCopy);
             console.log('finish test: concurrency_issue works with databaseBulkInserter');
         });
@@ -427,7 +428,7 @@ describe('CodeSystem Tests', () => {
             const expectedCodeSystemsFromDatabaseCopy = deepcopy(expectedCodeSystemsFromDatabase);
 
             expectedCodeSystemsFromDatabaseCopy.meta.versionId = '3';
-
+            expectedCodeSystemsFromDatabaseCopy.identifier[1].value = resource.identifier[1].value;
             expect(resource.toJSON()).toStrictEqual(expectedCodeSystemsFromDatabaseCopy);
             console.log('finish test: concurrency_issue works with databaseBulkInserter with update in the middle');
         });

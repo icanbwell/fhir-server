@@ -138,6 +138,15 @@
           }
         ],
         "id": "1679033641-AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--In",
+        "identifier": [
+          {
+            "system": "https://www.icanbwell.com/sourceId",
+            "value": "1679033641-AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--In"
+          },
+          {
+            "system": "https://www.icanbwell.com/uuid"
+          }
+        ],
         "meta": {
           "security": [
             {
@@ -198,6 +207,15 @@
           }
         ],
         "id": "1679033641-UF3-UADM",
+        "identifier": [
+          {
+            "system": "https://www.icanbwell.com/sourceId",
+            "value": "1679033641-UF3-UADM"
+          },
+          {
+            "system": "https://www.icanbwell.com/uuid"
+          }
+        ],
         "meta": {
           "security": [
             {
@@ -231,6 +249,15 @@
           }
         ],
         "id": "4657-3437",
+        "identifier": [
+          {
+            "system": "https://www.icanbwell.com/sourceId",
+            "value": "4657-3437"
+          },
+          {
+            "system": "https://www.icanbwell.com/uuid"
+          }
+        ],
         "location": [
           {
             "reference": "Location/UF3-UADM"
@@ -287,6 +314,15 @@
       "id": "AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He",
       "resource": {
         "id": "AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He",
+        "identifier": [
+          {
+            "system": "https://www.icanbwell.com/sourceId",
+            "value": "AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He"
+          },
+          {
+            "system": "https://www.icanbwell.com/uuid"
+          }
+        ],
         "meta": {
           "security": [
             {

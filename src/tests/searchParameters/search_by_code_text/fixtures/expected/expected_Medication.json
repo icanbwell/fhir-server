@@ -46,6 +46,15 @@
           "text": "Solution"
         },
         "id": "medication-prednisolone",
+        "identifier": [
+          {
+            "system": "https://www.icanbwell.com/sourceId",
+            "value": "medication-prednisolone"
+          },
+          {
+            "system": "https://www.icanbwell.com/uuid"
+          }
+        ],
         "ingredient": [
           {
             "itemCodeableConcept": {
@@ -106,6 +115,10 @@
             {
               "code": "my-companyuat",
               "system": "https://www.icanbwell.com/vendor"
+            },
+            {
+              "code": "my-companyuat",
+              "system": "https://www.icanbwell.com/sourceAssigningAuthority"
             }
           ],
           "source": "https://epicfhir.my-company.org/NonProdFHIR/api/FHIR/R4/metadata",
@@ -161,6 +174,15 @@
           "text": "Solution"
         },
         "id": "medication-prednisolone-display",
+        "identifier": [
+          {
+            "system": "https://www.icanbwell.com/sourceId",
+            "value": "medication-prednisolone-display"
+          },
+          {
+            "system": "https://www.icanbwell.com/uuid"
+          }
+        ],
         "ingredient": [
           {
             "itemCodeableConcept": {
@@ -221,6 +243,10 @@
             {
               "code": "my-companyuat",
               "system": "https://www.icanbwell.com/vendor"
+            },
+            {
+              "code": "my-companyuat",
+              "system": "https://www.icanbwell.com/sourceAssigningAuthority"
             }
           ],
           "source": "https://epicfhir.my-company.org/NonProdFHIR/api/FHIR/R4/metadata",

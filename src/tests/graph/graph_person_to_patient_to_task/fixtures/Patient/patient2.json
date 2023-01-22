@@ -15,6 +15,10 @@
       {
         "system": "https://www.icanbwell.com/owner",
         "code": "healthsystem1"
+      },
+      {
+        "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+        "code": "healthsystem1"
       }
     ]
   },

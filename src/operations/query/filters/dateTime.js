@@ -9,10 +9,10 @@ function isPeriodField(fieldString) {
  * filters by date
  * https://www.hl7.org/fhir/search.html#date
  * @param {string | string[]} queryParameterValue
- * @param {import('../../common/types').SearchParameterDefinition} propertyObj
+ * @param {SearchParameterDefinition} propertyObj
  * @param {string} resourceType
  * @param {Set} columns
- * @returns {Object[]}
+ * @returns {import('mongodb').Filter<import('mongodb').DefaultSchema>[]}
  */
 function filterByDateTime({queryParameterValue, propertyObj, resourceType, columns}) {
     /**

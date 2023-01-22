@@ -4,6 +4,7 @@
 const {ApolloServer} = require('apollo-server-express');
 const {join} = require('path');
 const resolvers = require('../../graphql/v1/resolvers');
+const { REQUEST_ID_HEADER } = require('../../constants');
 const {loadFilesSync} = require('@graphql-tools/load-files');
 const {mergeTypeDefs} = require('@graphql-tools/merge');
 
@@ -52,7 +53,7 @@ const graphql = async (fnCreateContainer) => {
                 // ApolloServerPluginLandingPageDisabled()
             ],
             context: async ({req, res}) => {
-                req.id = req.id || req.headers['X-REQUEST-ID'] || generateUUID();
+                req.id = req.id || req.header(`${REQUEST_ID_HEADER}`) || generateUUID();
                 return {
                     req,
                     res,
