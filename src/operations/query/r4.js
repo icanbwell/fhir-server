@@ -58,14 +58,10 @@ class R4SearchQueryCreator {
     /**
      * Builds a mongo query for search parameters
      * @param {string} resourceType
-     * @param {Object} args
+     * @param {ParsedArgsItem[]} parsedArgs
      * @returns {{query:import('mongodb').Document, columns: Set}} A query object to use with Mongo
      */
-    buildR4SearchQuery({resourceType, args}) {
-        /**
-         * @type {ParsedArgsItem[]}
-         */
-        const parsedArgs = this.r4ArgsParser.parseArgs({resourceType, args});
+    buildR4SearchQuery({resourceType, parsedArgs}) {
         /**
          * list of columns used in the query
          * this is used to pick index hints
@@ -97,7 +93,7 @@ class R4SearchQueryCreator {
                 // replace andSegments according to modifiers
                 if (parsedArg.modifiers.includes('missing')) {
                     andSegments = filterByMissing({
-                        args, queryParameter: parsedArg.queryParameter, propertyObj: parsedArg.propertyObj, columns
+                        queryParameterValue: parsedArg.queryParameterValue, propertyObj: parsedArg.propertyObj, columns
                     });
                 } else if (parsedArg.modifiers.includes('contains')) {
                     andSegments = filterByContains({
@@ -114,7 +110,7 @@ class R4SearchQueryCreator {
                 } else if (parsedArg.modifiers.includes('text')) {
                     columns = new Set(); // text overrides datatype column logic
                     andSegments = filterByPartialText({
-                        args, queryParameter: parsedArg.queryParameter, propertyObj: parsedArg.propertyObj, columns,
+                        queryParameterValue: parsedArg.queryParameterValue, propertyObj: parsedArg.propertyObj, columns,
                     });
                 }
 

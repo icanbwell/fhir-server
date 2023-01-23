@@ -31,6 +31,7 @@ const {QueryRewriterManager} = require('../../queryRewriters/queryRewriterManage
 const {PersonToPatientIdsExpander} = require('../../utils/personToPatientIdsExpander');
 const {ScopesManager} = require('../security/scopesManager');
 const {convertErrorToOperationOutcome} = require('../../utils/convertErrorToOperationOutcome');
+const {R4ArgsParser} = require('../query/r4ArgsParser');
 
 class SearchManager {
     /**
@@ -45,6 +46,7 @@ class SearchManager {
      * @param {QueryRewriterManager} queryRewriterManager
      * @param {PersonToPatientIdsExpander} personToPatientIdsExpander
      * @param {ScopesManager} scopesManager
+     * @param {R4ArgsParser} r4ArgsParser
      */
     constructor(
         {
@@ -57,7 +59,8 @@ class SearchManager {
             configManager,
             queryRewriterManager,
             personToPatientIdsExpander,
-            scopesManager
+            scopesManager,
+            r4ArgsParser
         }
     ) {
         /**
@@ -113,6 +116,12 @@ class SearchManager {
          */
         this.scopesManager = scopesManager;
         assertTypeEquals(scopesManager, ScopesManager);
+
+        /**
+         * @type {R4ArgsParser}
+         */
+        this.r4ArgsParser = r4ArgsParser;
+        assertTypeEquals(r4ArgsParser, R4ArgsParser);
     }
 
     /**
@@ -145,24 +154,21 @@ class SearchManager {
             const {base_version} = args;
             assertIsValid(base_version, 'base_version is not set');
             const hasPatientScope = this.scopesManager.hasPatientScope({scope});
+
+            /**
+             * @type {ParsedArgsItem[]}
+             */
+            let parsedArgs = this.r4ArgsParser.parseArgs({resourceType, args});
             // see if any query rewriters want to rewrite the args
-            args = await this.queryRewriterManager.rewriteArgsAsync({base_version, args, resourceType});
+            parsedArgs = await this.queryRewriterManager.rewriteArgsAsync(
+                {
+                    base_version, parsedArgs, resourceType
+                }
+            );
             /**
              * @type {string[]}
              */
             let securityTags = this.securityTagManager.getSecurityTagsFromScope({user, scope});
-            /**
-             * @type {string[]}
-             */
-            const patientIdsLinkedToPersonId = personIdFromJwtToken ? await this.getLinkedPatientsAsync(
-                {
-                    base_version, isUser, personIdFromJwtToken
-                }) : [];
-            /**
-             * @type {string[]|null}
-             */
-            const allPatientIdsFromJwtToken = patientIdsFromJwtToken ? patientIdsFromJwtToken.concat(
-                patientIdsLinkedToPersonId) : patientIdsLinkedToPersonId;
             /**
              * @type {import('mongodb').Document}
              */
@@ -181,7 +187,7 @@ class SearchManager {
                     query = buildDstu2SearchQuery(args);
                 } else {
                     ({query, columns} = this.r4SearchQueryCreator.buildR4SearchQuery({
-                        resourceType, args
+                        resourceType, parsedArgs
                     }));
                 }
             } catch (e) {
@@ -192,6 +198,18 @@ class SearchManager {
                     resourceType, securityTags, query, useAccessIndex
                 });
             if (hasPatientScope) {
+                /**
+                 * @type {string[]}
+                 */
+                const patientIdsLinkedToPersonId = personIdFromJwtToken ? await this.getLinkedPatientsAsync(
+                    {
+                        base_version, isUser, personIdFromJwtToken
+                    }) : [];
+                /**
+                 * @type {string[]|null}
+                 */
+                const allPatientIdsFromJwtToken = patientIdsFromJwtToken ? patientIdsFromJwtToken.concat(
+                    patientIdsLinkedToPersonId) : patientIdsLinkedToPersonId;
                 if (!this.configManager.doNotRequirePersonOrPatientIdForPatientScope &&
                     (!allPatientIdsFromJwtToken || allPatientIdsFromJwtToken.length === 0)) {
                     query = {id: '__invalid__'}; // return nothing since no patient ids were passed

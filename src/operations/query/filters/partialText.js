@@ -4,12 +4,12 @@ const {partialTextQueryBuilder} = require('../../../utils/querybuilder.util');
  * Filters by missing
  * https://www.hl7.org/fhir/search.html#modifiers
  * @param {Object} args
- * @param {string} queryParameter
+ * @param {string} queryParameterValue
  * @param {SearchParameterDefinition} propertyObj
  * @param {Set} columns
  * @return {import('mongodb').Filter<import('mongodb').DefaultSchema>[]}
  */
-function filterByPartialText({args, queryParameter, propertyObj, columns}) {
+function filterByPartialText({queryParameterValue, propertyObj, columns}) {
     /**
      * @type {Object[]}
      */
@@ -19,7 +19,7 @@ function filterByPartialText({args, queryParameter, propertyObj, columns}) {
     /**
      * @type {string}
      */
-    const textToSearchFor = args[`${queryParameter}:text`];
+    const textToSearchFor = queryParameterValue;
 
     and_segments.push(
         {

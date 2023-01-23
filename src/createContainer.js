@@ -243,7 +243,8 @@ const createContainer = function () {
                 configManager: c.configManager,
                 queryRewriterManager: c.queryRewriterManager,
                 personToPatientIdsExpander: c.personToPatientIdsExpander,
-                scopesManager: c.scopesManager
+                scopesManager: c.scopesManager,
+                r4ArgsParser: c.r4ArgsParser
             }
         )
     );

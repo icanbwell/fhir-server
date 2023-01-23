@@ -43,21 +43,18 @@ class UuidReferenceQueryRewriter extends QueryRewriter {
     /**
      * rewrites the args
      * @param {string} base_version
-     * @param {Object} args
+     * @param {ParsedArgsItem[]} args
      * @param {string} resourceType
-     * @return {Promise<Object>}
+     * @return {Promise<ParsedArgsItem[]>}
      */
     // eslint-disable-next-line no-unused-vars
-    async rewriteArgsAsync({base_version, args, resourceType}) {
+    async rewriteArgsAsync({base_version, parsedArgs, resourceType}) {
         if (!this.configManager.enableGlobalIdSupport) {
-            return args;
+            return parsedArgs;
         }
         assertIsValid(resourceType);
         assertIsValid(base_version);
-        /**
-         * @type {ParsedArgsItem[]}
-         */
-        const parsedArgs = this.r4ArgsParser.parseArgs({resourceType, args});
+
         for (const /** @type {ParsedArgsItem} */ parsedArg of parsedArgs) {
             if (parsedArg.references) {
                 for (const /** @type {ParsedReferenceItem} */ reference of parsedArg.references) {
@@ -77,7 +74,7 @@ class UuidReferenceQueryRewriter extends QueryRewriter {
             }
         }
 
-        return args;
+        return parsedArgs;
     }
 }
 

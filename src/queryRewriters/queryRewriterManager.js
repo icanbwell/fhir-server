@@ -28,16 +28,16 @@ class QueryRewriterManager {
     /**
      * rewrites the args
      * @param {string} base_version
-     * @param {Object} args
+     * @param {ParsedArgsItem[]} parsedArgs
      * @param {string} resourceType
-     * @return {Promise<Object>}
+     * @return {Promise<ParsedArgsItem[]>}
      */
     // eslint-disable-next-line no-unused-vars
-    async rewriteArgsAsync({base_version, args, resourceType}) {
+    async rewriteArgsAsync({base_version, parsedArgs, resourceType}) {
         for (const queryRewriter of this.queryRewriters) {
-            args = await queryRewriter.rewriteArgsAsync({base_version, args, resourceType});
+            parsedArgs = await queryRewriter.rewriteArgsAsync({base_version, parsedArgs, resourceType});
         }
-        return args;
+        return parsedArgs;
     }
 }
 
