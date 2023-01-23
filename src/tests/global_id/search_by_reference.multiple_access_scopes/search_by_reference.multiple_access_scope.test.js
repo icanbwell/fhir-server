@@ -5,9 +5,13 @@ const patient1Resource = require('./fixtures/Patient/patient1.json');
 
 // expected
 const expectedObservationByOwnerResources = require('./fixtures/expected/expected_observation_by_owner.json');
+const expectedObservationIdOnlyByOwnerResources = require('./fixtures/expected/expected_observation_by_owner_id_only.json');
 const expectedObservationByAccessResources = require('./fixtures/expected/expected_observation_by_access.json');
+const expectedObservationIdOnlyByAccessResources = require('./fixtures/expected/expected_observation_by_access_id_only.json');
 const expectedObservationBySourceAssigningAuthorityResources = require('./fixtures/expected/expected_observation_by_sourceAssigningAuthority.json');
+const expectedObservationIdOnlyBySourceAssigningAuthorityResources = require('./fixtures/expected/expected_observation_by_sourceAssigningAuthority_id_only.json');
 const expectedObservationByUuidResources = require('./fixtures/expected/expected_observation_by_uuid.json');
+const expectedObservationIdOnlyByUuidResources = require('./fixtures/expected/expected_observation_by_uuid_id_only.json');
 
 
 const {
@@ -89,6 +93,12 @@ describe('Observation Tests', () => {
                 .set(headers);
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedObservationByAccessResources);
+
+            resp = await request
+                .get('/4_0_0/Observation/?patient=patient1&_debug=1')
+                .set(headers);
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedObservationIdOnlyByAccessResources);
         });
         test('using id + security filter', async () => {
             const request = await createTestRequest((c) => {
@@ -134,6 +144,12 @@ describe('Observation Tests', () => {
                 .set(headers);
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedObservationByOwnerResources);
+
+            resp = await request
+                .get('/4_0_0/Observation/?patient=patient1&_debug=1&_security=https://www.icanbwell.com/owner|C')
+                .set(headers);
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedObservationIdOnlyByOwnerResources);
         });
         test('using id + sourceAssigningAuthority', async () => {
             const request = await createTestRequest((c) => {
@@ -173,12 +189,17 @@ describe('Observation Tests', () => {
             expect(resp).toHaveMergeResponse({created: true});
             await postRequestProcessor.waitTillDoneAsync({requestId: getRequestId(resp)});
 
-            // search by sourceAssigningAuthority security tag should only return 1
             resp = await request
                 .get('/4_0_0/Observation/?patient=Patient/patient1|C&_debug=1')
                 .set(headers);
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedObservationBySourceAssigningAuthorityResources);
+
+            resp = await request
+                .get('/4_0_0/Observation/?patient=patient1|C&_debug=1')
+                .set(headers);
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedObservationIdOnlyBySourceAssigningAuthorityResources);
         });
         test('using guid', async () => {
             const request = await createTestRequest((c) => {
@@ -237,10 +258,22 @@ describe('Observation Tests', () => {
             resp = await request
                 .get(`/4_0_0/Observation/?patient=Patient/${uuid}&_debug=1`)
                 .set(headers);
-
-
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedObservationByUuidResourcesCopy);
+
+            const expectedObservationIdOnlyByUuidResourcesCopy = deepcopy(expectedObservationIdOnlyByUuidResources);
+            expectedObservationIdOnlyByUuidResourcesCopy.meta.tag
+                .filter(m => m.system === 'https://www.icanbwell.com/query')
+                .forEach(m => {
+                    m.display = m.display.replace('11111111-1111-1111-1111-111111111111', uuid);
+                    return m;
+                });
+
+            resp = await request
+                .get(`/4_0_0/Observation/?patient=${uuid}&_debug=1`)
+                .set(headers);
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedObservationIdOnlyByUuidResourcesCopy);
         });
     });
 });
