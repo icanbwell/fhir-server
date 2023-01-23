@@ -19,6 +19,7 @@ const {strategy} = require('./strategies/jwt.bearer.strategy');
 const {handleAlert} = require('./routeHandlers/alert');
 const {MyFHIRServer} = require('./routeHandlers/fhirServer');
 const {handleSecurityPolicy} = require('./routeHandlers/contentSecurityPolicy');
+const {handleHealthCheck} = require('./routeHandlers/healthCheck.js');
 const {handleVersion} = require('./routeHandlers/version');
 const {handleLogout} = require('./routeHandlers/logout');
 const {handleClean} = require('./routeHandlers/clean');
@@ -133,7 +134,9 @@ function createApp({fnCreateContainer, trackMetrics}) {
             `&redirect_uri=${redirectUrl}&state=${resourceUrl}`);
     });
 
-    app.get('/health', (req, res) => res.json({status: 'ok'}));
+    app.get('/health', (req, res) => handleHealthCheck(
+        fnCreateContainer, req, res
+    ));
     app.get('/version', handleVersion);
     app.get('/logout', handleLogout);
     app.get('/logout_action', (req, res) => {
