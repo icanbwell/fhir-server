@@ -265,7 +265,7 @@ describe('Observation Tests', () => {
             expectedObservationIdOnlyByUuidResourcesCopy.meta.tag
                 .filter(m => m.system === 'https://www.icanbwell.com/query')
                 .forEach(m => {
-                    m.display = m.display.replace('11111111-1111-1111-1111-111111111111', patientUuid);
+                    m.display = m.display.replace(/11111111-1111-1111-1111-111111111111/g, patientUuid);
                     return m;
                 });
 

@@ -68,7 +68,13 @@ class UuidReferenceQueryRewriter extends QueryRewriter {
                             uuid: reference.id
                         });
                         if (result) {
-                            reference.id = `${result.id}|${result.securityTagStructure.sourceAssigningAuthority}`;
+                            // add an entry to lookup by id + sourceAssigningAuthority
+                            parsedArg.references.push(
+                                new ParsedReferenceItem({
+                                    resourceType: reference.resourceType,
+                                    id: `${result.id}|${result.securityTagStructure.sourceAssigningAuthority}`
+                                })
+                            );
                             // also add an entry without the sourceAssigningAuthority for backward compatibility
                             parsedArg.references.push(
                                 new ParsedReferenceItem({

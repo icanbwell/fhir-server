@@ -138,7 +138,7 @@
   "meta": {
     "tag": [
       {
-        "display": "db.Observation_4_0_0.find({'$and':[{'$or':[{'subject.reference':'Patient/patient1|C'},{'subject.reference':'Group/d592af2f-4283-4174-ab7a-774cad798c21'},{'subject.reference':'Patient/patient1'}]},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':{'$in':['C','A']}}}}]}, {}).sort({'id':1}).limit(100)",
+        "display": "db.Observation_4_0_0.find({'$and':[{'$or':[{'subject.reference':'Patient/11111111-1111-1111-1111-111111111111'},{'subject.reference':'Group/11111111-1111-1111-1111-111111111111'},{'subject.reference':'Patient/patient1|C'},{'subject.reference':'Patient/patient1'}]},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':{'$in':['C','A']}}}}]}, {}).sort({'id':1}).limit(100)",
         "system": "https://www.icanbwell.com/query"
       },
       {
