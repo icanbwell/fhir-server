@@ -1,4 +1,22 @@
 const {referenceQueryBuilder} = require('../../../utils/querybuilder.util');
+const {removeDuplicatesWithLambda} = require('../../../utils/list.util');
+
+/**
+ * simplifies the filter by removing duplicate segments and $or statements with just one child
+ * @param {import('mongodb').Filter<import('mongodb').DefaultSchema>} filter
+ * @return {import('mongodb').Filter<import('mongodb').DefaultSchema>}
+ */
+function simplifyFilter({filter}) {
+    if (filter.$or && filter.$or.length > 1) {
+        filter.$or = removeDuplicatesWithLambda(filter.$or,
+            (a, b) => JSON.stringify(a) === JSON.stringify(b)
+        );
+    }
+    if (filter.$or && filter.$or.length === 1) {
+        filter = filter.$or[0];
+    }
+    return filter;
+}
 
 /**
  * Filters by reference
@@ -38,7 +56,7 @@ function filterByReference({parsedArg, columns}) {
     };
 
     if (filter) {
-        and_segments.push(filter);
+        and_segments.push(simplifyFilter({filter}));
     }
     columns.add(propertyObj.fields ? `${propertyObj.fields.map(f => `${f}.reference`)}` : `${propertyObj.field}.reference`);
     return and_segments;
