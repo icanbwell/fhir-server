@@ -384,7 +384,10 @@ class DatabaseQueryManager {
             }
         };
         try {
-            const cursor = this.findAsync(
+            /**
+             * @type {DatabasePartitionedCursor}
+             */
+            const cursor = await this.findAsync(
                 {
                     query,
                     options

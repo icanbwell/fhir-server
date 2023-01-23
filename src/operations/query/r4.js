@@ -87,7 +87,8 @@ class R4SearchQueryCreator {
                     queryParameter: parsedArg.queryParameter,
                     queryParameterValue: parsedArg.queryParameterValue,
                     propertyObj: parsedArg.propertyObj,
-                    enableGlobalIdSupport: this.configManager.enableGlobalIdSupport
+                    enableGlobalIdSupport: this.configManager.enableGlobalIdSupport,
+                    parsedArg
                 });
 
                 // replace andSegments according to modifiers
@@ -151,6 +152,7 @@ class R4SearchQueryCreator {
      * @param {string} queryParameterValue
      * @param {SearchParameterDefinition} propertyObj
      * @param {boolean} enableGlobalIdSupport
+     * @param {ParsedArgsItem} parsedArg
      * @returns {{columns: Set, andSegments: import('mongodb').Filter<import('mongodb').DefaultSchema>[]}} columns and andSegments for query parameter
      */
     getColumnsAndSegmentsForParameterType(
@@ -159,7 +161,8 @@ class R4SearchQueryCreator {
             queryParameter,
             queryParameterValue,
             propertyObj,
-            enableGlobalIdSupport
+            enableGlobalIdSupport,
+            parsedArg
         }
     ) {
         /**
@@ -234,8 +237,7 @@ class R4SearchQueryCreator {
                     } else {
                         andSegments = filterByReference(
                             {
-                                propertyObj,
-                                queryParameterValue,
+                                parsedArg,
                                 columns,
                             }
                         );

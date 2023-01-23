@@ -226,6 +226,10 @@ const referenceQueryBuilder = function ({target_type, target, field, exists_flag
         queryBuilder[`${field}`] = {$exists: true};
         return queryBuilder;
     }
+    if (target_type && target) {
+        queryBuilder[`${field}`] = `${target_type}/${target}`;
+        return queryBuilder;
+    }
     // eslint-disable-next-line security/detect-unsafe-regex
     const regex = /http(.*)?\/(\w+\/.+)$/;
     const match = target.match(regex);
@@ -724,7 +728,7 @@ const dateQueryBuilderNative = function ({dateSearchParameter, type, path}) {
  * @param {string} fieldName
  * @returns {Object[]}
  */
-const datetimePeriodQueryBuilder = function ({ dateQueryItem, fieldName }) {
+const datetimePeriodQueryBuilder = function ({dateQueryItem, fieldName}) {
     // eslint-disable-next-line security/detect-unsafe-regex
     const regex = /([a-z]+)(.+)/;
     const match = dateQueryItem.match(regex);
@@ -758,7 +762,7 @@ const datetimePeriodQueryBuilder = function ({ dateQueryItem, fieldName }) {
             };
             break;
     }
-    startQuery = { [`${fieldName}.start`]: startQuery };
+    startQuery = {[`${fieldName}.start`]: startQuery};
 
     // Build query for period.end
     let endQuery = {};
