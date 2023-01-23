@@ -15,6 +15,7 @@ const {assertTypeEquals} = require('../../utils/assertType');
 const {ConfigManager} = require('../../utils/configManager');
 const {AccessIndexManager} = require('../common/accessIndexManager');
 const {R4ArgsParser} = require('./r4ArgsParser');
+const {removeDuplicatesWithLambda} = require('../../utils/list.util');
 
 function isUrl(queryParameterValue) {
     return typeof queryParameterValue === 'string' &&
@@ -130,7 +131,7 @@ class R4SearchQueryCreator {
 
         /**
          * query to run on mongo
-         * @type {{$and: Object[]}}
+         * @type {import('mongodb').Filter<import('mongodb').DefaultSchema>}
          */
         let query = {};
 
@@ -138,6 +139,8 @@ class R4SearchQueryCreator {
             // noinspection JSUndefinedPropertyAssignment
             query.$and = totalAndSegments;
         }
+
+        query = this.simplifyFilter({filter: query});
 
         return {
             query: query,
@@ -250,6 +253,40 @@ class R4SearchQueryCreator {
 
         return {columns, andSegments};
     }
+
+    /**
+     * simplifies the filter by removing duplicate segments and $or statements with just one child
+     * @param {import('mongodb').Filter<import('mongodb').DefaultSchema>} filter
+     * @return {import('mongodb').Filter<import('mongodb').DefaultSchema>}
+     */
+    simplifyFilter({filter}) {
+        if (filter.$or && filter.$or.length > 1) {
+            filter.$or = removeDuplicatesWithLambda(filter.$or,
+                (a, b) => JSON.stringify(a) === JSON.stringify(b)
+            );
+        }
+        if (filter.$or && filter.$or.length > 0) {
+            filter.$or = filter.$or.map(f => this.simplifyFilter({filter: f}));
+        }
+        if (filter.$or && filter.$or.length === 1) {
+            filter = filter.$or[0];
+        }
+        if (filter.$and && filter.$and.length > 1) {
+            filter.$and = removeDuplicatesWithLambda(filter.$and,
+                (a, b) => JSON.stringify(a) === JSON.stringify(b)
+            );
+        }
+        if (filter.$and && filter.$and.length > 0) {
+            filter.$and = filter.$and.map(f => this.simplifyFilter({filter: f}));
+        }
+        if (filter.$and && filter.$and.length === 1) {
+            filter = filter.$and[0];
+        }
+
+        return filter;
+    }
+
+
 }
 
 module.exports = {
