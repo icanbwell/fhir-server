@@ -78,6 +78,8 @@ const {AwsSecretsClientFactory} = require('./utils/awsSecretsClientFactory');
 const {PersonMatchManager} = require('./admin/personMatchManager');
 const {MongoFilterGenerator} = require('./utils/mongoFilterGenerator');
 const {R4ArgsParser} = require('./operations/query/r4ArgsParser');
+const {UuidReferenceQueryRewriter} = require('./queryRewriters/rewriters/uuidReferenceQueryRewriter');
+const {UuidToIdReplacer} = require('./utils/uuidToIdReplacer');
 
 /**
  * Creates a container and sets up all the services
@@ -221,6 +223,11 @@ const createContainer = function () {
         queryRewriters: [
             new PatientProxyQueryRewriter({
                 personToPatientIdsExpander: c.personToPatientIdsExpander
+            }),
+            new UuidReferenceQueryRewriter({
+                uuidToIdReplacer: c.uuidToIdReplacer,
+                r4ArgsParser: c.r4ArgsParser,
+                configManager: c.configManager
             })
         ]
     }));
@@ -596,6 +603,10 @@ const createContainer = function () {
 
     container.register('r4ArgsParser', (c) => new R4ArgsParser({
         fhirTypesManager: c.fhirTypesManager
+    }));
+
+    container.register('uuidToIdReplacer', (c) => new UuidToIdReplacer({
+        databaseQueryFactory: c.databaseQueryFactory
     }));
 
     return container;

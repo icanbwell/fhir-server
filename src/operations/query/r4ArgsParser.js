@@ -2,7 +2,7 @@ const {searchParameterQueries} = require('../../searchParameters/searchParameter
 const {STRICT_SEARCH_HANDLING, SPECIFIED_QUERY_PARAMS} = require('../../constants');
 const {BadRequestError} = require('../../utils/httpErrors');
 const {convertGraphQLParameters} = require('./convertGraphQLParameters');
-const {ParsedArgsItem} = require('./parsedArgsItem');
+const {ParsedArgsItem, ParsedReferenceItem} = require('./parsedArgsItem');
 const {assertTypeEquals} = require('../../utils/assertType');
 const {FhirTypesManager} = require('../../fhir/fhirTypesManager');
 
@@ -115,12 +115,79 @@ class R4ArgsParser {
                         queryParameter,
                         queryParameterValue,
                         propertyObj,
-                        modifiers
+                        modifiers,
+                        references: (propertyObj.type === 'reference') ?
+                            this.parseQueryParameterValueIntoReferences({queryParameterValue}) :
+                            undefined
                     })
                 );
             }
         }
         return parsedArgs;
+    }
+
+    /**
+     * parses a query parameter value for reference into resourceType, id
+     * @param {string|string[]} queryParameterValue
+     * @return {ParsedReferenceItem[]}
+     */
+    parseQueryParameterValueIntoReferences({queryParameterValue}) {
+        /**
+         * @type {ParsedReferenceItem[]}
+         */
+        const result = [];
+        // The forms are:
+        // 1. Patient/123,456
+        // 2. 123,456
+        // 3. Patient/123, Patient/456
+        if (Array.isArray(queryParameterValue)) {
+            /**
+             * @type {string|null}
+             */
+            let resourceType = null;
+            for (const val of queryParameterValue) {
+                const valueParts = val.split('/');
+                /**
+                 * @type {string}
+                 */
+                let id;
+                if (valueParts.length > 1) {
+                    resourceType = valueParts[0];
+                    id = valueParts[1];
+                } else {
+                    id = valueParts[0];
+                }
+                result.push(
+                    new ParsedReferenceItem({
+                        resourceType,
+                        id
+                    })
+                );
+            }
+        } else {
+            const valueParts = queryParameterValue.split('/');
+            /**
+             * @type {string|null}
+             */
+            let resourceType = null;
+            /**
+             * @type {string}
+             */
+            let id;
+            if (valueParts.length > 1) {
+                resourceType = valueParts[0];
+                id = valueParts[1];
+            } else {
+                id = valueParts[0];
+            }
+            result.push(
+                new ParsedReferenceItem({
+                    resourceType,
+                    id
+                })
+            );
+        }
+        return result;
     }
 }
 

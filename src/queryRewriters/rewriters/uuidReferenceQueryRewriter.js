@@ -1,30 +1,43 @@
-const async = require('async');
 const {QueryRewriter} = require('./queryRewriter');
 const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
-const {PersonToPatientIdsExpander} = require('../../utils/personToPatientIdsExpander');
-
-const patientReferencePrefix = 'Patient/';
-const personProxyPrefix = 'person.';
-const patientReferencePlusPersonProxyPrefix = `${patientReferencePrefix}${personProxyPrefix}`;
-
+const {R4ArgsParser} = require('../../operations/query/r4ArgsParser');
+const {UuidToIdReplacer} = require('../../utils/uuidToIdReplacer');
+const {ConfigManager} = require('../../utils/configManager');
+const {isUuid} = require('../../utils/uid.util');
 
 class UuidReferenceQueryRewriter extends QueryRewriter {
     /**
      * constructor
-     * @param {PersonToPatientIdsExpander} personToPatientIdsExpander
+     * @param {UuidToIdReplacer} uuidToIdReplacer
+     * @param {R4ArgsParser} r4ArgsParser
+     * @param {ConfigManager} configManager
      */
     constructor(
         {
-            personToPatientIdsExpander
+            uuidToIdReplacer,
+            r4ArgsParser,
+            configManager
         }
     ) {
         super();
 
         /**
-         * @type {PersonToPatientIdsExpander}
+         * @type {UuidToIdReplacer}
          */
-        this.personToPatientIdsExpander = personToPatientIdsExpander;
-        assertTypeEquals(personToPatientIdsExpander, PersonToPatientIdsExpander);
+        this.uuidToIdReplacer = uuidToIdReplacer;
+        assertTypeEquals(uuidToIdReplacer, UuidToIdReplacer);
+
+        /**
+         * @type {R4ArgsParser}
+         */
+        this.r4ArgsParser = r4ArgsParser;
+        assertTypeEquals(r4ArgsParser, R4ArgsParser);
+
+        /**
+         * @type {ConfigManager}
+         */
+        this.configManager = configManager;
+        assertTypeEquals(configManager, ConfigManager);
     }
 
     /**
@@ -36,58 +49,30 @@ class UuidReferenceQueryRewriter extends QueryRewriter {
      */
     // eslint-disable-next-line no-unused-vars
     async rewriteArgsAsync({base_version, args, resourceType}) {
+        if (!this.configManager.enableGlobalIdSupport) {
+            return args;
+        }
         assertIsValid(resourceType);
         assertIsValid(base_version);
-        for (const [
-            /** @type {string} */ argName,
-            /** @type {string|string[]} */ argValue
-        ] of Object.entries(args)) {
-            if (resourceType === 'Patient') {
-                if (argName === 'id') {
-                    if (Array.isArray(argValue)) {
-                        if (argValue.some(a => a.startsWith(personProxyPrefix) || a.startsWith(patientReferencePlusPersonProxyPrefix))) {
-                            args[`${argName}`] = await async.mapSeries(
-                                argValue,
-                                async a => a.startsWith(personProxyPrefix) || a.startsWith(patientReferencePlusPersonProxyPrefix) ?
-                                    await this.personToPatientIdsExpander.getPatientProxyIdsAsync(
-                                        {
-                                            base_version,
-                                            id: a,
-                                            includePatientPrefix: false
-                                        }) : a
-                            );
-                            args[`${argName}`] = args[`${argName}`].join(',');
-                        }
-                    } else if (typeof argValue === 'string' && (argValue.startsWith(personProxyPrefix) || argValue.startsWith(patientReferencePlusPersonProxyPrefix))) {
-                        args[`${argName}`] = await this.personToPatientIdsExpander.getPatientProxyIdsAsync(
-                            {
-                                base_version,
-                                id: argValue,
-                                includePatientPrefix: false
-                            });
-                    }
-                }
-            } else { // resourceType other than Patient
-                if (Array.isArray(argValue)) {
-                    if (argValue.some(a => typeof argValue === 'string' && a.startsWith(patientReferencePlusPersonProxyPrefix))) {
-                        // replace with patient ids from person
-                        args[`${argName}`] = await async.mapSeries(
-                            argValue,
-                            async a => a.startsWith(patientReferencePlusPersonProxyPrefix) ?
-                                await this.personToPatientIdsExpander.getPatientProxyIdsAsync(
-                                    {
-                                        base_version,
-                                        id: a, includePatientPrefix: true
-                                    }) : a
-                        );
-                        args[`${argName}`] = args[`${argName}`].join(',');
-                    }
-                } else if (typeof argValue === 'string' && argValue.startsWith(patientReferencePlusPersonProxyPrefix)) {
-                    args[`${argName}`] = await this.personToPatientIdsExpander.getPatientProxyIdsAsync(
-                        {
-                            base_version,
-                            id: argValue, includePatientPrefix: true
+        /**
+         * @type {ParsedArgsItem[]}
+         */
+        const parsedArgs = this.r4ArgsParser.parseArgs({resourceType, args});
+        for (const /** @type {ParsedArgsItem} */ parsedArg of parsedArgs) {
+            if (parsedArg.references) {
+                for (const /** @type {ParsedReferenceItem} */ reference of parsedArg.references) {
+                    if (isUuid(reference.id)) {
+                        /**
+                         * @type {{id: string, securityTagStructure: SecurityTagStructure}|null}
+                         */
+                        const result = await this.uuidToIdReplacer.getIdAndSourceAssigningAuthorityForUuidAsync({
+                            resourceType,
+                            uuid: reference.id
                         });
+                        if (result) {
+                            reference.id = `${result.id}|${result.securityTagStructure.sourceAssigningAuthority}`;
+                        }
+                    }
                 }
             }
         }
