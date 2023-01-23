@@ -1,4 +1,4 @@
-const {assertTypeEquals} = require('./assertType');
+const {assertTypeEquals, assertIsValid} = require('./assertType');
 const {DatabaseQueryFactory} = require('../dataLayer/databaseQueryFactory');
 const {VERSIONS} = require('../middleware/fhir/utils/constants');
 
@@ -29,6 +29,7 @@ class UuidToIdReplacer {
      * @return {Promise<{id: string, securityTagStructure: SecurityTagStructure}|null>}
      */
     async getIdAndSourceAssigningAuthorityForUuidAsync({resourceType, uuid}) {
+        assertIsValid(resourceType, 'resourceType is null');
         /**
          * @type {DatabaseQueryManager}
          */

@@ -1,6 +1,6 @@
 const {DatabaseQueryManager} = require('./databaseQueryManager');
 const {ResourceLocatorFactory} = require('../operations/common/resourceLocatorFactory');
-const {assertTypeEquals} = require('../utils/assertType');
+const {assertTypeEquals, assertIsValid} = require('../utils/assertType');
 const {MongoFilterGenerator} = require('../utils/mongoFilterGenerator');
 
 class DatabaseQueryFactory {
@@ -30,6 +30,7 @@ class DatabaseQueryFactory {
      * @return {DatabaseQueryManager}
      */
     createQuery({resourceType, base_version}) {
+        assertIsValid(resourceType, 'resourceType is null');
         return new DatabaseQueryManager(
             {
                 resourceLocatorFactory: this.resourceLocatorFactory,

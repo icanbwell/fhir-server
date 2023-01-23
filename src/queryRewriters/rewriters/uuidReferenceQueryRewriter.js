@@ -4,6 +4,7 @@ const {R4ArgsParser} = require('../../operations/query/r4ArgsParser');
 const {UuidToIdReplacer} = require('../../utils/uuidToIdReplacer');
 const {ConfigManager} = require('../../utils/configManager');
 const {isUuid} = require('../../utils/uid.util');
+const {ParsedReferenceItem} = require('../../operations/query/parsedArgsItem');
 
 class UuidReferenceQueryRewriter extends QueryRewriter {
     /**
@@ -63,11 +64,18 @@ class UuidReferenceQueryRewriter extends QueryRewriter {
                          * @type {{id: string, securityTagStructure: SecurityTagStructure}|null}
                          */
                         const result = await this.uuidToIdReplacer.getIdAndSourceAssigningAuthorityForUuidAsync({
-                            resourceType,
+                            resourceType: reference.resourceType,
                             uuid: reference.id
                         });
                         if (result) {
                             reference.id = `${result.id}|${result.securityTagStructure.sourceAssigningAuthority}`;
+                            // also add an entry without the sourceAssigningAuthority for backward compatibility
+                            parsedArg.references.push(
+                                new ParsedReferenceItem({
+                                    resourceType: reference.resourceType,
+                                    id: result.id
+                                })
+                            );
                         }
                     }
                 }

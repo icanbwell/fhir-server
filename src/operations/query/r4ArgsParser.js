@@ -117,8 +117,12 @@ class R4ArgsParser {
                         propertyObj,
                         modifiers,
                         references: (propertyObj.type === 'reference') ?
-                            this.parseQueryParameterValueIntoReferences({queryParameterValue}) :
-                            undefined
+                            this.parseQueryParameterValueIntoReferences(
+                                {
+                                    queryParameterValue,
+                                    propertyObj
+                                }
+                            ) : undefined
                     })
                 );
             }
@@ -129,47 +133,25 @@ class R4ArgsParser {
     /**
      * parses a query parameter value for reference into resourceType, id
      * @param {string|string[]} queryParameterValue
+     * @param {SearchParameterDefinition} propertyObj
      * @return {ParsedReferenceItem[]}
      */
-    parseQueryParameterValueIntoReferences({queryParameterValue}) {
+    parseQueryParameterValueIntoReferences({queryParameterValue, propertyObj}) {
         /**
          * @type {ParsedReferenceItem[]}
          */
         const result = [];
+        queryParameterValue = Array.isArray(queryParameterValue) ? queryParameterValue : [queryParameterValue];
         // The forms are:
         // 1. Patient/123,456
         // 2. 123,456
         // 3. Patient/123, Patient/456
-        if (Array.isArray(queryParameterValue)) {
-            /**
-             * @type {string|null}
-             */
-            let resourceType = null;
-            for (const val of queryParameterValue) {
-                const valueParts = val.split('/');
-                /**
-                 * @type {string}
-                 */
-                let id;
-                if (valueParts.length > 1) {
-                    resourceType = valueParts[0];
-                    id = valueParts[1];
-                } else {
-                    id = valueParts[0];
-                }
-                result.push(
-                    new ParsedReferenceItem({
-                        resourceType,
-                        id
-                    })
-                );
-            }
-        } else {
-            const valueParts = queryParameterValue.split('/');
-            /**
-             * @type {string|null}
-             */
-            let resourceType = null;
+        /**
+         * @type {string|null}
+         */
+        let resourceType = null;
+        for (const /** @type {string} */ val of queryParameterValue) {
+            const valueParts = val.split('/');
             /**
              * @type {string}
              */
@@ -180,13 +162,26 @@ class R4ArgsParser {
             } else {
                 id = valueParts[0];
             }
-            result.push(
-                new ParsedReferenceItem({
-                    resourceType,
-                    id
-                })
-            );
+            if (resourceType) {
+                // resource type was specified
+                result.push(
+                    new ParsedReferenceItem({
+                        resourceType,
+                        id
+                    })
+                );
+            } else {
+                for (const target of propertyObj.target) {
+                    result.push(
+                        new ParsedReferenceItem({
+                           resourceType: target,
+                            id
+                        })
+                    );
+                }
+            }
         }
+
         return result;
     }
 }

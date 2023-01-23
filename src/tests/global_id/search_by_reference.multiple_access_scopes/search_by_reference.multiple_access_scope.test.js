@@ -239,24 +239,24 @@ describe('Observation Tests', () => {
             expect(resp).toHaveMergeResponse({created: true});
             await postRequestProcessor.waitTillDoneAsync({requestId: getRequestId(resp)});
 
-            // First call by id to find the uuid and then call by uuid
+            // First call by id to find the patientUuid and then call by patientUuid
             resp = await request
-                .get('/4_0_0/Observation/1|C/?_debug=1')
+                .get('/4_0_0/Patient/patient1|C/?_debug=1')
                 .set(headers);
-            // read the uuid for the resource
-            const uuid = resp.body.identifier.filter(i => i.system === IdentifierSystem.uuid)[0].value;
-            expect(uuid).toBeDefined();
+            // read the patientUuid for the resource
+            const patientUuid = resp.body.identifier.filter(i => i.system === IdentifierSystem.uuid)[0].value;
+            expect(patientUuid).toBeDefined();
 
             const expectedObservationByUuidResourcesCopy = deepcopy(expectedObservationByUuidResources);
             expectedObservationByUuidResourcesCopy.meta.tag
                 .filter(m => m.system === 'https://www.icanbwell.com/query')
                 .forEach(m => {
-                    m.display = m.display.replace('11111111-1111-1111-1111-111111111111', uuid);
+                    m.display = m.display.replace('11111111-1111-1111-1111-111111111111', patientUuid);
                     return m;
                 });
 
             resp = await request
-                .get(`/4_0_0/Observation/?patient=Patient/${uuid}&_debug=1`)
+                .get(`/4_0_0/Observation/?patient=Patient/${patientUuid}&_debug=1`)
                 .set(headers);
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedObservationByUuidResourcesCopy);
@@ -265,12 +265,12 @@ describe('Observation Tests', () => {
             expectedObservationIdOnlyByUuidResourcesCopy.meta.tag
                 .filter(m => m.system === 'https://www.icanbwell.com/query')
                 .forEach(m => {
-                    m.display = m.display.replace('11111111-1111-1111-1111-111111111111', uuid);
+                    m.display = m.display.replace('11111111-1111-1111-1111-111111111111', patientUuid);
                     return m;
                 });
 
             resp = await request
-                .get(`/4_0_0/Observation/?patient=${uuid}&_debug=1`)
+                .get(`/4_0_0/Observation/?patient=${patientUuid}&_debug=1`)
                 .set(headers);
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedObservationIdOnlyByUuidResourcesCopy);

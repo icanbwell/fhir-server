@@ -2,27 +2,18 @@
   "birthDate": "2017-01-01",
   "gender": "female",
   "id": "patient1",
-  "identifier": [
-    {
-      "system": "https://www.icanbwell.com/sourceId",
-      "value": "00100000000"
-    },
-    {
-      "system": "https://www.icanbwell.com/uuid"
-    }
-  ],
   "meta": {
     "security": [
       {
-        "code": "medstar",
+        "code": "C",
         "system": "https://www.icanbwell.com/access"
       },
       {
-        "code": "medstar",
+        "code": "C",
         "system": "https://www.icanbwell.com/owner"
       },
       {
-        "code": "medstar",
+        "code": "C",
         "system": "https://www.icanbwell.com/sourceAssigningAuthority"
       }
     ],
