@@ -46,13 +46,21 @@ describe('r4 search Tests', () => {
                 return container;
             });
             const container = getTestContainer();
+            /**
+             * @type {R4SearchQueryCreator}
+             */
             const r4SearchQueryCreator = container.r4SearchQueryCreator;
+            /**
+             * @type {R4ArgsParser}
+             */
+            const r4ArgsParser = container.r4ArgsParser;
             const args = {
                 '_security': 'https://www.icanbwell.com/access%7Cmedstar',
                 'birthdate': ['lt2021-09-22T00:00:00Z', 'ge2021-09-19T00:00:00Z']
             };
             const result = r4SearchQueryCreator.buildR4SearchQuery({
-                resourceType: 'Patient', args
+                resourceType: 'Patient',
+                parsedArgs: r4ArgsParser.parseArgs({resourceType: 'Patient', args})
             });
             expect(result.query.$and['1'].birthDate.$lt).toStrictEqual('2021-09-22T00:00:00+00:00');
             expect(result.query.$and['0']['meta.security.code']).toBe('https://www.icanbwell.com/access%7Cmedstar');
@@ -70,13 +78,22 @@ describe('r4 search Tests', () => {
                 return container;
             });
             const container = getTestContainer();
+            /**
+             * @type {R4SearchQueryCreator}
+             */
             const r4SearchQueryCreator = container.r4SearchQueryCreator;
+            /**
+             * @type {R4ArgsParser}
+             */
+            const r4ArgsParser = container.r4ArgsParser;
+
             const args = {
                 '_security': 'https://www.icanbwell.com/access%7Cfoobar',
                 'date': ['lt2021-09-22T00:00:00Z', 'ge2021-09-19T00:00:00Z']
             };
             const result = r4SearchQueryCreator.buildR4SearchQuery({
-                resourceType: 'AuditEvent', args
+                resourceType: 'AuditEvent',
+                parsedArgs: r4ArgsParser.parseArgs({resourceType: 'AuditEvent', args})
             });
             expect(result.query.$and['1'].recorded.$lt).toStrictEqual(new Date('2021-09-22T00:00:00.000Z'));
             expect(result.query.$and['0']['meta.security.code']).toBe('https://www.icanbwell.com/access%7Cfoobar');
@@ -94,14 +111,23 @@ describe('r4 search Tests', () => {
                 return container;
             });
             const container = getTestContainer();
+            /**
+             * @type {R4SearchQueryCreator}
+             */
             const r4SearchQueryCreator = container.r4SearchQueryCreator;
+            /**
+             * @type {R4ArgsParser}
+             */
+            const r4ArgsParser = container.r4ArgsParser;
+
 
             const args = {
                 '_security': 'https://www.icanbwell.com/access%7Cmedstar',
                 'date': ['lt2021-09-22T00:00:00Z', 'ge2021-09-19T00:00:00Z']
             };
             const result = r4SearchQueryCreator.buildR4SearchQuery({
-                resourceType: 'AuditEvent', args
+                resourceType: 'AuditEvent',
+                parsedArgs: r4ArgsParser.parseArgs({resourceType: 'AuditEvent', args})
             });
             expect(result.query.$and['1'].recorded.$lt).toStrictEqual(new Date('2021-09-22T00:00:00.000Z'));
             expect(result.query.$and['0']).toStrictEqual({'_access.medstar': 1});
@@ -119,12 +145,20 @@ describe('r4 search Tests', () => {
                 return container;
             });
             const container = getTestContainer();
+            /**
+             * @type {R4SearchQueryCreator}
+             */
             const r4SearchQueryCreator = container.r4SearchQueryCreator;
+            /**
+             * @type {R4ArgsParser}
+             */
+            const r4ArgsParser = container.r4ArgsParser;
+
             const args = {
                 'subject': 'Patient/1234'
             };
             const result = r4SearchQueryCreator.buildR4SearchQuery({
-                resourceType: 'Task', args
+                resourceType: 'Task', parsedArgs: r4ArgsParser.parseArgs({resourceType: 'Task', args})
             });
             expect(result.query.$and['0']['for.reference']).toStrictEqual('Patient/1234');
         });
@@ -141,12 +175,20 @@ describe('r4 search Tests', () => {
                 return container;
             });
             const container = getTestContainer();
+            /**
+             * @type {R4SearchQueryCreator}
+             */
             const r4SearchQueryCreator = container.r4SearchQueryCreator;
+            /**
+             * @type {R4ArgsParser}
+             */
+            const r4ArgsParser = container.r4ArgsParser;
+
             const args = {
                 'patient': '1234,4567'
             };
             const result = r4SearchQueryCreator.buildR4SearchQuery({
-                resourceType: 'Person', args
+                resourceType: 'Person', parsedArgs: r4ArgsParser.parseArgs({resourceType: 'Person', args})
             });
             expect(result.query.$and['0']['link.target.reference'].$in[0]).toStrictEqual('Patient/1234');
             expect(result.query.$and['0']['link.target.reference'].$in[1]).toStrictEqual('Patient/4567');
@@ -164,12 +206,21 @@ describe('r4 search Tests', () => {
                 return container;
             });
             const container = getTestContainer();
+            /**
+             * @type {R4SearchQueryCreator}
+             */
             const r4SearchQueryCreator = container.r4SearchQueryCreator;
+            /**
+             * @type {R4ArgsParser}
+             */
+            const r4ArgsParser = container.r4ArgsParser;
+
             const args = {
                 'patient': 'Patient/1234,Patient/4567'
             };
             const result = r4SearchQueryCreator.buildR4SearchQuery({
-                resourceType: 'Person', args
+                resourceType: 'Person',
+                parsedArgs: r4ArgsParser.parseArgs({resourceType: 'Person', args})
             });
             expect(result.query.$and['0']['link.target.reference'].$in[0]).toStrictEqual('Patient/1234');
             expect(result.query.$and['0']['link.target.reference'].$in[1]).toStrictEqual('Patient/4567');
@@ -187,12 +238,21 @@ describe('r4 search Tests', () => {
                 return container;
             });
             const container = getTestContainer();
+            /**
+             * @type {R4SearchQueryCreator}
+             */
             const r4SearchQueryCreator = container.r4SearchQueryCreator;
+            /**
+             * @type {R4ArgsParser}
+             */
+            const r4ArgsParser = container.r4ArgsParser;
+
             const args = {
                 'subject': '1234,4567'
             };
             const result = r4SearchQueryCreator.buildR4SearchQuery({
-                resourceType: 'Task', args
+                resourceType: 'Task',
+                parsedArgs: r4ArgsParser.parseArgs({resourceType: 'Task', args})
             });
             expect(result.query.$and['0'].$or[0]['for.reference'].$in[0]).toStrictEqual('Account/1234');
             expect(result.query.$and['0'].$or[0]['for.reference'].$in[1]).toStrictEqual('Account/4567');
@@ -210,12 +270,21 @@ describe('r4 search Tests', () => {
                 return container;
             });
             const container = getTestContainer();
+            /**
+             * @type {R4SearchQueryCreator}
+             */
             const r4SearchQueryCreator = container.r4SearchQueryCreator;
+            /**
+             * @type {R4ArgsParser}
+             */
+            const r4ArgsParser = container.r4ArgsParser;
+
             const args = {
                 'subject': 'Patient/1234,Patient/4567'
             };
             const result = r4SearchQueryCreator.buildR4SearchQuery({
-                resourceType: 'Task', args
+                resourceType: 'Task',
+                parsedArgs: r4ArgsParser.parseArgs({resourceType: 'Task', args})
             });
             expect(result.query.$and['0']['for.reference'].$in[0]).toStrictEqual('Patient/1234');
             expect(result.query.$and['0']['for.reference'].$in[1]).toStrictEqual('Patient/4567');
@@ -233,12 +302,21 @@ describe('r4 search Tests', () => {
                 return container;
             });
             const container = getTestContainer();
+            /**
+             * @type {R4SearchQueryCreator}
+             */
             const r4SearchQueryCreator = container.r4SearchQueryCreator;
+            /**
+             * @type {R4ArgsParser}
+             */
+            const r4ArgsParser = container.r4ArgsParser;
+
             const args = {
                 'active': 'true'
             };
             const result = r4SearchQueryCreator.buildR4SearchQuery({
-                resourceType: 'PractitionerRole', args
+                resourceType: 'PractitionerRole',
+                parsedArgs: r4ArgsParser.parseArgs({resourceType: 'PractitionerRole', args})
             });
             expect(result.query.$and['0'].active).toStrictEqual(true);
         });
@@ -255,12 +333,21 @@ describe('r4 search Tests', () => {
                 return container;
             });
             const container = getTestContainer();
+            /**
+             * @type {R4SearchQueryCreator}
+             */
             const r4SearchQueryCreator = container.r4SearchQueryCreator;
+            /**
+             * @type {R4ArgsParser}
+             */
+            const r4ArgsParser = container.r4ArgsParser;
+
             const args = {
                 'active': 'false'
             };
             const result = r4SearchQueryCreator.buildR4SearchQuery({
-                resourceType: 'PractitionerRole', args
+                resourceType: 'PractitionerRole',
+                parsedArgs: r4ArgsParser.parseArgs({resourceType: 'PractitionerRole', args})
             });
             expect(result.query.$and['0'].active).toStrictEqual(false);
         });
@@ -277,13 +364,22 @@ describe('r4 search Tests', () => {
                 return container;
             });
             const container = getTestContainer();
+            /**
+             * @type {R4SearchQueryCreator}
+             */
             const r4SearchQueryCreator = container.r4SearchQueryCreator;
+            /**
+             * @type {R4ArgsParser}
+             */
+            const r4ArgsParser = container.r4ArgsParser;
+
             const args = {
                 'id': 'john-muir-health-e.k-4ea143ZrQGvdUvf-b2y.tdyiVMBWgblY4f6y2zis3',
                 'id:above': 'john-muir-health-e.k-4ea143ZrQGvdUvf-b2y.tdyiVMBWgblY4f6y2zis3'
             };
             const result = r4SearchQueryCreator.buildR4SearchQuery({
-                resourceType: 'Patient', args
+                resourceType: 'Patient',
+                parsedArgs: r4ArgsParser.parseArgs({resourceType: 'Patient', args})
             });
             expect(result.query.$and['0'].id).toStrictEqual('john-muir-health-e.k-4ea143ZrQGvdUvf-b2y.tdyiVMBWgblY4f6y2zis3');
             expect(result.query.$and['1'].$or[0].id).toStrictEqual({
@@ -303,12 +399,21 @@ describe('r4 search Tests', () => {
                 return container;
             });
             const container = getTestContainer();
+            /**
+             * @type {R4SearchQueryCreator}
+             */
             const r4SearchQueryCreator = container.r4SearchQueryCreator;
+            /**
+             * @type {R4ArgsParser}
+             */
+            const r4ArgsParser = container.r4ArgsParser;
+
             const args = {
                 '_id:not': 'john-muir-health-e.k-4ea143ZrQGvdUvf-b2y.tdyiVMBWgblY4f6y2zis3',
             };
             const result = r4SearchQueryCreator.buildR4SearchQuery({
-                resourceType: 'Patient', args
+                resourceType: 'Patient',
+                parsedArgs: r4ArgsParser.parseArgs({resourceType: 'Patient', args})
             });
             expect(result.query.$and['0'].$nor['0'].id).toStrictEqual('john-muir-health-e.k-4ea143ZrQGvdUvf-b2y.tdyiVMBWgblY4f6y2zis3');
         });
@@ -325,12 +430,21 @@ describe('r4 search Tests', () => {
                 return container;
             });
             const container = getTestContainer();
+            /**
+             * @type {R4SearchQueryCreator}
+             */
             const r4SearchQueryCreator = container.r4SearchQueryCreator;
+            /**
+             * @type {R4ArgsParser}
+             */
+            const r4ArgsParser = container.r4ArgsParser;
+
             const args = {
                 '_security:not': 'https://www.icanbwell.com/access|bwell',
             };
             const result = r4SearchQueryCreator.buildR4SearchQuery({
-                resourceType: 'Patient', args
+                resourceType: 'Patient',
+                parsedArgs: r4ArgsParser.parseArgs({resourceType: 'Patient', args})
             });
             expect(result.query.$and['0'].$nor['0']['meta.security'].$elemMatch).toStrictEqual({
                 'system': 'https://www.icanbwell.com/access',
