@@ -3,6 +3,7 @@
  */
 const { createTestRequest } = require('./tests/common');
 
+const {Kafka} = require('kafkajs');
 const { describe, expect, test } = require('@jest/globals');
 const env = require('var');
 
@@ -25,6 +26,14 @@ jest.mock('kafkajs', () => {
 });
 
 describe('#app', () => {
+    beforeAll(() => {
+        jest.useFakeTimers();
+    });
+
+    afterAll(() => {
+        jest.useRealTimers();
+    });
+
     test('it should startup and return health check status ok', async () => {
         const request = await createTestRequest();
         const response = await request.get('/health');
@@ -42,6 +51,26 @@ describe('#app', () => {
         expect(response.status).toBe(200);
         // If Kafka is healthy status returned is ok
         expect(response.body).toMatchObject({ status: 'ok' });
+        expect(Kafka).toHaveBeenCalledTimes(1);
+
+        // Kafka Health Connection should not be checked within an interval of 30 seconds
+        request = await createTestRequest();
+        response = await request.get('/health');
+        expect(response.status).toBe(200);
+        // If Kafka is healthy status returned is ok
+        expect(response.body).toMatchObject({ status: 'ok' });
+        expect(Kafka).toHaveBeenCalledTimes(1);
+
+        // Kafka Health Connection should be checked but all the values should be stored in variables.
+        // So kafka shouldn't be called.
+        jest.advanceTimersByTime(40000);
+        request = await createTestRequest();
+        response = await request.get('/health');
+        expect(response.status).toBe(200);
+        // If Kafka is healthy status returned is ok
+        expect(response.body).toMatchObject({ status: 'ok' });
+        expect(Kafka).toHaveBeenCalledTimes(1);
+
         env.ENABLE_EVENTS_KAFKA = enableKafkaEvents;
     });
 });
