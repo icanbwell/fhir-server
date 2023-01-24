@@ -33,6 +33,8 @@ function filterByReference({propertyObj, queryParameterValue, columns}) {
                     ),
                 },
             );
+            // Adding properyobj fields reference to the columns set, to be used as index hints
+            propertyObj.fields.forEach(item => columns.add(`${item}.reference`));
         } else {
             and_segments.push(
                 referenceQueryBuilder(
@@ -44,6 +46,8 @@ function filterByReference({propertyObj, queryParameterValue, columns}) {
                     }
                 )
             );
+            // Adding the propertyobj field reference to columns set, to be used as index hints
+            columns.add(`${propertyObj.field}.reference`);
         }
     } else {
         var field = propertyObj.fields ? `${propertyObj.fields[propertyObj.fields.length - 1]}.reference` // set field to 'library' if propertyObj.fields
@@ -77,8 +81,9 @@ function filterByReference({propertyObj, queryParameterValue, columns}) {
                 },
             );
         }
+        // Adding the field to columns set, to be used as index hints
+        columns.add(`${field}`);
     }
-    columns.add(propertyObj.fields ? `${propertyObj.fields.map(f => `${f}.reference`)}` : `${propertyObj.field}.reference`);
     return and_segments;
 }
 

@@ -22,14 +22,17 @@ function filterByCanonical({propertyObj, queryParameterValue, columns}) {
                 ),
             },
         );
+        // Adding properyobj fields to the columns set, to be used as index hints
+        propertyObj.fields.forEach(columns.add, columns);
     } else {
         and_segments.push(
             {
                 [`${propertyObj.field}`]: queryParameterValue,
             }
         );
+        // Adding the field to columns set, to be used as index hints
+        columns.add(`${propertyObj.field}`);
     }
-    columns.add(propertyObj.fields ? `${propertyObj.fields}` : `${propertyObj.field}`);
     return and_segments;
 }
 

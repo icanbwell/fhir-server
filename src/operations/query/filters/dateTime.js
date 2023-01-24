@@ -48,6 +48,8 @@ function filterByDateTime({queryParameterValue, propertyObj, resourceType, colum
                     }),
                 }
             );
+            // Adding properyobj fields to the columns set, to be used as index hints
+            propertyObj.fields.forEach(columns.add, columns);
         } else if (
             propertyObj.field === 'meta.lastUpdated' ||
             isColumnDateType(resourceType, propertyObj.field)
@@ -62,6 +64,8 @@ function filterByDateTime({queryParameterValue, propertyObj, resourceType, colum
                     }
                 ),
             });
+            // Adding meta.lastUpdated to columns set.
+            columns.add(`${propertyObj.field}`);
         } else {
             // if this is date as a string
             and_segments.push({
@@ -69,9 +73,10 @@ function filterByDateTime({queryParameterValue, propertyObj, resourceType, colum
                     date: dateQueryItem, type: propertyObj.type
                 }),
             });
+            // Adding the field to columns set, to be used as index hints
+            columns.add(`${propertyObj.field}`);
         }
     }
-    columns.add(`${propertyObj.field}`);
     return and_segments;
 }
 

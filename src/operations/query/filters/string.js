@@ -71,9 +71,11 @@ function filterByString({queryParameterValue, propertyObj, columns}) {
             : queryParameterValue.split(',');
     if (propertyObj.fields) {
         andSegments.push(getMultiFieldSegment(propertyObj.fields, values));
-        columns.add(`${propertyObj.fields}`);
+        // Adding properyobj fields to the columns set, to be used as index hints
+        propertyObj.fields.forEach(columns.add, columns);
     } else {
         andSegments.push(getSingleFieldSegment(propertyObj.field, values));
+        // Adding the field to columns set, to be used as index hints
         columns.add(`${propertyObj.field}`);
     }
     return andSegments;
