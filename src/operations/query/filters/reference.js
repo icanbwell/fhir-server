@@ -78,7 +78,7 @@ function filterByReference({propertyObj, queryParameterValue, columns}) {
             );
         }
     }
-    // Add the property oblf fields or field reference to columns set, to be used as index hints
+    // Add the property obj fields or field reference to columns set, to be used as index hints
     columns.add(propertyObj.fields ? `${propertyObj.fields.forEach.map(f => `${f}.reference`)}` : `${propertyObj.field}.reference`);
     return and_segments;
 }

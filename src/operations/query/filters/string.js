@@ -71,7 +71,7 @@ function filterByString({queryParameterValue, propertyObj, columns}) {
             : queryParameterValue.split(',');
     if (propertyObj.fields) {
         andSegments.push(getMultiFieldSegment(propertyObj.fields, values));
-        // Adding properyobj fields to the columns set, to be used as index hints
+        // Adding propertyobj fields to the columns set, to be used as index hints
         propertyObj.fields.forEach(columns.add, columns);
     } else {
         andSegments.push(getSingleFieldSegment(propertyObj.field, values));
