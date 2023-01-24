@@ -68,7 +68,7 @@
         "system": "https://www.icanbwell.com/queryOptions"
       },
       {
-        "display": "['sourceAttachment.reference,sourceReference.reference','id']",
+        "display": "['sourceAttachment.reference','sourceReference.reference','id']",
         "system": "https://www.icanbwell.com/queryFields"
       },
       {
