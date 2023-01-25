@@ -1,4 +1,5 @@
 const {referenceQueryBuilder} = require('../../../utils/querybuilder.util');
+const { getIndexHints } = require('../../common/getIndexHints');
 
 /**
  * Filters by reference
@@ -78,7 +79,7 @@ function filterByReference({propertyObj, queryParameterValue, columns}) {
             );
         }
     }
-    columns.add(propertyObj.fields ? `${propertyObj.fields.map(f => `${f}.reference`)}` : `${propertyObj.field}.reference`);
+    getIndexHints(columns, propertyObj, 'reference');
     return and_segments;
 }
 

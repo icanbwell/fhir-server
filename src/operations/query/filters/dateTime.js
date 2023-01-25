@@ -1,5 +1,6 @@
 const {dateQueryBuilder, dateQueryBuilderNative, datetimePeriodQueryBuilder} = require('../../../utils/querybuilder.util');
 const {isColumnDateType} = require('../../common/isColumnDateType');
+const { getIndexHints } = require('../../common/getIndexHints');
 
 function isPeriodField(fieldString) {
     return fieldString === 'period' || fieldString === 'effectivePeriod';
@@ -71,7 +72,7 @@ function filterByDateTime({queryParameterValue, propertyObj, resourceType, colum
             });
         }
     }
-    columns.add(`${propertyObj.field}`);
+    getIndexHints(columns, propertyObj);
     return and_segments;
 }
 

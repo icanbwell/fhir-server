@@ -71,7 +71,7 @@
         "system": "https://www.icanbwell.com/queryOptions"
       },
       {
-        "display": "['relatedArtifact.resource,library','id']",
+        "display": "['relatedArtifact.resource','library','id']",
         "system": "https://www.icanbwell.com/queryFields"
       },
       {
