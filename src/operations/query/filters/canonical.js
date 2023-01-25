@@ -1,3 +1,5 @@
+const { getIndexHints } = require('../../common/getIndexHints');
+
 /**
  * filters by canonical uri
  * https://www.hl7.org/fhir/search.html#uri
@@ -22,8 +24,6 @@ function filterByCanonical({propertyObj, queryParameterValue, columns}) {
                 ),
             },
         );
-        // Adding propertyobj fields to the columns set, to be used as index hints
-        propertyObj.fields.forEach(columns.add, columns);
     } else {
         and_segments.push(
             {
@@ -31,8 +31,8 @@ function filterByCanonical({propertyObj, queryParameterValue, columns}) {
             }
         );
         // Adding the field to columns set, to be used as index hints
-        columns.add(`${propertyObj.field}`);
     }
+    getIndexHints(columns, propertyObj);
     return and_segments;
 }
 

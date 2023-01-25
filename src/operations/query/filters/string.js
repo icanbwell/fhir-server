@@ -1,4 +1,5 @@
 const { nameQueryBuilder, addressQueryBuilder } = require('../../../utils/querybuilder.util');
+const { getIndexHints } = require('../../common/getIndexHints');
 
 /**
  * Get query segment for a single field
@@ -71,13 +72,10 @@ function filterByString({queryParameterValue, propertyObj, columns}) {
             : queryParameterValue.split(',');
     if (propertyObj.fields) {
         andSegments.push(getMultiFieldSegment(propertyObj.fields, values));
-        // Adding propertyobj fields to the columns set, to be used as index hints
-        propertyObj.fields.forEach(columns.add, columns);
     } else {
         andSegments.push(getSingleFieldSegment(propertyObj.field, values));
-        // Adding the field to columns set, to be used as index hints
-        columns.add(`${propertyObj.field}`);
     }
+    getIndexHints(columns, propertyObj);
     return andSegments;
 }
 
