@@ -88,7 +88,7 @@ class PatchOperation {
         // currently we only support JSONPatch
         if (!contentTypeFromHeader || contentTypeFromHeader.type !== fhirContentTypes.jsonPatch) {
             const message = `Content-Type ${contentTypeFromHeader ? contentTypeFromHeader.type : ''} ` +
-                ' is not supported for patch. ' +
+                'is not supported for patch. ' +
                 `Only ${fhirContentTypes.jsonPatch} is supported.`;
             throw new BadRequestError(
                 {
