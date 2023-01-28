@@ -171,6 +171,8 @@ There are two ways to do this:
 1. (Recommended) Use the [$merge](merge.md) endpoint which handles both creating a new resource and updating an existing resource. This is the recommended path to avoid the timing issue where someone else may update that resource between the time you checked the resource exists and sent the call to add it.
 2. Use the PUT method. You can PUT the resource as the body to /4_0_0/{resource}/{id} e.g., /4_0_0/Patient/123
     - **Note:** This will completely replace the existing resource
+3. Use the PATCH method.  http://hl7.org/fhir/http.html#patch
+    - **Note:** You must pass the Content-Type as `application/json-patch+json` and the patch must be in JSONPatch format: https://jsonpatch.com/
 
 FHIR Specification: https://www.hl7.org/fhir/http.html#update
 

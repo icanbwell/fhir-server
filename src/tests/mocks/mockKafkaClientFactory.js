@@ -25,6 +25,13 @@ class MockKafkaClientFactory extends KafkaClientFactory {
     async createKafkaClientAsync() {
         return this.kafkaClient;
     }
+
+    /**
+     * @return {Promise<MockKafkaClient>}
+     */
+     async getKafkaClientConfigAsync() {
+        return this.kafkaClient;
+    }
 }
 
 module.exports = {

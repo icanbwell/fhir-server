@@ -168,4 +168,5 @@ module.exports = {
         'onBehalfOf', 'period', 'practitionerId', 'patientId',
     ],
     REQUEST_ID_HEADER: 'x-request-id',
+    KAFKA_CONNECTION_HEALTHCHECK_INTERVAL: 30000, // In milliseconds
 };

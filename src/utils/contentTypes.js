@@ -2,7 +2,8 @@ const fhirContentTypes = {
     ndJson: 'application/fhir+ndjson',
     ndJson2: 'application/ndjson',
     ndJson3: 'ndjson',
-    fhirJson: 'application/fhir+json'
+    fhirJson: 'application/fhir+json',
+    jsonPatch: 'application/json-patch+json'
 };
 
 /**
