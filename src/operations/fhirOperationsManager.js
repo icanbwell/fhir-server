@@ -20,7 +20,7 @@ const env = require('var');
 const {FhirResponseStreamer} = require('../utils/fhirResponseStreamer');
 const BundleEntry = require('../fhir/classes/4_0_0/backbone_elements/bundleEntry');
 const {convertErrorToOperationOutcome} = require('../utils/convertErrorToOperationOutcome');
-
+const contentType = require('content-type');
 
 // This is needed for JSON.stringify() can handle regex
 // https://stackoverflow.com/questions/12075927/serialization-of-regexp
@@ -215,6 +215,11 @@ class FhirOperationsManager {
          * @type {Object}
          */
         const headers = req.headers;
+
+        /**
+         * @type {import('content-type').ContentType}
+         */
+        const contentTypeFromHeader = headers['content-type'] ? contentType.parse(headers['content-type']) : null;
         return new FhirRequestInfo(
             {
                 user,
@@ -231,7 +236,8 @@ class FhirOperationsManager {
                 patientIdsFromJwtToken,
                 personIdFromJwtToken,
                 headers,
-                method
+                method,
+                contentTypeFromHeader
             }
         );
     }
