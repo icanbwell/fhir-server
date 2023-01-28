@@ -21,7 +21,7 @@ class FhirRequestInfo {
      * @param {string | null} [personIdFromJwtToken]
      * @param {Object} headers
      * @param {string} method
-     * @param {import('content-type').ContentType} contentTypeFromHeader
+     * @param {import('content-type').ContentType|null} contentTypeFromHeader
      */
     constructor(
         {
@@ -106,7 +106,7 @@ class FhirRequestInfo {
         this.method = method;
 
         /**
-         * @type {import('content-type').ContentType}
+         * @type {import('content-type').ContentType|null}
          */
         this.contentTypeFromHeader = contentTypeFromHeader;
     }

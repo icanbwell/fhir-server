@@ -219,7 +219,7 @@ class FhirOperationsManager {
         /**
          * @type {import('content-type').ContentType}
          */
-        const contentTypeFromHeader = contentType.parse(headers['content-type']);
+        const contentTypeFromHeader = headers['content-type'] ? contentType.parse(headers['content-type']) : null;
         return new FhirRequestInfo(
             {
                 user,
