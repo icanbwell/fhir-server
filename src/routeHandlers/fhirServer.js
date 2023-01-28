@@ -21,7 +21,7 @@ const {assertTypeEquals} = require('../utils/assertType');
 const passport = require('passport');
 const path = require('path');
 const contentType = require('content-type');
-const { REQUEST_ID_HEADER } = require('../constants');
+const {REQUEST_ID_HEADER} = require('../constants');
 const {convertErrorToOperationOutcome} = require('../utils/convertErrorToOperationOutcome');
 
 class MyFHIRServer {
@@ -89,7 +89,7 @@ class MyFHIRServer {
             })
         );
 
-        const allowedContentTypes = ['application/fhir+json', 'application/json+fhir'];
+        const allowedContentTypes = ['application/fhir+json', 'application/json+fhir', 'application/json-patch+json'];
 
         // reject any requests that don't have correct content type
         this.app.use(function (req, res, next) {

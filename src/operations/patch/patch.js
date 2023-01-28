@@ -10,9 +10,9 @@ const {ChangeEventProducer} = require('../../utils/changeEventProducer');
 const {PostRequestProcessor} = require('../../utils/postRequestProcessor');
 const {FhirLoggingManager} = require('../common/fhirLoggingManager');
 const {ScopesValidator} = require('../security/scopesValidator');
-const {omitPropertyFromResource} = require('../../utils/omitProperties');
 const {DatabaseBulkInserter} = require('../../dataLayer/databaseBulkInserter');
 const {getCircularReplacer} = require('../../utils/getCircularReplacer');
+const {fhirContentTypes} = require('../../utils/contentTypes');
 
 class PatchOperation {
     /**
@@ -78,7 +78,27 @@ class PatchOperation {
         assertIsValid(args !== undefined);
         assertIsValid(resourceType !== undefined);
         const currentOperationName = 'patch';
-        const {requestId, method} = requestInfo;
+        const {
+            requestId,
+            method,
+            body: patchContent,
+            /** @type {import('content-type').ContentType} */ contentTypeFromHeader
+        } = requestInfo;
+
+        // currently we only support JSONPatch
+        if (contentTypeFromHeader.type !== fhirContentTypes.jsonPatch) {
+            const message = `Content-Type ${contentTypeFromHeader.type} is not supported for patch. ` +
+                `Only ${fhirContentTypes.jsonPatch} is supported.`;
+            throw new BadRequestError(
+                {
+                    'message': message,
+                    toString: function () {
+                        return message;
+                    }
+                }
+            );
+        }
+
         /**
          * @type {number}
          */
@@ -90,70 +110,64 @@ class PatchOperation {
             resourceType,
             startTime,
             action: currentOperationName,
-            accessRequested: 'read'
+            accessRequested: 'write'
         });
 
         try {
 
             const currentDate = moment.utc().format('YYYY-MM-DD');
+            // http://hl7.org/fhir/http.html#patch
             // patchContent is passed in JSON Patch format https://jsonpatch.com/
-            let {base_version, id, /** @type {import('fast-json-patch').Operation[]} */ patchContent} = args;
+            let {base_version, id} = args;
             // Get current record
             // Query our collection for this observation
-            let data;
-            try {
-                const databaseQueryManager = this.databaseQueryFactory.createQuery(
-                    {resourceType, base_version}
-                );
-                data = await databaseQueryManager.findOneAsync({query: {id: id.toString()}});
-            } catch (e) {
-                throw new NotFoundError(new Error(`Resource not found: ${resourceType}/${id}`));
-            }
-            if (!data) {
-                throw new NotFoundError('Resource not found');
-            }
-            // Validate the patch
-            let errors = validate(patchContent, data);
-            if (errors && Object.keys(errors).length > 0) {
-                throw new BadRequestError(errors[0]);
-            }
-            // Make the changes indicated in the patch
-            let resource_incoming = applyPatch(data, patchContent).newDocument;
-
-            let ResourceCreator = getResource(base_version, resourceType);
-            let resource = new ResourceCreator(resource_incoming);
             /**
              * @type {Resource}
              */
             let foundResource;
+            try {
+                const databaseQueryManager = this.databaseQueryFactory.createQuery(
+                    {resourceType, base_version}
+                );
+                foundResource = await databaseQueryManager.findOneAsync({query: {id: id.toString()}});
+            } catch (e) {
+                throw new NotFoundError(new Error(`Resource not found: ${resourceType}/${id}`));
+            }
+            if (!foundResource) {
+                throw new NotFoundError('Resource not found');
+            }
+            // Validate the patch
+            let errors = validate(patchContent, foundResource);
+            if (errors && Object.keys(errors).length > 0) {
+                throw new BadRequestError(errors[0]);
+            }
+            // Make the changes indicated in the patch
+            /**
+             * @type {Object}
+             */
+            let resource_incoming = applyPatch(foundResource.toJSONInternal(), patchContent).newDocument;
 
-            if (data && data.meta) {
-                foundResource = new ResourceCreator(data);
+            let ResourceCreator = getResource(base_version, resourceType);
+            /**
+             * @type {Resource}
+             */
+            let resource = new ResourceCreator(resource_incoming);
+
+            if (foundResource && foundResource.meta) {
                 let meta = foundResource.meta;
                 // noinspection JSUnresolvedVariable
                 meta.versionId = `${parseInt(foundResource.meta.versionId) + 1}`;
                 meta.lastUpdated = new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ssZ'));
                 resource.meta = meta;
             } else {
-                throw new BadRequestError(new Error('Unable to patch resource. Missing either data or metadata.'));
+                throw new BadRequestError(new Error('Unable to patch resource. Missing either foundResource or metadata.'));
             }
 
             // Same as update from this point on
-            /**
-             * @type {Resource}
-             */
-            let doc = resource;
-
             // Insert/update our resource record
-            /**
-             * @type {{error: import('mongodb').Document, created: boolean} | null}
-             */
-            let res;
-            doc = omitPropertyFromResource(doc, '_id');
-
             await this.databaseBulkInserter.replaceOneAsync(
                 {
-                    requestId, resourceType, doc,
+                    requestId, resourceType, doc: resource,
                     id,
                     patches: patchContent.map(
                         p => {
@@ -193,17 +207,18 @@ class PatchOperation {
                 requestId,
                 fnTask: async () => {
                     await this.changeEventProducer.fireEventsAsync({
-                        requestId, eventType: 'U', resourceType, doc
+                        requestId, eventType: 'U', resourceType, doc: resource
                     });
                     await this.changeEventProducer.flushAsync({requestId});
                 }
             });
 
             return {
-                id: doc.id,
-                created: res.lastErrorObject && !res.lastErrorObject.updatedExisting,
-                resource_version: doc.meta.versionId,
-                resource: doc
+                id: resource.id,
+                created: false,
+                updated: true,
+                resource_version: resource.meta.versionId,
+                resource: resource
             };
         } catch (e) {
             await this.fhirLoggingManager.logOperationFailureAsync(

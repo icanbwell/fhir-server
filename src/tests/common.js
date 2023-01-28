@@ -210,6 +210,14 @@ module.exports.getHeadersNdJsonFormUrlEncoded = (scope) => {
     };
 };
 
+module.exports.getHeadersJsonPatch = (scope) => {
+    return {
+        'Content-Type': 'application/json-patch+json',
+        Accept: 'application/fhir+json', // what we want the response to be in
+        Authorization: `Bearer ${scope ? getToken(scope) : getFullAccessToken()}`,
+    };
+};
+
 module.exports.getGraphQLHeaders = (scope) => {
     return {
         'Content-Type': 'application/json; charset=utf-8',
