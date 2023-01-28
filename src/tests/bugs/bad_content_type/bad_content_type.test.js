@@ -39,8 +39,7 @@ describe('PatientReturnIdTests', () => {
             expect(resp).toHaveStatusCode(400);
             expect(resp.body).toStrictEqual(
                 {
-                    'message':
-                        'Content Type application/json is not supported. Please use one of: application/fhir+json,application/json+fhir'
+                    'message': 'Content Type application/json is not supported. Please use one of: application/fhir+json,application/json+fhir,application/json-patch+json'
                 }
             );
 
