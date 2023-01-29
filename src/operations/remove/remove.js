@@ -15,6 +15,8 @@ const {ScopesValidator} = require('../security/scopesValidator');
 const {VERSIONS} = require('../../middleware/fhir/utils/constants');
 const {ConfigManager} = require('../../utils/configManager');
 const {SecurityTagSystem} = require('../../utils/securityTagSystem');
+const {R4ArgsParser} = require('../query/r4ArgsParser');
+const {QueryRewriterManager} = require('../../queryRewriters/queryRewriterManager');
 
 class RemoveOperation {
     /**
@@ -25,6 +27,8 @@ class RemoveOperation {
      * @param {ScopesValidator} scopesValidator
      * @param {ConfigManager} configManager
      * @param {R4SearchQueryCreator} r4SearchQueryCreator
+     * @param {R4ArgsParser} r4ArgsParser
+     * @param {QueryRewriterManager} queryRewriterManager
      */
     constructor(
         {
@@ -34,7 +38,9 @@ class RemoveOperation {
             fhirLoggingManager,
             scopesValidator,
             configManager,
-            r4SearchQueryCreator
+            r4SearchQueryCreator,
+            r4ArgsParser,
+            queryRewriterManager
         }
     ) {
         /**
@@ -74,6 +80,18 @@ class RemoveOperation {
          */
         this.r4SearchQueryCreator = r4SearchQueryCreator;
         assertTypeEquals(r4SearchQueryCreator, R4SearchQueryCreator);
+
+        /**
+         * @type {R4ArgsParser}
+         */
+        this.r4ArgsParser = r4ArgsParser;
+        assertTypeEquals(r4ArgsParser, R4ArgsParser);
+
+        /**
+         * @type {QueryRewriterManager}
+         */
+        this.queryRewriterManager = queryRewriterManager;
+        assertTypeEquals(queryRewriterManager, QueryRewriterManager);
     }
 
     /**
@@ -131,7 +149,16 @@ class RemoveOperation {
              * @type {import('mongodb').Document}
              */
             let query = {};
-
+            /**
+             * @type {ParsedArgsItem[]}
+             */
+            let parsedArgs = this.r4ArgsParser.parseArgs({resourceType, args});
+            // see if any query rewriters want to rewrite the args
+            parsedArgs = await this.queryRewriterManager.rewriteArgsAsync(
+                {
+                    base_version, parsedArgs, resourceType
+                }
+            );
             // eslint-disable-next-line no-useless-catch
             try {
                 if (base_version === VERSIONS['3_0_1']) {
@@ -141,7 +168,7 @@ class RemoveOperation {
                 } else {
                     ({query} = this.r4SearchQueryCreator.buildR4SearchQuery(
                         {
-                            resourceType, args
+                            resourceType, parsedArgs
                         }));
                 }
             } catch (e) {

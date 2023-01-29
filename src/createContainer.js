@@ -425,7 +425,9 @@ const createContainer = function () {
             fhirLoggingManager: c.fhirLoggingManager,
             scopesValidator: c.scopesValidator,
             configManager: c.configManager,
-            r4SearchQueryCreator: c.r4SearchQueryCreator
+            r4SearchQueryCreator: c.r4SearchQueryCreator,
+            r4ArgsParser: c.r4ArgsParser,
+            queryRewriterManager: c.queryRewriterManager
         }
     ));
     container.register('searchByVersionIdOperation', (c) => new SearchByVersionIdOperation(
