@@ -1,5 +1,4 @@
 const {BaseBulkOperationRunner} = require('./baseBulkOperationRunner');
-const {mongoConfig, auditEventMongoConfig} = require('../../config');
 const {SourceIdColumnHandler} = require('../../preSaveHandlers/handlers/sourceIdColumnHandler');
 const {UuidColumnHandler} = require('../../preSaveHandlers/handlers/uuidColumnHandler');
 const {SourceAssigningAuthorityColumnHandler} = require('../../preSaveHandlers/handlers/sourceAssigningAuthorityColumnHandler');
@@ -161,7 +160,7 @@ class CreateAccessIndexRunner extends BaseBulkOperationRunner {
                 try {
                     await this.runForQueryBatchesAsync(
                         {
-                            config: this.useAuditDatabase ? auditEventMongoConfig : mongoConfig,
+                            config: this.useAuditDatabase ? this.mongoDatabaseManager.getAuditConfig() : this.mongoDatabaseManager.getClientConfig(),
                             sourceCollectionName: collectionName,
                             destinationCollectionName: collectionName,
                             query,

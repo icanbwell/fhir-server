@@ -3,7 +3,6 @@
  */
 
 const async = require('async');
-const {mongoConfig} = require('../config');
 const {logSystemEventAsync, logSystemErrorAsync} = require('../operations/common/logging');
 const {ErrorReporter} = require('../utils/slack.logger');
 const {assertTypeEquals, assertIsValid} = require('../utils/assertType');
@@ -220,7 +219,7 @@ class IndexManager {
         /**
          * @type {import('mongodb').MongoClient}
          */
-        const client = await this.mongoDatabaseManager.createClientAsync(mongoConfig);
+        const client = await this.mongoDatabaseManager.createClientAsync(this.mongoDatabaseManager.getClientConfig());
         /**
          * @type {import('mongodb').Db}
          */
@@ -429,7 +428,7 @@ class IndexManager {
         /**
          * @type {import('mongodb').MongoClient}
          */
-        const client = await this.mongoDatabaseManager.createClientAsync(mongoConfig);
+        const client = await this.mongoDatabaseManager.createClientAsync(this.mongoDatabaseManager.getClientConfig());
         try {
             /**
              * @type {import('mongodb').Db}
@@ -514,7 +513,7 @@ class IndexManager {
         /**
          * @type {import('mongodb').MongoClient}
          */
-        const client = await this.mongoDatabaseManager.createClientAsync(mongoConfig);
+        const client = await this.mongoDatabaseManager.createClientAsync(this.mongoDatabaseManager.getClientConfig());
         /**
          * @type {import('mongodb').Db}
          */

@@ -2,7 +2,6 @@ const {BaseBulkOperationRunner} = require('./baseBulkOperationRunner');
 const {assertTypeEquals} = require('../../utils/assertType');
 const {YearMonthPartitioner} = require('../../partitioners/yearMonthPartitioner');
 const moment = require('moment-timezone');
-const {auditEventMongoConfig, mongoConfig} = require('../../config');
 const {mongoQueryStringify} = require('../../utils/mongoQueryStringify');
 const {IndexManager} = require('../../indexes/indexManager');
 const {MongoDatabaseManager} = require('../../utils/mongoDatabaseManager');
@@ -190,7 +189,9 @@ class PartitionAuditEventRunner extends BaseBulkOperationRunner {
                     ]
                 };
                 try {
-                    const config = this.useAuditDatabase ? auditEventMongoConfig : mongoConfig;
+                    const config = this.useAuditDatabase ?
+                        this.mongoDatabaseManager.getAuditConfig() :
+                        this.mongoDatabaseManager.getClientConfig();
                     /**
                      * @type {import('mongodb').MongoClient}
                      */
@@ -277,7 +278,7 @@ class PartitionAuditEventRunner extends BaseBulkOperationRunner {
 
                         await this.runForQueryBatchesAsync(
                             {
-                                config: this.useAuditDatabase ? auditEventMongoConfig : mongoConfig,
+                                config: this.useAuditDatabase ? this.mongoDatabaseManager.getAuditConfig() : this.mongoDatabaseManager.getClientConfig(),
                                 sourceCollectionName: destinationCollectionName,
                                 destinationCollectionName,
                                 query: {

@@ -2,7 +2,6 @@
  * This route handler implements the /stats endpoint which shows the collections in mongo and the number of records in each
  */
 
-const {mongoConfig} = require('../config');
 const async = require('async');
 const env = require('var');
 const {RethrownError} = require('../utils/rethrownError');
@@ -58,6 +57,7 @@ module.exports.handleStats = async ({fnCreateContainer, req, res}) => {
             collection_names,
             async (collection_name) => await getStatsForCollectionAsync(collection_name, db)
         );
+        const mongoConfig = mongoDatabaseManager.getClientConfig();
         res.status(200).json({
             success: true,
             image: env.DOCKER_IMAGE || '',

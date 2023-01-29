@@ -4,7 +4,6 @@ const {BaseScriptRunner} = require('./baseScriptRunner');
 const readline = require('readline');
 const retry = require('async-retry');
 const {mongoQueryStringify} = require('../../utils/mongoQueryStringify');
-const {auditEventMongoConfig, mongoConfig} = require('../../config');
 const {AdminLogger} = require('../adminLogger');
 const deepcopy = require('deepcopy');
 const moment = require('moment-timezone');
@@ -483,7 +482,7 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
      * @returns {Promise<string[]>}
      */
     async getAllCollectionNamesAsync({useAuditDatabase, includeHistoryCollections}) {
-        const config = useAuditDatabase ? auditEventMongoConfig : mongoConfig;
+        const config = useAuditDatabase ? this.mongoDatabaseManager.getAuditConfig() : this.mongoDatabaseManager.getClientConfig();
         /**
          * @type {import('mongodb').MongoClient}
          */
