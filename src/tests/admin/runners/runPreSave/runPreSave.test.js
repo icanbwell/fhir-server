@@ -161,13 +161,7 @@ describe('Patient Tests', () => {
             expect(patient4).toBeDefined();
             delete patient4._id;
             expect(patient4._uuid).toBeDefined();
-            expectedPatient4DatabaseAfterRun._uuid = patient4._uuid;
             expect(patient4.meta).toBeDefined();
-            // expect(patient1.meta.lastUpdated).toBeDefined();
-            // patient1.meta.lastUpdated = expectedPatient1DatabaseAfterRun.meta.lastUpdated;
-            expectedPatient4DatabaseAfterRun.identifier
-                .filter(i => i.system === IdentifierSystem.uuid)[0]
-                .value = patient4._uuid;
             expect(patient4).toStrictEqual(expectedPatient4DatabaseAfterRun);
         });
     });
