@@ -4,6 +4,7 @@ const {PreSaveManager} = require('../../preSaveHandlers/preSave');
 const deepEqual = require('fast-deep-equal');
 const {getResource} = require('../../operations/common/getResource');
 const {VERSIONS} = require('../../middleware/fhir/utils/constants');
+const moment = require('moment-timezone');
 
 /**
  * @classdesc Copies documents from source collection into the appropriate partitioned collection
@@ -81,7 +82,8 @@ class RunPreSaveRunner extends BaseBulkOperationRunner {
         /**
          * @type {import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>}
          */
-            // batch up the calls to update
+        // batch up the calls to update
+        updatedResource.meta.lastUpdated = new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ssZ'));
         const result = {replaceOne: {filter: {_id: doc._id}, replacement: updatedResource.toJSONInternal()}};
         operations.push(result);
 

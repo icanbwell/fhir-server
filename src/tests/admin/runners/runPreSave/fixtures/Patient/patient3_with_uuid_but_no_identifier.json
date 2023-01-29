@@ -1,42 +1,43 @@
 {
-    "_access": {
-      "medstar": 1
-    },
-    "_sourceAssigningAuthority": {
-      "medstar": 1
-    },
-    "_sourceId": "00300000000",
-    "_uuid": "c8dccbb2-7d6c-4cf6-98cf-c6978c4a5d46",
-    "birthDate": "2017-01-01",
-    "gender": "female",
-    "id": "00300000000",
-    "meta": {
-      "security": [
-        {
-          "code": "medstar",
-          "system": "https://www.icanbwell.com/access"
-        },
-        {
-          "code": "medstar",
-          "system": "https://www.icanbwell.com/owner"
-        },
-        {
-          "code": "medstar",
-          "system": "https://www.icanbwell.com/sourceAssigningAuthority"
-        }
-      ],
-      "source": "http://medstarhealth.org/provider",
-      "versionId": "1"
-    },
-    "name": [
+  "_access": {
+    "medstar": 1
+  },
+  "_sourceAssigningAuthority": {
+    "medstar": 1
+  },
+  "_sourceId": "00300000000",
+  "_uuid": "c8dccbb2-7d6c-4cf6-98cf-c6978c4a5d46",
+  "birthDate": "2017-01-01",
+  "gender": "female",
+  "id": "00300000000",
+  "meta": {
+    "lastUpdated": "2023-01-29T21:57:39.000Z",
+    "security": [
       {
-        "family": "PATIENT1",
-        "given": [
-          "SHYLA"
-        ],
-        "text": "t",
-        "use": "usual"
+        "code": "medstar",
+        "system": "https://www.icanbwell.com/access"
+      },
+      {
+        "code": "medstar",
+        "system": "https://www.icanbwell.com/owner"
+      },
+      {
+        "code": "medstar",
+        "system": "https://www.icanbwell.com/sourceAssigningAuthority"
       }
     ],
-    "resourceType": "Patient"
-  }
+    "source": "http://medstarhealth.org/provider",
+    "versionId": "1"
+  },
+  "name": [
+    {
+      "family": "PATIENT1",
+      "given": [
+        "SHYLA"
+      ],
+      "text": "t",
+      "use": "usual"
+    }
+  ],
+  "resourceType": "Patient"
+}
