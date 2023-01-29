@@ -7,9 +7,9 @@ const patient4Resource = require('./fixtures/Patient/patient4_with_all_fields.js
 // expected
 const expectedPatientsInDatabaseBeforeRun = require('./fixtures/expected/expected_patients_in_database_before_run.json');
 const expectedPatient1DatabaseAfterRun = require('./fixtures/expected/expected_patient1.json');
-// const expectedPatient2DatabaseAfterRun = require('./fixtures/expected/expected_patient2.json');
-// const expectedPatient3DatabaseAfterRun = require('./fixtures/expected/expected_patient3.json');
-// const expectedPatient4DatabaseAfterRun = require('./fixtures/expected/expected_patient4.json');
+const expectedPatient2DatabaseAfterRun = require('./fixtures/expected/expected_patient2.json');
+const expectedPatient3DatabaseAfterRun = require('./fixtures/expected/expected_patient3.json');
+const expectedPatient4DatabaseAfterRun = require('./fixtures/expected/expected_patient4.json');
 
 const {
     commonBeforeEach,
@@ -113,6 +113,7 @@ describe('Patient Tests', () => {
             const runPreSaveRunner = container.runPreSaveRunner;
             await runPreSaveRunner.processAsync();
 
+            // Check patient 1
             const patient1 = await collection.findOne({id: patient1Resource.id});
             expect(patient1).toBeDefined();
             delete patient1._id;
@@ -125,6 +126,49 @@ describe('Patient Tests', () => {
                 .filter(i => i.system === IdentifierSystem.uuid)[0]
                 .value = patient1._uuid;
             expect(patient1).toStrictEqual(expectedPatient1DatabaseAfterRun);
+
+            // Check patient 2
+            const patient2 = await collection.findOne({id: patient2Resource.id});
+            expect(patient2).toBeDefined();
+            delete patient2._id;
+            expect(patient2._uuid).toBeDefined();
+            expectedPatient2DatabaseAfterRun._uuid = patient2._uuid;
+            expect(patient2.meta).toBeDefined();
+            // expect(patient1.meta.lastUpdated).toBeDefined();
+            // patient1.meta.lastUpdated = expectedPatient1DatabaseAfterRun.meta.lastUpdated;
+            expectedPatient2DatabaseAfterRun.identifier
+                .filter(i => i.system === IdentifierSystem.uuid)[0]
+                .value = patient2._uuid;
+            expect(patient2).toStrictEqual(expectedPatient2DatabaseAfterRun);
+
+            // Check patient 3 with uuid but no identifier
+            const patient3 = await collection.findOne({id: patient3Resource.id});
+            expect(patient3).toBeDefined();
+            delete patient3._id;
+            expect(patient3._uuid).toBeDefined();
+            expectedPatient3DatabaseAfterRun._uuid = patient3._uuid;
+            expect(patient3.meta).toBeDefined();
+            // expect(patient1.meta.lastUpdated).toBeDefined();
+            // patient1.meta.lastUpdated = expectedPatient1DatabaseAfterRun.meta.lastUpdated;
+            expect(patient3.identifier).toBeDefined();
+            expectedPatient3DatabaseAfterRun.identifier
+                .filter(i => i.system === IdentifierSystem.uuid)[0]
+                .value = patient3._uuid;
+            expect(patient3).toStrictEqual(expectedPatient3DatabaseAfterRun);
+
+            // Check patient 4 with all fields populated
+            const patient4 = await collection.findOne({id: patient4Resource.id});
+            expect(patient4).toBeDefined();
+            delete patient4._id;
+            expect(patient4._uuid).toBeDefined();
+            expectedPatient4DatabaseAfterRun._uuid = patient4._uuid;
+            expect(patient4.meta).toBeDefined();
+            // expect(patient1.meta.lastUpdated).toBeDefined();
+            // patient1.meta.lastUpdated = expectedPatient1DatabaseAfterRun.meta.lastUpdated;
+            expectedPatient4DatabaseAfterRun.identifier
+                .filter(i => i.system === IdentifierSystem.uuid)[0]
+                .value = patient4._uuid;
+            expect(patient4).toStrictEqual(expectedPatient4DatabaseAfterRun);
         });
     });
 });

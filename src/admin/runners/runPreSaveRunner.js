@@ -111,9 +111,7 @@ class RunPreSaveRunner extends BaseBulkOperationRunner {
                 /**
                  * @type {import('mongodb').Filter<import('mongodb').Document>}
                  */
-                const query = {
-                    _access: null
-                };
+                const query = {};
                 try {
                     await this.runForQueryBatchesAsync(
                         {
