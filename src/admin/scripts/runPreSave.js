@@ -31,6 +31,7 @@ async function main() {
         collections = ['all'];
     }
     const batchSize = parameters.batchSize || process.env.BULK_BUFFER_SIZE || 10000;
+    const beforeLastUpdatedDate = parameters.before ? new Date(parameters.before) : undefined;
     console.log(`[${currentDateTime}] ` +
         `Running script for collections: ${collections.join(',')}`);
 
@@ -43,6 +44,7 @@ async function main() {
                 mongoCollectionManager: c.mongoCollectionManager,
                 collections: collections,
                 batchSize,
+                beforeLastUpdatedDate,
                 useAuditDatabase: parameters.audit ? true : false,
                 adminLogger: new AdminLogger(),
                 mongoDatabaseManager: c.mongoDatabaseManager,
@@ -64,10 +66,11 @@ async function main() {
 /**
  * To run this:
  * nvm use 16.17.1
- * node src/admin/scripts/createAccessIndexField.js --collections=Practitioner_4_0_0 --batchSize=10000
- * node src/admin/scripts/createAccessIndexField.js --collections=all --batchSize=10000
- * node src/admin/scripts/createAccessIndexField.js --collections=all --audit --batchSize=10000
- * node src/admin/scripts/createAccessIndexField.js --collections=AuditEvent_4_0_0 --audit --batchSize=10000
+ * node src/admin/scripts/runPreSave.js --collections=Practitioner_4_0_0 --batchSize=10000
+ * node src/admin/scripts/runPreSave.js --collections=all --batchSize=10000
+ * node src/admin/scripts/runPreSave.js --collections=all --audit --batchSize=10000
+ * node src/admin/scripts/runPreSave.js --collections=AuditEvent_4_0_0 --audit --batchSize=10000
+ * node src/admin/scripts/runPreSave.js --collections=AuditEvent_4_0_0 --audit --batchSize=10000 --before 2021-12-31
  */
 main().catch(reason => {
     console.error(reason);

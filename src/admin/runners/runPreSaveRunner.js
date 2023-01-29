@@ -15,6 +15,7 @@ class RunPreSaveRunner extends BaseBulkOperationRunner {
      * @param {MongoCollectionManager} mongoCollectionManager
      * @param {string[]} collections
      * @param {number} batchSize
+     * @param {date|undefined} beforeLastUpdatedDate
      * @param {boolean} useAuditDatabase
      * @param {AdminLogger} adminLogger
      * @param {MongoDatabaseManager} mongoDatabaseManager
@@ -25,6 +26,7 @@ class RunPreSaveRunner extends BaseBulkOperationRunner {
             mongoCollectionManager,
             collections,
             batchSize,
+            beforeLastUpdatedDate,
             useAuditDatabase,
             adminLogger,
             mongoDatabaseManager,
@@ -44,6 +46,11 @@ class RunPreSaveRunner extends BaseBulkOperationRunner {
          * @type {number}
          */
         this.batchSize = batchSize;
+
+        /**
+         * @type {date|undefined}
+         */
+        this.beforeLastUpdatedDate = beforeLastUpdatedDate;
 
         /**
          * @type {boolean}
@@ -113,7 +120,13 @@ class RunPreSaveRunner extends BaseBulkOperationRunner {
                 /**
                  * @type {import('mongodb').Filter<import('mongodb').Document>}
                  */
-                const query = {};
+
+
+                const query = this.beforeLastUpdatedDate ? {
+                    'meta.lastUpdated': {
+                        $lt: this.beforeLastUpdatedDate,
+                    }
+                } : {};
                 try {
                     await this.runForQueryBatchesAsync(
                         {

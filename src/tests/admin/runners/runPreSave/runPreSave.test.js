@@ -3,6 +3,7 @@ const patient1Resource = require('./fixtures/Patient/patient1.json');
 const patient2Resource = require('./fixtures/Patient/patient2.json');
 const patient3Resource = require('./fixtures/Patient/patient3_with_uuid_but_no_identifier.json');
 const patient4Resource = require('./fixtures/Patient/patient4_with_all_fields.json');
+const patient5Resource = require('./fixtures/Patient/patient5_newer_than_threshold.json');
 
 // expected
 const expectedPatientsInDatabaseBeforeRun = require('./fixtures/expected/expected_patients_in_database_before_run.json');
@@ -69,6 +70,7 @@ describe('Patient Tests', () => {
             await collection.insertOne(patient2Resource);
             await collection.insertOne(patient3Resource);
             await collection.insertOne(patient4Resource);
+            await collection.insertOne(patient5Resource);
 
             // ACT & ASSERT
             // check that two entries were stored in the database
@@ -78,7 +80,7 @@ describe('Patient Tests', () => {
             let results = await collection.find({}).sort({id: 1}).toArray();
             // const resultsJson = JSON.stringify(results);
 
-            expect(results.length).toStrictEqual(4);
+            expect(results.length).toStrictEqual(5);
             for (const resource of results) {
                 delete resource._id;
                 delete resource.meta.lastUpdated;
@@ -99,6 +101,7 @@ describe('Patient Tests', () => {
                         mongoCollectionManager: c.mongoCollectionManager,
                         collections: collections,
                         batchSize,
+                        beforeLastUpdatedDate: '2023-01-29',
                         useAuditDatabase: false,
                         adminLogger: new AdminLogger(),
                         mongoDatabaseManager: c.mongoDatabaseManager,
@@ -168,6 +171,12 @@ describe('Patient Tests', () => {
             // no update should be done
             expect(patient4.meta.lastUpdated).toStrictEqual(expectedPatient4DatabaseAfterRun.meta.lastUpdated);
             expect(patient4).toStrictEqual(expectedPatient4DatabaseAfterRun);
+
+            // check that patient 5 was skipped since it has a newer lastModified date
+            const patient5 = await collection.findOne({id: patient5Resource.id});
+            expect(patient5).toBeDefined();
+            expect(patient5.meta.lastUpdated).toStrictEqual(patient5Resource.meta.lastUpdated);
+
         });
     });
 });
