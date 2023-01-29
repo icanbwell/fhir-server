@@ -10,8 +10,8 @@ console.log(`MONGO_URL=${process.env.MONGO_URL}`);
 console.log(`AUDIT_EVENT_MONGO_URL=${process.env.AUDIT_EVENT_MONGO_URL}`);
 const {createContainer} = require('../../createContainer');
 const {CommandLineParser} = require('./commandLineParser');
-const {CreateAccessIndexRunner} = require('../runners/createAccessIndexFieldRunner');
 const {AdminLogger} = require('../adminLogger');
+const {RunPreSaveRunner} = require('../runners/runPreSaveRunner');
 
 /**
  * main function
@@ -38,23 +38,24 @@ async function main() {
     const container = createContainer();
 
     // now add our class
-    container.register('createAccessIndexRunner', (c) => new CreateAccessIndexRunner(
+    container.register('runPreSaveRunner', (c) => new RunPreSaveRunner(
             {
                 mongoCollectionManager: c.mongoCollectionManager,
                 collections: collections,
                 batchSize,
                 useAuditDatabase: parameters.audit ? true : false,
                 adminLogger: new AdminLogger(),
-                mongoDatabaseManager: c.mongoDatabaseManager
+                mongoDatabaseManager: c.mongoDatabaseManager,
+                preSaveManager: c.preSaveManager
             }
         )
     );
 
     /**
-     * @type {CreateAccessIndexRunner}
+     * @type {RunPreSaveRunner}
      */
-    const createAccessIndexRunner = container.createAccessIndexRunner;
-    await createAccessIndexRunner.processAsync();
+    const runPreSaveRunner = container.runPreSaveRunner;
+    await runPreSaveRunner.processAsync();
 
     console.log('Exiting process');
     process.exit(0);

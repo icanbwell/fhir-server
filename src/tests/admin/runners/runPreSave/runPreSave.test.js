@@ -13,10 +13,10 @@ const {
     getTestContainer,
 } = require('../../../common');
 const {describe, beforeEach, afterEach, test} = require('@jest/globals');
-const {CreateAccessIndexRunner} = require('../../../../admin/runners/createAccessIndexFieldRunner');
 const {AdminLogger} = require('../../../../admin/adminLogger');
 const {ConfigManager} = require('../../../../utils/configManager');
 const {IdentifierSystem} = require('../../../../utils/identifierSystem');
+const {RunPreSaveRunner} = require('../../../../admin/runners/runPreSaveRunner');
 
 class MockConfigManagerWithoutGlobalId extends ConfigManager {
     get enableGlobalIdSupport() {
@@ -87,7 +87,7 @@ describe('Patient Tests', () => {
             const collections = ['all'];
             const batchSize = 10000;
 
-            container.register('createAccessIndexRunner', (c) => new CreateAccessIndexRunner(
+            container.register('runPreSaveRunner', (c) => new RunPreSaveRunner(
                     {
                         mongoCollectionManager: c.mongoCollectionManager,
                         collections: collections,
@@ -101,10 +101,10 @@ describe('Patient Tests', () => {
             );
 
             /**
-             * @type {CreateAccessIndexRunner}
+             * @type {RunPreSaveRunner}
              */
-            const createAccessIndexRunner = container.createAccessIndexRunner;
-            await createAccessIndexRunner.processAsync();
+            const runPreSaveRunner = container.runPreSaveRunner;
+            await runPreSaveRunner.processAsync();
 
             results = await collection.find({}).sort({id: 1}).toArray();
             expect(results.length).toStrictEqual(2);

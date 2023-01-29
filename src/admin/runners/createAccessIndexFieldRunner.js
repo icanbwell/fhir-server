@@ -1,9 +1,10 @@
 const {BaseBulkOperationRunner} = require('./baseBulkOperationRunner');
-const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
-const {PreSaveManager} = require('../../preSaveHandlers/preSave');
-const deepEqual = require('fast-deep-equal');
-const {getResource} = require('../../operations/common/getResource');
-const {VERSIONS} = require('../../middleware/fhir/utils/constants');
+const {mongoConfig, auditEventMongoConfig} = require('../../config');
+const {SourceIdColumnHandler} = require('../../preSaveHandlers/handlers/sourceIdColumnHandler');
+const {UuidColumnHandler} = require('../../preSaveHandlers/handlers/uuidColumnHandler');
+const {SourceAssigningAuthorityColumnHandler} = require('../../preSaveHandlers/handlers/sourceAssigningAuthorityColumnHandler');
+const {AccessColumnHandler} = require('../../preSaveHandlers/handlers/accessColumnHandler');
+const {SecurityTagSystem} = require('../../utils/securityTagSystem');
 
 /**
  * @classdesc Copies documents from source collection into the appropriate partitioned collection
@@ -17,7 +18,6 @@ class CreateAccessIndexRunner extends BaseBulkOperationRunner {
      * @param {boolean} useAuditDatabase
      * @param {AdminLogger} adminLogger
      * @param {MongoDatabaseManager} mongoDatabaseManager
-     * @param {PreSaveManager} preSaveManager
      */
     constructor(
         {
@@ -26,8 +26,7 @@ class CreateAccessIndexRunner extends BaseBulkOperationRunner {
             batchSize,
             useAuditDatabase,
             adminLogger,
-            mongoDatabaseManager,
-            preSaveManager
+            mongoDatabaseManager
         }) {
         super({
             mongoCollectionManager,
@@ -48,9 +47,6 @@ class CreateAccessIndexRunner extends BaseBulkOperationRunner {
          * @type {boolean}
          */
         this.useAuditDatabase = useAuditDatabase;
-
-        this.preSaveManager = preSaveManager;
-        assertTypeEquals(preSaveManager, PreSaveManager);
     }
 
     /**
@@ -63,28 +59,63 @@ class CreateAccessIndexRunner extends BaseBulkOperationRunner {
         if (!doc.meta || !doc.meta.security) {
             return operations;
         }
-        assertIsValid(doc.resourceType);
-        const ResourceCreator = getResource(VERSIONS['4_0_0'], doc.resourceType);
+        // Step 1: Add any missing _access tags
+        const accessCodes = doc.meta.security.filter(s => s.system === SecurityTagSystem.access).map(s => s.code);
+        // update only the necessary field in the document
+        const setCommand = {};
         /**
-         * @type {Resource}
+         * @type {boolean}
          */
-        const currentResource = new ResourceCreator(doc);
-        /**
-         * @type {Resource}
-         */
-        const updatedResource = await this.preSaveManager.preSaveAsync(currentResource.clone());
-        // for speed, first check if the incoming resource is exactly the same
-        if (deepEqual(updatedResource.toJSONInternal(), currentResource.toJSONInternal()) === true) {
-            return operations;
+        let hasUpdate = false;
+        if (accessCodes.length > 0 && !doc['_access']) {
+            const accessColumnHandler = new AccessColumnHandler();
+            doc = await accessColumnHandler.preSaveAsync({resource: doc});
+            setCommand['_access'] = doc._access;
+            hasUpdate = true;
         }
-
+        // Step 2: add any missing _sourceAssigningAuthority tags
         /**
-         * @type {import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>}
+         * @type {string[]}
          */
-            // batch up the calls to update
-        const result = {replaceOne: {filter: {_id: doc._id}, replacement: updatedResource.toJSONInternal()}};
-        operations.push(result);
-
+        let sourceAssigningAuthorityCodes = doc.meta.security.filter(
+            s => s.system === SecurityTagSystem.sourceAssigningAuthority).map(s => s.code);
+        // if no sourceAssigningAuthorityCodes so fall back to owner tags
+        if (sourceAssigningAuthorityCodes.length === 0) {
+            sourceAssigningAuthorityCodes = doc.meta.security.filter(
+                s => s.system === SecurityTagSystem.owner).map(s => s.code);
+        }
+        if (sourceAssigningAuthorityCodes.length > 0 && !doc['_sourceAssigningAuthority']) {
+            const sourceAssigningAuthorityColumnHandler = new SourceAssigningAuthorityColumnHandler();
+            doc = await sourceAssigningAuthorityColumnHandler.preSaveAsync({resource: doc});
+            setCommand['_sourceAssigningAuthority'] = doc._sourceAssigningAuthority;
+            setCommand['meta'] = doc.meta;
+            hasUpdate = true;
+        }
+        // Step 3: add _sourceId
+        if (!doc['_sourceId']) {
+            const sourceIdColumnHandler = new SourceIdColumnHandler();
+            doc = await sourceIdColumnHandler.preSaveAsync({resource: doc});
+            setCommand['_sourceId'] = doc._sourceId;
+            setCommand['meta'] = doc.meta;
+            hasUpdate = true;
+        }
+        // Step 4: add _uuid
+        if (!doc['_uuid']) {
+            const uuidColumnHandler = new UuidColumnHandler();
+            doc = await uuidColumnHandler.preSaveAsync({resource: doc});
+            setCommand['_uuid'] = doc._uuid;
+            setCommand['meta'] = doc.meta;
+            hasUpdate = true;
+        }
+        // if there are any updates to be done
+        if (hasUpdate) {
+            /**
+             * @type {import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>}
+             */
+                // batch up the calls to update
+            const result = {updateOne: {filter: {_id: doc._id}, update: {$set: setCommand}}};
+            operations.push(result);
+        }
         return operations;
     }
 
@@ -114,14 +145,27 @@ class CreateAccessIndexRunner extends BaseBulkOperationRunner {
                 const query = {
                     _access: null
                 };
+                // noinspection JSValidateTypes
+                /**
+                 * @type {import('mongodb').Collection<import('mongodb').Document>}
+                 */
+                const projection = {
+                    'id': 1,
+                    'meta.security.system': 1,
+                    'meta.security.code': 1,
+                    '_access': 1,
+                    '_sourceAssigningAuthority': 1,
+                    '_sourceId': 1,
+                    '_uuid': 1
+                };
                 try {
                     await this.runForQueryBatchesAsync(
                         {
-                            config: this.useAuditDatabase ? this.mongoDatabaseManager.getAuditConfig() : this.mongoDatabaseManager.getClientConfig(),
+                            config: this.useAuditDatabase ? auditEventMongoConfig : mongoConfig,
                             sourceCollectionName: collectionName,
                             destinationCollectionName: collectionName,
                             query,
-                            projection: undefined,
+                            projection,
                             startFromIdContainer: this.startFromIdContainer,
                             fnCreateBulkOperationAsync: async (doc) => await this.processRecordAsync(doc),
                             ordered: false,
