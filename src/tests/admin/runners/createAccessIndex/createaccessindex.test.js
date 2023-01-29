@@ -94,7 +94,8 @@ describe('Patient Tests', () => {
                         batchSize,
                         useAuditDatabase: false,
                         adminLogger: new AdminLogger(),
-                        mongoDatabaseManager: c.mongoDatabaseManager
+                        mongoDatabaseManager: c.mongoDatabaseManager,
+                        preSaveManager: c.preSaveManager
                     }
                 )
             );

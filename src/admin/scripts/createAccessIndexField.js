@@ -45,7 +45,8 @@ async function main() {
                 batchSize,
                 useAuditDatabase: parameters.audit ? true : false,
                 adminLogger: new AdminLogger(),
-                mongoDatabaseManager: c.mongoDatabaseManager
+                mongoDatabaseManager: c.mongoDatabaseManager,
+                preSaveManager: c.preSaveManager
             }
         )
     );
