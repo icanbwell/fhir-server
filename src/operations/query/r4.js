@@ -11,7 +11,7 @@ const {filterByAbove, filterByBelow} = require('./filters/aboveAndBelow');
 const {filterByPartialText} = require('./filters/partialText');
 const {filterByCanonical} = require('./filters/canonical');
 const {filterBySecurityTag} = require('./filters/securityTag');
-const {assertTypeEquals} = require('../../utils/assertType');
+const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
 const {ConfigManager} = require('../../utils/configManager');
 const {AccessIndexManager} = require('../common/accessIndexManager');
 const {R4ArgsParser} = require('./r4ArgsParser');
@@ -63,6 +63,8 @@ class R4SearchQueryCreator {
      * @returns {{query:import('mongodb').Document, columns: Set}} A query object to use with Mongo
      */
     buildR4SearchQuery({resourceType, parsedArgs}) {
+        assertIsValid(resourceType);
+        assertIsValid(Array.isArray(parsedArgs));
         /**
          * list of columns used in the query
          * this is used to pick index hints
@@ -281,6 +283,9 @@ class R4SearchQueryCreator {
         }
         if (filter.$and && filter.$and.length === 1) {
             filter = filter.$and[0];
+        }
+        if (filter.$in && filter.$in.length === 1) {
+            filter = filter.$in[0];
         }
 
         return filter;

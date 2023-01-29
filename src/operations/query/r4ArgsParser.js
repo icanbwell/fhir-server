@@ -108,6 +108,7 @@ class R4ArgsParser {
                 args,
                 queryParameter
             );
+            queryParameterValue = this.parseQueryParameterValueIntoArrayIfNeeded({queryParameterValue});
 
             if (queryParameterValue) {
                 parsedArgs.push(
@@ -128,6 +129,24 @@ class R4ArgsParser {
             }
         }
         return parsedArgs;
+    }
+
+    /**
+     * @param {string|string[]|undefined|null} queryParameterValue
+     * @return {*}
+     */
+    parseQueryParameterValueIntoArrayIfNeeded({queryParameterValue}) {
+        if (!queryParameterValue) {
+            return queryParameterValue;
+        }
+        if (Array.isArray(queryParameterValue)) {
+            return queryParameterValue;
+        }
+        const parts = queryParameterValue.split(',');
+        if (parts.length > 1) {
+            return parts;
+        }
+        return queryParameterValue;
     }
 
     /**
@@ -174,14 +193,13 @@ class R4ArgsParser {
                 for (const target of propertyObj.target) {
                     result.push(
                         new ParsedReferenceItem({
-                           resourceType: target,
+                            resourceType: target,
                             id
                         })
                     );
                 }
             }
         }
-
         return result;
     }
 }

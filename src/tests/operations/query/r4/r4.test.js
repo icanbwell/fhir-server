@@ -160,7 +160,7 @@ describe('r4 search Tests', () => {
             const result = r4SearchQueryCreator.buildR4SearchQuery({
                 resourceType: 'Task', parsedArgs: r4ArgsParser.parseArgs({resourceType: 'Task', args})
             });
-            expect(result.query.$and['0']['for.reference']).toStrictEqual('Patient/1234');
+            expect(result.query['for.reference']).toStrictEqual('Patient/1234');
         });
         test('r4 works with Person and multiple patients', async () => {
             await createTestRequest((container) => {
@@ -190,8 +190,8 @@ describe('r4 search Tests', () => {
             const result = r4SearchQueryCreator.buildR4SearchQuery({
                 resourceType: 'Person', parsedArgs: r4ArgsParser.parseArgs({resourceType: 'Person', args})
             });
-            expect(result.query.$and['0']['link.target.reference'].$in[0]).toStrictEqual('Patient/1234');
-            expect(result.query.$and['0']['link.target.reference'].$in[1]).toStrictEqual('Patient/4567');
+            expect(result.query.$or[0]['link.target.reference']).toStrictEqual('Patient/1234');
+            expect(result.query.$or[1]['link.target.reference']).toStrictEqual('Patient/4567');
         });
         test('r4 works with Person and multiple patients with reference type', async () => {
             await createTestRequest((container) => {
@@ -222,8 +222,8 @@ describe('r4 search Tests', () => {
                 resourceType: 'Person',
                 parsedArgs: r4ArgsParser.parseArgs({resourceType: 'Person', args})
             });
-            expect(result.query.$and['0']['link.target.reference'].$in[0]).toStrictEqual('Patient/1234');
-            expect(result.query.$and['0']['link.target.reference'].$in[1]).toStrictEqual('Patient/4567');
+            expect(result.query.$or[0]['link.target.reference']).toStrictEqual('Patient/1234');
+            expect(result.query.$or[1]['link.target.reference']).toStrictEqual('Patient/4567');
         });
         test('r4 works with Task and multiple subjects', async () => {
             await createTestRequest((container) => {
@@ -254,8 +254,9 @@ describe('r4 search Tests', () => {
                 resourceType: 'Task',
                 parsedArgs: r4ArgsParser.parseArgs({resourceType: 'Task', args})
             });
-            expect(result.query.$and['0'].$or[0]['for.reference'].$in[0]).toStrictEqual('Account/1234');
-            expect(result.query.$and['0'].$or[0]['for.reference'].$in[1]).toStrictEqual('Account/4567');
+            expect(result.query.$or[0]['for.reference']).toStrictEqual('Account/1234');
+            expect(result.query.$or[1]['for.reference']).toStrictEqual('ActivityDefinition/1234');
+            expect(result.query.$or[145]['for.reference']).toStrictEqual('Account/4567');
         });
         test('r4 works with Task and multiple subjects with reference type', async () => {
             await createTestRequest((container) => {
@@ -286,8 +287,8 @@ describe('r4 search Tests', () => {
                 resourceType: 'Task',
                 parsedArgs: r4ArgsParser.parseArgs({resourceType: 'Task', args})
             });
-            expect(result.query.$and['0']['for.reference'].$in[0]).toStrictEqual('Patient/1234');
-            expect(result.query.$and['0']['for.reference'].$in[1]).toStrictEqual('Patient/4567');
+            expect(result.query.$or[0]['for.reference']).toStrictEqual('Patient/1234');
+            expect(result.query.$or[1]['for.reference']).toStrictEqual('Patient/4567');
         });
         test('r4 works with boolean type true', async () => {
             await createTestRequest((container) => {
@@ -318,7 +319,7 @@ describe('r4 search Tests', () => {
                 resourceType: 'PractitionerRole',
                 parsedArgs: r4ArgsParser.parseArgs({resourceType: 'PractitionerRole', args})
             });
-            expect(result.query.$and['0'].active).toStrictEqual(true);
+            expect(result.query.active).toStrictEqual(true);
         });
         test('r4 works with boolean type false', async () => {
             await createTestRequest((container) => {
@@ -349,7 +350,7 @@ describe('r4 search Tests', () => {
                 resourceType: 'PractitionerRole',
                 parsedArgs: r4ArgsParser.parseArgs({resourceType: 'PractitionerRole', args})
             });
-            expect(result.query.$and['0'].active).toStrictEqual(false);
+            expect(result.query.active).toStrictEqual(false);
         });
         test('r4 works when both id and id:above are passed', async () => {
             await createTestRequest((container) => {
@@ -382,7 +383,7 @@ describe('r4 search Tests', () => {
                 parsedArgs: r4ArgsParser.parseArgs({resourceType: 'Patient', args})
             });
             expect(result.query.$and['0'].id).toStrictEqual('john-muir-health-e.k-4ea143ZrQGvdUvf-b2y.tdyiVMBWgblY4f6y2zis3');
-            expect(result.query.$and['1'].$or[0].id).toStrictEqual({
+            expect(result.query.$and['1'].id).toStrictEqual({
                 '$gt': 'john-muir-health-e.k-4ea143ZrQGvdUvf-b2y.tdyiVMBWgblY4f6y2zis3'
             });
         });
@@ -415,7 +416,7 @@ describe('r4 search Tests', () => {
                 resourceType: 'Patient',
                 parsedArgs: r4ArgsParser.parseArgs({resourceType: 'Patient', args})
             });
-            expect(result.query.$and['0'].$nor['0'].id).toStrictEqual('john-muir-health-e.k-4ea143ZrQGvdUvf-b2y.tdyiVMBWgblY4f6y2zis3');
+            expect(result.query.$nor['0'].id).toStrictEqual('john-muir-health-e.k-4ea143ZrQGvdUvf-b2y.tdyiVMBWgblY4f6y2zis3');
         });
         test('r4 works with :not for _security', async () => {
             await createTestRequest((container) => {
@@ -446,7 +447,7 @@ describe('r4 search Tests', () => {
                 resourceType: 'Patient',
                 parsedArgs: r4ArgsParser.parseArgs({resourceType: 'Patient', args})
             });
-            expect(result.query.$and['0'].$nor['0']['meta.security'].$elemMatch).toStrictEqual({
+            expect(result.query.$nor['0']['meta.security'].$elemMatch).toStrictEqual({
                 'system': 'https://www.icanbwell.com/access',
                 'code': 'bwell'
             });
