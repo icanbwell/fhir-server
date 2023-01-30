@@ -177,10 +177,6 @@ Linked resources can be nested. For example, this graph has nested linked resour
 
 `[x]` means this property is a list not a single.
 
-
-### Including only the children and not the entity itself
-If `type` of target is not set then the entity itself is not returned but just the children of that entity are returned.
-
 ### Filtering
 
 Filtering can also be done:
