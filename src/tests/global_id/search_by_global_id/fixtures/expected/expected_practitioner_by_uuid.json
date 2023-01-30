@@ -125,7 +125,7 @@
   "meta": {
     "tag": [
       {
-        "display": "db.Practitioner_4_0_0.find({'$and':[{'_uuid':'11111111-1111-1111-1111-111111111111'}]}, {}).sort({'id':1}).limit(10000)",
+        "display": "db.Practitioner_4_0_0.find({'_uuid':'11111111-1111-1111-1111-111111111111'}, {}).sort({'id':1}).limit(10000)",
         "system": "https://www.icanbwell.com/query"
       },
       {

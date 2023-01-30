@@ -71,7 +71,7 @@
   "meta": {
     "tag": [
       {
-        "display": "db.Observation_4_0_0.find({'$and':[{'subject.reference':'Patient/2354|C'}]}, {}).sort({'id':1}).limit(100)",
+        "display": "db.Observation_4_0_0.find({'subject.reference':'Patient/2354|C'}, {}).sort({'id':1}).limit(100)",
         "system": "https://www.icanbwell.com/query"
       },
       {

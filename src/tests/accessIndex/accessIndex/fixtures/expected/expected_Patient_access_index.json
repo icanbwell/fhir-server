@@ -49,7 +49,7 @@
   "meta": {
     "tag": [
       {
-        "display": "db.Patient_4_0_0.find({'$and':[{'_access.medstar':1}]}, {}).sort({'id':1}).limit(2)",
+        "display": "db.Patient_4_0_0.find({'_access.medstar':1}, {}).sort({'id':1}).limit(2)",
         "system": "https://www.icanbwell.com/query"
       },
       {

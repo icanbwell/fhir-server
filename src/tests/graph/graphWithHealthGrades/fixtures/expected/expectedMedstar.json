@@ -71,7 +71,7 @@
   "meta": {
     "tag": [
       {
-        "display": "db.Practitioner_4_0_0.find({'$and':[{'id':{'$in':['1376656959']}}]}, {'_id':0})  | db.Practitioner_4_0_0.find({'$and':[{'practitioner.reference':'Practitioner/1376656959'},{'_access.medstar':1}]}, {}) | db.Practitioner_4_0_0.find({'$and':[{'member.entity.reference':'Practitioner/1376656959'},{'_access.medstar':1}]}, {}) | db.Practitioner_4_0_0.find({'$and':[{'subject.reference':'Practitioner/1376656959'},{'_access.medstar':1}]}, {})",
+        "display": "db.Practitioner_4_0_0.find({'id':{'$in':['1376656959']}}, {'_id':0})  | db.Practitioner_4_0_0.find({'$and':[{'practitioner.reference':'Practitioner/1376656959'},{'_access.medstar':1}]}, {}) | db.Practitioner_4_0_0.find({'$and':[{'member.entity.reference':'Practitioner/1376656959'},{'_access.medstar':1}]}, {}) | db.Practitioner_4_0_0.find({'$and':[{'subject.reference':'Practitioner/1376656959'},{'_access.medstar':1}]}, {})",
         "system": "https://www.icanbwell.com/query"
       },
       {

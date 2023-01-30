@@ -47,7 +47,7 @@
   "meta": {
     "tag": [
       {
-        "display": "db.Task_4_0_0.find({'$and':[{'status':'completed'}]}, {}).sort({'id':1}).limit(100)",
+        "display": "db.Task_4_0_0.find({'status':'completed'}, {}).sort({'id':1}).limit(100)",
         "system": "https://www.icanbwell.com/query"
       },
       {

@@ -71,7 +71,7 @@
   "meta": {
     "tag": [
       {
-        "display": "db.Practitioner_4_0_0.find({'$and':[{'id':{'$in':['1376656959']}}]}, {'_id':0})  | db.Practitioner_4_0_0.find({'$and':[{'practitioner.reference':'Practitioner/1376656959'},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':'healthgrades'}}}]}, {}) | db.Practitioner_4_0_0.find({'$and':[{'member.entity.reference':'Practitioner/1376656959'},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':'healthgrades'}}}]}, {}) | db.Practitioner_4_0_0.find({'$and':[{'subject.reference':'Practitioner/1376656959'},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':'healthgrades'}}}]}, {})",
+        "display": "db.Practitioner_4_0_0.find({'id':{'$in':['1376656959']}}, {'_id':0})  | db.Practitioner_4_0_0.find({'$and':[{'practitioner.reference':'Practitioner/1376656959'},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':'healthgrades'}}}]}, {}) | db.Practitioner_4_0_0.find({'$and':[{'member.entity.reference':'Practitioner/1376656959'},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':'healthgrades'}}}]}, {}) | db.Practitioner_4_0_0.find({'$and':[{'subject.reference':'Practitioner/1376656959'},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':'healthgrades'}}}]}, {})",
         "system": "https://www.icanbwell.com/query"
       },
       {

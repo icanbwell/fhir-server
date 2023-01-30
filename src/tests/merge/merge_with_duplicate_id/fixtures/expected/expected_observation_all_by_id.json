@@ -138,7 +138,7 @@
   "meta": {
     "tag": [
       {
-        "display": "db.Observation_4_0_0.find({'$and':[{'_sourceId':'1'}]}, {}).sort({'id':1}).limit(10000)",
+        "display": "db.Observation_4_0_0.find({'_sourceId':'1'}, {}).sort({'id':1}).limit(10000)",
         "system": "https://www.icanbwell.com/query"
       },
       {
