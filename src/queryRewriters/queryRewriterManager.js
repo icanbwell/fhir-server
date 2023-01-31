@@ -28,9 +28,9 @@ class QueryRewriterManager {
     /**
      * rewrites the args
      * @param {string} base_version
-     * @param {ParsedArgsItem[]} parsedArgs
+     * @param {ParsedArgs} parsedArgs
      * @param {string} resourceType
-     * @return {Promise<ParsedArgsItem[]>}
+     * @return {Promise<ParsedArgs>}
      */
     // eslint-disable-next-line no-unused-vars
     async rewriteArgsAsync({base_version, parsedArgs, resourceType}) {

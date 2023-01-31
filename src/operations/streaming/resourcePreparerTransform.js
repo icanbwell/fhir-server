@@ -7,7 +7,7 @@ class ResourcePreparerTransform extends Transform {
      * Batches up objects to chunkSize before writing them to output
      * @param {string | null} user
      * @param {string | null} scope
-     * @param {Object} args
+     * @param {ParsedArgs} parsedArgs
      * @param {string} resourceType
      * @param {boolean} useAccessIndex
      * @param {AbortSignal} signal
@@ -18,7 +18,7 @@ class ResourcePreparerTransform extends Transform {
         {
             user,
             scope,
-            args,
+            parsedArgs,
             resourceType,
             useAccessIndex,
             signal,
@@ -36,9 +36,9 @@ class ResourcePreparerTransform extends Transform {
          */
         this.scope = scope;
         /**
-         * @type {Object}
+         * @type {ParsedArgs}
          */
-        this.args = args;
+        this.parsedArgs = parsedArgs;
         /**
          * @type {string}
          */
@@ -105,7 +105,7 @@ class ResourcePreparerTransform extends Transform {
     async processChunkAsync(chunk1) {
         return this.resourcePreparer.prepareResourceAsync(
             {
-                user: this.user, scope: this.scope, args: this.args, element: chunk1,
+                user: this.user, scope: this.scope, parsedArgs: this.parsedArgs, element: chunk1,
                 resourceType: this.resourceName, useAccessIndex: this.useAccessIndex,
                 originalArgs: this.originalArgs
             })

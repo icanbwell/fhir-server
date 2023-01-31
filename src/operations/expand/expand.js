@@ -66,7 +66,7 @@ class ExpandOperation {
      * does a FHIR Search By Id
      * @param {FhirRequestInfo} requestInfo
      * @param {Object} args
-     * @param {ParsedArgsItem[]} parsedArgs
+     * @param {ParsedArgs} parsedArgs
      * @param {string} resourceType
      * @return {Resource}
      */

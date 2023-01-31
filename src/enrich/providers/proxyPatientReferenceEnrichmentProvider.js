@@ -5,19 +5,19 @@ class ProxyPatientReferenceEnrichmentProvider extends EnrichmentProvider {
     /**
      * enrich the specified resources
      * @param {Resource[]} resources
-     * @param {Object} args
+     * @param {ParsedArgs} parsedArgs
      * @param originalArgs
      * @return {Promise<Resource[]>}
      */
     // eslint-disable-next-line no-unused-vars
-    async enrichAsync({resources, args, originalArgs}) {
+    async enrichAsync({resources, parsedArgs, originalArgs}) {
         // check if any args have a proxy patient
         let {proxyPatientPersonId, proxyPatientPersonIdKey} = this.getProxyPatientFromArgs({originalArgs});
         if (proxyPatientPersonId && proxyPatientPersonIdKey) {
             /**
              * @type {string[]}
              */
-            const proxyPatientIds = args[`${proxyPatientPersonIdKey}`].split(',').map(
+            const proxyPatientIds = parsedArgs[`${proxyPatientPersonIdKey}`].queryParameterValue.map(
                 a => a.startsWith('Patient/') ? a : `Patient/${a}`);
             for (const resource of resources) {
                 resource.updateReferences({
@@ -65,20 +65,20 @@ class ProxyPatientReferenceEnrichmentProvider extends EnrichmentProvider {
 
     /**
      * Runs any registered enrichment providers
-     * @param {Object} args
+     * @param {ParsedArgs} parsedArgs
      * @param {BundleEntry[]} entries
      * @param {Object} originalArgs
      * @return {Promise<BundleEntry[]>}
      */
     // eslint-disable-next-line no-unused-vars
-    async enrichBundleEntriesAsync({entries, args, originalArgs}) {
+    async enrichBundleEntriesAsync({entries, parsedArgs, originalArgs}) {
         // check if any args have a proxy patient
         let {proxyPatientPersonId, proxyPatientPersonIdKey} = this.getProxyPatientFromArgs({originalArgs});
         if (proxyPatientPersonId && proxyPatientPersonIdKey) {
             /**
              * @type {string[]}
              */
-            const proxyPatientIds = args[`${proxyPatientPersonIdKey}`].split(',').map(
+            const proxyPatientIds = parsedArgs[`${proxyPatientPersonIdKey}`].queryParameterValue.map(
                 a => a.startsWith('Patient/') ? a : `Patient/${a}`);
             for (const entry of entries) {
                 entry.resource.updateReferences({

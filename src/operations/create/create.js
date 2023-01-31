@@ -90,7 +90,7 @@ class CreateOperation {
      * does a FHIR Create (POST)
      * @param {FhirRequestInfo} requestInfo
      * @param {Object} args
-     * @param {ParsedArgsItem[]} parsedArgs
+     * @param {ParsedArgs} parsedArgs
      * @param {string} path
      * @param {string} resourceType
      * @returns {Resource}

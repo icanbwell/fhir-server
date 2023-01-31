@@ -75,7 +75,7 @@ class SearchByVersionIdOperation {
      * does a FHIR Search By Version
      * @param {FhirRequestInfo} requestInfo
      * @param {Object} args
-     * @param {ParsedArgsItem[]} parsedArgs
+     * @param {ParsedArgs} parsedArgs
      * @param {string} resourceType
      */
     async searchByVersionId({requestInfo, args, parsedArgs, resourceType}) {

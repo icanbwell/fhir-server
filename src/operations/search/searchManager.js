@@ -125,7 +125,7 @@ class SearchManager {
      * @param {string} resourceType
      * @param {boolean} useAccessIndex
      * @param {string} personIdFromJwtToken
-     * @param {ParsedArgsItem[]} parsedArgs
+     * @param {ParsedArgs} parsedArgs
      * @returns {{base_version, columns: Set, query: import('mongodb').Document}}
      */
     async constructQueryAsync(
@@ -737,7 +737,7 @@ class SearchManager {
      * @param {DatabasePartitionedCursor} cursor
      * @param {string | null} user
      * @param {string | null} scope
-     * @param {Object?} args
+     * @param {ParsedArgs|null} parsedArgs
      * @param {string} resourceType
      * @param {boolean} useAccessIndex
      * @param {Object} originalArgs
@@ -746,7 +746,7 @@ class SearchManager {
     async readResourcesFromCursorAsync(
         {
             cursor, user, scope,
-            args, resourceType,
+            parsedArgs, resourceType,
             useAccessIndex,
             originalArgs
         }
@@ -787,7 +787,7 @@ class SearchManager {
                 // new ObjectChunker(batchObjectCount),
                 new ResourcePreparerTransform(
                     {
-                        user, scope, args, resourceType, useAccessIndex, signal: ac.signal,
+                        user, scope, parsedArgs, resourceType, useAccessIndex, signal: ac.signal,
                         resourcePreparer: this.resourcePreparer,
                         originalArgs
                     }
@@ -897,7 +897,7 @@ class SearchManager {
      * @param {import('http').ServerResponse} res
      * @param {string | null} user
      * @param {string | null} scope
-     * @param {Object|null} args
+     * @param {ParsedArgs|null} parsedArgs
      * @param {string} resourceType
      * @param {boolean} useAccessIndex
      * @param {number} batchObjectCount
@@ -911,7 +911,7 @@ class SearchManager {
             url,
             fnBundle,
             res, user, scope,
-            args, resourceType,
+            parsedArgs, resourceType,
             useAccessIndex,
             batchObjectCount,
             originalArgs
@@ -953,7 +953,7 @@ class SearchManager {
 
         const resourcePreparerTransform = new ResourcePreparerTransform(
             {
-                user, scope, args, resourceType, useAccessIndex, signal: ac.signal,
+                user, scope, parsedArgs, resourceType, useAccessIndex, signal: ac.signal,
                 resourcePreparer: this.resourcePreparer,
                 originalArgs
             }
@@ -1000,7 +1000,7 @@ class SearchManager {
      * @param {import('http').ServerResponse} res
      * @param {string | null} user
      * @param {string | null} scope
-     * @param {Object|null} args
+     * @param {ParsedArgs|null} parsedArgs
      * @param {string} resourceType
      * @param {boolean} useAccessIndex
      * @param {string} contentType
@@ -1015,7 +1015,7 @@ class SearchManager {
             res,
             user,
             scope,
-            args,
+            parsedArgs,
             resourceType,
             useAccessIndex,
             contentType = 'application/fhir+json',
@@ -1071,7 +1071,7 @@ class SearchManager {
          */
         const resourcePreparerTransform = new ResourcePreparerTransform(
             {
-                user, scope, args, resourceType, useAccessIndex, signal: ac.signal,
+                user, scope, parsedArgs, resourceType, useAccessIndex, signal: ac.signal,
                 resourcePreparer: this.resourcePreparer,
                 originalArgs
             }

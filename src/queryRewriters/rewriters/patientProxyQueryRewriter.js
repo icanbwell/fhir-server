@@ -30,15 +30,15 @@ class PatientProxyQueryRewriter extends QueryRewriter {
     /**
      * rewrites the args
      * @param {string} base_version
-     * @param {ParsedArgsItem[]} parsedArgs
+     * @param {ParsedArgs} parsedArgs
      * @param {string} resourceType
-     * @return {Promise<ParsedArgsItem[]>}
+     * @return {Promise<ParsedArgs>}
      */
     // eslint-disable-next-line no-unused-vars
     async rewriteArgsAsync({base_version, parsedArgs, resourceType}) {
         assertIsValid(resourceType);
         assertIsValid(base_version);
-        for (const parsedArg of parsedArgs) {
+        for (const parsedArg of parsedArgs.parsedArgItems) {
             if (resourceType === 'Patient') {
                 if (parsedArg.queryParameter === 'id') {
                     if (Array.isArray(parsedArg.queryParameterValue)) {

@@ -59,7 +59,7 @@ class R4SearchQueryCreator {
     /**
      * Builds a mongo query for search parameters
      * @param {string} resourceType
-     * @param {ParsedArgsItem[]} parsedArgs
+     * @param {ParsedArgs} parsedArgs
      * @returns {{query:import('mongodb').Document, columns: Set}} A query object to use with Mongo
      */
     buildR4SearchQuery({resourceType, parsedArgs}) {
@@ -78,7 +78,7 @@ class R4SearchQueryCreator {
          */
         let totalAndSegments = [];
 
-        for (const /** @type {ParsedArgsItem} */ parsedArg of parsedArgs) {
+        for (const /** @type {ParsedArgsItem} */ parsedArg of parsedArgs.parsedArgItems) {
             if (parsedArg.queryParameterValue) {
                 let {
                     /** @type {Set} */

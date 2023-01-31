@@ -264,12 +264,12 @@ class FhirOperationsManager {
      * Parse arguments
      * @param {Object} args
      * @param {string} resourceType
-     * @return {Promise<ParsedArgsItem[]>}
+     * @return {Promise<ParsedArgs>}
      */
     async getParsedArgs({args, resourceType}) {
         const {base_version} = args;
         /**
-         * @type {ParsedArgsItem[]}
+         * @type {ParsedArgs}
          */
         let parsedArgs = this.r4ArgsParser.parseArgs({resourceType, args});
         // see if any query rewriters want to rewrite the args
@@ -298,7 +298,7 @@ class FhirOperationsManager {
             combined_args = Object.assign({}, args, req.body);
         }
         /**
-         * @type {ParsedArgsItem[]}
+         * @type {ParsedArgs}
          */
         const parsedArgs = await this.getParsedArgs({args, resourceType});
 
@@ -329,7 +329,7 @@ class FhirOperationsManager {
             combined_args = Object.assign({}, args, req.body);
         }
         /**
-         * @type {ParsedArgsItem[]}
+         * @type {ParsedArgs}
          */
         const parsedArgs = await this.getParsedArgs({args, resourceType});
 
@@ -356,7 +356,7 @@ class FhirOperationsManager {
          */
         let combined_args = get_all_args(req, args);
         /**
-         * @type {ParsedArgsItem[]}
+         * @type {ParsedArgs}
          */
         const parsedArgs = await this.getParsedArgs({args, resourceType});
 
@@ -387,7 +387,7 @@ class FhirOperationsManager {
          */
         const path = req.path;
         /**
-         * @type {ParsedArgsItem[]}
+         * @type {ParsedArgs}
          */
         const parsedArgs = await this.getParsedArgs({args, resourceType});
 
@@ -414,7 +414,7 @@ class FhirOperationsManager {
          */
         const combined_args = get_all_args(req, args);
         /**
-         * @type {ParsedArgsItem[]}
+         * @type {ParsedArgs}
          */
         const parsedArgs = await this.getParsedArgs({args, resourceType});
 
@@ -441,7 +441,7 @@ class FhirOperationsManager {
          */
         const combined_args = get_all_args(req, args);
         /**
-         * @type {ParsedArgsItem[]}
+         * @type {ParsedArgs}
          */
         const parsedArgs = await this.getParsedArgs({args, resourceType});
 
@@ -469,7 +469,7 @@ class FhirOperationsManager {
          */
         const combined_args = get_all_args(req, args);
         /**
-         * @type {ParsedArgsItem[]}
+         * @type {ParsedArgs}
          */
         const parsedArgs = await this.getParsedArgs({args, resourceType});
 
@@ -525,7 +525,7 @@ class FhirOperationsManager {
          */
         const combined_args = get_all_args(req, args);
         /**
-         * @type {ParsedArgsItem[]}
+         * @type {ParsedArgs}
          */
         const parsedArgs = await this.getParsedArgs({args, resourceType});
 
@@ -546,7 +546,7 @@ class FhirOperationsManager {
      */
     async searchByVersionId(args, {req}, resourceType) {
         /**
-         * @type {ParsedArgsItem[]}
+         * @type {ParsedArgs}
          */
         const parsedArgs = await this.getParsedArgs({args, resourceType});
 
@@ -567,7 +567,7 @@ class FhirOperationsManager {
      */
     async history(args, {req}, resourceType) {
         /**
-         * @type {ParsedArgsItem[]}
+         * @type {ParsedArgs}
          */
         const parsedArgs = await this.getParsedArgs({args, resourceType});
 
@@ -588,7 +588,7 @@ class FhirOperationsManager {
      */
     async historyById(args, {req}, resourceType) {
         /**
-         * @type {ParsedArgsItem[]}
+         * @type {ParsedArgs}
          */
         const parsedArgs = await this.getParsedArgs({args, resourceType});
 
@@ -609,7 +609,7 @@ class FhirOperationsManager {
      */
     async patch(args, {req}, resourceType) {
         /**
-         * @type {ParsedArgsItem[]}
+         * @type {ParsedArgs}
          */
         const parsedArgs = await this.getParsedArgs({args, resourceType});
 
@@ -629,7 +629,7 @@ class FhirOperationsManager {
      */
     async validate(args, {req}, resourceType) {
         /**
-         * @type {ParsedArgsItem[]}
+         * @type {ParsedArgs}
          */
         const parsedArgs = await this.getParsedArgs({args, resourceType});
 
@@ -656,7 +656,7 @@ class FhirOperationsManager {
          */
         const combined_args = get_all_args(req, args);
         /**
-         * @type {ParsedArgsItem[]}
+         * @type {ParsedArgs}
          */
         const parsedArgs = await this.getParsedArgs({args, resourceType});
 
@@ -706,7 +706,7 @@ class FhirOperationsManager {
      */
     async expand(args, {req}, resourceType) {
         /**
-         * @type {ParsedArgsItem[]}
+         * @type {ParsedArgs}
          */
         const parsedArgs = await this.getParsedArgs({args, resourceType});
 

@@ -94,7 +94,7 @@ class HistoryOperation {
      * does a FHIR History
      * @param {FhirRequestInfo} requestInfo
      * @param {Object} args
-     * @param {ParsedArgsItem[]} parsedArgs
+     * @param {ParsedArgs} parsedArgs
      * @param {string} resourceType
      */
     async history({requestInfo, args, parsedArgs, resourceType}) {

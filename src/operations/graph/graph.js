@@ -65,7 +65,7 @@ class GraphOperation {
      * @param {FhirRequestInfo} requestInfo
      * @param {import('express').Response} res
      * @param {Object} args
-     * @param {ParsedArgsItem[]} parsedArgs
+     * @param {ParsedArgs} parsedArgs
      * @param {string} resourceType
      * @param {BaseResponseStreamer|undefined} [responseStreamer]
      * @return {Promise<Bundle>}

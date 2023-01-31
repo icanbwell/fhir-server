@@ -2,7 +2,7 @@ const {searchParameterQueries} = require('../../searchParameters/searchParameter
 const {STRICT_SEARCH_HANDLING, SPECIFIED_QUERY_PARAMS} = require('../../constants');
 const {BadRequestError} = require('../../utils/httpErrors');
 const {convertGraphQLParameters} = require('./convertGraphQLParameters');
-const {ParsedArgsItem} = require('./parsedArgsItem');
+const {ParsedArgsItem, ParsedArgs} = require('./parsedArgsItem');
 const {assertTypeEquals} = require('../../utils/assertType');
 const {FhirTypesManager} = require('../../fhir/fhirTypesManager');
 
@@ -26,14 +26,14 @@ class R4ArgsParser {
      * parses args
      * @param {string} resourceType
      * @param {Object} args
-     * @return {ParsedArgsItem[]}
+     * @return {ParsedArgs}
      */
     parseArgs({resourceType, args}) {
 
         /**
-         * @type {ParsedArgsItem[]}
+         * @type {ParsedArgs}
          */
-        const parsedArgs = [];
+        const parsedArgsItems = [];
         // some of these parameters we used wrong in the past but have to map them to maintain backwards compatibility
         // ---- start of backward compatibility mappings ---
         if (args['source'] && !args['_source']) {
@@ -110,7 +110,7 @@ class R4ArgsParser {
             );
 
             if (queryParameterValue) {
-                parsedArgs.push(
+                parsedArgsItems.push(
                     new ParsedArgsItem({
                         queryParameter,
                         queryParameterValue,
@@ -120,7 +120,7 @@ class R4ArgsParser {
                 );
             }
         }
-        return parsedArgs;
+        return new ParsedArgs({parsedArgItems: parsedArgsItems});
     }
 }
 

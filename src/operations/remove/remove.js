@@ -98,7 +98,7 @@ class RemoveOperation {
      * does a FHIR Remove (DELETE)
      * @param {FhirRequestInfo} requestInfo
      * @param {Object} args
-     * @param {ParsedArgsItem[]} parsedArgs
+     * @param {ParsedArgs} parsedArgs
      * @param {string} resourceType
      */
     // eslint-disable-next-line no-unused-vars

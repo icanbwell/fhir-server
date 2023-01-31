@@ -94,7 +94,7 @@ class SearchStreamingOperation {
      * @param {FhirRequestInfo} requestInfo
      * @param {import('express').Response} res
      * @param {Object} args
-     * @param {ParsedArgsItem[]} parsedArgs
+     * @param {ParsedArgs} parsedArgs
      * @param {string} resourceType
      * @return {Promise<Resource[] | {entry:{resource: Resource}[]}>} array of resources or a bundle
      */
@@ -315,7 +315,7 @@ class SearchStreamingOperation {
                             res,
                             user,
                             scope,
-                            args,
+                            parsedArgs,
                             resourceType,
                             useAccessIndex,
                             contentType: fhirContentTypes.ndJson,
@@ -371,7 +371,7 @@ class SearchStreamingOperation {
                                 res,
                                 user,
                                 scope,
-                                args,
+                                parsedArgs,
                                 resourceType,
                                 useAccessIndex,
                                 batchObjectCount,
@@ -381,7 +381,7 @@ class SearchStreamingOperation {
                         resourceIds = await this.searchManager.streamResourcesFromCursorAsync(
                             {
                                 requestId,
-                                cursor, res, user, scope, args,
+                                cursor, res, user, scope, parsedArgs,
                                 resourceType,
                                 useAccessIndex,
                                 contentType: fhirContentTypes.fhirJson,

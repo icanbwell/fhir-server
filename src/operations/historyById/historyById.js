@@ -94,7 +94,7 @@ class HistoryByIdOperation {
      * does a FHIR History By id
      * @param {FhirRequestInfo} requestInfo
      * @param {Object} args
-     * @param {ParsedArgsItem[]} parsedArgs
+     * @param {ParsedArgs} parsedArgs
      * @param {string} resourceType
      */
     async historyById({requestInfo, args, parsedArgs, resourceType}) {

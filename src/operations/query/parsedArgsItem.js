@@ -1,7 +1,6 @@
 /**
  * @classdesc This class holds the parsed structure for an arg on the url
  */
-
 class ParsedReferenceItem {
     /**
      * constructor
@@ -160,7 +159,30 @@ class ParsedArgsItem {
     }
 }
 
+class ParsedArgs {
+    /**
+     * constructor
+     * @param {ParsedArgsItem[]} parsedArgItems
+     */
+    constructor({parsedArgItems}) {
+        /**
+         * @type {ParsedArgsItem[]}
+         */
+        this.parsedArgItems = parsedArgItems;
+    }
+
+    /**
+     * get Arg
+     * @param {string} argName
+     * @return {ParsedArgsItem}
+     */
+    getArg(argName) {
+        return this.parsedArgItems.find(a => a.queryParameter === argName);
+    }
+}
+
 module.exports = {
     ParsedArgsItem,
-    ParsedReferenceItem
+    ParsedReferenceItem,
+    ParsedArgs
 };

@@ -17,17 +17,17 @@ class EnrichmentManager {
 
     /**
      * Runs any registered enrichment providers
-     * @param {Object} args
+     * @param {ParsedArgs} parsedArgs
      * @param {Resource[]} resources
      * @param {Object} originalArgs
      * @return {Promise<Resource[]>}
      */
-    async enrichAsync({resources, args, originalArgs}) {
+    async enrichAsync({resources, parsedArgs, originalArgs}) {
         try {
             for (const enrichmentProvider of this.enrichmentProviders) {
                 resources = await enrichmentProvider.enrichAsync(
                     {
-                        resources, args, originalArgs
+                        resources, parsedArgs, originalArgs
                     }
                 );
 
@@ -37,7 +37,7 @@ class EnrichmentManager {
             throw new RethrownError({
                     message: 'Error in enrichAsync()',
                     error: e,
-                    args: {resources, args, originalArgs}
+                    args: {resources, parsedArgs, originalArgs}
                 }
             );
         }
@@ -45,17 +45,17 @@ class EnrichmentManager {
 
     /**
      * Runs any registered enrichment providers
-     * @param {Object} args
+     * @param {ParsedArgs} parsedArgs
      * @param {BundleEntry[]} entries
      * @param {Object} originalArgs
      * @return {Promise<BundleEntry[]>}
      */
-    async enrichBundleEntriesAsync({entries, args, originalArgs}) {
+    async enrichBundleEntriesAsync({entries, parsedArgs, originalArgs}) {
         try {
             for (const enrichmentProvider of this.enrichmentProviders) {
                 entries = await enrichmentProvider.enrichBundleEntriesAsync(
                     {
-                        entries, args, originalArgs
+                        entries, parsedArgs, originalArgs
                     }
                 );
             }
@@ -64,7 +64,7 @@ class EnrichmentManager {
             throw new RethrownError({
                     message: 'Error in enrichBundleEntriesAsync()',
                     error: e,
-                    args: {entries, args, originalArgs}
+                    args: {entries, parsedArgs, originalArgs}
                 }
             );
         }

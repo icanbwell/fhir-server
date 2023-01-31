@@ -92,7 +92,7 @@ class SearchBundleOperation {
      * does a FHIR Search
      * @param {FhirRequestInfo} requestInfo
      * @param {Object} args
-     * @param {ParsedArgsItem[]} parsedArgs
+     * @param {ParsedArgs} parsedArgs
      * @param {string} resourceType
      * @return {Promise<Bundle>} array of resources or a bundle
      */
@@ -283,7 +283,7 @@ class SearchBundleOperation {
                 });
                 resources = await this.searchManager.readResourcesFromCursorAsync(
                     {
-                        cursor, user, scope, args,
+                        cursor, user, scope, parsedArgs,
                         resourceType,
                         useAccessIndex,
                         originalArgs

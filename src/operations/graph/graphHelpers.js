@@ -210,7 +210,7 @@ class GraphHelper {
      * @param {*|null} filterValue (Optional) match filterProperty to this value
      * @param {boolean} [explain]
      * @param {boolean} [debug]
-     * @param {ParsedArgsItem[]} parsedArgs
+     * @param {ParsedArgs} parsedArgs
      * @returns {QueryItem}
      */
     async getForwardReferencesAsync({
@@ -373,7 +373,7 @@ class GraphHelper {
      * @param {string} reverse_filter Do a reverse link from child to parent using this property
      * @param {boolean} [explain]
      * @param {boolean} [debug]
-     * @param {ParsedArgsItem[]} parsedArgs
+     * @param {ParsedArgs} parsedArgs
      * @returns {QueryItem}
      */
     async getReverseReferencesAsync({
@@ -631,7 +631,7 @@ class GraphHelper {
      * @param {boolean|null} explain
      * @param {boolean|null} debug
      * @param {{type: string}} target
-     * @param {ParsedArgsItem[]} parsedArgs
+     * @param {ParsedArgs} parsedArgs
      * @return {Promise<{queryItems: QueryItem[], childEntries: EntityAndContainedBase[]}>}
      */
     async processLinkTargetAsync({
@@ -831,7 +831,7 @@ class GraphHelper {
      * @param {EntityAndContainedBase[]} parentEntities
      * @param {boolean} [explain]
      * @param {boolean} [debug]
-     * @param {ParsedArgsItem[]} parsedArgs
+     * @param {ParsedArgs} parsedArgs
      * @returns {QueryItem[]}
      */
     async processOneGraphLinkAsync({
@@ -894,7 +894,7 @@ class GraphHelper {
      * @param {[{path:string, params: string,target:[{type: string}]}]} linkItems
      * @param {boolean} [explain]
      * @param {boolean} [debug]
-     * @param {ParsedArgsItem[]} parsedArgs
+     * @param {ParsedArgs} parsedArgs
      * @return {Promise<{entities: ResourceEntityAndContained[], queryItems: QueryItem[]}>}
      */
     async processGraphLinksAsync({
@@ -1022,7 +1022,7 @@ class GraphHelper {
      * @param {boolean} [debug]
      * @param {Object} args
      * @param {Object} originalArgs
-     * @param {ParsedArgsItem[]} parsedArgs
+     * @param {ParsedArgs} parsedArgs
      * @return {Promise<{entries: BundleEntry[], queries: import('mongodb').Document[], options: import('mongodb').FindOptions<import('mongodb').DefaultSchema>[], explanations: import('mongodb').Document[]}>}
      */
     async processMultipleIdsAsync(
@@ -1254,7 +1254,7 @@ class GraphHelper {
      * @param {Object} args
      * @param {BaseResponseStreamer|undefined} [responseStreamer]
      * @param {Object} originalArgs
-     * @param {ParsedArgsItem[]} parsedArgs
+     * @param {ParsedArgs} parsedArgs
      * @return {Promise<Bundle>}
      */
     async processGraphAsync(
@@ -1418,7 +1418,7 @@ class GraphHelper {
      * @param {Object} args
      * @param {Object} originalArgs
      * @param {BaseResponseStreamer} responseStreamer
-     * @param {ParsedArgsItem[]} parsedArgs
+     * @param {ParsedArgs} parsedArgs
      * @return {Promise<Bundle>}
      */
     async deleteGraphAsync(

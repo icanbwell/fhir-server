@@ -44,9 +44,9 @@ class UuidReferenceQueryRewriter extends QueryRewriter {
     /**
      * rewrites the args
      * @param {string} base_version
-     * @param {ParsedArgsItem[]} args
+     * @param {ParsedArgs} parsedArgs
      * @param {string} resourceType
-     * @return {Promise<ParsedArgsItem[]>}
+     * @return {Promise<ParsedArgs>}
      */
     // eslint-disable-next-line no-unused-vars
     async rewriteArgsAsync({base_version, parsedArgs, resourceType}) {
@@ -56,7 +56,7 @@ class UuidReferenceQueryRewriter extends QueryRewriter {
         assertIsValid(resourceType);
         assertIsValid(base_version);
 
-        for (const /** @type {ParsedArgsItem} */ parsedArg of parsedArgs) {
+        for (const /** @type {ParsedArgsItem} */ parsedArg of parsedArgs.parsedArgItems) {
             if (parsedArg.references) {
                 for (const /** @type {ParsedReferenceItem} */ reference of parsedArg.references) {
                     if (isUuid(reference.id)) {

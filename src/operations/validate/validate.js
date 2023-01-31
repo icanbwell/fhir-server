@@ -44,7 +44,7 @@ class ValidateOperation {
      * does a FHIR Validate
      * @param {FhirRequestInfo} requestInfo
      * @param {Object} args
-     * @param {ParsedArgsItem[]} parsedArgs
+     * @param {ParsedArgs} parsedArgs
      * @param {string} resourceType
      * @returns {Promise<Resource>}
      */

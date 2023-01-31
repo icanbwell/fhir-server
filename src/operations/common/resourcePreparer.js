@@ -44,20 +44,16 @@ class ResourcePreparer {
 
     /**
      * handles selection of specific elements
-     * @param {Object} args
+     * @param {ParsedArgs} parsedArgs
      * @param {Resource} element
      * @param {string} resourceType
      * @return {Resource}
      */
-    selectSpecificElements({args, element, resourceType}) {
-        /**
-         * @type {string}
-         */
-        const properties_to_return_as_csv = args['_elements'];
+    selectSpecificElements({parsedArgs, element, resourceType}) {
         /**
          * @type {string[]}
          */
-        const properties_to_return_list = properties_to_return_as_csv.split(',');
+        const properties_to_return_list = parsedArgs['_elements'].quer;
         /**
          * @type {Resource}
          */
@@ -82,7 +78,7 @@ class ResourcePreparer {
      * Converts the Mongo document into a document we can return to the client
      * @param {string | null} user
      * @param {string | null} scope
-     * @param {Object} args
+     * @param {ParsedArgs} parsedArgs
      * @param {Resource} element
      * @param {string} resourceType
      * @param {boolean} useAccessIndex
@@ -90,7 +86,7 @@ class ResourcePreparer {
      * @returns {Promise<Resource[]>}
      */
     async prepareResourceAsync({
-                                   user, scope, args,
+                                   user, scope, parsedArgs,
                                    element, resourceType, useAccessIndex,
                                    originalArgs
                                }) {
@@ -98,7 +94,7 @@ class ResourcePreparer {
          * @type {Resource[]}
          */
         let resources = [];
-        if (args['_elements']) {
+        if (parsedArgs.getArg('_elements')) {
             if (!useAccessIndex || !this.accessIndexManager.resourceHasAccessIndex({resourceType})) {
                 // if the whole resource is returned then we have security tags to check again to be double sure
                 if (!this.scopesManager.isAccessToResourceAllowedBySecurityTags(
@@ -115,7 +111,7 @@ class ResourcePreparer {
              */
             const element_to_return = this.selectSpecificElements(
                 {
-                    args,
+                    parsedArgs,
                     element,
                     resourceType
                 }
@@ -132,7 +128,7 @@ class ResourcePreparer {
              * @type {Resource[]}
              */
             const enrichedResources = await this.enrichmentManager.enrichAsync({
-                    resources: [element], args, originalArgs
+                    resources: [element], parsedArgs, originalArgs
                 }
             );
             resources = resources.concat(enrichedResources);
