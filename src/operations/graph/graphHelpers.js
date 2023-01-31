@@ -1074,8 +1074,7 @@ class GraphHelper {
 
             let {
                 /** @type {import('mongodb').Document}**/
-                query, // /** @type {Set} **/
-                // columns
+                query
             } = await this.searchManager.constructQueryAsync({
                 user: requestInfo.user,
                 scope: requestInfo.scope,
