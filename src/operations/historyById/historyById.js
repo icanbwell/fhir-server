@@ -94,9 +94,10 @@ class HistoryByIdOperation {
      * does a FHIR History By id
      * @param {FhirRequestInfo} requestInfo
      * @param {Object} args
+     * @param {ParsedArgsItem[]} parsedArgs
      * @param {string} resourceType
      */
-    async historyById({requestInfo, args, resourceType}) {
+    async historyById({requestInfo, args, parsedArgs, resourceType}) {
         assertIsValid(requestInfo !== undefined);
         assertIsValid(args !== undefined);
         assertIsValid(resourceType !== undefined);
@@ -155,7 +156,8 @@ class HistoryByIdOperation {
             args: Object.assign(args, {id: id.toString()}), // add id filter to query
             resourceType,
             useAccessIndex,
-            personIdFromJwtToken
+            personIdFromJwtToken,
+            parsedArgs
         });
 
         // noinspection JSValidateTypes

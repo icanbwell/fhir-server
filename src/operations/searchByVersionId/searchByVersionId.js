@@ -75,9 +75,10 @@ class SearchByVersionIdOperation {
      * does a FHIR Search By Version
      * @param {FhirRequestInfo} requestInfo
      * @param {Object} args
+     * @param {ParsedArgsItem[]} parsedArgs
      * @param {string} resourceType
      */
-    async searchByVersionId({requestInfo, args, resourceType}) {
+    async searchByVersionId({requestInfo, args, parsedArgs, resourceType}) {
         assertIsValid(requestInfo !== undefined);
         assertIsValid(args !== undefined);
         assertIsValid(resourceType !== undefined);
@@ -140,7 +141,8 @@ class SearchByVersionIdOperation {
                 args: Object.assign(args, {id: id.toString()}), // add id filter to query
                 resourceType,
                 useAccessIndex,
-                personIdFromJwtToken
+                personIdFromJwtToken,
+                parsedArgs
             });
 
             const queryForVersionId = {

@@ -210,6 +210,7 @@ class GraphHelper {
      * @param {*|null} filterValue (Optional) match filterProperty to this value
      * @param {boolean} [explain]
      * @param {boolean} [debug]
+     * @param {ParsedArgsItem[]} parsedArgs
      * @returns {QueryItem}
      */
     async getForwardReferencesAsync({
@@ -221,7 +222,8 @@ class GraphHelper {
                                         filterProperty,
                                         filterValue,
                                         explain,
-                                        debug
+                                        debug,
+                                        parsedArgs
                                     }) {
         try {
             // throw new Error('I am here');
@@ -267,7 +269,8 @@ class GraphHelper {
                 args: Object.assign({'base_version': base_version}, {'id': relatedReferenceIds}), // add id filter to query
                 resourceType,
                 useAccessIndex,
-                personIdFromJwtToken: requestInfo.personIdFromJwtToken
+                personIdFromJwtToken: requestInfo.personIdFromJwtToken,
+                parsedArgs
             });
 
             if (filterProperty) {
@@ -370,6 +373,7 @@ class GraphHelper {
      * @param {string} reverse_filter Do a reverse link from child to parent using this property
      * @param {boolean} [explain]
      * @param {boolean} [debug]
+     * @param {ParsedArgsItem[]} parsedArgs
      * @returns {QueryItem}
      */
     async getReverseReferencesAsync({
@@ -382,7 +386,8 @@ class GraphHelper {
                                         filterValue,
                                         reverse_filter,
                                         explain,
-                                        debug
+                                        debug,
+                                        parsedArgs
                                     }) {
         try {
             if (!(reverse_filter)) {
@@ -425,7 +430,8 @@ class GraphHelper {
                 args,
                 resourceType: relatedResourceType,
                 useAccessIndex,
-                personIdFromJwtToken: requestInfo.personIdFromJwtToken
+                personIdFromJwtToken: requestInfo.personIdFromJwtToken,
+                parsedArgs
             });
 
             const options = {};
@@ -617,14 +623,15 @@ class GraphHelper {
 
     /**
      * process a link
-     * @param requestInfo
-     * @param base_version
-     * @param parentResourceType
-     * @param link
-     * @param parentEntities
-     * @param explain
-     * @param debug
-     * @param target
+     * @param {FhirRequestInfo} requestInfo
+     * @param {string} base_version
+     * @param {string|null} parentResourceType
+     * @param {{path: string, params: string, target: {type: string}[]}} link
+     * @param {EntityAndContainedBase[]} parentEntities
+     * @param {boolean|null} explain
+     * @param {boolean|null} debug
+     * @param {{type: string}} target
+     * @param {ParsedArgsItem[]} parsedArgs
      * @return {Promise<{queryItems: QueryItem[], childEntries: EntityAndContainedBase[]}>}
      */
     async processLinkTargetAsync({
@@ -635,7 +642,8 @@ class GraphHelper {
                                      parentEntities,
                                      explain,
                                      debug,
-                                     target
+                                     target,
+                                     parsedArgs
                                  }) {
         try {
             /**
@@ -689,7 +697,8 @@ class GraphHelper {
                         filterProperty,
                         filterValue,
                         explain,
-                        debug
+                        debug,
+                        parsedArgs
                     });
                     if (queryItem) {
                         queryItems.push(queryItem);
@@ -730,18 +739,21 @@ class GraphHelper {
                     if (!parentResourceType) {
                         throw new Error('processOneGraphLinkAsync: No parent resource found for reverse references for parent entities:' + ` ${parentEntities.map(p => `${p.resource.resourceType}/${p.resource.id}`).toString()}` + ` using target.params: ${target.params}`);
                     }
-                    const queryItem = await this.getReverseReferencesAsync({
-                        requestInfo,
-                        base_version,
-                        parentResourceType,
-                        relatedResourceType: resourceType,
-                        parentEntities,
-                        filterProperty: null,
-                        filterValue: null,
-                        reverse_filter: target.params,
-                        explain,
-                        debug
-                    });
+                    const queryItem = await this.getReverseReferencesAsync(
+                        {
+                            requestInfo,
+                            base_version,
+                            parentResourceType,
+                            relatedResourceType: resourceType,
+                            parentEntities,
+                            filterProperty: null,
+                            filterValue: null,
+                            reverse_filter: target.params,
+                            explain,
+                            debug,
+                            parsedArgs
+                        }
+                    );
                     if (queryItem) {
                         queryItems.push(queryItem);
                     }
@@ -773,15 +785,18 @@ class GraphHelper {
                         /**
                          * @type {QueryItem[]}
                          */
-                        const recursiveQueries = await this.processOneGraphLinkAsync({
-                            requestInfo,
-                            base_version,
-                            parentResourceType: childResourceType,
-                            link: childLink,
-                            parentEntities: childEntries,
-                            explain,
-                            debug
-                        });
+                        const recursiveQueries = await this.processOneGraphLinkAsync(
+                            {
+                                requestInfo,
+                                base_version,
+                                parentResourceType: childResourceType,
+                                link: childLink,
+                                parentEntities: childEntries,
+                                explain,
+                                debug,
+                                parsedArgs
+                            }
+                        );
                         for (const recursiveQuery of recursiveQueries) {
                             queryItems.push(recursiveQuery);
                         }
@@ -816,6 +831,7 @@ class GraphHelper {
      * @param {EntityAndContainedBase[]} parentEntities
      * @param {boolean} [explain]
      * @param {boolean} [debug]
+     * @param {ParsedArgsItem[]} parsedArgs
      * @returns {QueryItem[]}
      */
     async processOneGraphLinkAsync({
@@ -825,7 +841,8 @@ class GraphHelper {
                                        link,
                                        parentEntities,
                                        explain,
-                                       debug
+                                       debug,
+                                       parsedArgs
                                    }) {
         try {
             /**
@@ -835,9 +852,15 @@ class GraphHelper {
             /**
              * @type {{queryItems: QueryItem[], childEntries: EntityAndContainedBase[]}[]}
              */
-            const result = await async.map(link_targets, async (target) => await this.processLinkTargetAsync({
-                requestInfo, base_version, parentResourceType, link, parentEntities, explain, debug, target
-            }));
+            const result = await async.map(
+                link_targets,
+                async (/** @type {type: string} */ target) => await this.processLinkTargetAsync(
+                    {
+                        requestInfo, base_version, parentResourceType, link, parentEntities, explain, debug, target,
+                        parsedArgs
+                    }
+                )
+            );
             /**
              * @type {QueryItem[]}
              */
@@ -871,6 +894,7 @@ class GraphHelper {
      * @param {[{path:string, params: string,target:[{type: string}]}]} linkItems
      * @param {boolean} [explain]
      * @param {boolean} [debug]
+     * @param {ParsedArgsItem[]} parsedArgs
      * @return {Promise<{entities: ResourceEntityAndContained[], queryItems: QueryItem[]}>}
      */
     async processGraphLinksAsync({
@@ -880,7 +904,8 @@ class GraphHelper {
                                      parentEntities,
                                      linkItems,
                                      explain,
-                                     debug
+                                     debug,
+                                     parsedArgs
                                  }) {
         try {
             /**
@@ -896,9 +921,21 @@ class GraphHelper {
             /**
              * @type {QueryItem[]}
              */
-            const queryItems = await async.flatMap(linkItems, async (link) => await this.processOneGraphLinkAsync({
-                requestInfo, base_version, parentResourceType, link, parentEntities: resultEntities, explain, debug
-            }));
+            const queryItems = await async.flatMap(
+                linkItems,
+                async (link) => await this.processOneGraphLinkAsync(
+                    {
+                        requestInfo,
+                        base_version,
+                        parentResourceType,
+                        link,
+                        parentEntities: resultEntities,
+                        explain,
+                        debug,
+                        parsedArgs
+                    }
+                )
+            );
             return {entities: resultEntities, queryItems};
         } catch (e) {
             throw new RethrownError({
@@ -985,6 +1022,7 @@ class GraphHelper {
      * @param {boolean} [debug]
      * @param {Object} args
      * @param {Object} originalArgs
+     * @param {ParsedArgsItem[]} parsedArgs
      * @return {Promise<{entries: BundleEntry[], queries: import('mongodb').Document[], options: import('mongodb').FindOptions<import('mongodb').DefaultSchema>[], explanations: import('mongodb').Document[]}>}
      */
     async processMultipleIdsAsync(
@@ -999,7 +1037,8 @@ class GraphHelper {
             explain,
             debug,
             args,
-            originalArgs
+            originalArgs,
+            parsedArgs
         }
     ) {
         try {
@@ -1025,6 +1064,7 @@ class GraphHelper {
                 resourceType,
                 useAccessIndex: this.configManager.useAccessIndex,
                 personIdFromJwtToken: requestInfo.personIdFromJwtToken,
+                parsedArgs
             });
 
             /**
@@ -1099,15 +1139,18 @@ class GraphHelper {
             /**
              * @type {{entities: ResourceEntityAndContained[], queryItems: QueryItem[]}}
              */
-            const {entities: allRelatedEntries, queryItems} = await this.processGraphLinksAsync({
-                requestInfo,
-                base_version,
-                parentResourceType: resourceType,
-                parentEntities: topLevelBundleEntries.map(e => e.resource),
-                linkItems,
-                explain,
-                debug
-            });
+            const {entities: allRelatedEntries, queryItems} = await this.processGraphLinksAsync(
+                {
+                    requestInfo,
+                    base_version,
+                    parentResourceType: resourceType,
+                    parentEntities: topLevelBundleEntries.map(e => e.resource),
+                    linkItems,
+                    explain,
+                    debug,
+                    parsedArgs
+                }
+            );
 
             for (const q of queryItems) {
                 if (q.query) {
@@ -1211,6 +1254,7 @@ class GraphHelper {
      * @param {Object} args
      * @param {BaseResponseStreamer|undefined} [responseStreamer]
      * @param {Object} originalArgs
+     * @param {ParsedArgsItem[]} parsedArgs
      * @return {Promise<Bundle>}
      */
     async processGraphAsync(
@@ -1224,7 +1268,8 @@ class GraphHelper {
             hash_references,
             args,
             originalArgs,
-            responseStreamer
+            responseStreamer,
+            parsedArgs
         }
     ) {
         try {
@@ -1260,7 +1305,8 @@ class GraphHelper {
                     explain: args && args['_explain'] ? true : false,
                     debug: args && args['_debug'] ? true : false,
                     args,
-                    originalArgs
+                    originalArgs,
+                    parsedArgs
                 }
             );
 
@@ -1372,6 +1418,7 @@ class GraphHelper {
      * @param {Object} args
      * @param {Object} originalArgs
      * @param {BaseResponseStreamer} responseStreamer
+     * @param {ParsedArgsItem[]} parsedArgs
      * @return {Promise<Bundle>}
      */
     async deleteGraphAsync(
@@ -1383,7 +1430,8 @@ class GraphHelper {
             graphDefinitionJson,
             args,
             originalArgs,
-            responseStreamer
+            responseStreamer,
+            parsedArgs
         }
     ) {
         try {
@@ -1394,18 +1442,21 @@ class GraphHelper {
             /**
              * @type {Bundle}
              */
-            const bundle = await this.processGraphAsync({
-                requestInfo,
-                base_version,
-                resourceType,
-                id,
-                contained: false,
-                hash_references: false,
-                graphDefinitionJson,
-                args,
-                originalArgs,
-                responseStreamer: null // don't let graph send the response
-            });
+            const bundle = await this.processGraphAsync(
+                {
+                    requestInfo,
+                    base_version,
+                    resourceType,
+                    id,
+                    contained: false,
+                    hash_references: false,
+                    graphDefinitionJson,
+                    args,
+                    originalArgs,
+                    responseStreamer: null, // don't let graph send the response
+                    parsedArgs
+                }
+            );
             // now iterate and delete by resuourceType and Id
             /**
              * @type {BundleEntry[]}

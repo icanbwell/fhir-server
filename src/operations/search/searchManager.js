@@ -31,7 +31,6 @@ const {QueryRewriterManager} = require('../../queryRewriters/queryRewriterManage
 const {PersonToPatientIdsExpander} = require('../../utils/personToPatientIdsExpander');
 const {ScopesManager} = require('../security/scopesManager');
 const {convertErrorToOperationOutcome} = require('../../utils/convertErrorToOperationOutcome');
-const {R4ArgsParser} = require('../query/r4ArgsParser');
 
 class SearchManager {
     /**
@@ -46,7 +45,6 @@ class SearchManager {
      * @param {QueryRewriterManager} queryRewriterManager
      * @param {PersonToPatientIdsExpander} personToPatientIdsExpander
      * @param {ScopesManager} scopesManager
-     * @param {R4ArgsParser} r4ArgsParser
      */
     constructor(
         {
@@ -59,8 +57,7 @@ class SearchManager {
             configManager,
             queryRewriterManager,
             personToPatientIdsExpander,
-            scopesManager,
-            r4ArgsParser
+            scopesManager
         }
     ) {
         /**
@@ -116,12 +113,6 @@ class SearchManager {
          */
         this.scopesManager = scopesManager;
         assertTypeEquals(scopesManager, ScopesManager);
-
-        /**
-         * @type {R4ArgsParser}
-         */
-        this.r4ArgsParser = r4ArgsParser;
-        assertTypeEquals(r4ArgsParser, R4ArgsParser);
     }
 
     /**
@@ -134,6 +125,7 @@ class SearchManager {
      * @param {string} resourceType
      * @param {boolean} useAccessIndex
      * @param {string} personIdFromJwtToken
+     * @param {ParsedArgsItem[]} parsedArgs
      * @returns {{base_version, columns: Set, query: import('mongodb').Document}}
      */
     async constructQueryAsync(
@@ -145,6 +137,7 @@ class SearchManager {
             resourceType,
             useAccessIndex,
             personIdFromJwtToken,
+            parsedArgs
         }
     ) {
         try {
@@ -155,16 +148,6 @@ class SearchManager {
             assertIsValid(base_version, 'base_version is not set');
             const hasPatientScope = this.scopesManager.hasPatientScope({scope});
 
-            /**
-             * @type {ParsedArgsItem[]}
-             */
-            let parsedArgs = this.r4ArgsParser.parseArgs({resourceType, args});
-            // see if any query rewriters want to rewrite the args
-            parsedArgs = await this.queryRewriterManager.rewriteArgsAsync(
-                {
-                    base_version, parsedArgs, resourceType
-                }
-            );
             /**
              * @type {string[]}
              */

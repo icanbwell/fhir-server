@@ -65,11 +65,13 @@ class GraphOperation {
      * @param {FhirRequestInfo} requestInfo
      * @param {import('express').Response} res
      * @param {Object} args
+     * @param {ParsedArgsItem[]} parsedArgs
      * @param {string} resourceType
      * @param {BaseResponseStreamer|undefined} [responseStreamer]
      * @return {Promise<Bundle>}
      */
-    async graph({requestInfo, res, args, resourceType, responseStreamer}) {
+    // eslint-disable-next-line no-unused-vars
+    async graph({requestInfo, res, args, parsedArgs, resourceType, responseStreamer}) {
         assertIsValid(requestInfo !== undefined);
         assertIsValid(args !== undefined);
         assertIsValid(res !== undefined);
@@ -198,7 +200,8 @@ class GraphOperation {
                         graphDefinitionJson: graphDefinitionRaw,
                         args,
                         originalArgs,
-                        responseStreamer
+                        responseStreamer,
+                        parsedArgs
                     }
                 ) : await this.graphHelper.processGraphAsync(
                     {
@@ -211,7 +214,8 @@ class GraphOperation {
                         hash_references,
                         args,
                         originalArgs,
-                        responseStreamer
+                        responseStreamer,
+                        parsedArgs
                     }
                 );
 

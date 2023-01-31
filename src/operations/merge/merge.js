@@ -150,10 +150,12 @@ class MergeOperation {
      * does a FHIR Merge
      * @param {FhirRequestInfo} requestInfo
      * @param {Object} args
+     * @param {ParsedArgsItem[]} parsedArgs
      * @param {string} resourceType
      * @returns {Promise<MergeResultEntry[]> | Promise<MergeResultEntry>| Promise<Resource>}
      */
-    async merge({requestInfo, args, resourceType}) {
+    // eslint-disable-next-line no-unused-vars
+    async merge({requestInfo, args, parsedArgs, resourceType}) {
         assertIsValid(requestInfo !== undefined);
         assertIsValid(args !== undefined);
         assertIsValid(resourceType !== undefined);

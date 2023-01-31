@@ -90,11 +90,13 @@ class CreateOperation {
      * does a FHIR Create (POST)
      * @param {FhirRequestInfo} requestInfo
      * @param {Object} args
+     * @param {ParsedArgsItem[]} parsedArgs
      * @param {string} path
      * @param {string} resourceType
      * @returns {Resource}
      */
-    async create({requestInfo, args, path, resourceType}) {
+    // eslint-disable-next-line no-unused-vars
+    async create({requestInfo, args, parsedArgs, path, resourceType}) {
         assertIsValid(requestInfo !== undefined);
         assertIsValid(args !== undefined);
         assertIsValid(resourceType !== undefined);

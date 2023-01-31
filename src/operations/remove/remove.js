@@ -98,9 +98,11 @@ class RemoveOperation {
      * does a FHIR Remove (DELETE)
      * @param {FhirRequestInfo} requestInfo
      * @param {Object} args
+     * @param {ParsedArgsItem[]} parsedArgs
      * @param {string} resourceType
      */
-    async remove({requestInfo, args, resourceType}) {
+    // eslint-disable-next-line no-unused-vars
+    async remove({requestInfo, args, parsedArgs, resourceType}) {
         assertIsValid(requestInfo !== undefined);
         assertIsValid(args !== undefined);
         assertIsValid(resourceType !== undefined);
@@ -149,16 +151,6 @@ class RemoveOperation {
              * @type {import('mongodb').Document}
              */
             let query = {};
-            /**
-             * @type {ParsedArgsItem[]}
-             */
-            let parsedArgs = this.r4ArgsParser.parseArgs({resourceType, args});
-            // see if any query rewriters want to rewrite the args
-            parsedArgs = await this.queryRewriterManager.rewriteArgsAsync(
-                {
-                    base_version, parsedArgs, resourceType
-                }
-            );
             // eslint-disable-next-line no-useless-catch
             try {
                 if (base_version === VERSIONS['3_0_1']) {

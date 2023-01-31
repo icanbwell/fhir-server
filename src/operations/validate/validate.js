@@ -44,10 +44,12 @@ class ValidateOperation {
      * does a FHIR Validate
      * @param {FhirRequestInfo} requestInfo
      * @param {Object} args
+     * @param {ParsedArgsItem[]} parsedArgs
      * @param {string} resourceType
      * @returns {Promise<Resource>}
      */
-    async validate({requestInfo, args, resourceType}) {
+    // eslint-disable-next-line no-unused-vars
+    async validate({requestInfo, args, parsedArgs, resourceType}) {
         assertIsValid(requestInfo !== undefined);
         assertIsValid(args !== undefined);
         assertIsValid(resourceType !== undefined);

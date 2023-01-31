@@ -92,11 +92,12 @@ class SearchBundleOperation {
      * does a FHIR Search
      * @param {FhirRequestInfo} requestInfo
      * @param {Object} args
+     * @param {ParsedArgsItem[]} parsedArgs
      * @param {string} resourceType
      * @return {Promise<Bundle>} array of resources or a bundle
      */
     async searchBundle(
-        {requestInfo, args, resourceType}
+        {requestInfo, args, parsedArgs, resourceType}
     ) {
         assertIsValid(requestInfo !== undefined);
         assertIsValid(args !== undefined);
@@ -184,7 +185,8 @@ class SearchBundleOperation {
             } = await this.searchManager.constructQueryAsync(
                 {
                     user, scope, isUser, patientIdsFromJwtToken, args, resourceType, useAccessIndex,
-                    personIdFromJwtToken
+                    personIdFromJwtToken,
+                    parsedArgs
                 }));
         } catch (e) {
             await this.fhirLoggingManager.logOperationFailureAsync(

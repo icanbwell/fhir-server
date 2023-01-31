@@ -96,10 +96,11 @@ class SearchByIdOperation {
      * does a FHIR Search By Id
      * @param {FhirRequestInfo} requestInfo
      * @param {Object} args
+     * @param {ParsedArgsItem[]} parsedArgs
      * @param {string} resourceType
      * @return {Resource}
      */
-    async searchById({requestInfo, args, resourceType}) {
+    async searchById({requestInfo, args, parsedArgs, resourceType}) {
         assertIsValid(requestInfo !== undefined);
         assertIsValid(args !== undefined);
         assertIsValid(resourceType !== undefined);
@@ -168,6 +169,7 @@ class SearchByIdOperation {
                 resourceType,
                 useAccessIndex,
                 personIdFromJwtToken,
+                parsedArgs
             });
 
             const databaseQueryManager = this.databaseQueryFactory.createQuery(

@@ -70,10 +70,12 @@ class PatchOperation {
      * does a FHIR Patch
      * @param {FhirRequestInfo} requestInfo
      * @param {Object} args
+     * @param {ParsedArgsItem[]} parsedArgs
      * @param {string} resourceType
      * @returns {{id: string,created: boolean, resource_version: string, resource: Resource}}
      */
-    async patch({requestInfo, args, resourceType}) {
+    // eslint-disable-next-line no-unused-vars
+    async patch({requestInfo, args, parsedArgs, resourceType}) {
         assertIsValid(requestInfo !== undefined);
         assertIsValid(args !== undefined);
         assertIsValid(resourceType !== undefined);

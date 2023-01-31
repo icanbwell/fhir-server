@@ -94,9 +94,10 @@ class HistoryOperation {
      * does a FHIR History
      * @param {FhirRequestInfo} requestInfo
      * @param {Object} args
+     * @param {ParsedArgsItem[]} parsedArgs
      * @param {string} resourceType
      */
-    async history({requestInfo, args, resourceType}) {
+    async history({requestInfo, args, parsedArgs, resourceType}) {
         assertIsValid(requestInfo !== undefined);
         assertIsValid(args !== undefined);
         assertIsValid(resourceType !== undefined);
@@ -157,7 +158,8 @@ class HistoryOperation {
             args,
             resourceType,
             useAccessIndex,
-            personIdFromJwtToken
+            personIdFromJwtToken,
+            parsedArgs
         });
 
         // noinspection JSValidateTypes

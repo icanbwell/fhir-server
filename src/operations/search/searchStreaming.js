@@ -94,11 +94,12 @@ class SearchStreamingOperation {
      * @param {FhirRequestInfo} requestInfo
      * @param {import('express').Response} res
      * @param {Object} args
+     * @param {ParsedArgsItem[]} parsedArgs
      * @param {string} resourceType
      * @return {Promise<Resource[] | {entry:{resource: Resource}[]}>} array of resources or a bundle
      */
     async searchStreaming(
-        {requestInfo, res, args, resourceType}) {
+        {requestInfo, res, args, parsedArgs, resourceType}) {
         const currentOperationName = 'searchStreaming';
         // Start the FHIR request timer, saving a reference to the returned method
         const timer = fhirRequestTimer.startTimer();
@@ -181,7 +182,8 @@ class SearchStreamingOperation {
             } = await this.searchManager.constructQueryAsync(
                 {
                     user, scope, isUser, patientIdsFromJwtToken, args, resourceType, useAccessIndex,
-                    personIdFromJwtToken
+                    personIdFromJwtToken,
+                    parsedArgs
                 }));
         } catch (e) {
             await this.fhirLoggingManager.logOperationFailureAsync(

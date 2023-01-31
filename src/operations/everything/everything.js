@@ -47,11 +47,13 @@ class EverythingOperation {
      * @param {FhirRequestInfo} requestInfo
      * @param {import('express').Response} res
      * @param {Object} args
+     * @param {ParsedArgsItem[]} parsedArgs
      * @param {string} resourceType
      * @param {BaseResponseStreamer|undefined} [responseStreamer]
      * @return {Promise<Bundle>}
      */
-    async everything({requestInfo, res, args, resourceType, responseStreamer}) {
+    // eslint-disable-next-line no-unused-vars
+    async everything({requestInfo, res, args, parsedArgs, resourceType, responseStreamer}) {
         assertIsValid(requestInfo !== undefined, 'requestInfo is undefined');
         assertIsValid(args !== undefined, 'args is undefined');
         assertIsValid(res !== undefined, 'res is undefined');

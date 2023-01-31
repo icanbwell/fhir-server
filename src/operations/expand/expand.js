@@ -66,10 +66,12 @@ class ExpandOperation {
      * does a FHIR Search By Id
      * @param {FhirRequestInfo} requestInfo
      * @param {Object} args
+     * @param {ParsedArgsItem[]} parsedArgs
      * @param {string} resourceType
      * @return {Resource}
      */
-    async expand({requestInfo, args, resourceType}) {
+    // eslint-disable-next-line no-unused-vars
+    async expand({requestInfo, args, parsedArgs, resourceType}) {
         assertIsValid(requestInfo !== undefined);
         assertIsValid(args !== undefined);
         assertIsValid(resourceType !== undefined);

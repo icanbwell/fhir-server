@@ -108,10 +108,12 @@ class UpdateOperation {
      * does a FHIR Update (PUT)
      * @param {FhirRequestInfo} requestInfo
      * @param {Object} args
+     * @param {ParsedArgsItem[]} parsedArgs
      * @param {string} resourceType
      * @returns {{id: string,created: boolean, resource_version: string, resource: Resource}}
      */
-    async update({requestInfo, args, resourceType}) {
+    // eslint-disable-next-line no-unused-vars
+    async update({requestInfo, args, parsedArgs, resourceType}) {
         assertIsValid(requestInfo !== undefined);
         assertIsValid(args !== undefined);
         assertIsValid(resourceType !== undefined);
