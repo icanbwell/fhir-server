@@ -316,7 +316,8 @@ const createContainer = function () {
                 resourceLocatorFactory: c.resourceLocatorFactory,
                 r4SearchQueryCreator: c.r4SearchQueryCreator,
                 searchManager: c.searchManager,
-                enrichmentManager: c.enrichmentManager
+                enrichmentManager: c.enrichmentManager,
+                r4ArgsParser: c.r4ArgsParser
             }
         )
     );

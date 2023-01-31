@@ -220,7 +220,7 @@ class SearchManager {
                         user, scope,
                         isUser,
                         patientIdsFromJwtToken,
-                        args,
+                        parsedArgs,
                         resourceType,
                         useAccessIndex,
                         personIdFromJwtToken,

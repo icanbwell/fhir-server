@@ -25,6 +25,7 @@ const BundleRequest = require('../../fhir/classes/4_0_0/backbone_elements/bundle
 const {EnrichmentManager} = require('../../enrich/enrich');
 const deepcopy = require('deepcopy');
 const {getCircularReplacer} = require('../../utils/getCircularReplacer');
+const {R4ArgsParser} = require('../query/r4ArgsParser');
 
 
 /**
@@ -52,6 +53,7 @@ class GraphHelper {
      * @param {R4SearchQueryCreator} r4SearchQueryCreator
      * @param {SearchManager} searchManager
      * @param {EnrichmentManager} enrichmentManager
+     * @param {R4ArgsParser} r4ArgsParser
      */
     constructor({
                     databaseQueryFactory,
@@ -63,7 +65,8 @@ class GraphHelper {
                     resourceLocatorFactory,
                     r4SearchQueryCreator,
                     searchManager,
-                    enrichmentManager
+                    enrichmentManager,
+                    r4ArgsParser
                 }) {
         /**
          * @type {DatabaseQueryFactory}
@@ -121,6 +124,12 @@ class GraphHelper {
          */
         this.enrichmentManager = enrichmentManager;
         assertTypeEquals(enrichmentManager, EnrichmentManager);
+
+        /**
+         * @type {R4ArgsParser}
+         */
+        this.r4ArgsParser = r4ArgsParser;
+        assertTypeEquals(r4ArgsParser, R4ArgsParser);
     }
 
     /**
@@ -355,10 +364,17 @@ class GraphHelper {
 
     /**
      * converts a query string into an args array
-     * @type {import('mongodb').Document}
+     * @param {string} resourceType
+     * @param {string} queryString
+     * @return {ParsedArgs}
      */
-    parseQueryStringIntoArgs(queryString) {
-        return Object.fromEntries(new URLSearchParams(queryString));
+    parseQueryStringIntoArgs({resourceType, queryString}) {
+        return this.r4ArgsParser.parseArgs(
+            {
+                resourceType,
+                args: Object.fromEntries(new URLSearchParams(queryString))
+            }
+        );
     }
 
     /**
@@ -373,7 +389,6 @@ class GraphHelper {
      * @param {string} reverse_filter Do a reverse link from child to parent using this property
      * @param {boolean} [explain]
      * @param {boolean} [debug]
-     * @param {ParsedArgs} parsedArgs
      * @returns {QueryItem}
      */
     async getReverseReferencesAsync({
@@ -386,8 +401,7 @@ class GraphHelper {
                                         filterValue,
                                         reverse_filter,
                                         explain,
-                                        debug,
-                                        parsedArgs
+                                        debug
                                     }) {
         try {
             if (!(reverse_filter)) {
@@ -405,11 +419,17 @@ class GraphHelper {
              */
             const reverseFilterWithParentIds = reverse_filter.replace('{ref}', parentResourceTypeAndIdList.join(','));
             /**
-             * @type {Object}
+             * @type {ParsedArgs}
              */
-            const args = this.parseQueryStringIntoArgs(reverseFilterWithParentIds);
+            const relatedResourceParsedArgs = this.parseQueryStringIntoArgs(
+                {
+                    resourceType: relatedResourceType,
+                    queryString: reverseFilterWithParentIds
+                }
+            );
+            const args = {};
             args['base_version'] = base_version;
-            const searchParameterName = Object.keys(args)[0];
+            const searchParameterName = reverse_filter.split('=')[0];
             /**
              * @type {boolean}
              */
@@ -422,17 +442,19 @@ class GraphHelper {
                 /** @type {import('mongodb').Document}**/
                 query, // /** @type {Set} **/
                 // columns
-            } = await this.searchManager.constructQueryAsync({
-                user: requestInfo.user,
-                scope: requestInfo.scope,
-                isUser: requestInfo.isUser,
-                patientIdsFromJwtToken: requestInfo.patientIdsFromJwtToken,
-                args,
-                resourceType: relatedResourceType,
-                useAccessIndex,
-                personIdFromJwtToken: requestInfo.personIdFromJwtToken,
-                parsedArgs
-            });
+            } = await this.searchManager.constructQueryAsync(
+                {
+                    user: requestInfo.user,
+                    scope: requestInfo.scope,
+                    isUser: requestInfo.isUser,
+                    patientIdsFromJwtToken: requestInfo.patientIdsFromJwtToken,
+                    args,
+                    resourceType: relatedResourceType,
+                    useAccessIndex,
+                    personIdFromJwtToken: requestInfo.personIdFromJwtToken,
+                    parsedArgs: relatedResourceParsedArgs
+                }
+            );
 
             const options = {};
             const projection = {};
@@ -750,8 +772,7 @@ class GraphHelper {
                             filterValue: null,
                             reverse_filter: target.params,
                             explain,
-                            debug,
-                            parsedArgs
+                            debug
                         }
                     );
                     if (queryItem) {
@@ -1215,7 +1236,7 @@ class GraphHelper {
             }
 
             entries = await this.enrichmentManager.enrichBundleEntriesAsync({
-                    entries, args, originalArgs
+                    entries, parsedArgs, originalArgs
                 }
             );
             entries = this.bundleManager.removeDuplicateEntries({entries});
@@ -1345,7 +1366,7 @@ class GraphHelper {
             const resources = uniqueEntries.map(bundleEntry => bundleEntry.resource);
 
             await this.enrichmentManager.enrichAsync({
-                    resources: resources, args, originalArgs
+                    resources: resources, parsedArgs, originalArgs
                 }
             );
 
