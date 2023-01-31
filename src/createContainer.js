@@ -243,8 +243,7 @@ const createContainer = function () {
                 configManager: c.configManager,
                 queryRewriterManager: c.queryRewriterManager,
                 personToPatientIdsExpander: c.personToPatientIdsExpander,
-                scopesManager: c.scopesManager,
-                r4ArgsParser: c.r4ArgsParser
+                scopesManager: c.scopesManager
             }
         )
     );
@@ -521,7 +520,9 @@ const createContainer = function () {
                 patchOperation: c.patchOperation,
                 validateOperation: c.validateOperation,
                 graphOperation: c.graphOperation,
-                expandOperation: c.expandOperation
+                expandOperation: c.expandOperation,
+                r4ArgsParser: c.r4ArgsParser,
+                queryRewriterManager: c.queryRewriterManager
             }
         )
     );

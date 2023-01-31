@@ -21,6 +21,8 @@ const {FhirResponseStreamer} = require('../utils/fhirResponseStreamer');
 const BundleEntry = require('../fhir/classes/4_0_0/backbone_elements/bundleEntry');
 const {convertErrorToOperationOutcome} = require('../utils/convertErrorToOperationOutcome');
 const contentType = require('content-type');
+const {QueryRewriterManager} = require('../queryRewriters/queryRewriterManager');
+const {R4ArgsParser} = require('./query/r4ArgsParser');
 
 // This is needed for JSON.stringify() can handle regex
 // https://stackoverflow.com/questions/12075927/serialization-of-regexp
@@ -47,6 +49,8 @@ class FhirOperationsManager {
      * @param validateOperation
      * @param graphOperation
      * @param expandOperation
+     * @param {R4ArgsParser} r4ArgsParser
+     * @param {QueryRewriterManager} queryRewriterManager
      */
     constructor(
         {
@@ -64,7 +68,9 @@ class FhirOperationsManager {
             patchOperation,
             validateOperation,
             graphOperation,
-            expandOperation
+            expandOperation,
+            r4ArgsParser,
+            queryRewriterManager
         }
     ) {
         /**
@@ -142,6 +148,18 @@ class FhirOperationsManager {
          */
         this.expandOperation = expandOperation;
         assertTypeEquals(expandOperation, ExpandOperation);
+
+        /**
+         * @type {R4ArgsParser}
+         */
+        this.r4ArgsParser = r4ArgsParser;
+        assertTypeEquals(r4ArgsParser, R4ArgsParser);
+
+        /**
+         * @type {QueryRewriterManager}
+         */
+        this.queryRewriterManager = queryRewriterManager;
+        assertTypeEquals(queryRewriterManager, QueryRewriterManager);
     }
 
     /**
