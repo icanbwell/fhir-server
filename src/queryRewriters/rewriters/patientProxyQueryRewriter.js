@@ -45,7 +45,7 @@ class PatientProxyQueryRewriter extends QueryRewriter {
                         if (parsedArg.queryParameterValue.some(
                             a => a.startsWith(personProxyPrefix) || a.startsWith(patientReferencePlusPersonProxyPrefix))
                         ) {
-                            parsedArg.queryParameterValue = await async.mapSeries(
+                            parsedArg.queryParameterValue = await async.flatMapSeries(
                                 parsedArg.queryParameterValue,
                                 async a => a.startsWith(personProxyPrefix) || a.startsWith(patientReferencePlusPersonProxyPrefix) ?
                                     await this.personToPatientIdsExpander.getPatientProxyIdsAsync(
@@ -70,7 +70,7 @@ class PatientProxyQueryRewriter extends QueryRewriter {
                 if (Array.isArray(parsedArg.queryParameterValue)) {
                     if (parsedArg.queryParameterValue.some(a => typeof parsedArg.queryParameterValue === 'string' && a.startsWith(patientReferencePlusPersonProxyPrefix))) {
                         // replace with patient ids from person
-                        parsedArg.queryParameterValue = await async.mapSeries(
+                        parsedArg.queryParameterValue = await async.flatMapSeries(
                             parsedArg.queryParameterValue,
                             async a => a.startsWith(patientReferencePlusPersonProxyPrefix) ?
                                 await this.personToPatientIdsExpander.getPatientProxyIdsAsync(

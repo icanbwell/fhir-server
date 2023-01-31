@@ -2,7 +2,7 @@ const {searchParameterQueries} = require('../../searchParameters/searchParameter
 const {STRICT_SEARCH_HANDLING, SPECIFIED_QUERY_PARAMS} = require('../../constants');
 const {BadRequestError} = require('../../utils/httpErrors');
 const {convertGraphQLParameters} = require('./convertGraphQLParameters');
-const {ParsedArgsItem, ParsedReferenceItem} = require('./parsedArgsItem');
+const {ParsedArgsItem} = require('./parsedArgsItem');
 const {assertTypeEquals} = require('../../utils/assertType');
 const {FhirTypesManager} = require('../../fhir/fhirTypesManager');
 
@@ -108,7 +108,6 @@ class R4ArgsParser {
                 args,
                 queryParameter
             );
-            queryParameterValue = this.parseQueryParameterValueIntoArrayIfNeeded({queryParameterValue});
 
             if (queryParameterValue) {
                 parsedArgs.push(
@@ -116,91 +115,12 @@ class R4ArgsParser {
                         queryParameter,
                         queryParameterValue,
                         propertyObj,
-                        modifiers,
-                        references: (propertyObj.type === 'reference') ?
-                            this.parseQueryParameterValueIntoReferences(
-                                {
-                                    queryParameterValue,
-                                    propertyObj
-                                }
-                            ) : undefined
+                        modifiers
                     })
                 );
             }
         }
         return parsedArgs;
-    }
-
-    /**
-     * @param {string|string[]|undefined|null} queryParameterValue
-     * @return {*}
-     */
-    parseQueryParameterValueIntoArrayIfNeeded({queryParameterValue}) {
-        if (!queryParameterValue) {
-            return queryParameterValue;
-        }
-        if (Array.isArray(queryParameterValue)) {
-            return queryParameterValue;
-        }
-        const parts = queryParameterValue.split(',');
-        if (parts.length > 1) {
-            return parts;
-        }
-        return queryParameterValue;
-    }
-
-    /**
-     * parses a query parameter value for reference into resourceType, id
-     * @param {string|string[]} queryParameterValue
-     * @param {SearchParameterDefinition} propertyObj
-     * @return {ParsedReferenceItem[]}
-     */
-    parseQueryParameterValueIntoReferences({queryParameterValue, propertyObj}) {
-        /**
-         * @type {ParsedReferenceItem[]}
-         */
-        const result = [];
-        queryParameterValue = Array.isArray(queryParameterValue) ? queryParameterValue : [queryParameterValue];
-        // The forms are:
-        // 1. Patient/123,456
-        // 2. 123,456
-        // 3. Patient/123, Patient/456
-        /**
-         * @type {string|null}
-         */
-        let resourceType = null;
-        for (const /** @type {string} */ val of queryParameterValue) {
-            const valueParts = val.split('/');
-            /**
-             * @type {string}
-             */
-            let id;
-            if (valueParts.length > 1) {
-                resourceType = valueParts[0];
-                id = valueParts[1];
-            } else {
-                id = valueParts[0];
-            }
-            if (resourceType) {
-                // resource type was specified
-                result.push(
-                    new ParsedReferenceItem({
-                        resourceType,
-                        id
-                    })
-                );
-            } else {
-                for (const target of propertyObj.target) {
-                    result.push(
-                        new ParsedReferenceItem({
-                            resourceType: target,
-                            id
-                        })
-                    );
-                }
-            }
-        }
-        return result;
     }
 }
 

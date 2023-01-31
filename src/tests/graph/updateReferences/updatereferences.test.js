@@ -127,7 +127,7 @@ describe('UpdateReferences Tests', () => {
             expect(resp).toHaveResponse(expectedObservationWithoutProxyPatientResources);
 
             resp = await request
-                .get('/4_0_0/Observation/?_bundle=1&patient=Patient/person.m65633')
+                .get('/4_0_0/Observation/?_bundle=1&patient=Patient/person.m65633&_debug=1')
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedObservationWithProxyPatientResources);
