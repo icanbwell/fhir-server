@@ -17,7 +17,7 @@ class ProxyPatientReferenceEnrichmentProvider extends EnrichmentProvider {
             /**
              * @type {string[]}
              */
-            const proxyPatientIds = parsedArgs[`${proxyPatientPersonIdKey}`].queryParameterValue.map(
+            const proxyPatientIds = parsedArgs.get(`${proxyPatientPersonIdKey}`).queryParameterValue.map(
                 a => a.startsWith('Patient/') ? a : `Patient/${a}`);
             for (const resource of resources) {
                 resource.updateReferences({
@@ -78,7 +78,7 @@ class ProxyPatientReferenceEnrichmentProvider extends EnrichmentProvider {
             /**
              * @type {string[]}
              */
-            const proxyPatientIds = parsedArgs[`${proxyPatientPersonIdKey}`].queryParameterValue.map(
+            const proxyPatientIds = parsedArgs.get(`${proxyPatientPersonIdKey}`).queryParameterValue.map(
                 a => a.startsWith('Patient/') ? a : `Patient/${a}`);
             for (const entry of entries) {
                 entry.resource.updateReferences({

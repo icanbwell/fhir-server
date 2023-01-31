@@ -53,7 +53,7 @@ class ResourcePreparer {
         /**
          * @type {string[]}
          */
-        const properties_to_return_list = parsedArgs['_elements'].quer;
+        const properties_to_return_list = parsedArgs.get('_elements').queryParameterValue;
         /**
          * @type {Resource}
          */
@@ -94,7 +94,7 @@ class ResourcePreparer {
          * @type {Resource[]}
          */
         let resources = [];
-        if (parsedArgs.getArg('_elements')) {
+        if (parsedArgs.get('_elements')) {
             if (!useAccessIndex || !this.accessIndexManager.resourceHasAccessIndex({resourceType})) {
                 // if the whole resource is returned then we have security tags to check again to be double sure
                 if (!this.scopesManager.isAccessToResourceAllowedBySecurityTags(

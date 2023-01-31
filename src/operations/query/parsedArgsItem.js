@@ -176,7 +176,7 @@ class ParsedArgs {
      * @param {string} argName
      * @return {ParsedArgsItem}
      */
-    getArg(argName) {
+    get(argName) {
         return this.parsedArgItems.find(a => a.queryParameter === argName);
     }
 }

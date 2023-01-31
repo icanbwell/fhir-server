@@ -16,6 +16,7 @@ const {ConfigManager} = require('../../utils/configManager');
 const {AccessIndexManager} = require('../common/accessIndexManager');
 const {R4ArgsParser} = require('./r4ArgsParser');
 const {removeDuplicatesWithLambda} = require('../../utils/list.util');
+const {ParsedArgs} = require('./parsedArgsItem');
 
 function isUrl(queryParameterValue) {
     return typeof queryParameterValue === 'string' &&
@@ -64,7 +65,7 @@ class R4SearchQueryCreator {
      */
     buildR4SearchQuery({resourceType, parsedArgs}) {
         assertIsValid(resourceType);
-        assertIsValid(Array.isArray(parsedArgs));
+        assertTypeEquals(parsedArgs, ParsedArgs);
         /**
          * list of columns used in the query
          * this is used to pick index hints
