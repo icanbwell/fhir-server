@@ -257,6 +257,7 @@ class SearchManager {
      * @param {string | null} user
      * @param {boolean} isStreaming
      * @param {boolean} useAccessIndex
+     * @param {boolean} useAggregationPipeline
      * @returns {Promise<GetCursorResult>}
      */
     async getCursorForQueryAsync(
@@ -270,7 +271,8 @@ class SearchManager {
             maxMongoTimeMS,
             user,
             isStreaming,
-            useAccessIndex
+            useAccessIndex,
+            useAggregationPipeline = false
         }
     ) {
         // if _elements=x,y,z is in url parameters then restrict mongo query to project only those fields
@@ -390,7 +392,21 @@ class SearchManager {
         /**
          * @type {DatabasePartitionedCursor}
          */
-        let cursorQuery = await databaseQueryManager.findAsync({query, options});
+        let cursorQuery;
+        if (useAggregationPipeline) {
+            // Projection arguement to be used for aggregation query
+            let projection = args['projection'] || {};
+            if (options['projection']) {
+                projection = { ...projection, ...options['projection'] };
+            }
+            cursorQuery = await databaseQueryManager.findUsingAggregationAsync({
+                query,
+                projection,
+                options,
+            });
+        } else {
+            cursorQuery = await databaseQueryManager.findAsync({ query, options });
+        }
 
         if (isStreaming) {
             cursorQuery = cursorQuery.maxTimeMS({milliSecs: 60 * 60 * 1000}); // if streaming then set time out to an hour
