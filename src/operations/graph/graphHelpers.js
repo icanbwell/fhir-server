@@ -1037,7 +1037,6 @@ class GraphHelper {
      * @param {Resource} graphDefinition
      * @param {boolean} contained
      * @param {boolean} hash_references
-     * @param {string[]} idList
      * @param {boolean} [explain]
      * @param {boolean} [debug]
      * @param {Object} args
@@ -1053,7 +1052,6 @@ class GraphHelper {
             graphDefinition,
             contained,
             hash_references,
-            idList,
             explain,
             debug,
             args,
@@ -1067,18 +1065,9 @@ class GraphHelper {
              */
             let entries = [];
 
-            const rawArgs = parsedArgs.getRawArgs();
-            rawArgs['_id'] = idList;
-            delete rawArgs['resource'];
-            /**
-             * @type {ParsedArgs}
-             */
-            const graphArgs = this.r4ArgsParser.parseArgs(
-                {
-                    resourceType,
-                    args: rawArgs
-                }
-            );
+            // so any POSTed data is not read as parameters
+            parsedArgs.remove('resource');
+
             let {
                 /** @type {import('mongodb').Document}**/
                 query
@@ -1091,7 +1080,7 @@ class GraphHelper {
                 resourceType,
                 useAccessIndex: this.configManager.useAccessIndex,
                 personIdFromJwtToken: requestInfo.personIdFromJwtToken,
-                parsedArgs: graphArgs
+                parsedArgs
             });
 
             /**
@@ -1250,7 +1239,7 @@ class GraphHelper {
             return {entries, queries, options: optionsForQueries, explanations};
         } catch (e) {
             throw new RethrownError({
-                message: 'Error in processMultipleIdsAsync(): ' + `resourceType: ${resourceType} , ` + `id:${idList.join(',')}, `,
+                message: 'Error in processMultipleIdsAsync(): ' + `resourceType: ${resourceType} , `,
                 error: e,
                 args: {
                     base_version,
@@ -1259,11 +1248,11 @@ class GraphHelper {
                     graphDefinition,
                     contained,
                     hash_references,
-                    idList,
                     explain,
                     debug,
                     args,
-                    originalArgs
+                    originalArgs,
+                    parsedArgs
                 }
             });
         }
@@ -1328,7 +1317,6 @@ class GraphHelper {
                     graphDefinition,
                     contained,
                     hash_references,
-                    idList: id,
                     explain: args && args['_explain'] ? true : false,
                     debug: args && args['_debug'] ? true : false,
                     args,

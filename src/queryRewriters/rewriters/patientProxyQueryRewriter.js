@@ -56,7 +56,7 @@ class PatientProxyQueryRewriter extends QueryRewriter {
                                         }) : a
                             );
                         }
-                    } else if (typeof argValue === 'string' && (
+                    } else if (typeof parsedArg.queryParameterValue === 'string' && (
                         parsedArg.queryParameterValue.startsWith(personProxyPrefix) || parsedArg.queryParameterValue.startsWith(patientReferencePlusPersonProxyPrefix))) {
                         parsedArg.queryParameterValue = await this.personToPatientIdsExpander.getPatientProxyIdsAsync(
                             {

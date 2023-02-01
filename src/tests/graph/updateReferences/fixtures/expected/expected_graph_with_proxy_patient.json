@@ -76,7 +76,7 @@
         "resourceType": "Observation",
         "status": "final",
         "subject": {
-          "reference": "Patient/00100000000"
+          "reference": "Patient/person.m65633"
         },
         "valueBoolean": false
       }
@@ -128,6 +128,39 @@
       }
     }
   ],
+  "meta": {
+    "tag": [
+      {
+        "display": "db.Patient_4_0_0.find({'id':{'$in':['00100000000','00200000000','person.m65633']}}, {'_id':0})  | db.Patient_4_0_0.find({'subject.reference':'Patient/00100000000'}, {})",
+        "system": "https://www.icanbwell.com/query"
+      },
+      {
+        "code": "Patient_4_0_0",
+        "system": "https://www.icanbwell.com/queryCollection"
+      },
+      {
+        "display": "[{'projection':{'_id':0}}]",
+        "system": "https://www.icanbwell.com/queryOptions"
+      },
+      {
+        "display": "[]",
+        "system": "https://www.icanbwell.com/queryFields"
+      },
+      {
+        "system": "https://www.icanbwell.com/queryTime"
+      },
+      {
+        "display": "{'useTwoStepSearchOptimization':undefined}",
+        "system": "https://www.icanbwell.com/queryOptimization"
+      },
+      {
+        "system": "https://www.icanbwell.com/queryExplain"
+      },
+      {
+        "system": "https://www.icanbwell.com/queryExplainSimple"
+      }
+    ]
+  },
   "resourceType": "Bundle",
   "total": 2,
   "type": "searchset"

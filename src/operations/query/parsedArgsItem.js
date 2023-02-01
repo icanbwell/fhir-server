@@ -234,8 +234,8 @@ class ParsedArgs {
 
     getRawArgs() {
         const obj = {};
-        for (const [/** @type {string} */ key, /** @type {ParsedArgsItem} */ value] of Object.entries(this.parsedArgItems)) {
-            obj[`${key}`] = value._queryParameterValue;
+        for (const [, /** @type {ParsedArgsItem} */ value] of Object.entries(this.parsedArgItems)) {
+            obj[`${value.queryParameter}`] = value._queryParameterValue;
         }
         return obj;
     }
