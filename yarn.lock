@@ -6255,6 +6255,11 @@
   dependencies:
     "arrify" "^1.0.1"
 
+"graphql-fields@^2.0.3":
+  "integrity" "sha512-x3VE5lUcR4XCOxPIqaO4CE+bTK8u6gVouOdpQX9+EKHr+scqtK5Pp/l8nIGqIpN1TUlkKE6jDCCycm/WtLRAwA=="
+  "resolved" "https://registry.npmjs.org/graphql-fields/-/graphql-fields-2.0.3.tgz"
+  "version" "2.0.3"
+
 "graphql-schema-linter@^3.0.1":
   "integrity" "sha512-+k4TGaWu1Ry740XiI/OZbzAC4omna5+S1rLjE0puPFSB99yORRdlX4U0+CWnwJuxh8FxLj5Ek2pDhsrSh9j5cQ=="
   "resolved" "https://registry.npmjs.org/graphql-schema-linter/-/graphql-schema-linter-3.0.1.tgz"
