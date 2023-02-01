@@ -112,7 +112,7 @@
     "@mongodb-js/zstd": "^1.0.0",
     "@opensearch-project/opensearch": "^2.1.0",
     "@popperjs/core": "^2.11.6",
-    "@sentry/node": "^7.29.0",
+    "@sentry/node": "^7.30.0",
     "@slack/web-api": "^6.8.0",
     "accepts": "^1.3.8",
     "apollo-datasource": "^3.3.2",
