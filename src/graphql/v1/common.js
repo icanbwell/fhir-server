@@ -9,14 +9,38 @@ const {getRequestInfo} = require('./requestInfoHelper');
 const {SearchBundleOperation} = require('../../operations/search/searchBundle');
 const {assertTypeEquals} = require('../../utils/assertType');
 const {SimpleContainer} = require('../../utils/simpleContainer');
+
+
+/**
+ * Parse arguments
+ * @param {Object} args
+ * @param {string} resourceType
+ * @return {Promise<ParsedArgs>}
+ */
+async function getParsedArgsAsync({args, resourceType}) {
+    const {base_version} = args;
+    /**
+     * @type {ParsedArgs}
+     */
+    let parsedArgs = this.r4ArgsParser.parseArgs({resourceType, args});
+    // see if any query rewriters want to rewrite the args
+    parsedArgs = await this.queryRewriterManager.rewriteArgsAsync(
+        {
+            base_version, parsedArgs, resourceType
+        }
+    );
+    return parsedArgs;
+}
+
+
 /**
  * This functions takes a FHIR Bundle and returns the resources in it
  * @param {Bundle} bundle
  * @return {Resource[]}
  */
-module.exports.unBundle = (bundle) => {
+function unBundle(bundle) {
     return bundle.entry ? bundle.entry.map((e) => e.resource) : [];
-};
+}
 
 // noinspection JSUnusedLocalSymbols
 /**
@@ -27,12 +51,12 @@ module.exports.unBundle = (bundle) => {
  * @return {null|string}
  */
 // eslint-disable-next-line no-unused-vars
-module.exports.resolveType = (obj, context, info) => {
+function resolveType(obj, context, info) {
     if (obj) {
         return obj.resourceType;
     }
     return null; // GraphQLError is thrown
-};
+}
 
 /**
  * Finds a single resource by reference
@@ -43,7 +67,7 @@ module.exports.resolveType = (obj, context, info) => {
  * @param {{reference: string}} reference
  * @return {Promise<null|Resource>}
  */
-module.exports.findResourceByReference = async (parent, args, context, info, reference) => {
+async function findResourceByReference(parent, args, context, info, reference) {
     /**
      * @type {SimpleContainer}
      */
@@ -66,11 +90,13 @@ module.exports.findResourceByReference = async (parent, args, context, info, ref
          */
         const searchByIdOperation = container.searchByIdOperation;
         assertTypeEquals(searchByIdOperation, SearchByIdOperation);
+        const args1 = {base_version: '4_0_0', id: idOfReference};
         return await searchByIdOperation.searchById(
             {
                 requestInfo: getRequestInfo(context),
-                args: {base_version: '4_0_0', id: idOfReference},
-                resourceType: typeOfReference
+                args: args1,
+                resourceType: typeOfReference,
+                parsedArgs: await getParsedArgsAsync({args: args1, resourceType: typeOfReference})
             }
         );
     } catch (e) {
@@ -88,7 +114,7 @@ module.exports.findResourceByReference = async (parent, args, context, info, ref
             return null;
         }
     }
-};
+}
 
 /**
  * Finds one or more resources by references array
@@ -99,7 +125,7 @@ module.exports.findResourceByReference = async (parent, args, context, info, ref
  * @param {{reference: string}[]} references
  * @return {Promise<null|Resource[]>}
  */
-module.exports.findResourcesByReference = async (parent, args, context, info, references) => {
+async function findResourcesByReference(parent, args, context, info, references) {
     /**
      * @type {SimpleContainer}
      */
@@ -123,16 +149,18 @@ module.exports.findResourcesByReference = async (parent, args, context, info, re
              */
             const searchBundleOperation = container.searchBundleOperation;
             assertTypeEquals(searchBundleOperation, SearchBundleOperation);
+            const args1 = {
+                base_version: '4_0_0',
+                id: idOfReference,
+                _bundle: '1',
+            };
             return module.exports.unBundle(
                 await searchBundleOperation.searchBundle(
                     {
                         requestInfo: getRequestInfo(context),
-                        args: {
-                            base_version: '4_0_0',
-                            id: idOfReference,
-                            _bundle: '1',
-                        },
-                        resourceType: typeOfReference
+                        args: args1,
+                        resourceType: typeOfReference,
+                        parsedArgs: await getParsedArgsAsync({args: args1, resourceType: typeOfReference})
                     }
                 )
             );
@@ -152,7 +180,7 @@ module.exports.findResourcesByReference = async (parent, args, context, info, re
             }
         }
     });
-};
+}
 
 /**
  * Finds resources with args
@@ -163,7 +191,7 @@ module.exports.findResourcesByReference = async (parent, args, context, info, re
  * @param {string} resourceType
  * @return {Promise<Resource[]>}
  */
-module.exports.getResources = async (parent, args, context, info, resourceType) => {
+async function getResources(parent, args, context, info, resourceType) {
     /**
      * @type {SimpleContainer}
      */
@@ -176,17 +204,28 @@ module.exports.getResources = async (parent, args, context, info, resourceType) 
      */
     const searchBundleOperation = container.searchBundleOperation;
     assertTypeEquals(searchBundleOperation, SearchBundleOperation);
+    const args1 = {
+        base_version: '4_0_0',
+        _bundle: '1',
+        ...args,
+    };
     return module.exports.unBundle(
         await searchBundleOperation.searchBundle(
             {
                 requestInfo: getRequestInfo(context),
-                args: {
-                    base_version: '4_0_0',
-                    _bundle: '1',
-                    ...args,
-                },
-                resourceType
+                args: args1,
+                resourceType,
+                parsedArgs: await getParsedArgsAsync({args: args1, resourceType: resourceType})
             }
         )
     );
+}
+
+
+module.exports = {
+    unBundle,
+    resolveType,
+    findResourceByReference,
+    findResourcesByReference,
+    getResources
 };

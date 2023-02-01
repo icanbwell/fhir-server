@@ -5,6 +5,8 @@ const DataLoader = require('dataloader');
 const {groupByLambda} = require('../../utils/list.util');
 const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
 const {SimpleContainer} = require('../../utils/simpleContainer');
+const {R4ArgsParser} = require('../../operations/query/r4ArgsParser');
+const {QueryRewriterManager} = require('../../queryRewriters/queryRewriterManager');
 
 /**
  * This class stores the tuple of resourceType and id to uniquely identify a resource
@@ -90,6 +92,18 @@ class FhirDataSource extends DataSource {
          * @type {Meta[]}
          */
         this.metaList = [];
+
+        /**
+         * @type {R4ArgsParser}
+         */
+        this.r4ArgsParser = container.r4ArgsParser;
+        assertTypeEquals(this.r4ArgsParser, R4ArgsParser);
+
+        /**
+         * @type {QueryRewriterManager}
+         */
+        this.queryRewriterManager = container.queryRewriterManager;
+        assertTypeEquals(this.queryRewriterManager, QueryRewriterManager);
     }
 
     /**
@@ -183,17 +197,19 @@ class FhirDataSource extends DataSource {
                     const idsOfReference = references
                         .map((r) => ResourceWithId.getIdFromReference(r))
                         .filter((r) => r !== null);
+                    const args1 = {
+                        base_version: '4_0_0',
+                        id: idsOfReference,
+                        _bundle: '1',
+                        ...args,
+                    };
                     return this.unBundle(
                         await this.searchBundleOperation.searchBundle(
                             {
                                 requestInfo,
-                                args: {
-                                    base_version: '4_0_0',
-                                    id: idsOfReference,
-                                    _bundle: '1',
-                                    ...args,
-                                },
-                                resourceType
+                                args: args1,
+                                resourceType,
+                                parsedArgs: await this.getParsedArgsAsync({args: args1, resourceType})
                             }
                         )
                     );
@@ -298,16 +314,18 @@ class FhirDataSource extends DataSource {
      */
     async getResources(parent, args, context, info, resourceType) {
         // https://www.apollographql.com/blog/graphql/filtering/how-to-search-and-filter-results-with-graphql/
+        const args1 = {
+            base_version: '4_0_0',
+            _bundle: '1',
+            ...args
+        };
         return this.unBundle(
             await this.searchBundleOperation.searchBundle(
                 {
                     requestInfo: context.fhirRequestInfo,
-                    args: {
-                        base_version: '4_0_0',
-                        _bundle: '1',
-                        ...args
-                    },
-                    resourceType
+                    args: args1,
+                    resourceType,
+                    parsedArgs: await this.getParsedArgsAsync({args: args1, resourceType})
                 }
             )
         );
@@ -326,15 +344,17 @@ class FhirDataSource extends DataSource {
         this.createDataLoader(args);
         // https://www.apollographql.com/blog/graphql/filtering/how-to-search-and-filter-results-with-graphql/
 
+        const args1 = {
+            base_version: '4_0_0',
+            _bundle: '1',
+            ...args
+        };
         const bundle = await this.searchBundleOperation.searchBundle(
             {
                 requestInfo: context.fhirRequestInfo,
-                args: {
-                    base_version: '4_0_0',
-                    _bundle: '1',
-                    ...args
-                },
-                resourceType
+                args: args1,
+                resourceType,
+                parsedArgs: await this.getParsedArgsAsync({args: args1, resourceType})
             }
         );
         if (bundle.meta) {
@@ -410,6 +430,27 @@ class FhirDataSource extends DataSource {
             }
         }
         return combinedMeta;
+    }
+
+    /**
+     * Parse arguments
+     * @param {Object} args
+     * @param {string} resourceType
+     * @return {Promise<ParsedArgs>}
+     */
+    async getParsedArgsAsync({args, resourceType}) {
+        const {base_version} = args;
+        /**
+         * @type {ParsedArgs}
+         */
+        let parsedArgs = this.r4ArgsParser.parseArgs({resourceType, args});
+        // see if any query rewriters want to rewrite the args
+        parsedArgs = await this.queryRewriterManager.rewriteArgsAsync(
+            {
+                base_version, parsedArgs, resourceType
+            }
+        );
+        return parsedArgs;
     }
 }
 
