@@ -102,7 +102,7 @@
     "@asymmetrik/fhir-json-schema-validator": "^0.9.8",
     "@asymmetrik/sof-scope-checker": "^1.0.7",
     "@aws-sdk/client-secrets-manager": "^3.245.0",
-    "@elastic/elasticsearch": "^8.5.0",
+    "@elastic/elasticsearch": "^8.6.0",
     "@graphql-eslint/eslint-plugin": "^3.14.3",
     "@graphql-tools/graphql-file-loader": "^7.5.13",
     "@graphql-tools/load": "^7.8.8",
