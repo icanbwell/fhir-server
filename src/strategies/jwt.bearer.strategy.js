@@ -159,7 +159,7 @@ class MyJwtStrategy extends JwtStrategy {
             const redirectUrl = `${env.AUTH_CODE_FLOW_URL}/login?` +
                 `response_type=code&client_id=${env.AUTH_CODE_FLOW_CLIENT_ID}` +
                 `&redirect_uri=${httpProtocol}://${req.headers.host}/authcallback&state=${resourceUrl}`;
-            logDebug({user: '', args: {message: 'Redirecting', redirect: redirectUrl}});
+            logDebug('Redirecting', {user: '', args: {redirect: redirectUrl}});
             return self.redirect(redirectUrl);
         }
 
@@ -179,9 +179,9 @@ const cookieExtractor = function (req) {
     let token = null;
     if (req && req.accepts('text/html') && req.cookies) {
         token = req.cookies['jwt'];
-        logDebug({user: '', args: {message: 'Found cookie jwt', token: token}});
+        logDebug('Found cookie jwt', {user: '', args: {token: token}});
     } else {
-        logDebug({user: '', args: {message: 'No cookies found'}});
+        logDebug('No cookies found', {user: ''});
     }
     return token;
 };
@@ -210,7 +210,7 @@ module.exports.strategy = new MyJwtStrategy(
             },
             handleSigningKeyError: (err, cb) => {
                 if (err instanceof jwksRsa.SigningKeyNotFoundError) {
-                    logDebug({user: '', args: {message: 'No Signing Key found!'}});
+                    logDebug('No Signing Key found!', {user: ''});
                     return cb(new Error('No Signing Key found!'));
                 }
                 return cb(err);

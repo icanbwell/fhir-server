@@ -16,7 +16,7 @@ async function* readMongoStreamGenerator({cursor, signal}) {
     try {
         // let chunk_number = 0;
         while (await cursor.hasNext()) {
-            // logDebug(user, `Buffered count=${cursor.bufferedCount()}`);
+            // logDebug(`Buffered count=${cursor.bufferedCount()}`, {user});
             // chunk_number += 1;
             // console.log(`read: chunk:${chunk_number}`);
             if (signal.aborted) {

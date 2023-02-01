@@ -169,7 +169,7 @@ class GraphOperation {
             );
             if (validationOperationOutcome) {
                 validationsFailedCounter.inc({action: currentOperationName, resourceType}, 1);
-                logDebug({user, args: {message: 'GraphDefinition schema failed validation'}});
+                logDebug('GraphDefinition schema failed validation', {user});
                 // noinspection JSValidateTypes
                 /**
                  * @type {Error}

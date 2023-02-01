@@ -3,7 +3,7 @@ const {
     format,
     transports
 } = require('winston');
-const { combine, timestamp } = format;
+const { combine, timestamp, json } = format;
 /**
  * Features
  * - make it easy to pass in logging config
@@ -38,45 +38,27 @@ const get = (name = 'default', options = {}) => container.get(name, options);
 
 
 const initialize = (config = {}) => {
-    let generalTransport = new transports.Console({
+    let defaultTransport = new transports.Console({
         level: config.level,
         format: combine(
             timestamp({ format: 'MMM-DD-YYYY HH:mm:ss' }),
-            format.json()
-        )
+            json()
+        ),
+        colorize: true
     });
 
-    // If 'general' logger exists in container, adding transport to it else adding the
-    // 'general' logger
-    if (container.has('general')) {
-        let logger = container.get('general'); // Only add the console logger if none is present
-
-        if (logger.transports.length === 0) {
-            logger.add(generalTransport);
-        }
-    } else {
-        container.add('general', {
-            transports: [generalTransport]
-        });
-    }
-
-    let transport = new transports.Console({
-        level: config.level,
-        timestamp: true,
-        colorize: true
-    }); // If we already have a logger by the provided default name, make sure it
+    // If we already have a logger by the provided default name, make sure it
     // has a console transport added. This can happen when someone accesses the
     // logger before calling initialize
-
     if (container.has('default')) {
-        let logger = container.get('default'); // Only add the console logger if none is present, technically
+        let logger = container.get('default'); // Only add the console logger if none is present
 
         if (logger.transports.length === 0) {
-            logger.add(transport);
+            logger.add(defaultTransport);
         }
     } else {
         container.add('default', {
-            transports: [transport]
+            transports: [defaultTransport]
         });
     }
 };
@@ -84,6 +66,5 @@ const initialize = (config = {}) => {
 module.exports = {
     container,
     get,
-    initialize,
-    transports
+    initialize
 };

@@ -252,16 +252,18 @@ class FhirDataSource extends DataSource {
             return await this.dataLoader.load(ResourceWithId.getReferenceKey(resourceType, id));
         } catch (e) {
             if (e.name === 'NotFound') {
-                logWarn({
-                    user: context.user,
-                    args: {
-                        message: 'findResourcesByReference: Resource not found for parent',
-                        resourceType,
-                        id,
-                        parentResourceType: parent.resourceType,
-                        parentId: parent.id,
-                    },
-                });
+                logWarn(
+                    'findResourcesByReference: Resource not found for parent',
+                    {
+                        user: context.user,
+                        args: {
+                            resourceType,
+                            id,
+                            parentResourceType: parent.resourceType,
+                            parentId: parent.id,
+                        }
+                    }
+                );
                 return null;
             } else {
                 throw e;
