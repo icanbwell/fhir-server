@@ -11,7 +11,7 @@ const graphqlFieldsToMongoProjection = (obj) => {
                 graphqlFieldsToMongoProjection(v);
             }
             if (v && typeof v === 'object' && !Object.keys(v).length || v === null || v === undefined) {
-                obj[k] = 1;
+                obj[`${k}`] = 1;
             }
         });
     return obj;
