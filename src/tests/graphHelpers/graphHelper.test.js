@@ -7,6 +7,7 @@ const graphSimpleWithExtensionDefinition = require('./fixtures/graphSimpleWithEx
 const {FhirRequestInfo} = require('../../utils/fhirRequestInfo');
 const {createTestContainer} = require('../createTestContainer');
 const {describe, beforeEach, afterEach, expect, test} = require('@jest/globals');
+const {ParsedArgs} = require('../../operations/query/parsedArgsItem');
 
 /**
  * Gets graph helper
@@ -68,7 +69,8 @@ describe('graphHelper Tests', () => {
                 contained: false,
                 hash_references: false,
                 args: {'base_version': '4_0_0'},
-                originalArgs: {}
+                originalArgs: {},
+                parsedArgs: new ParsedArgs({})
             });
             expect(result).not.toBeNull();
             delete result['timestamp'];
@@ -112,7 +114,8 @@ describe('graphHelper Tests', () => {
                 contained: false,
                 hash_references: false,
                 args: {'base_version': '4_0_0'},
-                originalArgs: {}
+                originalArgs: {},
+                parsedArgs: new ParsedArgs({})
             });
             expect(result).not.toBeNull();
             delete result['timestamp'];
@@ -169,7 +172,8 @@ describe('graphHelper Tests', () => {
                 contained: false,
                 hash_references: false,
                 args: {'base_version': '4_0_0'},
-                originalArgs: {}
+                originalArgs: {},
+                parsedArgs: new ParsedArgs({})
             });
             expect(result).not.toBeNull();
             delete result['timestamp'];
@@ -229,7 +233,8 @@ describe('graphHelper Tests', () => {
                 contained: false,
                 hash_references: false,
                 args: {'base_version': '4_0_0'},
-                originalArgs: {}
+                originalArgs: {},
+                parsedArgs: new ParsedArgs({})
             });
             expect(result).not.toBeNull();
             delete result['timestamp'];
@@ -289,7 +294,8 @@ describe('graphHelper Tests', () => {
                 contained: true,
                 hash_references: false,
                 args: {'base_version': '4_0_0'},
-                originalArgs: {}
+                originalArgs: {},
+                parsedArgs: new ParsedArgs({})
             });
             expect(result).not.toBeNull();
             delete result['timestamp'];
@@ -347,7 +353,8 @@ describe('graphHelper Tests', () => {
                 contained: true,
                 hash_references: false,
                 args: {'base_version': '4_0_0'},
-                originalArgs: {}
+                originalArgs: {},
+                parsedArgs: new ParsedArgs({})
             });
             expect(result).not.toBeNull();
             delete result['timestamp'];
@@ -415,7 +422,8 @@ describe('graphHelper Tests', () => {
                 contained: false,
                 hash_references: false,
                 args: {'base_version': '4_0_0'},
-                originalArgs: {}
+                originalArgs: {},
+                parsedArgs: new ParsedArgs({})
             });
             expect(result).not.toBeNull();
             delete result['timestamp'];
@@ -478,7 +486,8 @@ describe('graphHelper Tests', () => {
                 contained: true,
                 hash_references: true,
                 args: {'base_version': '4_0_0'},
-                originalArgs: {}
+                originalArgs: {},
+                parsedArgs: new ParsedArgs({})
             });
             expect(result).not.toBeNull();
             delete result['timestamp'];
@@ -546,7 +555,8 @@ describe('graphHelper Tests', () => {
                 contained: false,
                 hash_references: false,
                 args: {'base_version': '4_0_0'},
-                originalArgs: {}
+                originalArgs: {},
+                parsedArgs: new ParsedArgs({})
             });
             expect(result).not.toBeNull();
             delete result['timestamp'];
@@ -642,7 +652,8 @@ describe('graphHelper Tests', () => {
                 contained: false,
                 hash_references: false,
                 args: {'base_version': '4_0_0'},
-                originalArgs: {}
+                originalArgs: {},
+                parsedArgs: new ParsedArgs({})
             });
             expect(result).not.toBeNull();
             delete result['timestamp'];
@@ -768,7 +779,8 @@ describe('graphHelper Tests', () => {
                 contained: true,
                 hash_references: false,
                 args: {'base_version': '4_0_0'},
-                originalArgs: {}
+                originalArgs: {},
+                parsedArgs: new ParsedArgs({})
             });
             expect(result).not.toBeNull();
             delete result['timestamp'];
@@ -898,7 +910,8 @@ describe('graphHelper Tests', () => {
                 contained: false,
                 hash_references: false,
                 args: {'base_version': '4_0_0'},
-                originalArgs: {}
+                originalArgs: {},
+                parsedArgs: new ParsedArgs({})
             });
             expect(result).not.toBeNull();
             delete result['timestamp'];
@@ -1064,7 +1077,8 @@ describe('graphHelper Tests', () => {
                 contained: false,
                 hash_references: false,
                 args: {'base_version': '4_0_0'},
-                originalArgs: {}
+                originalArgs: {},
+                parsedArgs: new ParsedArgs({})
             });
             expect(result).not.toBeNull();
             delete result['timestamp'];
@@ -1287,7 +1301,8 @@ describe('graphHelper Tests', () => {
                 contained: true,
                 hash_references: false,
                 args: {'base_version': '4_0_0'},
-                originalArgs: {}
+                originalArgs: {},
+                parsedArgs: new ParsedArgs({})
             });
             expect(result).not.toBeNull();
             delete result['timestamp'];
@@ -1492,7 +1507,8 @@ describe('graphHelper Tests', () => {
                 contained: true,
                 hash_references: false,
                 args: {'base_version': '4_0_0', _debug: 1},
-                originalArgs: {_debug: 1}
+                originalArgs: {_debug: 1},
+                parsedArgs: new ParsedArgs({})
             });
             expect(result).not.toBeNull();
             delete result['timestamp'];

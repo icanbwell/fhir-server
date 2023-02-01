@@ -266,7 +266,7 @@ class FhirOperationsManager {
      * @param {string} resourceType
      * @return {Promise<ParsedArgs>}
      */
-    async getParsedArgs({args, resourceType}) {
+    async getParsedArgsAsync({args, resourceType}) {
         const {base_version} = args;
         /**
          * @type {ParsedArgs}
@@ -300,7 +300,7 @@ class FhirOperationsManager {
         /**
          * @type {ParsedArgs}
          */
-        const parsedArgs = await this.getParsedArgs({args: combined_args, resourceType});
+        const parsedArgs = await this.getParsedArgsAsync({args: combined_args, resourceType});
 
         return this.searchBundleOperation.searchBundle(
             {
@@ -331,7 +331,7 @@ class FhirOperationsManager {
         /**
          * @type {ParsedArgs}
          */
-        const parsedArgs = await this.getParsedArgs({args: combined_args, resourceType});
+        const parsedArgs = await this.getParsedArgsAsync({args: combined_args, resourceType});
 
         return this.searchStreamingOperation.searchStreaming(
             {
@@ -358,7 +358,7 @@ class FhirOperationsManager {
         /**
          * @type {ParsedArgs}
          */
-        const parsedArgs = await this.getParsedArgs({args: combined_args, resourceType});
+        const parsedArgs = await this.getParsedArgsAsync({args: combined_args, resourceType});
 
         return this.searchByIdOperation.searchById(
             {
@@ -389,7 +389,7 @@ class FhirOperationsManager {
         /**
          * @type {ParsedArgs}
          */
-        const parsedArgs = await this.getParsedArgs({args: combined_args, resourceType});
+        const parsedArgs = await this.getParsedArgsAsync({args: combined_args, resourceType});
 
         return this.createOperation.create(
             {
@@ -416,7 +416,7 @@ class FhirOperationsManager {
         /**
          * @type {ParsedArgs}
          */
-        const parsedArgs = await this.getParsedArgs({args: combined_args, resourceType});
+        const parsedArgs = await this.getParsedArgsAsync({args: combined_args, resourceType});
 
         return this.updateOperation.update(
             {
@@ -443,7 +443,7 @@ class FhirOperationsManager {
         /**
          * @type {ParsedArgs}
          */
-        const parsedArgs = await this.getParsedArgs({args: combined_args, resourceType});
+        const parsedArgs = await this.getParsedArgsAsync({args: combined_args, resourceType});
 
         return this.mergeOperation.merge(
             {
@@ -471,7 +471,7 @@ class FhirOperationsManager {
         /**
          * @type {ParsedArgs}
          */
-        const parsedArgs = await this.getParsedArgs({args: combined_args, resourceType});
+        const parsedArgs = await this.getParsedArgsAsync({args: combined_args, resourceType});
 
         const responseStreamer = new FhirResponseStreamer({
             response: res,
@@ -527,7 +527,7 @@ class FhirOperationsManager {
         /**
          * @type {ParsedArgs}
          */
-        const parsedArgs = await this.getParsedArgs({args: combined_args, resourceType});
+        const parsedArgs = await this.getParsedArgsAsync({args: combined_args, resourceType});
 
         return this.removeOperation.remove(
             {
@@ -554,7 +554,7 @@ class FhirOperationsManager {
         /**
          * @type {ParsedArgs}
          */
-        const parsedArgs = await this.getParsedArgs({args: combined_args, resourceType});
+        const parsedArgs = await this.getParsedArgsAsync({args: combined_args, resourceType});
 
         return this.searchByVersionIdOperation.searchByVersionId(
             {
@@ -581,7 +581,7 @@ class FhirOperationsManager {
         /**
          * @type {ParsedArgs}
          */
-        const parsedArgs = await this.getParsedArgs({args: combined_args, resourceType});
+        const parsedArgs = await this.getParsedArgsAsync({args: combined_args, resourceType});
 
         return this.historyOperation.history(
             {
@@ -608,7 +608,7 @@ class FhirOperationsManager {
         /**
          * @type {ParsedArgs}
          */
-        const parsedArgs = await this.getParsedArgs({args: combined_args, resourceType});
+        const parsedArgs = await this.getParsedArgsAsync({args: combined_args, resourceType});
 
         return this.historyByIdOperation.historyById(
             {
@@ -635,7 +635,7 @@ class FhirOperationsManager {
         /**
          * @type {ParsedArgs}
          */
-        const parsedArgs = await this.getParsedArgs({args: combined_args, resourceType});
+        const parsedArgs = await this.getParsedArgsAsync({args: combined_args, resourceType});
 
         return this.patchOperation.patch(
             {
@@ -661,7 +661,7 @@ class FhirOperationsManager {
         /**
          * @type {ParsedArgs}
          */
-        const parsedArgs = await this.getParsedArgs({args: combined_args, resourceType});
+        const parsedArgs = await this.getParsedArgsAsync({args: combined_args, resourceType});
 
         return this.validateOperation.validate(
             {
@@ -688,7 +688,7 @@ class FhirOperationsManager {
         /**
          * @type {ParsedArgs}
          */
-        const parsedArgs = await this.getParsedArgs({args: combined_args, resourceType});
+        const parsedArgs = await this.getParsedArgsAsync({args: combined_args, resourceType});
 
         const responseStreamer = new FhirResponseStreamer({
             response: res,
@@ -743,7 +743,7 @@ class FhirOperationsManager {
         /**
          * @type {ParsedArgs}
          */
-        const parsedArgs = await this.getParsedArgs({args: combined_args, resourceType});
+        const parsedArgs = await this.getParsedArgsAsync({args: combined_args, resourceType});
 
         return this.expandOperation.expand(
             {

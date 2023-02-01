@@ -25,6 +25,7 @@ const BundleRequest = require('../../fhir/classes/4_0_0/backbone_elements/bundle
 const {EnrichmentManager} = require('../../enrich/enrich');
 const {getCircularReplacer} = require('../../utils/getCircularReplacer');
 const {R4ArgsParser} = require('../query/r4ArgsParser');
+const {ParsedArgs} = require('../query/parsedArgsItem');
 
 
 /**
@@ -1059,6 +1060,7 @@ class GraphHelper {
             parsedArgs
         }
     ) {
+        assertTypeEquals(parsedArgs, ParsedArgs);
         try {
             /**
              * @type {BundleEntry[]}

@@ -192,9 +192,9 @@ class ParsedArgsItem {
 class ParsedArgs {
     /**
      * constructor
-     * @param {ParsedArgsItem[]} parsedArgItems
+     * @param {ParsedArgsItem[]} [parsedArgItems]
      */
-    constructor({parsedArgItems}) {
+    constructor({parsedArgItems = []}) {
         /**
          * @type {ParsedArgsItem[]}
          */
