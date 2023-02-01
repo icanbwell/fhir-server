@@ -22,7 +22,7 @@ class ProxyPatientReferenceEnrichmentProvider extends EnrichmentProvider {
                 /**
                  * @type {string[]}
                  */
-                const proxyPatientIds = parsedArgsItem.queryParameterValue.map(
+                const proxyPatientIds = parsedArgsItem.queryParameterValues.map(
                     a => a.startsWith('Patient/') ? a : `Patient/${a}`);
                 for (const resource of resources) {
                     resource.updateReferences({
@@ -89,7 +89,7 @@ class ProxyPatientReferenceEnrichmentProvider extends EnrichmentProvider {
                 /**
                  * @type {string[]}
                  */
-                const proxyPatientIds = parsedArgsItem.queryParameterValue.map(
+                const proxyPatientIds = parsedArgsItem.queryParameterValues.map(
                     a => a.startsWith('Patient/') ? a : `Patient/${a}`);
                 for (const entry of entries) {
                     entry.resource.updateReferences({

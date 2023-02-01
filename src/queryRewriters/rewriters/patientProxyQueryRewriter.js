@@ -40,7 +40,7 @@ class PatientProxyQueryRewriter extends QueryRewriter {
         assertIsValid(base_version);
         for (const parsedArg of parsedArgs.parsedArgItems) {
             if (resourceType === 'Patient') {
-                if (parsedArg.queryParameter === 'id') {
+                if (parsedArg.queryParameter === 'id' || parsedArg.queryParameter === '_id') {
                     if (Array.isArray(parsedArg.queryParameterValue)) {
                         if (parsedArg.queryParameterValue.some(
                             a => a.startsWith(personProxyPrefix) || a.startsWith(patientReferencePlusPersonProxyPrefix))

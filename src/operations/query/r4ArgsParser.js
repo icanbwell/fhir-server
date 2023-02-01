@@ -31,7 +31,7 @@ class R4ArgsParser {
     parseArgs({resourceType, args}) {
 
         /**
-         * @type {ParsedArgs}
+         * @type {ParsedArgsItem[]}
          */
         const parsedArgsItems = [];
         // some of these parameters we used wrong in the past but have to map them to maintain backwards compatibility

@@ -203,7 +203,7 @@ describe('UpdateReferences Tests', () => {
             expect(resp).toHaveMergeResponse({created: true});
 
             resp = await request
-                .post('/4_0_0/Patient/$graph?id=person.m65633')
+                .post('/4_0_0/Patient/$graph?id=person.m65633&_debug=1')
                 .set(getHeaders())
                 .send(graphDefinitionResource);
 

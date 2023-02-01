@@ -1,3 +1,5 @@
+const {assertIsValid} = require('../../utils/assertType');
+
 /**
  * @classdesc This class holds the parsed structure for an arg on the url
  */
@@ -66,6 +68,19 @@ class ParsedArgsItem {
     }
 
     /**
+     * calculates query parameter values
+     * @return {string[]}
+     */
+    get queryParameterValues() {
+        const value = this.parseQueryParameterValueIntoArrayIfNeeded(
+            {
+                queryParameterValue: this._queryParameterValue
+            }
+        );
+        return value === null ? [] : Array.isArray(value) ? value : [value];
+    }
+
+    /**
      * sets the queryParameterValue
      * @param value
      */
@@ -111,6 +126,10 @@ class ParsedArgsItem {
      * @return {ParsedReferenceItem[]}
      */
     parseQueryParameterValueIntoReferences({queryParameterValue, propertyObj}) {
+        assertIsValid(propertyObj);
+        if (!(propertyObj.target)) {
+            return [];
+        }
         /**
          * @type {ParsedReferenceItem[]}
          */
@@ -157,6 +176,17 @@ class ParsedArgsItem {
         }
         return result;
     }
+
+    clone() {
+        return new ParsedArgsItem(
+            {
+                queryParameter: this.queryParameter,
+                queryParameterValue: this._queryParameterValue,
+                propertyObj: this.propertyObj,
+                modifiers: this.modifiers
+            }
+        );
+    }
 }
 
 class ParsedArgs {
@@ -178,6 +208,36 @@ class ParsedArgs {
      */
     get(argName) {
         return this.parsedArgItems.find(a => a.queryParameter === argName);
+    }
+
+    /**
+     * remove an arg item
+     * @param {string} argName
+     * @return {ParsedArgs}
+     */
+    remove(argName) {
+        this.parsedArgItems = this.parsedArgItems.filter(a => a.queryParameter !== argName);
+        return this;
+    }
+
+    /**
+     * Clone
+     * @return {ParsedArgs}
+     */
+    clone() {
+        return new ParsedArgs(
+            {
+                parsedArgItems: this.parsedArgItems.map(p => p.clone())
+            }
+        );
+    }
+
+    getRawArgs() {
+        const obj = {};
+        for (const [/** @type {string} */ key, /** @type {ParsedArgsItem} */ value] of Object.entries(this.parsedArgItems)) {
+            obj[`${key}`] = value._queryParameterValue;
+        }
+        return obj;
     }
 }
 

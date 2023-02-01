@@ -23,7 +23,6 @@ const {SearchManager} = require('../search/searchManager');
 const Bundle = require('../../fhir/classes/4_0_0/resources/bundle');
 const BundleRequest = require('../../fhir/classes/4_0_0/backbone_elements/bundleRequest');
 const {EnrichmentManager} = require('../../enrich/enrich');
-const deepcopy = require('deepcopy');
 const {getCircularReplacer} = require('../../utils/getCircularReplacer');
 const {R4ArgsParser} = require('../query/r4ArgsParser');
 
@@ -1068,10 +1067,18 @@ class GraphHelper {
              */
             let entries = [];
 
-            const graphArgs = deepcopy(args);
-            graphArgs.id = idList;
-            graphArgs.resource = null; // clear out the resource since we don't want to use any parameters from it
-
+            const rawArgs = parsedArgs.getRawArgs();
+            rawArgs['_id'] = idList;
+            delete rawArgs['resource'];
+            /**
+             * @type {ParsedArgs}
+             */
+            const graphArgs = this.r4ArgsParser.parseArgs(
+                {
+                    resourceType,
+                    args: rawArgs
+                }
+            );
             let {
                 /** @type {import('mongodb').Document}**/
                 query
@@ -1080,11 +1087,11 @@ class GraphHelper {
                 scope: requestInfo.scope,
                 isUser: requestInfo.isUser,
                 patientIdsFromJwtToken: requestInfo.patientIdsFromJwtToken,
-                args: graphArgs, // add id filter to query
+                args: args, // add id filter to query
                 resourceType,
                 useAccessIndex: this.configManager.useAccessIndex,
                 personIdFromJwtToken: requestInfo.personIdFromJwtToken,
-                parsedArgs
+                parsedArgs: graphArgs
             });
 
             /**
