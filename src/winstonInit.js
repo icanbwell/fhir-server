@@ -46,7 +46,7 @@ const initialize = (config = {}) => {
         )
     });
 
-    // If 'general' logger exists in container, adding transport to it else adding the 
+    // If 'general' logger exists in container, adding transport to it else adding the
     // 'general' logger
     if (container.has('general')) {
         let logger = container.get('general'); // Only add the console logger if none is present
