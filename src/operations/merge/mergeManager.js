@@ -195,7 +195,7 @@ class MergeManager {
         assertTypeEquals(resourceToMerge, Resource);
         // not found so insert
         logDebug(
-            'Merging new resource', 
+            'Merging new resource',
             {
                 user,
                 args: {id: resourceToMerge.id, resource: resourceToMerge}
@@ -404,9 +404,9 @@ class MergeManager {
              */
             const ids_of_resources = resources_incoming.map(r => r.id);
             logDebug(
-                'Merge received array', 
+                'Merge received array',
                 {
-                    user, 
+                    user,
                     args: {length: resources_incoming.length, id: ids_of_resources}
                 }
             );

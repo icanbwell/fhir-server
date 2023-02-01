@@ -34,10 +34,10 @@ class MyApolloServerLoggingPlugin /*extends ApolloServerPlugin*/ {
         const self = this;
 
         logInfo(
-            'GraphQL Request Received', 
+            'GraphQL Request Received',
             {
                 user,
-                args: {        
+                args: {
                     endpoint: self.endpoint,
                     operationName: req.operationName,
                     query: req.query,
