@@ -26,6 +26,7 @@ const {EnrichmentManager} = require('../../enrich/enrich');
 const {getCircularReplacer} = require('../../utils/getCircularReplacer');
 const {R4ArgsParser} = require('../query/r4ArgsParser');
 const {ParsedArgs} = require('../query/parsedArgsItem');
+const {VERSIONS} = require('../../middleware/fhir/utils/constants');
 
 
 /**
@@ -373,10 +374,12 @@ class GraphHelper {
      * @return {ParsedArgs}
      */
     parseQueryStringIntoArgs({resourceType, queryString}) {
+        const args = Object.fromEntries(new URLSearchParams(queryString));
+        args['base_version'] = VERSIONS['4_0_0'];
         return this.r4ArgsParser.parseArgs(
             {
                 resourceType,
-                args: Object.fromEntries(new URLSearchParams(queryString))
+                args: args
             }
         );
     }

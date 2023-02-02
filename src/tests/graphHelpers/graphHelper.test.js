@@ -69,17 +69,19 @@ describe('graphHelper Tests', () => {
              */
             const r4ArgsParser = container.r4ArgsParser;
             const args = {'base_version': '4_0_0', 'id': '1'};
-            const result = await getGraphHelper().processGraphAsync({
-                requestInfo,
-                base_version,
-                resourceType,
-                graphDefinitionJson: graphSimpleReverseDefinition,
-                contained: false,
-                hash_references: false,
-                args: args,
-                originalArgs: {},
-                parsedArgs: r4ArgsParser.parseArgs({resourceType, args})
-            });
+            const parsedArgs = r4ArgsParser.parseArgs({resourceType, args});
+            const result = await getGraphHelper().processGraphAsync(
+                {
+                    requestInfo,
+                    base_version,
+                    resourceType,
+                    graphDefinitionJson: graphSimpleReverseDefinition,
+                    contained: false,
+                    hash_references: false,
+                    originalArgs: parsedArgs,
+                    parsedArgs: parsedArgs
+                }
+            );
             expect(result).not.toBeNull();
             delete result['timestamp'];
             expect(result.toJSON()).toStrictEqual({
@@ -118,6 +120,7 @@ describe('graphHelper Tests', () => {
              */
             const r4ArgsParser = container.r4ArgsParser;
             const args = {'base_version': '4_0_0', 'id': '1,2'};
+            const parsedArgs = r4ArgsParser.parseArgs({resourceType, args});
             const result = await getGraphHelper().processGraphAsync({
                 requestInfo,
                 base_version,
@@ -126,8 +129,8 @@ describe('graphHelper Tests', () => {
                 contained: false,
                 hash_references: false,
                 args: args,
-                originalArgs: {},
-                parsedArgs: r4ArgsParser.parseArgs({resourceType, args})
+                originalArgs: parsedArgs,
+                parsedArgs: parsedArgs
             });
             expect(result).not.toBeNull();
             delete result['timestamp'];
@@ -180,6 +183,7 @@ describe('graphHelper Tests', () => {
              */
             const r4ArgsParser = container.r4ArgsParser;
             const args = {'base_version': '4_0_0', 'id': '1'};
+            const parsedArgs = r4ArgsParser.parseArgs({resourceType, args});
             const result = await getGraphHelper().processGraphAsync({
                 requestInfo,
                 base_version,
@@ -188,8 +192,8 @@ describe('graphHelper Tests', () => {
                 contained: false,
                 hash_references: false,
                 args: args,
-                originalArgs: {},
-                parsedArgs: r4ArgsParser.parseArgs({resourceType, args})
+                originalArgs: parsedArgs,
+                parsedArgs: parsedArgs
             });
             expect(result).not.toBeNull();
             delete result['timestamp'];
@@ -245,6 +249,7 @@ describe('graphHelper Tests', () => {
              */
             const r4ArgsParser = container.r4ArgsParser;
             const args = {'base_version': '4_0_0', 'id': '1'};
+            const parsedArgs = r4ArgsParser.parseArgs({resourceType, args});
             const result = await getGraphHelper().processGraphAsync({
                 requestInfo,
                 base_version,
@@ -253,8 +258,8 @@ describe('graphHelper Tests', () => {
                 contained: false,
                 hash_references: false,
                 args: args,
-                originalArgs: {},
-                parsedArgs: r4ArgsParser.parseArgs({resourceType, args})
+                originalArgs: parsedArgs,
+                parsedArgs: parsedArgs
             });
             expect(result).not.toBeNull();
             delete result['timestamp'];
@@ -310,6 +315,7 @@ describe('graphHelper Tests', () => {
              */
             const r4ArgsParser = container.r4ArgsParser;
             const args = {'base_version': '4_0_0', 'id': '1'};
+            const parsedArgs = r4ArgsParser.parseArgs({resourceType, args});
             const result = await getGraphHelper().processGraphAsync({
                 requestInfo,
                 base_version,
@@ -318,8 +324,8 @@ describe('graphHelper Tests', () => {
                 contained: true,
                 hash_references: false,
                 args: args,
-                originalArgs: {},
-                parsedArgs: r4ArgsParser.parseArgs({resourceType, args})
+                originalArgs: parsedArgs,
+                parsedArgs: parsedArgs
             });
             expect(result).not.toBeNull();
             delete result['timestamp'];
@@ -373,6 +379,7 @@ describe('graphHelper Tests', () => {
              */
             const r4ArgsParser = container.r4ArgsParser;
             const args = {'base_version': '4_0_0', 'id': '1'};
+            const parsedArgs = r4ArgsParser.parseArgs({resourceType, args});
             const result = await getGraphHelper().processGraphAsync({
                 requestInfo,
                 base_version,
@@ -381,8 +388,8 @@ describe('graphHelper Tests', () => {
                 contained: true,
                 hash_references: false,
                 args: args,
-                originalArgs: {},
-                parsedArgs: r4ArgsParser.parseArgs({resourceType, args})
+                originalArgs: parsedArgs,
+                parsedArgs: parsedArgs
             });
             expect(result).not.toBeNull();
             delete result['timestamp'];
@@ -446,6 +453,7 @@ describe('graphHelper Tests', () => {
              */
             const r4ArgsParser = container.r4ArgsParser;
             const args = {'base_version': '4_0_0', 'id': '10'};
+            const parsedArgs = r4ArgsParser.parseArgs({resourceType, args});
             const result = await getGraphHelper().processGraphAsync({
                 requestInfo,
                 base_version,
@@ -454,8 +462,8 @@ describe('graphHelper Tests', () => {
                 contained: false,
                 hash_references: false,
                 args: args,
-                originalArgs: {},
-                parsedArgs: r4ArgsParser.parseArgs({resourceType, args})
+                originalArgs: parsedArgs,
+                parsedArgs: parsedArgs
             });
             expect(result).not.toBeNull();
             delete result['timestamp'];
@@ -514,6 +522,7 @@ describe('graphHelper Tests', () => {
              */
             const r4ArgsParser = container.r4ArgsParser;
             const args = {'base_version': '4_0_0', 'id': '1'};
+            const parsedArgs = r4ArgsParser.parseArgs({resourceType, args});
             const result = await getGraphHelper().processGraphAsync({
                 requestInfo,
                 base_version,
@@ -522,8 +531,8 @@ describe('graphHelper Tests', () => {
                 contained: true,
                 hash_references: true,
                 args: args,
-                originalArgs: {},
-                parsedArgs: r4ArgsParser.parseArgs({resourceType, args})
+                originalArgs: parsedArgs,
+                parsedArgs: parsedArgs
             });
             expect(result).not.toBeNull();
             delete result['timestamp'];
@@ -587,6 +596,7 @@ describe('graphHelper Tests', () => {
              */
             const r4ArgsParser = container.r4ArgsParser;
             const args = {'base_version': '4_0_0', 'id': '1'};
+            const parsedArgs = r4ArgsParser.parseArgs({resourceType, args});
             const result = await getGraphHelper().processGraphAsync({
                 requestInfo,
                 base_version,
@@ -595,8 +605,8 @@ describe('graphHelper Tests', () => {
                 contained: false,
                 hash_references: false,
                 args: args,
-                originalArgs: {},
-                parsedArgs: r4ArgsParser.parseArgs({resourceType, args})
+                originalArgs: parsedArgs,
+                parsedArgs: parsedArgs
             });
             expect(result).not.toBeNull();
             delete result['timestamp'];
@@ -688,6 +698,7 @@ describe('graphHelper Tests', () => {
              */
             const r4ArgsParser = container.r4ArgsParser;
             const args = {'base_version': '4_0_0', 'id': '1,2'};
+            const parsedArgs = r4ArgsParser.parseArgs({resourceType, args});
             const result = await getGraphHelper().processGraphAsync({
                 requestInfo,
                 base_version,
@@ -696,8 +707,8 @@ describe('graphHelper Tests', () => {
                 contained: false,
                 hash_references: false,
                 args: args,
-                originalArgs: {},
-                parsedArgs: r4ArgsParser.parseArgs({resourceType, args})
+                originalArgs: parsedArgs,
+                parsedArgs: parsedArgs
             });
             expect(result).not.toBeNull();
             delete result['timestamp'];
@@ -819,6 +830,7 @@ describe('graphHelper Tests', () => {
              */
             const r4ArgsParser = container.r4ArgsParser;
             const args = {'base_version': '4_0_0', 'id': '1,2'};
+            const parsedArgs = r4ArgsParser.parseArgs({resourceType, args});
             const result = await getGraphHelper().processGraphAsync({
                 requestInfo,
                 base_version,
@@ -827,8 +839,8 @@ describe('graphHelper Tests', () => {
                 contained: true,
                 hash_references: false,
                 args: args,
-                originalArgs: {},
-                parsedArgs: r4ArgsParser.parseArgs({resourceType, args})
+                originalArgs: parsedArgs,
+                parsedArgs: parsedArgs
             });
             expect(result).not.toBeNull();
             delete result['timestamp'];
@@ -954,6 +966,7 @@ describe('graphHelper Tests', () => {
              */
             const r4ArgsParser = container.r4ArgsParser;
             const args = {'base_version': '4_0_0', 'id': '10'};
+            const parsedArgs = r4ArgsParser.parseArgs({resourceType, args});
             const result = await getGraphHelper().processGraphAsync({
                 requestInfo,
                 base_version,
@@ -962,8 +975,8 @@ describe('graphHelper Tests', () => {
                 contained: false,
                 hash_references: false,
                 args: args,
-                originalArgs: {},
-                parsedArgs: r4ArgsParser.parseArgs({resourceType, args})
+                originalArgs: parsedArgs,
+                parsedArgs: parsedArgs
             });
             expect(result).not.toBeNull();
             delete result['timestamp'];
@@ -1125,6 +1138,7 @@ describe('graphHelper Tests', () => {
              */
             const r4ArgsParser = container.r4ArgsParser;
             const args = {'base_version': '4_0_0', 'id': '1,2'};
+            const parsedArgs = r4ArgsParser.parseArgs({resourceType, args});
             const result = await getGraphHelper().processGraphAsync({
                 requestInfo,
                 base_version,
@@ -1133,8 +1147,8 @@ describe('graphHelper Tests', () => {
                 contained: false,
                 hash_references: false,
                 args: args,
-                originalArgs: {},
-                parsedArgs: r4ArgsParser.parseArgs({resourceType, args})
+                originalArgs: parsedArgs,
+                parsedArgs: parsedArgs
             });
             expect(result).not.toBeNull();
             delete result['timestamp'];
@@ -1353,6 +1367,7 @@ describe('graphHelper Tests', () => {
              */
             const r4ArgsParser = container.r4ArgsParser;
             const args = {'base_version': '4_0_0', 'id': '1,2'};
+            const parsedArgs = r4ArgsParser.parseArgs({resourceType, args});
             const result = await getGraphHelper().processGraphAsync({
                 requestInfo,
                 base_version,
@@ -1361,8 +1376,8 @@ describe('graphHelper Tests', () => {
                 contained: true,
                 hash_references: false,
                 args: args,
-                originalArgs: {},
-                parsedArgs: r4ArgsParser.parseArgs({resourceType, args})
+                originalArgs: parsedArgs,
+                parsedArgs: parsedArgs
             });
             expect(result).not.toBeNull();
             delete result['timestamp'];
@@ -1563,6 +1578,7 @@ describe('graphHelper Tests', () => {
              */
             const r4ArgsParser = container.r4ArgsParser;
             const args = {'base_version': '4_0_0', _debug: 1, 'id': '1,2'};
+            const parsedArgs = r4ArgsParser.parseArgs({resourceType, args: args});
             const result = await getGraphHelper().processGraphAsync({
                 requestInfo,
                 base_version,
@@ -1571,8 +1587,8 @@ describe('graphHelper Tests', () => {
                 contained: true,
                 hash_references: false,
                 args: args,
-                originalArgs: {_debug: 1},
-                parsedArgs: r4ArgsParser.parseArgs({resourceType, args: args})
+                originalArgs: parsedArgs,
+                parsedArgs: parsedArgs
             });
             expect(result).not.toBeNull();
             delete result['timestamp'];
@@ -1821,6 +1837,7 @@ describe('graphHelper Tests', () => {
              */
             const r4ArgsParser = container.r4ArgsParser;
             const args = {'base_version': '4_0_0', _explain: 1, 'id': '1,2'};
+            const parsedArgs = r4ArgsParser.parseArgs({resourceType, args});
             const result = await getGraphHelper().processGraphAsync({
                 requestInfo,
                 base_version,
@@ -1828,9 +1845,8 @@ describe('graphHelper Tests', () => {
                 graphDefinitionJson: graphWithExtensionDefinition,
                 contained: true,
                 hash_references: false,
-                args: args,
-                originalArgs: {_explain: 1},
-                parsedArgs: r4ArgsParser.parseArgs({resourceType, args})
+                originalArgs: parsedArgs,
+                parsedArgs: parsedArgs
             });
             expect(result).not.toBeNull();
             delete result['timestamp'];
