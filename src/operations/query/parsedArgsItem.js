@@ -112,10 +112,13 @@ class ParsedArgsItem {
         if (Array.isArray(queryParameterValue)) {
             return queryParameterValue;
         }
-        const parts = queryParameterValue.split(',');
-        if (parts.length > 1) {
-            return parts;
+        if (typeof queryParameterValue === 'string'){
+            const parts = queryParameterValue.split(',');
+            if (parts.length > 1) {
+                return parts;
+            }
         }
+
         return queryParameterValue;
     }
 

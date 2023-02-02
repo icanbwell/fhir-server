@@ -29,7 +29,6 @@ class R4ArgsParser {
      * @return {ParsedArgs}
      */
     parseArgs({resourceType, args}) {
-
         /**
          * @type {ParsedArgs}
          */
@@ -83,12 +82,24 @@ class R4ArgsParser {
             if (!propertyObj) {
                 propertyObj = searchParameterQueries['Resource'][`${queryParameter}`];
             }
+            /**
+             * @type {string | string[]}
+             */
+            let queryParameterValue = args[`${argName}`];
             if (!propertyObj) {
                 // In case of an unrecognized argument while searching and handling type is strict throw an error.
                 // https://www.hl7.org/fhir/search.html#errors
                 if (handlingType === STRICT_SEARCH_HANDLING && SPECIFIED_QUERY_PARAMS.indexOf(queryParameter) === -1) {
                     throw new BadRequestError(new Error(`${queryParameter} is not a parameter for ${resourceType}`));
                 }
+                parsedArgs.add(
+                    new ParsedArgsItem({
+                        queryParameter,
+                        queryParameterValue,
+                        propertyObj,
+                        modifiers
+                    })
+                );
                 continue;
             }
 
@@ -99,26 +110,21 @@ class R4ArgsParser {
                     field: propertyObj.field
                 }
             );
-            /**
-             * @type {string | string[]}
-             */
-            let queryParameterValue = args[`${argName}`];
             queryParameterValue = convertGraphQLParameters(
                 queryParameterValue,
                 args,
                 queryParameter
             );
 
-            if (queryParameterValue) {
-                parsedArgs.add(
-                    new ParsedArgsItem({
-                        queryParameter,
-                        queryParameterValue,
-                        propertyObj,
-                        modifiers
-                    })
-                );
-            }
+            parsedArgs.add(
+                new ParsedArgsItem({
+                    queryParameter,
+                    queryParameterValue,
+                    propertyObj,
+                    modifiers
+                })
+            );
+
         }
         return parsedArgs;
     }

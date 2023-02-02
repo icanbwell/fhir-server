@@ -193,7 +193,7 @@ class R4SearchQueryCreator {
                 queryParameterValue, propertyObj, columns,
                 enableGlobalIdSupport
             });
-        } else {
+        } else if (propertyObj) {
             switch (propertyObj.type) {
                 case fhirFilterTypes.string:
                     andSegments = filterByString({
