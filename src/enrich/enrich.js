@@ -2,6 +2,8 @@
  * Implements enrich function that finds any registered enrichment providers for that resource and runs them
  */
 const {RethrownError} = require('../utils/rethrownError');
+const {assertTypeEquals} = require('../utils/assertType');
+const {ParsedArgs} = require('../operations/query/parsedArgsItem');
 
 class EnrichmentManager {
     /**
@@ -23,6 +25,8 @@ class EnrichmentManager {
      * @return {Promise<Resource[]>}
      */
     async enrichAsync({resources, parsedArgs, originalArgs}) {
+
+        assertTypeEquals(parsedArgs, ParsedArgs);
         try {
             for (const enrichmentProvider of this.enrichmentProviders) {
                 resources = await enrichmentProvider.enrichAsync(

@@ -17,6 +17,7 @@ const {ConfigManager} = require('../../utils/configManager');
 const {SecurityTagSystem} = require('../../utils/securityTagSystem');
 const {R4ArgsParser} = require('../query/r4ArgsParser');
 const {QueryRewriterManager} = require('../../queryRewriters/queryRewriterManager');
+const {ParsedArgs} = require('../query/parsedArgsItem');
 
 class RemoveOperation {
     /**
@@ -101,11 +102,11 @@ class RemoveOperation {
      * @param {ParsedArgs} parsedArgs
      * @param {string} resourceType
      */
-    // eslint-disable-next-line no-unused-vars
     async remove({requestInfo, args, parsedArgs, resourceType}) {
         assertIsValid(requestInfo !== undefined);
         assertIsValid(args !== undefined);
         assertIsValid(resourceType !== undefined);
+        assertTypeEquals(parsedArgs, ParsedArgs);
         const currentOperationName = 'remove';
 
         /**

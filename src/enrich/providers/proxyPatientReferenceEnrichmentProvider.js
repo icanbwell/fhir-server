@@ -1,5 +1,7 @@
 const {EnrichmentProvider} = require('./enrichmentProvider');
 const {getFirstResourceOrNull, getFirstBundleEntryOrNull} = require('../../utils/list.util');
+const {assertTypeEquals} = require('../../utils/assertType');
+const {ParsedArgs} = require('../../operations/query/parsedArgsItem');
 
 class ProxyPatientReferenceEnrichmentProvider extends EnrichmentProvider {
     /**
@@ -11,6 +13,7 @@ class ProxyPatientReferenceEnrichmentProvider extends EnrichmentProvider {
      */
     // eslint-disable-next-line no-unused-vars
     async enrichAsync({resources, parsedArgs, originalArgs}) {
+        assertTypeEquals(parsedArgs, ParsedArgs);
         // check if any args have a proxy patient
         let {proxyPatientPersonId, proxyPatientPersonIdKey} = this.getProxyPatientFromArgs({originalArgs});
         if (proxyPatientPersonId && proxyPatientPersonIdKey) {

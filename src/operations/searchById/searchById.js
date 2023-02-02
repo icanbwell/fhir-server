@@ -15,6 +15,7 @@ const {ConfigManager} = require('../../utils/configManager');
 const deepcopy = require('deepcopy');
 const {getFirstResourceOrNull} = require('../../utils/list.util');
 const {SecurityTagSystem} = require('../../utils/securityTagSystem');
+const {ParsedArgs} = require('../query/parsedArgsItem');
 
 class SearchByIdOperation {
     /**
@@ -104,6 +105,7 @@ class SearchByIdOperation {
         assertIsValid(requestInfo !== undefined);
         assertIsValid(args !== undefined);
         assertIsValid(resourceType !== undefined);
+        assertTypeEquals(parsedArgs, ParsedArgs);
         const currentOperationName = 'searchById';
         /**
          * @type {number}
@@ -218,7 +220,7 @@ class SearchByIdOperation {
 
                 // run any enrichment
                 resource = (await this.enrichmentManager.enrichAsync({
-                            resources: [resource], args, originalArgs
+                            resources: [resource], parsedArgs, originalArgs
                         }
                     )
                 )[0];

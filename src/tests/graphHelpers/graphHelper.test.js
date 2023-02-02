@@ -7,7 +7,6 @@ const graphSimpleWithExtensionDefinition = require('./fixtures/graphSimpleWithEx
 const {FhirRequestInfo} = require('../../utils/fhirRequestInfo');
 const {createTestContainer} = require('../createTestContainer');
 const {describe, beforeEach, afterEach, expect, test} = require('@jest/globals');
-const {ParsedArgs} = require('../../operations/query/parsedArgsItem');
 
 /**
  * Gets graph helper
@@ -54,23 +53,32 @@ describe('graphHelper Tests', () => {
         originalUrl: '',
         host: 'host',
         headers: {},
-        method: 'post'
+        method: 'post',
+        contentTypeFromHeader: null
     });
 
     describe('graphHelper Tests', () => {
         test('graphHelper single Practitioner works', async () => {
             const resourceType = 'Practitioner';
+            /**
+             * @type {SimpleContainer}
+             */
+            const container = getTestContainer();
+            /**
+             * @type {R4ArgsParser}
+             */
+            const r4ArgsParser = container.r4ArgsParser;
+            const args = {'base_version': '4_0_0', 'id': '1'};
             const result = await getGraphHelper().processGraphAsync({
                 requestInfo,
                 base_version,
                 resourceType,
-                id: ['1'],
                 graphDefinitionJson: graphSimpleReverseDefinition,
                 contained: false,
                 hash_references: false,
-                args: {'base_version': '4_0_0'},
+                args: args,
                 originalArgs: {},
-                parsedArgs: new ParsedArgs({})
+                parsedArgs: r4ArgsParser.parseArgs({resourceType, args})
             });
             expect(result).not.toBeNull();
             delete result['timestamp'];
@@ -105,17 +113,21 @@ describe('graphHelper Tests', () => {
             const collection = db.collection(`${resourceType}_${base_version}`);
 
             await collection.insertOne({id: '2', resourceType: 'Practitioner'});
+            /**
+             * @type {R4ArgsParser}
+             */
+            const r4ArgsParser = container.r4ArgsParser;
+            const args = {'base_version': '4_0_0', 'id': '1,2'};
             const result = await getGraphHelper().processGraphAsync({
                 requestInfo,
                 base_version,
                 resourceType,
-                id: ['1', '2'],
                 graphDefinitionJson: graphSimpleReverseDefinition,
                 contained: false,
                 hash_references: false,
-                args: {'base_version': '4_0_0'},
+                args: args,
                 originalArgs: {},
-                parsedArgs: new ParsedArgs({})
+                parsedArgs: r4ArgsParser.parseArgs({resourceType, args})
             });
             expect(result).not.toBeNull();
             delete result['timestamp'];
@@ -163,17 +175,21 @@ describe('graphHelper Tests', () => {
             });
 
             resourceType = 'Practitioner';
+            /**
+             * @type {R4ArgsParser}
+             */
+            const r4ArgsParser = container.r4ArgsParser;
+            const args = {'base_version': '4_0_0', 'id': '1'};
             const result = await getGraphHelper().processGraphAsync({
                 requestInfo,
                 base_version,
                 resourceType,
-                id: ['1'],
                 graphDefinitionJson: graphSimpleReverseDefinition,
                 contained: false,
                 hash_references: false,
-                args: {'base_version': '4_0_0'},
+                args: args,
                 originalArgs: {},
-                parsedArgs: new ParsedArgs({})
+                parsedArgs: r4ArgsParser.parseArgs({resourceType, args})
             });
             expect(result).not.toBeNull();
             delete result['timestamp'];
@@ -224,17 +240,21 @@ describe('graphHelper Tests', () => {
             });
 
             resourceType = 'Practitioner';
+            /**
+             * @type {R4ArgsParser}
+             */
+            const r4ArgsParser = container.r4ArgsParser;
+            const args = {'base_version': '4_0_0', 'id': '1'};
             const result = await getGraphHelper().processGraphAsync({
                 requestInfo,
                 base_version,
                 resourceType,
-                id: ['1'],
                 graphDefinitionJson: graphDefinition,
                 contained: false,
                 hash_references: false,
-                args: {'base_version': '4_0_0'},
+                args: args,
                 originalArgs: {},
-                parsedArgs: new ParsedArgs({})
+                parsedArgs: r4ArgsParser.parseArgs({resourceType, args})
             });
             expect(result).not.toBeNull();
             delete result['timestamp'];
@@ -285,17 +305,21 @@ describe('graphHelper Tests', () => {
             });
 
             resourceType = 'Practitioner';
+            /**
+             * @type {R4ArgsParser}
+             */
+            const r4ArgsParser = container.r4ArgsParser;
+            const args = {'base_version': '4_0_0', 'id': '1'};
             const result = await getGraphHelper().processGraphAsync({
                 requestInfo,
                 base_version,
                 resourceType,
-                id: ['1'],
                 graphDefinitionJson: graphSimpleReverseDefinition,
                 contained: true,
                 hash_references: false,
-                args: {'base_version': '4_0_0'},
+                args: args,
                 originalArgs: {},
-                parsedArgs: new ParsedArgs({})
+                parsedArgs: r4ArgsParser.parseArgs({resourceType, args})
             });
             expect(result).not.toBeNull();
             delete result['timestamp'];
@@ -344,17 +368,21 @@ describe('graphHelper Tests', () => {
             });
 
             resourceType = 'Practitioner';
+            /**
+             * @type {R4ArgsParser}
+             */
+            const r4ArgsParser = container.r4ArgsParser;
+            const args = {'base_version': '4_0_0', 'id': '1'};
             const result = await getGraphHelper().processGraphAsync({
                 requestInfo,
                 base_version,
                 resourceType,
-                id: ['1'],
                 graphDefinitionJson: graphDefinition,
                 contained: true,
                 hash_references: false,
-                args: {'base_version': '4_0_0'},
+                args: args,
                 originalArgs: {},
-                parsedArgs: new ParsedArgs({})
+                parsedArgs: r4ArgsParser.parseArgs({resourceType, args})
             });
             expect(result).not.toBeNull();
             delete result['timestamp'];
@@ -413,17 +441,21 @@ describe('graphHelper Tests', () => {
             await collection.insertOne({id: '100', resourceType: resourceType});
 
             resourceType = 'PractitionerRole';
+            /**
+             * @type {R4ArgsParser}
+             */
+            const r4ArgsParser = container.r4ArgsParser;
+            const args = {'base_version': '4_0_0', 'id': '10'};
             const result = await getGraphHelper().processGraphAsync({
                 requestInfo,
                 base_version,
                 resourceType,
-                id: ['10'],
                 graphDefinitionJson: graphSimpleForwardDefinition,
                 contained: false,
                 hash_references: false,
-                args: {'base_version': '4_0_0'},
+                args: args,
                 originalArgs: {},
-                parsedArgs: new ParsedArgs({})
+                parsedArgs: r4ArgsParser.parseArgs({resourceType, args})
             });
             expect(result).not.toBeNull();
             delete result['timestamp'];
@@ -477,17 +509,21 @@ describe('graphHelper Tests', () => {
             });
 
             resourceType = 'Practitioner';
+            /**
+             * @type {R4ArgsParser}
+             */
+            const r4ArgsParser = container.r4ArgsParser;
+            const args = {'base_version': '4_0_0', 'id': '1'};
             const result = await getGraphHelper().processGraphAsync({
                 requestInfo,
                 base_version,
                 resourceType,
-                id: ['1'],
                 graphDefinitionJson: graphSimpleReverseDefinition,
                 contained: true,
                 hash_references: true,
-                args: {'base_version': '4_0_0'},
+                args: args,
                 originalArgs: {},
-                parsedArgs: new ParsedArgs({})
+                parsedArgs: r4ArgsParser.parseArgs({resourceType, args})
             });
             expect(result).not.toBeNull();
             delete result['timestamp'];
@@ -546,17 +582,21 @@ describe('graphHelper Tests', () => {
             await collection.insertOne({id: '100', resourceType: resourceType});
 
             resourceType = 'Practitioner';
+            /**
+             * @type {R4ArgsParser}
+             */
+            const r4ArgsParser = container.r4ArgsParser;
+            const args = {'base_version': '4_0_0', 'id': '1'};
             const result = await getGraphHelper().processGraphAsync({
                 requestInfo,
                 base_version,
                 resourceType,
-                id: ['1'],
                 graphDefinitionJson: graphDefinition,
                 contained: false,
                 hash_references: false,
-                args: {'base_version': '4_0_0'},
+                args: args,
                 originalArgs: {},
-                parsedArgs: new ParsedArgs({})
+                parsedArgs: r4ArgsParser.parseArgs({resourceType, args})
             });
             expect(result).not.toBeNull();
             delete result['timestamp'];
@@ -643,17 +683,21 @@ describe('graphHelper Tests', () => {
             await collection.insertOne({id: '200', resourceType: resourceType});
 
             resourceType = 'Practitioner';
+            /**
+             * @type {R4ArgsParser}
+             */
+            const r4ArgsParser = container.r4ArgsParser;
+            const args = {'base_version': '4_0_0', 'id': '1,2'};
             const result = await getGraphHelper().processGraphAsync({
                 requestInfo,
                 base_version,
                 resourceType,
-                id: ['1', '2'],
                 graphDefinitionJson: graphDefinition,
                 contained: false,
                 hash_references: false,
-                args: {'base_version': '4_0_0'},
+                args: args,
                 originalArgs: {},
-                parsedArgs: new ParsedArgs({})
+                parsedArgs: r4ArgsParser.parseArgs({resourceType, args})
             });
             expect(result).not.toBeNull();
             delete result['timestamp'];
@@ -770,17 +814,21 @@ describe('graphHelper Tests', () => {
             await collection.insertOne({id: '200', resourceType: resourceType});
 
             resourceType = 'Practitioner';
+            /**
+             * @type {R4ArgsParser}
+             */
+            const r4ArgsParser = container.r4ArgsParser;
+            const args = {'base_version': '4_0_0', 'id': '1,2'};
             const result = await getGraphHelper().processGraphAsync({
                 requestInfo,
                 base_version,
                 resourceType,
-                id: ['1', '2'],
                 graphDefinitionJson: graphDefinition,
                 contained: true,
                 hash_references: false,
-                args: {'base_version': '4_0_0'},
+                args: args,
                 originalArgs: {},
-                parsedArgs: new ParsedArgs({})
+                parsedArgs: r4ArgsParser.parseArgs({resourceType, args})
             });
             expect(result).not.toBeNull();
             delete result['timestamp'];
@@ -901,17 +949,21 @@ describe('graphHelper Tests', () => {
             });
 
             resourceType = 'PractitionerRole';
+            /**
+             * @type {R4ArgsParser}
+             */
+            const r4ArgsParser = container.r4ArgsParser;
+            const args = {'base_version': '4_0_0', 'id': '10'};
             const result = await getGraphHelper().processGraphAsync({
                 requestInfo,
                 base_version,
                 resourceType,
-                id: ['10'],
                 graphDefinitionJson: graphSimpleWithExtensionDefinition,
                 contained: false,
                 hash_references: false,
-                args: {'base_version': '4_0_0'},
+                args: args,
                 originalArgs: {},
-                parsedArgs: new ParsedArgs({})
+                parsedArgs: r4ArgsParser.parseArgs({resourceType, args})
             });
             expect(result).not.toBeNull();
             delete result['timestamp'];
@@ -1068,17 +1120,21 @@ describe('graphHelper Tests', () => {
             });
 
             resourceType = 'Practitioner';
+            /**
+             * @type {R4ArgsParser}
+             */
+            const r4ArgsParser = container.r4ArgsParser;
+            const args = {'base_version': '4_0_0', 'id': '1,2'};
             const result = await getGraphHelper().processGraphAsync({
                 requestInfo,
                 base_version,
                 resourceType,
-                id: ['1', '2'],
                 graphDefinitionJson: graphWithExtensionDefinition,
                 contained: false,
                 hash_references: false,
-                args: {'base_version': '4_0_0'},
+                args: args,
                 originalArgs: {},
-                parsedArgs: new ParsedArgs({})
+                parsedArgs: r4ArgsParser.parseArgs({resourceType, args})
             });
             expect(result).not.toBeNull();
             delete result['timestamp'];
@@ -1292,17 +1348,21 @@ describe('graphHelper Tests', () => {
                 resourceType: resourceType,
             });
             resourceType = 'Practitioner';
+            /**
+             * @type {R4ArgsParser}
+             */
+            const r4ArgsParser = container.r4ArgsParser;
+            const args = {'base_version': '4_0_0', 'id': '1,2'};
             const result = await getGraphHelper().processGraphAsync({
                 requestInfo,
                 base_version,
                 resourceType,
-                id: ['1', '2'],
                 graphDefinitionJson: graphWithExtensionDefinition,
                 contained: true,
                 hash_references: false,
-                args: {'base_version': '4_0_0'},
+                args: args,
                 originalArgs: {},
-                parsedArgs: new ParsedArgs({})
+                parsedArgs: r4ArgsParser.parseArgs({resourceType, args})
             });
             expect(result).not.toBeNull();
             delete result['timestamp'];
@@ -1498,17 +1558,21 @@ describe('graphHelper Tests', () => {
                 resourceType: resourceType,
             });
             resourceType = 'Practitioner';
+            /**
+             * @type {R4ArgsParser}
+             */
+            const r4ArgsParser = container.r4ArgsParser;
+            const args = {'base_version': '4_0_0', _debug: 1, 'id': '1,2'};
             const result = await getGraphHelper().processGraphAsync({
                 requestInfo,
                 base_version,
                 resourceType,
-                id: ['1', '2'],
                 graphDefinitionJson: graphWithExtensionDefinition,
                 contained: true,
                 hash_references: false,
-                args: {'base_version': '4_0_0', _debug: 1},
+                args: args,
                 originalArgs: {_debug: 1},
-                parsedArgs: new ParsedArgs({})
+                parsedArgs: r4ArgsParser.parseArgs({resourceType, args: args})
             });
             expect(result).not.toBeNull();
             delete result['timestamp'];
@@ -1752,16 +1816,21 @@ describe('graphHelper Tests', () => {
                 resourceType: resourceType,
             });
             resourceType = 'Practitioner';
+            /**
+             * @type {R4ArgsParser}
+             */
+            const r4ArgsParser = container.r4ArgsParser;
+            const args = {'base_version': '4_0_0', _explain: 1, 'id': '1,2'};
             const result = await getGraphHelper().processGraphAsync({
                 requestInfo,
                 base_version,
                 resourceType,
-                id: ['1', '2'],
                 graphDefinitionJson: graphWithExtensionDefinition,
                 contained: true,
                 hash_references: false,
-                args: {'base_version': '4_0_0', _explain: 1},
-                originalArgs: {_explain: 1}
+                args: args,
+                originalArgs: {_explain: 1},
+                parsedArgs: r4ArgsParser.parseArgs({resourceType, args})
             });
             expect(result).not.toBeNull();
             delete result['timestamp'];

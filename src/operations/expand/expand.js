@@ -7,6 +7,7 @@ const {ScopesManager} = require('../security/scopesManager');
 const {FhirLoggingManager} = require('../common/fhirLoggingManager');
 const {ScopesValidator} = require('../security/scopesValidator');
 const deepcopy = require('deepcopy');
+const {ParsedArgs} = require('../query/parsedArgsItem');
 
 class ExpandOperation {
     /**
@@ -75,6 +76,7 @@ class ExpandOperation {
         assertIsValid(requestInfo !== undefined);
         assertIsValid(args !== undefined);
         assertIsValid(resourceType !== undefined);
+        assertTypeEquals(parsedArgs, ParsedArgs);
         const currentOperationName = 'expand';
         /**
          * @type {number}
@@ -146,7 +148,7 @@ class ExpandOperation {
 
             // run any enrichment
             resource = (await this.enrichmentManager.enrichAsync({
-                        resources: [resource], args,
+                        resources: [resource], parsedArgs,
                         originalArgs
                     }
                 )

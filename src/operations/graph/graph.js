@@ -13,6 +13,7 @@ const {ResourceValidator} = require('../common/resourceValidator');
 const moment = require('moment-timezone');
 const {ResourceLocatorFactory} = require('../common/resourceLocatorFactory');
 const deepcopy = require('deepcopy');
+const {ParsedArgs} = require('../query/parsedArgsItem');
 
 class GraphOperation {
     /**
@@ -76,6 +77,7 @@ class GraphOperation {
         assertIsValid(args !== undefined);
         assertIsValid(res !== undefined);
         assertIsValid(resourceType !== undefined);
+        assertTypeEquals(parsedArgs, ParsedArgs);
         const currentOperationName = 'graph';
 
         /**
@@ -196,7 +198,6 @@ class GraphOperation {
                         requestInfo,
                         base_version,
                         resourceType,
-                        id,
                         graphDefinitionJson: graphDefinitionRaw,
                         args,
                         originalArgs,
@@ -208,7 +209,6 @@ class GraphOperation {
                         requestInfo,
                         base_version,
                         resourceType,
-                        id,
                         graphDefinitionJson: graphDefinitionRaw,
                         contained,
                         hash_references,

@@ -21,6 +21,7 @@ const Bundle = require('../../fhir/classes/4_0_0/resources/bundle');
 const Parameters = require('../../fhir/classes/4_0_0/resources/parameters');
 const {ResourceValidator} = require('../common/resourceValidator');
 const {getCircularReplacer} = require('../../utils/getCircularReplacer');
+const {ParsedArgs} = require('../query/parsedArgsItem');
 
 class MergeOperation {
     /**
@@ -159,6 +160,7 @@ class MergeOperation {
         assertIsValid(requestInfo !== undefined);
         assertIsValid(args !== undefined);
         assertIsValid(resourceType !== undefined);
+        assertTypeEquals(parsedArgs, ParsedArgs);
         const currentOperationName = 'merge';
         // Start the FHIR request timer, saving a reference to the returned method
         const timer = fhirRequestTimer.startTimer();

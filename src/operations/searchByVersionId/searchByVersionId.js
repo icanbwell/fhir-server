@@ -9,6 +9,7 @@ const {isTrue} = require('../../utils/isTrue');
 const {ConfigManager} = require('../../utils/configManager');
 const {SearchManager} = require('../search/searchManager');
 const deepcopy = require('deepcopy');
+const {ParsedArgs} = require('../query/parsedArgsItem');
 
 class SearchByVersionIdOperation {
     /**
@@ -82,6 +83,7 @@ class SearchByVersionIdOperation {
         assertIsValid(requestInfo !== undefined);
         assertIsValid(args !== undefined);
         assertIsValid(resourceType !== undefined);
+        assertTypeEquals(parsedArgs, ParsedArgs);
         const currentOperationName = 'searchByVersionId';
         /**
          * @type {number}
@@ -187,7 +189,7 @@ class SearchByVersionIdOperation {
                 }
                 // run any enrichment
                 resource = (await this.enrichmentManager.enrichAsync({
-                            resources: [resource], args, originalArgs
+                            resources: [resource], parsedArgs, originalArgs
                         }
                     )
                 )[0];

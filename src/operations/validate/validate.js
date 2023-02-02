@@ -9,6 +9,7 @@ const OperationOutcomeIssue = require('../../fhir/classes/4_0_0/backbone_element
 const CodeableConcept = require('../../fhir/classes/4_0_0/complex_types/codeableConcept');
 const {ResourceValidator} = require('../common/resourceValidator');
 const moment = require('moment-timezone');
+const {ParsedArgs} = require('../query/parsedArgsItem');
 
 class ValidateOperation {
     /**
@@ -48,11 +49,11 @@ class ValidateOperation {
      * @param {string} resourceType
      * @returns {Promise<Resource>}
      */
-    // eslint-disable-next-line no-unused-vars
     async validate({requestInfo, args, parsedArgs, resourceType}) {
         assertIsValid(requestInfo !== undefined);
         assertIsValid(args !== undefined);
         assertIsValid(resourceType !== undefined);
+        assertTypeEquals(parsedArgs, ParsedArgs);
         const currentOperationName = 'validate';
 
         /**

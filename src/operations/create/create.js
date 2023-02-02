@@ -18,6 +18,7 @@ const {ResourceValidator} = require('../common/resourceValidator');
 const {isTrue} = require('../../utils/isTrue');
 const {DatabaseBulkInserter} = require('../../dataLayer/databaseBulkInserter');
 const {getCircularReplacer} = require('../../utils/getCircularReplacer');
+const {ParsedArgs} = require('../query/parsedArgsItem');
 
 class CreateOperation {
     /**
@@ -100,6 +101,7 @@ class CreateOperation {
         assertIsValid(requestInfo !== undefined);
         assertIsValid(args !== undefined);
         assertIsValid(resourceType !== undefined);
+        assertTypeEquals(parsedArgs, ParsedArgs);
         const currentOperationName = 'create';
         /**
          * @type {number}

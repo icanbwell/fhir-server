@@ -13,6 +13,7 @@ const {ScopesValidator} = require('../security/scopesValidator');
 const {DatabaseBulkInserter} = require('../../dataLayer/databaseBulkInserter');
 const {getCircularReplacer} = require('../../utils/getCircularReplacer');
 const {fhirContentTypes} = require('../../utils/contentTypes');
+const {ParsedArgs} = require('../query/parsedArgsItem');
 
 class PatchOperation {
     /**
@@ -79,6 +80,7 @@ class PatchOperation {
         assertIsValid(requestInfo !== undefined);
         assertIsValid(args !== undefined);
         assertIsValid(resourceType !== undefined);
+        assertTypeEquals(parsedArgs, ParsedArgs);
         const currentOperationName = 'patch';
         const {
             requestId,

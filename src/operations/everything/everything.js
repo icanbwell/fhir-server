@@ -9,6 +9,7 @@ const {GraphOperation} = require('../graph/graph');
 const {ScopesValidator} = require('../security/scopesValidator');
 const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
 const {FhirLoggingManager} = require('../common/fhirLoggingManager');
+const {ParsedArgs} = require('../query/parsedArgsItem');
 
 class EverythingOperation {
     /**
@@ -58,6 +59,7 @@ class EverythingOperation {
         assertIsValid(args !== undefined, 'args is undefined');
         assertIsValid(res !== undefined, 'res is undefined');
         assertIsValid(resourceType !== undefined, 'resourceType is undefined');
+        assertTypeEquals(parsedArgs, ParsedArgs);
         const currentOperationName = 'everything';
         /**
          * @type {number}

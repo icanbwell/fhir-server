@@ -19,6 +19,7 @@ const {DatabaseBulkInserter} = require('../../dataLayer/databaseBulkInserter');
 const {SecurityTagSystem} = require('../../utils/securityTagSystem');
 const {ResourceMerger} = require('../common/resourceMerger');
 const {getCircularReplacer} = require('../../utils/getCircularReplacer');
+const {ParsedArgs} = require('../query/parsedArgsItem');
 
 /**
  * Update Operation
@@ -112,11 +113,12 @@ class UpdateOperation {
      * @param {string} resourceType
      * @returns {{id: string,created: boolean, resource_version: string, resource: Resource}}
      */
-    // eslint-disable-next-line no-unused-vars
     async update({requestInfo, args, parsedArgs, resourceType}) {
         assertIsValid(requestInfo !== undefined);
         assertIsValid(args !== undefined);
         assertIsValid(resourceType !== undefined);
+        assertTypeEquals(parsedArgs, ParsedArgs);
+
         const currentOperationName = 'update';
         // Query our collection for this observation
         /**

@@ -1265,7 +1265,6 @@ class GraphHelper {
      * @param {FhirRequestInfo} requestInfo
      * @param {string} base_version
      * @param {string} resourceType
-     * @param {string | string[]} id (accepts a single id or a list of ids)
      * @param {*} graphDefinitionJson (a GraphDefinition resource)
      * @param {boolean} contained
      * @param {boolean} hash_references
@@ -1280,7 +1279,6 @@ class GraphHelper {
             requestInfo,
             base_version,
             resourceType,
-            id,
             graphDefinitionJson,
             contained,
             hash_references,
@@ -1303,10 +1301,6 @@ class GraphHelper {
              * @type {Resource}
              */
             const graphDefinition = new GraphDefinitionResource(graphDefinitionJson);
-
-            if (!(Array.isArray(id))) {
-                id = [id];
-            }
 
             /**
              * @type {{entries: BundleEntry[], queries: import('mongodb').Document[], explanations: import('mongodb').Document[]}}
@@ -1407,13 +1401,12 @@ class GraphHelper {
             return bundle;
         } catch (e) {
             throw new RethrownError({
-                message: 'Error in processGraphAsync(): ' + `resourceType: ${resourceType} , ` + `id:${id}, ` + e.message,
+                message: 'Error in processGraphAsync(): ' + `resourceType: ${resourceType} , ` + e.message,
                 error: e,
                 args: {
                     requestInfo,
                     base_version,
                     resourceType,
-                    id,
                     graphDefinitionJson,
                     contained,
                     hash_references,
@@ -1430,7 +1423,6 @@ class GraphHelper {
      * @param {FhirRequestInfo} requestInfo
      * @param {string} base_version
      * @param {string} resourceType
-     * @param {string | string[]} id (accepts a single id or a list of ids)
      * @param {*} graphDefinitionJson (a GraphDefinition resource)
      * @param {Object} args
      * @param {Object} originalArgs
@@ -1443,7 +1435,6 @@ class GraphHelper {
             requestInfo,
             base_version,
             resourceType,
-            id,
             graphDefinitionJson,
             args,
             originalArgs,
@@ -1464,7 +1455,6 @@ class GraphHelper {
                     requestInfo,
                     base_version,
                     resourceType,
-                    id,
                     contained: false,
                     hash_references: false,
                     graphDefinitionJson,
@@ -1550,13 +1540,12 @@ class GraphHelper {
             return deleteOperationBundle;
         } catch (e) {
             throw new RethrownError({
-                message: 'Error in deleteGraphAsync(): ' + `resourceType: ${resourceType} , ` + `id:${id}, ` + e.message,
+                message: 'Error in deleteGraphAsync(): ' + `resourceType: ${resourceType} , ` + e.message,
                 error: e,
                 args: {
                     requestInfo,
                     base_version,
                     resourceType,
-                    id,
                     graphDefinitionJson,
                     args,
                     originalArgs,

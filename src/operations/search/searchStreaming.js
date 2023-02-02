@@ -16,6 +16,7 @@ const {BundleManager} = require('../common/bundleManager');
 const {ConfigManager} = require('../../utils/configManager');
 const {BadRequestError} = require('../../utils/httpErrors');
 const deepcopy = require('deepcopy');
+const {ParsedArgs} = require('../query/parsedArgsItem');
 
 
 class SearchStreamingOperation {
@@ -100,6 +101,7 @@ class SearchStreamingOperation {
      */
     async searchStreaming(
         {requestInfo, res, args, parsedArgs, resourceType}) {
+        assertTypeEquals(parsedArgs, ParsedArgs);
         const currentOperationName = 'searchStreaming';
         // Start the FHIR request timer, saving a reference to the returned method
         const timer = fhirRequestTimer.startTimer();
