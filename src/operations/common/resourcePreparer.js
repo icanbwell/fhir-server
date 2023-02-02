@@ -53,7 +53,7 @@ class ResourcePreparer {
         /**
          * @type {string[]}
          */
-        const properties_to_return_list = parsedArgs.get('_elements').queryParameterValue;
+        const properties_to_return_list = parsedArgs.get('_elements').queryParameterValues;
         /**
          * @type {Resource}
          */

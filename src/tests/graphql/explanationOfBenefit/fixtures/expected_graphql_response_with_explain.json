@@ -22,7 +22,7 @@
         "system": "https://www.icanbwell.com/queryTime"
       },
       {
-        "display": "[{'useTwoStepSearchOptimization':undefined}]",
+        "display": "[{'useTwoStepSearchOptimization':false}]",
         "system": "https://www.icanbwell.com/queryOptimization"
       },
       {

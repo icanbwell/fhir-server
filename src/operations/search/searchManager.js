@@ -541,13 +541,9 @@ class SearchManager {
     ) {
         // GET [base]/Observation?_elements=status,date,category
         /**
-         * @type {string}
-         */
-        const properties_to_return_as_csv = parsedArgs['_elements'];
-        /**
          * @type {string[]}
          */
-        const properties_to_return_list = properties_to_return_as_csv.split(',');
+        const properties_to_return_list = parsedArgs.get('_elements').queryParameterValues;
         if (properties_to_return_list.length > 0) {
             /**
              * @type {import('mongodb').Document}

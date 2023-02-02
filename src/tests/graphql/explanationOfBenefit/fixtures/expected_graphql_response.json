@@ -628,7 +628,7 @@
         "system": "https://www.icanbwell.com/queryTime"
       },
       {
-        "display": "[{'useTwoStepSearchOptimization':undefined},{'useTwoStepSearchOptimization':false},{'useTwoStepSearchOptimization':false},{'useTwoStepSearchOptimization':false}]",
+        "display": "[{'useTwoStepSearchOptimization':false},{'useTwoStepSearchOptimization':false},{'useTwoStepSearchOptimization':false},{'useTwoStepSearchOptimization':false}]",
         "system": "https://www.icanbwell.com/queryOptimization"
       },
       {
