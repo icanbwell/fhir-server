@@ -192,13 +192,39 @@ class ParsedArgsItem {
 class ParsedArgs {
     /**
      * constructor
+     * @param {string} base_version
      * @param {ParsedArgsItem[]} [parsedArgItems]
      */
-    constructor({parsedArgItems = []}) {
+    constructor({base_version, parsedArgItems = []}) {
+        assertIsValid(base_version, 'base_version is missing');
+        this.base_version = base_version;
         /**
          * @type {ParsedArgsItem[]}
          */
         this.parsedArgItems = parsedArgItems;
+        for (const parsedArgItem of parsedArgItems) {
+            this.add(parsedArgItem);
+        }
+    }
+
+    /**
+     * adds an arg
+     * @param {ParsedArgsItem} parsedArgItem
+     * @return {ParsedArgs}
+     */
+    add(parsedArgItem) {
+        this.parsedArgItems.push(parsedArgItem);
+        Object.defineProperty(
+            this,
+            parsedArgItem.queryParameter,
+            {
+                get: () => parsedArgItem.queryParameterValue,
+                set: valueProvided => {
+                    parsedArgItem.queryParameterValue = valueProvided;
+                }
+            }
+        );
+        return this;
     }
 
     /**
@@ -227,6 +253,7 @@ class ParsedArgs {
     clone() {
         return new ParsedArgs(
             {
+                base_version: this.base_version,
                 parsedArgItems: this.parsedArgItems.map(p => p.clone())
             }
         );

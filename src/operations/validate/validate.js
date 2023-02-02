@@ -44,14 +44,12 @@ class ValidateOperation {
     /**
      * does a FHIR Validate
      * @param {FhirRequestInfo} requestInfo
-     * @param {Object} args
      * @param {ParsedArgs} parsedArgs
      * @param {string} resourceType
      * @returns {Promise<Resource>}
      */
-    async validate({requestInfo, args, parsedArgs, resourceType}) {
+    async validate({requestInfo, parsedArgs, resourceType}) {
         assertIsValid(requestInfo !== undefined);
-        assertIsValid(args !== undefined);
         assertIsValid(resourceType !== undefined);
         assertTypeEquals(parsedArgs, ParsedArgs);
         const currentOperationName = 'validate';
@@ -64,7 +62,7 @@ class ValidateOperation {
         /**
          * @type {string}
          */
-        let {base_version} = args;
+        let {base_version} = parsedArgs;
 
         /**
          * @type {string}
@@ -80,7 +78,7 @@ class ValidateOperation {
         /**
          * @type {Object|null}
          */
-        let resource_incoming = args.resource ? args.resource : requestInfo.body;
+        let resource_incoming = parsedArgs.resource ? parsedArgs.resource : requestInfo.body;
 
         // check if this is a Parameters resourceType
         if (resource_incoming.resourceType === 'Parameters') {
@@ -147,7 +145,7 @@ class ValidateOperation {
             await this.fhirLoggingManager.logOperationSuccessAsync(
                 {
                     requestInfo,
-                    args,
+                    args: parsedArgs.getRawArgs(),
                     resourceType,
                     startTime,
                     action: currentOperationName
@@ -176,7 +174,7 @@ class ValidateOperation {
         await this.fhirLoggingManager.logOperationSuccessAsync(
             {
                 requestInfo,
-                args,
+                args: parsedArgs.getRawArgs(),
                 resourceType,
                 startTime,
                 action: currentOperationName

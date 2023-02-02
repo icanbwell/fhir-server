@@ -12,7 +12,6 @@ const {FhirLoggingManager} = require('../common/fhirLoggingManager');
 const {ScopesValidator} = require('../security/scopesValidator');
 const {isTrue} = require('../../utils/isTrue');
 const {ConfigManager} = require('../../utils/configManager');
-const deepcopy = require('deepcopy');
 const {getFirstResourceOrNull} = require('../../utils/list.util');
 const {SecurityTagSystem} = require('../../utils/securityTagSystem');
 const {ParsedArgs} = require('../query/parsedArgsItem');
@@ -96,14 +95,12 @@ class SearchByIdOperation {
     /**
      * does a FHIR Search By Id
      * @param {FhirRequestInfo} requestInfo
-     * @param {Object} args
      * @param {ParsedArgs} parsedArgs
      * @param {string} resourceType
      * @return {Resource}
      */
-    async searchById({requestInfo, args, parsedArgs, resourceType}) {
+    async searchById({requestInfo, parsedArgs, resourceType}) {
         assertIsValid(requestInfo !== undefined);
-        assertIsValid(args !== undefined);
         assertIsValid(resourceType !== undefined);
         assertTypeEquals(parsedArgs, ParsedArgs);
         const currentOperationName = 'searchById';
@@ -129,7 +126,7 @@ class SearchByIdOperation {
 
         await this.scopesValidator.verifyHasValidScopesAsync({
             requestInfo,
-            args,
+            parsedArgs,
             resourceType,
             startTime,
             action: currentOperationName,
@@ -139,10 +136,9 @@ class SearchByIdOperation {
         try {
 
             // Common search params
-            const {id} = args;
-            const {base_version} = args;
+            const {id, base_version} = parsedArgs;
 
-            const originalArgs = deepcopy(args);
+            const originalArgs = parsedArgs.clone();
 
             /**
              * @type {Promise<Resource> | *}
@@ -152,7 +148,7 @@ class SearchByIdOperation {
             /**
              * @type {boolean}
              */
-            const useAccessIndex = (this.configManager.useAccessIndex || isTrue(args['_useAccessIndex']));
+            const useAccessIndex = (this.configManager.useAccessIndex || isTrue(parsedArgs['_useAccessIndex']));
 
             /**
              * @type {{base_version, columns: Set, query: import('mongodb').Document}}
@@ -167,7 +163,6 @@ class SearchByIdOperation {
                 scope,
                 isUser,
                 patientIdsFromJwtToken,
-                args,
                 resourceType,
                 useAccessIndex,
                 personIdFromJwtToken,
@@ -229,7 +224,7 @@ class SearchByIdOperation {
                     await this.auditLogger.logAuditEntryAsync(
                         {
                             requestInfo, base_version, resourceType,
-                            operation: 'read', args, ids: [resource['id']]
+                            operation: 'read', args: parsedArgs.getRawArgs(), ids: [resource['id']]
                         }
                     );
                     const currentDate = moment.utc().format('YYYY-MM-DD');
@@ -238,7 +233,7 @@ class SearchByIdOperation {
                 await this.fhirLoggingManager.logOperationSuccessAsync(
                     {
                         requestInfo,
-                        args,
+                        args: parsedArgs.getRawArgs(),
                         resourceType,
                         startTime,
                         action: currentOperationName
@@ -251,7 +246,7 @@ class SearchByIdOperation {
             await this.fhirLoggingManager.logOperationFailureAsync(
                 {
                     requestInfo,
-                    args,
+                    args: parsedArgs.getRawArgs(),
                     resourceType,
                     startTime,
                     action: currentOperationName,

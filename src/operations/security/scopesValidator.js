@@ -34,16 +34,16 @@ class ScopesValidator {
     /**
      * Throws an error if no scope is valid for this request
      * @param {FhirRequestInfo} requestInfo
-     * @param {Object} args
+     * @param {ParsedArgs} parsedArgs
      * @param {string} resourceType
      * @param {number|null} startTime
      * @param {string} action
-     * @param {'read'|'write} accessRequested (can be either 'read' or 'write')
+     * @param {("read"|"write")} accessRequested (can be either 'read' or 'write')
      */
     async verifyHasValidScopesAsync(
         {
             requestInfo,
-            args,
+            parsedArgs,
             resourceType,
             startTime,
             action,
@@ -72,7 +72,7 @@ class ScopesValidator {
                     await this.fhirLoggingManager.logOperationFailureAsync(
                         {
                             requestInfo,
-                            args,
+                            args: parsedArgs.getRawArgs(),
                             resourceType,
                             startTime: startTime,
                             action: action,
@@ -86,7 +86,7 @@ class ScopesValidator {
                     await this.fhirLoggingManager.logOperationFailureAsync(
                         {
                             requestInfo,
-                            args,
+                            args: parsedArgs.getRawArgs(),
                             resourceType,
                             startTime: startTime,
                             action: action,

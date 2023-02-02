@@ -121,7 +121,6 @@ class SearchManager {
      * @param {string | null} scope
      * @param {boolean | null} isUser
      * @param {string[] | null} patientIdsFromJwtToken
-     * @param {Object?} args
      * @param {string} resourceType
      * @param {boolean} useAccessIndex
      * @param {string} personIdFromJwtToken
@@ -133,7 +132,6 @@ class SearchManager {
             user, scope,
             isUser,
             patientIdsFromJwtToken,
-            args,
             resourceType,
             useAccessIndex,
             personIdFromJwtToken,
@@ -144,7 +142,7 @@ class SearchManager {
             /**
              * @type {string}
              */
-            const {base_version} = args;
+            const {base_version} = parsedArgs;
             assertIsValid(base_version, 'base_version is not set');
             const hasPatientScope = this.scopesManager.hasPatientScope({scope});
 
@@ -165,9 +163,9 @@ class SearchManager {
             // eslint-disable-next-line no-useless-catch
             try {
                 if (base_version === VERSIONS['3_0_1']) {
-                    query = buildStu3SearchQuery(args);
+                    query = buildStu3SearchQuery(parsedArgs);
                 } else if (base_version === VERSIONS['1_0_2']) {
-                    query = buildDstu2SearchQuery(args);
+                    query = buildDstu2SearchQuery(parsedArgs);
                 } else {
                     ({query, columns} = this.r4SearchQueryCreator.buildR4SearchQuery({
                         resourceType, parsedArgs
@@ -250,7 +248,7 @@ class SearchManager {
      * Create the query and gets the cursor from mongo
      * @param {string} resourceType
      * @param {string} base_version
-     * @param {Object?} args
+     * @param {ParsedArgs} parsedArgs
      * @param {Set} columns
      * @param {Object} options
      * @param {import('mongodb').Document} query
@@ -264,7 +262,7 @@ class SearchManager {
         {
             resourceType,
             base_version,
-            args,
+            parsedArgs,
             columns,
             options,
             query,
@@ -275,27 +273,27 @@ class SearchManager {
         }
     ) {
         // if _elements=x,y,z is in url parameters then restrict mongo query to project only those fields
-        if (args['_elements']) {
+        if (parsedArgs['_elements']) {
             const __ret = this.handleElementsQuery(
                 {
-                    args, columns, resourceType, options, useAccessIndex
+                    parsedArgs, columns, resourceType, options, useAccessIndex
                 });
             columns = __ret.columns;
             options = __ret.options;
         }
         // if _sort is specified then add sort criteria to mongo query
-        if (args['_sort']) {
-            const __ret = this.handleSortQuery({args, columns, options});
+        if (parsedArgs['_sort']) {
+            const __ret = this.handleSortQuery({parsedArgs, columns, options});
             columns = __ret.columns;
             options = __ret.options;
         }
 
         // if _count is specified then limit mongo query to that
-        if (args['_count']) {
-            const __ret = this.handleCountOption({args, options, isStreaming});
+        if (parsedArgs['_count']) {
+            const __ret = this.handleCountOption({parsedArgs, options, isStreaming});
             options = __ret.options;
         } else {
-            this.setDefaultLimit({args, options});
+            this.setDefaultLimit({parsedArgs, options});
         }
 
         // for consistency in results while paging, always sort by id
@@ -328,9 +326,9 @@ class SearchManager {
          * @type {boolean}
          */
         const useTwoStepSearchOptimization =
-            !args['_elements'] &&
-            !args['id'] &&
-            (this.configManager.enableTwoStepOptimization || args['_useTwoStepOptimization']);
+            !parsedArgs['_elements'] &&
+            !parsedArgs['id'] &&
+            (this.configManager.enableTwoStepOptimization || parsedArgs['_useTwoStepOptimization']);
         if (isTrue(useTwoStepSearchOptimization)) {
             const __ret = await this.handleTwoStepSearchOptimizationAsync(
                 {
@@ -409,9 +407,9 @@ class SearchManager {
         }
 
         // set batch size if specified
-        if (env.MONGO_BATCH_SIZE || args['_cursorBatchSize']) {
+        if (env.MONGO_BATCH_SIZE || parsedArgs['_cursorBatchSize']) {
             // https://www.dbkoda.com/blog/2017/10/01/bulk-operations-in-mongoDB
-            const __ret = this.setCursorBatchSize({args, cursorQuery});
+            const __ret = this.setCursorBatchSize({parsedArgs, cursorQuery});
             cursorBatchSize = __ret.cursorBatchSize;
             cursorQuery = __ret.cursorQuery;
         }
@@ -421,7 +419,7 @@ class SearchManager {
         let cursor = cursorQuery;
 
         // find columns being queried and match them to an index
-        if (isTrue(env.SET_INDEX_HINTS) || args['_setIndexHint']) {
+        if (isTrue(env.SET_INDEX_HINTS) || parsedArgs['_setIndexHint']) {
             // TODO: handle index hints for multiple collections
             const resourceLocator = this.resourceLocatorFactory.createResourceLocator(
                 {resourceType, base_version});
@@ -443,11 +441,11 @@ class SearchManager {
         }
 
         // if _total is specified then ask mongo for the total else set total to 0
-        if (args['_total'] && ['accurate', 'estimate'].includes(args['_total'])) {
+        if (parsedArgs['_total'] && ['accurate', 'estimate'].includes(parsedArgs['_total'])) {
             total_count = await this.handleGetTotalsAsync(
                 {
                     resourceType, base_version,
-                    args, query, maxMongoTimeMS
+                    parsedArgs, query, maxMongoTimeMS
                 });
         }
 
@@ -500,23 +498,23 @@ class SearchManager {
 
     /**
      * Handle count: https://www.hl7.org/fhir/search.html#count
-     * @param {Object} args
+     * @param {ParsedArgs} parsedArgs
      * @param {Object} options
      * @param {boolean} isStreaming
      * @return {{options: Object}} columns selected and changed options
      */
-    handleCountOption({args, options, isStreaming}) {
+    handleCountOption({parsedArgs, options, isStreaming}) {
         /**
          * @type {number}
          */
-        const nPerPage = Number(args['_count']);
+        const nPerPage = Number(parsedArgs['_count']);
 
         // if _getpagesoffset is specified then skip to the page starting with that offset
-        if (args['_getpagesoffset']) {
+        if (parsedArgs['_getpagesoffset']) {
             /**
              * @type {number}
              */
-            const pageNumber = Number(args['_getpagesoffset']);
+            const pageNumber = Number(parsedArgs['_getpagesoffset']);
             options['skip'] = pageNumber > 0 ? pageNumber * nPerPage : 0;
         }
         // cap it at searchLimitForIds to avoid running out of memory
@@ -527,7 +525,7 @@ class SearchManager {
 
     /**
      * Handle when the caller pass in _elements: https://www.hl7.org/fhir/search.html#elements
-     * @param {Object} args
+     * @param {ParsedArgs} parsedArgs
      * @param {Set} columns
      * @param {string} resourceType
      * @param {Object} options
@@ -536,7 +534,7 @@ class SearchManager {
      */
     handleElementsQuery(
         {
-            args, columns, resourceType, options,
+            parsedArgs, columns, resourceType, options,
             // eslint-disable-next-line no-unused-vars
             useAccessIndex
         }
@@ -545,7 +543,7 @@ class SearchManager {
         /**
          * @type {string}
          */
-        const properties_to_return_as_csv = args['_elements'];
+        const properties_to_return_as_csv = parsedArgs['_elements'];
         /**
          * @type {string[]}
          */
@@ -582,7 +580,7 @@ class SearchManager {
      * handle request to return totals for the query
      * @param {string} resourceType
      * @param {string} base_version
-     * @param {Object} args
+     * @param {ParsedArgs} parsedArgs
      * @param {Object} query
      * @param {number} maxMongoTimeMS
      * @return {Promise<number>}
@@ -590,7 +588,7 @@ class SearchManager {
     async handleGetTotalsAsync(
         {
             resourceType, base_version,
-            args, query, maxMongoTimeMS
+            parsedArgs, query, maxMongoTimeMS
         }
     ) {
         try {
@@ -600,7 +598,7 @@ class SearchManager {
             const databaseQueryManager = this.databaseQueryFactory.createQuery(
                 {resourceType, base_version}
             );
-            if (args['_total'] === 'estimate') {
+            if (parsedArgs['_total'] === 'estimate') {
                 return await databaseQueryManager.exactDocumentCountAsync({
                     query,
                     options: {maxTimeMS: maxMongoTimeMS}
@@ -621,14 +619,14 @@ class SearchManager {
 
     /**
      * handles sort: https://www.hl7.org/fhir/search.html#sort
-     * @param {Object} args
+     * @param {ParsedArgs} parsedArgs
      * @param {Set} columns
      * @param {Object} options
      * @return {{columns:Set, options: Object}} columns selected and changed options
      */
     handleSortQuery(
         {
-            args, columns, options
+            parsedArgs, columns, options
         }
     ) {
         // GET [base]/Observation?_sort=status,-date,category
@@ -637,7 +635,7 @@ class SearchManager {
         /**
          * @type {string[]}
          */
-        const sort_properties_list = Array.isArray(args['_sort']) ? args['_sort'] : args['_sort'].split(',');
+        const sort_properties_list = parsedArgs['_sort'].queryParameterValues;
         if (sort_properties_list.length > 0) {
             /**
              * @type {import('mongodb').Sort}
@@ -820,13 +818,13 @@ class SearchManager {
 
     /**
      * sets cursor batch size based on args or environment variables
-     * @param {Object} args
+     * @param {ParsedArgs} parsedArgs
      * @param {DatabasePartitionedCursor} cursorQuery
      * @return {{cursorBatchSize: number, cursorQuery: DatabasePartitionedCursor}}
      */
-    setCursorBatchSize({args, cursorQuery}) {
-        const cursorBatchSize = args['_cursorBatchSize'] ?
-            parseInt(args['_cursorBatchSize']) :
+    setCursorBatchSize({parsedArgs, cursorQuery}) {
+        const cursorBatchSize = parsedArgs['_cursorBatchSize'] ?
+            parseInt(parsedArgs['_cursorBatchSize']) :
             parseInt(env.MONGO_BATCH_SIZE);
         if (cursorBatchSize > 0) {
             cursorQuery = cursorQuery.batchSize({size: cursorBatchSize});
@@ -836,17 +834,17 @@ class SearchManager {
 
     /**
      * set default sort options
-     * @param {Object} args
+     * @param {ParsedArgs} parsedArgs
      * @param {Object} options
      */
     setDefaultLimit(
         {
-            args,
+            parsedArgs,
             options
         }
     ) {
         // set a limit so the server does not come down due to volume of data
-        if (!args['id'] && !args['_elements']) {
+        if (!parsedArgs['id'] && !parsedArgs['_elements']) {
             options['limit'] = limit;
         } else {
             options['limit'] = searchLimitForIds;

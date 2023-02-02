@@ -15,7 +15,6 @@ const {ScopesValidator} = require('../security/scopesValidator');
 const {BundleManager} = require('../common/bundleManager');
 const {ConfigManager} = require('../../utils/configManager');
 const {BadRequestError} = require('../../utils/httpErrors');
-const deepcopy = require('deepcopy');
 const {ParsedArgs} = require('../query/parsedArgsItem');
 
 
@@ -94,13 +93,12 @@ class SearchStreamingOperation {
      * does a FHIR Search
      * @param {FhirRequestInfo} requestInfo
      * @param {import('express').Response} res
-     * @param {Object} args
      * @param {ParsedArgs} parsedArgs
      * @param {string} resourceType
      * @return {Promise<Resource[] | {entry:{resource: Resource}[]}>} array of resources or a bundle
      */
     async searchStreaming(
-        {requestInfo, res, args, parsedArgs, resourceType}) {
+        {requestInfo, res, parsedArgs, resourceType}) {
         assertTypeEquals(parsedArgs, ParsedArgs);
         const currentOperationName = 'searchStreaming';
         // Start the FHIR request timer, saving a reference to the returned method
@@ -132,11 +130,11 @@ class SearchStreamingOperation {
             /** @type {string} */ method
         } = requestInfo;
 
-        const originalArgs = deepcopy(args);
+        const originalArgs = parsedArgs.clone();
         await this.scopesValidator.verifyHasValidScopesAsync(
             {
                 requestInfo,
-                args,
+                parsedArgs,
                 resourceType,
                 startTime,
                 action: currentOperationName,
@@ -147,9 +145,9 @@ class SearchStreamingOperation {
         /**
          * @type {boolean}
          */
-        const useAccessIndex = (this.configManager.useAccessIndex || isTrue(args['_useAccessIndex']));
+        const useAccessIndex = (this.configManager.useAccessIndex || isTrue(parsedArgs['_useAccessIndex']));
 
-        const {/** @type {string} **/base_version} = args;
+        const {/** @type {string} **/base_version} = parsedArgs;
 
         /** @type {import('mongodb').Document}**/
         let query = {};
@@ -161,7 +159,7 @@ class SearchStreamingOperation {
             // args must contain one of these
             const requiredFiltersForAuditEvent = this.configManager.requiredFiltersForAuditEvent;
             if (requiredFiltersForAuditEvent && requiredFiltersForAuditEvent.length > 0) {
-                if (requiredFiltersForAuditEvent.filter(r => args[`${r}`]).length === 0) {
+                if (requiredFiltersForAuditEvent.filter(r => parsedArgs[`${r}`]).length === 0) {
                     const message = `One of the filters [${requiredFiltersForAuditEvent.join(',')}] are required to query AuditEvent`;
                     throw new BadRequestError(
                         {
@@ -183,7 +181,7 @@ class SearchStreamingOperation {
                 columns
             } = await this.searchManager.constructQueryAsync(
                 {
-                    user, scope, isUser, patientIdsFromJwtToken, args, resourceType, useAccessIndex,
+                    user, scope, isUser, patientIdsFromJwtToken, resourceType, useAccessIndex,
                     personIdFromJwtToken,
                     parsedArgs
                 }));
@@ -191,7 +189,7 @@ class SearchStreamingOperation {
             await this.fhirLoggingManager.logOperationFailureAsync(
                 {
                     requestInfo,
-                    args,
+                    args: parsedArgs.getRawArgs(),
                     resourceType,
                     startTime,
                     action: currentOperationName,
@@ -229,7 +227,7 @@ class SearchStreamingOperation {
             const __ret = await this.searchManager.getCursorForQueryAsync(
                 {
                     resourceType, base_version,
-                    args, columns, options, query,
+                    parsedArgs, columns, options, query,
                     maxMongoTimeMS, user, isStreaming: true, useAccessIndex
                 }
             );
@@ -294,9 +292,9 @@ class SearchStreamingOperation {
             /**
              * @type {import('mongodb').Document[]}
              */
-            const explanations = (cursor && (args['_explain'] || args['_debug'] || env.LOGLEVEL === 'DEBUG')) ?
+            const explanations = (cursor && (parsedArgs['_explain'] || parsedArgs['_debug'] || env.LOGLEVEL === 'DEBUG')) ?
                 (await cursor.explainAsync()) : [];
-            if (cursor && args['_explain']) {
+            if (cursor && parsedArgs['_explain']) {
                 // if explain is requested then don't return any results
                 cursor.clear();
             }
@@ -326,7 +324,7 @@ class SearchStreamingOperation {
                         });
                 } else {
                     // if env.RETURN_BUNDLE is set then return as a Bundle
-                    if (this.configManager.enableReturnBundle || args['_bundle']) {
+                    if (this.configManager.enableReturnBundle || parsedArgs['_bundle']) {
                         /**
                          * @type {Resource[]}
                          */
@@ -348,7 +346,6 @@ class SearchStreamingOperation {
                                 resources: resources1,
                                 base_version,
                                 total_count,
-                                args,
                                 originalQuery,
                                 collectionName,
                                 databaseName,
@@ -361,7 +358,8 @@ class SearchStreamingOperation {
                                 cursorBatchSize,
                                 user,
                                 explanations,
-                                allCollectionsToSearch
+                                allCollectionsToSearch,
+                                parsedArgs
                             }
                         );
                         resourceIds = await this.searchManager.streamBundleFromCursorAsync(
@@ -400,7 +398,7 @@ class SearchStreamingOperation {
                             base_version,
                             resourceType,
                             operation: 'read',
-                            args,
+                            args: parsedArgs.getRawArgs(),
                             ids: resourceIds
                         }
                     );
@@ -417,7 +415,7 @@ class SearchStreamingOperation {
                     res.status(200).end();
                 } else {
                     // return empty bundle
-                    if (this.configManager.enableReturnBundle || args['_bundle']) {
+                    if (this.configManager.enableReturnBundle || parsedArgs['_bundle']) {
                         /**
                          * @type {Bundle}
                          */
@@ -432,7 +430,6 @@ class SearchStreamingOperation {
                                 resources,
                                 base_version,
                                 total_count,
-                                args,
                                 originalQuery,
                                 collectionName,
                                 databaseName,
@@ -445,7 +442,8 @@ class SearchStreamingOperation {
                                 cursorBatchSize,
                                 user,
                                 explanations,
-                                allCollectionsToSearch
+                                allCollectionsToSearch,
+                                parsedArgs
                             }
                         );
                         if (requestId && !res.headersSent) {
@@ -464,7 +462,7 @@ class SearchStreamingOperation {
             await this.fhirLoggingManager.logOperationSuccessAsync(
                 {
                     requestInfo,
-                    args,
+                    args: parsedArgs.getRawArgs(),
                     resourceType,
                     startTime,
                     action: currentOperationName,
@@ -480,7 +478,7 @@ class SearchStreamingOperation {
             await this.fhirLoggingManager.logOperationFailureAsync(
                 {
                     requestInfo,
-                    args,
+                    args: parsedArgs.getRawArgs(),
                     resourceType,
                     startTime,
                     action: currentOperationName,

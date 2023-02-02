@@ -108,14 +108,12 @@ class UpdateOperation {
     /**
      * does a FHIR Update (PUT)
      * @param {FhirRequestInfo} requestInfo
-     * @param {Object} args
      * @param {ParsedArgs} parsedArgs
      * @param {string} resourceType
      * @returns {{id: string,created: boolean, resource_version: string, resource: Resource}}
      */
-    async update({requestInfo, args, parsedArgs, resourceType}) {
+    async update({requestInfo, parsedArgs, resourceType}) {
         assertIsValid(requestInfo !== undefined);
-        assertIsValid(args !== undefined);
         assertIsValid(resourceType !== undefined);
         assertTypeEquals(parsedArgs, ParsedArgs);
 
@@ -137,7 +135,7 @@ class UpdateOperation {
         await this.scopesValidator.verifyHasValidScopesAsync(
             {
                 requestInfo,
-                args,
+                parsedArgs,
                 resourceType,
                 startTime,
                 action: currentOperationName,
@@ -152,7 +150,7 @@ class UpdateOperation {
          * @type {Object}
          */
         let resource_incoming_json = body;
-        let {base_version, id} = args;
+        let {base_version, id} = parsedArgs;
 
         if (isTrue(env.LOG_ALL_SAVES)) {
             await sendToS3('logs',
@@ -163,7 +161,7 @@ class UpdateOperation {
                 currentOperationName);
         }
 
-        if (env.VALIDATE_SCHEMA || args['_validate']) {
+        if (env.VALIDATE_SCHEMA || parsedArgs['_validate']) {
             /**
              * @type {OperationOutcome|null}
              */
@@ -309,7 +307,7 @@ class UpdateOperation {
                     await this.auditLogger.logAuditEntryAsync(
                         {
                             requestInfo, base_version, resourceType,
-                            operation: currentOperationName, args, ids: [resource_incoming['id']]
+                            operation: currentOperationName, args: parsedArgs.getRawArgs(), ids: [resource_incoming['id']]
                         }
                     );
                     await this.auditLogger.flushAsync({requestId, currentDate, method});
@@ -324,7 +322,7 @@ class UpdateOperation {
                 await this.fhirLoggingManager.logOperationSuccessAsync(
                     {
                         requestInfo,
-                        args,
+                        args: parsedArgs.getRawArgs(),
                         resourceType,
                         startTime,
                         action: currentOperationName,
@@ -362,7 +360,7 @@ class UpdateOperation {
             await this.fhirLoggingManager.logOperationFailureAsync(
                 {
                     requestInfo,
-                    args,
+                    args: parsedArgs.getRawArgs(),
                     resourceType,
                     startTime,
                     action: currentOperationName,

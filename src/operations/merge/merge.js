@@ -150,15 +150,13 @@ class MergeOperation {
     /**
      * does a FHIR Merge
      * @param {FhirRequestInfo} requestInfo
-     * @param {Object} args
      * @param {ParsedArgs} parsedArgs
      * @param {string} resourceType
      * @returns {Promise<MergeResultEntry[]> | Promise<MergeResultEntry>| Promise<Resource>}
      */
     // eslint-disable-next-line no-unused-vars
-    async merge({requestInfo, args, parsedArgs, resourceType}) {
+    async merge({requestInfo, parsedArgs, resourceType}) {
         assertIsValid(requestInfo !== undefined);
-        assertIsValid(args !== undefined);
         assertIsValid(resourceType !== undefined);
         assertTypeEquals(parsedArgs, ParsedArgs);
         const currentOperationName = 'merge';
@@ -195,7 +193,7 @@ class MergeOperation {
         await this.scopesValidator.verifyHasValidScopesAsync(
             {
                 requestInfo,
-                args,
+                parsedArgs,
                 resourceType,
                 startTime,
                 action: currentOperationName,
@@ -210,7 +208,7 @@ class MergeOperation {
 
         // noinspection JSCheckFunctionSignatures
         try {
-            let {/** @type {string} */ base_version} = args;
+            let {/** @type {string} */ base_version} = parsedArgs;
 
             /**
              * @type {string[]}
@@ -220,7 +218,7 @@ class MergeOperation {
             /**
              * @type {Object|Object[]|undefined}
              */
-            let incomingObjects = args.resource ? args.resource : body;
+            let incomingObjects = parsedArgs.resource ? parsedArgs.resource : body;
 
             // see if the resources were passed as parameters
             if (incomingObjects.resourceType === 'Parameters') {
@@ -389,14 +387,14 @@ class MergeOperation {
                 this.addSuccessfulMergesToMergeResult(incomingResourceTypeAndIds, idsInMergeResults));
             await this.mergeManager.logAuditEntriesForMergeResults(
                 {
-                    requestInfo, requestId, base_version, args, mergeResults,
+                    requestInfo, requestId, base_version, parsedArgs, mergeResults,
                     method
                 });
 
             await this.fhirLoggingManager.logOperationSuccessAsync(
                 {
                     requestInfo,
-                    args,
+                    args: parsedArgs.getRawArgs(),
                     resourceType,
                     startTime,
                     action: currentOperationName,
@@ -476,14 +474,14 @@ class MergeOperation {
                         resources: resources,
                         base_version,
                         total_count: operationOutcomes.length,
-                        args,
                         originalQuery: {},
                         collectionName: firstCollectionNameForQuery,
                         originalOptions: {},
                         stopTime,
                         startTime,
                         user,
-                        explanations: []
+                        explanations: [],
+                        parsedArgs
                     }
                 );
                 return bundle;
@@ -494,7 +492,7 @@ class MergeOperation {
             await this.fhirLoggingManager.logOperationFailureAsync(
                 {
                     requestInfo,
-                    args,
+                    args: parsedArgs.getRawArgs(),
                     resourceType,
                     startTime,
                     action: currentOperationName,

@@ -47,16 +47,13 @@ class EverythingOperation {
      * does a FHIR $everything
      * @param {FhirRequestInfo} requestInfo
      * @param {import('express').Response} res
-     * @param {Object} args
      * @param {ParsedArgs} parsedArgs
      * @param {string} resourceType
      * @param {BaseResponseStreamer|undefined} [responseStreamer]
      * @return {Promise<Bundle>}
      */
-    // eslint-disable-next-line no-unused-vars
-    async everything({requestInfo, res, args, parsedArgs, resourceType, responseStreamer}) {
+    async everything({requestInfo, res, parsedArgs, resourceType, responseStreamer}) {
         assertIsValid(requestInfo !== undefined, 'requestInfo is undefined');
-        assertIsValid(args !== undefined, 'args is undefined');
         assertIsValid(res !== undefined, 'res is undefined');
         assertIsValid(resourceType !== undefined, 'resourceType is undefined');
         assertTypeEquals(parsedArgs, ParsedArgs);
@@ -67,7 +64,7 @@ class EverythingOperation {
         const startTime = Date.now();
         await this.scopesValidator.verifyHasValidScopesAsync({
             requestInfo,
-            args,
+            parsedArgs,
             resourceType,
             startTime,
             action: currentOperationName,
@@ -75,71 +72,71 @@ class EverythingOperation {
         });
 
         try {
-            const {id} = args;
+            const {id} = parsedArgs;
 
             let query = {};
             query.id = id;
             // Grab an instance of our DB and collection
             if (resourceType === 'Practitioner') {
-                args.resource = practitionerEverythingGraph;
+                parsedArgs.resource = practitionerEverythingGraph;
                 const result = await this.graphOperation.graph({
-                    requestInfo, res, args, resourceType, responseStreamer
+                    requestInfo, res, parsedArgs, resourceType, responseStreamer
                 });
                 await this.fhirLoggingManager.logOperationSuccessAsync({
                     requestInfo,
-                    args,
+                    args: parsedArgs.getRawArgs(),
                     resourceType,
                     startTime,
                     action: currentOperationName
                 });
                 return result;
             } else if (resourceType === 'Organization') {
-                args.resource = organizationEverythingGraph;
+                parsedArgs.resource = organizationEverythingGraph;
                 const result = await this.graphOperation.graph({
-                    requestInfo, res, args, resourceType, responseStreamer
+                    requestInfo, res, parsedArgs, resourceType, responseStreamer
                 });
                 await this.fhirLoggingManager.logOperationSuccessAsync({
                     requestInfo,
-                    args,
+                    args: parsedArgs.getRawArgs(),
                     resourceType,
                     startTime,
                     action: currentOperationName
                 });
                 return result;
             } else if (resourceType === 'Slot') {
-                args.resource = slotEverythingGraph;
+                parsedArgs.resource = slotEverythingGraph;
                 const result = await this.graphOperation.graph({
-                    requestInfo, res, args, resourceType, responseStreamer
+                    requestInfo, res, parsedArgs, resourceType, responseStreamer
                 });
                 await this.fhirLoggingManager.logOperationSuccessAsync({
                     requestInfo,
-                    args,
+                    args: parsedArgs.getRawArgs(),
                     resourceType,
                     startTime,
                     action: currentOperationName
                 });
                 return result;
             } else if (resourceType === 'Person') {
-                args.resource = requestInfo.method.toLowerCase() === 'delete' ? personEverythingForDeletionGraph : personEverythingGraph;
+                parsedArgs.resource = requestInfo.method.toLowerCase() === 'delete' ? personEverythingForDeletionGraph : personEverythingGraph;
                 const result = await this.graphOperation.graph({
-                    requestInfo, res, args, resourceType, responseStreamer
+                    requestInfo, res, parsedArgs, resourceType, responseStreamer
                 });
                 await this.fhirLoggingManager.logOperationSuccessAsync({
                     requestInfo,
-                    args,
+                    args: parsedArgs.getRawArgs(),
                     resourceType,
                     startTime,
                     action: currentOperationName
                 });
                 return result;
             } else if (resourceType === 'Patient') {
-                args.resource = requestInfo.method.toLowerCase() === 'delete' ? patientEverythingForDeletionGraph : patientEverythingGraph;
+                parsedArgs.resource = requestInfo.method.toLowerCase() === 'delete' ? patientEverythingForDeletionGraph : patientEverythingGraph;
                 const result = await this.graphOperation.graph({
-                    requestInfo, res, args, resourceType, responseStreamer
+                    requestInfo, res, parsedArgs, resourceType, responseStreamer
                 });
                 await this.fhirLoggingManager.logOperationSuccessAsync({
                     requestInfo,
-                    args,
+                    args: parsedArgs.getRawArgs(),
                     resourceType,
                     startTime,
                     action: currentOperationName
@@ -153,7 +150,7 @@ class EverythingOperation {
             await this.fhirLoggingManager.logOperationFailureAsync(
                 {
                     requestInfo,
-                    args,
+                    args: parsedArgs.getRawArgs(),
                     resourceType,
                     startTime,
                     action: currentOperationName,

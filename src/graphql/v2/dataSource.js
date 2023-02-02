@@ -207,7 +207,6 @@ class FhirDataSource extends DataSource {
                         await this.searchBundleOperation.searchBundle(
                             {
                                 requestInfo,
-                                args: args1,
                                 resourceType,
                                 parsedArgs: await this.getParsedArgsAsync({args: args1, resourceType})
                             }
@@ -323,7 +322,6 @@ class FhirDataSource extends DataSource {
             await this.searchBundleOperation.searchBundle(
                 {
                     requestInfo: context.fhirRequestInfo,
-                    args: args1,
                     resourceType,
                     parsedArgs: await this.getParsedArgsAsync({args: args1, resourceType})
                 }
@@ -352,7 +350,6 @@ class FhirDataSource extends DataSource {
         const bundle = await this.searchBundleOperation.searchBundle(
             {
                 requestInfo: context.fhirRequestInfo,
-                args: args1,
                 resourceType,
                 parsedArgs: await this.getParsedArgsAsync({args: args1, resourceType})
             }

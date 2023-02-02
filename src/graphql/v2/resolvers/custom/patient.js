@@ -1,6 +1,7 @@
 const {RemoveOperation} = require('../../../../operations/remove/remove');
 const {MergeOperation} = require('../../../../operations/merge/merge');
 const {assertTypeEquals, assertIsValid} = require('../../../../utils/assertType');
+const {R4ArgsParser} = require('../../../../operations/query/r4ArgsParser');
 
 /**
  method to match general practitioners to an id and remove from the provided list
@@ -172,14 +173,20 @@ module.exports = {
                      */
                     const removeOperation = container.removeOperation;
                     assertTypeEquals(removeOperation, RemoveOperation);
+                    /**
+                     * @type {R4ArgsParser}
+                     */
+                    const r4ArgsParser = container.r4ArgsParser;
+                    assertTypeEquals(r4ArgsParser, R4ArgsParser);
+                    const args1 = {
+                        ...args,
+                        base_version: '4_0_0',
+                        id: args.patientId,
+                    };
                     await removeOperation.remove(
                         {
                             requestInfo: requestInfo,
-                            args: {
-                                ...args,
-                                base_version: '4_0_0',
-                                id: args.patientId,
-                            },
+                            parsedArgs: r4ArgsParser.parseArgs({resourceType: 'Patient', args: args1}),
                             resourceType: 'Patient'
                         }
                     );
@@ -212,10 +219,16 @@ module.exports = {
                  */
                 const mergeOperation = container.mergeOperation;
                 assertTypeEquals(mergeOperation, MergeOperation);
+                const args1 = {...args, base_version: '4_0_0'};
+                /**
+                 * @type {R4ArgsParser}
+                 */
+                const r4ArgsParser = container.r4ArgsParser;
+                assertTypeEquals(r4ArgsParser, R4ArgsParser);
                 const result = await mergeOperation.merge(
                     {
                         requestInfo,
-                        args: {...args, base_version: '4_0_0'},
+                        parsedArgs: r4ArgsParser.parseArgs({resourceType: 'Patient', args: args1}),
                         resourceType: 'Patient'
                     }
                 );

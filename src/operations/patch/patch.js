@@ -70,15 +70,12 @@ class PatchOperation {
     /**
      * does a FHIR Patch
      * @param {FhirRequestInfo} requestInfo
-     * @param {Object} args
      * @param {ParsedArgs} parsedArgs
      * @param {string} resourceType
      * @returns {{id: string,created: boolean, resource_version: string, resource: Resource}}
      */
-    // eslint-disable-next-line no-unused-vars
-    async patch({requestInfo, args, parsedArgs, resourceType}) {
+    async patch({requestInfo, parsedArgs, resourceType}) {
         assertIsValid(requestInfo !== undefined);
-        assertIsValid(args !== undefined);
         assertIsValid(resourceType !== undefined);
         assertTypeEquals(parsedArgs, ParsedArgs);
         const currentOperationName = 'patch';
@@ -111,7 +108,7 @@ class PatchOperation {
 
         await this.scopesValidator.verifyHasValidScopesAsync({
             requestInfo,
-            args,
+            parsedArgs,
             resourceType,
             startTime,
             action: currentOperationName,
@@ -123,7 +120,7 @@ class PatchOperation {
             const currentDate = moment.utc().format('YYYY-MM-DD');
             // http://hl7.org/fhir/http.html#patch
             // patchContent is passed in JSON Patch format https://jsonpatch.com/
-            let {base_version, id} = args;
+            let {base_version, id} = parsedArgs;
             // Get current record
             // Query our collection for this observation
             /**
@@ -201,7 +198,7 @@ class PatchOperation {
             await this.fhirLoggingManager.logOperationSuccessAsync(
                 {
                     requestInfo,
-                    args,
+                    args: parsedArgs.getRawArgs(),
                     resourceType,
                     startTime,
                     action: currentOperationName
@@ -229,7 +226,7 @@ class PatchOperation {
             await this.fhirLoggingManager.logOperationFailureAsync(
                 {
                     requestInfo,
-                    args,
+                    args: parsedArgs.getRawArgs(),
                     resourceType,
                     startTime,
                     action: currentOperationName,

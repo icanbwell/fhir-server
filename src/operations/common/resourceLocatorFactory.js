@@ -1,6 +1,6 @@
 const {ResourceLocator} = require('./resourceLocator');
 const {MongoCollectionManager} = require('../../utils/mongoCollectionManager');
-const {assertTypeEquals} = require('../../utils/assertType');
+const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
 const {PartitioningManager} = require('../../partitioners/partitioningManager');
 const {MongoDatabaseManager} = require('../../utils/mongoDatabaseManager');
 
@@ -39,6 +39,8 @@ class ResourceLocatorFactory {
      * @return {ResourceLocator}
      */
     createResourceLocator({resourceType, base_version}) {
+        assertIsValid(resourceType, 'resourceType is missing');
+        assertIsValid(base_version, 'base_version is missing');
         return new ResourceLocator(
             {
                 mongoCollectionManager: this.mongoCollectionManager, resourceType, base_version,

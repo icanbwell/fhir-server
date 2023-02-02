@@ -769,7 +769,7 @@ class MergeManager {
      * @param {FhirRequestInfo} requestInfo
      * @param {string} requestId
      * @param {string} base_version
-     * @param {Object} args
+     * @param {ParsedArgs} parsedArgs
      * @param {MergeResultEntry[]} mergeResults
      * @param {string} method
      * @returns {Promise<void>}
@@ -778,7 +778,8 @@ class MergeManager {
         {
             requestInfo,
             requestId,
-            base_version, args,
+            base_version,
+            parsedArgs,
             mergeResults,
             method
         }
@@ -807,7 +808,7 @@ class MergeManager {
                         await this.auditLogger.logAuditEntryAsync(
                             {
                                 requestInfo, base_version, resourceType,
-                                operation: 'create', args,
+                                operation: 'create', args: parsedArgs.getRawArgs(),
                                 ids: createdItems.map(r => r['id'])
                             }
                         );
@@ -816,7 +817,7 @@ class MergeManager {
                         await this.auditLogger.logAuditEntryAsync(
                             {
                                 requestInfo, base_version, resourceType,
-                                operation: 'update', args,
+                                operation: 'update', args: parsedArgs.getRawArgs(),
                                 ids: updatedItems.map(r => r['id'])
                             }
                         );

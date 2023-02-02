@@ -305,7 +305,6 @@ class FhirOperationsManager {
         return this.searchBundleOperation.searchBundle(
             {
                 requestInfo: this.getRequestInfo(req),
-                args: combined_args,
                 parsedArgs,
                 resourceType
             });
@@ -338,7 +337,6 @@ class FhirOperationsManager {
                 requestInfo: this.getRequestInfo(req),
                 res,
                 parsedArgs,
-                args: combined_args,
                 resourceType
             });
     }
@@ -364,7 +362,7 @@ class FhirOperationsManager {
             {
                 requestInfo: this.getRequestInfo(req),
                 parsedArgs,
-                args: combined_args, resourceType
+                resourceType
             }
         );
     }
@@ -395,7 +393,7 @@ class FhirOperationsManager {
             {
                 requestInfo: this.getRequestInfo(req),
                 parsedArgs,
-                args: combined_args, path, resourceType
+                path, resourceType
             }
         );
     }
@@ -422,7 +420,7 @@ class FhirOperationsManager {
             {
                 requestInfo: this.getRequestInfo(req),
                 parsedArgs,
-                args: combined_args, resourceType
+                resourceType
             }
         );
     }
@@ -449,7 +447,7 @@ class FhirOperationsManager {
             {
                 requestInfo: this.getRequestInfo(req),
                 parsedArgs,
-                args: combined_args, resourceType
+                resourceType
             }
         );
     }
@@ -487,7 +485,6 @@ class FhirOperationsManager {
                 {
                     requestInfo: this.getRequestInfo(req),
                     res,
-                    args: combined_args,
                     parsedArgs,
                     resourceType,
                     responseStreamer
@@ -533,7 +530,7 @@ class FhirOperationsManager {
             {
                 requestInfo: this.getRequestInfo(req),
                 parsedArgs,
-                args: combined_args, resourceType
+                resourceType
             }
         );
     }
@@ -560,7 +557,7 @@ class FhirOperationsManager {
             {
                 requestInfo: this.getRequestInfo(req),
                 parsedArgs,
-                args, resourceType
+                resourceType
             }
         );
     }
@@ -587,7 +584,7 @@ class FhirOperationsManager {
             {
                 requestInfo: this.getRequestInfo(req),
                 parsedArgs,
-                args, resourceType
+                resourceType
             }
         );
     }
@@ -614,7 +611,7 @@ class FhirOperationsManager {
             {
                 requestInfo: this.getRequestInfo(req),
                 parsedArgs,
-                args, resourceType
+                resourceType
             });
     }
 
@@ -641,7 +638,7 @@ class FhirOperationsManager {
             {
                 requestInfo: this.getRequestInfo(req),
                 parsedArgs,
-                args, resourceType
+                resourceType
             });
     }
 
@@ -667,7 +664,7 @@ class FhirOperationsManager {
             {
                 requestInfo: this.getRequestInfo(req),
                 parsedArgs,
-                args, resourceType
+                resourceType
             });
     }
 
@@ -703,7 +700,6 @@ class FhirOperationsManager {
                 {
                     requestInfo: this.getRequestInfo(req),
                     res,
-                    args: combined_args,
                     parsedArgs,
                     resourceType,
                     responseStreamer
@@ -749,7 +745,7 @@ class FhirOperationsManager {
             {
                 requestInfo: this.getRequestInfo(req),
                 parsedArgs,
-                args, resourceType
+                resourceType
             }
         );
     }

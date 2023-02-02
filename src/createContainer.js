@@ -589,7 +589,8 @@ const createContainer = function () {
             fhirOperationsManager: c.fhirOperationsManager,
             everythingOperation: c.everythingOperation,
             databaseQueryFactory: c.databaseQueryFactory,
-            databaseUpdateFactory: c.databaseUpdateFactory
+            databaseUpdateFactory: c.databaseUpdateFactory,
+            r4ArgsParser: c.r4ArgsParser
         }));
 
     container.register('personMatchManager', (c) => new PersonMatchManager(

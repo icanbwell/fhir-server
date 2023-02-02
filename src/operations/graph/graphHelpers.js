@@ -219,7 +219,6 @@ class GraphHelper {
      * @param {*|null} filterValue (Optional) match filterProperty to this value
      * @param {boolean} [explain]
      * @param {boolean} [debug]
-     * @param {ParsedArgs} parsedArgs
      * @returns {QueryItem}
      */
     async getForwardReferencesAsync({
@@ -231,8 +230,7 @@ class GraphHelper {
                                         filterProperty,
                                         filterValue,
                                         explain,
-                                        debug,
-                                        parsedArgs
+                                        debug
                                     }) {
         try {
             // throw new Error('I am here');
@@ -266,6 +264,13 @@ class GraphHelper {
              */
             const useAccessIndex = this.configManager.useAccessIndex;
 
+            const args = Object.assign({'base_version': base_version}, {'id': relatedReferenceIds});
+            const childParseArgs = this.r4ArgsParser.parseArgs(
+                {
+                    resourceType,
+                    args
+                }
+            );
             let {
                 /** @type {import('mongodb').Document}**/
                 query, // /** @type {Set} **/
@@ -275,11 +280,10 @@ class GraphHelper {
                 scope: requestInfo.scope,
                 isUser: requestInfo.isUser,
                 patientIdsFromJwtToken: requestInfo.patientIdsFromJwtToken,
-                args: Object.assign({'base_version': base_version}, {'id': relatedReferenceIds}), // add id filter to query
                 resourceType,
                 useAccessIndex,
                 personIdFromJwtToken: requestInfo.personIdFromJwtToken,
-                parsedArgs
+                parsedArgs: childParseArgs
             });
 
             if (filterProperty) {
@@ -448,7 +452,6 @@ class GraphHelper {
                     scope: requestInfo.scope,
                     isUser: requestInfo.isUser,
                     patientIdsFromJwtToken: requestInfo.patientIdsFromJwtToken,
-                    args,
                     resourceType: relatedResourceType,
                     useAccessIndex,
                     personIdFromJwtToken: requestInfo.personIdFromJwtToken,
@@ -701,7 +704,7 @@ class GraphHelper {
                 })) {
                     await this.scopesValidator.verifyHasValidScopesAsync({
                         requestInfo,
-                        args: {},
+                        parsedArgs,
                         resourceType,
                         startTime: Date.now(),
                         action: 'graph',
@@ -720,7 +723,6 @@ class GraphHelper {
                         filterValue,
                         explain,
                         debug,
-                        parsedArgs
                     });
                     if (queryItem) {
                         queryItems.push(queryItem);
@@ -752,7 +754,7 @@ class GraphHelper {
                     // reverse link
                     await this.scopesValidator.verifyHasValidScopesAsync({
                         requestInfo,
-                        args: {},
+                        parsedArgs,
                         resourceType,
                         startTime: Date.now(),
                         action: 'graph',
@@ -1040,8 +1042,7 @@ class GraphHelper {
      * @param {boolean} hash_references
      * @param {boolean} [explain]
      * @param {boolean} [debug]
-     * @param {Object} args
-     * @param {Object} originalArgs
+     * @param {ParsedArgs} originalArgs
      * @param {ParsedArgs} parsedArgs
      * @return {Promise<{entries: BundleEntry[], queries: import('mongodb').Document[], options: import('mongodb').FindOptions<import('mongodb').DefaultSchema>[], explanations: import('mongodb').Document[]}>}
      */
@@ -1055,7 +1056,6 @@ class GraphHelper {
             hash_references,
             explain,
             debug,
-            args,
             originalArgs,
             parsedArgs
         }
@@ -1078,7 +1078,6 @@ class GraphHelper {
                 scope: requestInfo.scope,
                 isUser: requestInfo.isUser,
                 patientIdsFromJwtToken: requestInfo.patientIdsFromJwtToken,
-                args: args, // add id filter to query
                 resourceType,
                 useAccessIndex: this.configManager.useAccessIndex,
                 personIdFromJwtToken: requestInfo.personIdFromJwtToken,
@@ -1252,7 +1251,6 @@ class GraphHelper {
                     hash_references,
                     explain,
                     debug,
-                    args,
                     originalArgs,
                     parsedArgs
                 }
@@ -1268,9 +1266,8 @@ class GraphHelper {
      * @param {*} graphDefinitionJson (a GraphDefinition resource)
      * @param {boolean} contained
      * @param {boolean} hash_references
-     * @param {Object} args
      * @param {BaseResponseStreamer|undefined} [responseStreamer]
-     * @param {Object} originalArgs
+     * @param {ParsedArgs} originalArgs
      * @param {ParsedArgs} parsedArgs
      * @return {Promise<Bundle>}
      */
@@ -1282,12 +1279,12 @@ class GraphHelper {
             graphDefinitionJson,
             contained,
             hash_references,
-            args,
             originalArgs,
             responseStreamer,
             parsedArgs
         }
     ) {
+        assertTypeEquals(parsedArgs, ParsedArgs);
         try {
             /**
              * @type {number}
@@ -1313,9 +1310,8 @@ class GraphHelper {
                     graphDefinition,
                     contained,
                     hash_references,
-                    explain: args && args['_explain'] ? true : false,
-                    debug: args && args['_debug'] ? true : false,
-                    args,
+                    explain: parsedArgs['_explain'] ? true : false,
+                    debug: parsedArgs['_debug'] ? true : false,
                     originalArgs,
                     parsedArgs
                 }
@@ -1385,7 +1381,7 @@ class GraphHelper {
                 resources,
                 base_version,
                 total_count: null,
-                args: args,
+                parsedArgs,
                 originalQuery: queries,
                 collectionName,
                 originalOptions: options,
@@ -1410,7 +1406,7 @@ class GraphHelper {
                     graphDefinitionJson,
                     contained,
                     hash_references,
-                    args,
+                    parsedArgs,
                     originalArgs,
                     responseStreamer
                 }
@@ -1424,8 +1420,7 @@ class GraphHelper {
      * @param {string} base_version
      * @param {string} resourceType
      * @param {*} graphDefinitionJson (a GraphDefinition resource)
-     * @param {Object} args
-     * @param {Object} originalArgs
+     * @param {ParsedArgs} originalArgs
      * @param {BaseResponseStreamer} responseStreamer
      * @param {ParsedArgs} parsedArgs
      * @return {Promise<Bundle>}
@@ -1436,7 +1431,6 @@ class GraphHelper {
             base_version,
             resourceType,
             graphDefinitionJson,
-            args,
             originalArgs,
             responseStreamer,
             parsedArgs
@@ -1458,7 +1452,6 @@ class GraphHelper {
                     contained: false,
                     hash_references: false,
                     graphDefinitionJson,
-                    args,
                     originalArgs,
                     responseStreamer: null, // don't let graph send the response
                     parsedArgs
@@ -1490,7 +1483,11 @@ class GraphHelper {
                     base_version
                 });
                 await this.scopesValidator.verifyHasValidScopesAsync({
-                    requestInfo, args, resourceType: resultResourceType, action: 'graph', accessRequested: 'write',
+                    requestInfo,
+                    parsedArgs,
+                    resourceType: resultResourceType,
+                    action: 'graph',
+                    accessRequested: 'write',
                     startTime
                 });
 
@@ -1547,7 +1544,7 @@ class GraphHelper {
                     base_version,
                     resourceType,
                     graphDefinitionJson,
-                    args,
+                    parsedArgs,
                     originalArgs,
                     responseStreamer
                 }

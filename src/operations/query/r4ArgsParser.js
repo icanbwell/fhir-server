@@ -31,9 +31,9 @@ class R4ArgsParser {
     parseArgs({resourceType, args}) {
 
         /**
-         * @type {ParsedArgsItem[]}
+         * @type {ParsedArgs}
          */
-        const parsedArgsItems = [];
+        const parsedArgs = new ParsedArgs({base_version: args['base_version']});
         // some of these parameters we used wrong in the past but have to map them to maintain backwards compatibility
         // ---- start of backward compatibility mappings ---
         if (args['source'] && !args['_source']) {
@@ -110,7 +110,7 @@ class R4ArgsParser {
             );
 
             if (queryParameterValue) {
-                parsedArgsItems.push(
+                parsedArgs.add(
                     new ParsedArgsItem({
                         queryParameter,
                         queryParameterValue,
@@ -120,7 +120,7 @@ class R4ArgsParser {
                 );
             }
         }
-        return new ParsedArgs({parsedArgItems: parsedArgsItems});
+        return parsedArgs;
     }
 }
 

@@ -2,6 +2,7 @@ const {getHash} = require('../../../../utils/uid.util');
 const {MergeOperation} = require('../../../../operations/merge/merge');
 const {assertTypeEquals} = require('../../../../utils/assertType');
 const {SimpleContainer} = require('../../../../utils/simpleContainer');
+const {R4ArgsParser} = require('../../../../operations/query/r4ArgsParser');
 
 function mapParticipants(members) {
     const result = [];
@@ -106,11 +107,20 @@ module.exports = {
                  */
                 const mergeOperation = container.mergeOperation;
                 assertTypeEquals(mergeOperation, MergeOperation);
+                /**
+                 * @type {R4ArgsParser}
+                 */
+                const r4ArgsParser = container.r4ArgsParser;
+                assertTypeEquals(r4ArgsParser, R4ArgsParser);
+                const resourceType = 'CareTeam';
                 const result = await mergeOperation.merge(
                     {
                         requestInfo,
-                        args: {...args, base_version: '4_0_0'},
-                        resourceType: 'CareTeam'
+                        parsedArgs: r4ArgsParser.parseArgs({
+                            resourceType: resourceType,
+                            args: {...args, base_version: '4_0_0'}
+                        }),
+                        resourceType: resourceType
                     }
                 );
                 if (result && result[0].operationOutcome) {

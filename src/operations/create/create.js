@@ -90,16 +90,14 @@ class CreateOperation {
     /**
      * does a FHIR Create (POST)
      * @param {FhirRequestInfo} requestInfo
-     * @param {Object} args
      * @param {ParsedArgs} parsedArgs
      * @param {string} path
      * @param {string} resourceType
      * @returns {Resource}
      */
     // eslint-disable-next-line no-unused-vars
-    async create({requestInfo, args, parsedArgs, path, resourceType}) {
+    async create({requestInfo, parsedArgs, path, resourceType}) {
         assertIsValid(requestInfo !== undefined);
-        assertIsValid(args !== undefined);
         assertIsValid(resourceType !== undefined);
         assertTypeEquals(parsedArgs, ParsedArgs);
         const currentOperationName = 'create';
@@ -112,7 +110,7 @@ class CreateOperation {
         await this.scopesValidator.verifyHasValidScopesAsync(
             {
                 requestInfo,
-                args,
+                parsedArgs,
                 resourceType,
                 startTime,
                 action: currentOperationName,
@@ -122,7 +120,7 @@ class CreateOperation {
 
         let resource_incoming = body;
 
-        let {base_version} = args;
+        let {base_version} = parsedArgs;
 
         // Per https://www.hl7.org/fhir/http.html#create, we should ignore the id passed in and generate a new one
         resource_incoming.id = generateUUID();
@@ -142,7 +140,7 @@ class CreateOperation {
             );
         }
 
-        if (env.VALIDATE_SCHEMA || args['_validate']) {
+        if (env.VALIDATE_SCHEMA || parsedArgs['_validate']) {
             /**
              * @type {OperationOutcome|null}
              */
@@ -163,7 +161,7 @@ class CreateOperation {
                 const notValidatedError = new NotValidatedError(validationOperationOutcome);
                 await this.fhirLoggingManager.logOperationFailureAsync({
                     requestInfo,
-                    args,
+                    args: parsedArgs.getRawArgs(),
                     resourceType,
                     startTime,
                     action: currentOperationName,
@@ -221,7 +219,7 @@ class CreateOperation {
                 await this.auditLogger.logAuditEntryAsync(
                     {
                         requestInfo, base_version, resourceType,
-                        operation: currentOperationName, args, ids: [resource['id']]
+                        operation: currentOperationName, args: parsedArgs.getRawArgs(), ids: [resource['id']]
                     }
                 );
                 await this.auditLogger.flushAsync({requestId, currentDate, method});
@@ -256,7 +254,7 @@ class CreateOperation {
             await this.fhirLoggingManager.logOperationSuccessAsync(
                 {
                     requestInfo,
-                    args,
+                    args: parsedArgs.getRawArgs(),
                     resourceType,
                     startTime,
                     action: currentOperationName,
@@ -285,7 +283,7 @@ class CreateOperation {
             }
             await this.fhirLoggingManager.logOperationFailureAsync({
                 requestInfo,
-                args,
+                args: parsedArgs.getRawArgs(),
                 resourceType,
                 startTime,
                 action: currentOperationName,

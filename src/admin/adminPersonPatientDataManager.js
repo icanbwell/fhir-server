@@ -8,6 +8,7 @@ const Person = require('../fhir/classes/4_0_0/resources/person');
 const BundleRequest = require('../fhir/classes/4_0_0/backbone_elements/bundleRequest');
 const {VERSIONS} = require('../middleware/fhir/utils/constants');
 const {RethrownError} = require('../utils/rethrownError');
+const {R4ArgsParser} = require('../operations/query/r4ArgsParser');
 
 const base_version = VERSIONS['4_0_0'];
 
@@ -18,6 +19,7 @@ class AdminPersonPatientDataManager {
      * @param {FhirOperationsManager} fhirOperationsManager
      * @param {EverythingOperation} everythingOperation
      * @param {DatabaseQueryFactory} databaseQueryFactory
+     * @param {R4ArgsParser} r4ArgsParser
      * @param {DatabaseUpdateFactory} databaseUpdateFactory
      */
     constructor(
@@ -25,7 +27,8 @@ class AdminPersonPatientDataManager {
             fhirOperationsManager,
             everythingOperation,
             databaseQueryFactory,
-            databaseUpdateFactory
+            databaseUpdateFactory,
+            r4ArgsParser
         }
     ) {
         /**
@@ -50,6 +53,12 @@ class AdminPersonPatientDataManager {
          */
         this.databaseUpdateFactory = databaseUpdateFactory;
         assertTypeEquals(databaseUpdateFactory, DatabaseUpdateFactory);
+
+        /**
+         * @type {R4ArgsParser}
+         */
+        this.r4ArgsParser = r4ArgsParser;
+        assertTypeEquals(r4ArgsParser, R4ArgsParser);
     }
 
     /**
@@ -64,14 +73,15 @@ class AdminPersonPatientDataManager {
         try {
             const requestInfo = this.fhirOperationsManager.getRequestInfo(req);
             requestInfo.method = 'DELETE';
+            const args = {
+                'base_version': base_version,
+                'id': patientId
+            };
             const bundle = await this.everythingOperation.everything({
                 requestInfo,
                 res,
-                args: {
-                    'base_version': base_version,
-                    'id': patientId
-                },
                 resourceType: 'Patient',
+                parsedArgs: this.r4ArgsParser.parseArgs({resourceType: 'Patient', args}),
                 responseStreamer
             });
             // now also remove any connections to this Patient record
@@ -154,14 +164,15 @@ class AdminPersonPatientDataManager {
         try {
             const requestInfo = this.fhirOperationsManager.getRequestInfo(req);
             requestInfo.method = 'DELETE';
+            const args = {
+                'base_version': base_version,
+                'id': personId
+            };
             const bundle = await this.everythingOperation.everything({
                 requestInfo,
                 res,
-                args: {
-                    'base_version': base_version,
-                    'id': personId
-                },
                 resourceType: 'Person',
+                parsedArgs: this.r4ArgsParser.parseArgs({resourceType: 'Person', args}),
                 responseStreamer: null
             });
             bundle.entry.forEach(bundleEntry => responseStreamer.writeBundleEntryAsync({bundleEntry}));

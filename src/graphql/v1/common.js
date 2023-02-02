@@ -94,7 +94,6 @@ async function findResourceByReference(parent, args, context, info, reference) {
         return await searchByIdOperation.searchById(
             {
                 requestInfo: getRequestInfo(context),
-                args: args1,
                 resourceType: typeOfReference,
                 parsedArgs: await getParsedArgsAsync({args: args1, resourceType: typeOfReference})
             }
@@ -158,7 +157,6 @@ async function findResourcesByReference(parent, args, context, info, references)
                 await searchBundleOperation.searchBundle(
                     {
                         requestInfo: getRequestInfo(context),
-                        args: args1,
                         resourceType: typeOfReference,
                         parsedArgs: await getParsedArgsAsync({args: args1, resourceType: typeOfReference})
                     }
@@ -213,7 +211,6 @@ async function getResources(parent, args, context, info, resourceType) {
         await searchBundleOperation.searchBundle(
             {
                 requestInfo: getRequestInfo(context),
-                args: args1,
                 resourceType,
                 parsedArgs: await getParsedArgsAsync({args: args1, resourceType: resourceType})
             }
