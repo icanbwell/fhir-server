@@ -112,7 +112,7 @@ class ParsedArgsItem {
         if (Array.isArray(queryParameterValue)) {
             return queryParameterValue;
         }
-        if (typeof queryParameterValue === 'string'){
+        if (typeof queryParameterValue === 'string') {
             const parts = queryParameterValue.split(',');
             if (parts.length > 1) {
                 return parts;
@@ -129,7 +129,9 @@ class ParsedArgsItem {
      * @return {ParsedReferenceItem[]}
      */
     parseQueryParameterValueIntoReferences({queryParameterValue, propertyObj}) {
-        assertIsValid(propertyObj);
+        if (!propertyObj) {
+            return [];
+        }
         if (!(propertyObj.target)) {
             return [];
         }
