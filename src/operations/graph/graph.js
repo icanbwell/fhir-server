@@ -114,7 +114,6 @@ class GraphOperation {
                 throw new BadRequestError(new Error('No id parameter was passed'));
             }
 
-            id = id.split(',');
             /**
              * @type {boolean}
              */

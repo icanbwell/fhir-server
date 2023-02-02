@@ -218,17 +218,24 @@ class ParsedArgs {
      * @return {ParsedArgs}
      */
     add(parsedArgItem) {
-        this.parsedArgItems.push(parsedArgItem);
-        Object.defineProperty(
-            this,
-            parsedArgItem.queryParameter,
-            {
-                get: () => parsedArgItem.queryParameterValue,
-                set: valueProvided => {
-                    parsedArgItem.queryParameterValue = valueProvided;
+        const existingParseArgItem = this.parsedArgItems.find(a => a.queryParameter === parsedArgItem.queryParameter);
+        if (existingParseArgItem) {
+            existingParseArgItem.queryParameterValue = parsedArgItem.queryParameterValue;
+            existingParseArgItem.propertyObj = parsedArgItem.propertyObj;
+            existingParseArgItem.modifiers = parsedArgItem.modifiers;
+        } else {
+            this.parsedArgItems.push(parsedArgItem);
+            Object.defineProperty(
+                this,
+                parsedArgItem.queryParameter,
+                {
+                    get: () => parsedArgItem.queryParameterValue,
+                    set: valueProvided => {
+                        parsedArgItem.queryParameterValue = valueProvided;
+                    }
                 }
-            }
-        );
+            );
+        }
         return this;
     }
 

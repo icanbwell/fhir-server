@@ -74,7 +74,19 @@ class R4ArgsParser {
         delete args['handling'];
 
         for (const argName in args) {
-            const [queryParameter, ...modifiers] = argName.split(':');
+            let [queryParameter, ...modifiers] = argName.split(':');
+            // ---- start of backward compatibility mappings ---
+            if (queryParameter === 'source') {
+                queryParameter = '_source';
+            }
+            if (queryParameter === 'id') {
+                queryParameter = '_id';
+            }
+            if (queryParameter === 'onset_date') {
+                queryParameter = 'onset-date';
+            }
+            // ---- end of backward compatibility mappings ---
+
             /**
              * @type {SearchParameterDefinition}
              */
