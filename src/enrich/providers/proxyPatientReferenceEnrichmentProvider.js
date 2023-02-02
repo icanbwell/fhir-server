@@ -8,10 +8,9 @@ class ProxyPatientReferenceEnrichmentProvider extends EnrichmentProvider {
      * enrich the specified resources
      * @param {Resource[]} resources
      * @param {ParsedArgs} parsedArgs
-     * @param originalArgs
+     * @param {ParsedArgs} originalArgs
      * @return {Promise<Resource[]>}
      */
-    // eslint-disable-next-line no-unused-vars
     async enrichAsync({resources, parsedArgs, originalArgs}) {
         assertTypeEquals(parsedArgs, ParsedArgs);
         // check if any args have a proxy patient
@@ -53,6 +52,11 @@ class ProxyPatientReferenceEnrichmentProvider extends EnrichmentProvider {
         return resources;
     }
 
+    /**
+     * parses original proxy patient from original args
+     * @param {ParsedArgs} originalArgs
+     * @return {{proxyPatientPersonId: (string|null), proxyPatientPersonIdKey: null}}
+     */
     getProxyPatientFromArgs({originalArgs}) {
         /**
          * @type {string|null}
@@ -60,12 +64,22 @@ class ProxyPatientReferenceEnrichmentProvider extends EnrichmentProvider {
         let proxyPatientPersonId = null;
         let proxyPatientPersonIdKey = null;
         if (originalArgs) {
-            for (const [key, value] of Object.entries(originalArgs)) {
-                if (value && typeof value === 'string' &&
-                    (value.startsWith('Patient/person.') || value.startsWith('person.'))
-                ) {
-                    proxyPatientPersonId = value;
-                    proxyPatientPersonIdKey = key;
+            for (const parsedArgsItem of originalArgs.parsedArgItems) {
+                /**
+                 * @type {string}
+                 */
+                const key = parsedArgsItem.queryParameter;
+                /**
+                 * @type {string[]}
+                 */
+                const values = parsedArgsItem.queryParameterValues;
+                for (const value of values) {
+                    if (value && typeof value === 'string' &&
+                        (value.startsWith('Patient/person.') || value.startsWith('person.'))
+                    ) {
+                        proxyPatientPersonId = value;
+                        proxyPatientPersonIdKey = key;
+                    }
                 }
             }
         }
@@ -76,10 +90,9 @@ class ProxyPatientReferenceEnrichmentProvider extends EnrichmentProvider {
      * Runs any registered enrichment providers
      * @param {ParsedArgs} parsedArgs
      * @param {BundleEntry[]} entries
-     * @param {Object} originalArgs
+     * @param {ParsedArgs} originalArgs
      * @return {Promise<BundleEntry[]>}
      */
-    // eslint-disable-next-line no-unused-vars
     async enrichBundleEntriesAsync({entries, parsedArgs, originalArgs}) {
         // check if any args have a proxy patient
         let {proxyPatientPersonId, proxyPatientPersonIdKey} = this.getProxyPatientFromArgs({originalArgs});

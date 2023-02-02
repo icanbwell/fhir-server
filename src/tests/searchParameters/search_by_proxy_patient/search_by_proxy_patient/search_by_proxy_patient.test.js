@@ -32,7 +32,7 @@ describe('Patient Tests', () => {
     });
 
     describe('Patient search_by_proxy_patient Tests', () => {
-        test('search obsrvations by patient for normal patients works', async () => {
+        test('search observations by patient for normal patients works', async () => {
             const request = await createTestRequest();
             // ARRANGE
             // add the resources to FHIR server
