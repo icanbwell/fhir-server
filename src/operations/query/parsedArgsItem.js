@@ -201,7 +201,7 @@ class ParsedArgs {
         /**
          * @type {ParsedArgsItem[]}
          */
-        this.parsedArgItems = parsedArgItems;
+        this.parsedArgItems = [];
         for (const parsedArgItem of parsedArgItems) {
             this.add(parsedArgItem);
         }
