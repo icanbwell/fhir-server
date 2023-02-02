@@ -635,7 +635,7 @@ class SearchManager {
         /**
          * @type {string[]}
          */
-        const sort_properties_list = parsedArgs['_sort'].queryParameterValues;
+        const sort_properties_list = parsedArgs.get('_sort').queryParameterValues;
         if (sort_properties_list.length > 0) {
             /**
              * @type {import('mongodb').Sort}
