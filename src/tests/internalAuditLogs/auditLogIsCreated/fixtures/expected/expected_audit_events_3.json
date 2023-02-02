@@ -24,16 +24,8 @@
       {
         "detail": [
           {
-            "type": "id",
-            "valueString": ""
-          },
-          {
             "type": "base_version",
             "valueString": "4_0_0"
-          },
-          {
-            "type": "handling",
-            "valueString": "lenient"
           },
           {
             "type": "validate",
@@ -94,16 +86,8 @@
       {
         "detail": [
           {
-            "type": "id",
-            "valueString": ""
-          },
-          {
             "type": "base_version",
             "valueString": "4_0_0"
-          },
-          {
-            "type": "handling",
-            "valueString": "lenient"
           }
         ],
         "what": {
@@ -162,10 +146,6 @@
           {
             "type": "base_version",
             "valueString": "4_0_0"
-          },
-          {
-            "type": "id",
-            "valueString": ""
           }
         ],
         "what": {
