@@ -235,6 +235,19 @@ class ParsedArgs {
                     }
                 }
             );
+            // special case to handle backwards compatibility
+            if (parsedArgItem.queryParameter === '_id') {
+                Object.defineProperty(
+                    this,
+                    'id',
+                    {
+                        get: () => parsedArgItem.queryParameterValue,
+                        set: valueProvided => {
+                            parsedArgItem.queryParameterValue = valueProvided;
+                        }
+                    }
+                );
+            }
         }
         return this;
     }
