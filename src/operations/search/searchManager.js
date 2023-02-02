@@ -441,12 +441,13 @@ class SearchManager {
             cursor = __ret.cursor;
         }
 
-        // if _total is specified then ask mongo for the total else set total to 0
+        // if _total is specified then ask mongo for the total else set total to 0.
+        // Value 'estimate' is not supported now but kept it for backward compatibility.
         if (args['_total'] && ['accurate', 'estimate'].includes(args['_total'])) {
             total_count = await this.handleGetTotalsAsync(
                 {
                     resourceType, base_version,
-                    args, query, maxMongoTimeMS
+                    query, maxMongoTimeMS
                 });
         }
 
@@ -589,7 +590,7 @@ class SearchManager {
     async handleGetTotalsAsync(
         {
             resourceType, base_version,
-            args, query, maxMongoTimeMS
+            query, maxMongoTimeMS
         }
     ) {
         try {
@@ -599,17 +600,10 @@ class SearchManager {
             const databaseQueryManager = this.databaseQueryFactory.createQuery(
                 {resourceType, base_version}
             );
-            if (args['_total'] === 'estimate') {
-                return await databaseQueryManager.exactDocumentCountAsync({
-                    query,
-                    options: {maxTimeMS: maxMongoTimeMS}
-                });
-            } else {
-                return await databaseQueryManager.exactDocumentCountAsync({
-                    query,
-                    options: {maxTimeMS: maxMongoTimeMS}
-                });
-            }
+            return await databaseQueryManager.exactDocumentCountAsync({
+                query,
+                options: {maxTimeMS: maxMongoTimeMS}
+            });
         } catch (e) {
             throw new RethrownError({
                 message: `Error getting totals for ${resourceType} with query: ${mongoQueryStringify(query)}`,
