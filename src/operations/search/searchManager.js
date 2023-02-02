@@ -430,7 +430,6 @@ class SearchManager {
                 });
             const __ret = this.setIndexHint(
                 {
-                    indexHint,
                     mongoCollectionName: collectionNamesForQueryForResourceType[0],
                     columns,
                     cursor,
@@ -865,27 +864,26 @@ class SearchManager {
      */
     setIndexHint(
         {
-            indexHint,
             mongoCollectionName,
             columns,
             cursor,
             user
         }
     ) {
-        let indexSuggestions = this.indexHinter.findIndexForFields(mongoCollectionName, Array.from(columns));
-        if (indexSuggestions) {
-            cursor = cursor.hint({indexSuggestions});
+        let indexHint = this.indexHinter.findIndexForFields(mongoCollectionName, Array.from(columns));
+        if (indexHint) {
+            cursor = cursor.hint({indexHint});
             logDebug(
                 {
                     user,
                     args: {
                         message: 'Using index hint',
-                        indexHint: indexSuggestions,
+                        indexHint: indexHint,
                         columns: Array.from(columns)
                     }
                 });
         }
-        return {indexSuggestions, cursor};
+        return {indexHint, cursor};
     }
 
     /**
