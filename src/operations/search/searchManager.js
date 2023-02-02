@@ -685,15 +685,17 @@ class SearchManager {
             maxMongoTimeMS
         }
     ) {
+        let actualQuery = originalQuery;
+        let actualOptions = originalOptions;
         try {
             // first get just the ids
             const projection = {};
             projection['_id'] = 0;
             projection['id'] = 1;
             options['projection'] = projection;
-            originalQuery = [query];
-            originalOptions = [options];
-            const sortOption = originalOptions[0] && originalOptions[0].sort ? originalOptions[0].sort : {};
+            actualQuery = [query];
+            actualOptions = [options];
+            const sortOption = actualOptions[0] && actualOptions[0].sort ? actualOptions[0].sort : {};
 
             const databaseQueryManager = this.databaseQueryFactory.createQuery(
                 {resourceType, base_version}
@@ -716,13 +718,13 @@ class SearchManager {
                     {id: {$in: idResults.map((r) => r.id)}};
                 // query = getQueryWithSecurityTags(securityTags, query);
                 options = {}; // reset options since we'll be looking by id
-                originalQuery.push(query);
-                originalOptions.push(options);
+                actualQuery.push(query);
+                actualOptions.push(options);
             } else {
                 // no results
                 query = null; //no need to query
             }
-            return {options, originalQuery, query, originalOptions};
+            return {options, actualQuery, query, actualOptions};
         } catch (e) {
             throw new RethrownError({
                 message: `Error in two step optimization for ${resourceType} with query: ${mongoQueryStringify(query)}`,
@@ -870,20 +872,20 @@ class SearchManager {
             user
         }
     ) {
-        indexHint = this.indexHinter.findIndexForFields(mongoCollectionName, Array.from(columns));
-        if (indexHint) {
-            cursor = cursor.hint({indexHint});
+        let indexSuggestions = this.indexHinter.findIndexForFields(mongoCollectionName, Array.from(columns));
+        if (indexSuggestions) {
+            cursor = cursor.hint({indexSuggestions});
             logDebug(
                 {
                     user,
                     args: {
                         message: 'Using index hint',
-                        indexHint: indexHint,
+                        indexHint: indexSuggestions,
                         columns: Array.from(columns)
                     }
                 });
         }
-        return {indexHint, cursor};
+        return {indexSuggestions, cursor};
     }
 
     /**
