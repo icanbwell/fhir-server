@@ -80,7 +80,7 @@ class R4SearchQueryCreator {
         let totalAndSegments = [];
 
         for (const /** @type {ParsedArgsItem} */ parsedArg of parsedArgs.parsedArgItems) {
-            if (parsedArg.queryParameterValue) {
+            if (parsedArg.queryParameterValue && parsedArg.propertyObj) {
                 let {
                     /** @type {Set} */
                     columns,

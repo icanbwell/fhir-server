@@ -44,5 +44,28 @@ describe('Patient Tests', () => {
             expect(parsedArgs.parsedArgItems[1].modifiers).toStrictEqual(['above']);
             expect(parsedArgs.parsedArgItems[1].propertyObj).toBeDefined();
         });
+        test('r4ArgsParser works for missing', async () => {
+            await createTestRequest();
+            /**
+             * @type {SimpleContainer}
+             */
+            const container = getTestContainer();
+            /**
+             * @type  {R4ArgsParser}
+             */
+            const r4ArgsParser = container.r4ArgsParser;
+            assertTypeEquals(r4ArgsParser, R4ArgsParser);
+
+            const parsedArgs = r4ArgsParser.parseArgs({
+                resourceType: 'Organization', args: {
+                    'base_version': VERSIONS['4_0_0'],
+                    'category:missing': 'true'
+                }
+            });
+            expect(parsedArgs.parsedArgItems.length).toStrictEqual(2);
+            expect(parsedArgs.parsedArgItems[1].queryParameter).toStrictEqual('category');
+            expect(parsedArgs.parsedArgItems[1].queryParameterValue).toStrictEqual('true');
+            expect(parsedArgs.parsedArgItems[1].modifiers).toStrictEqual(['missing']);
+        });
     });
 });
