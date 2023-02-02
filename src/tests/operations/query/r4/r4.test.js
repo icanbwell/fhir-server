@@ -3,6 +3,7 @@ const {describe, beforeEach, afterEach, test} = require('@jest/globals');
 const {AccessIndexManager} = require('../../../../operations/common/accessIndexManager');
 const {ConfigManager} = require('../../../../utils/configManager');
 const {IndexProvider} = require('../../../../indexes/indexProvider');
+const {VERSIONS} = require('../../../../middleware/fhir/utils/constants');
 
 class MockAccessIndexManager extends AccessIndexManager {
     resourceHasAccessIndexForAccessCodes({resourceType, accessCodes}) {
@@ -55,6 +56,7 @@ describe('r4 search Tests', () => {
              */
             const r4ArgsParser = container.r4ArgsParser;
             const args = {
+                'base_version': VERSIONS['4_0_0'],
                 '_security': 'https://www.icanbwell.com/access%7Cmedstar',
                 'birthdate': ['lt2021-09-22T00:00:00Z', 'ge2021-09-19T00:00:00Z']
             };
@@ -88,6 +90,7 @@ describe('r4 search Tests', () => {
             const r4ArgsParser = container.r4ArgsParser;
 
             const args = {
+                'base_version': VERSIONS['4_0_0'],
                 '_security': 'https://www.icanbwell.com/access%7Cfoobar',
                 'date': ['lt2021-09-22T00:00:00Z', 'ge2021-09-19T00:00:00Z']
             };
@@ -122,6 +125,7 @@ describe('r4 search Tests', () => {
 
 
             const args = {
+                'base_version': VERSIONS['4_0_0'],
                 '_security': 'https://www.icanbwell.com/access%7Cmedstar',
                 'date': ['lt2021-09-22T00:00:00Z', 'ge2021-09-19T00:00:00Z']
             };
@@ -155,6 +159,7 @@ describe('r4 search Tests', () => {
             const r4ArgsParser = container.r4ArgsParser;
 
             const args = {
+                'base_version': VERSIONS['4_0_0'],
                 'subject': 'Patient/1234'
             };
             const result = r4SearchQueryCreator.buildR4SearchQuery({
@@ -185,6 +190,7 @@ describe('r4 search Tests', () => {
             const r4ArgsParser = container.r4ArgsParser;
 
             const args = {
+                'base_version': VERSIONS['4_0_0'],
                 'patient': '1234,4567'
             };
             const result = r4SearchQueryCreator.buildR4SearchQuery({
@@ -216,6 +222,7 @@ describe('r4 search Tests', () => {
             const r4ArgsParser = container.r4ArgsParser;
 
             const args = {
+                'base_version': VERSIONS['4_0_0'],
                 'patient': 'Patient/1234,Patient/4567'
             };
             const result = r4SearchQueryCreator.buildR4SearchQuery({
@@ -248,6 +255,7 @@ describe('r4 search Tests', () => {
             const r4ArgsParser = container.r4ArgsParser;
 
             const args = {
+                'base_version': VERSIONS['4_0_0'],
                 'subject': '1234,4567'
             };
             const result = r4SearchQueryCreator.buildR4SearchQuery({
@@ -281,6 +289,7 @@ describe('r4 search Tests', () => {
             const r4ArgsParser = container.r4ArgsParser;
 
             const args = {
+                'base_version': VERSIONS['4_0_0'],
                 'subject': 'Patient/1234,Patient/4567'
             };
             const result = r4SearchQueryCreator.buildR4SearchQuery({
@@ -313,6 +322,7 @@ describe('r4 search Tests', () => {
             const r4ArgsParser = container.r4ArgsParser;
 
             const args = {
+                'base_version': VERSIONS['4_0_0'],
                 'active': 'true'
             };
             const result = r4SearchQueryCreator.buildR4SearchQuery({
@@ -344,6 +354,7 @@ describe('r4 search Tests', () => {
             const r4ArgsParser = container.r4ArgsParser;
 
             const args = {
+                'base_version': VERSIONS['4_0_0'],
                 'active': 'false'
             };
             const result = r4SearchQueryCreator.buildR4SearchQuery({
@@ -375,6 +386,7 @@ describe('r4 search Tests', () => {
             const r4ArgsParser = container.r4ArgsParser;
 
             const args = {
+                'base_version': VERSIONS['4_0_0'],
                 'id': 'john-muir-health-e.k-4ea143ZrQGvdUvf-b2y.tdyiVMBWgblY4f6y2zis3',
                 'id:above': 'john-muir-health-e.k-4ea143ZrQGvdUvf-b2y.tdyiVMBWgblY4f6y2zis3'
             };
@@ -410,6 +422,7 @@ describe('r4 search Tests', () => {
             const r4ArgsParser = container.r4ArgsParser;
 
             const args = {
+                'base_version': VERSIONS['4_0_0'],
                 '_id:not': 'john-muir-health-e.k-4ea143ZrQGvdUvf-b2y.tdyiVMBWgblY4f6y2zis3',
             };
             const result = r4SearchQueryCreator.buildR4SearchQuery({
@@ -441,6 +454,7 @@ describe('r4 search Tests', () => {
             const r4ArgsParser = container.r4ArgsParser;
 
             const args = {
+                'base_version': VERSIONS['4_0_0'],
                 '_security:not': 'https://www.icanbwell.com/access|bwell',
             };
             const result = r4SearchQueryCreator.buildR4SearchQuery({
