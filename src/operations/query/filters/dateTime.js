@@ -31,8 +31,8 @@ function filterByDateTime({queryParameterValue, propertyObj, resourceType, colum
         // eslint-disable-next-line security/detect-object-injection
         const isDateSearchingPeriod = isPeriodField(propertyObj.field);
         if (isDateSearchingPeriod) {
-            and_segments.concat(
-                datetimePeriodQueryBuilder({ dateQueryItem, fieldName: propertyObj.field })
+            and_segments.push(
+                ...datetimePeriodQueryBuilder({ dateQueryItem, fieldName: propertyObj.field })
             );
         } else if (propertyObj.fields) {
             // if there are multiple fields

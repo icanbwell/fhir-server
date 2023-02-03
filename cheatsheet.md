@@ -132,12 +132,10 @@ Example: `/4_0_0/Patient?_security:not=https://www.icanbwell.com/owner%7Cbwell`
 
 ### 1.7 Getting total count
 
-By default, the FHIR server just returns the page of data was requested. However, you can request to get the total count of records that meet your query by passing the `_total=accurate` or `_total=estimate` query parameter e.g.,
+By default, the FHIR server just returns the page of data was requested. However, you can request to get the total count of records that meet your query by passing the `_total=accurate` query parameter e.g.,
 https://fhir.icanbwell.com/4_0_0/Practitioner?source=http://somehealth.org/insurance&_count=10&_total=accurate
 
 The total count will be returned in the `total` field of the `Bundle` that is returned.
-
-Accurate count is slower but fully accurate. Estimate count is faster but may be slighly off.
 
 **Note:** This is an expensive operation when the count of records that match your query is high. It is recommended to only request `total` when it is actually needed.
 
