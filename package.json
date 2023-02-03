@@ -104,7 +104,7 @@
     "@aws-sdk/client-secrets-manager": "^3.245.0",
     "@elastic/elasticsearch": "^8.5.0",
     "@graphql-eslint/eslint-plugin": "^3.14.3",
-    "@graphql-tools/graphql-file-loader": "^7.5.13",
+    "@graphql-tools/graphql-file-loader": "^7.5.14",
     "@graphql-tools/load": "^7.8.8",
     "@graphql-tools/load-files": "^6.6.1",
     "@graphql-tools/merge": "^8.3.14",
