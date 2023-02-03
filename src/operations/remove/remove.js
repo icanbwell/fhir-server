@@ -113,10 +113,10 @@ class RemoveOperation {
         const startTime = Date.now();
         const {user, scope, /** @type {string|null} */ requestId, /** @type {string} */ method} = requestInfo;
 
-        if (parsedArgs['id'] === '0') {
+        if (parsedArgs.get('id') && parsedArgs.get('id').queryParameterValue === '0') {
             parsedArgs.remove('id');
         }
-        if (parsedArgs['_id'] === '0') {
+        if (parsedArgs.get('_id') && parsedArgs.get('_id').queryParameterValue === '0') {
             parsedArgs.remove('_id');
         }
         /**
