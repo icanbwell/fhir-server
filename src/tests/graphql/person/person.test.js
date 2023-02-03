@@ -21,6 +21,7 @@ const {
 } = require('../../common');
 const {describe, beforeEach, afterEach, test} = require('@jest/globals');
 const {cleanMeta} = require('../../customMatchers');
+const {logInfo} = require('../../../operations/common/logging');
 
 describe('GraphQL Patient Tests', () => {
     beforeEach(async () => {
@@ -81,7 +82,7 @@ describe('GraphQL Patient Tests', () => {
                 })
                 .set(getGraphQLHeaders());
 
-            console.log(resp.body);
+            logInfo('', {'resp': resp.body});
 
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedGraphQlPersonResponse, r => {

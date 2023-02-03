@@ -5,20 +5,13 @@ const process = require('node:process');
 const Sentry = require('@sentry/node');
 const {ErrorReporter} = require('../utils/slack.logger');
 const {getImageVersion} = require('../utils/getImageVersion');
-const {getCircularReplacer} = require('../utils/getCircularReplacer');
+const {logInfo} = require('../operations/common/logging');
 
 Sentry.init({dsn: process.env.SENTRY_DSN});
 
 
 process.on('uncaughtException', async (err) => {
-    console.log(
-        JSON.stringify(
-            {
-                method: 'sentryMiddleware.uncaughtException',
-                message: JSON.stringify(err, getCircularReplacer())
-            }
-        )
-    );
+    logInfo(err, {method: 'sentryMiddleware.uncaughtException'});
     Sentry.captureException(err);
     const errorReporter = new ErrorReporter(getImageVersion());
     await errorReporter.reportErrorAsync({
@@ -31,17 +24,12 @@ process.on('uncaughtException', async (err) => {
 });
 
 process.on('unhandledRejection', async (reason, promise) => {
-    console.log(
-        JSON.stringify(
-            {
-                method: 'sentryMiddleware.unhandledRejection',
-                promise: promise,
-                reason: reason,
-                stack: reason.stack
-            },
-            getCircularReplacer()
-        )
-    );
+    logInfo('', {
+        method: 'sentryMiddleware.unhandledRejection',
+        promise: promise,
+        reason: reason,
+        stack: reason.stack
+    });
     Sentry.captureException(reason);
     const errorReporter1 = new ErrorReporter(getImageVersion());
     await errorReporter1.reportErrorAsync({
@@ -53,23 +41,18 @@ process.on('unhandledRejection', async (reason, promise) => {
 });
 
 process.on('warning', (warning) => {
-    console.log(JSON.stringify(
-            {
-                method: 'sentryMiddleware.warning',
-                name: warning.name,
-                message: warning.message,
-                stack: warning.stack
-            },
-            getCircularReplacer()
-        )
-    );
+    logInfo(warning.message, {
+        method: 'sentryMiddleware.warning',
+        name: warning.name,
+        stack: warning.stack
+    });
 });
 
 process.on('exit', function (code) {
     if (code !== 0) {
         const stack = new Error().stack;
-        console.log(JSON.stringify({method: 'sentryMiddleware.exit', message: `PROCESS EXIT: exit code: ${code}`}));
-        console.log(JSON.stringify({message: JSON.stringify(stack)}, getCircularReplacer()));
+        logInfo(`PROCESS EXIT: exit code: ${code}`, {method: 'sentryMiddleware.exit'});
+        logInfo(stack);
     }
 });
 

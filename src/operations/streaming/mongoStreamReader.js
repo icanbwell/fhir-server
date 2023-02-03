@@ -1,6 +1,7 @@
 const {Readable} = require('stream');
 const env = require('var');
 const {isTrue} = require('../../utils/isTrue');
+const {logInfo, logError} = require('../common/logging');
 
 // https://thenewstack.io/node-js-readable-streams-explained/
 // https://github.com/logdna/tail-file-node/blob/ee0389ba34cb2037de776541f800842bb98df6b3/lib/tail-file.js#L22
@@ -18,15 +19,15 @@ async function* readMongoStreamGenerator({cursor, signal}) {
         while (await cursor.hasNext()) {
             // logDebug(`Buffered count=${cursor.bufferedCount()}`, {user});
             // chunk_number += 1;
-            // console.log(`read: chunk:${chunk_number}`);
+            // logInfo(`read: chunk:${chunk_number}`);
             if (signal.aborted) {
                 if (isTrue(env.LOG_STREAM_STEPS)) {
-                    console.log(JSON.stringify({message: 'mongoStreamReader: aborted'}));
+                    logInfo('mongoStreamReader: aborted');
                 }
                 return;
             }
             if (isTrue(env.LOG_STREAM_STEPS)) {
-                console.log(JSON.stringify({message: 'mongoStreamReader: read'}));
+                logInfo('mongoStreamReader: read');
             }
             /**
              * element
@@ -35,7 +36,7 @@ async function* readMongoStreamGenerator({cursor, signal}) {
             yield await cursor.next();
         }
     } catch (e) {
-        console.log(JSON.stringify({message: 'mongoStreamReader: error' + e.toString()}));
+        logError('mongoStreamReader error', {'error': e});
         throw new AggregateError([e], 'mongoStreamReader: error');
     }
 }

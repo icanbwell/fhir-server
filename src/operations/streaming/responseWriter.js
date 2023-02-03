@@ -2,9 +2,9 @@ const {Writable} = require('stream');
 const {isTrue} = require('../../utils/isTrue');
 const env = require('var');
 const {isNdJsonContentType} = require('../../utils/contentTypes');
-const {container} = require('../../winstonInit');
+const {get} = require('../../winstonInit');
 const {assertIsValid} = require('../../utils/assertType');
-const logger = container.get('default');
+const logger = get();
 
 class HttpResponseWriter extends Writable {
     /**

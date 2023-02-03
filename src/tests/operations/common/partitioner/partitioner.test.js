@@ -5,6 +5,7 @@ const {ConfigManager} = require('../../../../utils/configManager');
 const moment = require('moment-timezone');
 const {YearMonthPartitioner} = require('../../../../partitioners/yearMonthPartitioner');
 const {TestMongoDatabaseManager} = require('../../../testMongoDatabaseManager');
+const {logInfo} = require('../../../../operations/common/logging');
 
 class MockConfigManager extends ConfigManager {
     /**
@@ -265,7 +266,7 @@ describe('PartitioningManager Tests', () => {
                 query: {}
             });
             if (partitions.length > 0) {
-                console.log(JSON.stringify(partitions));
+                logInfo('', {partitions});
                 throw new Error(JSON.stringify(partitions));
             }
             expect(partitions.length).toBe(0);

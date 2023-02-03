@@ -35,6 +35,7 @@ const {
     createTestRequest,
 } = require('../../common');
 const {describe, beforeAll, afterAll, expect, test} = require('@jest/globals');
+const {logInfo} = require('../../../operations/common/logging');
 
 
 describe('patient Tests', () => {
@@ -241,16 +242,16 @@ describe('patient Tests', () => {
                 const request = await createTestRequest();
                 // ACT & ASSERT
                 // search by token system and code and make sure we get the right patient back
-                // console.log(getHeadersWithCustomPayload(payload));
+                // logInfo(getHeadersWithCustomPayload(payload));
                 //
                 // let resp1 = await request
                 //     .get('/4_0_0/patient/?_bundle=1')
                 //     .set(getHeaders())
                 //     .expect(200);
                 //
-                // console.log('------- response from getting patients ------------');
-                // console.log(JSON.stringify(resp1.body, null, 2));
-                // console.log('------- end response  ------------');
+                // logInfo('------- response from getting patients ------------');
+                // logInfo('', {'resp': resp.body});
+                // logInfo('------- end response  ------------');
 
                 let resp = await request
                     .get('/4_0_0/patient/?_bundle=1')
@@ -277,7 +278,7 @@ describe('patient Tests', () => {
                 const request = await createTestRequest();
                 // ACT & ASSERT
                 // search by token system and code and make sure we get the right patient back
-                // console.log(getHeadersWithCustomPayload(payload));
+                // logInfo(getHeadersWithCustomPayload(payload));
                 let resp = await request
                     .get('/4_0_0/patient/?_bundle=1')
                     .set(getHeadersWithCustomPayload(no_ids_user_payload));
@@ -295,7 +296,7 @@ describe('patient Tests', () => {
                 const request = await createTestRequest();
                 // ACT & ASSERT
                 // search by token system and code and make sure we get the right patient back
-                // console.log(getHeadersWithCustomPayload(payload));
+                // logInfo(getHeadersWithCustomPayload(payload));
                 let resp = await request
                     .get('/4_0_0/patient/?_bundle=1')
                     .set(getHeadersWithCustomPayload(patient_123_legacy_bad_id_payload));
@@ -479,9 +480,9 @@ describe('patient Tests', () => {
             expect(resp).toHaveStatusOk();
             // clear out the lastUpdated column since that changes
             let body = resp.body;
-            console.log('------- response graphql ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response graphql  ------------');
+            logInfo('------- response graphql ------------');
+            logInfo('', {'resp': resp.body});
+            logInfo('------- end response graphql  ------------');
             expect(body.errors).toBeUndefined();
             expect(body.data.allergyIntolerance.entry).toBeDefined();
             expect(body.data.allergyIntolerance.entry.length).toBe(1);

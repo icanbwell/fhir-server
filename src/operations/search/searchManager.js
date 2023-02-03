@@ -777,7 +777,7 @@ class SearchManager {
 
             const readableMongoStream = createReadableMongoStream({cursor, signal: ac.signal});
             // readableMongoStream.on('close', () => {
-            //     // console.log('Mongo read stream was closed');
+            //     // logInfo('Mongo read stream was closed');
             //     // ac.abort();
             // });
 
@@ -964,7 +964,7 @@ class SearchManager {
         try {
             const readableMongoStream = createReadableMongoStream({cursor, signal: ac.signal});
             // readableMongoStream.on('close', () => {
-            //     // console.log('Mongo read stream was closed');
+            //     // logInfo('Mongo read stream was closed');
             //     // ac.abort();
             // });
             // https://nodejs.org/docs/latest-v16.x/api/stream.html#streams-compatibility-with-async-generators-and-async-iterators
@@ -1048,7 +1048,7 @@ class SearchManager {
         res.on('close', onResponseClose);
 
         // res.on('error', (err) => {
-        //     console.error(err);
+        //     logError(err);
         // });
         /**
          * @type {FhirResourceWriter|FhirResourceNdJsonWriter}
@@ -1087,7 +1087,7 @@ class SearchManager {
         try {
             const readableMongoStream = createReadableMongoStream({cursor, signal: ac.signal});
             // readableMongoStream.on('close', () => {
-            //     // console.log('Mongo read stream was closed');
+            //     // logInfo('Mongo read stream was closed');
             //     // ac.abort();
             // });
 

@@ -1,13 +1,11 @@
 const env = require('var');
 const moment = require('moment-timezone');
-const {
-    container
-} = require('../../winstonInit');
+const {get} = require('../../winstonInit');
 
 /**
  * @type {import('winston').logger}
  */
-const logger = container.get('default');
+const logger = get();
 
 const os = require('os');
 const {generateUUID} = require('../../utils/uid.util');
@@ -170,7 +168,7 @@ const logSystemErrorAsync = async ({event, message, args, error}) => {
  */
 const logVerboseAsync = async ({source, args: args}) => {
     if (env.LOGLEVEL === 'DEBUG') {
-        console.log(JSON.stringify({message: `${source}: ${JSON.stringify(args, getCircularReplacer())}`}));
+        logInfo(`${source}`, {args});
     }
 };
 

@@ -194,7 +194,7 @@ class KafkaClient {
             await consumer.run({
                 // eslint-disable-next-line no-unused-vars
                 eachMessage: async ({topic1, partition, message, heartbeat, pause}) => {
-                    // console.log({
+                    // logInfo('', {
                     //     key: message.key.toString(),
                     //     value: message.value.toString(),
                     //     headers: message.headers,

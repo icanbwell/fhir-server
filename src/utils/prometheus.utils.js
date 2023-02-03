@@ -145,7 +145,7 @@ module.exports.requestCounters = function (req, res, next) {
 const responseCounters = responseTime(function (req, res, time) {
     if (req.url !== '/metrics') {
         responses.labels(req.method, req.path, res.statusCode).observe(time);
-        // console.info('res.StatusCode=' + res.statusCode);
+        // logInfo(`res.StatusCode= ${res.statusCode}`);
         if (res.statusCode === 404) {
             validationsFailedCounter.inc(1);
         }

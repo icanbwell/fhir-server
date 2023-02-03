@@ -13,12 +13,24 @@ const { combine, timestamp, json } = format;
  * - expose core container to allow for use in different implementations
  */
 
-
-const container = new Container();
 /**
  * @description Logging container that can be used to modify any loggers
  * availablie in the current application
  */
+const container = new Container();
+
+/**
+ * @description Default configuration for logger
+ */
+const defaultConfig = {
+    level: 'info',
+    format: combine(
+        timestamp({ format: 'MMM-DD-YYYY HH:mm:ss' }),
+        json()
+    ),
+    colorize: true,
+    transports: [new transports.Console()]
+};
 
 /**
  * @function get
@@ -26,26 +38,17 @@ const container = new Container();
  * default value applied to it
  * @param {String} name - Name of the logger
  * @param {Object} options - Options for the logger, this is also an alias for
- * adding a logger
+ * adding a logger. Default value is defaultConfig
  * @return {import('winston').logger}
  */
+const get = (name = 'default', options = defaultConfig) => container.get(name, options);
 
-const get = (name = 'default', options = {}) => container.get(name, options);
 /**
  * @function initialize
  * @description Initialize a default console logger
  */
-
-
 const initialize = (config = {}) => {
-    let defaultTransport = new transports.Console({
-        level: config.level,
-        format: combine(
-            timestamp({ format: 'MMM-DD-YYYY HH:mm:ss' }),
-            json()
-        ),
-        colorize: true
-    });
+    defaultConfig.level = config.level;
 
     // If we already have a logger by the provided default name, make sure it
     // has a console transport added. This can happen when someone accesses the
@@ -54,17 +57,14 @@ const initialize = (config = {}) => {
         let logger = container.get('default'); // Only add the console logger if none is present
 
         if (logger.transports.length === 0) {
-            logger.add(defaultTransport);
+            logger.configure({transports: defaultConfig.transports});
         }
     } else {
-        container.add('default', {
-            transports: [defaultTransport]
-        });
+        container.add('default', defaultConfig);
     }
 };
 
 module.exports = {
-    container,
     get,
     initialize
 };

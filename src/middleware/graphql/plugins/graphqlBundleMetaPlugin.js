@@ -42,7 +42,7 @@ class BundleMetaApolloServerPlugin /*extends ApolloServerPlugin*/ {
                 // const stop = Date.now();
                 // const elapsed = stop - start;
                 // const size = JSON.stringify(context.response).length * 2;
-                // console.log(
+                // logInfo(
                 //     `Operation ${op} completed in ${elapsed} ms and returned ${size} bytes`
                 // );
             }

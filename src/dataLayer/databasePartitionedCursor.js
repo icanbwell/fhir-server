@@ -49,11 +49,12 @@ class DatabasePartitionedCursor {
          * @type {import('mongodb').Filter<import('mongodb').DefaultSchema>}
          */
         this.query = query;
-        // console.log(JSON.stringify({
-        //     message: 'Created DatabasePartitionedCursor',
-        //     collections: this._cursors.map(c => c.collection),
-        //     query: query
-        // }));
+        // logInfo('Created DatabasePartitionedCursor',
+        //     {
+        //         collections: this._cursors.map(c => c.collection),
+        //         query: query
+        //     }
+        // );
 
         partitionedCollectionsCount.labels(resourceType).observe(cursors.length);
     }

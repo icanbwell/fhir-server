@@ -12,6 +12,7 @@ const {
     createTestRequest,
 } = require('../../common');
 const {describe, beforeEach, afterEach, expect, test} = require('@jest/globals');
+const {logInfo} = require('../../../operations/common/logging');
 
 describe('Practitioner Delete Tests', () => {
     beforeEach(async () => {
@@ -28,9 +29,9 @@ describe('Practitioner Delete Tests', () => {
             let resp = await request.get('/4_0_0/Patient').set(getHeaders()).expect(200);
 
             expect(resp.body.length).toBe(0);
-            console.log('------- response 1 ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response 1 ------------');
+            logInfo('------- response 1 ------------');
+            logInfo('', {'resp': resp.body});
+            logInfo('------- end response 1 ------------');
 
             resp = await request
                 .post('/4_0_0/Patient/1679033641/$merge?validate=true')
@@ -38,9 +39,9 @@ describe('Practitioner Delete Tests', () => {
                 .set(getHeaders())
                 .expect(200);
 
-            console.log('------- response patient1Resource ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response  ------------');
+            logInfo('------- response patient1Resource ------------');
+            logInfo('', {'resp': resp.body});
+            logInfo('------- end response  ------------');
             expect(resp.body['created']).toBe(true);
 
             resp = await request
@@ -49,9 +50,9 @@ describe('Practitioner Delete Tests', () => {
                 .set(getHeaders())
                 .expect(200);
 
-            console.log('------- response patient2Resource ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response  ------------');
+            logInfo('------- response patient2Resource ------------');
+            logInfo('', {'resp': resp.body});
+            logInfo('------- end response  ------------');
             expect(resp.body['created']).toBe(true);
 
             resp = await request.delete('/4_0_0/Patient/2').set(getHeaders());
@@ -59,9 +60,9 @@ describe('Practitioner Delete Tests', () => {
             resp = await request.get('/4_0_0/Patient').set(getHeaders()).expect(200);
 
             expect(resp.body.length).toBe(1);
-            console.log('------- response 3 ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response 3 ------------');
+            logInfo('------- response 3 ------------');
+            logInfo('', {'resp': resp.body});
+            logInfo('------- end response 3 ------------');
 
             resp = await request.get('/4_0_0/Patient/00100000000').set(getHeaders()).expect(200);
 

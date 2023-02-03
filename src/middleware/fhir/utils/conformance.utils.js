@@ -7,7 +7,7 @@ const {
 //  * @return {Object} collection
 //  */
 // let conformanceSearchParamsReduce = (collection, route_arg) => {
-// 	console.log(collection);
+// 	logInfo(collection);
 // 	// Use the name to find duplicates, we should not have arguments with the same name
 // 	if (!collection.find(item => item.name === route_arg.name)) {
 // 		collection.push(route_arg);

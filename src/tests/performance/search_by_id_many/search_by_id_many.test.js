@@ -11,6 +11,7 @@ const {
 } = require('../../common');
 const {describe, beforeEach, afterEach, expect, test} = require('@jest/globals');
 const env = require('var');
+const {logInfo} = require('../../../operations/common/logging');
 let oldEnvLogLevel;
 
 describe('PractitionerReturnIdTests', () => {
@@ -33,9 +34,9 @@ describe('PractitionerReturnIdTests', () => {
                 // first confirm there are no practitioners
                 let resp = await request.get('/4_0_0/Practitioner').set(getHeaders()).expect(200);
                 expect(resp.body.length).toBe(0);
-                console.log('------- response 1 ------------');
-                console.log(JSON.stringify(resp.body, null, 2));
-                console.log('------- end response 1 ------------');
+                logInfo('------- response 1 ------------');
+                logInfo('', {'resp': resp.body});
+                logInfo('------- end response 1 ------------');
 
                 const initialId = practitionerResource.id;
                 const bundle = {
@@ -56,9 +57,9 @@ describe('PractitionerReturnIdTests', () => {
                     .send(bundle)
                     .set(getHeaders());
 
-                console.log('------- response 1 ------------');
-                console.log(JSON.stringify(resp.body, null, 2));
-                console.log('------- end response 1 ------------');
+                logInfo('------- response 1 ------------');
+                logInfo('', {'resp': resp.body});
+                logInfo('------- end response 1 ------------');
                 expect(resp.body.length).toBe(numberOfResources);
                 for (const result of resp.body) {
                     expect(result.created).toStrictEqual(true);
@@ -69,9 +70,9 @@ describe('PractitionerReturnIdTests', () => {
                     .get('/4_0_0/Practitioner/?_count=10')
                     .set(getHeaders())
                     .expect(200);
-                console.log('------- response Practitioner sorted ------------');
-                console.log(JSON.stringify(resp.body, null, 2));
-                console.log('------- end response sort ------------');
+                logInfo('------- response Practitioner sorted ------------');
+                logInfo('', {'resp': resp.body});
+                logInfo('------- end response sort ------------');
                 expect(resp.body.length).toBe(10);
 
                 // now check that we get the right record back
@@ -79,9 +80,9 @@ describe('PractitionerReturnIdTests', () => {
                     .get(`/4_0_0/Practitioner/?_streamResponse=1&_count=${numberOfResources}`)
                     .set(getHeadersNdJson())
                     .expect(200);
-                console.log('------- response Practitioner sorted ------------');
-                console.log(JSON.stringify(resp.body, null, 2));
-                console.log('------- end response sort ------------');
+                logInfo('------- response Practitioner sorted ------------');
+                logInfo('', {'resp': resp.body});
+                logInfo('------- end response sort ------------');
                 const lines = resp.text.split('\n');
                 expect(lines.length).toBe(numberOfResources + 1);
             },

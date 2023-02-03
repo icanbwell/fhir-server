@@ -5,10 +5,10 @@ const conformanceTemplate = require('./capability.template.js');
 const errors = require('../utils/error.utils.js');
 
 // const {
-//     container
+//     get
 // } = require('../../../winstonInit');
 //
-// let logger = container.get('default');
+// let logger = get();
 /**
  * Load the correct statement generators for the right version
  */

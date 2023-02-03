@@ -1,7 +1,7 @@
 const {createApp} = require('./app');
 const {fhirServerConfig} = require('./config');
 const env = require('var');
-const {logSystemEventAsync} = require('./operations/common/logging');
+const {logError, logInfo, logSystemEventAsync} = require('./operations/common/logging');
 const {createHttpTerminator} = require('http-terminator');
 const http = require('http');
 const {getImageVersion} = require('./utils/getImageVersion');
@@ -33,7 +33,7 @@ async function createServer(fnCreateContainer) {
     // The number of milliseconds of inactivity before a socket is presumed to have timed out.
     // A value of 0 will disable the timeout behavior on incoming connections.
     server.setTimeout(10 * 60 * 1000, (/*socket*/) => {
-        console.log(JSON.stringify({message: 'Server timeout'}));
+        logInfo('Server timeout');
     }); // 60 minutes
     // The number of milliseconds of inactivity a server needs to wait for additional incoming data, after it has
     // finished writing the last response, before a socket will be destroyed. If the server receives new data
@@ -46,11 +46,11 @@ async function createServer(fnCreateContainer) {
     server.on('connection', function (socket) {
         socket.setTimeout(10 * 60 * 1000);
         socket.once('timeout', function () {
-            console.log(JSON.stringify({message: 'Socket timeout'}));
+            logInfo('Socket timeout');
             // process.nextTick(socket.destroy);
         });
         socket.once('error', function (e) {
-            console.log(JSON.stringify({message: 'Socket error: ' + e}));
+            logError('Socket error', {error: e});
             // process.nextTick(socket.destroy);
         });
     });
@@ -61,7 +61,7 @@ async function createServer(fnCreateContainer) {
     });
 
     process.on('SIGTERM', async function onSigterm() {
-        console.log(JSON.stringify({message: 'Beginning shutdown of server'}));
+        logInfo('Beginning shutdown of server');
         await logSystemEventAsync({
             event: 'SIGTERM',
             message: 'Beginning shutdown of server for SIGTERM',
@@ -69,17 +69,17 @@ async function createServer(fnCreateContainer) {
         });
         try {
             await httpTerminator.terminate();
-            console.log(JSON.stringify({message: 'Successfully shut down server'}));
+            logInfo('Successfully shut down server');
             process.exit(0);
         } catch (error) {
-            console.log(JSON.stringify({message: 'Failed to shutdown server', error}));
+            logError('Failed to shutdown server', {error: error});
             process.exit(1);
         }
     });
 
     // https://snyk.io/wp-content/uploads/10-best-practices-to-containerize-Node.js-web-applications-with-Docker.pdf
     process.on('SIGINT', async function onSigInt() {
-        console.log(JSON.stringify({message: 'Beginning shutdown of server for SIGINT'}));
+        logInfo('Beginning shutdown of server for SIGINT');
         await logSystemEventAsync({
             event: 'SIGINT',
             message: 'Beginning shutdown of server for SIGINT',
@@ -87,12 +87,10 @@ async function createServer(fnCreateContainer) {
         });
         try {
             await httpTerminator.terminate();
-            console.log(JSON.stringify({message: 'Successfully shut down server for SIGINT'}));
+            logInfo('Successfully shut down server for SIGINT');
             process.exit(0);
         } catch (error) {
-            console.log(
-                JSON.stringify({message: 'Failed to shutdown server for SIGINT: ', error})
-            );
+            logError('Failed to shutdown server for SIGINT', {error: error});
             process.exit(1);
         }
     });

@@ -2,6 +2,7 @@ const {Transform} = require('stream');
 const {isTrue} = require('../../utils/isTrue');
 const env = require('var');
 const {convertErrorToOperationOutcome} = require('../../utils/convertErrorToOperationOutcome');
+const {logInfo} = require('../common/logging');
 
 class FhirResourceNdJsonWriter extends Transform {
     /**
@@ -34,7 +35,7 @@ class FhirResourceNdJsonWriter extends Transform {
         try {
             if (chunk !== null && chunk !== undefined) {
                 if (isTrue(env.LOG_STREAM_STEPS)) {
-                    console.log(JSON.stringify({message: `FhirResourceNdJsonWriter: _transform ${chunk['id']}`}));
+                    logInfo(`FhirResourceNdJsonWriter: _transform ${chunk['id']}`);
                 }
                 const resourceJson = JSON.stringify(chunk);
                 this.push(resourceJson + '\n', encoding);
@@ -52,7 +53,7 @@ class FhirResourceNdJsonWriter extends Transform {
      */
     _flush(callback) {
         if (isTrue(env.LOG_STREAM_STEPS)) {
-            console.log(JSON.stringify({message: 'FhirResourceNdJsonWriter: _flush'}));
+            logInfo('FhirResourceNdJsonWriter: _flush');
         }
         callback();
     }

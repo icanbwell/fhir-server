@@ -285,7 +285,7 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                 // const fnRefreshSessionAsync = async () => {
                 //     session = sourceClient.startSession();
                 //     sessionId = session.serverSession.id;
-                //     console.log(`Restarted session ${JSON.stringify(sessionId)}`);
+                //     logInfo('Restarted session', {'session id': sessionId});
                 // };
                 while (await this.hasNext(cursor)) {
                     // Check if more than 5 minutes have passed since the last refresh
@@ -340,7 +340,7 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                                 startFromIdContainer.nModified += bulkResult.nModified;
                                 startFromIdContainer.nUpserted += bulkResult.nUpserted;
                                 startFromIdContainer.startFromId = lastCheckedId;
-                                // console.log(`Wrote: modified: ${bulkResult.nModified.toLocaleString()} (${nModified.toLocaleString()}), ` +
+                                // logInfo(`Wrote: modified: ${bulkResult.nModified.toLocaleString()} (${nModified.toLocaleString()}), ` +
                                 //     `upserted: ${bulkResult.nUpserted} (${nUpserted.toLocaleString()})`);
                                 operations = [];
                                 // await session.commitTransaction();

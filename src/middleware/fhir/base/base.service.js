@@ -1,8 +1,8 @@
 const {
-  container
+  get
 } = require('../../../winstonInit');
 
-let logger = container.get('default');
+let logger = get();
 
 const path = require('path');
 

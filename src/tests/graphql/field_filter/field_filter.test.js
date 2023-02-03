@@ -33,6 +33,7 @@ const {
 } = require('../../common');
 const {describe, beforeEach, afterEach, test} = require('@jest/globals');
 const {cleanMeta} = require('../../customMatchers');
+const {logInfo} = require('../../../operations/common/logging');
 
 describe('GraphQL CodeSystem Tests', () => {
     beforeEach(async () => {
@@ -80,7 +81,7 @@ describe('GraphQL CodeSystem Tests', () => {
                 })
                 .set(getGraphQLHeaders());
 
-            console.log(resp.body);
+            logInfo('', {'resp': resp.body});
 
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedGraphQlWithoutFilterResponse, r => {
@@ -132,7 +133,7 @@ describe('GraphQL CodeSystem Tests', () => {
                 })
                 .set({'X-Request-Id': 'd4c5546f-cd8a-4447-83e0-201f0da08bef', ...getGraphQLHeaders()});
 
-            console.log(resp.body);
+            logInfo('', {'resp': resp.body});
 
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedGraphQlWithFilterResponse, r => {
@@ -205,7 +206,7 @@ describe('GraphQL CodeSystem Tests', () => {
                 })
                 .set(getCustomGraphQLHeaders(only_fhir_person_payload));
 
-            console.log(resp.body);
+            logInfo('', {'resp': resp.body});
 
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedGraphQlWithFilterResponse, r => {
@@ -285,7 +286,7 @@ describe('GraphQL CodeSystem Tests', () => {
                 })
                 .set(getCustomGraphQLHeaders(only_fhir_person_payload));
 
-            console.log(resp.body);
+            logInfo('', {'resp': resp.body});
 
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedGraphQlWithFilterBinaryResponse, r => {

@@ -1,7 +1,7 @@
 const {mongoConfig, auditEventMongoConfig} = require('../config');
 const {isTrue} = require('./isTrue');
 const env = require('var');
-const {logSystemEventAsync} = require('../operations/common/logging');
+const {logSystemEventAsync, logInfo, logError} = require('../operations/common/logging');
 const {MongoClient} = require('mongodb');
 
 /**
@@ -92,13 +92,13 @@ class MongoDatabaseManager {
         try {
             await client.connect();
         } catch (e) {
-            console.error(JSON.stringify({message: `Failed to connect to ${clientConfig.connection}: ${e}`}));
+            logError(`Failed to connect to ${clientConfig.connection}`, {'error': e});
             throw e;
         }
         try {
             await client.db('admin').command({ping: 1});
         } catch (e) {
-            console.error(JSON.stringify({message: `Failed to execute ping on ${clientConfig.connection}: ${e}`}));
+            logError(`Failed to execute ping on ${clientConfig.connection}`, {'error': e});
             throw e;
         }
         await logSystemEventAsync(
@@ -112,13 +112,13 @@ class MongoDatabaseManager {
         if (isTrue(env.LOG_ALL_MONGO_CALLS)) {
             // https://www.mongodb.com/docs/drivers/node/current/fundamentals/monitoring/command-monitoring/
             client.on('commandStarted', event => {
-                console.log(JSON.stringify({message: `AWS Received commandStarted: ${JSON.stringify(event, null, 2)}\n\n`}));
+                logInfo('AWS Received commandStarted', {'event': event});
             });
             client.on('commandSucceeded', event => {
-                console.log(JSON.stringify({message: `AWS Received commandSucceeded: ${JSON.stringify(event, null, 2)}\n\n`}));
+                logInfo('AWS Received commandSucceeded', {'event': event});
             });
             client.on('commandFailed', event => {
-                console.log(JSON.stringify({message: `AWS Received commandFailed: ${JSON.stringify(event, null, 2)}\n\n`}));
+                logInfo('AWS Received commandFailed', {'event': event});
             });
         }
         return client;

@@ -94,9 +94,9 @@ const verify = (jwt_payload, done) => {
             scope = scope + ' ' + groups.join(' ');
         }
 
-        // console.info(
+        // logInfo(
         //     username || client_id,
-        //     'Verified client_id: ' + client_id + ' username=' + username + ' scope: ' + scope
+        //     {'Verified client_id': client_id, 'username': username, 'scope': scope}
         // );
 
         const context = {};

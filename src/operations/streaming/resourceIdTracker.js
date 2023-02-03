@@ -1,6 +1,7 @@
 const {Transform} = require('stream');
 const {isTrue} = require('../../utils/isTrue');
 const env = require('var');
+const {logInfo} = require('../common/logging');
 
 class ResourceIdTracker extends Transform {
     /**
@@ -41,7 +42,7 @@ class ResourceIdTracker extends Transform {
 
             if (chunk !== null && chunk !== undefined) {
                 if (isTrue(env.LOG_STREAM_STEPS)) {
-                    console.log(JSON.stringify({message: `ResourceIdTracker: _transform ${chunk['id']}`}));
+                    logInfo(`ResourceIdTracker: _transform ${chunk['id']}`);
                 }
                 this._tracker.id.push(chunk['id']);
                 this.push(chunk, encoding);

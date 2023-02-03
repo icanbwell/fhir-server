@@ -5,6 +5,7 @@
 const env = require('var');
 const async = require('async');
 const {RethrownError} = require('../utils/rethrownError');
+const {logInfo} = require('../operations/common/logging');
 
 /**
  * Handles clean
@@ -17,7 +18,7 @@ module.exports.handleClean = async ({fnCreateContainer, req, res}) => {
     // const query_args_array = Object.entries(req.query);
     // return res.status(200).json(req.params);
     if (!env.DISABLE_CLEAN_ENDPOINT) {
-        console.info('Running clean');
+        logInfo('Running clean');
         const container = fnCreateContainer();
         /**
          * @type {MongoDatabaseManager}
@@ -33,7 +34,7 @@ module.exports.handleClean = async ({fnCreateContainer, req, res}) => {
             // const collections = await db.listCollections().toArray();
 
             const specific_collection = req.params['collection'];
-            console.log('specific_collection: ' + specific_collection);
+            logInfo('', {'specific_collection': specific_collection});
             if (env.IS_PRODUCTION && !specific_collection) {
                 return res
                     .status(400)
@@ -44,7 +45,7 @@ module.exports.handleClean = async ({fnCreateContainer, req, res}) => {
             }
 
             for await (const collection of db.listCollections()) {
-                console.log(collection.name);
+                logInfo(collection.name);
                 if (collection.name.indexOf('system.') === -1) {
                     if (
                         !specific_collection ||
@@ -56,7 +57,7 @@ module.exports.handleClean = async ({fnCreateContainer, req, res}) => {
                 }
             }
 
-            console.info('Collection_names:' + collection_names);
+            logInfo('', {'Collection_names': collection_names});
             res.status(202).json({
                 status: 'processing request, check the stats endpoint for progress.',
                 deleting_from_collections: collection_names,

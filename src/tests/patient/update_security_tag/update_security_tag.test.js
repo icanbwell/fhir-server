@@ -13,6 +13,7 @@ const {
 } = require('../../common');
 const env = require('var');
 const {describe, beforeEach, afterEach, expect, test} = require('@jest/globals');
+const {logInfo} = require('../../../operations/common/logging');
 
 describe('PractitionerUpdateSecurityTagTests', () => {
     beforeEach(async () => {
@@ -33,9 +34,9 @@ describe('PractitionerUpdateSecurityTagTests', () => {
             let resp = await request.get('/4_0_0/Patient').set(getHeaders());
 
             expect(resp.body.length).toBe(0);
-            console.log('------- response 1 ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response 1 ------------');
+            logInfo('------- response 1 ------------');
+            logInfo('', {'resp': resp.body});
+            logInfo('------- end response 1 ------------');
 
             env['CHECK_ACCESS_TAG_ON_SAVE'] = 0;
             try {
@@ -44,9 +45,9 @@ describe('PractitionerUpdateSecurityTagTests', () => {
                     .send(patientWithoutSecurityTagResource)
                     .set(getHeaders());
 
-                console.log('------- response patient1Resource ------------');
-                console.log(JSON.stringify(resp.body, null, 2));
-                console.log('------- end response  ------------');
+                logInfo('------- response patient1Resource ------------');
+                logInfo('', {'resp': resp.body});
+                logInfo('------- end response  ------------');
                 expect(resp.body['created']).toBe(true);
             } finally {
                 env['CHECK_ACCESS_TAG_ON_SAVE'] = oldValue;
@@ -57,9 +58,9 @@ describe('PractitionerUpdateSecurityTagTests', () => {
                 .send(patientWithSecurityTagResource)
                 .set(getHeaders());
 
-            console.log('------- response patient1Resource ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response  ------------');
+            logInfo('------- response patient1Resource ------------');
+            logInfo('', {'resp': resp.body});
+            logInfo('------- end response  ------------');
             expect(resp.body['created']).toBe(false);
             expect(resp.body['updated']).toBe(true);
 

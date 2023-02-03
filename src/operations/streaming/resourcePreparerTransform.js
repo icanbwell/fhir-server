@@ -1,6 +1,7 @@
 const {Transform} = require('stream');
 const {isTrue} = require('../../utils/isTrue');
 const env = require('var');
+const {logInfo} = require('../common/logging');
 
 class ResourcePreparerTransform extends Transform {
     /**
@@ -112,7 +113,7 @@ class ResourcePreparerTransform extends Transform {
             .then(
                 /** @type {Resource[]} */resources => {
                     if (isTrue(env.LOG_STREAM_STEPS)) {
-                        console.log(JSON.stringify({message: 'ResourcePreparerTransform: _transform'}));
+                        logInfo('ResourcePreparerTransform: _transform');
                     }
                     if (resources.length > 0) {
                         for (const /** @type {Resource} */ resource of resources) {
@@ -123,7 +124,7 @@ class ResourcePreparerTransform extends Transform {
                                 )
                             ) {
                                 if (isTrue(env.LOG_STREAM_STEPS)) {
-                                    console.log(JSON.stringify({message: `ResourcePreparerTransform: push ${resource['id']}`}));
+                                    logInfo(`ResourcePreparerTransform: push ${resource['id']}`);
                                 }
                                 this.push(resource);
                                 this.resourcesProcessed.push(
@@ -142,7 +143,7 @@ class ResourcePreparerTransform extends Transform {
      */
     _flush(callback) {
         if (isTrue(env.LOG_STREAM_STEPS)) {
-            console.log(JSON.stringify({message: 'ResourcePreparerTransform: _flush'}));
+            logInfo('ResourcePreparerTransform: _flush');
         }
         callback();
     }

@@ -45,7 +45,7 @@ class GraphqlContainerPlugin /*extends ApolloServerPlugin*/ {
                                 await requestSpecificCache.clearAsync({requestId});
                             }
                         }
-                        // console.log(`Sleep after response ended: ${requestId}`);
+                        // logInfo(`Sleep after response ended: ${requestId}`);
                     });
                 }
             }

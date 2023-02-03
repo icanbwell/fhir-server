@@ -27,7 +27,6 @@ const {handleStats} = require('./routeHandlers/stats');
 const {handleSmartConfiguration} = require('./routeHandlers/smartConfiguration');
 const {isTrue} = require('./utils/isTrue');
 const cookieParser = require('cookie-parser');
-const {initialize} = require('./winstonInit');
 const {handleAdmin} = require('./routeHandlers/admin');
 
 /**
@@ -56,7 +55,6 @@ function createFhirApp(fnCreateContainer, app1) {
  * @return {import('express').Express}
  */
 function createApp({fnCreateContainer, trackMetrics}) {
-    initialize();
     const swaggerUi = require('swagger-ui-express');
     // eslint-disable-next-line security/detect-non-literal-require
     const swaggerDocument = require(env.SWAGGER_CONFIG_URL);
@@ -118,7 +116,7 @@ function createApp({fnCreateContainer, trackMetrics}) {
         const state = req.query.state;
         const resourceUrl = state ?
             encodeURIComponent(Buffer.from(state, 'base64').toString('ascii')) : '';
-        // console.log(`Redirecting to ${resourceUrl}`);
+        // logInfo(`Redirecting to ${resourceUrl}`);
         const redirectUrl = `${httpProtocol}`.concat('://', `${req.headers.host}`, '/authcallback');
         res.redirect(
             `/callback.html?code=${req.query.code}&resourceUrl=${resourceUrl}` +

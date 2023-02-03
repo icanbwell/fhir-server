@@ -17,6 +17,7 @@ const {
     createTestRequest,
 } = require('../../common');
 const {describe, beforeEach, afterEach, expect, test} = require('@jest/globals');
+const {logInfo} = require('../../../operations/common/logging');
 
 describe('GraphQL Condition Tests', () => {
     beforeEach(async () => {
@@ -33,35 +34,35 @@ describe('GraphQL Condition Tests', () => {
             const graphqlQueryText = conditionQuery.replace(/\\n/g, '');
             let resp = await request.get('/4_0_0/Condition').set(getHeaders()).expect(200);
             expect(resp.body.length).toBe(0);
-            console.log('------- response 1 ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response 1 ------------');
+            logInfo('------- response 1 ------------');
+            logInfo('', {'resp': resp.body});
+            logInfo('------- end response 1 ------------');
             resp = await request
                 .post('/4_0_0/Patient/1/$merge')
                 .send(patientBundleResource)
                 .set(getHeaders())
                 .expect(200);
 
-            console.log('------- response 2 ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response 2  ------------');
+            logInfo('------- response 2 ------------');
+            logInfo('', {'resp': resp.body});
+            logInfo('------- end response 2  ------------');
             resp = await request
                 .post('/4_0_0/Condition/1/$merge')
                 .send(conditionBundleResource)
                 .set(getHeaders())
                 .expect(200);
-            console.log('------- response 2 ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response 2  ------------');
+            logInfo('------- response 2 ------------');
+            logInfo('', {'resp': resp.body});
+            logInfo('------- end response 2  ------------');
 
             resp = await request.get('/4_0_0/Patient/').set(getHeaders()).expect(200);
-            console.log('------- response patient ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response patient  ------------');
+            logInfo('------- response patient ------------');
+            logInfo('', {'resp': resp.body});
+            logInfo('------- end response patient  ------------');
             resp = await request.get('/4_0_0/Condition/').set(getHeaders()).expect(200);
-            console.log('------- response 2 ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response 2  ------------');
+            logInfo('------- response 2 ------------');
+            logInfo('', {'resp': resp.body});
+            logInfo('------- end response 2  ------------');
             resp = await request
                 // .get('/graphql/?query=' + graphqlQueryText)
                 // .set(getHeaders())
