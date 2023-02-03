@@ -218,28 +218,21 @@ class ParsedArgs {
      * @return {ParsedArgs}
      */
     add(parsedArgItem) {
-        const existingParseArgItem = this.parsedArgItems.find(a => a.queryParameter === parsedArgItem.queryParameter);
+        const existingParseArgItem = this.parsedArgItems.find(
+            a => a.queryParameter === parsedArgItem.queryParameter &&
+                (a.modifiers && a.modifiers.toString()) === (parsedArgItem.modifiers && parsedArgItem.modifiers.toString())
+        );
         if (existingParseArgItem) {
             existingParseArgItem.queryParameterValue = parsedArgItem.queryParameterValue;
             existingParseArgItem.propertyObj = parsedArgItem.propertyObj;
             existingParseArgItem.modifiers = parsedArgItem.modifiers;
         } else {
             this.parsedArgItems.push(parsedArgItem);
-            Object.defineProperty(
-                this,
-                parsedArgItem.queryParameter,
-                {
-                    get: () => parsedArgItem.queryParameterValue,
-                    set: valueProvided => {
-                        parsedArgItem.queryParameterValue = valueProvided;
-                    }
-                }
-            );
-            // special case to handle backwards compatibility
-            if (parsedArgItem.queryParameter === '_id') {
+            // do not create properties for args with modifiers
+            if (!parsedArgItem.modifiers) {
                 Object.defineProperty(
                     this,
-                    'id',
+                    parsedArgItem.queryParameter,
                     {
                         get: () => parsedArgItem.queryParameterValue,
                         set: valueProvided => {
@@ -247,6 +240,19 @@ class ParsedArgs {
                         }
                     }
                 );
+                // special case to handle backwards compatibility
+                if (parsedArgItem.queryParameter === '_id') {
+                    Object.defineProperty(
+                        this,
+                        'id',
+                        {
+                            get: () => parsedArgItem.queryParameterValue,
+                            set: valueProvided => {
+                                parsedArgItem.queryParameterValue = valueProvided;
+                            }
+                        }
+                    );
+                }
             }
         }
         return this;
