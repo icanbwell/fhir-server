@@ -229,7 +229,7 @@ class ParsedArgs {
         } else {
             this.parsedArgItems.push(parsedArgItem);
             // do not create properties for args with modifiers
-            if (!parsedArgItem.modifiers) {
+            if (parsedArgItem.modifiers.length === 0) {
                 Object.defineProperty(
                     this,
                     parsedArgItem.queryParameter,
