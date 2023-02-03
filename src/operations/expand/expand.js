@@ -94,10 +94,6 @@ class ExpandOperation {
         const {id} = parsedArgs;
         const {base_version} = parsedArgs;
 
-        const originalArgs = parsedArgs.clone();
-
-        // Search Result param
-
         let query = {};
         query.id = id;
         /**
@@ -144,8 +140,7 @@ class ExpandOperation {
 
             // run any enrichment
             resource = (await this.enrichmentManager.enrichAsync({
-                        resources: [resource], parsedArgs,
-                        originalArgs
+                        resources: [resource], parsedArgs
                     }
                 )
             )[0];

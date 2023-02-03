@@ -30,9 +30,9 @@ class R4ArgsParser {
      */
     parseArgs({resourceType, args}) {
         /**
-         * @type {ParsedArgs}
+         * @type {ParsedArgsItem[]}
          */
-        const parsedArgs = new ParsedArgs({base_version: args['base_version']});
+        const parseArgItems = [];
         // some of these parameters we used wrong in the past but have to map them to maintain backwards compatibility
         // ---- start of backward compatibility mappings ---
         if (args['source'] && !args['_source']) {
@@ -104,7 +104,7 @@ class R4ArgsParser {
                 if (handlingType === STRICT_SEARCH_HANDLING && SPECIFIED_QUERY_PARAMS.indexOf(queryParameter) === -1) {
                     throw new BadRequestError(new Error(`${queryParameter} is not a parameter for ${resourceType}`));
                 }
-                parsedArgs.add(
+                parseArgItems.push(
                     new ParsedArgsItem({
                         queryParameter,
                         queryParameterValue,
@@ -128,7 +128,7 @@ class R4ArgsParser {
                 queryParameter
             );
 
-            parsedArgs.add(
+            parseArgItems.push(
                 new ParsedArgsItem({
                     queryParameter,
                     queryParameterValue,
@@ -138,6 +138,16 @@ class R4ArgsParser {
             );
 
         }
+
+        /**
+         * @type {ParsedArgs}
+         */
+        const parsedArgs = new ParsedArgs(
+            {
+                base_version: args['base_version'],
+                parsedArgItems: parseArgItems
+            }
+        );
         return parsedArgs;
     }
 }

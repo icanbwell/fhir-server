@@ -78,7 +78,6 @@ describe('graphHelper Tests', () => {
                     graphDefinitionJson: graphSimpleReverseDefinition,
                     contained: false,
                     hash_references: false,
-                    originalArgs: parsedArgs,
                     parsedArgs: parsedArgs
                 }
             );
@@ -129,7 +128,6 @@ describe('graphHelper Tests', () => {
                 contained: false,
                 hash_references: false,
                 args: args,
-                originalArgs: parsedArgs,
                 parsedArgs: parsedArgs
             });
             expect(result).not.toBeNull();
@@ -192,7 +190,6 @@ describe('graphHelper Tests', () => {
                 contained: false,
                 hash_references: false,
                 args: args,
-                originalArgs: parsedArgs,
                 parsedArgs: parsedArgs
             });
             expect(result).not.toBeNull();
@@ -258,7 +255,6 @@ describe('graphHelper Tests', () => {
                 contained: false,
                 hash_references: false,
                 args: args,
-                originalArgs: parsedArgs,
                 parsedArgs: parsedArgs
             });
             expect(result).not.toBeNull();
@@ -324,7 +320,6 @@ describe('graphHelper Tests', () => {
                 contained: true,
                 hash_references: false,
                 args: args,
-                originalArgs: parsedArgs,
                 parsedArgs: parsedArgs
             });
             expect(result).not.toBeNull();
@@ -388,7 +383,6 @@ describe('graphHelper Tests', () => {
                 contained: true,
                 hash_references: false,
                 args: args,
-                originalArgs: parsedArgs,
                 parsedArgs: parsedArgs
             });
             expect(result).not.toBeNull();
@@ -462,7 +456,6 @@ describe('graphHelper Tests', () => {
                 contained: false,
                 hash_references: false,
                 args: args,
-                originalArgs: parsedArgs,
                 parsedArgs: parsedArgs
             });
             expect(result).not.toBeNull();
@@ -531,7 +524,6 @@ describe('graphHelper Tests', () => {
                 contained: true,
                 hash_references: true,
                 args: args,
-                originalArgs: parsedArgs,
                 parsedArgs: parsedArgs
             });
             expect(result).not.toBeNull();
@@ -605,7 +597,6 @@ describe('graphHelper Tests', () => {
                 contained: false,
                 hash_references: false,
                 args: args,
-                originalArgs: parsedArgs,
                 parsedArgs: parsedArgs
             });
             expect(result).not.toBeNull();
@@ -707,7 +698,6 @@ describe('graphHelper Tests', () => {
                 contained: false,
                 hash_references: false,
                 args: args,
-                originalArgs: parsedArgs,
                 parsedArgs: parsedArgs
             });
             expect(result).not.toBeNull();
@@ -839,7 +829,6 @@ describe('graphHelper Tests', () => {
                 contained: true,
                 hash_references: false,
                 args: args,
-                originalArgs: parsedArgs,
                 parsedArgs: parsedArgs
             });
             expect(result).not.toBeNull();
@@ -975,7 +964,6 @@ describe('graphHelper Tests', () => {
                 contained: false,
                 hash_references: false,
                 args: args,
-                originalArgs: parsedArgs,
                 parsedArgs: parsedArgs
             });
             expect(result).not.toBeNull();
@@ -1147,7 +1135,6 @@ describe('graphHelper Tests', () => {
                 contained: false,
                 hash_references: false,
                 args: args,
-                originalArgs: parsedArgs,
                 parsedArgs: parsedArgs
             });
             expect(result).not.toBeNull();
@@ -1376,7 +1363,6 @@ describe('graphHelper Tests', () => {
                 contained: true,
                 hash_references: false,
                 args: args,
-                originalArgs: parsedArgs,
                 parsedArgs: parsedArgs
             });
             expect(result).not.toBeNull();
@@ -1587,7 +1573,6 @@ describe('graphHelper Tests', () => {
                 contained: true,
                 hash_references: false,
                 args: args,
-                originalArgs: parsedArgs,
                 parsedArgs: parsedArgs
             });
             expect(result).not.toBeNull();
@@ -1845,7 +1830,6 @@ describe('graphHelper Tests', () => {
                 graphDefinitionJson: graphWithExtensionDefinition,
                 contained: true,
                 hash_references: false,
-                originalArgs: parsedArgs,
                 parsedArgs: parsedArgs
             });
             expect(result).not.toBeNull();

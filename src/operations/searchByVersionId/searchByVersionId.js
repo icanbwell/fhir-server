@@ -101,7 +101,6 @@ class SearchByVersionIdOperation {
             // requestId
         } = requestInfo;
 
-        const originalArgs = parsedArgs.clone();
         try {
 
             let {base_version, id, version_id} = parsedArgs;
@@ -184,7 +183,7 @@ class SearchByVersionIdOperation {
                 }
                 // run any enrichment
                 resource = (await this.enrichmentManager.enrichAsync({
-                            resources: [resource], parsedArgs, originalArgs
+                            resources: [resource], parsedArgs
                         }
                     )
                 )[0];

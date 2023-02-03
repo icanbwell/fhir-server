@@ -5,11 +5,10 @@ class IdEnrichmentProvider extends EnrichmentProvider {
      * enrich the specified resources
      * @param {Resource[]} resources
      * @param {ParsedArgs} parsedArgs
-     * @param {Object} originalArgs
      * @return {Promise<Resource[]>}
      */
     // eslint-disable-next-line no-unused-vars
-    async enrichAsync({resources, parsedArgs, originalArgs}) {
+    async enrichAsync({resources, parsedArgs}) {
         for (const resource of resources) {
             if (resource._sourceId) {
                 resource.id = resource._sourceId;
@@ -22,11 +21,10 @@ class IdEnrichmentProvider extends EnrichmentProvider {
      * Runs any registered enrichment providers
      * @param {ParsedArgs} parsedArgs
      * @param {BundleEntry[]} entries
-     * @param {Object} originalArgs
      * @return {Promise<BundleEntry[]>}
      */
     // eslint-disable-next-line no-unused-vars
-    async enrichBundleEntriesAsync({entries, parsedArgs, originalArgs}) {
+    async enrichBundleEntriesAsync({entries, parsedArgs}) {
         return entries;
     }
 }

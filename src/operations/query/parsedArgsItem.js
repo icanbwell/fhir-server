@@ -28,7 +28,7 @@ class ParsedArgsItem {
      * @param {string | string[]} queryParameterValue
      * @param {SearchParameterDefinition} propertyObj
      * @param {string[]|undefined} modifiers
-     * @param {ParsedReferenceItem[]} references
+     * @param {ParsedReferenceItem[]|undefined} [references]
      */
     constructor(
         {
@@ -221,6 +221,11 @@ class ParsedArgs {
         for (const parsedArgItem of parsedArgItems) {
             this.add(parsedArgItem);
         }
+        /**
+         * args before query rewrites
+         * @type {ParsedArgsItem[]}
+         */
+        this.originalParsedArgItems = this.parsedArgItems.map(a => a.clone());
     }
 
     /**
@@ -276,6 +281,15 @@ class ParsedArgs {
      */
     get(argName) {
         return this.parsedArgItems.find(a => a.queryParameter === argName);
+    }
+
+    /**
+     * get original Arg i.e., before query rewrites
+     * @param {string} argName
+     * @return {ParsedArgsItem}
+     */
+    getOriginal(argName) {
+        return this.originalParsedArgItems.find(a => a.queryParameter === argName);
     }
 
     /**

@@ -8,13 +8,12 @@ class ProxyPatientReferenceEnrichmentProvider extends EnrichmentProvider {
      * enrich the specified resources
      * @param {Resource[]} resources
      * @param {ParsedArgs} parsedArgs
-     * @param {ParsedArgs} originalArgs
      * @return {Promise<Resource[]>}
      */
-    async enrichAsync({resources, parsedArgs, originalArgs}) {
+    async enrichAsync({resources, parsedArgs}) {
         assertTypeEquals(parsedArgs, ParsedArgs);
         // check if any args have a proxy patient
-        let {proxyPatientPersonId, proxyPatientPersonIdKey} = this.getProxyPatientFromArgs({originalArgs});
+        let {proxyPatientPersonId, proxyPatientPersonIdKey} = this.getProxyPatientFromArgs({parsedArgs});
         if (proxyPatientPersonId && proxyPatientPersonIdKey) {
             /**
              * @type {ParsedArgsItem}
@@ -54,17 +53,17 @@ class ProxyPatientReferenceEnrichmentProvider extends EnrichmentProvider {
 
     /**
      * parses original proxy patient from original args
-     * @param {ParsedArgs} originalArgs
+     * @param {ParsedArgs} parsedArgs
      * @return {{proxyPatientPersonId: (string|null), proxyPatientPersonIdKey: null}}
      */
-    getProxyPatientFromArgs({originalArgs}) {
+    getProxyPatientFromArgs({parsedArgs}) {
         /**
          * @type {string|null}
          */
         let proxyPatientPersonId = null;
         let proxyPatientPersonIdKey = null;
-        if (originalArgs) {
-            for (const parsedArgsItem of originalArgs.parsedArgItems) {
+        if (parsedArgs) {
+            for (const parsedArgsItem of parsedArgs.originalParsedArgItems) {
                 /**
                  * @type {string}
                  */
@@ -90,12 +89,11 @@ class ProxyPatientReferenceEnrichmentProvider extends EnrichmentProvider {
      * Runs any registered enrichment providers
      * @param {ParsedArgs} parsedArgs
      * @param {BundleEntry[]} entries
-     * @param {ParsedArgs} originalArgs
      * @return {Promise<BundleEntry[]>}
      */
-    async enrichBundleEntriesAsync({entries, parsedArgs, originalArgs}) {
+    async enrichBundleEntriesAsync({entries, parsedArgs}) {
         // check if any args have a proxy patient
-        let {proxyPatientPersonId, proxyPatientPersonIdKey} = this.getProxyPatientFromArgs({originalArgs});
+        let {proxyPatientPersonId, proxyPatientPersonIdKey} = this.getProxyPatientFromArgs({parsedArgs});
         if (proxyPatientPersonId && proxyPatientPersonIdKey) {
             /**
              * @type {ParsedArgsItem}

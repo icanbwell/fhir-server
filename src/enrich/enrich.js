@@ -21,17 +21,16 @@ class EnrichmentManager {
      * Runs any registered enrichment providers
      * @param {ParsedArgs} parsedArgs
      * @param {Resource[]} resources
-     * @param {Object} originalArgs
      * @return {Promise<Resource[]>}
      */
-    async enrichAsync({resources, parsedArgs, originalArgs}) {
+    async enrichAsync({resources, parsedArgs}) {
 
         assertTypeEquals(parsedArgs, ParsedArgs);
         try {
             for (const enrichmentProvider of this.enrichmentProviders) {
                 resources = await enrichmentProvider.enrichAsync(
                     {
-                        resources, parsedArgs, originalArgs
+                        resources, parsedArgs
                     }
                 );
 
@@ -41,7 +40,7 @@ class EnrichmentManager {
             throw new RethrownError({
                     message: 'Error in enrichAsync()',
                     error: e,
-                    args: {resources, parsedArgs, originalArgs}
+                    args: {resources, parsedArgs}
                 }
             );
         }
@@ -51,15 +50,14 @@ class EnrichmentManager {
      * Runs any registered enrichment providers
      * @param {ParsedArgs} parsedArgs
      * @param {BundleEntry[]} entries
-     * @param {Object} originalArgs
      * @return {Promise<BundleEntry[]>}
      */
-    async enrichBundleEntriesAsync({entries, parsedArgs, originalArgs}) {
+    async enrichBundleEntriesAsync({entries, parsedArgs}) {
         try {
             for (const enrichmentProvider of this.enrichmentProviders) {
                 entries = await enrichmentProvider.enrichBundleEntriesAsync(
                     {
-                        entries, parsedArgs, originalArgs
+                        entries, parsedArgs
                     }
                 );
             }
@@ -68,7 +66,7 @@ class EnrichmentManager {
             throw new RethrownError({
                     message: 'Error in enrichBundleEntriesAsync()',
                     error: e,
-                    args: {entries, parsedArgs, originalArgs}
+                    args: {entries, parsedArgs}
                 }
             );
         }

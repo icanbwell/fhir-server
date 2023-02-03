@@ -132,8 +132,6 @@ class SearchBundleOperation {
             /** @type {string} */ method
         } = requestInfo;
 
-        const originalArgs = parsedArgs.clone();
-
         assertIsValid(requestId, 'requestId is null');
         await this.scopesValidator.verifyHasValidScopesAsync({
             requestInfo,
@@ -285,8 +283,7 @@ class SearchBundleOperation {
                     {
                         cursor, user, scope, parsedArgs,
                         resourceType,
-                        useAccessIndex,
-                        originalArgs
+                        useAccessIndex
                     }
                 );
 

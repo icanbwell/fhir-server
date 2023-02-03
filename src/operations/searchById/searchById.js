@@ -138,8 +138,6 @@ class SearchByIdOperation {
             // Common search params
             const {id, base_version} = parsedArgs;
 
-            const originalArgs = parsedArgs.clone();
-
             /**
              * @type {Promise<Resource> | *}
              */
@@ -181,7 +179,9 @@ class SearchByIdOperation {
              * @type {Resource[]}
              */
             const resources = await cursor.toArrayAsync();
-            if (resources.length > 1) {
+            if (resources.length > 1 &&
+                parsedArgs.getOriginal('id') &&// in case of patient proxy lookup allow multiple resources
+                !parsedArgs.getOriginal('id').queryParameterValue.startsWith('person.')) {
                 /**
                  * @type {string[]}
                  */
@@ -215,7 +215,7 @@ class SearchByIdOperation {
 
                 // run any enrichment
                 resource = (await this.enrichmentManager.enrichAsync({
-                            resources: [resource], parsedArgs, originalArgs
+                            resources: [resource], parsedArgs
                         }
                     )
                 )[0];

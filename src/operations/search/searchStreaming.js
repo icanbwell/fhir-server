@@ -130,7 +130,6 @@ class SearchStreamingOperation {
             /** @type {string} */ method
         } = requestInfo;
 
-        const originalArgs = parsedArgs.clone();
         await this.scopesValidator.verifyHasValidScopesAsync(
             {
                 requestInfo,
@@ -319,8 +318,7 @@ class SearchStreamingOperation {
                             resourceType,
                             useAccessIndex,
                             contentType: fhirContentTypes.ndJson,
-                            batchObjectCount,
-                            originalArgs
+                            batchObjectCount
                         });
                 } else {
                     // if env.RETURN_BUNDLE is set then return as a Bundle
@@ -374,8 +372,7 @@ class SearchStreamingOperation {
                                 parsedArgs,
                                 resourceType,
                                 useAccessIndex,
-                                batchObjectCount,
-                                originalArgs
+                                batchObjectCount
                             });
                     } else {
                         resourceIds = await this.searchManager.streamResourcesFromCursorAsync(
@@ -385,8 +382,7 @@ class SearchStreamingOperation {
                                 resourceType,
                                 useAccessIndex,
                                 contentType: fhirContentTypes.fhirJson,
-                                batchObjectCount,
-                                originalArgs
+                                batchObjectCount
                             });
                     }
                 }

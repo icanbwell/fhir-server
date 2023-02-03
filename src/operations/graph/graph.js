@@ -108,8 +108,6 @@ class GraphOperation {
              */
             let {base_version, id} = parsedArgs;
 
-            const originalArgs = parsedArgs.clone();
-
             if (!id) {
                 throw new BadRequestError(new Error('No id parameter was passed'));
             }
@@ -194,7 +192,6 @@ class GraphOperation {
                         base_version,
                         resourceType,
                         graphDefinitionJson: graphDefinitionRaw,
-                        originalArgs,
                         responseStreamer,
                         parsedArgs
                     }
@@ -206,7 +203,6 @@ class GraphOperation {
                         graphDefinitionJson: graphDefinitionRaw,
                         contained,
                         hash_references,
-                        originalArgs,
                         responseStreamer,
                         parsedArgs
                     }

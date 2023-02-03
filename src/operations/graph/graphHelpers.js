@@ -1045,7 +1045,6 @@ class GraphHelper {
      * @param {boolean} hash_references
      * @param {boolean} [explain]
      * @param {boolean} [debug]
-     * @param {ParsedArgs} originalArgs
      * @param {ParsedArgs} parsedArgs
      * @return {Promise<{entries: BundleEntry[], queries: import('mongodb').Document[], options: import('mongodb').FindOptions<import('mongodb').DefaultSchema>[], explanations: import('mongodb').Document[]}>}
      */
@@ -1059,7 +1058,6 @@ class GraphHelper {
             hash_references,
             explain,
             debug,
-            originalArgs,
             parsedArgs
         }
     ) {
@@ -1235,7 +1233,7 @@ class GraphHelper {
             }
 
             entries = await this.enrichmentManager.enrichBundleEntriesAsync({
-                    entries, parsedArgs, originalArgs
+                    entries, parsedArgs
                 }
             );
             entries = this.bundleManager.removeDuplicateEntries({entries});
@@ -1254,7 +1252,6 @@ class GraphHelper {
                     hash_references,
                     explain,
                     debug,
-                    originalArgs,
                     parsedArgs
                 }
             });
@@ -1266,11 +1263,10 @@ class GraphHelper {
      * @param {FhirRequestInfo} requestInfo
      * @param {string} base_version
      * @param {string} resourceType
-     * @param {*} graphDefinitionJson (a GraphDefinition resource)
+     * @param {Object} graphDefinitionJson (a GraphDefinition resource)
      * @param {boolean} contained
      * @param {boolean} hash_references
      * @param {BaseResponseStreamer|undefined} [responseStreamer]
-     * @param {ParsedArgs} originalArgs
      * @param {ParsedArgs} parsedArgs
      * @return {Promise<Bundle>}
      */
@@ -1282,7 +1278,6 @@ class GraphHelper {
             graphDefinitionJson,
             contained,
             hash_references,
-            originalArgs,
             responseStreamer,
             parsedArgs
         }
@@ -1315,7 +1310,6 @@ class GraphHelper {
                     hash_references,
                     explain: parsedArgs['_explain'] ? true : false,
                     debug: parsedArgs['_debug'] ? true : false,
-                    originalArgs,
                     parsedArgs
                 }
             );
@@ -1355,7 +1349,7 @@ class GraphHelper {
             const resources = uniqueEntries.map(bundleEntry => bundleEntry.resource);
 
             await this.enrichmentManager.enrichAsync({
-                    resources: resources, parsedArgs, originalArgs
+                    resources: resources, parsedArgs
                 }
             );
 
@@ -1410,7 +1404,6 @@ class GraphHelper {
                     contained,
                     hash_references,
                     parsedArgs,
-                    originalArgs,
                     responseStreamer
                 }
             });
@@ -1422,8 +1415,7 @@ class GraphHelper {
      * @param {FhirRequestInfo} requestInfo
      * @param {string} base_version
      * @param {string} resourceType
-     * @param {*} graphDefinitionJson (a GraphDefinition resource)
-     * @param {ParsedArgs} originalArgs
+     * @param {Object} graphDefinitionJson (a GraphDefinition resource)
      * @param {BaseResponseStreamer} responseStreamer
      * @param {ParsedArgs} parsedArgs
      * @return {Promise<Bundle>}
@@ -1434,7 +1426,6 @@ class GraphHelper {
             base_version,
             resourceType,
             graphDefinitionJson,
-            originalArgs,
             responseStreamer,
             parsedArgs
         }
@@ -1455,7 +1446,6 @@ class GraphHelper {
                     contained: false,
                     hash_references: false,
                     graphDefinitionJson,
-                    originalArgs,
                     responseStreamer: null, // don't let graph send the response
                     parsedArgs
                 }
@@ -1548,7 +1538,6 @@ class GraphHelper {
                     resourceType,
                     graphDefinitionJson,
                     parsedArgs,
-                    originalArgs,
                     responseStreamer
                 }
             });
