@@ -855,7 +855,6 @@ class SearchManager {
 
     /**
      * sets the index hint
-     * @param {string|null} indexHint
      * @param {string} mongoCollectionName
      * @param {Set} columns
      * @param {DatabasePartitionedCursor} cursor
