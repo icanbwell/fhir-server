@@ -28,13 +28,15 @@ class ParsedArgsItem {
      * @param {string | string[]} queryParameterValue
      * @param {SearchParameterDefinition} propertyObj
      * @param {string[]|undefined} modifiers
+     * @param {ParsedReferenceItem[]} references
      */
     constructor(
         {
             queryParameter,
             queryParameterValue,
             propertyObj,
-            modifiers
+            modifiers,
+            references
         }
     ) {
         /**'
@@ -53,6 +55,14 @@ class ParsedArgsItem {
          * @type {string[]}
          */
         this.modifiers = modifiers;
+
+        /**
+         * @type {ParsedReferenceItem[]}
+         */
+        this.references = references;
+        if (!references) {
+            this.updateReferences();
+        }
     }
 
     /**
@@ -86,14 +96,14 @@ class ParsedArgsItem {
      */
     set queryParameterValue(value) {
         this._queryParameterValue = value;
+        this.updateReferences();
     }
 
     /**
-     * calculated references
-     * @return {ParsedReferenceItem[]}
+     * calculate references
      */
-    get references() {
-        return this.parseQueryParameterValueIntoReferences(
+    updateReferences() {
+        this.references = this.parseQueryParameterValueIntoReferences(
             {
                 queryParameterValue: this.queryParameterValue,
                 propertyObj: this.propertyObj
@@ -188,7 +198,8 @@ class ParsedArgsItem {
                 queryParameter: this.queryParameter,
                 queryParameterValue: this._queryParameterValue,
                 propertyObj: this.propertyObj,
-                modifiers: this.modifiers
+                modifiers: this.modifiers,
+                references: this.references
             }
         );
     }
