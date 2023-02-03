@@ -78,6 +78,12 @@ const profiles = {
           route: '/:id/$expand',
           method: 'GET',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'remove_by_query',
+          route: '/',
+          method: 'DELETE',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         }
       ],
     },
@@ -155,6 +161,12 @@ const profiles = {
           name: 'expand',
           route: '/:id/$expand',
           method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'remove_by_query',
+          route: '/',
+          method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         }
       ],
@@ -234,6 +246,12 @@ const profiles = {
           route: '/:id/$expand',
           method: 'GET',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'remove_by_query',
+          route: '/',
+          method: 'DELETE',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         }
       ],
     },
@@ -311,6 +329,12 @@ const profiles = {
           name: 'expand',
           route: '/:id/$expand',
           method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'remove_by_query',
+          route: '/',
+          method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         }
       ],
@@ -390,6 +414,12 @@ const profiles = {
           route: '/:id/$expand',
           method: 'GET',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'remove_by_query',
+          route: '/',
+          method: 'DELETE',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         }
       ],
     },
@@ -467,6 +497,12 @@ const profiles = {
           name: 'expand',
           route: '/:id/$expand',
           method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'remove_by_query',
+          route: '/',
+          method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         }
       ],
@@ -546,6 +582,12 @@ const profiles = {
           route: '/:id/$expand',
           method: 'GET',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'remove_by_query',
+          route: '/',
+          method: 'DELETE',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         }
       ],
     },
@@ -623,6 +665,12 @@ const profiles = {
           name: 'expand',
           route: '/:id/$expand',
           method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'remove_by_query',
+          route: '/',
+          method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         }
       ],
@@ -702,6 +750,12 @@ const profiles = {
           route: '/:id/$expand',
           method: 'GET',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'remove_by_query',
+          route: '/',
+          method: 'DELETE',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         }
       ],
     },
@@ -779,6 +833,12 @@ const profiles = {
           name: 'expand',
           route: '/:id/$expand',
           method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'remove_by_query',
+          route: '/',
+          method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         }
       ],
@@ -858,6 +918,12 @@ const profiles = {
           route: '/:id/$expand',
           method: 'GET',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'remove_by_query',
+          route: '/',
+          method: 'DELETE',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         }
       ],
     },
@@ -935,6 +1001,12 @@ const profiles = {
           name: 'expand',
           route: '/:id/$expand',
           method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'remove_by_query',
+          route: '/',
+          method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         }
       ],
@@ -1014,6 +1086,12 @@ const profiles = {
           route: '/:id/$expand',
           method: 'GET',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'remove_by_query',
+          route: '/',
+          method: 'DELETE',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         }
       ],
     },
@@ -1091,6 +1169,12 @@ const profiles = {
           name: 'expand',
           route: '/:id/$expand',
           method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'remove_by_query',
+          route: '/',
+          method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         }
       ],
@@ -1170,6 +1254,12 @@ const profiles = {
           route: '/:id/$expand',
           method: 'GET',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'remove_by_query',
+          route: '/',
+          method: 'DELETE',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         }
       ],
     },
@@ -1247,6 +1337,12 @@ const profiles = {
           name: 'expand',
           route: '/:id/$expand',
           method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'remove_by_query',
+          route: '/',
+          method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         }
       ],
@@ -1326,6 +1422,12 @@ const profiles = {
           route: '/:id/$expand',
           method: 'GET',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'remove_by_query',
+          route: '/',
+          method: 'DELETE',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         }
       ],
     },
@@ -1403,6 +1505,12 @@ const profiles = {
           name: 'expand',
           route: '/:id/$expand',
           method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'remove_by_query',
+          route: '/',
+          method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         }
       ],
@@ -1482,6 +1590,12 @@ const profiles = {
           route: '/:id/$expand',
           method: 'GET',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'remove_by_query',
+          route: '/',
+          method: 'DELETE',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         }
       ],
     },
@@ -1559,6 +1673,12 @@ const profiles = {
           name: 'expand',
           route: '/:id/$expand',
           method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'remove_by_query',
+          route: '/',
+          method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         }
       ],
@@ -1638,6 +1758,12 @@ const profiles = {
           route: '/:id/$expand',
           method: 'GET',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'remove_by_query',
+          route: '/',
+          method: 'DELETE',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         }
       ],
     },
@@ -1715,6 +1841,12 @@ const profiles = {
           name: 'expand',
           route: '/:id/$expand',
           method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'remove_by_query',
+          route: '/',
+          method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         }
       ],
@@ -1794,6 +1926,12 @@ const profiles = {
           route: '/:id/$expand',
           method: 'GET',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'remove_by_query',
+          route: '/',
+          method: 'DELETE',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         }
       ],
     },
@@ -1871,6 +2009,12 @@ const profiles = {
           name: 'expand',
           route: '/:id/$expand',
           method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'remove_by_query',
+          route: '/',
+          method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         }
       ],
@@ -1950,6 +2094,12 @@ const profiles = {
           route: '/:id/$expand',
           method: 'GET',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'remove_by_query',
+          route: '/',
+          method: 'DELETE',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         }
       ],
     },
@@ -2027,6 +2177,12 @@ const profiles = {
           name: 'expand',
           route: '/:id/$expand',
           method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'remove_by_query',
+          route: '/',
+          method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         }
       ],
@@ -2106,6 +2262,12 @@ const profiles = {
           route: '/:id/$expand',
           method: 'GET',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'remove_by_query',
+          route: '/',
+          method: 'DELETE',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         }
       ],
     },
@@ -2183,6 +2345,12 @@ const profiles = {
           name: 'expand',
           route: '/:id/$expand',
           method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'remove_by_query',
+          route: '/',
+          method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         }
       ],
@@ -2262,6 +2430,12 @@ const profiles = {
           route: '/:id/$expand',
           method: 'GET',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'remove_by_query',
+          route: '/',
+          method: 'DELETE',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         }
       ],
     },
@@ -2339,6 +2513,12 @@ const profiles = {
           name: 'expand',
           route: '/:id/$expand',
           method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'remove_by_query',
+          route: '/',
+          method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         }
       ],
@@ -2418,6 +2598,12 @@ const profiles = {
           route: '/:id/$expand',
           method: 'GET',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'remove_by_query',
+          route: '/',
+          method: 'DELETE',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         }
       ],
     },
@@ -2495,6 +2681,12 @@ const profiles = {
           name: 'expand',
           route: '/:id/$expand',
           method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'remove_by_query',
+          route: '/',
+          method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         }
       ],
@@ -2574,6 +2766,12 @@ const profiles = {
           route: '/:id/$expand',
           method: 'GET',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'remove_by_query',
+          route: '/',
+          method: 'DELETE',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         }
       ],
     },
@@ -2651,6 +2849,12 @@ const profiles = {
           name: 'expand',
           route: '/:id/$expand',
           method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'remove_by_query',
+          route: '/',
+          method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         }
       ],
@@ -2730,6 +2934,12 @@ const profiles = {
           route: '/:id/$expand',
           method: 'GET',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'remove_by_query',
+          route: '/',
+          method: 'DELETE',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         }
       ],
     },
@@ -2807,6 +3017,12 @@ const profiles = {
           name: 'expand',
           route: '/:id/$expand',
           method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'remove_by_query',
+          route: '/',
+          method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         }
       ],
@@ -2886,6 +3102,12 @@ const profiles = {
           route: '/:id/$expand',
           method: 'GET',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'remove_by_query',
+          route: '/',
+          method: 'DELETE',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         }
       ],
     },
@@ -2963,6 +3185,12 @@ const profiles = {
           name: 'expand',
           route: '/:id/$expand',
           method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'remove_by_query',
+          route: '/',
+          method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         }
       ],
@@ -3042,6 +3270,12 @@ const profiles = {
           route: '/:id/$expand',
           method: 'GET',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'remove_by_query',
+          route: '/',
+          method: 'DELETE',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         }
       ],
     },
@@ -3119,6 +3353,12 @@ const profiles = {
           name: 'expand',
           route: '/:id/$expand',
           method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'remove_by_query',
+          route: '/',
+          method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         }
       ],
@@ -3198,6 +3438,12 @@ const profiles = {
           route: '/:id/$expand',
           method: 'GET',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'remove_by_query',
+          route: '/',
+          method: 'DELETE',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         }
       ],
     },
@@ -3275,6 +3521,12 @@ const profiles = {
           name: 'expand',
           route: '/:id/$expand',
           method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'remove_by_query',
+          route: '/',
+          method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         }
       ],
@@ -3354,6 +3606,12 @@ const profiles = {
           route: '/:id/$expand',
           method: 'GET',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'remove_by_query',
+          route: '/',
+          method: 'DELETE',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         }
       ],
     },
@@ -3431,6 +3689,12 @@ const profiles = {
           name: 'expand',
           route: '/:id/$expand',
           method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'remove_by_query',
+          route: '/',
+          method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         }
       ],
@@ -3510,6 +3774,12 @@ const profiles = {
           route: '/:id/$expand',
           method: 'GET',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'remove_by_query',
+          route: '/',
+          method: 'DELETE',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         }
       ],
     },
@@ -3587,6 +3857,12 @@ const profiles = {
           name: 'expand',
           route: '/:id/$expand',
           method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'remove_by_query',
+          route: '/',
+          method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         }
       ],
@@ -3666,6 +3942,12 @@ const profiles = {
           route: '/:id/$expand',
           method: 'GET',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'remove_by_query',
+          route: '/',
+          method: 'DELETE',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         }
       ],
     },
@@ -3743,6 +4025,12 @@ const profiles = {
           name: 'expand',
           route: '/:id/$expand',
           method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'remove_by_query',
+          route: '/',
+          method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         }
       ],
@@ -3822,6 +4110,12 @@ const profiles = {
           route: '/:id/$expand',
           method: 'GET',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'remove_by_query',
+          route: '/',
+          method: 'DELETE',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         }
       ],
     },
@@ -3899,6 +4193,12 @@ const profiles = {
           name: 'expand',
           route: '/:id/$expand',
           method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'remove_by_query',
+          route: '/',
+          method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         }
       ],
@@ -3978,6 +4278,12 @@ const profiles = {
           route: '/:id/$expand',
           method: 'GET',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'remove_by_query',
+          route: '/',
+          method: 'DELETE',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         }
       ],
     },
@@ -4055,6 +4361,12 @@ const profiles = {
           name: 'expand',
           route: '/:id/$expand',
           method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'remove_by_query',
+          route: '/',
+          method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         }
       ],
@@ -4134,6 +4446,12 @@ const profiles = {
           route: '/:id/$expand',
           method: 'GET',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'remove_by_query',
+          route: '/',
+          method: 'DELETE',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         }
       ],
     },
@@ -4211,6 +4529,12 @@ const profiles = {
           name: 'expand',
           route: '/:id/$expand',
           method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'remove_by_query',
+          route: '/',
+          method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         }
       ],
@@ -4290,6 +4614,12 @@ const profiles = {
           route: '/:id/$expand',
           method: 'GET',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'remove_by_query',
+          route: '/',
+          method: 'DELETE',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         }
       ],
     },
@@ -4367,6 +4697,12 @@ const profiles = {
           name: 'expand',
           route: '/:id/$expand',
           method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'remove_by_query',
+          route: '/',
+          method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         }
       ],
@@ -4446,6 +4782,12 @@ const profiles = {
           route: '/:id/$expand',
           method: 'GET',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'remove_by_query',
+          route: '/',
+          method: 'DELETE',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         }
       ],
     },
@@ -4523,6 +4865,12 @@ const profiles = {
           name: 'expand',
           route: '/:id/$expand',
           method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'remove_by_query',
+          route: '/',
+          method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         }
       ],
@@ -4602,6 +4950,12 @@ const profiles = {
           route: '/:id/$expand',
           method: 'GET',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'remove_by_query',
+          route: '/',
+          method: 'DELETE',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         }
       ],
     },
@@ -4679,6 +5033,12 @@ const profiles = {
           name: 'expand',
           route: '/:id/$expand',
           method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'remove_by_query',
+          route: '/',
+          method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         }
       ],
@@ -4758,6 +5118,12 @@ const profiles = {
           route: '/:id/$expand',
           method: 'GET',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'remove_by_query',
+          route: '/',
+          method: 'DELETE',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         }
       ],
     },
@@ -4835,6 +5201,12 @@ const profiles = {
           name: 'expand',
           route: '/:id/$expand',
           method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'remove_by_query',
+          route: '/',
+          method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         }
       ],
@@ -4914,6 +5286,12 @@ const profiles = {
           route: '/:id/$expand',
           method: 'GET',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'remove_by_query',
+          route: '/',
+          method: 'DELETE',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         }
       ],
     },
@@ -4991,6 +5369,12 @@ const profiles = {
           name: 'expand',
           route: '/:id/$expand',
           method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'remove_by_query',
+          route: '/',
+          method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         }
       ],
@@ -5070,6 +5454,12 @@ const profiles = {
           route: '/:id/$expand',
           method: 'GET',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'remove_by_query',
+          route: '/',
+          method: 'DELETE',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         }
       ],
     },
@@ -5147,6 +5537,12 @@ const profiles = {
           name: 'expand',
           route: '/:id/$expand',
           method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'remove_by_query',
+          route: '/',
+          method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         }
       ],
@@ -5226,6 +5622,12 @@ const profiles = {
           route: '/:id/$expand',
           method: 'GET',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'remove_by_query',
+          route: '/',
+          method: 'DELETE',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         }
       ],
     },
@@ -5303,6 +5705,12 @@ const profiles = {
           name: 'expand',
           route: '/:id/$expand',
           method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'remove_by_query',
+          route: '/',
+          method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         }
       ],
@@ -5382,6 +5790,12 @@ const profiles = {
           route: '/:id/$expand',
           method: 'GET',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'remove_by_query',
+          route: '/',
+          method: 'DELETE',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         }
       ],
     },
@@ -5459,6 +5873,12 @@ const profiles = {
           name: 'expand',
           route: '/:id/$expand',
           method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'remove_by_query',
+          route: '/',
+          method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         }
       ],
@@ -5538,6 +5958,12 @@ const profiles = {
           route: '/:id/$expand',
           method: 'GET',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'remove_by_query',
+          route: '/',
+          method: 'DELETE',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         }
       ],
     },
@@ -5615,6 +6041,12 @@ const profiles = {
           name: 'expand',
           route: '/:id/$expand',
           method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'remove_by_query',
+          route: '/',
+          method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         }
       ],
@@ -5694,6 +6126,12 @@ const profiles = {
           route: '/:id/$expand',
           method: 'GET',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'remove_by_query',
+          route: '/',
+          method: 'DELETE',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         }
       ],
     },
@@ -5771,6 +6209,12 @@ const profiles = {
           name: 'expand',
           route: '/:id/$expand',
           method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'remove_by_query',
+          route: '/',
+          method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         }
       ],
@@ -5850,6 +6294,12 @@ const profiles = {
           route: '/:id/$expand',
           method: 'GET',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'remove_by_query',
+          route: '/',
+          method: 'DELETE',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         }
       ],
     },
@@ -5927,6 +6377,12 @@ const profiles = {
           name: 'expand',
           route: '/:id/$expand',
           method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'remove_by_query',
+          route: '/',
+          method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         }
       ],
@@ -6006,6 +6462,12 @@ const profiles = {
           route: '/:id/$expand',
           method: 'GET',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'remove_by_query',
+          route: '/',
+          method: 'DELETE',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         }
       ],
     },
@@ -6083,6 +6545,12 @@ const profiles = {
           name: 'expand',
           route: '/:id/$expand',
           method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'remove_by_query',
+          route: '/',
+          method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         }
       ],
@@ -6162,6 +6630,12 @@ const profiles = {
           route: '/:id/$expand',
           method: 'GET',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'remove_by_query',
+          route: '/',
+          method: 'DELETE',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         }
       ],
     },
@@ -6239,6 +6713,12 @@ const profiles = {
           name: 'expand',
           route: '/:id/$expand',
           method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'remove_by_query',
+          route: '/',
+          method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         }
       ],
@@ -6318,6 +6798,12 @@ const profiles = {
           route: '/:id/$expand',
           method: 'GET',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'remove_by_query',
+          route: '/',
+          method: 'DELETE',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         }
       ],
     },
@@ -6395,6 +6881,12 @@ const profiles = {
           name: 'expand',
           route: '/:id/$expand',
           method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'remove_by_query',
+          route: '/',
+          method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         }
       ],
@@ -6474,6 +6966,12 @@ const profiles = {
           route: '/:id/$expand',
           method: 'GET',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'remove_by_query',
+          route: '/',
+          method: 'DELETE',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         }
       ],
     },
@@ -6551,6 +7049,12 @@ const profiles = {
           name: 'expand',
           route: '/:id/$expand',
           method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'remove_by_query',
+          route: '/',
+          method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         }
       ],
@@ -6630,6 +7134,12 @@ const profiles = {
           route: '/:id/$expand',
           method: 'GET',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'remove_by_query',
+          route: '/',
+          method: 'DELETE',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         }
       ],
     },
@@ -6707,6 +7217,12 @@ const profiles = {
           name: 'expand',
           route: '/:id/$expand',
           method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'remove_by_query',
+          route: '/',
+          method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         }
       ],
@@ -6786,6 +7302,12 @@ const profiles = {
           route: '/:id/$expand',
           method: 'GET',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'remove_by_query',
+          route: '/',
+          method: 'DELETE',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         }
       ],
     },
@@ -6863,6 +7385,12 @@ const profiles = {
           name: 'expand',
           route: '/:id/$expand',
           method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'remove_by_query',
+          route: '/',
+          method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         }
       ],
@@ -6942,6 +7470,12 @@ const profiles = {
           route: '/:id/$expand',
           method: 'GET',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'remove_by_query',
+          route: '/',
+          method: 'DELETE',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         }
       ],
     },
@@ -7019,6 +7553,12 @@ const profiles = {
           name: 'expand',
           route: '/:id/$expand',
           method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'remove_by_query',
+          route: '/',
+          method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         }
       ],
@@ -7098,6 +7638,12 @@ const profiles = {
           route: '/:id/$expand',
           method: 'GET',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'remove_by_query',
+          route: '/',
+          method: 'DELETE',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         }
       ],
     },
@@ -7175,6 +7721,12 @@ const profiles = {
           name: 'expand',
           route: '/:id/$expand',
           method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'remove_by_query',
+          route: '/',
+          method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         }
       ],
@@ -7254,6 +7806,12 @@ const profiles = {
           route: '/:id/$expand',
           method: 'GET',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'remove_by_query',
+          route: '/',
+          method: 'DELETE',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         }
       ],
     },
@@ -7331,6 +7889,12 @@ const profiles = {
           name: 'expand',
           route: '/:id/$expand',
           method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'remove_by_query',
+          route: '/',
+          method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         }
       ],
@@ -7410,6 +7974,12 @@ const profiles = {
           route: '/:id/$expand',
           method: 'GET',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'remove_by_query',
+          route: '/',
+          method: 'DELETE',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         }
       ],
     },
@@ -7487,6 +8057,12 @@ const profiles = {
           name: 'expand',
           route: '/:id/$expand',
           method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'remove_by_query',
+          route: '/',
+          method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         }
       ],
@@ -7566,6 +8142,12 @@ const profiles = {
           route: '/:id/$expand',
           method: 'GET',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'remove_by_query',
+          route: '/',
+          method: 'DELETE',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         }
       ],
     },
@@ -7643,6 +8225,12 @@ const profiles = {
           name: 'expand',
           route: '/:id/$expand',
           method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'remove_by_query',
+          route: '/',
+          method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         }
       ],
@@ -7722,6 +8310,12 @@ const profiles = {
           route: '/:id/$expand',
           method: 'GET',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'remove_by_query',
+          route: '/',
+          method: 'DELETE',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         }
       ],
     },
@@ -7799,6 +8393,12 @@ const profiles = {
           name: 'expand',
           route: '/:id/$expand',
           method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'remove_by_query',
+          route: '/',
+          method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         }
       ],
@@ -7878,6 +8478,12 @@ const profiles = {
           route: '/:id/$expand',
           method: 'GET',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'remove_by_query',
+          route: '/',
+          method: 'DELETE',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         }
       ],
     },
@@ -7955,6 +8561,12 @@ const profiles = {
           name: 'expand',
           route: '/:id/$expand',
           method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'remove_by_query',
+          route: '/',
+          method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         }
       ],
@@ -8034,6 +8646,12 @@ const profiles = {
           route: '/:id/$expand',
           method: 'GET',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'remove_by_query',
+          route: '/',
+          method: 'DELETE',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         }
       ],
     },
@@ -8111,6 +8729,12 @@ const profiles = {
           name: 'expand',
           route: '/:id/$expand',
           method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'remove_by_query',
+          route: '/',
+          method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         }
       ],
@@ -8190,6 +8814,12 @@ const profiles = {
           route: '/:id/$expand',
           method: 'GET',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'remove_by_query',
+          route: '/',
+          method: 'DELETE',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         }
       ],
     },
@@ -8267,6 +8897,12 @@ const profiles = {
           name: 'expand',
           route: '/:id/$expand',
           method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'remove_by_query',
+          route: '/',
+          method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         }
       ],
@@ -8346,6 +8982,12 @@ const profiles = {
           route: '/:id/$expand',
           method: 'GET',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'remove_by_query',
+          route: '/',
+          method: 'DELETE',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         }
       ],
     },
@@ -8423,6 +9065,12 @@ const profiles = {
           name: 'expand',
           route: '/:id/$expand',
           method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'remove_by_query',
+          route: '/',
+          method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         }
       ],
@@ -8502,6 +9150,12 @@ const profiles = {
           route: '/:id/$expand',
           method: 'GET',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'remove_by_query',
+          route: '/',
+          method: 'DELETE',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         }
       ],
     },
@@ -8579,6 +9233,12 @@ const profiles = {
           name: 'expand',
           route: '/:id/$expand',
           method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'remove_by_query',
+          route: '/',
+          method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         }
       ],
@@ -8658,6 +9318,12 @@ const profiles = {
           route: '/:id/$expand',
           method: 'GET',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'remove_by_query',
+          route: '/',
+          method: 'DELETE',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         }
       ],
     },
@@ -8735,6 +9401,12 @@ const profiles = {
           name: 'expand',
           route: '/:id/$expand',
           method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'remove_by_query',
+          route: '/',
+          method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         }
       ],
@@ -8814,6 +9486,12 @@ const profiles = {
           route: '/:id/$expand',
           method: 'GET',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'remove_by_query',
+          route: '/',
+          method: 'DELETE',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         }
       ],
     },
@@ -8891,6 +9569,12 @@ const profiles = {
           name: 'expand',
           route: '/:id/$expand',
           method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'remove_by_query',
+          route: '/',
+          method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         }
       ],
@@ -8970,6 +9654,12 @@ const profiles = {
           route: '/:id/$expand',
           method: 'GET',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'remove_by_query',
+          route: '/',
+          method: 'DELETE',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         }
       ],
     },
@@ -9047,6 +9737,12 @@ const profiles = {
           name: 'expand',
           route: '/:id/$expand',
           method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'remove_by_query',
+          route: '/',
+          method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         }
       ],
@@ -9126,6 +9822,12 @@ const profiles = {
           route: '/:id/$expand',
           method: 'GET',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'remove_by_query',
+          route: '/',
+          method: 'DELETE',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         }
       ],
     },
@@ -9203,6 +9905,12 @@ const profiles = {
           name: 'expand',
           route: '/:id/$expand',
           method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'remove_by_query',
+          route: '/',
+          method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         }
       ],
@@ -9282,6 +9990,12 @@ const profiles = {
           route: '/:id/$expand',
           method: 'GET',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'remove_by_query',
+          route: '/',
+          method: 'DELETE',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         }
       ],
     },
@@ -9359,6 +10073,12 @@ const profiles = {
           name: 'expand',
           route: '/:id/$expand',
           method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'remove_by_query',
+          route: '/',
+          method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         }
       ],
@@ -9438,6 +10158,12 @@ const profiles = {
           route: '/:id/$expand',
           method: 'GET',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'remove_by_query',
+          route: '/',
+          method: 'DELETE',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         }
       ],
     },
@@ -9515,6 +10241,12 @@ const profiles = {
           name: 'expand',
           route: '/:id/$expand',
           method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'remove_by_query',
+          route: '/',
+          method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         }
       ],
@@ -9594,6 +10326,12 @@ const profiles = {
           route: '/:id/$expand',
           method: 'GET',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'remove_by_query',
+          route: '/',
+          method: 'DELETE',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         }
       ],
     },
@@ -9671,6 +10409,12 @@ const profiles = {
           name: 'expand',
           route: '/:id/$expand',
           method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'remove_by_query',
+          route: '/',
+          method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         }
       ],
@@ -9750,6 +10494,12 @@ const profiles = {
           route: '/:id/$expand',
           method: 'GET',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'remove_by_query',
+          route: '/',
+          method: 'DELETE',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         }
       ],
     },
@@ -9827,6 +10577,12 @@ const profiles = {
           name: 'expand',
           route: '/:id/$expand',
           method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'remove_by_query',
+          route: '/',
+          method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         }
       ],
@@ -9906,6 +10662,12 @@ const profiles = {
           route: '/:id/$expand',
           method: 'GET',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'remove_by_query',
+          route: '/',
+          method: 'DELETE',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         }
       ],
     },
@@ -9983,6 +10745,12 @@ const profiles = {
           name: 'expand',
           route: '/:id/$expand',
           method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'remove_by_query',
+          route: '/',
+          method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         }
       ],
@@ -10062,6 +10830,12 @@ const profiles = {
           route: '/:id/$expand',
           method: 'GET',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'remove_by_query',
+          route: '/',
+          method: 'DELETE',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         }
       ],
     },
@@ -10139,6 +10913,12 @@ const profiles = {
           name: 'expand',
           route: '/:id/$expand',
           method: 'GET',
+          reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
+        },
+        {
+          name: 'remove_by_query',
+          route: '/',
+          method: 'DELETE',
           reference: 'https://www.hl7.org/fhir/patient-operation-everything.html',
         }
       ],

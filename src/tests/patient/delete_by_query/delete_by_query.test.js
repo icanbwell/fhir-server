@@ -62,9 +62,9 @@ describe('Practitioner Delete Tests', () => {
             console.log('------- end response 3 ------------');
 
             resp = await request
-                .delete('/4_0_0/Patient/0/?_security=https://www.icanbwell.com/owner|medstar2')
+                .delete('/4_0_0/Patient/?_security=https://www.icanbwell.com/owner|medstar2')
                 .set(getHeaders())
-                .expect(204);
+                .expect(200);
 
             resp = await request.get('/4_0_0/Patient').set(getHeaders()).expect(200);
 

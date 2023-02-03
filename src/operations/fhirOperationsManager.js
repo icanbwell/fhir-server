@@ -536,6 +536,32 @@ class FhirOperationsManager {
     }
 
     /**
+     * does a FHIR Remove (DELETE)
+     * @param {string[]} args
+     * @param {import('http').IncomingMessage} req
+     * @param {string} resourceType
+     */
+    async remove_by_query(args, {req}, resourceType) {
+        /**
+         * combined args
+         * @type {Object}
+         */
+        const combined_args = get_all_args(req, args);
+        /**
+         * @type {ParsedArgs}
+         */
+        const parsedArgs = await this.getParsedArgsAsync({args: combined_args, resourceType});
+
+        return this.removeOperation.remove(
+            {
+                requestInfo: this.getRequestInfo(req),
+                parsedArgs,
+                resourceType
+            }
+        );
+    }
+
+    /**
      * does a FHIR Search By Version
      * @param {string[]} args
      * @param {import('http').IncomingMessage} req
