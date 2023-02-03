@@ -179,9 +179,10 @@ class SearchByIdOperation {
              * @type {Resource[]}
              */
             const resources = await cursor.toArrayAsync();
+            const originalIdParsedArg = parsedArgs.getOriginal('id') || parsedArgs.getOriginal('_id');
             if (resources.length > 1 &&
-                parsedArgs.getOriginal('id') &&// in case of patient proxy lookup allow multiple resources
-                !parsedArgs.getOriginal('id').queryParameterValue.startsWith('person.')) {
+                originalIdParsedArg &&// in case of patient proxy lookup allow multiple resources
+                !originalIdParsedArg.queryParameterValue.startsWith('person.')) {
                 /**
                  * @type {string[]}
                  */
