@@ -49,9 +49,11 @@ jobs:
         env:
           NODE_OPTIONS: "--max-old-space-size=10240"
       - name: Rename coverage file name
+        if: github.ref == 'refs/heads/master'
         run: mv coverage/coverage-final.json coverage/${{matrix.shard}}.json
       - name: Upload coverage file
         uses: actions/upload-artifact@v3
+        if: github.ref == 'refs/heads/master'
         with:
           name: coverage-artifacts
           path: coverage/
@@ -59,6 +61,7 @@ jobs:
     name: Sonar Qube
     runs-on: ubuntu-latest
     needs: build
+    if: github.ref == 'refs/heads/master'
     steps:
       - uses: actions/checkout@v3
         with:
@@ -76,6 +79,10 @@ jobs:
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+      - name: Remove the coverage files
+        uses: geekyeggo/delete-artifact@v2
+        with:
+          name: coverage-artifacts
       # If you wish to fail your job when the Quality Gate is red, uncomment the
       # following lines. This would typically be used to fail a deployment.
       # - uses: sonarsource/sonarqube-quality-gate-action@master
