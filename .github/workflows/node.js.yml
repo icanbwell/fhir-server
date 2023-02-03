@@ -48,8 +48,28 @@ jobs:
           NODE_OPTIONS=--max-old-space-size=10240 node --max-old-space-size=10240 --optimize_for_size --gc_interval=100 --always-compact ./node_modules/.bin/jest --no-watchman --silent --logHeapUsage --runInBand --forceExit --shard=${{ matrix.shard }}/${{ strategy.job-total }} --coverage
         env:
           NODE_OPTIONS: "--max-old-space-size=10240"
-      - name: SonarQube Scan
-        uses: sonarsource/sonarqube-scan-action@master
+      - run: mv coverage/coverage-final.json coverage/${{matrix.shard}}.json
+      - uses: actions/upload-artifact@v3
+        with:
+          name: coverage-artifacts
+          path: coverage/
+  sonarqube:
+    name: Sonar Qube
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - uses: actions/download-artifact@v3
+        with:
+          name: coverage-artifacts
+          path: coverage
+      - name: Merge Code Coverage
+        run: |
+          npx nyc merge coverage/ merged-output/merged-coverage.json
+          npx nyc report -t merged-output --report-dir merged-cov-report --reporter=lcov
+      - uses: sonarsource/sonarqube-scan-action@master
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
