@@ -116,6 +116,9 @@ class RemoveOperation {
         if (parsedArgs['id'] === '0') {
             parsedArgs.remove('id');
         }
+        if (parsedArgs['_id'] === '0') {
+            parsedArgs.remove('_id');
+        }
         /**
          * @type {string[]}
          */
