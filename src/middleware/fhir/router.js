@@ -309,6 +309,7 @@ class FhirRouter {
                 throw new Error(`${profileName} is an invalid profile configuration, please see the wiki for ` + 'instructions on how to enable a profile in your server, ' + 'https://github.com/Asymmetrik/node-fhir-server-core/wiki/Profile');
             } // Enable all provided operations for this profile
 
+            let securityParameters = parameters.filter((parameter) => parameter.name === '_security');
 
             if (profile.operation && profile.operation.length) {
                 this.enableOperationRoutesForProfile(app, config, profile, profileName, parameters, corsDefaults);
@@ -331,7 +332,6 @@ class FhirRouter {
                         route.args = [routeArgs.BASE];
                         break;
 
-                    case INTERACTIONS.SEARCH_BY_ID:
                     case INTERACTIONS.UPDATE:
                     case INTERACTIONS.DELETE:
                     case INTERACTIONS.PATCH:
@@ -341,6 +341,9 @@ class FhirRouter {
                     case INTERACTIONS.SEARCH:
                     case INTERACTIONS.HISTORY:
                         route.args = [routeArgs.BASE, ...parameters];
+                        break;
+                    case INTERACTIONS.SEARCH_BY_ID:
+                        route.args = [routeArgs.BASE, routeArgs.ID, ...securityParameters];
                         break;
 
                     case INTERACTIONS.HISTORY_BY_ID:
