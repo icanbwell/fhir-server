@@ -127,8 +127,17 @@ class SearchStreamingOperation {
             isUser,
             /** @type {string} */
             requestId,
-            /** @type {string} */ method
+            /** @type {string} */ method,
+            /** @type {Object} */
+            headers
         } = requestInfo;
+
+        /**
+         * whether the client wants to use global ids
+         * @type {boolean}
+         */
+        // eslint-disable-next-line no-unused-vars
+        const preferGlobalId = headers['Prefer'] && isTrue(headers['Prefer'].replace('global_id=', ''));
 
         await this.scopesValidator.verifyHasValidScopesAsync(
             {

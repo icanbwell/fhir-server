@@ -80,6 +80,7 @@ const {MongoFilterGenerator} = require('./utils/mongoFilterGenerator');
 const {R4ArgsParser} = require('./operations/query/r4ArgsParser');
 const {UuidReferenceQueryRewriter} = require('./queryRewriters/rewriters/uuidReferenceQueryRewriter');
 const {UuidToIdReplacer} = require('./utils/uuidToIdReplacer');
+const {GlobalIdEnrichmentProvider} = require('./enrich/providers/globalIdEnrichmentProvider');
 
 /**
  * Creates a container and sets up all the services
@@ -112,10 +113,13 @@ const createContainer = function () {
     container.register('patientFilterManager', () => new PatientFilterManager());
 
 
-    container.register('enrichmentManager', () => new EnrichmentManager({
+    container.register('enrichmentManager', (c) => new EnrichmentManager({
         enrichmentProviders: [
             new IdEnrichmentProvider(),
-            new ProxyPatientReferenceEnrichmentProvider()
+            new ProxyPatientReferenceEnrichmentProvider(),
+            new GlobalIdEnrichmentProvider({
+                databaseQueryFactory: c.databaseQueryFactory
+            })
         ]
     }));
     container.register('resourcePreparer', (c) => new ResourcePreparer(
