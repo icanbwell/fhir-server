@@ -160,6 +160,7 @@
     "snyk": "^1.1082.0",
     "superagent": "^8.0.6",
     "swagger-ui-express": "^4.6.0",
+    "uuid": "^9.0.0",
     "validator": "^13.7.0",
     "vanillajs-datepicker": "^1.2.0",
     "var": "^0.4.0",
