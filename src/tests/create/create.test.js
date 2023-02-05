@@ -37,6 +37,7 @@ describe('Practitioner Tests', () => {
 
             const id1 = resp.headers['content-location'].split('/').splice(5, 1)[0];
             expectedPractitionerResources.entry[0].resource.id = id1;
+            expectedPractitionerInitialResources.entry[0].resource.id = id1;
             practitioner1Resource.id = id1;
             practitioner1Resource.meta.versionId = '1';
 

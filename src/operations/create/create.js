@@ -1,5 +1,5 @@
 const {logDebug} = require('../common/logging');
-const {generateUUID, isUuid} = require('../../utils/uid.util');
+const {generateUUID} = require('../../utils/uid.util');
 const env = require('var');
 const moment = require('moment-timezone');
 const sendToS3 = require('../../utils/aws-s3');
@@ -131,34 +131,8 @@ class CreateOperation {
 
         let {base_version} = parsedArgs;
 
-        // if incoming id is a uuid then leave it alone
-        if (resource_incoming.id && isUuid(resource_incoming.id)) {
-            // leave id alone since it is a uuid
-        // } else if (resource_incoming.id && resource_incoming.meta && resource_incoming.meta.security &&
-        //     resource_incoming.meta.security.some(s => s.system === SecurityTagSystem.owner)) {
-        //     /**
-        //      * @type {string[]}
-        //      */
-        //     let sourceAssigningAuthorityCodes = resource_incoming.meta.security.filter(
-        //         s => s.system === SecurityTagSystem.sourceAssigningAuthority).map(s => s.code);
-        //     // if no sourceAssigningAuthorityCodes so fall back to owner tags
-        //     if (sourceAssigningAuthorityCodes.length === 0) {
-        //         sourceAssigningAuthorityCodes = resource_incoming.meta.security
-        //             .filter(s => s.system === SecurityTagSystem.owner)
-        //             .map(s => s.code);
-        //         sourceAssigningAuthorityCodes = Array.from(new Set(sourceAssigningAuthorityCodes));
-        //     }
-        //
-        //     if (sourceAssigningAuthorityCodes.length > 0) {
-        //         resource_incoming.id = generateUUIDv5(`${resource_incoming.id}|${sourceAssigningAuthorityCodes[0]}`);
-        //     } else {
-        //         resource_incoming.id = generateUUID();
-        //     }
-        //
-        } else {
-            // Per https://www.hl7.org/fhir/http.html#create, we should ignore the id passed in and generate a new one
-            resource_incoming.id = generateUUID();
-        }
+        // Per https://www.hl7.org/fhir/http.html#create, we should ignore the id passed in and generate a new one
+        resource_incoming.id = generateUUID();
 
         /**
          * @type {string}
