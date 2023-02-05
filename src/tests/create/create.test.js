@@ -46,7 +46,10 @@ describe('Practitioner Tests', () => {
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedPractitionerInitialResources);
 
-            expect(resp.entry[0].resource.issue.extension.find(e => e.id === 'uuid').valueString).toStrictEqual(
+            expect(
+                resp.body.entry[0].resource.qualification[1].issuer.extension.find(e => e.id === 'uuid')
+                    .valueString
+            ).toStrictEqual(
                 generateUUIDv5('Stanford_Medical_School|medstar')
             );
 
