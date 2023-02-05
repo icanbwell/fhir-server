@@ -20,6 +20,7 @@ const {DatabaseBulkInserter} = require('../../dataLayer/databaseBulkInserter');
 const {getCircularReplacer} = require('../../utils/getCircularReplacer');
 const {ParsedArgs} = require('../query/parsedArgsItem');
 const {SecurityTagSystem} = require('../../utils/securityTagSystem');
+const {ConfigManager} = require('../../utils/configManager');
 
 class CreateOperation {
     /**
@@ -32,6 +33,7 @@ class CreateOperation {
      * @param {ScopesValidator} scopesValidator
      * @param {ResourceValidator} resourceValidator
      * @param {DatabaseBulkInserter} databaseBulkInserter
+     * @param {ConfigManager} configManager
      */
     constructor(
         {
@@ -42,7 +44,8 @@ class CreateOperation {
             fhirLoggingManager,
             scopesValidator,
             resourceValidator,
-            databaseBulkInserter
+            databaseBulkInserter,
+            configManager
         }
     ) {
         /**
@@ -86,6 +89,12 @@ class CreateOperation {
          */
         this.databaseBulkInserter = databaseBulkInserter;
         assertTypeEquals(databaseBulkInserter, DatabaseBulkInserter);
+
+        /**
+         * @type {ConfigManager}
+         */
+        this.configManager = configManager;
+        assertTypeEquals(configManager, ConfigManager);
     }
 
     /**
@@ -191,7 +200,7 @@ class CreateOperation {
              */
             const resource = new ResourceCreator(resource_incoming);
 
-            if (env.CHECK_ACCESS_TAG_ON_SAVE === '1') {
+            if (this.configManager.checkAccessTagsOnSave) {
                 if (!this.scopesManager.doesResourceHaveAccessTags(resource)) {
                     // noinspection ExceptionCaughtLocallyJS
                     throw new BadRequestError(

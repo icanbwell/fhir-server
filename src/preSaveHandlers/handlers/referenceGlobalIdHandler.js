@@ -1,17 +1,34 @@
 const {PreSaveHandler} = require('./preSaveHandler');
 const {isUuid, generateUUIDv5} = require('../../utils/uid.util');
 const {SecurityTagSystem} = require('../../utils/securityTagSystem');
-const {assertIsValid} = require('../../utils/assertType');
+const {assertIsValid, assertTypeEquals} = require('../../utils/assertType');
 const {IdentifierSystem} = require('../../utils/identifierSystem');
 const Extension = require('../../fhir/classes/4_0_0/complex_types/extension');
+const {ConfigManager} = require('../../utils/configManager');
 
 class ReferenceGlobalIdHandler extends PreSaveHandler {
+    /**
+     * constructor
+     * @param {ConfigManager} configManager
+     */
+    constructor({configManager}) {
+        super();
+        /**
+         * @type {ConfigManager}
+         */
+        this.configManager = configManager;
+        assertTypeEquals(configManager, ConfigManager);
+    }
+
     /**
      * fixes up any resources before they are saved
      * @param {Resource} resource
      * @returns {Promise<Resource>}
      */
     async preSaveAsync({resource}) {
+        if (!this.configManager.checkAccessTagsOnSave) {
+            return resource;
+        }
         // get sourceAssigningAuthority of resource
         /**
          * @type {string[]}

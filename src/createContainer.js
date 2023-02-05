@@ -131,7 +131,7 @@ const createContainer = function () {
             resourceManager: c.resourceManager
         }
     ));
-    container.register('preSaveManager', () => new PreSaveManager({
+    container.register('preSaveManager', (c) => new PreSaveManager({
         preSaveHandlers: [
             new DateColumnHandler(),
             new SourceIdColumnHandler(),
@@ -139,9 +139,13 @@ const createContainer = function () {
             new SourceAssigningAuthorityColumnHandler(),
             // UuidColumnHandler MUST come after SourceAssigningAuthorityColumnHandler since
             // it uses sourceAssigningAuthority value
-            new UuidColumnHandler(),
+            new UuidColumnHandler({
+                configManager: c.configManager
+            }),
             // ReferenceGlobalIdHandler should come after SourceAssigningAuthorityColumnHandler and UuidColumnHandler
-            new ReferenceGlobalIdHandler(),
+            new ReferenceGlobalIdHandler({
+                configManager: c.configManager
+            }),
         ]
     }));
     container.register('resourceMerger', (c) => new ResourceMerger({
@@ -383,7 +387,8 @@ const createContainer = function () {
                 fhirLoggingManager: c.fhirLoggingManager,
                 scopesValidator: c.scopesValidator,
                 resourceValidator: c.resourceValidator,
-                databaseBulkInserter: c.databaseBulkInserter
+                databaseBulkInserter: c.databaseBulkInserter,
+                configManager: c.configManager
             }
         )
     );
@@ -400,7 +405,8 @@ const createContainer = function () {
                 bundleManager: c.bundleManager,
                 resourceLocatorFactory: c.resourceLocatorFactory,
                 databaseBulkInserter: c.databaseBulkInserter,
-                resourceMerger: c.resourceMerger
+                resourceMerger: c.resourceMerger,
+                configManager: c.configManager
             }
         )
     );

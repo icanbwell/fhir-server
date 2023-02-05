@@ -220,6 +220,14 @@ class ConfigManager {
     get enableReturnBundle() {
         return isTrue(env.RETURN_BUNDLE);
     }
+
+    /**
+     * whether to check access tags on save
+     * @return {boolean}
+     */
+    get checkAccessTagsOnSave() {
+        return isTrue(env.CHECK_ACCESS_TAG_ON_SAVE);
+    }
 }
 
 module.exports = {

@@ -199,7 +199,7 @@ class MergeManager {
             user,
             args: {message: 'Merging new resource', id: resourceToMerge.id, resource: resourceToMerge}
         });
-        if (env.CHECK_ACCESS_TAG_ON_SAVE === '1') {
+        if (this.configManager.checkAccessTagsOnSave) {
             if (!this.scopesManager.doesResourceHaveAccessTags(resourceToMerge)) {
                 throw new BadRequestError(
                     new Error(
@@ -691,7 +691,7 @@ class MergeManager {
                 };
             }
 
-            if (env.CHECK_ACCESS_TAG_ON_SAVE === '1') {
+            if (this.configManager.checkAccessTagsOnSave) {
                 if (!this.scopesManager.doesResourceHaveAccessTags(resourceToMerge)) {
                     const accessTagOperationOutcome = new OperationOutcome({
                         resourceType: 'OperationOutcome',

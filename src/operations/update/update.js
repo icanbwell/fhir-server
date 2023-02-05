@@ -20,6 +20,7 @@ const {SecurityTagSystem} = require('../../utils/securityTagSystem');
 const {ResourceMerger} = require('../common/resourceMerger');
 const {getCircularReplacer} = require('../../utils/getCircularReplacer');
 const {ParsedArgs} = require('../query/parsedArgsItem');
+const {ConfigManager} = require('../../utils/configManager');
 
 /**
  * Update Operation
@@ -37,6 +38,7 @@ class UpdateOperation {
      * @param {ResourceValidator} resourceValidator
      * @param {DatabaseBulkInserter} databaseBulkInserter
      * @param {ResourceMerger} resourceMerger
+     * @param {ConfigManager} configManager
      */
     constructor(
         {
@@ -49,7 +51,8 @@ class UpdateOperation {
             scopesValidator,
             resourceValidator,
             databaseBulkInserter,
-            resourceMerger
+            resourceMerger,
+            configManager
         }
     ) {
         /**
@@ -103,6 +106,12 @@ class UpdateOperation {
          */
         this.resourceMerger = resourceMerger;
         assertTypeEquals(resourceMerger, ResourceMerger);
+
+        /**
+         * @type {ConfigManager}
+         */
+        this.configManager = configManager;
+        assertTypeEquals(configManager, ConfigManager);
     }
 
     /**
@@ -253,7 +262,7 @@ class UpdateOperation {
                 }
             } else {
                 // not found so insert
-                if (env.CHECK_ACCESS_TAG_ON_SAVE === '1') {
+                if (this.configManager.checkAccessTagsOnSave) {
                     if (!this.scopesManager.doesResourceHaveAccessTags(resource_incoming)) {
                         // noinspection ExceptionCaughtLocallyJS
                         throw new BadRequestError(

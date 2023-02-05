@@ -4,9 +4,23 @@ const {IdentifierSystem} = require('../../utils/identifierSystem');
 const {getFirstElementOrNull} = require('../../utils/list.util');
 const Identifier = require('../../fhir/classes/4_0_0/complex_types/identifier');
 const {SecurityTagSystem} = require('../../utils/securityTagSystem');
-const {assertIsValid} = require('../../utils/assertType');
+const {assertIsValid, assertTypeEquals} = require('../../utils/assertType');
+const {ConfigManager} = require('../../utils/configManager');
 
 class UuidColumnHandler extends PreSaveHandler {
+    /**
+     * constructor
+     * @param {ConfigManager} configManager
+     */
+    constructor({configManager}) {
+        super();
+        /**
+         * @type {ConfigManager}
+         */
+        this.configManager = configManager;
+        assertTypeEquals(configManager, ConfigManager);
+    }
+
     async preSaveAsync({resource}) {
         if (!resource._uuid) {
             // if an identifier with system=https://www.icanbwell.com/sourceId exists then use that
@@ -19,17 +33,21 @@ class UuidColumnHandler extends PreSaveHandler {
             if (isUuid(resource.id)) {
                 resource._uuid = resource.id;
             } else {
-                assertIsValid(resource.meta.security,
-                    `No meta security tags defined for resource: ${resource.resourceType}/${resource.id}`);
-                /**
-                 * @type {string[]}
-                 */
-                const sourceAssigningAuthorityCodes = resource.meta.security.filter(
-                    s => s.system === SecurityTagSystem.sourceAssigningAuthority).map(s => s.code);
-                assertIsValid(sourceAssigningAuthorityCodes.length > 0,
-                    `No sourceAssigningAuthority codes found for resource id: ${resource.id}`);
-                const idPlusSourceAssigningAuthority = resource.id + '|' + sourceAssigningAuthorityCodes[0];
-                resource._uuid = `${generateUUIDv5(idPlusSourceAssigningAuthority)}`;
+                if (this.configManager.checkAccessTagsOnSave) {
+                    assertIsValid(resource.meta.security,
+                        `No meta security tags defined for resource: ${resource.resourceType}/${resource.id}`);
+                    /**
+                     * @type {string[]}
+                     */
+                    const sourceAssigningAuthorityCodes = resource.meta.security.filter(
+                        s => s.system === SecurityTagSystem.sourceAssigningAuthority).map(s => s.code);
+                    assertIsValid(sourceAssigningAuthorityCodes.length > 0,
+                        `No sourceAssigningAuthority codes found for resource id: ${resource.id}`);
+                    const idPlusSourceAssigningAuthority = resource.id + '|' + sourceAssigningAuthorityCodes[0];
+                    resource._uuid = `${generateUUIDv5(idPlusSourceAssigningAuthority)}`;
+                } else {
+                    resource._uuid = generateUUIDv5(resource.id);
+                }
             }
         }
 
