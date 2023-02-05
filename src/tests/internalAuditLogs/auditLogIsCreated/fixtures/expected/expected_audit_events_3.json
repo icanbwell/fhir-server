@@ -16,6 +16,23 @@
         },
         "requestor": true,
         "who": {
+          "extension": [
+            {
+              "id": "sourceId",
+              "url": "https://www.icanbwell.com/sourceId",
+              "valueString": "imran"
+            },
+            {
+              "id": "uuid",
+              "url": "https://www.icanbwell.com/uuid",
+              "valueString": "63d18720-c48b-534c-9127-76e01034414f"
+            },
+            {
+              "id": "sourceAssigningAuthority",
+              "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+              "valueString": "bwell"
+            }
+          ],
           "reference": "Person/imran"
         }
       }
@@ -33,6 +50,23 @@
           }
         ],
         "what": {
+          "extension": [
+            {
+              "id": "sourceId",
+              "url": "https://www.icanbwell.com/sourceId",
+              "valueString": "1679033641"
+            },
+            {
+              "id": "uuid",
+              "url": "https://www.icanbwell.com/uuid",
+              "valueString": "b3f870ff-dcbd-51bb-95a9-567cd3b142d4"
+            },
+            {
+              "id": "sourceAssigningAuthority",
+              "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+              "valueString": "bwell"
+            }
+          ],
           "reference": "Practitioner/1679033641"
         }
       }
@@ -78,6 +112,23 @@
         },
         "requestor": true,
         "who": {
+          "extension": [
+            {
+              "id": "sourceId",
+              "url": "https://www.icanbwell.com/sourceId",
+              "valueString": "imran"
+            },
+            {
+              "id": "uuid",
+              "url": "https://www.icanbwell.com/uuid",
+              "valueString": "63d18720-c48b-534c-9127-76e01034414f"
+            },
+            {
+              "id": "sourceAssigningAuthority",
+              "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+              "valueString": "bwell"
+            }
+          ],
           "reference": "Person/imran"
         }
       }
@@ -91,6 +142,23 @@
           }
         ],
         "what": {
+          "extension": [
+            {
+              "id": "sourceId",
+              "url": "https://www.icanbwell.com/sourceId",
+              "valueString": "0"
+            },
+            {
+              "id": "uuid",
+              "url": "https://www.icanbwell.com/uuid",
+              "valueString": "9b2ff503-a4e1-56f6-8772-49e7a6a4099d"
+            },
+            {
+              "id": "sourceAssigningAuthority",
+              "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+              "valueString": "bwell"
+            }
+          ],
           "reference": "Practitioner/0"
         }
       }
@@ -136,6 +204,23 @@
         },
         "requestor": true,
         "who": {
+          "extension": [
+            {
+              "id": "sourceId",
+              "url": "https://www.icanbwell.com/sourceId",
+              "valueString": "imran"
+            },
+            {
+              "id": "uuid",
+              "url": "https://www.icanbwell.com/uuid",
+              "valueString": "63d18720-c48b-534c-9127-76e01034414f"
+            },
+            {
+              "id": "sourceAssigningAuthority",
+              "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+              "valueString": "bwell"
+            }
+          ],
           "reference": "Person/imran"
         }
       }
@@ -149,6 +234,23 @@
           }
         ],
         "what": {
+          "extension": [
+            {
+              "id": "sourceId",
+              "url": "https://www.icanbwell.com/sourceId",
+              "valueString": "0"
+            },
+            {
+              "id": "uuid",
+              "url": "https://www.icanbwell.com/uuid",
+              "valueString": "9b2ff503-a4e1-56f6-8772-49e7a6a4099d"
+            },
+            {
+              "id": "sourceAssigningAuthority",
+              "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+              "valueString": "bwell"
+            }
+          ],
           "reference": "Practitioner/0"
         }
       }

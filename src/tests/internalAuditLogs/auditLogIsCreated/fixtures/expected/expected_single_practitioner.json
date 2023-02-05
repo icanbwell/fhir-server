@@ -40,11 +40,14 @@
       "value": "1679033641"
     },
     {
+      "id": "sourceId",
       "system": "https://www.icanbwell.com/sourceId",
       "value": "0"
     },
     {
-      "system": "https://www.icanbwell.com/uuid"
+      "id": "uuid",
+      "system": "https://www.icanbwell.com/uuid",
+      "value": "dc15f976-9cdc-5056-b20e-3eac7a7e09a3"
     }
   ],
   "meta": {
@@ -52,6 +55,14 @@
       {
         "code": "medstar",
         "system": "https://www.icanbwell.com/access"
+      },
+      {
+        "code": "medstar",
+        "system": "https://www.icanbwell.com/owner"
+      },
+      {
+        "code": "medstar",
+        "system": "https://www.icanbwell.com/sourceAssigningAuthority"
       }
     ],
     "versionId": "1"
@@ -87,6 +98,23 @@
         ]
       },
       "issuer": {
+        "extension": [
+          {
+            "id": "sourceId",
+            "url": "https://www.icanbwell.com/sourceId",
+            "valueString": "Stanford_Medical_School"
+          },
+          {
+            "id": "uuid",
+            "url": "https://www.icanbwell.com/uuid",
+            "valueString": "f4bd1507-3193-5d87-8b24-463abe43b048"
+          },
+          {
+            "id": "sourceAssigningAuthority",
+            "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+            "valueString": "medstar"
+          }
+        ],
         "reference": "Organization/Stanford_Medical_School"
       },
       "period": {
