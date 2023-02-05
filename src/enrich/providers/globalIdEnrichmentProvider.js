@@ -1,6 +1,8 @@
 const {EnrichmentProvider} = require('./enrichmentProvider');
 const {assertTypeEquals} = require('../../utils/assertType');
 const {DatabaseQueryFactory} = require('../../dataLayer/databaseQueryFactory');
+const {isUuid} = require('../../utils/uid.util');
+const {isTrue} = require('../../utils/isTrue');
 
 /**
  * Abstract base class for an enrichment provider.  Inherit from this to create a new enrichment provider
@@ -29,7 +31,18 @@ class GlobalIdEnrichmentProvider extends EnrichmentProvider {
      */
     // eslint-disable-next-line no-unused-vars
     async enrichAsync({resources, parsedArgs}) {
-        throw Error('Not Implemented');
+        if (parsedArgs['prefer:global_id'] && isTrue(parsedArgs['prefer:global_id'])) {
+            for (const resource of resources) {
+                if (resource.id && !isUuid(resource.id)) {
+                    const uuid = resource._uuid;
+                    if (uuid) {
+                        resource.id = uuid;
+                    }
+                }
+            }
+        }
+
+        return resources;
     }
 
     /**

@@ -234,8 +234,15 @@ class ParsedArgs {
      * @return {ParsedArgs}
      */
     add(parsedArgItem) {
+        /**
+         * @type {string}
+         */
+        let propertyName = parsedArgItem.queryParameter;
+        /**
+         * @type {ParsedArgsItem|undefined}
+         */
         const existingParseArgItem = this.parsedArgItems.find(
-            a => a.queryParameter === parsedArgItem.queryParameter &&
+            a => a.queryParameter === propertyName &&
                 (a.modifiers && a.modifiers.toString()) === (parsedArgItem.modifiers && parsedArgItem.modifiers.toString())
         );
         if (existingParseArgItem) {
@@ -244,11 +251,24 @@ class ParsedArgs {
             existingParseArgItem.modifiers = parsedArgItem.modifiers;
         } else {
             this.parsedArgItems.push(parsedArgItem);
-            // do not create properties for args with modifiers
-            if (parsedArgItem.modifiers.length === 0) {
+            if (parsedArgItem.modifiers && parsedArgItem.modifiers.length > 0) {
+                propertyName = propertyName + ':' + parsedArgItem.modifiers.join(':');
+            }
+            Object.defineProperty(
+                this,
+                propertyName,
+                {
+                    get: () => parsedArgItem.queryParameterValue,
+                    set: valueProvided => {
+                        parsedArgItem.queryParameterValue = valueProvided;
+                    }
+                }
+            );
+            // special case to handle backwards compatibility
+            if (propertyName === '_id') {
                 Object.defineProperty(
                     this,
-                    parsedArgItem.queryParameter,
+                    'id',
                     {
                         get: () => parsedArgItem.queryParameterValue,
                         set: valueProvided => {
@@ -256,20 +276,8 @@ class ParsedArgs {
                         }
                     }
                 );
-                // special case to handle backwards compatibility
-                if (parsedArgItem.queryParameter === '_id') {
-                    Object.defineProperty(
-                        this,
-                        'id',
-                        {
-                            get: () => parsedArgItem.queryParameterValue,
-                            set: valueProvided => {
-                                parsedArgItem.queryParameterValue = valueProvided;
-                            }
-                        }
-                    );
-                }
             }
+
         }
         return this;
     }

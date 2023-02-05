@@ -1,5 +1,5 @@
 // test file
-const observation1Resource = require('./fixtures/Observation/observation1.json');
+// const observation1Resource = require('./fixtures/Observation/observation1.json');
 
 // expected
 // const expectedObservationResources = require('./fixtures/expected/expected_observation.json');
@@ -21,7 +21,7 @@ describe('Observation Tests', () => {
     });
 
     describe('Observation globalIdEnrichmentProvider Tests', () => {
-        test('globalIdEnrichmentProvider works', async () => {
+        test('globalIdEnrichmentProvider works with id', async () => {
             // eslint-disable-next-line no-unused-vars
             const request = await createTestRequest();
             /**
@@ -41,20 +41,32 @@ describe('Observation Tests', () => {
             const r4ArgsParser = container.r4ArgsParser;
             assertTypeEquals(r4ArgsParser, R4ArgsParser);
 
+
             const parsedArgs = r4ArgsParser.parseArgs({
                 resourceType: 'Patient',
                 args: {
                     'base_version': VERSIONS['4_0_0'],
-                    'id': 'john-muir-health-e.k-4ea143ZrQGvdUvf-b2y.tdyiVMBWgblY4f6y2zis3',
-                    'id:above': 'john-muir-health-e.k-4ea143ZrQGvdUvf-b2y.tdyiVMBWgblY4f6y2zis3'
+                    'prefer:global_id': 'true'
                 }
             });
 
-            const resources = await enrichmentManager.enrichAsync({
-                resources: [observation1Resource],
+            const resources = [
+                {
+                    'id': '1',
+                    '_uuid': '57881c89-78ca-4c66-91f7-2b8a9f99406a'
+                }
+            ];
+
+            const updatedResources = await enrichmentManager.enrichAsync({
+                resources: resources,
                 parsedArgs
             });
-            console.log(resources);
+            expect(updatedResources).toStrictEqual([
+                {
+                    'id': '57881c89-78ca-4c66-91f7-2b8a9f99406a',
+                    '_uuid': '57881c89-78ca-4c66-91f7-2b8a9f99406a'
+                }
+            ]);
         });
     });
 });
