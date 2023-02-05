@@ -1,0 +1,75 @@
+{
+  "generalPractitioner": [
+    {
+      "extension": [
+        {
+          "id": "sourceId",
+          "url": "https://www.icanbwell.com/sourceId",
+          "valueString": "11"
+        },
+        {
+          "id": "uuid",
+          "url": "https://www.icanbwell.com/uuid",
+          "valueString": "3c54099d-bc35-5aa8-a5a8-e80506724602"
+        },
+        {
+          "id": "sourceAssigningAuthority",
+          "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+          "valueString": "medstar"
+        }
+      ],
+      "id": "1",
+      "reference": "Practitioner/22"
+    }
+  ],
+  "id": "1",
+  "identifier": [
+    {
+      "system": "https://www.icanbwell.com/sourceId",
+      "value": "1"
+    },
+    {
+      "system": "https://www.icanbwell.com/uuid"
+    }
+  ],
+  "managingOrganization": {
+    "extension": [
+      {
+        "id": "sourceId",
+        "url": "https://www.icanbwell.com/sourceId",
+        "valueString": "22"
+      },
+      {
+        "id": "uuid",
+        "url": "https://www.icanbwell.com/uuid",
+        "valueString": "c591ee19-6a43-551f-99de-8d90ad1518cd"
+      },
+      {
+        "id": "sourceAssigningAuthority",
+        "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+        "valueString": "medstar"
+      }
+    ],
+    "reference": "Organization/33"
+  },
+  "meta": {
+    "security": [
+      {
+        "code": "medstar",
+        "system": "https://www.icanbwell.com/access"
+      },
+      {
+        "code": "medstar",
+        "system": "https://www.icanbwell.com/owner"
+      },
+      {
+        "code": "medstar",
+        "system": "https://www.icanbwell.com/sourceAssigningAuthority"
+      }
+    ],
+    "source": "http://medstarhealth.org/provider",
+    "versionId": "1"
+  },
+  "resourceType": "Patient",
+  "gender": "male"
+}

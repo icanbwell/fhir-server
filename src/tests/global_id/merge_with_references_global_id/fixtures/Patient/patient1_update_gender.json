@@ -22,5 +22,6 @@
   ],
   "managingOrganization": {
     "reference": "Organization/22"
-  }
+  },
+  "gender": "male"
 }

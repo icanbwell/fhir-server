@@ -2,18 +2,19 @@
   "entry": [
     {
       "resource": {
+        "gender": "male",
         "generalPractitioner": [
           {
             "extension": [
               {
                 "id": "sourceId",
                 "url": "https://www.icanbwell.com/sourceId",
-                "valueString": "11"
+                "valueString": "22"
               },
               {
                 "id": "uuid",
                 "url": "https://www.icanbwell.com/uuid",
-                "valueString": "3c54099d-bc35-5aa8-a5a8-e80506724602"
+                "valueString": "3de21b74-cffe-5e64-86be-5feda311fea5"
               },
               {
                 "id": "sourceAssigningAuthority",
@@ -22,7 +23,7 @@
               }
             ],
             "id": "1",
-            "reference": "Practitioner/11"
+            "reference": "Practitioner/22"
           }
         ],
         "id": "1",
@@ -40,12 +41,12 @@
             {
               "id": "sourceId",
               "url": "https://www.icanbwell.com/sourceId",
-              "valueString": "22"
+              "valueString": "33"
             },
             {
               "id": "uuid",
               "url": "https://www.icanbwell.com/uuid",
-              "valueString": "c591ee19-6a43-551f-99de-8d90ad1518cd"
+              "valueString": "6a8e065c-851b-5e4b-9d12-3fb51e2122d3"
             },
             {
               "id": "sourceAssigningAuthority",
@@ -53,7 +54,7 @@
               "valueString": "medstar"
             }
           ],
-          "reference": "Organization/22"
+          "reference": "Organization/33"
         },
         "meta": {
           "security": [
@@ -71,7 +72,7 @@
             }
           ],
           "source": "http://medstarhealth.org/provider",
-          "versionId": "1"
+          "versionId": "2"
         },
         "resourceType": "Patient"
       }

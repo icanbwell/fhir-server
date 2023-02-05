@@ -2,6 +2,7 @@
   "entry": [
     {
       "resource": {
+        "gender": "male",
         "generalPractitioner": [
           {
             "extension": [
@@ -71,7 +72,7 @@
             }
           ],
           "source": "http://medstarhealth.org/provider",
-          "versionId": "1"
+          "versionId": "2"
         },
         "resourceType": "Patient"
       }

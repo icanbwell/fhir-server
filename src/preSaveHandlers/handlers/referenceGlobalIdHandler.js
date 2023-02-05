@@ -78,38 +78,67 @@ class ReferenceGlobalIdHandler extends PreSaveHandler {
         const extensions = reference.extension || [];
 
         let referenceUpdated = false;
-        if (!extensions.some(ext => ext.url === IdentifierSystem.sourceId)) {
+
+        // update sourceId extension if needed
+        /**
+         * @type {Extension|undefined}
+         */
+        const sourceIdExtension = extensions.find(ext => ext.url === IdentifierSystem.sourceId);
+        if (!sourceIdExtension) {
             extensions.push(
                 new Extension(
                     {
+                        id: 'sourceId',
                         url: IdentifierSystem.sourceId,
                         valueString: id
                     }
                 )
             );
             referenceUpdated = true;
+        } else if (sourceIdExtension.valueString !== id) {
+            sourceIdExtension.valueString = id;
+            referenceUpdated = true;
         }
-        if (!extensions.some(ext => ext.url === IdentifierSystem.uuid)) {
+
+        // update uuid extension if needed
+        /**
+         * @type {Extension|undefined}
+         */
+        const uuidExtension = extensions.find(ext => ext.url === IdentifierSystem.uuid);
+        if (!uuidExtension) {
             extensions.push(
                 new Extension(
                     {
+                        id: 'uuid',
                         url: IdentifierSystem.uuid,
                         valueString: uuid
                     }
                 )
             );
             referenceUpdated = true;
+        } else if (uuidExtension.valueString !== uuid) {
+            uuidExtension.valueString = uuid;
+            referenceUpdated = true;
         }
-        if (!extensions.some(ext => ext.url === SecurityTagSystem.sourceAssigningAuthority)
-        ) {
+
+        // update sourceAssigningAuthority extension if needed
+        /**
+         * @type {Extension|undefined}
+         */
+        const sourceAssigningAuthorityExtension = extensions.find(ext => ext.url === SecurityTagSystem.sourceAssigningAuthority);
+        if (!sourceAssigningAuthorityExtension) {
             extensions.push(
                 new Extension(
                     {
+                        id: 'sourceAssigningAuthority',
                         url: SecurityTagSystem.sourceAssigningAuthority,
                         valueString: sourceAssigningAuthority
                     }
                 )
             );
+            referenceUpdated = true;
+        } else if (sourceAssigningAuthorityExtension.valueString !== sourceAssigningAuthority) {
+            sourceAssigningAuthorityExtension.valueString = sourceAssigningAuthority;
             referenceUpdated = true;
         }
 
