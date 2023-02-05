@@ -30,17 +30,37 @@
             "value": "bwell-aba5bcf41cf64435839cf0568c121843"
           },
           {
+            "id": "sourceId",
             "system": "https://www.icanbwell.com/sourceId",
             "value": "aba5bcf41cf64435839cf0568c121843"
           },
           {
-            "system": "https://www.icanbwell.com/uuid"
+            "id": "uuid",
+            "system": "https://www.icanbwell.com/uuid",
+            "value": "849cb4f0-033b-5d6e-a614-9bbbbb3ba11e"
           }
         ],
         "link": [
           {
             "assurance": "level4",
             "target": {
+              "extension": [
+                {
+                  "id": "sourceId",
+                  "url": "https://www.icanbwell.com/sourceId",
+                  "valueString": "a58e50292d79469691d3048e787434cc"
+                },
+                {
+                  "id": "uuid",
+                  "url": "https://www.icanbwell.com/uuid",
+                  "valueString": "d6d3a5b6-3178-5aa1-bca4-f60a5214bd2d"
+                },
+                {
+                  "id": "sourceAssigningAuthority",
+                  "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                  "valueString": "bwell"
+                }
+              ],
               "reference": "Person/a58e50292d79469691d3048e787434cc",
               "type": "Person"
             }
@@ -48,6 +68,23 @@
           {
             "assurance": "level4",
             "target": {
+              "extension": [
+                {
+                  "id": "sourceId",
+                  "url": "https://www.icanbwell.com/sourceId",
+                  "valueString": "26a2b5508f6840a1b4c5f67d38360060"
+                },
+                {
+                  "id": "uuid",
+                  "url": "https://www.icanbwell.com/uuid",
+                  "valueString": "aa0aae87-1b98-50ee-aefa-58f8f04bf6a3"
+                },
+                {
+                  "id": "sourceAssigningAuthority",
+                  "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                  "valueString": "bwell"
+                }
+              ],
               "reference": "Patient/26a2b5508f6840a1b4c5f67d38360060",
               "type": "Patient"
             }

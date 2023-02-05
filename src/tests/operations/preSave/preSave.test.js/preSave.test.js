@@ -7,6 +7,7 @@ const {UuidColumnHandler} = require('../../../../preSaveHandlers/handlers/uuidCo
 const {AccessColumnHandler} = require('../../../../preSaveHandlers/handlers/accessColumnHandler');
 const {SourceAssigningAuthorityColumnHandler} = require('../../../../preSaveHandlers/handlers/sourceAssigningAuthorityColumnHandler');
 const {SecurityTagSystem} = require('../../../../utils/securityTagSystem');
+const Resource = require('../../../../fhir/classes/4_0_0/resources/resource');
 
 describe('Patient Tests', () => {
     beforeEach(async () => {
@@ -23,7 +24,7 @@ describe('Patient Tests', () => {
             /**
              * @type {Resource}
              */
-            const resource = {
+            const resource = new Resource({
                 'id': '123',
                 'meta': {
                     'security': [
@@ -37,7 +38,7 @@ describe('Patient Tests', () => {
                         },
                     ]
                 }
-            };
+            });
             const result = await new PreSaveManager({
                 preSaveHandlers: [
                     new DateColumnHandler(),

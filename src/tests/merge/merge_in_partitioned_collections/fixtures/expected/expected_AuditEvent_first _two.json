@@ -29,6 +29,23 @@
               ]
             },
             "who": {
+              "extension": [
+                {
+                  "id": "sourceId",
+                  "url": "https://www.icanbwell.com/sourceId",
+                  "valueString": "fake-OBocz9j"
+                },
+                {
+                  "id": "uuid",
+                  "url": "https://www.icanbwell.com/uuid",
+                  "valueString": "51a581dc-d652-5ee7-8674-64a5284d71e4"
+                },
+                {
+                  "id": "sourceAssigningAuthority",
+                  "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                  "valueString": "thedacare"
+                }
+              ],
               "reference": "Person/fake-OBocz9j"
             }
           }
@@ -196,6 +213,23 @@
         "resourceType": "AuditEvent",
         "source": {
           "observer": {
+            "extension": [
+              {
+                "id": "sourceId",
+                "url": "https://www.icanbwell.com/sourceId",
+                "valueString": "Mixpanel"
+              },
+              {
+                "id": "uuid",
+                "url": "https://www.icanbwell.com/uuid",
+                "valueString": "12b483a9-acdd-5dde-887a-cff6770258ff"
+              },
+              {
+                "id": "sourceAssigningAuthority",
+                "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                "valueString": "thedacare"
+              }
+            ],
             "reference": "Organization/Mixpanel"
           },
           "site": "https://access.fake.org",
@@ -249,6 +283,23 @@
               ]
             },
             "who": {
+              "extension": [
+                {
+                  "id": "sourceId",
+                  "url": "https://www.icanbwell.com/sourceId",
+                  "valueString": "fake-OBocz9j"
+                },
+                {
+                  "id": "uuid",
+                  "url": "https://www.icanbwell.com/uuid",
+                  "valueString": "51a581dc-d652-5ee7-8674-64a5284d71e4"
+                },
+                {
+                  "id": "sourceAssigningAuthority",
+                  "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                  "valueString": "thedacare"
+                }
+              ],
               "reference": "Person/fake-OBocz9j"
             }
           }
@@ -416,6 +467,23 @@
         "resourceType": "AuditEvent",
         "source": {
           "observer": {
+            "extension": [
+              {
+                "id": "sourceId",
+                "url": "https://www.icanbwell.com/sourceId",
+                "valueString": "Mixpanel"
+              },
+              {
+                "id": "uuid",
+                "url": "https://www.icanbwell.com/uuid",
+                "valueString": "12b483a9-acdd-5dde-887a-cff6770258ff"
+              },
+              {
+                "id": "sourceAssigningAuthority",
+                "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                "valueString": "thedacare"
+              }
+            ],
             "reference": "Organization/Mixpanel"
           },
           "site": "https://access.fake.org",
@@ -469,6 +537,23 @@
               ]
             },
             "who": {
+              "extension": [
+                {
+                  "id": "sourceId",
+                  "url": "https://www.icanbwell.com/sourceId",
+                  "valueString": "fake-TnpmHR6"
+                },
+                {
+                  "id": "uuid",
+                  "url": "https://www.icanbwell.com/uuid",
+                  "valueString": "da72e4cf-78b9-5d27-b69a-50e41db8c3e1"
+                },
+                {
+                  "id": "sourceAssigningAuthority",
+                  "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                  "valueString": "medstar"
+                }
+              ],
               "reference": "Person/fake-TnpmHR6"
             }
           }
@@ -637,6 +722,23 @@
         "resourceType": "AuditEvent",
         "source": {
           "observer": {
+            "extension": [
+              {
+                "id": "sourceId",
+                "url": "https://www.icanbwell.com/sourceId",
+                "valueString": "Mixpanel"
+              },
+              {
+                "id": "uuid",
+                "url": "https://www.icanbwell.com/uuid",
+                "valueString": "de19f130-7f80-51ce-993c-1e6032c3b32d"
+              },
+              {
+                "id": "sourceAssigningAuthority",
+                "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                "valueString": "medstar"
+              }
+            ],
             "reference": "Organization/Mixpanel"
           },
           "site": "https://access.fake.org",
@@ -669,7 +771,7 @@
         "system": "https://www.icanbwell.com/query"
       },
       {
-        "code": "AuditEvent_4_0_0_2022_11",
+        "code": "AuditEvent_4_0_0_2023_02",
         "system": "https://www.icanbwell.com/queryCollection"
       },
       {
