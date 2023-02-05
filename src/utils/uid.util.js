@@ -19,6 +19,7 @@ const getHash = (obj) => {
     return hash(obj);
 };
 
+// noinspection JSCheckFunctionSignatures
 /**
  * Generates a v5 UUID.  A v5 UUID is a deterministic uuid based on name so everytime the name is used
  * the same uuid will be generated.

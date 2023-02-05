@@ -81,6 +81,7 @@ const {R4ArgsParser} = require('./operations/query/r4ArgsParser');
 const {UuidReferenceQueryRewriter} = require('./queryRewriters/rewriters/uuidReferenceQueryRewriter');
 const {UuidToIdReplacer} = require('./utils/uuidToIdReplacer');
 const {GlobalIdEnrichmentProvider} = require('./enrich/providers/globalIdEnrichmentProvider');
+const {ReferenceGlobalIdHandler} = require('./preSaveHandlers/handlers/referenceGlobalIdHandler');
 
 /**
  * Creates a container and sets up all the services
@@ -139,6 +140,8 @@ const createContainer = function () {
             // UuidColumnHandler MUST come after SourceAssigningAuthorityColumnHandler since
             // it uses sourceAssigningAuthority value
             new UuidColumnHandler(),
+            // ReferenceGlobalIdHandler should come after SourceAssigningAuthorityColumnHandler and UuidColumnHandler
+            new ReferenceGlobalIdHandler(),
         ]
     }));
     container.register('resourceMerger', (c) => new ResourceMerger({
