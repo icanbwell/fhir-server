@@ -29,6 +29,23 @@
               ]
             },
             "who": {
+              "extension": [
+                {
+                  "id": "sourceId",
+                  "url": "https://www.icanbwell.com/sourceId",
+                  "valueString": "fake-OBocz9j"
+                },
+                {
+                  "id": "uuid",
+                  "url": "https://www.icanbwell.com/uuid",
+                  "valueString": "6f3ada47-fd07-52ea-80b1-ca217dcc6b49"
+                },
+                {
+                  "id": "sourceAssigningAuthority",
+                  "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                  "valueString": "thedacare"
+                }
+              ],
               "reference": "Person/fake-OBocz9j"
             }
           }
@@ -196,6 +213,23 @@
         "resourceType": "AuditEvent",
         "source": {
           "observer": {
+            "extension": [
+              {
+                "id": "sourceId",
+                "url": "https://www.icanbwell.com/sourceId",
+                "valueString": "Mixpanel"
+              },
+              {
+                "id": "uuid",
+                "url": "https://www.icanbwell.com/uuid",
+                "valueString": "e909a2e1-ccac-5392-af1e-f378abe0c748"
+              },
+              {
+                "id": "sourceAssigningAuthority",
+                "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                "valueString": "thedacare"
+              }
+            ],
             "reference": "Organization/Mixpanel"
           },
           "site": "https://access.fake.org",
@@ -228,7 +262,7 @@
         "system": "https://www.icanbwell.com/query"
       },
       {
-        "code": "AuditEvent_4_0_0_2022_10",
+        "code": "AuditEvent_4_0_0_2023_02",
         "system": "https://www.icanbwell.com/queryCollection"
       },
       {

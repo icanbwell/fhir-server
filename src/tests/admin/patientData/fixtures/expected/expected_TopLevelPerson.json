@@ -23,11 +23,14 @@
       "value": "1000000-a-02"
     },
     {
+      "id": "sourceId",
       "system": "https://www.icanbwell.com/sourceId",
       "value": "topLevelPerson"
     },
     {
-      "system": "https://www.icanbwell.com/uuid"
+      "id": "uuid",
+      "system": "https://www.icanbwell.com/uuid",
+      "value": "bfbf2a31-e0aa-5302-8d33-69d6a06b0fee"
     }
   ],
   "implicitRules": "some-implicit-rule",
@@ -37,12 +40,46 @@
       "assurance": "level4",
       "id": "4223ad68-2cd2-482f-8d47-fc09be3ddbc1",
       "target": {
+        "extension": [
+          {
+            "id": "sourceId",
+            "url": "https://www.icanbwell.com/sourceId",
+            "valueString": "person1"
+          },
+          {
+            "id": "uuid",
+            "url": "https://www.icanbwell.com/uuid",
+            "valueString": "afa77233-1427-5a6e-91f9-8ef7a3773129"
+          },
+          {
+            "id": "sourceAssigningAuthority",
+            "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+            "valueString": "bwell"
+          }
+        ],
         "reference": "Person/person1"
       }
     }
   ],
   "managingOrganization": {
     "display": "some-text-to-display",
+    "extension": [
+      {
+        "id": "sourceId",
+        "url": "https://www.icanbwell.com/sourceId",
+        "valueString": "21c7094c-8deb-4512-8d6d-de7bb4729cab"
+      },
+      {
+        "id": "uuid",
+        "url": "https://www.icanbwell.com/uuid",
+        "valueString": "9584ed97-6f0f-503c-be1d-a0a993d22ee5"
+      },
+      {
+        "id": "sourceAssigningAuthority",
+        "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+        "valueString": "bwell"
+      }
+    ],
     "id": "3622f51f-5125-4198-8580-c40d4eefacb2",
     "reference": "Patient/21c7094c-8deb-4512-8d6d-de7bb4729cab",
     "type": "foo://example.com:8042/over/there?name=ferret#"
