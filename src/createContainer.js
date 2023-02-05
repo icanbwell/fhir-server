@@ -134,9 +134,11 @@ const createContainer = function () {
         preSaveHandlers: [
             new DateColumnHandler(),
             new SourceIdColumnHandler(),
-            new UuidColumnHandler(),
             new AccessColumnHandler(),
-            new SourceAssigningAuthorityColumnHandler()
+            new SourceAssigningAuthorityColumnHandler(),
+            // UuidColumnHandler MUST come after SourceAssigningAuthorityColumnHandler since
+            // it uses sourceAssigningAuthority value
+            new UuidColumnHandler(),
         ]
     }));
     container.register('resourceMerger', (c) => new ResourceMerger({

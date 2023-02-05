@@ -20,7 +20,6 @@ const {
 } = require('../../common');
 const {describe, beforeEach, afterEach, test} = require('@jest/globals');
 const {ConfigManager} = require('../../../utils/configManager');
-const {IdentifierSystem} = require('../../../utils/identifierSystem');
 
 class MockConfigManager extends ConfigManager {
     get enableGlobalIdSupport() {
@@ -91,26 +90,10 @@ describe('Observation Tests', () => {
             for (const resource of results) {
                 delete resource._id;
                 delete resource.meta.lastUpdated;
-                resource._uuid = '11111111-1111-1111-1111-111111111111';
-                resource.identifier
-                    .filter(i => i.system === IdentifierSystem.uuid)
-                    .forEach(i => {
-                            i.value = '11111111-1111-1111-1111-111111111111';
-                            return i;
-                        }
-                    );
             }
             for (const resource of expectedObservationsInDatabase) {
                 delete resource._id;
                 delete resource.meta.lastUpdated;
-                resource._uuid = '11111111-1111-1111-1111-111111111111';
-                resource.identifier
-                    .filter(i => i.system === IdentifierSystem.uuid)
-                    .forEach(i => {
-                            i.value = '11111111-1111-1111-1111-111111111111';
-                            return i;
-                        }
-                    );
             }
             expect(results).toStrictEqual(expectedObservationsInDatabase);
 

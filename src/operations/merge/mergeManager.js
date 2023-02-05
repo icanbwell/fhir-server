@@ -24,6 +24,7 @@ const {ResourceValidator} = require('../common/resourceValidator');
 const {RethrownError} = require('../../utils/rethrownError');
 const {PreSaveManager} = require('../../preSaveHandlers/preSave');
 const {ConfigManager} = require('../../utils/configManager');
+const {SecurityTagSystem} = require('../../utils/securityTagSystem');
 
 const Mutex = require('async-mutex').Mutex;
 const mutex = new Mutex();
@@ -200,7 +201,22 @@ class MergeManager {
         });
         if (env.CHECK_ACCESS_TAG_ON_SAVE === '1') {
             if (!this.scopesManager.doesResourceHaveAccessTags(resourceToMerge)) {
-                throw new BadRequestError(new Error('Resource is missing a security access tag with system: https://www.icanbwell.com/access '));
+                throw new BadRequestError(
+                    new Error(
+                        `Resource ${resourceToMerge.resourceType}/${resourceToMerge.id}` +
+                        ' is missing a security access tag with system: ' +
+                        `${SecurityTagSystem.access}`
+                    )
+                );
+            }
+            if (!this.scopesManager.doesResourceHaveOwnerTags(resourceToMerge)) {
+                throw new BadRequestError(
+                    new Error(
+                        `Resource ${resourceToMerge.resourceType}/${resourceToMerge.id}` +
+                        ' is missing a security access tag with system: ' +
+                        `${SecurityTagSystem.owner}`
+                    )
+                );
             }
         }
 
@@ -686,7 +702,35 @@ class MergeManager {
                                 details: new CodeableConcept({
                                     text: 'Error merging: ' + JSON.stringify(resourceToMerge.toJSON())
                                 }),
-                                diagnostics: 'Resource is missing a meta.security tag with system: https://www.icanbwell.com/access',
+                                diagnostics: 'Resource is missing a meta.security tag with system: ' +
+                                    `${SecurityTagSystem.access}`,
+                                expression: [
+                                    resourceToMerge.resourceType + '/' + id
+                                ]
+                            })
+                        ]
+                    });
+                    return {
+                        id: id,
+                        created: false,
+                        updated: false,
+                        issue: (accessTagOperationOutcome.issue && accessTagOperationOutcome.issue.length > 0) ? accessTagOperationOutcome.issue[0] : null,
+                        operationOutcome: accessTagOperationOutcome,
+                        resourceType: resourceToMerge.resourceType
+                    };
+                }
+                if (!this.scopesManager.doesResourceHaveOwnerTags(resourceToMerge)) {
+                    const accessTagOperationOutcome = new OperationOutcome({
+                        resourceType: 'OperationOutcome',
+                        issue: [
+                            new OperationOutcomeIssue({
+                                severity: 'error',
+                                code: 'exception',
+                                details: new CodeableConcept({
+                                    text: 'Error merging: ' + JSON.stringify(resourceToMerge.toJSON())
+                                }),
+                                diagnostics: 'Resource is missing a meta.security tag with system: ' +
+                                    `${SecurityTagSystem.owner}`,
                                 expression: [
                                     resourceToMerge.resourceType + '/' + id
                                 ]

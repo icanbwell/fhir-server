@@ -254,12 +254,25 @@ class UpdateOperation {
             } else {
                 // not found so insert
                 if (env.CHECK_ACCESS_TAG_ON_SAVE === '1') {
-                    if (!this.scopesManager.doesResourceHaveAccessTags(new ResourceCreator(resource_incoming))) {
+                    if (!this.scopesManager.doesResourceHaveAccessTags(resource_incoming)) {
                         // noinspection ExceptionCaughtLocallyJS
                         throw new BadRequestError(
                             new Error(
-                                'Resource is missing a security access tag with system: ' +
-                                `${SecurityTagSystem.access} `));
+                                `Resource ${resource_incoming.resourceType}/${resource_incoming.id}` +
+                                ' is missing a security access tag with system: ' +
+                                `${SecurityTagSystem.access}`
+                            )
+                        );
+                    }
+                    if (!this.scopesManager.doesResourceHaveOwnerTags(resource_incoming)) {
+                        // noinspection ExceptionCaughtLocallyJS
+                        throw new BadRequestError(
+                            new Error(
+                                `Resource ${resource_incoming.resourceType}/${resource_incoming.id}` +
+                                ' is missing a security access tag with system: ' +
+                                `${SecurityTagSystem.owner}`
+                            )
+                        );
                     }
                 }
 
@@ -306,8 +319,12 @@ class UpdateOperation {
                     // log access to audit logs
                     await this.auditLogger.logAuditEntryAsync(
                         {
-                            requestInfo, base_version, resourceType,
-                            operation: currentOperationName, args: parsedArgs.getRawArgs(), ids: [resource_incoming['id']]
+                            requestInfo,
+                            base_version,
+                            resourceType,
+                            operation: currentOperationName,
+                            args: parsedArgs.getRawArgs(),
+                            ids: [resource_incoming['id']]
                         }
                     );
                     await this.auditLogger.flushAsync({requestId, currentDate, method});

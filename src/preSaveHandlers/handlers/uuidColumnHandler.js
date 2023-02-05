@@ -1,8 +1,10 @@
 const {PreSaveHandler} = require('./preSaveHandler');
-const {generateUUID, isUuid} = require('../../utils/uid.util');
+const {isUuid, generateUUIDv5} = require('../../utils/uid.util');
 const {IdentifierSystem} = require('../../utils/identifierSystem');
 const {getFirstElementOrNull} = require('../../utils/list.util');
 const Identifier = require('../../fhir/classes/4_0_0/complex_types/identifier');
+const {SecurityTagSystem} = require('../../utils/securityTagSystem');
+const {assertIsValid} = require('../../utils/assertType');
 
 class UuidColumnHandler extends PreSaveHandler {
     async preSaveAsync({resource}) {
@@ -17,7 +19,15 @@ class UuidColumnHandler extends PreSaveHandler {
             if (isUuid(resource.id)) {
                 resource._uuid = resource.id;
             } else {
-                resource._uuid = `${generateUUID()}`;
+                /**
+                 * @type {string[]}
+                 */
+                const sourceAssigningAuthorityCodes = resource.meta.security.filter(
+                    s => s.system === SecurityTagSystem.sourceAssigningAuthority).map(s => s.code);
+                assertIsValid(sourceAssigningAuthorityCodes.length > 0,
+                    `No sourceAssigningAuthority codes found for resource id: ${resource.id}`);
+                const idPlusSourceAssigningAuthority = resource.id + '|' + sourceAssigningAuthorityCodes[0];
+                resource._uuid = `${generateUUIDv5(idPlusSourceAssigningAuthority)}`;
             }
         }
 

@@ -10,6 +10,7 @@ const CodeableConcept = require('../../fhir/classes/4_0_0/complex_types/codeable
 const {ResourceValidator} = require('../common/resourceValidator');
 const moment = require('moment-timezone');
 const {ParsedArgs} = require('../query/parsedArgsItem');
+const {SecurityTagSystem} = require('../../utils/securityTagSystem');
 
 class ValidateOperation {
     /**
@@ -154,7 +155,11 @@ class ValidateOperation {
         }
 
         const ResourceCreator = getResource(base_version, resourceType);
-        if (!this.scopesManager.doesResourceHaveAccessTags(new ResourceCreator(resource_incoming))) {
+        /**
+         * @type {Resource}
+         */
+        const resourceToValidate = new ResourceCreator(resource_incoming);
+        if (!this.scopesManager.doesResourceHaveAccessTags(resourceToValidate)) {
             return new OperationOutcome({
                 resourceType: 'OperationOutcome',
                 issue: [
@@ -162,7 +167,28 @@ class ValidateOperation {
                         severity: 'error',
                         code: 'invalid',
                         details: new CodeableConcept({
-                            text: 'Resource is missing a security access tag with system: https://www.icanbwell.com/access'
+                            text: `Resource ${resourceToValidate.resourceType}/${resourceToValidate.id}` +
+                                ' is missing a security access tag with system: ' +
+                                `${SecurityTagSystem.access}`
+                        }),
+                        expression: [
+                            resourceType
+                        ]
+                    })
+                ]
+            });
+        }
+        if (!this.scopesManager.doesResourceHaveOwnerTags(resourceToValidate)) {
+            return new OperationOutcome({
+                resourceType: 'OperationOutcome',
+                issue: [
+                    new OperationOutcomeIssue({
+                        severity: 'error',
+                        code: 'invalid',
+                        details: new CodeableConcept({
+                            text: `Resource ${resourceToValidate.resourceType}/${resourceToValidate.id}` +
+                                ' is missing a security access tag with system: ' +
+                                `${SecurityTagSystem.owner}`
                         }),
                         expression: [
                             resourceType
