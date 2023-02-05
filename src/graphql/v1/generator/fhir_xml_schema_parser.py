@@ -757,12 +757,10 @@ class FhirXmlSchemaParser:
                         fhir_name=property_name,
                         name=FhirXmlSchemaParser.fix_graphql_keywords(property_name),
                         type_=property_type,
-                        cleaned_type=cleaned_type
-                        if cleaned_type not in FhirXmlSchemaParser.cleaned_type_mapping
-                        else FhirXmlSchemaParser.cleaned_type_mapping[cleaned_type],
-                        type_snake_case=FhirXmlSchemaParser.camel_to_snake(cleaned_type)
-                        if cleaned_type not in FhirXmlSchemaParser.cleaned_type_mapping
-                        else FhirXmlSchemaParser.camel_to_snake(cleaned_type),
+                        cleaned_type=FhirXmlSchemaParser.cleaned_type_mapping.get(cleaned_type, cleaned_type),
+                        type_snake_case=FhirXmlSchemaParser.camel_to_snake(
+                            FhirXmlSchemaParser.cleaned_type_mapping.get(cleaned_type, cleaned_type)
+                        ),
                         optional=optional,
                         is_list=is_list,
                         documentation=[property_documentation],

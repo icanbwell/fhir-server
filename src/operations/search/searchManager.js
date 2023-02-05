@@ -429,7 +429,6 @@ class SearchManager {
                 });
             const __ret = this.setIndexHint(
                 {
-                    indexHint,
                     mongoCollectionName: collectionNamesForQueryForResourceType[0],
                     columns,
                     cursor,
@@ -441,11 +440,12 @@ class SearchManager {
         }
 
         // if _total is specified then ask mongo for the total else set total to 0
+        // Value 'estimate' is not supported now but kept it for backward compatibility.
         if (parsedArgs['_total'] && ['accurate', 'estimate'].includes(parsedArgs['_total'])) {
             total_count = await this.handleGetTotalsAsync(
                 {
                     resourceType, base_version,
-                    parsedArgs, query, maxMongoTimeMS
+                    query, maxMongoTimeMS
                 });
         }
 
@@ -576,7 +576,6 @@ class SearchManager {
      * handle request to return totals for the query
      * @param {string} resourceType
      * @param {string} base_version
-     * @param {ParsedArgs} parsedArgs
      * @param {Object} query
      * @param {number} maxMongoTimeMS
      * @return {Promise<number>}
@@ -584,7 +583,7 @@ class SearchManager {
     async handleGetTotalsAsync(
         {
             resourceType, base_version,
-            parsedArgs, query, maxMongoTimeMS
+            query, maxMongoTimeMS
         }
     ) {
         try {
@@ -594,17 +593,10 @@ class SearchManager {
             const databaseQueryManager = this.databaseQueryFactory.createQuery(
                 {resourceType, base_version}
             );
-            if (parsedArgs['_total'] === 'estimate') {
-                return await databaseQueryManager.exactDocumentCountAsync({
-                    query,
-                    options: {maxTimeMS: maxMongoTimeMS}
-                });
-            } else {
-                return await databaseQueryManager.exactDocumentCountAsync({
-                    query,
-                    options: {maxTimeMS: maxMongoTimeMS}
-                });
-            }
+            return await databaseQueryManager.exactDocumentCountAsync({
+                query,
+                options: {maxTimeMS: maxMongoTimeMS}
+            });
         } catch (e) {
             throw new RethrownError({
                 message: `Error getting totals for ${resourceType} with query: ${mongoQueryStringify(query)}`,
@@ -667,7 +659,7 @@ class SearchManager {
      * @param {Object} query
      * @param {Object} originalOptions
      * @param {number} maxMongoTimeMS
-     * @return {Promise<{query: Object, options: Object, originalQuery: (Object|Object[]), originalOptions: Object}>}
+     * @return {Promise<{query: Object, options: Object, actualQuery: (Object|Object[]), actualOptions: Object}>}
      */
     async handleTwoStepSearchOptimizationAsync(
         {
@@ -680,15 +672,17 @@ class SearchManager {
             maxMongoTimeMS
         }
     ) {
+        let actualQuery = originalQuery;
+        let actualOptions = originalOptions;
         try {
             // first get just the ids
             const projection = {};
             projection['_id'] = 0;
             projection['id'] = 1;
             options['projection'] = projection;
-            originalQuery = [query];
-            originalOptions = [options];
-            const sortOption = originalOptions[0] && originalOptions[0].sort ? originalOptions[0].sort : {};
+            actualQuery = [query];
+            actualOptions = [options];
+            const sortOption = actualOptions[0] && actualOptions[0].sort ? actualOptions[0].sort : {};
 
             const databaseQueryManager = this.databaseQueryFactory.createQuery(
                 {resourceType, base_version}
@@ -711,13 +705,13 @@ class SearchManager {
                     {id: {$in: idResults.map((r) => r.id)}};
                 // query = getQueryWithSecurityTags(securityTags, query);
                 options = {}; // reset options since we'll be looking by id
-                originalQuery.push(query);
-                originalOptions.push(options);
+                actualQuery.push(query);
+                actualOptions.push(options);
             } else {
                 // no results
                 query = null; //no need to query
             }
-            return {options, originalQuery, query, originalOptions};
+            return {options, actualQuery, query, actualOptions};
         } catch (e) {
             throw new RethrownError({
                 message: `Error in two step optimization for ${resourceType} with query: ${mongoQueryStringify(query)}`,
@@ -846,7 +840,6 @@ class SearchManager {
 
     /**
      * sets the index hint
-     * @param {string|null} indexHint
      * @param {string} mongoCollectionName
      * @param {Set} columns
      * @param {DatabasePartitionedCursor} cursor
@@ -855,14 +848,13 @@ class SearchManager {
      */
     setIndexHint(
         {
-            indexHint,
             mongoCollectionName,
             columns,
             cursor,
             user
         }
     ) {
-        indexHint = this.indexHinter.findIndexForFields(mongoCollectionName, Array.from(columns));
+        let indexHint = this.indexHinter.findIndexForFields(mongoCollectionName, Array.from(columns));
         if (indexHint) {
             cursor = cursor.hint({indexHint});
             logDebug(
