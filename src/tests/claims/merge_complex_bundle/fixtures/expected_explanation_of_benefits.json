@@ -1,364 +1,484 @@
-[
-  {
-    "careTeam": [
-      {
-        "provider": {
-          "reference": "PractitionerRole/WPS-1811965494-20A078097100"
-        },
-        "responsible": true,
-        "role": {
-          "coding": [
-            {
-              "code": "servicing",
-              "system": "http://terminology.hl7.org/CodeSystem/claimcareteamrole"
-            }
-          ],
-          "text": "Servicing Practitioner"
-        },
-        "sequence": 1
-      }
-    ],
-    "diagnosis": [
-      {
-        "diagnosisCodeableConcept": {
-          "coding": [
-            {
-              "code": "Z13220",
-              "system": "http://hl7.org/fhir/sid/icd-10",
-              "version": "ICD10"
-            }
-          ],
-          "text": "DIAGNOSIS_1"
-        },
-        "packageCode": {
-          "coding": [
-            {
-              "system": "http://terminology.hl7.org/CodeSystem/ex-diagnosisrelatedgroup",
-              "version": "MS-DRG"
-            }
-          ]
-        },
-        "sequence": 1,
-        "type": [
+{
+  "entry": [
+    {
+      "resource": {
+        "careTeam": [
           {
-            "coding": [
+            "provider": {
+              "extension": [
+                {
+                  "id": "sourceId",
+                  "url": "https://www.icanbwell.com/sourceId",
+                  "valueString": "WPS-1811965494-20A078097100"
+                },
+                {
+                  "id": "uuid",
+                  "url": "https://www.icanbwell.com/uuid",
+                  "valueString": "4778c342-ad11-51f3-b6b9-27b6f5f424aa"
+                },
+                {
+                  "id": "sourceAssigningAuthority",
+                  "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                  "valueString": "medstar"
+                }
+              ],
+              "reference": "PractitionerRole/WPS-1811965494-20A078097100"
+            },
+            "responsible": true,
+            "role": {
+              "coding": [
+                {
+                  "code": "servicing",
+                  "system": "http://terminology.hl7.org/CodeSystem/claimcareteamrole"
+                }
+              ],
+              "text": "Servicing Practitioner"
+            },
+            "sequence": 1
+          }
+        ],
+        "diagnosis": [
+          {
+            "diagnosisCodeableConcept": {
+              "coding": [
+                {
+                  "code": "Z13220",
+                  "system": "http://hl7.org/fhir/sid/icd-10",
+                  "version": "ICD10"
+                }
+              ],
+              "text": "DIAGNOSIS_1"
+            },
+            "packageCode": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/ex-diagnosisrelatedgroup",
+                  "version": "MS-DRG"
+                }
+              ]
+            },
+            "sequence": 1,
+            "type": [
               {
-                "code": "RetrospectiveDiagnosis",
-                "system": "http://terminology.hl7.org/CodeSystem/ex-diagnosistype"
+                "coding": [
+                  {
+                    "code": "RetrospectiveDiagnosis",
+                    "system": "http://terminology.hl7.org/CodeSystem/ex-diagnosistype"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "diagnosisCodeableConcept": {
+              "coding": [
+                {
+                  "code": "Z131",
+                  "system": "http://hl7.org/fhir/sid/icd-10",
+                  "version": "ICD10"
+                }
+              ],
+              "text": "DIAGNOSIS_1"
+            },
+            "packageCode": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/ex-diagnosisrelatedgroup",
+                  "version": "MS-DRG"
+                }
+              ]
+            },
+            "sequence": 1,
+            "type": [
+              {
+                "coding": [
+                  {
+                    "code": "RetrospectiveDiagnosis",
+                    "system": "http://terminology.hl7.org/CodeSystem/ex-diagnosistype"
+                  }
+                ]
               }
             ]
           }
-        ]
-      },
-      {
-        "diagnosisCodeableConcept": {
-          "coding": [
-            {
-              "code": "Z131",
-              "system": "http://hl7.org/fhir/sid/icd-10",
-              "version": "ICD10"
-            }
-          ],
-          "text": "DIAGNOSIS_1"
-        },
-        "packageCode": {
-          "coding": [
-            {
-              "system": "http://terminology.hl7.org/CodeSystem/ex-diagnosisrelatedgroup",
-              "version": "MS-DRG"
-            }
-          ]
-        },
-        "sequence": 1,
-        "type": [
+        ],
+        "id": "WPS-Claim-20A078097100",
+        "identifier": [
           {
-            "coding": [
-              {
-                "code": "RetrospectiveDiagnosis",
-                "system": "http://terminology.hl7.org/CodeSystem/ex-diagnosistype"
-              }
-            ]
+            "system": "https://www.wpshealth.com/",
+            "type": {
+              "coding": [
+                {
+                  "code": "claimnumber",
+                  "display": "Claim Number",
+                  "system": "http://terminology.hl7.org/CodeSystem/v2-0203"
+                }
+              ],
+              "text": "Claim Number"
+            },
+            "value": "20A078097100"
+          },
+          {
+            "id": "sourceId",
+            "system": "https://www.icanbwell.com/sourceId",
+            "value": "WPS-Claim-20A078097100"
+          },
+          {
+            "id": "uuid",
+            "system": "https://www.icanbwell.com/uuid",
+            "value": "61a6c011-ab53-556e-86fc-7a97126c8328"
           }
-        ]
-      }
-    ],
-    "id": "WPS-Claim-20A078097100",
-    "identifier": [
-      {
-        "system": "https://www.wpshealth.com/",
-        "type": {
-          "coding": [
+        ],
+        "insurance": [
+          {
+            "coverage": {
+              "extension": [
+                {
+                  "id": "sourceId",
+                  "url": "https://www.icanbwell.com/sourceId",
+                  "valueString": "WPS-7446041751"
+                },
+                {
+                  "id": "uuid",
+                  "url": "https://www.icanbwell.com/uuid",
+                  "valueString": "9f4f3f10-7b49-5b5d-81d6-dd789c173c1d"
+                },
+                {
+                  "id": "sourceAssigningAuthority",
+                  "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                  "valueString": "medstar"
+                }
+              ],
+              "reference": "Coverage/WPS-7446041751"
+            },
+            "focal": true
+          }
+        ],
+        "insurer": {
+          "extension": [
             {
-              "code": "claimnumber",
-              "display": "Claim Number",
-              "system": "http://terminology.hl7.org/CodeSystem/v2-0203"
+              "id": "sourceId",
+              "url": "https://www.icanbwell.com/sourceId",
+              "valueString": "WPS-Health"
+            },
+            {
+              "id": "uuid",
+              "url": "https://www.icanbwell.com/uuid",
+              "valueString": "7681e24e-1ede-5762-8566-da6775d7545d"
+            },
+            {
+              "id": "sourceAssigningAuthority",
+              "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+              "valueString": "medstar"
             }
           ],
-          "text": "Claim Number"
+          "reference": "Organization/WPS-Health"
         },
-        "value": "20A078097100"
-      },
-      {
-        "system": "https://www.icanbwell.com/sourceId",
-        "value": "WPS-Claim-20A078097100"
-      },
-      {
-        "system": "https://www.icanbwell.com/uuid"
-      }
-    ],
-    "insurance": [
-      {
-        "coverage": {
-          "reference": "Coverage/WPS-7446041751"
-        },
-        "focal": true
-      }
-    ],
-    "insurer": {
-      "reference": "Organization/WPS-Health"
-    },
-    "item": [
-      {
-        "adjudication": [
+        "item": [
           {
-            "amount": {
-              "value": 87
-            },
-            "category": {
+            "adjudication": [
+              {
+                "amount": {
+                  "value": 87
+                },
+                "category": {
+                  "coding": [
+                    {
+                      "code": "submittedamount",
+                      "display": "Submitted Amount",
+                      "system": "http://hl7.org/fhir/us/carin/CodeSystem/carin-bb-adjudicationcategory"
+                    }
+                  ]
+                }
+              },
+              {
+                "amount": {
+                  "value": 50.22
+                },
+                "category": {
+                  "coding": [
+                    {
+                      "code": "allowedamount",
+                      "display": "Allowed Amount",
+                      "system": "http://hl7.org/fhir/us/carin/CodeSystem/carin-bb-adjudicationcategory"
+                    }
+                  ]
+                }
+              },
+              {
+                "amount": {
+                  "value": 0
+                },
+                "category": {
+                  "coding": [
+                    {
+                      "code": "deductibleamount",
+                      "display": "Deductible",
+                      "system": "http://hl7.org/fhir/us/carin/CodeSystem/carin-bb-adjudicationcategory"
+                    }
+                  ]
+                }
+              },
+              {
+                "amount": {
+                  "value": 0
+                },
+                "category": {
+                  "coding": [
+                    {
+                      "code": "coinsuranceamount",
+                      "display": "CoInsurance Amount",
+                      "system": "http://hl7.org/fhir/us/carin/CodeSystem/carin-bb-adjudicationcategory"
+                    }
+                  ]
+                }
+              },
+              {
+                "amount": {
+                  "value": 0
+                },
+                "category": {
+                  "coding": [
+                    {
+                      "code": "copayamount",
+                      "display": "Copay Amount",
+                      "system": "http://hl7.org/fhir/us/carin/CodeSystem/carin-bb-adjudicationcategory"
+                    }
+                  ]
+                }
+              },
+              {
+                "amount": {
+                  "value": 0
+                },
+                "category": {
+                  "coding": [
+                    {
+                      "code": "cobamount",
+                      "display": "Coordination of Benefit Paid Amount",
+                      "system": "http://hl7.org/fhir/us/carin/CodeSystem/carin-bb-adjudicationcategory"
+                    }
+                  ]
+                }
+              },
+              {
+                "amount": {
+                  "value": 50.22
+                },
+                "category": {
+                  "coding": [
+                    {
+                      "code": "paymentamount",
+                      "display": "Amount Paid",
+                      "system": "http://terminology.hl7.org/CodeSystem/adjudication"
+                    }
+                  ]
+                }
+              }
+            ],
+            "id": "WPS-Claim-20A078097100-1",
+            "locationCodeableConcept": {
               "coding": [
                 {
-                  "code": "submittedamount",
-                  "display": "Submitted Amount",
-                  "system": "http://hl7.org/fhir/us/carin/CodeSystem/carin-bb-adjudicationcategory"
+                  "code": "11",
+                  "system": "http://terminology.hl7.org/CodeSystem/ex-serviceplace"
                 }
               ]
-            }
-          },
-          {
-            "amount": {
-              "value": 50.22
             },
-            "category": {
+            "productOrService": {
               "coding": [
                 {
-                  "code": "allowedamount",
-                  "display": "Allowed Amount",
-                  "system": "http://hl7.org/fhir/us/carin/CodeSystem/carin-bb-adjudicationcategory"
+                  "code": "260385009",
+                  "display": "Negative",
+                  "system": "http://snomed.info/sct"
                 }
               ]
-            }
-          },
-          {
-            "amount": {
-              "value": 0
             },
-            "category": {
-              "coding": [
-                {
-                  "code": "deductibleamount",
-                  "display": "Deductible",
-                  "system": "http://hl7.org/fhir/us/carin/CodeSystem/carin-bb-adjudicationcategory"
-                }
-              ]
-            }
-          },
-          {
-            "amount": {
-              "value": 0
+            "quantity": {
+              "value": 1
             },
-            "category": {
-              "coding": [
-                {
-                  "code": "coinsuranceamount",
-                  "display": "CoInsurance Amount",
-                  "system": "http://hl7.org/fhir/us/carin/CodeSystem/carin-bb-adjudicationcategory"
-                }
-              ]
-            }
-          },
-          {
-            "amount": {
-              "value": 0
-            },
-            "category": {
-              "coding": [
-                {
-                  "code": "copayamount",
-                  "display": "Copay Amount",
-                  "system": "http://hl7.org/fhir/us/carin/CodeSystem/carin-bb-adjudicationcategory"
-                }
-              ]
-            }
-          },
-          {
-            "amount": {
-              "value": 0
-            },
-            "category": {
-              "coding": [
-                {
-                  "code": "cobamount",
-                  "display": "Coordination of Benefit Paid Amount",
-                  "system": "http://hl7.org/fhir/us/carin/CodeSystem/carin-bb-adjudicationcategory"
-                }
-              ]
-            }
-          },
-          {
-            "amount": {
-              "value": 50.22
-            },
-            "category": {
-              "coding": [
-                {
-                  "code": "paymentamount",
-                  "display": "Amount Paid",
-                  "system": "http://terminology.hl7.org/CodeSystem/adjudication"
-                }
-              ]
+            "sequence": 1,
+            "servicedPeriod": {
+              "end": "2020-01-07",
+              "start": "2020-01-07"
             }
           }
         ],
-        "id": "WPS-Claim-20A078097100-1",
-        "locationCodeableConcept": {
-          "coding": [
+        "meta": {
+          "security": [
             {
-              "code": "11",
-              "system": "http://terminology.hl7.org/CodeSystem/ex-serviceplace"
-            }
-          ]
-        },
-        "productOrService": {
-          "coding": [
+              "code": "medstar",
+              "system": "https://www.icanbwell.com/access"
+            },
             {
-              "code": "260385009",
-              "display": "Negative",
-              "system": "http://snomed.info/sct"
+              "code": "medstar",
+              "system": "https://www.icanbwell.com/owner"
+            },
+            {
+              "code": "medstar",
+              "system": "https://www.icanbwell.com/sourceAssigningAuthority"
             }
-          ]
+          ],
+          "source": "https://www.wpshealth.com/medical_claims",
+          "versionId": "1"
         },
-        "quantity": {
-          "value": 1
+        "outcome": "Complete",
+        "patient": {
+          "extension": [
+            {
+              "id": "sourceId",
+              "url": "https://www.icanbwell.com/sourceId",
+              "valueString": "WPS-7446041751"
+            },
+            {
+              "id": "uuid",
+              "url": "https://www.icanbwell.com/uuid",
+              "valueString": "5c0c2654-d113-5950-9356-7c313c2b442a"
+            },
+            {
+              "id": "sourceAssigningAuthority",
+              "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+              "valueString": "medstar"
+            }
+          ],
+          "reference": "Patient/WPS-7446041751"
         },
-        "sequence": 1,
-        "servicedPeriod": {
-          "end": "2020-01-07",
-          "start": "2020-01-07"
-        }
-      }
-    ],
-    "meta": {
-      "security": [
-        {
-          "code": "medstar",
-          "system": "https://www.icanbwell.com/access"
-        }
-      ],
-      "source": "https://www.wpshealth.com/medical_claims",
-      "versionId": "1"
-    },
-    "outcome": "Complete",
-    "patient": {
-      "reference": "Patient/WPS-7446041751"
-    },
-    "payee": {
-      "type": {
-        "coding": [
-          {
-            "code": "Provider",
-            "system": "http://terminology.hl7.org/CodeSystem/payeetype"
+        "payee": {
+          "type": {
+            "coding": [
+              {
+                "code": "Provider",
+                "system": "http://terminology.hl7.org/CodeSystem/payeetype"
+              }
+            ]
           }
-        ]
-      }
-    },
-    "procedure": [
-      {
-        "procedureCodeableConcept": {
-          "coding": [
-            {
-              "code": "80061",
-              "system": "http://hl7.org/fhir/sid/ex-icd-10-procedures"
-            }
-          ]
         },
-        "sequence": 1
-      },
-      {
-        "procedureCodeableConcept": {
-          "coding": [
+        "procedure": [
+          {
+            "procedureCodeableConcept": {
+              "coding": [
+                {
+                  "code": "80061",
+                  "system": "http://hl7.org/fhir/sid/ex-icd-10-procedures"
+                }
+              ]
+            },
+            "sequence": 1
+          },
+          {
+            "procedureCodeableConcept": {
+              "coding": [
+                {
+                  "code": "82947",
+                  "system": "http://hl7.org/fhir/sid/ex-icd-10-procedures"
+                }
+              ]
+            },
+            "sequence": 2
+          }
+        ],
+        "provider": {
+          "extension": [
             {
-              "code": "82947",
-              "system": "http://hl7.org/fhir/sid/ex-icd-10-procedures"
-            }
-          ]
-        },
-        "sequence": 2
-      }
-    ],
-    "provider": {
-      "reference": "Organization/1659305654"
-    },
-    "related": [
-      {
-        "claim": {
-          "reference": "Claim/20A078097100"
-        }
-      }
-    ],
-    "resourceType": "ExplanationOfBenefit",
-    "status": "active",
-    "supportingInfo": [
-      {
-        "category": {
-          "coding": [
-            {
-              "code": "info",
-              "system": "http://terminology.hl7.org/CodeSystem/claiminformationcategory"
+              "id": "sourceId",
+              "url": "https://www.icanbwell.com/sourceId",
+              "valueString": "1659305654"
             },
             {
-              "code": "type-of-bill",
-              "display": "Type of bill",
-              "system": "http://hl7.org/fhir/us/carin/CodeSystem/carin-bb-claiminformationcategory"
-            }
-          ]
-        },
-        "sequence": 1,
-        "valueString": "HCFA"
-      },
-      {
-        "category": {
-          "coding": [
-            {
-              "code": "info",
-              "system": "http://terminology.hl7.org/CodeSystem/claiminformationcategory"
+              "id": "uuid",
+              "url": "https://www.icanbwell.com/uuid",
+              "valueString": "fe785fcb-94eb-5f9a-b9cd-751536b8bd98"
             },
             {
-              "code": "placeofservice",
-              "display": "Place of Service",
-              "system": "http://hl7.org/fhir/us/carin/CodeSystem/carin-bb-claiminformationcategory"
+              "id": "sourceAssigningAuthority",
+              "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+              "valueString": "medstar"
             }
-          ]
+          ],
+          "reference": "Organization/1659305654"
         },
-        "code": {
+        "related": [
+          {
+            "claim": {
+              "extension": [
+                {
+                  "id": "sourceId",
+                  "url": "https://www.icanbwell.com/sourceId",
+                  "valueString": "20A078097100"
+                },
+                {
+                  "id": "uuid",
+                  "url": "https://www.icanbwell.com/uuid",
+                  "valueString": "39f36cdf-cee1-53b4-9954-60ded62d461f"
+                },
+                {
+                  "id": "sourceAssigningAuthority",
+                  "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                  "valueString": "medstar"
+                }
+              ],
+              "reference": "Claim/20A078097100"
+            }
+          }
+        ],
+        "resourceType": "ExplanationOfBenefit",
+        "status": "active",
+        "supportingInfo": [
+          {
+            "category": {
+              "coding": [
+                {
+                  "code": "info",
+                  "system": "http://terminology.hl7.org/CodeSystem/claiminformationcategory"
+                },
+                {
+                  "code": "type-of-bill",
+                  "display": "Type of bill",
+                  "system": "http://hl7.org/fhir/us/carin/CodeSystem/carin-bb-claiminformationcategory"
+                }
+              ]
+            },
+            "sequence": 1,
+            "valueString": "HCFA"
+          },
+          {
+            "category": {
+              "coding": [
+                {
+                  "code": "info",
+                  "system": "http://terminology.hl7.org/CodeSystem/claiminformationcategory"
+                },
+                {
+                  "code": "placeofservice",
+                  "display": "Place of Service",
+                  "system": "http://hl7.org/fhir/us/carin/CodeSystem/carin-bb-claiminformationcategory"
+                }
+              ]
+            },
+            "code": {
+              "coding": [
+                {
+                  "code": "11",
+                  "system": "https://www.cms.gov/Medicare/CMS-Forms/CMS-Forms/CMS-Forms-Items/CMS1196256.html"
+                }
+              ]
+            },
+            "sequence": 8
+          }
+        ],
+        "type": {
           "coding": [
             {
-              "code": "11",
-              "system": "https://www.cms.gov/Medicare/CMS-Forms/CMS-Forms/CMS-Forms-Items/CMS1196256.html"
+              "code": "professional",
+              "system": "https://hl7.org/FHIR/codesystem-claim-type.html"
             }
-          ]
+          ],
+          "text": "Claim Type"
         },
-        "sequence": 8
+        "use": "Claim"
       }
-    ],
-    "type": {
-      "coding": [
-        {
-          "code": "professional",
-          "system": "https://hl7.org/FHIR/codesystem-claim-type.html"
-        }
-      ],
-      "text": "Claim Type"
-    },
-    "use": "Claim"
-  }
-]
+    }
+  ],
+  "resourceType": "Bundle",
+  "total": 0,
+  "type": "searchset"
+}

@@ -110,6 +110,20 @@ describe('Patient Tests', () => {
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedPatient1UpdateReferenceResources);
+
+            // if we send it again we should get no difference
+            resp = await request
+                .post('/4_0_0/Patient/1/$merge?validate=true')
+                .send(patient1UpdateReferenceResource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({updated: false});
+
+            resp = await request
+                .get('/4_0_0/Patient/?_bundle=1&id=1')
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedPatient1UpdateReferenceResources);
         });
     });
 });

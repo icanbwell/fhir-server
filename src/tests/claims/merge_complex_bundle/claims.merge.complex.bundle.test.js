@@ -38,7 +38,7 @@ describe('Claim Merge Tests', () => {
             expect(resp).toHaveMergeResponse([{created: true}, {updated: true}]);
 
             resp = await request
-                .get('/4_0_0/ExplanationOfBenefit')
+                .get('/4_0_0/ExplanationOfBenefit?_bundle=1')
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedExplanationOfBenefitBundleResource);
@@ -59,7 +59,7 @@ describe('Claim Merge Tests', () => {
             expect(resp).toHaveResponse(expectedExplanationOfBenefitOperationOutcomeBundleResource);
 
             resp = await request
-                .get('/4_0_0/ExplanationOfBenefit')
+                .get('/4_0_0/ExplanationOfBenefit?_bundle=1')
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedExplanationOfBenefitBundleResource);
