@@ -4,6 +4,7 @@ const {MongoCollectionManager} = require('../../utils/mongoCollectionManager');
 const {PartitioningManager} = require('../../partitioners/partitioningManager');
 const {MongoDatabaseManager} = require('../../utils/mongoDatabaseManager');
 const {RethrownError} = require('../../utils/rethrownError');
+const Resource = require('../../fhir/classes/4_0_0/resources/resource');
 
 /**
  * This class returns collections that contain the requested resourceType
@@ -183,6 +184,7 @@ class ResourceLocator {
      * @return {Promise<import('mongodb').Collection<import('mongodb').DefaultSchema>>}
      */
     async getOrCreateCollectionForResourceAsync(resource) {
+        assertTypeEquals(resource, Resource);
         /**
          * @type {string}
          */

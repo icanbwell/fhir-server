@@ -34,6 +34,7 @@ class ReferenceGlobalIdHandler extends PreSaveHandler {
                 )
             }
         );
+        return resource;
     }
 
     /**
@@ -55,22 +56,25 @@ class ReferenceGlobalIdHandler extends PreSaveHandler {
         let uuid;
 
         /**
+         * get the part after/ as the id e.g., Patient/123 -> 123
          * @type {string}
          */
-        let id;
-        if (isUuid(referenceValue)) {
-            // already a uuid so nothing to do
-            uuid = referenceValue;
-            id = referenceValue.split('/').slice(-1)[0];
-        } else if (referenceValue.includes('|')) {
-            uuid = generateUUIDv5(referenceValue);
-            const parts = referenceValue.split('|');
-            id = parts[0].split('/').slice(-1)[0];
+        let referenceId = referenceValue.split('/').slice(-1)[0];
+
+        // if sourceAssigningAuthority is specified then extract the id and sourceAssigningAuthority
+        if (referenceId.includes('|')) {
+            const parts = referenceId.split('|');
+            referenceId = parts[0];
             sourceAssigningAuthority = parts[1];
+        }
+
+        // see if we need to create a uuid
+        if (isUuid(referenceId)) {
+            // already a uuid so nothing to do
+            uuid = referenceId;
         } else {
             // get sourceAssigningAuthority of parent
-            uuid = generateUUIDv5(`${referenceValue}|${sourceAssigningAuthority}`);
-            id = id = referenceValue.split('/').slice(-1)[0];
+            uuid = generateUUIDv5(`${referenceId}|${sourceAssigningAuthority}`);
         }
         /**
          * @type {Extension[]}
@@ -90,13 +94,13 @@ class ReferenceGlobalIdHandler extends PreSaveHandler {
                     {
                         id: 'sourceId',
                         url: IdentifierSystem.sourceId,
-                        valueString: id
+                        valueString: referenceId
                     }
                 )
             );
             referenceUpdated = true;
-        } else if (sourceIdExtension.valueString !== id) {
-            sourceIdExtension.valueString = id;
+        } else if (sourceIdExtension.valueString !== referenceId) {
+            sourceIdExtension.valueString = referenceId;
             referenceUpdated = true;
         }
 

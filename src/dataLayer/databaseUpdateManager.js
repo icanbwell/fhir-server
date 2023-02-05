@@ -83,6 +83,7 @@ class DatabaseUpdateManager {
      */
     async insertOneAsync({doc}) {
         try {
+            doc = await this.preSaveManager.preSaveAsync(doc);
             const collection = await this.resourceLocator.getOrCreateCollectionForResourceAsync(doc);
             if (!doc.meta.versionId || isNaN(parseInt(doc.meta.versionId))) {
                 doc.meta.versionId = '1';

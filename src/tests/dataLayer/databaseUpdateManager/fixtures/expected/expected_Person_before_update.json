@@ -84,30 +84,6 @@
         "reference": "Person/2e2d8eb1-807a-4c05-b462-9e7588f71c7f",
         "type": "Person"
       }
-    },
-    {
-      "assurance": "level4",
-      "target": {
-        "extension": [
-          {
-            "id": "sourceId",
-            "url": "https://www.icanbwell.com/sourceId",
-            "valueString": "62ff1ab8-b489-447b-9de0-1a389e363c11"
-          },
-          {
-            "id": "uuid",
-            "url": "https://www.icanbwell.com/uuid",
-            "valueString": "62ff1ab8-b489-447b-9de0-1a389e363c11"
-          },
-          {
-            "id": "sourceAssigningAuthority",
-            "url": "https://www.icanbwell.com/sourceAssigningAuthority",
-            "valueString": "bwell"
-          }
-        ],
-        "reference": "Person/62ff1ab8-b489-447b-9de0-1a389e363c11",
-        "type": "Person"
-      }
     }
   ],
   "meta": {
@@ -127,7 +103,7 @@
       }
     ],
     "source": "https://www.icanbwell.com",
-    "versionId": "3"
+    "versionId": "2"
   },
   "resourceType": "Person"
 }
