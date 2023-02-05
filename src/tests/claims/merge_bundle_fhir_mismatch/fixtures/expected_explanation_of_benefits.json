@@ -52,22 +52,59 @@
             "value": "20A824417300"
           },
           {
+            "id": "sourceId",
             "system": "https://www.icanbwell.com/sourceId",
             "value": "WPS-Claim-20A824417300"
           },
           {
-            "system": "https://www.icanbwell.com/uuid"
+            "id": "uuid",
+            "system": "https://www.icanbwell.com/uuid",
+            "value": "e29e2eed-be46-5f85-988a-6dd3c2500ead"
           }
         ],
         "insurance": [
           {
             "coverage": {
+              "extension": [
+                {
+                  "id": "sourceId",
+                  "url": "https://www.icanbwell.com/sourceId",
+                  "valueString": "WPS-7426744142"
+                },
+                {
+                  "id": "uuid",
+                  "url": "https://www.icanbwell.com/uuid",
+                  "valueString": "83c945c5-7fe1-5571-a9b4-b1070eedd379"
+                },
+                {
+                  "id": "sourceAssigningAuthority",
+                  "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                  "valueString": "medstar"
+                }
+              ],
               "reference": "Coverage/WPS-7426744142"
             },
             "focal": true
           }
         ],
         "insurer": {
+          "extension": [
+            {
+              "id": "sourceId",
+              "url": "https://www.icanbwell.com/sourceId",
+              "valueString": "WPS-Health"
+            },
+            {
+              "id": "uuid",
+              "url": "https://www.icanbwell.com/uuid",
+              "valueString": "7681e24e-1ede-5762-8566-da6775d7545d"
+            },
+            {
+              "id": "sourceAssigningAuthority",
+              "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+              "valueString": "medstar"
+            }
+          ],
           "reference": "Organization/WPS-Health"
         },
         "item": [
@@ -470,6 +507,14 @@
             {
               "code": "medstar",
               "system": "https://www.icanbwell.com/access"
+            },
+            {
+              "code": "medstar",
+              "system": "https://www.icanbwell.com/owner"
+            },
+            {
+              "code": "medstar",
+              "system": "https://www.icanbwell.com/sourceAssigningAuthority"
             }
           ],
           "source": "https://www.wpshealth.com/medical_claims",
@@ -477,6 +522,23 @@
         },
         "outcome": "Complete",
         "patient": {
+          "extension": [
+            {
+              "id": "sourceId",
+              "url": "https://www.icanbwell.com/sourceId",
+              "valueString": "WPS-7426744142"
+            },
+            {
+              "id": "uuid",
+              "url": "https://www.icanbwell.com/uuid",
+              "valueString": "e8ca4b67-7d67-50a8-9daa-ece544ac4b6d"
+            },
+            {
+              "id": "sourceAssigningAuthority",
+              "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+              "valueString": "medstar"
+            }
+          ],
           "reference": "Patient/WPS-7426744142"
         },
         "payee": {
@@ -624,11 +686,45 @@
           }
         ],
         "provider": {
+          "extension": [
+            {
+              "id": "sourceId",
+              "url": "https://www.icanbwell.com/sourceId",
+              "valueString": "1518993880"
+            },
+            {
+              "id": "uuid",
+              "url": "https://www.icanbwell.com/uuid",
+              "valueString": "0ff3567d-1f96-5732-a66f-6353d2f5acfe"
+            },
+            {
+              "id": "sourceAssigningAuthority",
+              "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+              "valueString": "medstar"
+            }
+          ],
           "reference": "Organization/1518993880"
         },
         "related": [
           {
             "claim": {
+              "extension": [
+                {
+                  "id": "sourceId",
+                  "url": "https://www.icanbwell.com/sourceId",
+                  "valueString": "20A824417300"
+                },
+                {
+                  "id": "uuid",
+                  "url": "https://www.icanbwell.com/uuid",
+                  "valueString": "c5366d63-4332-51ec-943e-696082e04721"
+                },
+                {
+                  "id": "sourceAssigningAuthority",
+                  "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                  "valueString": "medstar"
+                }
+              ],
               "reference": "Claim/20A824417300"
             }
           }
