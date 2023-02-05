@@ -11,7 +11,7 @@
     }
   ],
   "gender": "unknown",
-  "id": "2750689f-5651-4e65-8691-7e0e3c1e43f1",
+  "id": "880ef24d-a456-4905-b1b9-29a99cf40725",
   "identifier": [
     {
       "system": "http://medstarhealth.org",
@@ -52,6 +52,14 @@
       {
         "code": "medstar",
         "system": "https://www.icanbwell.com/access"
+      },
+      {
+        "code": "medstar",
+        "system": "https://www.icanbwell.com/owner"
+      },
+      {
+        "code": "medstar",
+        "system": "https://www.icanbwell.com/sourceAssigningAuthority"
       }
     ],
     "versionId": "1"
@@ -87,6 +95,23 @@
         ]
       },
       "issuer": {
+        "extension": [
+          {
+            "id": "sourceId",
+            "url": "https://www.icanbwell.com/sourceId",
+            "valueString": "Stanford_Medical_School"
+          },
+          {
+            "id": "uuid",
+            "url": "https://www.icanbwell.com/uuid",
+            "valueString": "d7c04d3e-440a-5ccf-974d-ae96df948376"
+          },
+          {
+            "id": "sourceAssigningAuthority",
+            "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+            "valueString": "medstar"
+          }
+        ],
         "reference": "Organization/Stanford_Medical_School"
       },
       "period": {

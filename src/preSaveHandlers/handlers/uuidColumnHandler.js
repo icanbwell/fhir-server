@@ -19,6 +19,8 @@ class UuidColumnHandler extends PreSaveHandler {
             if (isUuid(resource.id)) {
                 resource._uuid = resource.id;
             } else {
+                assertIsValid(resource.meta.security,
+                    `No meta security tags defined for resource: ${resource.resourceType}/${resource.id}`);
                 /**
                  * @type {string[]}
                  */

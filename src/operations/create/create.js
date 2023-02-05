@@ -121,6 +121,14 @@ class CreateOperation {
 
         let resource_incoming = body;
 
+        if (resource_incoming && Array.isArray(resource_incoming)) {
+            throw new BadRequestError(
+                new Error(
+                    'Only single resource can be sent to create.'
+                )
+            );
+        }
+
         let {base_version} = parsedArgs;
 
         // Per https://www.hl7.org/fhir/http.html#create, we should ignore the id passed in and generate a new one
