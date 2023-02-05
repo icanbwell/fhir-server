@@ -50,6 +50,10 @@ class ReferenceGlobalIdHandler extends PreSaveHandler {
          */
         const referenceValue = reference.reference;
 
+        if (!referenceValue) {
+            return reference;
+        }
+
         /**
          * @type {string}
          */

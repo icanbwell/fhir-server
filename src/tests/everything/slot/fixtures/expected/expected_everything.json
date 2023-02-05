@@ -58,11 +58,14 @@
             "value": "1275501447"
           },
           {
+            "id": "sourceId",
             "system": "https://www.icanbwell.com/sourceId",
             "value": "1275501447"
           },
           {
-            "system": "https://www.icanbwell.com/uuid"
+            "id": "uuid",
+            "system": "https://www.icanbwell.com/uuid",
+            "value": "f0d39fd9-7c7f-5f57-8579-05da5fa4615e"
           }
         ],
         "meta": {
@@ -70,6 +73,14 @@
             {
               "code": "medstar",
               "system": "https://www.icanbwell.com/access"
+            },
+            {
+              "code": "medstar",
+              "system": "https://www.icanbwell.com/owner"
+            },
+            {
+              "code": "medstar",
+              "system": "https://www.icanbwell.com/sourceAssigningAuthority"
             }
           ],
           "source": "http://medstarhealth.org/provider_headshots",
@@ -115,6 +126,23 @@
             },
             "issuer": {
               "display": "MedStar Union Memorial Hospital",
+              "extension": [
+                {
+                  "id": "sourceId",
+                  "url": "https://www.icanbwell.com/sourceId",
+                  "valueString": "MedStar-Union-Memorial-Hospital"
+                },
+                {
+                  "id": "uuid",
+                  "url": "https://www.icanbwell.com/uuid",
+                  "valueString": "51621560-6e26-5a22-8ad2-fe3b9e356ec2"
+                },
+                {
+                  "id": "sourceAssigningAuthority",
+                  "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                  "valueString": "medstar"
+                }
+              ],
               "reference": "Organization/MedStar-Union-Memorial-Hospital"
             },
             "period": {
@@ -138,17 +166,37 @@
       "resource": {
         "actor": [
           {
+            "extension": [
+              {
+                "id": "sourceId",
+                "url": "https://www.icanbwell.com/sourceId",
+                "valueString": "1275501447-UHG-MMMA"
+              },
+              {
+                "id": "uuid",
+                "url": "https://www.icanbwell.com/uuid",
+                "valueString": "6f7f58d5-4ce9-58ed-92b5-9900db8181ee"
+              },
+              {
+                "id": "sourceAssigningAuthority",
+                "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                "valueString": "medstar"
+              }
+            ],
             "reference": "PractitionerRole/1275501447-UHG-MMMA"
           }
         ],
         "id": "1275501447-UHG-MMMA",
         "identifier": [
           {
+            "id": "sourceId",
             "system": "https://www.icanbwell.com/sourceId",
             "value": "1275501447-UHG-MMMA"
           },
           {
-            "system": "https://www.icanbwell.com/uuid"
+            "id": "uuid",
+            "system": "https://www.icanbwell.com/uuid",
+            "value": "6f7f58d5-4ce9-58ed-92b5-9900db8181ee"
           }
         ],
         "meta": {
@@ -156,6 +204,14 @@
             {
               "code": "medstar",
               "system": "https://www.icanbwell.com/access"
+            },
+            {
+              "code": "medstar",
+              "system": "https://www.icanbwell.com/owner"
+            },
+            {
+              "code": "medstar",
+              "system": "https://www.icanbwell.com/sourceAssigningAuthority"
             }
           ],
           "source": "http://medstarhealth.org/provider_appointment_type",
@@ -251,6 +307,23 @@
         ],
         "healthcareService": [
           {
+            "extension": [
+              {
+                "id": "sourceId",
+                "url": "https://www.icanbwell.com/sourceId",
+                "valueString": "1275501447-UHG-MMMA"
+              },
+              {
+                "id": "uuid",
+                "url": "https://www.icanbwell.com/uuid",
+                "valueString": "6f7f58d5-4ce9-58ed-92b5-9900db8181ee"
+              },
+              {
+                "id": "sourceAssigningAuthority",
+                "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                "valueString": "medstar"
+              }
+            ],
             "reference": "HealthcareService/1275501447-UHG-MMMA"
           }
         ],
@@ -271,15 +344,35 @@
             "value": "1275501447-UHG-MMMA"
           },
           {
+            "id": "sourceId",
             "system": "https://www.icanbwell.com/sourceId",
             "value": "1275501447-UHG-MMMA"
           },
           {
-            "system": "https://www.icanbwell.com/uuid"
+            "id": "uuid",
+            "system": "https://www.icanbwell.com/uuid",
+            "value": "6f7f58d5-4ce9-58ed-92b5-9900db8181ee"
           }
         ],
         "location": [
           {
+            "extension": [
+              {
+                "id": "sourceId",
+                "url": "https://www.icanbwell.com/sourceId",
+                "valueString": "Medstar-Alias-UHG-MMMA"
+              },
+              {
+                "id": "uuid",
+                "url": "https://www.icanbwell.com/uuid",
+                "valueString": "4d0c1af3-40e8-582a-a6c5-0433400c884e"
+              },
+              {
+                "id": "sourceAssigningAuthority",
+                "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                "valueString": "medstar"
+              }
+            ],
             "reference": "Location/Medstar-Alias-UHG-MMMA"
           }
         ],
@@ -288,15 +381,57 @@
             {
               "code": "medstar",
               "system": "https://www.icanbwell.com/access"
+            },
+            {
+              "code": "medstar",
+              "system": "https://www.icanbwell.com/owner"
+            },
+            {
+              "code": "medstar",
+              "system": "https://www.icanbwell.com/sourceAssigningAuthority"
             }
           ],
           "source": "http://medstarhealth.org/provider",
           "versionId": "1"
         },
         "organization": {
+          "extension": [
+            {
+              "id": "sourceId",
+              "url": "https://www.icanbwell.com/sourceId",
+              "valueString": "Medstar-Alias-UHG-MMMA"
+            },
+            {
+              "id": "uuid",
+              "url": "https://www.icanbwell.com/uuid",
+              "valueString": "4d0c1af3-40e8-582a-a6c5-0433400c884e"
+            },
+            {
+              "id": "sourceAssigningAuthority",
+              "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+              "valueString": "medstar"
+            }
+          ],
           "reference": "Organization/Medstar-Alias-UHG-MMMA"
         },
         "practitioner": {
+          "extension": [
+            {
+              "id": "sourceId",
+              "url": "https://www.icanbwell.com/sourceId",
+              "valueString": "1275501447"
+            },
+            {
+              "id": "uuid",
+              "url": "https://www.icanbwell.com/uuid",
+              "valueString": "f0d39fd9-7c7f-5f57-8579-05da5fa4615e"
+            },
+            {
+              "id": "sourceAssigningAuthority",
+              "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+              "valueString": "medstar"
+            }
+          ],
           "reference": "Practitioner/1275501447"
         },
         "resourceType": "PractitionerRole",
@@ -321,11 +456,14 @@
         "id": "1275501447-UHG-MMMA-existing",
         "identifier": [
           {
+            "id": "sourceId",
             "system": "https://www.icanbwell.com/sourceId",
             "value": "1275501447-UHG-MMMA-existing"
           },
           {
-            "system": "https://www.icanbwell.com/uuid"
+            "id": "uuid",
+            "system": "https://www.icanbwell.com/uuid",
+            "value": "be692c4f-8fb0-5e24-8703-75a71a7e7387"
           }
         ],
         "meta": {
@@ -333,12 +471,37 @@
             {
               "code": "medstar",
               "system": "https://www.icanbwell.com/access"
+            },
+            {
+              "code": "medstar",
+              "system": "https://www.icanbwell.com/owner"
+            },
+            {
+              "code": "medstar",
+              "system": "https://www.icanbwell.com/sourceAssigningAuthority"
             }
           ],
           "versionId": "1"
         },
         "resourceType": "Slot",
         "schedule": {
+          "extension": [
+            {
+              "id": "sourceId",
+              "url": "https://www.icanbwell.com/sourceId",
+              "valueString": "1275501447-UHG-MMMA"
+            },
+            {
+              "id": "uuid",
+              "url": "https://www.icanbwell.com/uuid",
+              "valueString": "6f7f58d5-4ce9-58ed-92b5-9900db8181ee"
+            },
+            {
+              "id": "sourceAssigningAuthority",
+              "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+              "valueString": "medstar"
+            }
+          ],
           "reference": "Schedule/1275501447-UHG-MMMA"
         },
         "serviceType": [

@@ -44,11 +44,14 @@
             "value": "1679033641"
           },
           {
+            "id": "sourceId",
             "system": "https://www.icanbwell.com/sourceId",
             "value": "1679033641"
           },
           {
-            "system": "https://www.icanbwell.com/uuid"
+            "id": "uuid",
+            "system": "https://www.icanbwell.com/uuid",
+            "value": "53252897-13a1-5c6a-b631-a5a7bfc175b3"
           }
         ],
         "meta": {
@@ -56,6 +59,14 @@
             {
               "code": "medstar",
               "system": "https://www.icanbwell.com/access"
+            },
+            {
+              "code": "medstar",
+              "system": "https://www.icanbwell.com/owner"
+            },
+            {
+              "code": "medstar",
+              "system": "https://www.icanbwell.com/sourceAssigningAuthority"
             }
           ],
           "versionId": "2"
@@ -99,6 +110,23 @@
               ]
             },
             "issuer": {
+              "extension": [
+                {
+                  "id": "sourceId",
+                  "url": "https://www.icanbwell.com/sourceId",
+                  "valueString": "Stanford_Medical_School"
+                },
+                {
+                  "id": "uuid",
+                  "url": "https://www.icanbwell.com/uuid",
+                  "valueString": "f4bd1507-3193-5d87-8b24-463abe43b048"
+                },
+                {
+                  "id": "sourceAssigningAuthority",
+                  "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                  "valueString": "medstar"
+                }
+              ],
               "reference": "Organization/Stanford_Medical_School"
             },
             "period": {
@@ -126,6 +154,23 @@
               {
                 "url": "plan",
                 "valueReference": {
+                  "extension": [
+                    {
+                      "id": "sourceId",
+                      "url": "https://www.icanbwell.com/sourceId",
+                      "valueString": "AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He"
+                    },
+                    {
+                      "id": "uuid",
+                      "url": "https://www.icanbwell.com/uuid",
+                      "valueString": "24c117ef-4601-52ea-8812-ac66793956b5"
+                    },
+                    {
+                      "id": "sourceAssigningAuthority",
+                      "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                      "valueString": "medstar"
+                    }
+                  ],
                   "reference": "InsurancePlan/AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He"
                 }
               }
@@ -140,11 +185,14 @@
         "id": "1679033641-AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--In",
         "identifier": [
           {
+            "id": "sourceId",
             "system": "https://www.icanbwell.com/sourceId",
             "value": "1679033641-AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--In"
           },
           {
-            "system": "https://www.icanbwell.com/uuid"
+            "id": "uuid",
+            "system": "https://www.icanbwell.com/uuid",
+            "value": "1d67955d-da53-5ce2-b9c3-56334d01feae"
           }
         ],
         "meta": {
@@ -152,16 +200,58 @@
             {
               "code": "medstar",
               "system": "https://www.icanbwell.com/access"
+            },
+            {
+              "code": "medstar",
+              "system": "https://www.icanbwell.com/owner"
+            },
+            {
+              "code": "medstar",
+              "system": "https://www.icanbwell.com/sourceAssigningAuthority"
             }
           ],
           "versionId": "1"
         },
         "organization": {
           "display": "MWHC",
+          "extension": [
+            {
+              "id": "sourceId",
+              "url": "https://www.icanbwell.com/sourceId",
+              "valueString": "MWHC"
+            },
+            {
+              "id": "uuid",
+              "url": "https://www.icanbwell.com/uuid",
+              "valueString": "63eee0b1-2e54-53f9-8cd7-232375092da5"
+            },
+            {
+              "id": "sourceAssigningAuthority",
+              "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+              "valueString": "medstar"
+            }
+          ],
           "reference": "Organization/MWHC",
           "type": "Organization"
         },
         "practitioner": {
+          "extension": [
+            {
+              "id": "sourceId",
+              "url": "https://www.icanbwell.com/sourceId",
+              "valueString": "1679033641"
+            },
+            {
+              "id": "uuid",
+              "url": "https://www.icanbwell.com/uuid",
+              "valueString": "53252897-13a1-5c6a-b631-a5a7bfc175b3"
+            },
+            {
+              "id": "sourceAssigningAuthority",
+              "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+              "valueString": "medstar"
+            }
+          ],
           "reference": "Practitioner/1679033641"
         },
         "resourceType": "PractitionerRole"
@@ -209,11 +299,14 @@
         "id": "1679033641-UF3-UADM",
         "identifier": [
           {
+            "id": "sourceId",
             "system": "https://www.icanbwell.com/sourceId",
             "value": "1679033641-UF3-UADM"
           },
           {
-            "system": "https://www.icanbwell.com/uuid"
+            "id": "uuid",
+            "system": "https://www.icanbwell.com/uuid",
+            "value": "4d559614-d4ed-5f67-8ae4-7bce7f08c2bb"
           }
         ],
         "meta": {
@@ -221,6 +314,14 @@
             {
               "code": "medstar",
               "system": "https://www.icanbwell.com/access"
+            },
+            {
+              "code": "medstar",
+              "system": "https://www.icanbwell.com/owner"
+            },
+            {
+              "code": "medstar",
+              "system": "https://www.icanbwell.com/sourceAssigningAuthority"
             }
           ],
           "versionId": "1"
@@ -245,21 +346,58 @@
         ],
         "healthcareService": [
           {
+            "extension": [
+              {
+                "id": "sourceId",
+                "url": "https://www.icanbwell.com/sourceId",
+                "valueString": "1679033641-UF3-UADM"
+              },
+              {
+                "id": "uuid",
+                "url": "https://www.icanbwell.com/uuid",
+                "valueString": "4d559614-d4ed-5f67-8ae4-7bce7f08c2bb"
+              },
+              {
+                "id": "sourceAssigningAuthority",
+                "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                "valueString": "medstar"
+              }
+            ],
             "reference": "HealthcareService/1679033641-UF3-UADM"
           }
         ],
         "id": "4657-3437",
         "identifier": [
           {
+            "id": "sourceId",
             "system": "https://www.icanbwell.com/sourceId",
             "value": "4657-3437"
           },
           {
-            "system": "https://www.icanbwell.com/uuid"
+            "id": "uuid",
+            "system": "https://www.icanbwell.com/uuid",
+            "value": "20e2e63c-222b-59de-b141-5065dde0086b"
           }
         ],
         "location": [
           {
+            "extension": [
+              {
+                "id": "sourceId",
+                "url": "https://www.icanbwell.com/sourceId",
+                "valueString": "UF3-UADM"
+              },
+              {
+                "id": "uuid",
+                "url": "https://www.icanbwell.com/uuid",
+                "valueString": "08641fe0-6bbd-5ac5-9d9a-f4a1eb4e1978"
+              },
+              {
+                "id": "sourceAssigningAuthority",
+                "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                "valueString": "medstar"
+              }
+            ],
             "reference": "Location/UF3-UADM"
           }
         ],
@@ -268,11 +406,36 @@
             {
               "code": "medstar",
               "system": "https://www.icanbwell.com/access"
+            },
+            {
+              "code": "medstar",
+              "system": "https://www.icanbwell.com/owner"
+            },
+            {
+              "code": "medstar",
+              "system": "https://www.icanbwell.com/sourceAssigningAuthority"
             }
           ],
           "versionId": "1"
         },
         "practitioner": {
+          "extension": [
+            {
+              "id": "sourceId",
+              "url": "https://www.icanbwell.com/sourceId",
+              "valueString": "1679033641"
+            },
+            {
+              "id": "uuid",
+              "url": "https://www.icanbwell.com/uuid",
+              "valueString": "53252897-13a1-5c6a-b631-a5a7bfc175b3"
+            },
+            {
+              "id": "sourceAssigningAuthority",
+              "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+              "valueString": "medstar"
+            }
+          ],
           "reference": "Practitioner/1679033641"
         },
         "resourceType": "PractitionerRole",
@@ -316,11 +479,14 @@
         "id": "AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He",
         "identifier": [
           {
+            "id": "sourceId",
             "system": "https://www.icanbwell.com/sourceId",
             "value": "AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He"
           },
           {
-            "system": "https://www.icanbwell.com/uuid"
+            "id": "uuid",
+            "system": "https://www.icanbwell.com/uuid",
+            "value": "24c117ef-4601-52ea-8812-ac66793956b5"
           }
         ],
         "meta": {
@@ -328,18 +494,60 @@
             {
               "code": "medstar",
               "system": "https://www.icanbwell.com/access"
+            },
+            {
+              "code": "medstar",
+              "system": "https://www.icanbwell.com/owner"
+            },
+            {
+              "code": "medstar",
+              "system": "https://www.icanbwell.com/sourceAssigningAuthority"
             }
           ],
           "versionId": "1"
         },
         "name": "AETNA-Aetna Elect Choice/ EPO (Aetna Health Fund) Innovation Health: Network Only Plus",
         "ownedBy": {
+          "extension": [
+            {
+              "id": "sourceId",
+              "url": "https://www.icanbwell.com/sourceId",
+              "valueString": "AETNA"
+            },
+            {
+              "id": "uuid",
+              "url": "https://www.icanbwell.com/uuid",
+              "valueString": "45eaebe0-537e-5bdb-ab35-7564668c39b5"
+            },
+            {
+              "id": "sourceAssigningAuthority",
+              "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+              "valueString": "medstar"
+            }
+          ],
           "reference": "Organization/AETNA"
         },
         "plan": [
           {
             "coverageArea": [
               {
+                "extension": [
+                  {
+                    "id": "sourceId",
+                    "url": "https://www.icanbwell.com/sourceId",
+                    "valueString": "1886535265"
+                  },
+                  {
+                    "id": "uuid",
+                    "url": "https://www.icanbwell.com/uuid",
+                    "valueString": "3bad6e83-d648-5f49-a429-80c38a51c38f"
+                  },
+                  {
+                    "id": "sourceAssigningAuthority",
+                    "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                    "valueString": "medstar"
+                  }
+                ],
                 "reference": "Location/1886535265"
               }
             ],
@@ -377,6 +585,23 @@
         ],
         "healthcareService": [
           {
+            "extension": [
+              {
+                "id": "sourceId",
+                "url": "https://www.icanbwell.com/sourceId",
+                "valueString": "MAX-MALX"
+              },
+              {
+                "id": "uuid",
+                "url": "https://www.icanbwell.com/uuid",
+                "valueString": "7e827ed9-327e-5554-897e-b49320c39ef1"
+              },
+              {
+                "id": "sourceAssigningAuthority",
+                "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                "valueString": "medstar"
+              }
+            ],
             "reference": "HealthcareService/MAX-MALX"
           }
         ],
@@ -397,15 +622,35 @@
             "value": "MAX-MALX"
           },
           {
+            "id": "sourceId",
             "system": "https://www.icanbwell.com/sourceId",
             "value": "MAX-MALX"
           },
           {
-            "system": "https://www.icanbwell.com/uuid"
+            "id": "uuid",
+            "system": "https://www.icanbwell.com/uuid",
+            "value": "7e827ed9-327e-5554-897e-b49320c39ef1"
           }
         ],
         "location": [
           {
+            "extension": [
+              {
+                "id": "sourceId",
+                "url": "https://www.icanbwell.com/sourceId",
+                "valueString": "MAX-MALX"
+              },
+              {
+                "id": "uuid",
+                "url": "https://www.icanbwell.com/uuid",
+                "valueString": "7e827ed9-327e-5554-897e-b49320c39ef1"
+              },
+              {
+                "id": "sourceAssigningAuthority",
+                "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                "valueString": "medstar"
+              }
+            ],
             "reference": "Location/MAX-MALX"
           }
         ],
@@ -414,11 +659,36 @@
             {
               "code": "medstar",
               "system": "https://www.icanbwell.com/access"
+            },
+            {
+              "code": "medstar",
+              "system": "https://www.icanbwell.com/owner"
+            },
+            {
+              "code": "medstar",
+              "system": "https://www.icanbwell.com/sourceAssigningAuthority"
             }
           ],
           "versionId": "1"
         },
         "practitioner": {
+          "extension": [
+            {
+              "id": "sourceId",
+              "url": "https://www.icanbwell.com/sourceId",
+              "valueString": "1679033641"
+            },
+            {
+              "id": "uuid",
+              "url": "https://www.icanbwell.com/uuid",
+              "valueString": "53252897-13a1-5c6a-b631-a5a7bfc175b3"
+            },
+            {
+              "id": "sourceAssigningAuthority",
+              "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+              "valueString": "medstar"
+            }
+          ],
           "reference": "Practitioner/1679033641"
         },
         "resourceType": "PractitionerRole",
@@ -519,11 +789,14 @@
             "value": "MAX-MALX"
           },
           {
+            "id": "sourceId",
             "system": "https://www.icanbwell.com/sourceId",
             "value": "MAX-MALX"
           },
           {
-            "system": "https://www.icanbwell.com/uuid"
+            "id": "uuid",
+            "system": "https://www.icanbwell.com/uuid",
+            "value": "7e827ed9-327e-5554-897e-b49320c39ef1"
           }
         ],
         "meta": {
@@ -531,6 +804,14 @@
             {
               "code": "medstar",
               "system": "https://www.icanbwell.com/access"
+            },
+            {
+              "code": "medstar",
+              "system": "https://www.icanbwell.com/owner"
+            },
+            {
+              "code": "medstar",
+              "system": "https://www.icanbwell.com/sourceAssigningAuthority"
             }
           ],
           "versionId": "1"
@@ -586,11 +867,14 @@
             "value": "MWHC"
           },
           {
+            "id": "sourceId",
             "system": "https://www.icanbwell.com/sourceId",
             "value": "MWHC"
           },
           {
-            "system": "https://www.icanbwell.com/uuid"
+            "id": "uuid",
+            "system": "https://www.icanbwell.com/uuid",
+            "value": "63eee0b1-2e54-53f9-8cd7-232375092da5"
           }
         ],
         "meta": {
@@ -598,6 +882,14 @@
             {
               "code": "medstar",
               "system": "https://www.icanbwell.com/access"
+            },
+            {
+              "code": "medstar",
+              "system": "https://www.icanbwell.com/owner"
+            },
+            {
+              "code": "medstar",
+              "system": "https://www.icanbwell.com/sourceAssigningAuthority"
             }
           ],
           "versionId": "1"
@@ -659,11 +951,14 @@
             "value": "3437"
           },
           {
+            "id": "sourceId",
             "system": "https://www.icanbwell.com/sourceId",
             "value": "UF3-UADM"
           },
           {
-            "system": "https://www.icanbwell.com/uuid"
+            "id": "uuid",
+            "system": "https://www.icanbwell.com/uuid",
+            "value": "08641fe0-6bbd-5ac5-9d9a-f4a1eb4e1978"
           }
         ],
         "meta": {
@@ -671,6 +966,14 @@
             {
               "code": "medstar",
               "system": "https://www.icanbwell.com/access"
+            },
+            {
+              "code": "medstar",
+              "system": "https://www.icanbwell.com/owner"
+            },
+            {
+              "code": "medstar",
+              "system": "https://www.icanbwell.com/sourceAssigningAuthority"
             }
           ],
           "versionId": "1"

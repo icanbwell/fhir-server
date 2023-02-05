@@ -26,11 +26,14 @@
         "id": "2354-InAgeCohort",
         "identifier": [
           {
+            "id": "sourceId",
             "system": "https://www.icanbwell.com/sourceId",
             "value": "2354-InAgeCohort"
           },
           {
-            "system": "https://www.icanbwell.com/uuid"
+            "id": "uuid",
+            "system": "https://www.icanbwell.com/uuid",
+            "value": "61886699-c643-5e3b-a074-569e4c43bddf"
           }
         ],
         "issued": "2021-01-01T12:00:00Z",
@@ -63,6 +66,23 @@
         "resourceType": "Observation",
         "status": "final",
         "subject": {
+          "extension": [
+            {
+              "id": "sourceId",
+              "url": "https://www.icanbwell.com/sourceId",
+              "valueString": "patient1"
+            },
+            {
+              "id": "uuid",
+              "url": "https://www.icanbwell.com/uuid",
+              "valueString": "24a5930e-11b4-5525-b482-669174917044"
+            },
+            {
+              "id": "sourceAssigningAuthority",
+              "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+              "valueString": "healthsystem1"
+            }
+          ],
           "reference": "Patient/patient1"
         },
         "valueBoolean": false
@@ -76,11 +96,14 @@
         "id": "patient1",
         "identifier": [
           {
+            "id": "sourceId",
             "system": "https://www.icanbwell.com/sourceId",
             "value": "patient1"
           },
           {
-            "system": "https://www.icanbwell.com/uuid"
+            "id": "uuid",
+            "system": "https://www.icanbwell.com/uuid",
+            "value": "24a5930e-11b4-5525-b482-669174917044"
           }
         ],
         "meta": {
@@ -122,17 +145,37 @@
         "id": "person1",
         "identifier": [
           {
+            "id": "sourceId",
             "system": "https://www.icanbwell.com/sourceId",
             "value": "person1"
           },
           {
-            "system": "https://www.icanbwell.com/uuid"
+            "id": "uuid",
+            "system": "https://www.icanbwell.com/uuid",
+            "value": "cb910ded-67db-5c75-b62d-1d1a545c3e56"
           }
         ],
         "link": [
           {
             "assurance": "level4",
             "target": {
+              "extension": [
+                {
+                  "id": "sourceId",
+                  "url": "https://www.icanbwell.com/sourceId",
+                  "valueString": "patient1"
+                },
+                {
+                  "id": "uuid",
+                  "url": "https://www.icanbwell.com/uuid",
+                  "valueString": "6b4cd535-4038-5da7-9c1e-43b5a05c793b"
+                },
+                {
+                  "id": "sourceAssigningAuthority",
+                  "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                  "valueString": "medstar"
+                }
+              ],
               "reference": "Patient/patient1",
               "type": "Patient"
             }
@@ -195,11 +238,14 @@
             "value": "1000000-a-02"
           },
           {
+            "id": "sourceId",
             "system": "https://www.icanbwell.com/sourceId",
             "value": "person2"
           },
           {
-            "system": "https://www.icanbwell.com/uuid"
+            "id": "uuid",
+            "system": "https://www.icanbwell.com/uuid",
+            "value": "0eb80391-0f61-5ce6-b221-a5428f2f38a7"
           }
         ],
         "link": [
@@ -207,6 +253,23 @@
             "assurance": "level4",
             "id": "8175a01c-41a3-44f7-9a18-db5077c674fb",
             "target": {
+              "extension": [
+                {
+                  "id": "sourceId",
+                  "url": "https://www.icanbwell.com/sourceId",
+                  "valueString": "patient1"
+                },
+                {
+                  "id": "uuid",
+                  "url": "https://www.icanbwell.com/uuid",
+                  "valueString": "b1b84ea6-c8e3-52d8-9759-ebe994c1e89d"
+                },
+                {
+                  "id": "sourceAssigningAuthority",
+                  "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                  "valueString": "bwell"
+                }
+              ],
               "reference": "Patient/patient1"
             }
           },
@@ -214,6 +277,23 @@
             "assurance": "level4",
             "id": "4223ad68-2cd2-482f-8d47-fc09be3ddbc1",
             "target": {
+              "extension": [
+                {
+                  "id": "sourceId",
+                  "url": "https://www.icanbwell.com/sourceId",
+                  "valueString": "patient2"
+                },
+                {
+                  "id": "uuid",
+                  "url": "https://www.icanbwell.com/uuid",
+                  "valueString": "90d14c10-b08a-5977-8aaf-4252355ac169"
+                },
+                {
+                  "id": "sourceAssigningAuthority",
+                  "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                  "valueString": "bwell"
+                }
+              ],
               "reference": "Patient/patient2"
             }
           }
@@ -284,11 +364,14 @@
             "value": "1000000-a-02"
           },
           {
+            "id": "sourceId",
             "system": "https://www.icanbwell.com/sourceId",
             "value": "personTopLevel"
           },
           {
-            "system": "https://www.icanbwell.com/uuid"
+            "id": "uuid",
+            "system": "https://www.icanbwell.com/uuid",
+            "value": "9168d18f-8ad4-5f07-8ace-dd2979455b4e"
           }
         ],
         "link": [
@@ -296,6 +379,23 @@
             "assurance": "level4",
             "id": "8175a01c-41a3-44f7-9a18-db5077c674fb",
             "target": {
+              "extension": [
+                {
+                  "id": "sourceId",
+                  "url": "https://www.icanbwell.com/sourceId",
+                  "valueString": "patient1"
+                },
+                {
+                  "id": "uuid",
+                  "url": "https://www.icanbwell.com/uuid",
+                  "valueString": "b1b84ea6-c8e3-52d8-9759-ebe994c1e89d"
+                },
+                {
+                  "id": "sourceAssigningAuthority",
+                  "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                  "valueString": "bwell"
+                }
+              ],
               "reference": "Patient/patient1"
             }
           },
@@ -303,6 +403,23 @@
             "assurance": "level4",
             "id": "4223ad68-2cd2-482f-8d47-fc09be3ddbc1",
             "target": {
+              "extension": [
+                {
+                  "id": "sourceId",
+                  "url": "https://www.icanbwell.com/sourceId",
+                  "valueString": "person1"
+                },
+                {
+                  "id": "uuid",
+                  "url": "https://www.icanbwell.com/uuid",
+                  "valueString": "0b2ad38a-20bc-5cf5-9739-13f242b05892"
+                },
+                {
+                  "id": "sourceAssigningAuthority",
+                  "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                  "valueString": "bwell"
+                }
+              ],
               "reference": "Person/person1"
             }
           }
