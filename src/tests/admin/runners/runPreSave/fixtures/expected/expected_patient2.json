@@ -6,22 +6,24 @@
     "medstar": 1
   },
   "_sourceId": "00200000000",
-  "_uuid": "0e203360-f660-4275-8982-19ea1b2a5be6",
+  "_uuid": "897a6c25-705f-58e3-a396-81ba662a06b0",
   "birthDate": "2017-01-01",
   "gender": "female",
   "id": "00200000000",
   "identifier": [
     {
+      "id": "sourceId",
       "system": "https://www.icanbwell.com/sourceId",
       "value": "00200000000"
     },
     {
+      "id": "uuid",
       "system": "https://www.icanbwell.com/uuid",
-      "value": "0e203360-f660-4275-8982-19ea1b2a5be6"
+      "value": "897a6c25-705f-58e3-a396-81ba662a06b0"
     }
   ],
   "meta": {
-    "lastUpdated": "2023-01-29T21:57:39.000Z",
+    "lastUpdated": {},
     "security": [
       {
         "code": "medstar",

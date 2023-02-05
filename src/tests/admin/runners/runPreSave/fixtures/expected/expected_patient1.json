@@ -1,53 +1,55 @@
 {
-  "resourceType": "Patient",
-  "id": "00100000000",
-  "meta": {
-    "versionId": "1",
-    "lastUpdated": "2023-01-29T21:57:39.000Z",
-    "source": "http://medstarhealth.org/provider",
-    "security": [
-      {
-        "system": "https://www.icanbwell.com/access",
-        "code": "medstar"
-      },
-      {
-        "system": "https://www.icanbwell.com/owner",
-        "code": "medstar"
-      },
-      {
-        "system": "https://www.icanbwell.com/sourceAssigningAuthority",
-        "code": "medstar"
-      }
-    ]
-  },
-  "identifier": [
-    {
-      "system": "https://www.icanbwell.com/sourceId",
-      "value": "00100000000"
-    },
-    {
-      "system": "https://www.icanbwell.com/uuid",
-      "value": "50369cb2-bdc6-4128-9651-1986a380ebbf"
-    }
-  ],
-  "name": [
-    {
-      "use": "usual",
-      "text": "t",
-      "family": "PATIENT1",
-      "given": [
-        "SHYLA"
-      ]
-    }
-  ],
-  "gender": "female",
-  "birthDate": "2017-01-01",
   "_access": {
     "medstar": 1
   },
   "_sourceAssigningAuthority": {
     "medstar": 1
   },
-  "_uuid": "50369cb2-bdc6-4128-9651-1986a380ebbf",
-  "_sourceId": "00100000000"
+  "_sourceId": "00100000000",
+  "_uuid": "86467a80-01a3-528c-8438-bd179b523459",
+  "birthDate": "2017-01-01",
+  "gender": "female",
+  "id": "00100000000",
+  "identifier": [
+    {
+      "id": "sourceId",
+      "system": "https://www.icanbwell.com/sourceId",
+      "value": "00100000000"
+    },
+    {
+      "id": "uuid",
+      "system": "https://www.icanbwell.com/uuid",
+      "value": "86467a80-01a3-528c-8438-bd179b523459"
+    }
+  ],
+  "meta": {
+    "lastUpdated": {},
+    "security": [
+      {
+        "code": "medstar",
+        "system": "https://www.icanbwell.com/access"
+      },
+      {
+        "code": "medstar",
+        "system": "https://www.icanbwell.com/owner"
+      },
+      {
+        "code": "medstar",
+        "system": "https://www.icanbwell.com/sourceAssigningAuthority"
+      }
+    ],
+    "source": "http://medstarhealth.org/provider",
+    "versionId": "1"
+  },
+  "name": [
+    {
+      "family": "PATIENT1",
+      "given": [
+        "SHYLA"
+      ],
+      "text": "t",
+      "use": "usual"
+    }
+  ],
+  "resourceType": "Patient"
 }

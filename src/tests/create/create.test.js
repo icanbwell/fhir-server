@@ -2,6 +2,7 @@
 const practitioner1Resource = require('./fixtures/Practitioner/practitioner1.json');
 
 // expected
+const expectedPractitionerInitialResources = require('./fixtures/expected/expected_Practitioner_initial.json');
 const expectedPractitionerResources = require('./fixtures/expected/expected_Practitioner.json');
 
 const {
@@ -10,7 +11,8 @@ const {
     getHeaders,
     createTestRequest,
 } = require('../common');
-const {describe, beforeEach, afterEach, test } = require('@jest/globals');
+const {describe, beforeEach, afterEach, test} = require('@jest/globals');
+const {generateUUIDv5} = require('../../utils/uid.util');
 
 describe('Practitioner Tests', () => {
     beforeEach(async () => {
@@ -39,10 +41,14 @@ describe('Practitioner Tests', () => {
             practitioner1Resource.meta.versionId = '1';
 
             resp = await request
-                .get('/4_0_0/Practitioner')
+                .get('/4_0_0/Practitioner?_bundle=1')
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse(practitioner1Resource);
+            expect(resp).toHaveResponse(expectedPractitionerInitialResources);
+
+            expect(resp.entry[0].resource.issue.extension.find(e => e.id === 'uuid').valueString).toStrictEqual(
+                generateUUIDv5('Stanford_Medical_School|medstar')
+            );
 
             // pause enough so the lastUpdated time is later on the second resource so our sorting works properly
             await new Promise((resolve) => setTimeout(resolve, 3000));

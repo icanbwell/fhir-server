@@ -1,0 +1,140 @@
+{
+  "entry": [
+    {
+      "resource": {
+        "active": true,
+        "communication": [
+          {
+            "coding": [
+              {
+                "code": "en",
+                "system": "urn:ietf:bcp:47"
+              }
+            ]
+          }
+        ],
+        "gender": "unknown",
+        "id": "880ef24d-a456-4905-b1b9-29a99cf40725",
+        "identifier": [
+          {
+            "system": "http://medstarhealth.org",
+            "type": {
+              "coding": [
+                {
+                  "code": "PRN",
+                  "system": "http://terminology.hl7.org/CodeSystem/v2-0203"
+                }
+              ]
+            },
+            "use": "usual",
+            "value": "4657"
+          },
+          {
+            "system": "http://hl7.org/fhir/sid/us-npi",
+            "type": {
+              "coding": [
+                {
+                  "code": "NPI",
+                  "system": "http://terminology.hl7.org/CodeSystem/v2-0203"
+                }
+              ]
+            },
+            "use": "official",
+            "value": "1679033641"
+          },
+          {
+            "system": "https://www.icanbwell.com/sourceId",
+            "value": "2750689f-5651-4e65-8691-7e0e3c1e43f1"
+          },
+          {
+            "system": "https://www.icanbwell.com/uuid"
+          }
+        ],
+        "meta": {
+          "security": [
+            {
+              "code": "medstar",
+              "system": "https://www.icanbwell.com/access"
+            },
+            {
+              "code": "medstar",
+              "system": "https://www.icanbwell.com/owner"
+            },
+            {
+              "code": "medstar",
+              "system": "https://www.icanbwell.com/sourceAssigningAuthority"
+            }
+          ],
+          "versionId": "1"
+        },
+        "name": [
+          {
+            "family": "NAJJAR  MD",
+            "given": [
+              "SAMER S."
+            ],
+            "text": "SAMER S. NAJJAR  MD",
+            "use": "usual"
+          }
+        ],
+        "qualification": [
+          {
+            "code": {
+              "coding": [
+                {
+                  "code": "MD",
+                  "system": "http://terminology.hl7.org/ValueSet/v2-2.7-030"
+                }
+              ]
+            }
+          },
+          {
+            "code": {
+              "coding": [
+                {
+                  "code": "MD",
+                  "system": "http://terminology.hl7.org/ValueSet/v2-2.7-030"
+                }
+              ]
+            },
+            "issuer": {
+              "extension": [
+                {
+                  "id": "sourceId",
+                  "url": "https://www.icanbwell.com/sourceId",
+                  "valueString": "Stanford_Medical_School"
+                },
+                {
+                  "id": "uuid",
+                  "url": "https://www.icanbwell.com/uuid",
+                  "valueString": "f4bd1507-3193-5d87-8b24-463abe43b048"
+                },
+                {
+                  "id": "sourceAssigningAuthority",
+                  "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                  "valueString": "medstar"
+                }
+              ],
+              "reference": "Organization/Stanford_Medical_School"
+            },
+            "period": {
+              "end": "2021-12-11",
+              "start": "1960-01-01"
+            }
+          }
+        ],
+        "resourceType": "Practitioner",
+        "telecom": [
+          {
+            "system": "email",
+            "use": "work",
+            "value": "foo@foo.com"
+          }
+        ]
+      }
+    }
+  ],
+  "resourceType": "Bundle",
+  "total": 0,
+  "type": "searchset"
+}

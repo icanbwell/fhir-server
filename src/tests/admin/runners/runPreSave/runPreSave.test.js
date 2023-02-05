@@ -43,8 +43,8 @@ describe('Patient Tests', () => {
         await commonAfterEach();
     });
 
-    describe('Patient createAccessIndex Tests', () => {
-        test('createAccessIndex works', async () => {
+    describe('Patient runPreSave Tests', () => {
+        test('runPreSave works', async () => {
             // eslint-disable-next-line no-unused-vars
             const request = await createTestRequest((c) => {
                 c.register('configManager', () => new MockConfigManagerWithoutGlobalId());
