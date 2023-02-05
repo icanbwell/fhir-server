@@ -20,7 +20,6 @@ const {
 const {describe, beforeEach, afterEach, test} = require('@jest/globals');
 const {ConfigManager} = require('../../../utils/configManager');
 const {IdentifierSystem} = require('../../../utils/identifierSystem');
-const deepcopy = require('deepcopy');
 
 class MockConfigManager extends ConfigManager {
     get enableGlobalIdSupport() {
@@ -233,18 +232,11 @@ describe('Observation Tests', () => {
             const uuid = resp.body.identifier.filter(i => i.system === IdentifierSystem.uuid)[0].value;
             expect(uuid).toBeDefined();
 
-            const expectedObservationByUuidResourcesCopy = deepcopy(expectedObservationByUuidResources);
-            expectedObservationByUuidResourcesCopy.meta.tag
-                .filter(m => m.system === 'https://www.icanbwell.com/query')
-                .forEach(m => {
-                    m.display = m.display.replace('11111111-1111-1111-1111-111111111111', uuid);
-                    return m;
-                });
             resp = await request
                 .get(`/4_0_0/Observation/?id=${uuid}&_debug=1`)
                 .set(headers);
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse(expectedObservationByUuidResourcesCopy);
+            expect(resp).toHaveResponse(expectedObservationByUuidResources);
         });
     });
 });

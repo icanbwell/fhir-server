@@ -35,6 +35,7 @@ class UuidColumnHandler extends PreSaveHandler {
             resource.identifier.push(
                 new Identifier(
                     {
+                        'id': 'uuid',
                         'system': IdentifierSystem.uuid,
                         'value': resource._uuid
                     }
@@ -44,6 +45,7 @@ class UuidColumnHandler extends PreSaveHandler {
             resource.identifier = [
                 new Identifier(
                     {
+                        'id': 'uuid',
                         'system': IdentifierSystem.uuid,
                         'value': resource._uuid
                     }

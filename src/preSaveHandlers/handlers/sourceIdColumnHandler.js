@@ -21,6 +21,7 @@ class SourceIdColumnHandler extends PreSaveHandler {
             resource.identifier.push(
                 new Identifier(
                     {
+                        'id': 'sourceId',
                         'system': IdentifierSystem.sourceId,
                         'value': resource._sourceId
                     }
@@ -30,6 +31,7 @@ class SourceIdColumnHandler extends PreSaveHandler {
             resource.identifier = [
                 new Identifier(
                     {
+                        'id': 'sourceId',
                         'system': IdentifierSystem.sourceId,
                         'value': resource._sourceId
                     }

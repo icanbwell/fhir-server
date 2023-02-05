@@ -25,11 +25,14 @@
         "id": "12345678901234567890123456789012345678901234567890123456789012345678901234567890",
         "identifier": [
           {
+            "id": "sourceId",
             "system": "https://www.icanbwell.com/sourceId",
             "value": "12345678901234567890123456789012345678901234567890123456789012345678901234567890"
           },
           {
-            "system": "https://www.icanbwell.com/uuid"
+            "id": "uuid",
+            "system": "https://www.icanbwell.com/uuid",
+            "value": "cef47f25-1592-5f67-9c4e-1a5e198d95b0"
           }
         ],
         "issued": "2021-01-01T12:00:00Z",
@@ -62,6 +65,23 @@
         "resourceType": "Observation",
         "status": "final",
         "subject": {
+          "extension": [
+            {
+              "id": "sourceId",
+              "url": "https://www.icanbwell.com/sourceId",
+              "valueString": "2354"
+            },
+            {
+              "id": "uuid",
+              "url": "https://www.icanbwell.com/uuid",
+              "valueString": "61780c50-2f7d-58de-a554-98c1a2f5702f"
+            },
+            {
+              "id": "sourceAssigningAuthority",
+              "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+              "valueString": "C"
+            }
+          ],
           "reference": "Patient/2354"
         },
         "valueBoolean": false

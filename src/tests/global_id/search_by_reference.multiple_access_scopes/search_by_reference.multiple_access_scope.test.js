@@ -25,7 +25,6 @@ const {
 const {describe, beforeEach, afterEach, test} = require('@jest/globals');
 const {ConfigManager} = require('../../../utils/configManager');
 const {IdentifierSystem} = require('../../../utils/identifierSystem');
-const deepcopy = require('deepcopy');
 
 class MockConfigManager extends ConfigManager {
     get enableGlobalIdSupport() {
@@ -247,33 +246,17 @@ describe('Observation Tests', () => {
             const patientUuid = resp.body.identifier.filter(i => i.system === IdentifierSystem.uuid)[0].value;
             expect(patientUuid).toBeDefined();
 
-            const expectedObservationByUuidResourcesCopy = deepcopy(expectedObservationByUuidResources);
-            expectedObservationByUuidResourcesCopy.meta.tag
-                .filter(m => m.system === 'https://www.icanbwell.com/query')
-                .forEach(m => {
-                    m.display = m.display.replace('11111111-1111-1111-1111-111111111111', patientUuid);
-                    return m;
-                });
-
             resp = await request
                 .get(`/4_0_0/Observation/?patient=Patient/${patientUuid}&_debug=1`)
                 .set(headers);
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse(expectedObservationByUuidResourcesCopy);
-
-            const expectedObservationIdOnlyByUuidResourcesCopy = deepcopy(expectedObservationIdOnlyByUuidResources);
-            expectedObservationIdOnlyByUuidResourcesCopy.meta.tag
-                .filter(m => m.system === 'https://www.icanbwell.com/query')
-                .forEach(m => {
-                    m.display = m.display.replace(/11111111-1111-1111-1111-111111111111/g, patientUuid);
-                    return m;
-                });
+            expect(resp).toHaveResponse(expectedObservationByUuidResources);
 
             resp = await request
                 .get(`/4_0_0/Observation/?patient=${patientUuid}&_debug=1`)
                 .set(headers);
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse(expectedObservationIdOnlyByUuidResourcesCopy);
+            expect(resp).toHaveResponse(expectedObservationIdOnlyByUuidResources);
         });
     });
 });

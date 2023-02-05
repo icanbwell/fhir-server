@@ -41,10 +41,12 @@
     "id": "daf63d7b-4e99-4133-bd3f-83e24bf7987a",
     "identifier": [
       {
+        "id": "sourceId",
         "system": "https://www.icanbwell.com/sourceId",
         "value": "daf63d7b-4e99-4133-bd3f-83e24bf7987a"
       },
       {
+        "id": "uuid",
         "system": "https://www.icanbwell.com/uuid",
         "value": "daf63d7b-4e99-4133-bd3f-83e24bf7987a"
       }
@@ -83,6 +85,23 @@
     "resourceType": "Observation",
     "status": "final",
     "subject": {
+      "extension": [
+        {
+          "id": "sourceId",
+          "url": "https://www.icanbwell.com/sourceId",
+          "valueString": "2354"
+        },
+        {
+          "id": "uuid",
+          "url": "https://www.icanbwell.com/uuid",
+          "valueString": "d21d35c4-2cfd-5b8c-a17e-27fb803d3cbb"
+        },
+        {
+          "id": "sourceAssigningAuthority",
+          "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+          "valueString": "A"
+        }
+      ],
       "reference": "Patient/2354"
     },
     "valueBoolean": false
