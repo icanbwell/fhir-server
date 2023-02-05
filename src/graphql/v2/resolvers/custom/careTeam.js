@@ -124,7 +124,9 @@ module.exports = {
                     }
                 );
                 if (result && result[0].operationOutcome) {
-                    throw new Error(`Unable to update care team data for ${args.patientId}`);
+                    throw new Error(
+                        `Unable to update care team data for ${args.patientId}: ` +
+                        `${result[0].operationOutcome.issue.map(i => i.diagnostics)}`);
                 }
                 return patientToChange;
             },

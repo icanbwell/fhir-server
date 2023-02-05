@@ -56,7 +56,8 @@
             "value": "WPS-Claim-230916613369"
           },
           {
-            "system": "https://www.icanbwell.com/uuid"
+            "system": "https://www.icanbwell.com/uuid",
+            "value": "2eb828dc-51bc-5140-a85e-ae80d04a9cf1"
           }
         ],
         "insurance": [
@@ -216,6 +217,14 @@
             {
               "code": "medstar",
               "system": "https://www.icanbwell.com/access"
+            },
+            {
+              "code": "medstar",
+              "system": "https://www.icanbwell.com/owner"
+            },
+            {
+              "code": "medstar",
+              "system": "https://www.icanbwell.com/sourceAssigningAuthority"
             }
           ],
           "source": "https://www.wpshealth.com/medical_claims",
@@ -261,7 +270,8 @@
               "value": "733797173"
             },
             {
-              "system": "https://www.icanbwell.com/uuid"
+              "system": "https://www.icanbwell.com/uuid",
+              "value": "e4be0b0a-f087-571a-8d76-cf763574eec6"
             }
           ]
         },
@@ -379,7 +389,8 @@
             "value": "WPS-Claim-429017018331"
           },
           {
-            "system": "https://www.icanbwell.com/uuid"
+            "system": "https://www.icanbwell.com/uuid",
+            "value": "232a204b-3881-56c8-b240-a4faf159ffed"
           }
         ],
         "insurance": [
@@ -529,6 +540,14 @@
             {
               "code": "medstar",
               "system": "https://www.icanbwell.com/access"
+            },
+            {
+              "code": "medstar",
+              "system": "https://www.icanbwell.com/owner"
+            },
+            {
+              "code": "medstar",
+              "system": "https://www.icanbwell.com/sourceAssigningAuthority"
             }
           ],
           "source": "https://www.wpshealth.com/medical_claims",
@@ -574,7 +593,8 @@
               "value": "733797173"
             },
             {
-              "system": "https://www.icanbwell.com/uuid"
+              "system": "https://www.icanbwell.com/uuid",
+              "value": "e4be0b0a-f087-571a-8d76-cf763574eec6"
             }
           ]
         },
@@ -609,7 +629,6 @@
   "meta": {
     "tag": [
       {
-        "display": "[db.ExplanationOfBenefit_4_0_0.find({'$and':[{'id':{'$in':['WPS-Claim-230916613369','WPS-Claim-429017018331']}}]}, {}).sort({'id':1}).limit(2),db.Patient_4_0_0.find({'$and':[{'id':{'$in':['WPS-0559166162','WPS-5458231534']}}]}, {}).sort({'id':1}).limit(10000),db.Coverage_4_0_0.find({'$and':[{'id':{'$in':['WPS-0559166162','WPS-5458231534']}}]}, {}).sort({'id':1}).limit(10000),db.Organization_4_0_0.find({'$and':[{'id':{'$in':['WPS-Health','733797173']}}]}, {}).sort({'id':1}).limit(10000)]",
         "system": "https://www.icanbwell.com/query"
       },
       {

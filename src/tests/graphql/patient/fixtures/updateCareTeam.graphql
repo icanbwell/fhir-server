@@ -9,7 +9,7 @@ mutation {
                 div: "<div xmlns=\"http://www.w3.org/1999/xhtml\">Care Team</div>"
             }
             identifier: [{ value: "12345" }]
-            meta: { security: [{ system: "https://www.icanbwell.com/access", code: "medstar" }] }
+            meta: { security: [{ system: "https://www.icanbwell.com/access", code: "medstar" },{ system: "https://www.icanbwell.com/owner", code: "medstar" }] }
             status: "active"
             category: [
                 {
