@@ -45,10 +45,13 @@ describe('Observation Tests', () => {
             const parsedArgs = r4ArgsParser.parseArgs({
                 resourceType: 'Patient',
                 args: {
-                    'base_version': VERSIONS['4_0_0'],
-                    'prefer:global_id': 'true'
+                    'base_version': VERSIONS['4_0_0']
                 }
             });
+
+            parsedArgs.headers = {
+                'prefer': 'global_id=true'
+            };
 
             const resources = [
                 {

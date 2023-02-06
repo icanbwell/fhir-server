@@ -46,16 +46,19 @@ class GlobalIdEnrichmentProvider extends EnrichmentProvider {
                             resource.id = uuid;
                         }
                     }
-                    // update references
-                    resource.updateReferences(
-                        {
-                            fnUpdateReference: (reference) => this.updateReference(
-                                {
-                                    reference
-                                }
-                            )
-                        }
-                    );
+                    if (resource.updateReferences){
+                        // update references
+                        resource.updateReferences(
+                            {
+                                fnUpdateReference: (reference) => this.updateReference(
+                                    {
+                                        reference
+                                    }
+                                )
+                            }
+                        );
+                    }
+
                 }
             }
         }
