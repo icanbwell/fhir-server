@@ -28,6 +28,7 @@ const defaultConfig = {
         timestamp({ format: 'MMM-DD-YYYY HH:mm:ss Z' }),
         json()
     ),
+    defaultMeta: 'default',
     colorize: true,
     transports: [new transports.Console()]
 };

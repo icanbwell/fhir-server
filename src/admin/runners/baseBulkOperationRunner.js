@@ -97,19 +97,17 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
             sourceCollection
         } = await this.createConnectionAsync({config, destinationCollectionName, sourceCollectionName});
 
-        /**
-         * @type {moment.Moment}
-         */
-        let currentDateTime = moment();
-        this.adminLogger.logTrace(`[${currentDateTime.toISOString()}] ` +
+        this.adminLogger.logTrace(
             `Sending count query to Mongo: ${mongoQueryStringify(query)}. ` +
-            `for ${sourceCollectionName} and ${destinationCollectionName}`);
+            `for ${sourceCollectionName} and ${destinationCollectionName}`
+        );
 
         // first get the count
         const numberOfSourceDocuments = await sourceCollection.countDocuments(query, {});
-        this.adminLogger.logTrace(`[${currentDateTime.toISOString()}] ` +
+        this.adminLogger.logTrace(
             `Sending distinct count query to Mongo: ${mongoQueryStringify(query)}. ` +
-            `for ${sourceCollectionName} and ${destinationCollectionName}`);
+            `for ${sourceCollectionName} and ${destinationCollectionName}`
+        );
         /**
          * @type {number}
          */
@@ -120,18 +118,19 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                 groupKey: 'id'
             });
         const numberOfDestinationDocuments = await destinationCollection.countDocuments(query, {});
-        this.adminLogger.log(`[${currentDateTime.toISOString()}] ` +
+        this.adminLogger.logTrace(
             `Count in source: ${numberOfSourceDocuments.toLocaleString('en-US')}, ` +
             `Count in source distinct by id: ${numberOfSourceDocumentsWithDistinctId.toLocaleString('en-US')}, ` +
-            `destination: ${numberOfDestinationDocuments.toLocaleString('en-US')}`);
+            `destination: ${numberOfDestinationDocuments.toLocaleString('en-US')}`
+        );
 
         if (numberOfSourceDocuments === numberOfDestinationDocuments) {
             if (skipWhenCountIsSame) {
-                this.adminLogger.log(`Count matched and skipWhenCountIsSame is set so skipping collection ${destinationCollectionName}`);
+                this.adminLogger.logTrace(`Count matched and skipWhenCountIsSame is set so skipping collection ${destinationCollectionName}`);
                 return '';
             }
         } else if (dropDestinationIfCountIsDifferent) {
-            this.adminLogger.log(`dropDestinationIfCountIsDifferent is set so deleting all records in ${destinationCollectionName}`);
+            this.adminLogger.logTrace(`dropDestinationIfCountIsDifferent is set so deleting all records in ${destinationCollectionName}`);
             await destinationCollection.deleteMany({});
         }
 
@@ -144,8 +143,9 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                 }
             ).limit(1).map(p => p.id).toArray();
 
-            this.adminLogger.logTrace(`[${currentDateTime.toISOString()}] ` +
-                `Received last id ${JSON.stringify(lastIdFromDestinationList)} from ${destinationCollectionName}`);
+            this.adminLogger.logTrace(
+                `Received last id from ${destinationCollectionName}`, {'last id': lastIdFromDestinationList}
+            );
 
             if (!startFromIdContainer.startFromId &&
                 lastIdFromDestinationList &&
@@ -165,7 +165,6 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                 config,
                 destinationCollectionName,
                 sourceCollectionName,
-                currentDateTime,
                 batchSize,
                 projection,
                 skipExistingIds,
@@ -177,16 +176,18 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
             });
 
         // get the count at the end
-        this.adminLogger.logTrace(`[${currentDateTime.toISOString()}] ` +
-            `Getting count afterward in ${destinationCollectionName}: ${mongoQueryStringify(originalQuery)}`);
+        this.adminLogger.logTrace(
+            `Getting count afterward in ${destinationCollectionName}: ${mongoQueryStringify(originalQuery)}`
+        );
         const numberOfDestinationDocumentsAtEnd = await destinationCollection.countDocuments(originalQuery, {});
-        this.adminLogger.log(`[${currentDateTime.toISOString()}] ` +
+        this.adminLogger.logTrace(
             `Count in source: ${numberOfSourceDocuments.toLocaleString('en-US')}, ` +
             `Count in source distinct by id: ${numberOfSourceDocumentsWithDistinctId.toLocaleString('en-US')}, ` +
-            `destination: ${numberOfDestinationDocumentsAtEnd.toLocaleString('en-US')}`);
+            `destination: ${numberOfDestinationDocumentsAtEnd.toLocaleString('en-US')}`
+        );
 
         // end session
-        this.adminLogger.logTrace(`Ending session ${JSON.stringify(sessionId)}...`);
+        this.adminLogger.logTrace('Ending session', {'Session Id': sessionId});
         await session.endSession();
 
         // disconnect from db
@@ -204,7 +205,6 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
      * @param {{connection: string, db_name: string, options: import('mongodb').MongoClientOptions }} config     * @param destinationCollectionName
      * @param {string} destinationCollectionName
      * @param {string} sourceCollectionName
-     * @param {Moment} currentDateTime
      * @param {number} batchSize
      * @param {import('mongodb').Collection<import('mongodb').Document>|undefined} [projection]
      * @param {boolean} skipExistingIds
@@ -222,7 +222,6 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
             config,
             destinationCollectionName,
             sourceCollectionName,
-            currentDateTime,
             batchSize,
             projection,
             skipExistingIds,
@@ -258,10 +257,11 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                         config, destinationCollectionName, sourceCollectionName
                     });
 
-                this.adminLogger.logTrace(`[${currentDateTime.toISOString()}] ` +
-                `Sending query to Mongo: ${mongoQueryStringify(query)}. ` +
-                `From ${sourceCollectionName} to ${destinationCollectionName}` +
-                loopRetryNumber > 0 ? ` [Retry: ${loopRetryNumber}/${maxLoopRetries}]` : '');
+                this.adminLogger.logTrace(
+                    `Sending query to Mongo: ${mongoQueryStringify(query)}. ` +
+                    `From ${sourceCollectionName} to ${destinationCollectionName}` +
+                    loopRetryNumber > 0 ? ` [Retry: ${loopRetryNumber}/${maxLoopRetries}]` : ''
+                );
 
                 // pass session to find query per:
                 // https://stackoverflow.com/questions/68607254/mongodb-node-js-driver-4-0-0-cursor-session-id-issues-in-production-on-vercel
@@ -291,7 +291,7 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                     // Check if more than 5 minutes have passed since the last refresh
                     if (moment().diff(refreshTimestamp, 'seconds') > numberOfSecondsBetweenSessionRefreshes) {
                         this.adminLogger.logTrace(
-                            `refreshing session with sessionId: ${JSON.stringify(sessionId)}`);
+                            'refreshing session with sessionId', {'session id': sessionId});
                         const memoryUsage = process.memoryUsage();
                         const memoryManager = new MemoryManager();
                         this.adminLogger.logTrace(`Memory used (RSS): ${memoryManager.formatBytes(memoryUsage.rss)}`);
@@ -300,7 +300,7 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                          */
                         const adminResult = await sourceDb.admin().command({'refreshSessions': [sessionId]});
                         this.adminLogger.logTrace(
-                            `result from refreshing session: ${JSON.stringify(adminResult)}`);
+                            'result from refreshing session', {'result': adminResult});
                         refreshTimestamp = moment();
                     }
                     /**
@@ -331,7 +331,6 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                         await retry(
                             // eslint-disable-next-line no-loop-func
                             async (bail, retryNumber) => {
-                                currentDateTime = moment();
                                 this.adminLogger.logTrace('\n');
                                 this.adminLogger.logTrace(
                                     `Writing ${operations.length.toLocaleString('en-US')} operations in bulk to ${destinationCollectionName}. ` +
@@ -349,14 +348,13 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                                 retries: 5,
                             }
                         );
-                        currentDateTime = moment();
                         const message =
                             `Processed ${startFromIdContainer.convertedIds.toLocaleString()}, ` +
                             `modified: ${startFromIdContainer.nModified.toLocaleString('en-US')}, ` +
                             `upserted: ${startFromIdContainer.nUpserted.toLocaleString('en-US')}, ` +
                             `from ${sourceCollectionName} to ${destinationCollectionName}. last id: ${lastCheckedId}`;
-                        this.adminLogger.log('\n');
-                        this.adminLogger.log(message);
+                        this.adminLogger.logTrace('\n');
+                        this.adminLogger.logTrace(message);
                         // https://nodejs.org/api/process.html#process_process_memoryusage
                         // heapTotal and heapUsed refer to V8's memory usage.
                         // external refers to the memory usage of C++ objects bound to JavaScript objects managed by V8.
@@ -370,7 +368,6 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
 
                 // now write out any remaining items
                 if (operations.length > 0) { // if any items left to write
-                    currentDateTime = moment();
                     await retry(
                         // eslint-disable-next-line no-loop-func
                         async (bail, retryNumber) => {
@@ -388,8 +385,8 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                                 `modified: ${startFromIdContainer.nModified.toLocaleString('en-US')}, ` +
                                 `upserted: ${startFromIdContainer.nUpserted.toLocaleString('en-US')} ` +
                                 `from ${sourceCollectionName} to ${destinationCollectionName}. last id: ${lastCheckedId}`;
-                            this.adminLogger.log('\n');
-                            this.adminLogger.log(message);
+                            this.adminLogger.logTrace('\n');
+                            this.adminLogger.logTrace(message);
                         },
                         {
                             retries: 5,
@@ -400,10 +397,10 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
             } catch (e) {
                 if (e instanceof MongoNetworkTimeoutError) {
                     // statements to handle TypeError exceptions
-                    this.adminLogger.logError(`Caught MongoNetworkTimeoutError: ${e}: ${JSON.stringify(e)}`);
+                    this.adminLogger.logError('Caught MongoNetworkTimeoutError', {'error': e});
                     continueLoop = true;
                 } else {
-                    this.adminLogger.logError(`Caught UnKnown error: ${e}: ${JSON.stringify(e)}`);
+                    this.adminLogger.logError('Caught UnKnown error', {'error': e});
                     // statements to handle any unspecified exceptions
                     throw (e); // pass exception object to error handler
                 }
@@ -429,7 +426,7 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
          * @type {import('mongodb').ServerSessionId}
          */
         let sessionId = session.serverSession.id;
-        this.adminLogger.logTrace(`Started session ${JSON.stringify(sessionId)}`);
+        this.adminLogger.logTrace('Started session', {'session id': sessionId});
         /**
          * @type {import('mongodb').Db}
          */

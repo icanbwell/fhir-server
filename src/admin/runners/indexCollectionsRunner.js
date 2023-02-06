@@ -114,7 +114,7 @@ class IndexCollectionsRunner extends BaseScriptRunner {
                 }
             }
         } catch (e) {
-            this.adminLogger.logError(`ERROR: ${e}`);
+            this.adminLogger.logError('ERROR', {error: 'e'});
         } finally {
             await this.shutdown();
         }
