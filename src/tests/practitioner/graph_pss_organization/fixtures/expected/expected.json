@@ -94,15 +94,35 @@
                 "value": "MPF-MPCR"
               },
               {
+                "id": "sourceId",
                 "system": "https://www.icanbwell.com/sourceId",
                 "value": "Medstar-Alias-MPF-MPCR"
               },
               {
-                "system": "https://www.icanbwell.com/uuid"
+                "id": "uuid",
+                "system": "https://www.icanbwell.com/uuid",
+                "value": "12dc060b-c65b-5655-be14-08af4ba1ad0e"
               }
             ],
             "location": [
               {
+                "extension": [
+                  {
+                    "id": "sourceId",
+                    "url": "https://www.icanbwell.com/sourceId",
+                    "valueString": "Medstar-Alias-MPF-MPCR"
+                  },
+                  {
+                    "id": "uuid",
+                    "url": "https://www.icanbwell.com/uuid",
+                    "valueString": "12dc060b-c65b-5655-be14-08af4ba1ad0e"
+                  },
+                  {
+                    "id": "sourceAssigningAuthority",
+                    "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                    "valueString": "medstar"
+                  }
+                ],
                 "reference": "Location/Medstar-Alias-MPF-MPCR"
               }
             ],
@@ -125,6 +145,23 @@
               "versionId": "1"
             },
             "providedBy": {
+              "extension": [
+                {
+                  "id": "sourceId",
+                  "url": "https://www.icanbwell.com/sourceId",
+                  "valueString": "Medstar-Alias-MPF-MPCR"
+                },
+                {
+                  "id": "uuid",
+                  "url": "https://www.icanbwell.com/uuid",
+                  "valueString": "12dc060b-c65b-5655-be14-08af4ba1ad0e"
+                },
+                {
+                  "id": "sourceAssigningAuthority",
+                  "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                  "valueString": "medstar"
+                }
+              ],
               "reference": "Organization/Medstar-Alias-MPF-MPCR"
             },
             "resourceType": "HealthcareService",
@@ -306,14 +343,34 @@
                 "value": "6000"
               },
               {
+                "id": "sourceId",
                 "system": "https://www.icanbwell.com/sourceId",
                 "value": "Medstar-Alias-MPF-MPCR"
               },
               {
-                "system": "https://www.icanbwell.com/uuid"
+                "id": "uuid",
+                "system": "https://www.icanbwell.com/uuid",
+                "value": "12dc060b-c65b-5655-be14-08af4ba1ad0e"
               }
             ],
             "managingOrganization": {
+              "extension": [
+                {
+                  "id": "sourceId",
+                  "url": "https://www.icanbwell.com/sourceId",
+                  "valueString": "Medstar-Alias-MPF-MPCR"
+                },
+                {
+                  "id": "uuid",
+                  "url": "https://www.icanbwell.com/uuid",
+                  "valueString": "12dc060b-c65b-5655-be14-08af4ba1ad0e"
+                },
+                {
+                  "id": "sourceAssigningAuthority",
+                  "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                  "valueString": "medstar"
+                }
+              ],
               "reference": "Organization/Medstar-Alias-MPF-MPCR"
             },
             "meta": {
@@ -383,6 +440,23 @@
             "active": true,
             "actor": [
               {
+                "extension": [
+                  {
+                    "id": "sourceId",
+                    "url": "https://www.icanbwell.com/sourceId",
+                    "valueString": "Medstar-Alias-MPF-MPCR"
+                  },
+                  {
+                    "id": "uuid",
+                    "url": "https://www.icanbwell.com/uuid",
+                    "valueString": "12dc060b-c65b-5655-be14-08af4ba1ad0e"
+                  },
+                  {
+                    "id": "sourceAssigningAuthority",
+                    "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                    "valueString": "medstar"
+                  }
+                ],
                 "reference": "HealthcareService/Medstar-Alias-MPF-MPCR"
               }
             ],
@@ -474,11 +548,14 @@
                 "value": "0e11Y0"
               },
               {
+                "id": "sourceId",
                 "system": "https://www.icanbwell.com/sourceId",
                 "value": "Medstar-Alias-MPF-MPCR"
               },
               {
-                "system": "https://www.icanbwell.com/uuid"
+                "id": "uuid",
+                "system": "https://www.icanbwell.com/uuid",
+                "value": "12dc060b-c65b-5655-be14-08af4ba1ad0e"
               }
             ],
             "meta": {
@@ -570,11 +647,14 @@
             "value": "MPF-MPCR"
           },
           {
+            "id": "sourceId",
             "system": "https://www.icanbwell.com/sourceId",
             "value": "Medstar-Alias-MPF-MPCR"
           },
           {
-            "system": "https://www.icanbwell.com/uuid"
+            "id": "uuid",
+            "system": "https://www.icanbwell.com/uuid",
+            "value": "12dc060b-c65b-5655-be14-08af4ba1ad0e"
           }
         ],
         "meta": {
@@ -598,6 +678,23 @@
         "name": "MedStar Health Urgent Care in Federal Hill",
         "partOf": {
           "display": "MedStar Health Urgent Care at Federal Hill",
+          "extension": [
+            {
+              "id": "sourceId",
+              "url": "https://www.icanbwell.com/sourceId",
+              "valueString": "Medstar--1169180118"
+            },
+            {
+              "id": "uuid",
+              "url": "https://www.icanbwell.com/uuid",
+              "valueString": "69b986d5-7529-5aa3-aa11-5c9a4c5f14b1"
+            },
+            {
+              "id": "sourceAssigningAuthority",
+              "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+              "valueString": "medstar"
+            }
+          ],
           "reference": "Organization/Medstar--1169180118"
         },
         "resourceType": "Organization",

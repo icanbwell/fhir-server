@@ -6,11 +6,14 @@
     "id": "CA",
     "identifier": [
       {
+        "id": "sourceId",
         "system": "https://www.icanbwell.com/sourceId",
         "value": "CA"
       },
       {
-        "system": "https://www.icanbwell.com/uuid"
+        "id": "uuid",
+        "system": "https://www.icanbwell.com/uuid",
+        "value": "824de4c9-db81-522b-b2a6-ded808ed80a6"
       }
     ],
     "meta": {
@@ -18,6 +21,14 @@
         {
           "code": "medstar",
           "system": "https://www.icanbwell.com/access"
+        },
+        {
+          "code": "medstar",
+          "system": "https://www.icanbwell.com/owner"
+        },
+        {
+          "code": "medstar",
+          "system": "https://www.icanbwell.com/sourceAssigningAuthority"
         }
       ],
       "versionId": "1"
@@ -65,11 +76,14 @@
         "value": "3437"
       },
       {
+        "id": "sourceId",
         "system": "https://www.icanbwell.com/sourceId",
         "value": "UF3-UADM"
       },
       {
-        "system": "https://www.icanbwell.com/uuid"
+        "id": "uuid",
+        "system": "https://www.icanbwell.com/uuid",
+        "value": "08641fe0-6bbd-5ac5-9d9a-f4a1eb4e1978"
       }
     ],
     "meta": {
@@ -77,6 +91,14 @@
         {
           "code": "medstar",
           "system": "https://www.icanbwell.com/access"
+        },
+        {
+          "code": "medstar",
+          "system": "https://www.icanbwell.com/owner"
+        },
+        {
+          "code": "medstar",
+          "system": "https://www.icanbwell.com/sourceAssigningAuthority"
         }
       ],
       "versionId": "1"
@@ -159,14 +181,34 @@
         "value": "Dept"
       },
       {
+        "id": "sourceId",
         "system": "https://www.icanbwell.com/sourceId",
         "value": "UHG-MDER"
       },
       {
-        "system": "https://www.icanbwell.com/uuid"
+        "id": "uuid",
+        "system": "https://www.icanbwell.com/uuid",
+        "value": "4d074a5d-5e50-547e-8711-b18ccad6b19e"
       }
     ],
     "managingOrganization": {
+      "extension": [
+        {
+          "id": "sourceId",
+          "url": "https://www.icanbwell.com/sourceId",
+          "valueString": "199691290"
+        },
+        {
+          "id": "uuid",
+          "url": "https://www.icanbwell.com/uuid",
+          "valueString": "c0c9bf37-4f21-5030-a5d0-7f162e3c6a97"
+        },
+        {
+          "id": "sourceAssigningAuthority",
+          "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+          "valueString": "medstar"
+        }
+      ],
       "reference": "Organization/199691290",
       "type": "Organization"
     },
@@ -175,6 +217,14 @@
         {
           "code": "medstar",
           "system": "https://www.icanbwell.com/access"
+        },
+        {
+          "code": "medstar",
+          "system": "https://www.icanbwell.com/owner"
+        },
+        {
+          "code": "medstar",
+          "system": "https://www.icanbwell.com/sourceAssigningAuthority"
         }
       ],
       "versionId": "1"

@@ -1,17 +1,21 @@
 {
-    "resourceType": "Location",
-    "id": "CA",
-    "meta": {
-        "versionId": "1",
-        "lastUpdated": "2021-01-21T03:54:38+00:00",
-        "security": [
-            {
-                "system": "https://www.icanbwell.com/access",
-                "code": "medstar"
-            }
-        ]
-    },
-    "address": {
-        "state": "CA"
-    }
+  "resourceType": "Location",
+  "id": "CA",
+  "meta": {
+    "versionId": "1",
+    "lastUpdated": "2021-01-21T03:54:38+00:00",
+    "security": [
+      {
+        "system": "https://www.icanbwell.com/access",
+        "code": "medstar"
+      },
+      {
+        "system": "https://www.icanbwell.com/owner",
+        "code": "medstar"
+      }
+    ]
+  },
+  "address": {
+    "state": "CA"
+  }
 }

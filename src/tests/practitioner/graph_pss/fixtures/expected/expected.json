@@ -51,19 +51,56 @@
                 "value": "myhealthsystem-Practitioner-Affiliates"
               },
               {
+                "id": "sourceId",
                 "system": "https://www.icanbwell.com/sourceId",
                 "value": "myhealthsystem-Practitioner-Affiliates"
               },
               {
-                "system": "https://www.icanbwell.com/uuid"
+                "id": "uuid",
+                "system": "https://www.icanbwell.com/uuid",
+                "value": "453a17e6-0b53-5423-8628-ca10533d738b"
               }
             ],
             "managingEntity": {
+              "extension": [
+                {
+                  "id": "sourceId",
+                  "url": "https://www.icanbwell.com/sourceId",
+                  "valueString": "myhealthsystem"
+                },
+                {
+                  "id": "uuid",
+                  "url": "https://www.icanbwell.com/uuid",
+                  "valueString": "71ba19df-9d33-5d84-91c8-94f841b33135"
+                },
+                {
+                  "id": "sourceAssigningAuthority",
+                  "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                  "valueString": "myhealthsystem"
+                }
+              ],
               "reference": "Organization/myhealthsystem"
             },
             "member": [
               {
                 "entity": {
+                  "extension": [
+                    {
+                      "id": "sourceId",
+                      "url": "https://www.icanbwell.com/sourceId",
+                      "valueString": "1003059437"
+                    },
+                    {
+                      "id": "uuid",
+                      "url": "https://www.icanbwell.com/uuid",
+                      "valueString": "22f7284d-a04b-5db8-8baa-22ae71d4b893"
+                    },
+                    {
+                      "id": "sourceAssigningAuthority",
+                      "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                      "valueString": "myhealthsystem"
+                    }
+                  ],
                   "reference": "Practitioner/1003059437"
                 }
               }
@@ -99,15 +136,35 @@
                 "value": "1043289440-MCS-MCPS"
               },
               {
+                "id": "sourceId",
                 "system": "https://www.icanbwell.com/sourceId",
                 "value": "1043289440-MCS-MCPS"
               },
               {
-                "system": "https://www.icanbwell.com/uuid"
+                "id": "uuid",
+                "system": "https://www.icanbwell.com/uuid",
+                "value": "9f5523bc-0c54-56bb-ae8c-413fe6105fcf"
               }
             ],
             "location": [
               {
+                "extension": [
+                  {
+                    "id": "sourceId",
+                    "url": "https://www.icanbwell.com/sourceId",
+                    "valueString": "myhealthsystem-Alias-GP6-GGIM"
+                  },
+                  {
+                    "id": "uuid",
+                    "url": "https://www.icanbwell.com/uuid",
+                    "valueString": "5ff4e3db-a2bb-53fa-9a69-b1fd4d535c26"
+                  },
+                  {
+                    "id": "sourceAssigningAuthority",
+                    "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                    "valueString": "medstar"
+                  }
+                ],
                 "reference": "Location/myhealthsystem-Alias-GP6-GGIM"
               }
             ],
@@ -156,15 +213,35 @@
                 "value": "1043289440-MCS-MCPS"
               },
               {
+                "id": "sourceId",
                 "system": "https://www.icanbwell.com/sourceId",
                 "value": "1043289440-MCS-MVVM"
               },
               {
-                "system": "https://www.icanbwell.com/uuid"
+                "id": "uuid",
+                "system": "https://www.icanbwell.com/uuid",
+                "value": "4778b0fa-94e2-579f-9506-e9c91633fa98"
               }
             ],
             "location": [
               {
+                "extension": [
+                  {
+                    "id": "sourceId",
+                    "url": "https://www.icanbwell.com/sourceId",
+                    "valueString": "myhealthsystem-Alias-GP6-GGIM"
+                  },
+                  {
+                    "id": "uuid",
+                    "url": "https://www.icanbwell.com/uuid",
+                    "valueString": "5ff4e3db-a2bb-53fa-9a69-b1fd4d535c26"
+                  },
+                  {
+                    "id": "sourceAssigningAuthority",
+                    "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                    "valueString": "medstar"
+                  }
+                ],
                 "reference": "Location/myhealthsystem-Alias-GP6-GGIM"
               }
             ],
@@ -208,11 +285,14 @@
             "id": "Kaiser-Permanente-Kaiser-Permanente-Signature-Added-Choice",
             "identifier": [
               {
+                "id": "sourceId",
                 "system": "https://www.icanbwell.com/sourceId",
                 "value": "Kaiser-Permanente-Kaiser-Permanente-Signature-Added-Choice"
               },
               {
-                "system": "https://www.icanbwell.com/uuid"
+                "id": "uuid",
+                "system": "https://www.icanbwell.com/uuid",
+                "value": "7ba94807-d698-5a61-b421-9b8a9016fdf9"
               }
             ],
             "meta": {
@@ -235,6 +315,23 @@
             },
             "name": "Kaiser Permanente-Kaiser PermanenteSelect-Added Choice",
             "ownedBy": {
+              "extension": [
+                {
+                  "id": "sourceId",
+                  "url": "https://www.icanbwell.com/sourceId",
+                  "valueString": "Kaiser-Permanente"
+                },
+                {
+                  "id": "uuid",
+                  "url": "https://www.icanbwell.com/uuid",
+                  "valueString": "a4087382-f499-5340-bbf7-b5cb35257827"
+                },
+                {
+                  "id": "sourceAssigningAuthority",
+                  "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                  "valueString": "myhealthsystem"
+                }
+              ],
               "reference": "Organization/Kaiser-Permanente"
             },
             "plan": [
@@ -382,14 +479,34 @@
                 "value": "1126"
               },
               {
+                "id": "sourceId",
                 "system": "https://www.icanbwell.com/sourceId",
                 "value": "myhealthsystem-Alias-GP6-GGIM"
               },
               {
-                "system": "https://www.icanbwell.com/uuid"
+                "id": "uuid",
+                "system": "https://www.icanbwell.com/uuid",
+                "value": "d6c3ea8a-d0c5-58ae-a1a5-bc25ed093a94"
               }
             ],
             "managingOrganization": {
+              "extension": [
+                {
+                  "id": "sourceId",
+                  "url": "https://www.icanbwell.com/sourceId",
+                  "valueString": "myhealthsystem-Alias-GP6-GGIM"
+                },
+                {
+                  "id": "uuid",
+                  "url": "https://www.icanbwell.com/uuid",
+                  "valueString": "d6c3ea8a-d0c5-58ae-a1a5-bc25ed093a94"
+                },
+                {
+                  "id": "sourceAssigningAuthority",
+                  "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                  "valueString": "myhealthsystem"
+                }
+              ],
               "reference": "Organization/myhealthsystem-Alias-GP6-GGIM"
             },
             "meta": {
@@ -587,14 +704,34 @@
                 "value": "1126"
               },
               {
+                "id": "sourceId",
                 "system": "https://www.icanbwell.com/sourceId",
                 "value": "myhealthsystem-Alias-GP6-GGIM"
               },
               {
-                "system": "https://www.icanbwell.com/uuid"
+                "id": "uuid",
+                "system": "https://www.icanbwell.com/uuid",
+                "value": "d6c3ea8a-d0c5-58ae-a1a5-bc25ed093a94"
               }
             ],
             "managingOrganization": {
+              "extension": [
+                {
+                  "id": "sourceId",
+                  "url": "https://www.icanbwell.com/sourceId",
+                  "valueString": "myhealthsystem-Alias-GP6-GGIM"
+                },
+                {
+                  "id": "uuid",
+                  "url": "https://www.icanbwell.com/uuid",
+                  "valueString": "d6c3ea8a-d0c5-58ae-a1a5-bc25ed093a94"
+                },
+                {
+                  "id": "sourceAssigningAuthority",
+                  "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                  "valueString": "myhealthsystem"
+                }
+              ],
               "reference": "Organization/myhealthsystem-Alias-GP6-GGIM"
             },
             "meta": {
@@ -726,11 +863,14 @@
                 "value": "GP6-GGIM"
               },
               {
+                "id": "sourceId",
                 "system": "https://www.icanbwell.com/sourceId",
                 "value": "myhealthsystem-Alias-GP6-GGIM"
               },
               {
-                "system": "https://www.icanbwell.com/uuid"
+                "id": "uuid",
+                "system": "https://www.icanbwell.com/uuid",
+                "value": "d6c3ea8a-d0c5-58ae-a1a5-bc25ed093a94"
               }
             ],
             "meta": {
@@ -754,6 +894,23 @@
             "name": "myhealthsystem Internal Medicine at Georgetown University Hospital",
             "partOf": {
               "display": "myhealthsystem Internal Medicine at Georgetown Univ Hospital",
+              "extension": [
+                {
+                  "id": "sourceId",
+                  "url": "https://www.icanbwell.com/sourceId",
+                  "valueString": "myhealthsystem-83544006"
+                },
+                {
+                  "id": "uuid",
+                  "url": "https://www.icanbwell.com/uuid",
+                  "valueString": "1cff35f4-3ed9-5f64-b1a1-a7c92c56df01"
+                },
+                {
+                  "id": "sourceAssigningAuthority",
+                  "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                  "valueString": "myhealthsystem"
+                }
+              ],
               "reference": "Organization/myhealthsystem-83544006"
             },
             "resourceType": "Organization",
@@ -845,11 +1002,14 @@
                 "value": "GP6-GGIM"
               },
               {
+                "id": "sourceId",
                 "system": "https://www.icanbwell.com/sourceId",
                 "value": "myhealthsystem-Alias-GP6-GGIM"
               },
               {
-                "system": "https://www.icanbwell.com/uuid"
+                "id": "uuid",
+                "system": "https://www.icanbwell.com/uuid",
+                "value": "d6c3ea8a-d0c5-58ae-a1a5-bc25ed093a94"
               }
             ],
             "meta": {
@@ -873,6 +1033,23 @@
             "name": "myhealthsystem Internal Medicine at Georgetown University Hospital",
             "partOf": {
               "display": "myhealthsystem Internal Medicine at Georgetown Univ Hospital",
+              "extension": [
+                {
+                  "id": "sourceId",
+                  "url": "https://www.icanbwell.com/sourceId",
+                  "valueString": "myhealthsystem-83544006"
+                },
+                {
+                  "id": "uuid",
+                  "url": "https://www.icanbwell.com/uuid",
+                  "valueString": "1cff35f4-3ed9-5f64-b1a1-a7c92c56df01"
+                },
+                {
+                  "id": "sourceAssigningAuthority",
+                  "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                  "valueString": "myhealthsystem"
+                }
+              ],
               "reference": "Organization/myhealthsystem-83544006"
             },
             "resourceType": "Organization",
@@ -955,21 +1132,58 @@
             ],
             "healthcareService": [
               {
+                "extension": [
+                  {
+                    "id": "sourceId",
+                    "url": "https://www.icanbwell.com/sourceId",
+                    "valueString": "1043289440-MCS-MCPS"
+                  },
+                  {
+                    "id": "uuid",
+                    "url": "https://www.icanbwell.com/uuid",
+                    "valueString": "decf2e37-ae9e-5989-bc04-e141c34d236c"
+                  },
+                  {
+                    "id": "sourceAssigningAuthority",
+                    "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                    "valueString": "myhealthsystem"
+                  }
+                ],
                 "reference": "HealthcareService/1043289440-MCS-MCPS"
               }
             ],
             "id": "1003059437-GP6-GGIM",
             "identifier": [
               {
+                "id": "sourceId",
                 "system": "https://www.icanbwell.com/sourceId",
                 "value": "1003059437-GP6-GGIM"
               },
               {
-                "system": "https://www.icanbwell.com/uuid"
+                "id": "uuid",
+                "system": "https://www.icanbwell.com/uuid",
+                "value": "62bebdb0-88f7-5b28-9a53-2f8d77b27755"
               }
             ],
             "location": [
               {
+                "extension": [
+                  {
+                    "id": "sourceId",
+                    "url": "https://www.icanbwell.com/sourceId",
+                    "valueString": "myhealthsystem-Alias-GP6-GGIM"
+                  },
+                  {
+                    "id": "uuid",
+                    "url": "https://www.icanbwell.com/uuid",
+                    "valueString": "d6c3ea8a-d0c5-58ae-a1a5-bc25ed093a94"
+                  },
+                  {
+                    "id": "sourceAssigningAuthority",
+                    "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                    "valueString": "myhealthsystem"
+                  }
+                ],
                 "reference": "Location/myhealthsystem-Alias-GP6-GGIM"
               }
             ],
@@ -992,9 +1206,43 @@
               "versionId": "1"
             },
             "organization": {
+              "extension": [
+                {
+                  "id": "sourceId",
+                  "url": "https://www.icanbwell.com/sourceId",
+                  "valueString": "myhealthsystem-Alias-GP6-GGIM"
+                },
+                {
+                  "id": "uuid",
+                  "url": "https://www.icanbwell.com/uuid",
+                  "valueString": "d6c3ea8a-d0c5-58ae-a1a5-bc25ed093a94"
+                },
+                {
+                  "id": "sourceAssigningAuthority",
+                  "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                  "valueString": "myhealthsystem"
+                }
+              ],
               "reference": "Organization/myhealthsystem-Alias-GP6-GGIM"
             },
             "practitioner": {
+              "extension": [
+                {
+                  "id": "sourceId",
+                  "url": "https://www.icanbwell.com/sourceId",
+                  "valueString": "1003059437"
+                },
+                {
+                  "id": "uuid",
+                  "url": "https://www.icanbwell.com/uuid",
+                  "valueString": "22f7284d-a04b-5db8-8baa-22ae71d4b893"
+                },
+                {
+                  "id": "sourceAssigningAuthority",
+                  "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                  "valueString": "myhealthsystem"
+                }
+              ],
               "reference": "Practitioner/1003059437"
             },
             "resourceType": "PractitionerRole",
@@ -1063,21 +1311,58 @@
             ],
             "healthcareService": [
               {
+                "extension": [
+                  {
+                    "id": "sourceId",
+                    "url": "https://www.icanbwell.com/sourceId",
+                    "valueString": "1043289440-MCS-MVVM"
+                  },
+                  {
+                    "id": "uuid",
+                    "url": "https://www.icanbwell.com/uuid",
+                    "valueString": "2bbd9be7-674b-5851-b50b-09f983f21ccf"
+                  },
+                  {
+                    "id": "sourceAssigningAuthority",
+                    "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                    "valueString": "myhealthsystem"
+                  }
+                ],
                 "reference": "HealthcareService/1043289440-MCS-MVVM"
               }
             ],
             "id": "1003059437-GP6-MVVM",
             "identifier": [
               {
+                "id": "sourceId",
                 "system": "https://www.icanbwell.com/sourceId",
                 "value": "1003059437-GP6-MVVM"
               },
               {
-                "system": "https://www.icanbwell.com/uuid"
+                "id": "uuid",
+                "system": "https://www.icanbwell.com/uuid",
+                "value": "18d73b53-4450-5377-be90-41b8970374e0"
               }
             ],
             "location": [
               {
+                "extension": [
+                  {
+                    "id": "sourceId",
+                    "url": "https://www.icanbwell.com/sourceId",
+                    "valueString": "myhealthsystem-Alias-GP6-GGIM"
+                  },
+                  {
+                    "id": "uuid",
+                    "url": "https://www.icanbwell.com/uuid",
+                    "valueString": "d6c3ea8a-d0c5-58ae-a1a5-bc25ed093a94"
+                  },
+                  {
+                    "id": "sourceAssigningAuthority",
+                    "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                    "valueString": "myhealthsystem"
+                  }
+                ],
                 "reference": "Location/myhealthsystem-Alias-GP6-GGIM"
               }
             ],
@@ -1100,9 +1385,43 @@
               "versionId": "1"
             },
             "organization": {
+              "extension": [
+                {
+                  "id": "sourceId",
+                  "url": "https://www.icanbwell.com/sourceId",
+                  "valueString": "myhealthsystem-Alias-GP6-GGIM"
+                },
+                {
+                  "id": "uuid",
+                  "url": "https://www.icanbwell.com/uuid",
+                  "valueString": "d6c3ea8a-d0c5-58ae-a1a5-bc25ed093a94"
+                },
+                {
+                  "id": "sourceAssigningAuthority",
+                  "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                  "valueString": "myhealthsystem"
+                }
+              ],
               "reference": "Organization/myhealthsystem-Alias-GP6-GGIM"
             },
             "practitioner": {
+              "extension": [
+                {
+                  "id": "sourceId",
+                  "url": "https://www.icanbwell.com/sourceId",
+                  "valueString": "1003059437"
+                },
+                {
+                  "id": "uuid",
+                  "url": "https://www.icanbwell.com/uuid",
+                  "valueString": "22f7284d-a04b-5db8-8baa-22ae71d4b893"
+                },
+                {
+                  "id": "sourceAssigningAuthority",
+                  "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                  "valueString": "myhealthsystem"
+                }
+              ],
               "reference": "Practitioner/1003059437"
             },
             "resourceType": "PractitionerRole",
@@ -1129,6 +1448,23 @@
                   {
                     "url": "plan",
                     "valueReference": {
+                      "extension": [
+                        {
+                          "id": "sourceId",
+                          "url": "https://www.icanbwell.com/sourceId",
+                          "valueString": "Kaiser-Permanente-Kaiser-Permanente-Signature-Added-Choice"
+                        },
+                        {
+                          "id": "uuid",
+                          "url": "https://www.icanbwell.com/uuid",
+                          "valueString": "7ba94807-d698-5a61-b421-9b8a9016fdf9"
+                        },
+                        {
+                          "id": "sourceAssigningAuthority",
+                          "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                          "valueString": "myhealthsystem"
+                        }
+                      ],
                       "reference": "InsurancePlan/Kaiser-Permanente-Kaiser-Permanente-Signature-Added-Choice"
                     }
                   }
@@ -1139,11 +1475,14 @@
             "id": "1003059437-Kaiser-Permanente-Kaiser-Permanente-Signature-Added-",
             "identifier": [
               {
+                "id": "sourceId",
                 "system": "https://www.icanbwell.com/sourceId",
                 "value": "1003059437-Kaiser-Permanente-Kaiser-Permanente-Signature-Added-"
               },
               {
-                "system": "https://www.icanbwell.com/uuid"
+                "id": "uuid",
+                "system": "https://www.icanbwell.com/uuid",
+                "value": "7098a8f5-1cc5-51e9-a7ee-908f46a42595"
               }
             ],
             "meta": {
@@ -1165,6 +1504,23 @@
               "versionId": "1"
             },
             "practitioner": {
+              "extension": [
+                {
+                  "id": "sourceId",
+                  "url": "https://www.icanbwell.com/sourceId",
+                  "valueString": "1003059437"
+                },
+                {
+                  "id": "uuid",
+                  "url": "https://www.icanbwell.com/uuid",
+                  "valueString": "22f7284d-a04b-5db8-8baa-22ae71d4b893"
+                },
+                {
+                  "id": "sourceAssigningAuthority",
+                  "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                  "valueString": "myhealthsystem"
+                }
+              ],
               "reference": "Practitioner/1003059437"
             },
             "resourceType": "PractitionerRole"
@@ -1173,6 +1529,23 @@
             "active": true,
             "actor": [
               {
+                "extension": [
+                  {
+                    "id": "sourceId",
+                    "url": "https://www.icanbwell.com/sourceId",
+                    "valueString": "1003059437-GP6-GGIM"
+                  },
+                  {
+                    "id": "uuid",
+                    "url": "https://www.icanbwell.com/uuid",
+                    "valueString": "62bebdb0-88f7-5b28-9a53-2f8d77b27755"
+                  },
+                  {
+                    "id": "sourceAssigningAuthority",
+                    "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                    "valueString": "myhealthsystem"
+                  }
+                ],
                 "reference": "PractitionerRole/1003059437-GP6-GGIM"
               }
             ],
@@ -1222,11 +1595,14 @@
             "id": "1003059437-GP6-GGIM",
             "identifier": [
               {
+                "id": "sourceId",
                 "system": "https://www.icanbwell.com/sourceId",
                 "value": "1003059437-GP6-GGIM"
               },
               {
-                "system": "https://www.icanbwell.com/uuid"
+                "id": "uuid",
+                "system": "https://www.icanbwell.com/uuid",
+                "value": "62bebdb0-88f7-5b28-9a53-2f8d77b27755"
               }
             ],
             "meta": {
@@ -1362,11 +1738,14 @@
             "value": "11-1111111"
           },
           {
+            "id": "sourceId",
             "system": "https://www.icanbwell.com/sourceId",
             "value": "1003059437"
           },
           {
-            "system": "https://www.icanbwell.com/uuid"
+            "id": "uuid",
+            "system": "https://www.icanbwell.com/uuid",
+            "value": "22f7284d-a04b-5db8-8baa-22ae71d4b893"
           }
         ],
         "meta": {
@@ -1458,6 +1837,23 @@
             "id": "amp-0",
             "issuer": {
               "display": "New York University School of Medicine",
+              "extension": [
+                {
+                  "id": "sourceId",
+                  "url": "https://www.icanbwell.com/sourceId",
+                  "valueString": "New-York-University-School-of-Medicine"
+                },
+                {
+                  "id": "uuid",
+                  "url": "https://www.icanbwell.com/uuid",
+                  "valueString": "7e0d64b6-7b2a-5d08-a870-c035045661bd"
+                },
+                {
+                  "id": "sourceAssigningAuthority",
+                  "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                  "valueString": "myhealthsystem"
+                }
+              ],
               "reference": "Organization/New-York-University-School-of-Medicine"
             },
             "period": {
