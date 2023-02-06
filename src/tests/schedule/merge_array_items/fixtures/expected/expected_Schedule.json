@@ -5,6 +5,23 @@
         "active": true,
         "actor": [
           {
+            "extension": [
+              {
+                "id": "sourceId",
+                "url": "https://www.icanbwell.com/sourceId",
+                "valueString": "1720233406-SCH-MPCS"
+              },
+              {
+                "id": "uuid",
+                "url": "https://www.icanbwell.com/uuid",
+                "valueString": "c17a3261-0514-51da-a1cf-3d487e018ad4"
+              },
+              {
+                "id": "sourceAssigningAuthority",
+                "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                "valueString": "medstar"
+              }
+            ],
             "reference": "PractitionerRole/1720233406-SCH-MPCS"
           }
         ],
@@ -79,11 +96,14 @@
         "id": "1720233406-SCH-MPCS",
         "identifier": [
           {
+            "id": "sourceId",
             "system": "https://www.icanbwell.com/sourceId",
             "value": "1720233406-SCH-MPCS"
           },
           {
-            "system": "https://www.icanbwell.com/uuid"
+            "id": "uuid",
+            "system": "https://www.icanbwell.com/uuid",
+            "value": "c17a3261-0514-51da-a1cf-3d487e018ad4"
           }
         ],
         "meta": {

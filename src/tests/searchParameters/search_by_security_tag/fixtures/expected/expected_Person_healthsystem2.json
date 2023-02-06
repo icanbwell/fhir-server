@@ -31,17 +31,37 @@
             "value": "bwell-00b2f5e65e344820aaa6038244c55dd2"
           },
           {
+            "id": "sourceId",
             "system": "https://www.icanbwell.com/sourceId",
             "value": "2"
           },
           {
-            "system": "https://www.icanbwell.com/uuid"
+            "id": "uuid",
+            "system": "https://www.icanbwell.com/uuid",
+            "value": "30f4ff92-8810-52df-98be-9999d4c2ed8a"
           }
         ],
         "link": [
           {
             "assurance": "level4",
             "target": {
+              "extension": [
+                {
+                  "id": "sourceId",
+                  "url": "https://www.icanbwell.com/sourceId",
+                  "valueString": "xxx"
+                },
+                {
+                  "id": "uuid",
+                  "url": "https://www.icanbwell.com/uuid",
+                  "valueString": "c29701b4-3a91-58fc-a4f3-da874c54f072"
+                },
+                {
+                  "id": "sourceAssigningAuthority",
+                  "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                  "valueString": "healthsystem2"
+                }
+              ],
               "reference": "Patient/xxx",
               "type": "Patient"
             }

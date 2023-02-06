@@ -31,17 +31,37 @@
             "value": "bwell-xxx"
           },
           {
+            "id": "sourceId",
             "system": "https://www.icanbwell.com/sourceId",
             "value": "1"
           },
           {
-            "system": "https://www.icanbwell.com/uuid"
+            "id": "uuid",
+            "system": "https://www.icanbwell.com/uuid",
+            "value": "42f7c218-bb50-56d5-b0d4-fe92a8e5f23b"
           }
         ],
         "link": [
           {
             "assurance": "level4",
             "target": {
+              "extension": [
+                {
+                  "id": "sourceId",
+                  "url": "https://www.icanbwell.com/sourceId",
+                  "valueString": "xxx"
+                },
+                {
+                  "id": "uuid",
+                  "url": "https://www.icanbwell.com/uuid",
+                  "valueString": "b542159b-9ff3-5b7d-b35d-d685141e58ea"
+                },
+                {
+                  "id": "sourceAssigningAuthority",
+                  "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                  "valueString": "healthsystem1"
+                }
+              ],
               "reference": "Patient/xxx",
               "type": "Patient"
             }
@@ -119,17 +139,37 @@
             "value": "bwell-xxx"
           },
           {
+            "id": "sourceId",
             "system": "https://www.icanbwell.com/sourceId",
             "value": "3"
           },
           {
-            "system": "https://www.icanbwell.com/uuid"
+            "id": "uuid",
+            "system": "https://www.icanbwell.com/uuid",
+            "value": "012abcdc-73ce-5adf-919c-3111188c011f"
           }
         ],
         "link": [
           {
             "assurance": "level4",
             "target": {
+              "extension": [
+                {
+                  "id": "sourceId",
+                  "url": "https://www.icanbwell.com/sourceId",
+                  "valueString": "xxx"
+                },
+                {
+                  "id": "uuid",
+                  "url": "https://www.icanbwell.com/uuid",
+                  "valueString": "b542159b-9ff3-5b7d-b35d-d685141e58ea"
+                },
+                {
+                  "id": "sourceAssigningAuthority",
+                  "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                  "valueString": "healthsystem1"
+                }
+              ],
               "reference": "Patient/xxx",
               "type": "Patient"
             }

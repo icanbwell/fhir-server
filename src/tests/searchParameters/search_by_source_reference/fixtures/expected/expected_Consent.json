@@ -16,22 +16,51 @@
         "id": "1167dbd7-b5de-4843-b3aa-3804b28a7573",
         "identifier": [
           {
+            "id": "sourceId",
             "system": "https://www.icanbwell.com/sourceId",
             "value": "1167dbd7-b5de-4843-b3aa-3804b28a7573"
           },
           {
-            "system": "https://www.icanbwell.com/uuid"
+            "id": "uuid",
+            "system": "https://www.icanbwell.com/uuid",
+            "value": "1167dbd7-b5de-4843-b3aa-3804b28a7573"
           }
         ],
         "meta": {
           "security": [
             {
+              "code": "medstar",
               "system": "https://www.icanbwell.com/access"
+            },
+            {
+              "code": "medstar",
+              "system": "https://www.icanbwell.com/owner"
+            },
+            {
+              "code": "medstar",
+              "system": "https://www.icanbwell.com/sourceAssigningAuthority"
             }
           ],
           "versionId": "1"
         },
         "patient": {
+          "extension": [
+            {
+              "id": "sourceId",
+              "url": "https://www.icanbwell.com/sourceId",
+              "valueString": "000Dummy2"
+            },
+            {
+              "id": "uuid",
+              "url": "https://www.icanbwell.com/uuid",
+              "valueString": "42b7a6b4-5d0f-52b1-9bf0-1aa448d8285a"
+            },
+            {
+              "id": "sourceAssigningAuthority",
+              "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+              "valueString": "medstar"
+            }
+          ],
           "reference": "Patient/000Dummy2"
         },
         "provision": {
@@ -47,6 +76,23 @@
           ]
         },
         "sourceReference": {
+          "extension": [
+            {
+              "id": "sourceId",
+              "url": "https://www.icanbwell.com/sourceId",
+              "valueString": "fdf49831-d3c0-4a89-9459-e96c6c3beb0f"
+            },
+            {
+              "id": "uuid",
+              "url": "https://www.icanbwell.com/uuid",
+              "valueString": "fdf49831-d3c0-4a89-9459-e96c6c3beb0f"
+            },
+            {
+              "id": "sourceAssigningAuthority",
+              "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+              "valueString": "medstar"
+            }
+          ],
           "reference": "QuestionnaireResponse/fdf49831-d3c0-4a89-9459-e96c6c3beb0f"
         },
         "status": "active"

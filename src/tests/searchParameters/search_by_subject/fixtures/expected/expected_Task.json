@@ -17,6 +17,23 @@
         "description": "Create order for getting specimen, Set up inhouse testing,  generate order for any sendouts and submit with specimen",
         "encounter": {
           "display": "Example In-Patient Encounter",
+          "extension": [
+            {
+              "id": "sourceId",
+              "url": "https://www.icanbwell.com/sourceId",
+              "valueString": "7890"
+            },
+            {
+              "id": "uuid",
+              "url": "https://www.icanbwell.com/uuid",
+              "valueString": "200f182a-465a-5b2b-b606-631819746095"
+            },
+            {
+              "id": "sourceAssigningAuthority",
+              "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+              "valueString": "unitypoint"
+            }
+          ],
           "reference": "Encounter/7890"
         },
         "executionPeriod": {
@@ -24,10 +41,44 @@
         },
         "focus": {
           "display": "Lipid Panel Request",
+          "extension": [
+            {
+              "id": "sourceId",
+              "url": "https://www.icanbwell.com/sourceId",
+              "valueString": "lipid"
+            },
+            {
+              "id": "uuid",
+              "url": "https://www.icanbwell.com/uuid",
+              "valueString": "d6822fe4-058b-5173-b671-914d93bc25d5"
+            },
+            {
+              "id": "sourceAssigningAuthority",
+              "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+              "valueString": "unitypoint"
+            }
+          ],
           "reference": "ServiceRequest/lipid"
         },
         "for": {
           "display": "Peter James Chalmers",
+          "extension": [
+            {
+              "id": "sourceId",
+              "url": "https://www.icanbwell.com/sourceId",
+              "valueString": "12345"
+            },
+            {
+              "id": "uuid",
+              "url": "https://www.icanbwell.com/uuid",
+              "valueString": "25055016-8fa8-50f0-b0d9-6cc3cbd2e728"
+            },
+            {
+              "id": "sourceAssigningAuthority",
+              "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+              "valueString": "unitypoint"
+            }
+          ],
           "reference": "Patient/12345"
         },
         "groupIdentifier": {
@@ -43,11 +94,14 @@
             "value": "20170201-001"
           },
           {
+            "id": "sourceId",
             "system": "https://www.icanbwell.com/sourceId",
             "value": "example5"
           },
           {
-            "system": "https://www.icanbwell.com/uuid"
+            "id": "uuid",
+            "system": "https://www.icanbwell.com/uuid",
+            "value": "784dbfd9-b819-5210-ab9e-280b9aa7fec1"
           }
         ],
         "intent": "order",
@@ -80,12 +134,46 @@
               "text": "collected specimen"
             },
             "valueReference": {
+              "extension": [
+                {
+                  "id": "sourceId",
+                  "url": "https://www.icanbwell.com/sourceId",
+                  "valueString": "101"
+                },
+                {
+                  "id": "uuid",
+                  "url": "https://www.icanbwell.com/uuid",
+                  "valueString": "89258ce7-d662-5442-9d81-5ad7cdffd339"
+                },
+                {
+                  "id": "sourceAssigningAuthority",
+                  "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                  "valueString": "unitypoint"
+                }
+              ],
               "reference": "Specimen/101"
             }
           }
         ],
         "owner": {
           "display": "Clinical Laboratory @ Acme Hospital",
+          "extension": [
+            {
+              "id": "sourceId",
+              "url": "https://www.icanbwell.com/sourceId",
+              "valueString": "1832473e-2fe0-452d-abe9-3cdb9879522f"
+            },
+            {
+              "id": "uuid",
+              "url": "https://www.icanbwell.com/uuid",
+              "valueString": "1832473e-2fe0-452d-abe9-3cdb9879522f"
+            },
+            {
+              "id": "sourceAssigningAuthority",
+              "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+              "valueString": "unitypoint"
+            }
+          ],
           "reference": "Organization/1832473e-2fe0-452d-abe9-3cdb9879522f"
         },
         "performerType": [
@@ -106,6 +194,23 @@
         },
         "requester": {
           "display": "Dr Adam Careful",
+          "extension": [
+            {
+              "id": "sourceId",
+              "url": "https://www.icanbwell.com/sourceId",
+              "valueString": "abcd"
+            },
+            {
+              "id": "uuid",
+              "url": "https://www.icanbwell.com/uuid",
+              "valueString": "3c3fc26c-faa4-54f3-97d0-ed2c88ef9229"
+            },
+            {
+              "id": "sourceAssigningAuthority",
+              "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+              "valueString": "unitypoint"
+            }
+          ],
           "reference": "Practitioner/abcd"
         },
         "resourceType": "Task",

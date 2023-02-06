@@ -65,11 +65,14 @@
         "id": "c4171fee-aaa6-4526-a377-ea39860a5c76",
         "identifier": [
           {
+            "id": "sourceId",
             "system": "https://www.icanbwell.com/sourceId",
             "value": "c4171fee-aaa6-4526-a377-ea39860a5c76"
           },
           {
-            "system": "https://www.icanbwell.com/uuid"
+            "id": "uuid",
+            "system": "https://www.icanbwell.com/uuid",
+            "value": "c4171fee-aaa6-4526-a377-ea39860a5c76"
           }
         ],
         "issued": "2019-10-16T12:12:29-10:00",
@@ -94,6 +97,23 @@
         "resourceType": "Observation",
         "status": "final",
         "subject": {
+          "extension": [
+            {
+              "id": "sourceId",
+              "url": "https://www.icanbwell.com/sourceId",
+              "valueString": "1"
+            },
+            {
+              "id": "uuid",
+              "url": "https://www.icanbwell.com/uuid",
+              "valueString": "61abdd48-df46-5e98-ac6c-fde3cace4d07"
+            },
+            {
+              "id": "sourceAssigningAuthority",
+              "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+              "valueString": "bwell"
+            }
+          ],
           "reference": "Patient/1"
         }
       }

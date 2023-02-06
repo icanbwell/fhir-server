@@ -3,6 +3,23 @@
     {
       "resource": {
         "for": {
+          "extension": [
+            {
+              "id": "sourceId",
+              "url": "https://www.icanbwell.com/sourceId",
+              "valueString": "012ed963-6899-417f-895d-a561dc1eead4"
+            },
+            {
+              "id": "uuid",
+              "url": "https://www.icanbwell.com/uuid",
+              "valueString": "012ed963-6899-417f-895d-a561dc1eead4"
+            },
+            {
+              "id": "sourceAssigningAuthority",
+              "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+              "valueString": "bwell"
+            }
+          ],
           "reference": "Patient/012ed963-6899-417f-895d-a561dc1eead4",
           "type": "Patient"
         },
@@ -14,11 +31,14 @@
             "value": "1077064060"
           },
           {
+            "id": "sourceId",
             "system": "https://www.icanbwell.com/sourceId",
             "value": "01867dc5-c112-4543-995c-c6d0df3fa0c7"
           },
           {
-            "system": "https://www.icanbwell.com/uuid"
+            "id": "uuid",
+            "system": "https://www.icanbwell.com/uuid",
+            "value": "01867dc5-c112-4543-995c-c6d0df3fa0c7"
           }
         ],
         "instantiatesCanonical": "https://fhir.dev.bwell.zone/4_0_0/ActivityDefinition/d4ded4d6-30a5-448b-9083-880581df8b00",

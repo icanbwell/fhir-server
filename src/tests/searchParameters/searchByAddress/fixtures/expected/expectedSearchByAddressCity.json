@@ -5,7 +5,9 @@
         "address": [
           {
             "city": "Berea",
-            "line": ["1 Main St."],
+            "line": [
+              "1 Main St."
+            ],
             "postalCode": "50001",
             "state": "IA"
           }
@@ -28,17 +30,37 @@
             "value": "bwell-xxx"
           },
           {
+            "id": "sourceId",
             "system": "https://www.icanbwell.com/sourceId",
             "value": "1"
           },
           {
-            "system": "https://www.icanbwell.com/uuid"
+            "id": "uuid",
+            "system": "https://www.icanbwell.com/uuid",
+            "value": "bc832f5e-ad84-5432-88d6-7f76e74848c7"
           }
         ],
         "link": [
           {
             "assurance": "level4",
             "target": {
+              "extension": [
+                {
+                  "id": "sourceId",
+                  "url": "https://www.icanbwell.com/sourceId",
+                  "valueString": "xxx"
+                },
+                {
+                  "id": "uuid",
+                  "url": "https://www.icanbwell.com/uuid",
+                  "valueString": "5779ee68-e131-5b46-b736-7ffeee2ce99c"
+                },
+                {
+                  "id": "sourceAssigningAuthority",
+                  "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                  "valueString": "unitypoint"
+                }
+              ],
               "reference": "Patient/xxx",
               "type": "Patient"
             }
@@ -64,7 +86,9 @@
         "name": [
           {
             "family": "singhal",
-            "given": ["Test1"],
+            "given": [
+              "Test1"
+            ],
             "use": "official"
           }
         ],
@@ -88,7 +112,9 @@
         "address": [
           {
             "city": "Berea",
-            "line": ["1 Main St."],
+            "line": [
+              "1 Main St."
+            ],
             "postalCode": "50002",
             "state": "IA"
           }
@@ -111,17 +137,37 @@
             "value": "bwell-00b2f5e65e344820aaa6038244c55dd2"
           },
           {
+            "id": "sourceId",
             "system": "https://www.icanbwell.com/sourceId",
             "value": "2"
           },
           {
-            "system": "https://www.icanbwell.com/uuid"
+            "id": "uuid",
+            "system": "https://www.icanbwell.com/uuid",
+            "value": "54fb81fc-9ca4-5f38-bcc6-e41e2af329ba"
           }
         ],
         "link": [
           {
             "assurance": "level4",
             "target": {
+              "extension": [
+                {
+                  "id": "sourceId",
+                  "url": "https://www.icanbwell.com/sourceId",
+                  "valueString": "xxx"
+                },
+                {
+                  "id": "uuid",
+                  "url": "https://www.icanbwell.com/uuid",
+                  "valueString": "5779ee68-e131-5b46-b736-7ffeee2ce99c"
+                },
+                {
+                  "id": "sourceAssigningAuthority",
+                  "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                  "valueString": "unitypoint"
+                }
+              ],
               "reference": "Patient/xxx",
               "type": "Patient"
             }
@@ -147,7 +193,9 @@
         "name": [
           {
             "family": "Test1",
-            "given": ["singhal"],
+            "given": [
+              "singhal"
+            ],
             "use": "official"
           }
         ],
@@ -171,7 +219,9 @@
         "address": [
           {
             "city": "Berea",
-            "line": ["3 Truning Street."],
+            "line": [
+              "3 Truning Street."
+            ],
             "postalCode": "50003",
             "state": "IA"
           }
@@ -194,17 +244,37 @@
             "value": "bwell-xxx"
           },
           {
+            "id": "sourceId",
             "system": "https://www.icanbwell.com/sourceId",
             "value": "3"
           },
           {
-            "system": "https://www.icanbwell.com/uuid"
+            "id": "uuid",
+            "system": "https://www.icanbwell.com/uuid",
+            "value": "52165950-141b-57b1-9ca9-5066879fbca0"
           }
         ],
         "link": [
           {
             "assurance": "level4",
             "target": {
+              "extension": [
+                {
+                  "id": "sourceId",
+                  "url": "https://www.icanbwell.com/sourceId",
+                  "valueString": "xxx"
+                },
+                {
+                  "id": "uuid",
+                  "url": "https://www.icanbwell.com/uuid",
+                  "valueString": "5779ee68-e131-5b46-b736-7ffeee2ce99c"
+                },
+                {
+                  "id": "sourceAssigningAuthority",
+                  "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                  "valueString": "unitypoint"
+                }
+              ],
               "reference": "Patient/xxx",
               "type": "Patient"
             }
@@ -230,7 +300,9 @@
         "name": [
           {
             "family": "Test1",
-            "given": ["Test1"],
+            "given": [
+              "Test1"
+            ],
             "use": "official"
           }
         ],

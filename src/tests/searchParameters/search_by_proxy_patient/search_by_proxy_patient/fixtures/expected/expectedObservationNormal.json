@@ -25,11 +25,14 @@
         "id": "2354-InAgeCohort",
         "identifier": [
           {
+            "id": "sourceId",
             "system": "https://www.icanbwell.com/sourceId",
             "value": "2354-InAgeCohort"
           },
           {
-            "system": "https://www.icanbwell.com/uuid"
+            "id": "uuid",
+            "system": "https://www.icanbwell.com/uuid",
+            "value": "61886699-c643-5e3b-a074-569e4c43bddf"
           }
         ],
         "issued": "2021-01-01T12:00:00Z",
@@ -62,6 +65,23 @@
         "resourceType": "Observation",
         "status": "final",
         "subject": {
+          "extension": [
+            {
+              "id": "sourceId",
+              "url": "https://www.icanbwell.com/sourceId",
+              "valueString": "00100000000"
+            },
+            {
+              "id": "uuid",
+              "url": "https://www.icanbwell.com/uuid",
+              "valueString": "262230ac-b567-55ca-a224-0ed5ed1e285b"
+            },
+            {
+              "id": "sourceAssigningAuthority",
+              "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+              "valueString": "healthsystem1"
+            }
+          ],
           "reference": "Patient/00100000000"
         },
         "valueBoolean": false
