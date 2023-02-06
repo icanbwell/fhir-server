@@ -25,10 +25,10 @@ const container = new Container();
 const defaultConfig = {
     level: 'info',
     format: combine(
-        timestamp({ format: 'MMM-DD-YYYY HH:mm:ss Z' }),
+        timestamp({ format: 'MMM-DD-YYYY HH:mm:ssZ' }),
         json()
     ),
-    defaultMeta: 'default',
+    defaultMeta: {logger: 'default'},
     colorize: true,
     transports: [new transports.Console()]
 };
