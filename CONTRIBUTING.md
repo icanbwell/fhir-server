@@ -257,3 +257,12 @@ Here you can see:
 2. Which indexes are mismatched between the config [src/indexes/customIndexes.js](src/indexes/customIndexes.js) and the underlying databases.
 3. Synchronize the indexes between the config and the databases by creating any missing indexes and removing any extraneous indexes.
 
+## Logging
+Logging in FHIR server is implemented using Winston[https://www.npmjs.com/package/winston] to log in JSON format. Reason to use this is to enhance & unify the fhir server logging.
+
+The default configuration for winston logger is in: https://github.com/icanbwell/fhir-server/blob/master/src/winstonInit.js. Child loggers are used to implement logging for admin logs, slack logs & fhir server logs.
+
+### How to use
+1. Import functions from: https://github.com/icanbwell/fhir-server/blob/master/src/operations/common/logging.js as per requirement. 
+2. Functions logInfo, logDebug, logError & logWarn take 2 arguments 'message' & 'args', where 'message' is a string & args can take any number of object arguments. Any number of args can be send according to the requirement.
+
