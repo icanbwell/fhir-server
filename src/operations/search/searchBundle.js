@@ -270,7 +270,7 @@ class SearchBundleOperation {
             }
             // process results
             if (cursor !== null) { // usually means the two-step optimization found no results
-                logDebug({
+                logDebug('', {
                     user, args: {
                         query:
                             mongoQueryAndOptionsStringify(

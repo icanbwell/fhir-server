@@ -194,10 +194,13 @@ class MergeManager {
     ) {
         assertTypeEquals(resourceToMerge, Resource);
         // not found so insert
-        logDebug({
-            user,
-            args: {message: 'Merging new resource', id: resourceToMerge.id, resource: resourceToMerge}
-        });
+        logDebug(
+            'Merging new resource',
+            {
+                user,
+                args: {id: resourceToMerge.id, resource: resourceToMerge}
+            }
+        );
         if (env.CHECK_ACCESS_TAG_ON_SAVE === '1') {
             if (!this.scopesManager.doesResourceHaveAccessTags(resourceToMerge)) {
                 throw new BadRequestError(new Error('Resource is missing a security access tag with system: https://www.icanbwell.com/access '));
@@ -313,15 +316,17 @@ class MergeManager {
                     });
                 }
             } catch (e) {
-                logError({
-                    user: user,
-                    args: {
-                        message: 'Error with merging resource',
-                        resourceType: resourceToMerge.resourceType,
-                        id: id,
-                        error: e
+                logError(
+                    'Error with merging resource',
+                    {
+                        user: user,
+                        args: {
+                            resourceType: resourceToMerge.resourceType,
+                            id: id,
+                            error: e
+                        }
                     }
-                });
+                );
                 const operationOutcome = {
                     resourceType: 'OperationOutcome',
                     issue: [
@@ -398,13 +403,11 @@ class MergeManager {
              * @type {string[]}
              */
             const ids_of_resources = resources_incoming.map(r => r.id);
-            logDebug({
-                    user, args:
-                        {
-                            message: 'Merge received array',
-                            length: resources_incoming.length,
-                            id: ids_of_resources
-                        }
+            logDebug(
+                'Merge received array',
+                {
+                    user,
+                    args: {length: resources_incoming.length, id: ids_of_resources}
                 }
             );
             // find items without duplicates and run them in parallel
