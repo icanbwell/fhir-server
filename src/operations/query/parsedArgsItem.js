@@ -226,6 +226,12 @@ class ParsedArgs {
          * @type {ParsedArgsItem[]}
          */
         this.originalParsedArgItems = this.parsedArgItems.map(a => a.clone());
+
+        /**
+         * headers
+         * @type {Object|undefined}
+         */
+        this.headers = undefined;
     }
 
     /**

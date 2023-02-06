@@ -165,7 +165,7 @@ module.exports = {
         '_cursorBatchSize', '_setIndexHint', '_total', '_getpagesoffset', 'resource', '_streamResponse', 'remove',
         'streamResponse', 'team', '_text', '_content', '_list', '_has', '_type', '_include', '_revinclude',
         '_summary', '_contained', '_containedType', '_query', '_filter', '_format', '_pretty', 'role', 'member',
-        'onBehalfOf', 'period', 'practitionerId', 'patientId',
+        'onBehalfOf', 'period', 'practitionerId', 'patientId', '_prefer'
     ],
     REQUEST_ID_HEADER: 'x-request-id',
     KAFKA_CONNECTION_HEALTHCHECK_INTERVAL: 30000, // In milliseconds

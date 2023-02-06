@@ -3,11 +3,14 @@
     "id": "AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He",
     "identifier": [
       {
+        "id": "sourceId",
         "system": "https://www.icanbwell.com/sourceId",
         "value": "AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He"
       },
       {
-        "system": "https://www.icanbwell.com/uuid"
+        "id": "uuid",
+        "system": "https://www.icanbwell.com/uuid",
+        "value": "24c117ef-4601-52ea-8812-ac66793956b5"
       }
     ],
     "meta": {
@@ -15,18 +18,60 @@
         {
           "code": "medstar",
           "system": "https://www.icanbwell.com/access"
+        },
+        {
+          "code": "medstar",
+          "system": "https://www.icanbwell.com/owner"
+        },
+        {
+          "code": "medstar",
+          "system": "https://www.icanbwell.com/sourceAssigningAuthority"
         }
       ],
       "versionId": "1"
     },
     "name": "AETNA-Aetna Elect Choice/ EPO (Aetna Health Fund) Innovation Health: Network Only Plus",
     "ownedBy": {
+      "extension": [
+        {
+          "id": "sourceId",
+          "url": "https://www.icanbwell.com/sourceId",
+          "valueString": "AETNA"
+        },
+        {
+          "id": "uuid",
+          "url": "https://www.icanbwell.com/uuid",
+          "valueString": "45eaebe0-537e-5bdb-ab35-7564668c39b5"
+        },
+        {
+          "id": "sourceAssigningAuthority",
+          "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+          "valueString": "medstar"
+        }
+      ],
       "reference": "Organization/AETNA"
     },
     "plan": [
       {
         "coverageArea": [
           {
+            "extension": [
+              {
+                "id": "sourceId",
+                "url": "https://www.icanbwell.com/sourceId",
+                "valueString": "1886535265"
+              },
+              {
+                "id": "uuid",
+                "url": "https://www.icanbwell.com/uuid",
+                "valueString": "3bad6e83-d648-5f49-a429-80c38a51c38f"
+              },
+              {
+                "id": "sourceAssigningAuthority",
+                "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                "valueString": "medstar"
+              }
+            ],
             "reference": "Location/1886535265"
           }
         ],

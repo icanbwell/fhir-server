@@ -8,11 +8,14 @@
         "value": "-733797173"
       },
       {
+        "id": "sourceId",
         "system": "https://www.icanbwell.com/sourceId",
         "value": "-733797173"
       },
       {
-        "system": "https://www.icanbwell.com/uuid"
+        "id": "uuid",
+        "system": "https://www.icanbwell.com/uuid",
+        "value": "6f338d77-6078-5c3d-b440-c9470e416d5d"
       }
     ],
     "meta": {
@@ -20,6 +23,14 @@
         {
           "code": "medstar",
           "system": "https://www.icanbwell.com/access"
+        },
+        {
+          "code": "medstar",
+          "system": "https://www.icanbwell.com/owner"
+        },
+        {
+          "code": "medstar",
+          "system": "https://www.icanbwell.com/sourceAssigningAuthority"
         }
       ],
       "versionId": "1"
@@ -77,11 +88,14 @@
     "id": "1679033641-UF3-UADM",
     "identifier": [
       {
+        "id": "sourceId",
         "system": "https://www.icanbwell.com/sourceId",
         "value": "1679033641-UF3-UADM"
       },
       {
-        "system": "https://www.icanbwell.com/uuid"
+        "id": "uuid",
+        "system": "https://www.icanbwell.com/uuid",
+        "value": "4d559614-d4ed-5f67-8ae4-7bce7f08c2bb"
       }
     ],
     "meta": {
@@ -89,6 +103,14 @@
         {
           "code": "medstar",
           "system": "https://www.icanbwell.com/access"
+        },
+        {
+          "code": "medstar",
+          "system": "https://www.icanbwell.com/owner"
+        },
+        {
+          "code": "medstar",
+          "system": "https://www.icanbwell.com/sourceAssigningAuthority"
         }
       ],
       "versionId": "1"
@@ -178,11 +200,14 @@
         "value": "MAX-MALX"
       },
       {
+        "id": "sourceId",
         "system": "https://www.icanbwell.com/sourceId",
         "value": "MAX-MALX"
       },
       {
-        "system": "https://www.icanbwell.com/uuid"
+        "id": "uuid",
+        "system": "https://www.icanbwell.com/uuid",
+        "value": "7e827ed9-327e-5554-897e-b49320c39ef1"
       }
     ],
     "meta": {
@@ -190,12 +215,37 @@
         {
           "code": "medstar",
           "system": "https://www.icanbwell.com/access"
+        },
+        {
+          "code": "medstar",
+          "system": "https://www.icanbwell.com/owner"
+        },
+        {
+          "code": "medstar",
+          "system": "https://www.icanbwell.com/sourceAssigningAuthority"
         }
       ],
       "versionId": "1"
     },
     "name": "Primary Care",
     "providedBy": {
+      "extension": [
+        {
+          "id": "sourceId",
+          "url": "https://www.icanbwell.com/sourceId",
+          "valueString": "MAX-MALX"
+        },
+        {
+          "id": "uuid",
+          "url": "https://www.icanbwell.com/uuid",
+          "valueString": "7e827ed9-327e-5554-897e-b49320c39ef1"
+        },
+        {
+          "id": "sourceAssigningAuthority",
+          "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+          "valueString": "medstar"
+        }
+      ],
       "reference": "Organization/MAX-MALX"
     },
     "resourceType": "HealthcareService",

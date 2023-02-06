@@ -15,9 +15,10 @@ const {SimpleContainer} = require('../../utils/simpleContainer');
  * Parse arguments
  * @param {Object} args
  * @param {string} resourceType
+ * @param {Object|undefined} [headers]
  * @return {Promise<ParsedArgs>}
  */
-async function getParsedArgsAsync({args, resourceType}) {
+async function getParsedArgsAsync({args, resourceType, headers}) {
     const {base_version} = args;
     /**
      * @type {ParsedArgs}
@@ -29,6 +30,9 @@ async function getParsedArgsAsync({args, resourceType}) {
             base_version, parsedArgs, resourceType
         }
     );
+    if (headers) {
+        parsedArgs.headers = headers;
+    }
     return parsedArgs;
 }
 

@@ -264,9 +264,10 @@ class FhirOperationsManager {
      * Parse arguments
      * @param {Object} args
      * @param {string} resourceType
+     * @param {Object|undefined} [headers]
      * @return {Promise<ParsedArgs>}
      */
-    async getParsedArgsAsync({args, resourceType}) {
+    async getParsedArgsAsync({args, resourceType, headers}) {
         const {base_version} = args;
         /**
          * @type {ParsedArgs}
@@ -278,6 +279,9 @@ class FhirOperationsManager {
                 base_version, parsedArgs, resourceType
             }
         );
+        if (headers) {
+            parsedArgs.headers = headers;
+        }
         return parsedArgs;
     }
 
@@ -300,8 +304,10 @@ class FhirOperationsManager {
         /**
          * @type {ParsedArgs}
          */
-        const parsedArgs = await this.getParsedArgsAsync({args: combined_args, resourceType});
-
+        const parsedArgs = await this.getParsedArgsAsync({
+                args: combined_args, resourceType, headers: req.headers
+            }
+        );
         return this.searchBundleOperation.searchBundle(
             {
                 requestInfo: this.getRequestInfo(req),
@@ -330,8 +336,10 @@ class FhirOperationsManager {
         /**
          * @type {ParsedArgs}
          */
-        const parsedArgs = await this.getParsedArgsAsync({args: combined_args, resourceType});
-
+        const parsedArgs = await this.getParsedArgsAsync({
+                args: combined_args, resourceType, headers: req.headers
+            }
+        );
         return this.searchStreamingOperation.searchStreaming(
             {
                 requestInfo: this.getRequestInfo(req),
@@ -356,8 +364,10 @@ class FhirOperationsManager {
         /**
          * @type {ParsedArgs}
          */
-        const parsedArgs = await this.getParsedArgsAsync({args: combined_args, resourceType});
-
+        const parsedArgs = await this.getParsedArgsAsync({
+                args: combined_args, resourceType, headers: req.headers
+            }
+        );
         return this.searchByIdOperation.searchById(
             {
                 requestInfo: this.getRequestInfo(req),
@@ -387,7 +397,9 @@ class FhirOperationsManager {
         /**
          * @type {ParsedArgs}
          */
-        const parsedArgs = await this.getParsedArgsAsync({args: combined_args, resourceType});
+        const parsedArgs = await this.getParsedArgsAsync({
+            args: combined_args, resourceType, headers: req.headers
+        });
 
         return this.createOperation.create(
             {
@@ -414,8 +426,10 @@ class FhirOperationsManager {
         /**
          * @type {ParsedArgs}
          */
-        const parsedArgs = await this.getParsedArgsAsync({args: combined_args, resourceType});
-
+        const parsedArgs = await this.getParsedArgsAsync({
+                args: combined_args, resourceType, headers: req.headers
+            }
+        );
         return this.updateOperation.update(
             {
                 requestInfo: this.getRequestInfo(req),
@@ -441,8 +455,10 @@ class FhirOperationsManager {
         /**
          * @type {ParsedArgs}
          */
-        const parsedArgs = await this.getParsedArgsAsync({args: combined_args, resourceType});
-
+        const parsedArgs = await this.getParsedArgsAsync({
+                args: combined_args, resourceType, headers: req.headers
+            }
+        );
         return this.mergeOperation.merge(
             {
                 requestInfo: this.getRequestInfo(req),
@@ -469,7 +485,10 @@ class FhirOperationsManager {
         /**
          * @type {ParsedArgs}
          */
-        const parsedArgs = await this.getParsedArgsAsync({args: combined_args, resourceType});
+        const parsedArgs = await this.getParsedArgsAsync({
+                args: combined_args, resourceType, headers: req.headers
+            }
+        );
 
         const responseStreamer = new FhirResponseStreamer({
             response: res,
@@ -524,8 +543,10 @@ class FhirOperationsManager {
         /**
          * @type {ParsedArgs}
          */
-        const parsedArgs = await this.getParsedArgsAsync({args: combined_args, resourceType});
-
+        const parsedArgs = await this.getParsedArgsAsync({
+                args: combined_args, resourceType, headers: req.headers
+            }
+        );
         return this.removeOperation.remove(
             {
                 requestInfo: this.getRequestInfo(req),
@@ -550,8 +571,10 @@ class FhirOperationsManager {
         /**
          * @type {ParsedArgs}
          */
-        const parsedArgs = await this.getParsedArgsAsync({args: combined_args, resourceType});
-
+        const parsedArgs = await this.getParsedArgsAsync({
+                args: combined_args, resourceType, headers: req.headers
+            }
+        );
         return this.removeOperation.remove(
             {
                 requestInfo: this.getRequestInfo(req),
@@ -577,8 +600,10 @@ class FhirOperationsManager {
         /**
          * @type {ParsedArgs}
          */
-        const parsedArgs = await this.getParsedArgsAsync({args: combined_args, resourceType});
-
+        const parsedArgs = await this.getParsedArgsAsync({
+                args: combined_args, resourceType, headers: req.headers
+            }
+        );
         return this.searchByVersionIdOperation.searchByVersionId(
             {
                 requestInfo: this.getRequestInfo(req),
@@ -604,7 +629,10 @@ class FhirOperationsManager {
         /**
          * @type {ParsedArgs}
          */
-        const parsedArgs = await this.getParsedArgsAsync({args: combined_args, resourceType});
+        const parsedArgs = await this.getParsedArgsAsync({
+                args: combined_args, resourceType, headers: req.headers
+            }
+        );
 
         return this.historyOperation.history(
             {
@@ -631,8 +659,10 @@ class FhirOperationsManager {
         /**
          * @type {ParsedArgs}
          */
-        const parsedArgs = await this.getParsedArgsAsync({args: combined_args, resourceType});
-
+        const parsedArgs = await this.getParsedArgsAsync({
+                args: combined_args, resourceType, headers: req.headers
+            }
+        );
         return this.historyByIdOperation.historyById(
             {
                 requestInfo: this.getRequestInfo(req),
@@ -658,8 +688,10 @@ class FhirOperationsManager {
         /**
          * @type {ParsedArgs}
          */
-        const parsedArgs = await this.getParsedArgsAsync({args: combined_args, resourceType});
-
+        const parsedArgs = await this.getParsedArgsAsync({
+                args: combined_args, resourceType, headers: req.headers
+            }
+        );
         return this.patchOperation.patch(
             {
                 requestInfo: this.getRequestInfo(req),
@@ -684,8 +716,10 @@ class FhirOperationsManager {
         /**
          * @type {ParsedArgs}
          */
-        const parsedArgs = await this.getParsedArgsAsync({args: combined_args, resourceType});
-
+        const parsedArgs = await this.getParsedArgsAsync({
+                args: combined_args, resourceType, headers: req.headers
+            }
+        );
         return this.validateOperation.validate(
             {
                 requestInfo: this.getRequestInfo(req),
@@ -711,7 +745,10 @@ class FhirOperationsManager {
         /**
          * @type {ParsedArgs}
          */
-        const parsedArgs = await this.getParsedArgsAsync({args: combined_args, resourceType});
+        const parsedArgs = await this.getParsedArgsAsync({
+                args: combined_args, resourceType, headers: req.headers
+            }
+        );
 
         const responseStreamer = new FhirResponseStreamer({
             response: res,
@@ -765,7 +802,10 @@ class FhirOperationsManager {
         /**
          * @type {ParsedArgs}
          */
-        const parsedArgs = await this.getParsedArgsAsync({args: combined_args, resourceType});
+        const parsedArgs = await this.getParsedArgsAsync({
+                args: combined_args, resourceType, headers: req.headers
+            }
+        );
 
         return this.expandOperation.expand(
             {

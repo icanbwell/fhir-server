@@ -208,7 +208,13 @@ class FhirDataSource extends DataSource {
                             {
                                 requestInfo,
                                 resourceType,
-                                parsedArgs: await this.getParsedArgsAsync({args: args1, resourceType})
+                                parsedArgs: await this.getParsedArgsAsync(
+                                    {
+                                        args: args1,
+                                        resourceType,
+                                        headers: requestInfo.headers
+                                    }
+                                )
                             }
                         )
                     );
@@ -323,7 +329,13 @@ class FhirDataSource extends DataSource {
                 {
                     requestInfo: context.fhirRequestInfo,
                     resourceType,
-                    parsedArgs: await this.getParsedArgsAsync({args: args1, resourceType})
+                    parsedArgs: await this.getParsedArgsAsync(
+                        {
+                            args: args1,
+                            resourceType,
+                            headers: context.fhirRequestInfo ? context.fhirRequestInfo.headers : undefined
+                        }
+                    )
                 }
             )
         );
@@ -351,7 +363,13 @@ class FhirDataSource extends DataSource {
             {
                 requestInfo: context.fhirRequestInfo,
                 resourceType,
-                parsedArgs: await this.getParsedArgsAsync({args: args1, resourceType})
+                parsedArgs: await this.getParsedArgsAsync(
+                    {
+                        args: args1,
+                        resourceType,
+                        headers: context.fhirRequestInfo ? context.fhirRequestInfo.headers : undefined
+                    }
+                )
             }
         );
         if (bundle.meta) {
@@ -433,9 +451,10 @@ class FhirDataSource extends DataSource {
      * Parse arguments
      * @param {Object} args
      * @param {string} resourceType
+     * @param {Object|undefined} headers
      * @return {Promise<ParsedArgs>}
      */
-    async getParsedArgsAsync({args, resourceType}) {
+    async getParsedArgsAsync({args, resourceType, headers}) {
         const {base_version} = args;
         /**
          * @type {ParsedArgs}
@@ -447,6 +466,9 @@ class FhirDataSource extends DataSource {
                 base_version, parsedArgs, resourceType
             }
         );
+        if (headers) {
+            parsedArgs.headers = headers;
+        }
         return parsedArgs;
     }
 }

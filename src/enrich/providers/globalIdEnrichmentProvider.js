@@ -31,7 +31,7 @@ class GlobalIdEnrichmentProvider extends EnrichmentProvider {
      */
     // eslint-disable-next-line no-unused-vars
     async enrichAsync({resources, parsedArgs}) {
-        if (parsedArgs['prefer:global_id'] && isTrue(parsedArgs['prefer:global_id'])) {
+        if (parsedArgs.headers && isTrue(parsedArgs['prefer:global_id'])) {
             for (const resource of resources) {
                 if (resource.id && !isUuid(resource.id)) {
                     const uuid = resource._uuid;
