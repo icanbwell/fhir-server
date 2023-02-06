@@ -25,11 +25,14 @@
         "id": "2354-InAgeCohort",
         "identifier": [
           {
+            "id": "sourceId",
             "system": "https://www.icanbwell.com/sourceId",
             "value": "2354-InAgeCohort"
           },
           {
-            "system": "https://www.icanbwell.com/uuid"
+            "id": "uuid",
+            "system": "https://www.icanbwell.com/uuid",
+            "value": "61886699-c643-5e3b-a074-569e4c43bddf"
           }
         ],
         "issued": "2021-01-01T12:00:00Z",
@@ -62,6 +65,23 @@
         "resourceType": "Observation",
         "status": "final",
         "subject": {
+          "extension": [
+            {
+              "id": "sourceId",
+              "url": "https://www.icanbwell.com/sourceId",
+              "valueString": "00100000000"
+            },
+            {
+              "id": "uuid",
+              "url": "https://www.icanbwell.com/uuid",
+              "valueString": "262230ac-b567-55ca-a224-0ed5ed1e285b"
+            },
+            {
+              "id": "sourceAssigningAuthority",
+              "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+              "valueString": "healthsystem1"
+            }
+          ],
           "reference": "Patient/person.m65633"
         },
         "valueBoolean": false
@@ -92,11 +112,14 @@
         "id": "2354-InDiabetesCohort",
         "identifier": [
           {
+            "id": "sourceId",
             "system": "https://www.icanbwell.com/sourceId",
             "value": "2354-InDiabetesCohort"
           },
           {
-            "system": "https://www.icanbwell.com/uuid"
+            "id": "uuid",
+            "system": "https://www.icanbwell.com/uuid",
+            "value": "7433b665-71ca-5d4d-8d74-60278aa95466"
           }
         ],
         "issued": "2021-01-01T12:00:00Z",
@@ -129,6 +152,23 @@
         "resourceType": "Observation",
         "status": "final",
         "subject": {
+          "extension": [
+            {
+              "id": "sourceId",
+              "url": "https://www.icanbwell.com/sourceId",
+              "valueString": "person.m65633"
+            },
+            {
+              "id": "uuid",
+              "url": "https://www.icanbwell.com/uuid",
+              "valueString": "803b38de-560f-5530-9d1b-b445bff30a14"
+            },
+            {
+              "id": "sourceAssigningAuthority",
+              "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+              "valueString": "healthsystem3"
+            }
+          ],
           "reference": "Patient/person.m65633"
         },
         "valueBoolean": false
@@ -159,11 +199,14 @@
         "id": "2354-InGenderCohort",
         "identifier": [
           {
+            "id": "sourceId",
             "system": "https://www.icanbwell.com/sourceId",
             "value": "2354-InGenderCohort"
           },
           {
-            "system": "https://www.icanbwell.com/uuid"
+            "id": "uuid",
+            "system": "https://www.icanbwell.com/uuid",
+            "value": "d8beeb1d-2978-5694-b3f6-fd9c28a05da7"
           }
         ],
         "issued": "2021-01-01T12:00:00Z",
@@ -196,6 +239,23 @@
         "resourceType": "Observation",
         "status": "final",
         "subject": {
+          "extension": [
+            {
+              "id": "sourceId",
+              "url": "https://www.icanbwell.com/sourceId",
+              "valueString": "00200000000"
+            },
+            {
+              "id": "uuid",
+              "url": "https://www.icanbwell.com/uuid",
+              "valueString": "829fc8fe-f9ae-5b97-838b-a717515d2c80"
+            },
+            {
+              "id": "sourceAssigningAuthority",
+              "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+              "valueString": "healthsystem2"
+            }
+          ],
           "reference": "Patient/person.m65633"
         },
         "valueBoolean": false
