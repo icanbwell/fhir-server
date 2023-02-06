@@ -93,10 +93,11 @@ class SearchBundleOperation {
      * @param {FhirRequestInfo} requestInfo
      * @param {Object} args
      * @param {string} resourceType
+     * @param {boolean} useAggregationPipeline
      * @return {Promise<Bundle>} array of resources or a bundle
      */
     async searchBundle(
-        {requestInfo, args, resourceType}
+        {requestInfo, args, resourceType, useAggregationPipeline = false}
     ) {
         assertIsValid(requestInfo !== undefined);
         assertIsValid(args !== undefined);
@@ -219,7 +220,7 @@ class SearchBundleOperation {
                 {
                     resourceType, base_version,
                     args, columns, options, query,
-                    maxMongoTimeMS, user, isStreaming: false, useAccessIndex
+                    maxMongoTimeMS, user, isStreaming: false, useAccessIndex, useAggregationPipeline
                 });
             /**
              * @type {Set}
