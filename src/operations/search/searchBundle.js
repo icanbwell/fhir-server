@@ -264,7 +264,7 @@ class SearchBundleOperation {
             /**
              * @type {import('mongodb').Document[]}
              */
-            const explanations = (cursor && (args['_explain'] || args['_debug'] || env.LOGLEVEL === 'DEBUG')) ? await cursor.explainAsync() : [];
+            const explanations = (cursor && !useAggregationPipeline && (args['_explain'] || args['_debug'] || env.LOGLEVEL === 'DEBUG')) ? await cursor.explainAsync() : [];
             if (cursor && args['_explain']) {
                 // if explain is requested then don't return any results
                 cursor.clear();
