@@ -25,31 +25,30 @@ const container = new Container();
 const defaultConfig = {
     level: 'info',
     format: combine(
-        timestamp({ format: 'MMM-DD-YYYY HH:mm:ss' }),
+        timestamp({ format: 'MMM-DD-YYYY HH:mm:ssZ' }),
         json()
     ),
+    defaultMeta: {logger: 'default'},
     colorize: true,
     transports: [new transports.Console()]
 };
 
 /**
- * @function get
- * @description Retrieve a logger by name, same as container.get except with a
+ * @function getLogger
+ * @description Retrieve a logger by name, same as container.getLogger except with a
  * default value applied to it
  * @param {String} name - Name of the logger
  * @param {Object} options - Options for the logger, this is also an alias for
  * adding a logger. Default value is defaultConfig
  * @return {import('winston').logger}
  */
-const get = (name = 'default', options = defaultConfig) => container.get(name, options);
+const getLogger = (name = 'default', options = defaultConfig) => container.get(name, options);
 
 /**
  * @function initialize
  * @description Initialize a default console logger
  */
-const initialize = (config = {}) => {
-    defaultConfig.level = config.level;
-
+const initialize = () => {
     // If we already have a logger by the provided default name, make sure it
     // has a console transport added. This can happen when someone accesses the
     // logger before calling initialize
@@ -65,6 +64,6 @@ const initialize = (config = {}) => {
 };
 
 module.exports = {
-    get,
+    getLogger,
     initialize
 };
