@@ -1,6 +1,8 @@
 const questionnaireResponseBundle = require('./fixtures/questionnaire_responses.json');
+
 const expectedQuestionnaireResponseBundle = require('./fixtures/expected_questionnaire_responses.json');
-const expectedQuestionnaireResponseBundle2 = require('./fixtures/expected_questionnaire_responses_2.json');
+const expectedQuestionnaireResponseMissingPatientBundle = require('./fixtures/expected_questionnaire_responses_missing_patient.json');
+const expectedQuestionnaireResponseNoMissingPatientBundle2 = require('./fixtures/expected_questionnaire_responses_no_ missing_patient.json');
 
 const {
     commonBeforeEach,
@@ -8,7 +10,7 @@ const {
     getHeaders,
     createTestRequest,
 } = require('../../common');
-const { describe, beforeEach, afterEach, expect, test } = require('@jest/globals');
+const {describe, beforeEach, afterEach, expect, test} = require('@jest/globals');
 
 describe('Questionnaire Response Tests', () => {
     beforeEach(async () => {
@@ -33,19 +35,25 @@ describe('Questionnaire Response Tests', () => {
                 .send(questionnaireResponseBundle)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({created: true}, {created: true});
 
             resp = await request
-                .get('/4_0_0/QuestionnaireResponse?patient:missing=true')
+                .get('/4_0_0/QuestionnaireResponse?_bundle=1&_debug=1')
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedQuestionnaireResponseBundle);
 
             resp = await request
-                .get('/4_0_0/QuestionnaireResponse?patient:missing=false')
+                .get('/4_0_0/QuestionnaireResponse?patient:missing=true&_debug=1&_bundle=1')
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse(expectedQuestionnaireResponseBundle2);
+            expect(resp).toHaveResponse(expectedQuestionnaireResponseMissingPatientBundle);
+
+            resp = await request
+                .get('/4_0_0/QuestionnaireResponse?patient:missing=false&_debug=1&_bundle=1')
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedQuestionnaireResponseNoMissingPatientBundle2);
         });
     });
 });
