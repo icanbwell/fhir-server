@@ -4,13 +4,13 @@
 
 const AWS = require('aws-sdk');
 const {
-  get
+    getLogger
 } = require('../winstonInit');
 
 /**
  * @type {import('winston').logger}
  */
-const logger = get();
+const logger = getLogger();
 // const Sentry = require('./sentry');
 const moment = require('moment-timezone');
 
