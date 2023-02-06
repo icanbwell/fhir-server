@@ -202,6 +202,53 @@ class DatabaseQueryManager {
     }
 
     /**
+     * Returns a DatabasePartitionedCursor by executing the query
+     * @param {import('mongodb').Filter<import('mongodb').DefaultSchema>} query
+     * @param projection
+     * @param {import('mongodb').FindOptions<import('mongodb').DefaultSchema>} options
+     * @return {DatabasePartitionedCursor}
+     */
+    async findUsingAggregationAsync({query, projection, options = null}) {
+        try {
+            /**
+             * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>[]}
+             */
+            const collections = await this.resourceLocator.getOrCreateCollectionsForQueryAsync({query});
+            /**
+             * @type {CursorInfo[]}
+             */
+            const cursors = [];
+            for (const /** @type import('mongodb').Collection<import('mongodb').DefaultSchema> */ collection of collections) {
+                /**
+                 * @type {AggregationCursor<Document>}
+                 */
+                const cursor = collection.aggregate(
+                    [
+                        {
+                            $match: query,
+                        },
+                        {
+                            $project: projection,
+
+                        }
+                    ],
+                    options,
+                );
+                cursors.push({cursor, db: collection.dbName, collection: collection.collectionName});
+            }
+            return new DatabasePartitionedCursor({
+                base_version: this._base_version, resourceType: this._resourceType, cursors,
+                query
+            });
+        } catch (e) {
+            throw new RethrownError({
+                message: 'Error in findUsingAggregationAsync(): ' + `query: ${JSON.stringify(query)}`, error: e,
+                args: {query, options}
+            });
+        }
+    }
+
+    /**
      * Gets estimated count of ALL documents in a collection.  This does not accept a query
      * @param {import('mongodb').EstimatedDocumentCountOptions} options
      * @return {Promise<*>}

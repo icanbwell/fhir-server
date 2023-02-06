@@ -348,9 +348,10 @@ class FhirDataSource extends DataSource {
      * @param {GraphQLContext} context
      * @param {Object} info
      * @param {string} resourceType
+     * @param {boolean} useAggregationPipeline
      * @return {Promise<Bundle>}
      */
-    async getResourcesBundle(parent, args, context, info, resourceType) {
+    async getResourcesBundle(parent, args, context, info, resourceType, useAggregationPipeline = false) {
         this.createDataLoader(args);
         // https://www.apollographql.com/blog/graphql/filtering/how-to-search-and-filter-results-with-graphql/
 
@@ -369,7 +370,8 @@ class FhirDataSource extends DataSource {
                         resourceType,
                         headers: context.fhirRequestInfo ? context.fhirRequestInfo.headers : undefined
                     }
-                )
+                ),
+                useAggregationPipeline
             }
         );
         if (bundle.meta) {

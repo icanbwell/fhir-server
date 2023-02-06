@@ -140,6 +140,7 @@
     "fast-json-patch": "^3.1.1",
     "fontawesome-4.7": "^4.7.0",
     "graphql": "^16.6.0",
+    "graphql-fields": "^2.0.3",
     "graphql-schema-linter": "^3.0.1",
     "helmet": "^6.0.1",
     "http-terminator": "^3.2.0",

@@ -1,0 +1,16 @@
+"""
+getCodeSystemCodes
+    query to retrieve code system codes based on id and code filters
+"""
+type Query {
+    getCodeSystemCodes(
+        """
+        id of the CodeSystem resource
+        """
+        id: [String]
+        """
+        code in the concept objects of the CodeSystem resource
+        """
+        code: [String]
+    ): CodeSystemBundle
+}

@@ -93,10 +93,11 @@ class SearchBundleOperation {
      * @param {FhirRequestInfo} requestInfo
      * @param {ParsedArgs} parsedArgs
      * @param {string} resourceType
+     * @param {boolean} useAggregationPipeline
      * @return {Promise<Bundle>} array of resources or a bundle
      */
     async searchBundle(
-        {requestInfo, parsedArgs, resourceType}
+        {requestInfo, parsedArgs, resourceType, useAggregationPipeline}
     ) {
         assertIsValid(requestInfo !== undefined);
         assertIsValid(resourceType !== undefined);
@@ -219,7 +220,8 @@ class SearchBundleOperation {
                     resourceType, base_version,
                     columns, options, query,
                     maxMongoTimeMS, user, isStreaming: false, useAccessIndex,
-                    parsedArgs
+                    parsedArgs,
+                    useAggregationPipeline
                 });
             /**
              * @type {Set}
@@ -263,7 +265,7 @@ class SearchBundleOperation {
             /**
              * @type {import('mongodb').Document[]}
              */
-            const explanations = (cursor && (parsedArgs['_explain'] || parsedArgs['_debug'] || env.LOGLEVEL === 'DEBUG')) ? await cursor.explainAsync() : [];
+            const explanations = (cursor && !useAggregationPipeline && (parsedArgs['_explain'] || parsedArgs['_debug'] || env.LOGLEVEL === 'DEBUG')) ? await cursor.explainAsync() : [];
             if (cursor && parsedArgs['_explain']) {
                 // if explain is requested then don't return any results
                 cursor.clear();
