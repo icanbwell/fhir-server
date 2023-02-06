@@ -46,11 +46,14 @@
         "value": "1679033641"
       },
       {
+        "id": "sourceId",
         "system": "https://www.icanbwell.com/sourceId",
         "value": "1"
       },
       {
-        "system": "https://www.icanbwell.com/uuid"
+        "id": "uuid",
+        "system": "https://www.icanbwell.com/uuid",
+        "value": "18ba3527-77e0-5ae6-a872-181654110d28"
       }
     ],
     "meta": {
@@ -58,6 +61,14 @@
         {
           "code": "medstar",
           "system": "https://www.icanbwell.com/access"
+        },
+        {
+          "code": "medstar",
+          "system": "https://www.icanbwell.com/owner"
+        },
+        {
+          "code": "medstar",
+          "system": "https://www.icanbwell.com/sourceAssigningAuthority"
         }
       ],
       "versionId": "1"
@@ -120,11 +131,14 @@
         "value": "1679033641"
       },
       {
+        "id": "sourceId",
         "system": "https://www.icanbwell.com/sourceId",
         "value": "2"
       },
       {
-        "system": "https://www.icanbwell.com/uuid"
+        "id": "uuid",
+        "system": "https://www.icanbwell.com/uuid",
+        "value": "034ef9e0-007c-54a7-a0be-a06db20b9ea9"
       }
     ],
     "meta": {
@@ -132,6 +146,14 @@
         {
           "code": "medstar",
           "system": "https://www.icanbwell.com/access"
+        },
+        {
+          "code": "medstar",
+          "system": "https://www.icanbwell.com/owner"
+        },
+        {
+          "code": "medstar",
+          "system": "https://www.icanbwell.com/sourceAssigningAuthority"
         }
       ],
       "versionId": "1"
