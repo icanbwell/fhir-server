@@ -733,7 +733,7 @@ class SearchManager {
                 // no results
                 query = null; //no need to query
             }
-            return {options, actualQuery, query, actualOptions};
+            return {options, originalQuery: actualQuery, query, originalOptions: actualOptions};
         } catch (e) {
             throw new RethrownError({
                 message: `Error in two step optimization for ${resourceType} with query: ${mongoQueryStringify(query)}`,
