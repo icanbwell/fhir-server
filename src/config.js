@@ -2,7 +2,6 @@
  * Configuration for the app
  */
 const env = require('var');
-const Sentry = require('./middleware/sentry');
 const {profiles} = require('./profiles');
 // const {MongoClientOptions} = require('mongodb');
 
@@ -119,8 +118,6 @@ let fhirServerConfig = {
         level: env.LOGLEVEL,
     },
     errorTracking: {
-        requestHandler: Sentry.Handlers.requestHandler,
-        errorHandler: Sentry.Handlers.errorHandler,
     },
     //
     // If you want to set up conformance statement with security enabled
