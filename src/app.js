@@ -118,7 +118,6 @@ function createApp({fnCreateContainer, trackMetrics}) {
         const state = req.query.state;
         const resourceUrl = state ?
             encodeURIComponent(Buffer.from(state, 'base64').toString('ascii')) : '';
-        // console.log(`Redirecting to ${resourceUrl}`);
         const redirectUrl = `${httpProtocol}`.concat('://', `${req.headers.host}`, '/authcallback');
         res.redirect(
             `/callback.html?code=${req.query.code}&resourceUrl=${resourceUrl}` +
@@ -248,7 +247,6 @@ function createApp({fnCreateContainer, trackMetrics}) {
                     app.use('/graphqlv1', router1);
                 })
                 .then((_) => {
-                    // app.use(fhirApp.app);
                     createFhirApp(fnCreateContainer, app);
                 });
         } else {
@@ -282,7 +280,6 @@ function createApp({fnCreateContainer, trackMetrics}) {
                     app.use('/graphql', router1);
                 })
                 .then((_) => {
-                    // app.use(fhirApp.app);
                     createFhirApp(fnCreateContainer, app);
                 });
         }

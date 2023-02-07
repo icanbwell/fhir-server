@@ -26,9 +26,6 @@ class RethrownError extends Error {
          */
         this.issue = error.issue;
         this.stack_before_rethrow = this.stack;
-        // const message_lines = (this.message.match(/\n/g) || []).length + 1;
-        // this.stack = this.stack.split('\n').slice(0, message_lines + 1).join('\n') + '\n' +
-        //     error.stack;
         this.args = args;
         this.source = source;
 
