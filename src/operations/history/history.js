@@ -178,11 +178,12 @@ class HistoryOperation {
          */
         let cursor;
         try {
-            cursor = await this.databaseHistoryFactory.createDatabaseHistoryManager(
+            const databaseHistoryManager = this.databaseHistoryFactory.createDatabaseHistoryManager(
                 {
                     resourceType, base_version
                 }
-            ).findAsync({query, options});
+            );
+            cursor = await databaseHistoryManager.findAsync({query, options});
         } catch (e) {
             await this.fhirLoggingManager.logOperationFailureAsync(
                 {
