@@ -22,105 +22,130 @@ describe('bwellPersonFinder Tests', () => {
     });
 
     test('search works with no linked Person', async () => {
-        await createTestRequest();
+        const request = await createTestRequest();
+        const response = await request
+            .get('/4_0_0/Person/')
+            .set(getHeaders());
+        // noinspection JSUnresolvedFunction
+        expect(response).toHaveResourceCount(0);
         const bwellPersonFinder = getTestContainer().bwellPersonFinder;
-        const result = await bwellPersonFinder.getBwellPersonIdAsync({ base_version: '4_0_0', patientId: 'Patient/1234' });
+        const result = await bwellPersonFinder.getBwellPersonIdAsync({ patientId: '1234' });
 
-        expect(!result);
+        expect(result).toBeNull();
     });
 
     test('search works with no linked bwell Person', async () => {
 
         const request = await createTestRequest();
-        await request
+        const response = await request
             .post('/4_0_0/Person/otherOne/$merge?validate=true')
             .send(linkedPerson1)
             .set(getHeaders());
+        // noinspection JSUnresolvedFunction
+        expect(response).toHaveMergeResponse({created: true});
 
         const bwellPersonFinder = getTestContainer().bwellPersonFinder;
-        const result = await bwellPersonFinder.getBwellPersonIdAsync({ base_version: '4_0_0', patientId: 'Patient/1234' });
+        const result = await bwellPersonFinder.getBwellPersonIdAsync({ patientId: '1234' });
 
-        expect(!result);
+        expect(result).toBeNull();
     });
 
     test('search works with directly linked bwell Person', async () => {
 
         const request = await createTestRequest();
-        await request
+        const response = await request
             .post('/4_0_0/Person/81236/$merge?validate=true')
             .send(bwellPerson_directLink)
             .set(getHeaders());
+        // noinspection JSUnresolvedFunction
+        expect(response).toHaveMergeResponse({created: true});
 
         const bwellPersonFinder = getTestContainer().bwellPersonFinder;
-        const result = await bwellPersonFinder.getBwellPersonIdAsync({ base_version: '4_0_0', patientId: 'Patient/1234' });
+        const result = await bwellPersonFinder.getBwellPersonIdAsync({ patientId: '1234' });
 
-        expect(result === '81235');
+        expect(result).toEqual('81236');
     });
 
     test('search works with indirectly linked bwell Person', async () => {
 
         const request = await createTestRequest();
-        await request
+        let response = await request
             .post('/4_0_0/Person/81236/$merge?validate=true')
             .send(bwellPerson_indirectLink)
             .set(getHeaders());
+        // noinspection JSUnresolvedFunction
+        expect(response).toHaveMergeResponse({created: true});
 
-        await request
+        response = await request
             .post('/4_0_0/Person/5678/$merge?validate=true')
             .send(linkedPerson2)
             .set(getHeaders());
+        // noinspection JSUnresolvedFunction
+        expect(response).toHaveMergeResponse({created: true});
 
-        await request
+        response = await request
             .post('/4_0_0/Person/otherOne/$merge?validate=true')
             .send(linkedPerson1)
             .set(getHeaders());
+        // noinspection JSUnresolvedFunction
+        expect(response).toHaveMergeResponse({created: true});
 
         const bwellPersonFinder = getTestContainer().bwellPersonFinder;
-        const result = await bwellPersonFinder.getBwellPersonIdAsync({ base_version: '4_0_0', patientId: 'Patient/1234' });
+        const result = await bwellPersonFinder.getBwellPersonIdAsync({ patientId: '1234' });
 
-        expect(result === '81235');
+        expect(result).toEqual('81236');
     });
 
     test('search works with cycle and no linked bwell Person', async () => {
 
         const request = await createTestRequest();
-        await request
+        let response = await request
             .post('/4_0_0/Person/5678/$merge?validate=true')
             .send(linkedPerson2)
             .set(getHeaders());
+        // noinspection JSUnresolvedFunction
+        expect(response).toHaveMergeResponse({created: true});
 
-        await request
+        response = await request
             .post('/4_0_0/Person/otherOne/$merge?validate=true')
             .send(linkedPerson1_cycle)
             .set(getHeaders());
+        // noinspection JSUnresolvedFunction
+        expect(response).toHaveMergeResponse({created: true});
 
         const bwellPersonFinder = getTestContainer().bwellPersonFinder;
-        const result = await bwellPersonFinder.getBwellPersonIdAsync({ base_version: '4_0_0', patientId: 'Patient/1234' });
+        const result = await bwellPersonFinder.getBwellPersonIdAsync({ patientId: '1234' });
 
-        expect(!result);
+        expect(result).toBeNull();
     });
 
     test('search works with cycle and linked bwell Person', async () => {
 
         const request = await createTestRequest();
-        await request
+        let response = await request
             .post('/4_0_0/Person/81236/$merge?validate=true')
             .send(bwellPerson_indirectLink)
             .set(getHeaders());
+        // noinspection JSUnresolvedFunction
+        expect(response).toHaveMergeResponse({created: true});
 
-        await request
+        response = await request
             .post('/4_0_0/Person/5678/$merge?validate=true')
             .send(linkedPerson2)
             .set(getHeaders());
+        // noinspection JSUnresolvedFunction
+        expect(response).toHaveMergeResponse({created: true});
 
-        await request
+        response = await request
             .post('/4_0_0/Person/otherOne/$merge?validate=true')
             .send(linkedPerson1_cycle)
             .set(getHeaders());
+        // noinspection JSUnresolvedFunction
+        expect(response).toHaveMergeResponse({created: true});
 
         const bwellPersonFinder = getTestContainer().bwellPersonFinder;
-        const result = await bwellPersonFinder.getBwellPersonIdAsync({ base_version: '4_0_0', patientId: 'Patient/1234' });
+        const result = await bwellPersonFinder.getBwellPersonIdAsync({ patientId: '1234' });
 
-        expect(result === '81235');
+        expect(result).toEqual('81236');
     });
 });
