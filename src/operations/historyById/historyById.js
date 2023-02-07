@@ -175,6 +175,9 @@ class HistoryByIdOperation {
              */
             let cursor;
             try {
+                /**
+                 * @type {DatabaseHistoryManager}
+                 */
                 const databaseHistoryManager = this.databaseHistoryFactory.createDatabaseHistoryManager(
                     {
                         resourceType, base_version
