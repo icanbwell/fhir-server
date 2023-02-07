@@ -62,7 +62,6 @@ describe('Observation Tests', () => {
             expect(resp).toHaveMergeResponse({created: true});
 
             // ACT & ASSERT
-            // search by token system and code and make sure we get the right Observation back
             const headers = getHeaders();
             headers['Prefer'] = 'global_id=true';
             resp = await request

@@ -127,6 +127,8 @@ describe('GraphQL Patient Tests', () => {
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResourceCount(2);
 
+            const graphQLHeaders = getGraphQLHeaders();
+            graphQLHeaders['Prefer'] = 'global_id=true';
             resp = await request
                 .post('/graphqlv2')
                 .send({
@@ -134,7 +136,7 @@ describe('GraphQL Patient Tests', () => {
                     variables: {},
                     query: graphqlQueryText,
                 })
-                .set(getGraphQLHeaders());
+                .set(graphQLHeaders);
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedGraphQlResponse, r => {
                 r.explanationOfBenefit.forEach(resource => {
@@ -207,6 +209,8 @@ describe('GraphQL Patient Tests', () => {
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResourceCount(2);
 
+            const graphQLHeaders = getGraphQLHeaders();
+            graphQLHeaders['Prefer'] = 'global_id=true';
             resp = await request
                 .post('/graphqlv2')
                 .send({
@@ -214,7 +218,7 @@ describe('GraphQL Patient Tests', () => {
                     variables: {},
                     query: graphqlQueryText,
                 })
-                .set(getGraphQLHeaders());
+                .set(graphQLHeaders);
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedGraphQlWithExplainResponse);
             expect(resp.headers['x-request-id']).toBeDefined();
@@ -233,6 +237,8 @@ describe('GraphQL Patient Tests', () => {
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveMergeResponse([{created: true}, {created: true}]);
 
+            const graphQLHeaders = getGraphQLHeaders();
+            graphQLHeaders['Prefer'] = 'global_id=true';
             resp = await request
                 // .get('/graphql/?query=' + graphqlQueryText)
                 // .set(getHeaders())
@@ -242,7 +248,7 @@ describe('GraphQL Patient Tests', () => {
                     variables: {},
                     query: graphqlQueryText,
                 })
-                .set(getGraphQLHeaders());
+                .set(graphQLHeaders);
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedGraphQlMissingPersonResponse);
         });
