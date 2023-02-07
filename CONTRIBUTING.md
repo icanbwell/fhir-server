@@ -264,5 +264,13 @@ The default configuration for winston logger is in: https://github.com/icanbwell
 
 ### How to use
 1. Import functions from: https://github.com/icanbwell/fhir-server/blob/master/src/operations/common/logging.js as per requirement. 
-2. Functions logInfo, logDebug, logError & logWarn take 2 arguments 'message' & 'args', where 'message' is a string & args can take any number of object arguments. Any number of args can be send according to the requirement.
+2. Functions logInfo, logDebug, logError & logWarn take 2 arguments 'message' & 'args', where 'message' is a string & args take object arguments. Any number of args can be send according to the requirement.
+For example: 
+```
+logInfo('Logger Message', {user});
+```
+Output: 
+```
+{"level":"info","message":"Logger Message","timestamp":"Feb-01-2023 07:00:00","user":{"name":"Demo name"}}
+```
 
