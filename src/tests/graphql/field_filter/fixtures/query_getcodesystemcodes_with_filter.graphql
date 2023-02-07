@@ -1,5 +1,5 @@
 query {
-    getCodeSystemCodes(code: ["3584-4"]) {
+    getCodeSystemCodes(code: ["3584-4", "random"]) {
         entry {
             resource {
                 id
