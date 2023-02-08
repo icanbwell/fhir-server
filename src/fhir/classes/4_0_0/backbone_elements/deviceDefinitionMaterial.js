@@ -210,7 +210,15 @@ class DeviceDefinitionMaterial extends Element {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            id: this.id,
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
+            substance: this.substance && this.substance.toJSONInternal(),
+            alternate: this.alternate,
+            allergenicIndicator: this.allergenicIndicator,
+        };
+
 
 
         return removeNull(json);

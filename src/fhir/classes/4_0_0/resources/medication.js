@@ -30,7 +30,7 @@ class Medication extends Resource {
      * @param {MedicationIngredient[]|undefined} [ingredient],
      * @param {MedicationBatch|undefined} [batch],
      * @param {Object|undefined} [_access]
-     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_sourceAssigningAuthority]
      * @param {string|undefined} [_uuid]
      * @param {string|undefined} [_sourceId]
     */
@@ -424,7 +424,7 @@ class Medication extends Resource {
         });
         /**
          * @description _sourceAssigningAuthority
-         * @property {Object|undefined}
+         * @property {string|undefined}
          */
         Object.defineProperty(this, '_sourceAssigningAuthority', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -526,7 +526,7 @@ class Medication extends Resource {
      * @param {MedicationIngredient[]|undefined} [ingredient],
      * @param {MedicationBatch|undefined} [batch],
      * @param {Object|undefined} [_access]
-     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_sourceAssigningAuthority]
      * @param {string|undefined} [_uuid]
      * @param {string|undefined} [_sourceId]
      * @returns {Medication}
@@ -642,7 +642,26 @@ class Medication extends Resource {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            resourceType: this.resourceType,
+            id: this.id,
+            meta: this.meta && this.meta.toJSONInternal(),
+            implicitRules: this.implicitRules,
+            language: this.language,
+            text: this.text && this.text.toJSONInternal(),
+            contained: this.contained && this.contained.map(v => v.toJSONInternal()),
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
+            identifier: this.identifier && this.identifier.map(v => v.toJSONInternal()),
+            code: this.code && this.code.toJSONInternal(),
+            status: this.status,
+            manufacturer: this.manufacturer && this.manufacturer.toJSONInternal(),
+            form: this.form && this.form.toJSONInternal(),
+            amount: this.amount && this.amount.toJSONInternal(),
+            ingredient: this.ingredient && this.ingredient.map(v => v.toJSONInternal()),
+            batch: this.batch && this.batch.toJSONInternal(),
+        };
+
 
         if (this._access) {
             json._access = this._access;

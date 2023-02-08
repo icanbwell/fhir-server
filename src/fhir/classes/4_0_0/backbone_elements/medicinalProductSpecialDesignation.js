@@ -332,7 +332,20 @@ class MedicinalProductSpecialDesignation extends Element {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            id: this.id,
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
+            identifier: this.identifier && this.identifier.map(v => v.toJSONInternal()),
+            type: this.type && this.type.toJSONInternal(),
+            intendedUse: this.intendedUse && this.intendedUse.toJSONInternal(),
+            indicationCodeableConcept: this.indicationCodeableConcept && this.indicationCodeableConcept.toJSONInternal(),
+            indicationReference: this.indicationReference && this.indicationReference.toJSONInternal(),
+            status: this.status && this.status.toJSONInternal(),
+            date: this.date,
+            species: this.species && this.species.toJSONInternal(),
+        };
+
 
 
         return removeNull(json);

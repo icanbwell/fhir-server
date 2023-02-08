@@ -28,7 +28,7 @@ class Flag extends Resource {
      * @param {Reference|undefined} [encounter],
      * @param {Reference|undefined} [author],
      * @param {Object|undefined} [_access]
-     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_sourceAssigningAuthority]
      * @param {string|undefined} [_uuid]
      * @param {string|undefined} [_sourceId]
     */
@@ -420,7 +420,7 @@ class Flag extends Resource {
         });
         /**
          * @description _sourceAssigningAuthority
-         * @property {Object|undefined}
+         * @property {string|undefined}
          */
         Object.defineProperty(this, '_sourceAssigningAuthority', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -522,7 +522,7 @@ class Flag extends Resource {
      * @param {Reference|undefined} [encounter],
      * @param {Reference|undefined} [author],
      * @param {Object|undefined} [_access]
-     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_sourceAssigningAuthority]
      * @param {string|undefined} [_uuid]
      * @param {string|undefined} [_sourceId]
      * @returns {Flag}
@@ -638,7 +638,26 @@ class Flag extends Resource {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            resourceType: this.resourceType,
+            id: this.id,
+            meta: this.meta && this.meta.toJSONInternal(),
+            implicitRules: this.implicitRules,
+            language: this.language,
+            text: this.text && this.text.toJSONInternal(),
+            contained: this.contained && this.contained.map(v => v.toJSONInternal()),
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
+            identifier: this.identifier && this.identifier.map(v => v.toJSONInternal()),
+            status: this.status,
+            category: this.category && this.category.map(v => v.toJSONInternal()),
+            code: this.code && this.code.toJSONInternal(),
+            subject: this.subject && this.subject.toJSONInternal(),
+            period: this.period && this.period.toJSONInternal(),
+            encounter: this.encounter && this.encounter.toJSONInternal(),
+            author: this.author && this.author.toJSONInternal(),
+        };
+
 
         if (this._access) {
             json._access = this._access;

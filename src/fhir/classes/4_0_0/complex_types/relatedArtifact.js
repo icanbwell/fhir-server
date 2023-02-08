@@ -269,7 +269,18 @@ class RelatedArtifact extends Element {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            id: this.id,
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            type: this.type,
+            label: this.label,
+            display: this.display,
+            citation: this.citation,
+            url: this.url,
+            document: this.document && this.document.toJSONInternal(),
+            resource: this.resource,
+        };
+
 
 
         return removeNull(json);

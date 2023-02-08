@@ -764,7 +764,38 @@ class ExplanationOfBenefitItem extends Element {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            id: this.id,
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
+            sequence: this.sequence,
+            careTeamSequence: this.careTeamSequence,
+            diagnosisSequence: this.diagnosisSequence,
+            procedureSequence: this.procedureSequence,
+            informationSequence: this.informationSequence,
+            revenue: this.revenue && this.revenue.toJSONInternal(),
+            category: this.category && this.category.toJSONInternal(),
+            productOrService: this.productOrService && this.productOrService.toJSONInternal(),
+            modifier: this.modifier && this.modifier.map(v => v.toJSONInternal()),
+            programCode: this.programCode && this.programCode.map(v => v.toJSONInternal()),
+            servicedDate: this.servicedDate,
+            servicedPeriod: this.servicedPeriod && this.servicedPeriod.toJSONInternal(),
+            locationCodeableConcept: this.locationCodeableConcept && this.locationCodeableConcept.toJSONInternal(),
+            locationAddress: this.locationAddress && this.locationAddress.toJSONInternal(),
+            locationReference: this.locationReference && this.locationReference.toJSONInternal(),
+            quantity: this.quantity && this.quantity.toJSONInternal(),
+            unitPrice: this.unitPrice && this.unitPrice.toJSONInternal(),
+            factor: this.factor,
+            net: this.net && this.net.toJSONInternal(),
+            udi: this.udi && this.udi.map(v => v.toJSONInternal()),
+            bodySite: this.bodySite && this.bodySite.toJSONInternal(),
+            subSite: this.subSite && this.subSite.map(v => v.toJSONInternal()),
+            encounter: this.encounter && this.encounter.map(v => v.toJSONInternal()),
+            noteNumber: this.noteNumber,
+            adjudication: this.adjudication && this.adjudication.map(v => v.toJSONInternal()),
+            detail: this.detail && this.detail.map(v => v.toJSONInternal()),
+        };
+
 
 
         return removeNull(json);

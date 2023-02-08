@@ -241,7 +241,16 @@ class InvoiceLineItem extends Element {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            id: this.id,
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
+            sequence: this.sequence,
+            chargeItemReference: this.chargeItemReference && this.chargeItemReference.toJSONInternal(),
+            chargeItemCodeableConcept: this.chargeItemCodeableConcept && this.chargeItemCodeableConcept.toJSONInternal(),
+            priceComponent: this.priceComponent && this.priceComponent.map(v => v.toJSONInternal()),
+        };
+
 
 
         return removeNull(json);

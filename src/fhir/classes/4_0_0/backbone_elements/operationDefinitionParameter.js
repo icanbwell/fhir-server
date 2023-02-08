@@ -401,7 +401,23 @@ class OperationDefinitionParameter extends Element {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            id: this.id,
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
+            name: this.name,
+            use: this.use,
+            min: this.min,
+            max: this.max,
+            documentation: this.documentation,
+            type: this.type,
+            targetProfile: this.targetProfile,
+            searchType: this.searchType,
+            binding: this.binding && this.binding.toJSONInternal(),
+            referencedFrom: this.referencedFrom && this.referencedFrom.map(v => v.toJSONInternal()),
+            part: this.part && this.part.map(v => v.toJSONInternal()),
+        };
+
 
 
         return removeNull(json);

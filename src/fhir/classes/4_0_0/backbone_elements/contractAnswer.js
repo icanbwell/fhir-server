@@ -414,7 +414,24 @@ class ContractAnswer extends Element {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            id: this.id,
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
+            valueBoolean: this.valueBoolean,
+            valueDecimal: this.valueDecimal,
+            valueInteger: this.valueInteger,
+            valueDate: this.valueDate,
+            valueDateTime: this.valueDateTime,
+            valueTime: this.valueTime,
+            valueString: this.valueString,
+            valueUri: this.valueUri,
+            valueAttachment: this.valueAttachment && this.valueAttachment.toJSONInternal(),
+            valueCoding: this.valueCoding && this.valueCoding.toJSONInternal(),
+            valueQuantity: this.valueQuantity && this.valueQuantity.toJSONInternal(),
+            valueReference: this.valueReference && this.valueReference.toJSONInternal(),
+        };
+
 
 
         return removeNull(json);

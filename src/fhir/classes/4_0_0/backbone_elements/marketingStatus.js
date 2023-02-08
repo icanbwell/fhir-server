@@ -277,7 +277,17 @@ class MarketingStatus extends Element {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            id: this.id,
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
+            country: this.country && this.country.toJSONInternal(),
+            jurisdiction: this.jurisdiction && this.jurisdiction.toJSONInternal(),
+            status: this.status && this.status.toJSONInternal(),
+            dateRange: this.dateRange && this.dateRange.toJSONInternal(),
+            restoreDate: this.restoreDate,
+        };
+
 
 
         return removeNull(json);

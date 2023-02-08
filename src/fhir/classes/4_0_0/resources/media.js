@@ -44,7 +44,7 @@ class Media extends Resource {
      * @param {Attachment} content,
      * @param {Annotation[]|undefined} [note],
      * @param {Object|undefined} [_access]
-     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_sourceAssigningAuthority]
      * @param {string|undefined} [_uuid]
      * @param {string|undefined} [_sourceId]
     */
@@ -737,7 +737,7 @@ class Media extends Resource {
         });
         /**
          * @description _sourceAssigningAuthority
-         * @property {Object|undefined}
+         * @property {string|undefined}
          */
         Object.defineProperty(this, '_sourceAssigningAuthority', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -869,7 +869,7 @@ class Media extends Resource {
      * @param {Attachment} content,
      * @param {Annotation[]|undefined} [note],
      * @param {Object|undefined} [_access]
-     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_sourceAssigningAuthority]
      * @param {string|undefined} [_uuid]
      * @param {string|undefined} [_sourceId]
      * @returns {Media}
@@ -1038,7 +1038,41 @@ class Media extends Resource {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            resourceType: this.resourceType,
+            id: this.id,
+            meta: this.meta && this.meta.toJSONInternal(),
+            implicitRules: this.implicitRules,
+            language: this.language,
+            text: this.text && this.text.toJSONInternal(),
+            contained: this.contained && this.contained.map(v => v.toJSONInternal()),
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
+            identifier: this.identifier && this.identifier.map(v => v.toJSONInternal()),
+            basedOn: this.basedOn && this.basedOn.map(v => v.toJSONInternal()),
+            partOf: this.partOf && this.partOf.map(v => v.toJSONInternal()),
+            status: this.status,
+            type: this.type && this.type.toJSONInternal(),
+            modality: this.modality && this.modality.toJSONInternal(),
+            view: this.view && this.view.toJSONInternal(),
+            subject: this.subject && this.subject.toJSONInternal(),
+            encounter: this.encounter && this.encounter.toJSONInternal(),
+            createdDateTime: this.createdDateTime,
+            createdPeriod: this.createdPeriod && this.createdPeriod.toJSONInternal(),
+            issued: this.issued,
+            operator: this.operator && this.operator.toJSONInternal(),
+            reasonCode: this.reasonCode && this.reasonCode.map(v => v.toJSONInternal()),
+            bodySite: this.bodySite && this.bodySite.toJSONInternal(),
+            deviceName: this.deviceName,
+            device: this.device && this.device.toJSONInternal(),
+            height: this.height,
+            width: this.width,
+            frames: this.frames,
+            duration: this.duration,
+            content: this.content && this.content.toJSONInternal(),
+            note: this.note && this.note.map(v => v.toJSONInternal()),
+        };
+
 
         if (this._access) {
             json._access = this._access;

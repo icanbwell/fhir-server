@@ -238,7 +238,16 @@ class BiologicallyDerivedProductCollection extends Element {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            id: this.id,
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
+            collector: this.collector && this.collector.toJSONInternal(),
+            source: this.source && this.source.toJSONInternal(),
+            collectedDateTime: this.collectedDateTime,
+            collectedPeriod: this.collectedPeriod && this.collectedPeriod.toJSONInternal(),
+        };
+
 
 
         return removeNull(json);

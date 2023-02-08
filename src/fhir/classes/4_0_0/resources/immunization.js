@@ -50,7 +50,7 @@ class Immunization extends Resource {
      * @param {ImmunizationReaction[]|undefined} [reaction],
      * @param {ImmunizationProtocolApplied[]|undefined} [protocolApplied],
      * @param {Object|undefined} [_access]
-     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_sourceAssigningAuthority]
      * @param {string|undefined} [_uuid]
      * @param {string|undefined} [_sourceId]
     */
@@ -863,7 +863,7 @@ class Immunization extends Resource {
         });
         /**
          * @description _sourceAssigningAuthority
-         * @property {Object|undefined}
+         * @property {string|undefined}
          */
         Object.defineProperty(this, '_sourceAssigningAuthority', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -1007,7 +1007,7 @@ class Immunization extends Resource {
      * @param {ImmunizationReaction[]|undefined} [reaction],
      * @param {ImmunizationProtocolApplied[]|undefined} [protocolApplied],
      * @param {Object|undefined} [_access]
-     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_sourceAssigningAuthority]
      * @param {string|undefined} [_uuid]
      * @param {string|undefined} [_sourceId]
      * @returns {Immunization}
@@ -1200,7 +1200,47 @@ class Immunization extends Resource {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            resourceType: this.resourceType,
+            id: this.id,
+            meta: this.meta && this.meta.toJSONInternal(),
+            implicitRules: this.implicitRules,
+            language: this.language,
+            text: this.text && this.text.toJSONInternal(),
+            contained: this.contained && this.contained.map(v => v.toJSONInternal()),
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
+            identifier: this.identifier && this.identifier.map(v => v.toJSONInternal()),
+            status: this.status,
+            statusReason: this.statusReason && this.statusReason.toJSONInternal(),
+            vaccineCode: this.vaccineCode && this.vaccineCode.toJSONInternal(),
+            patient: this.patient && this.patient.toJSONInternal(),
+            encounter: this.encounter && this.encounter.toJSONInternal(),
+            occurrenceDateTime: this.occurrenceDateTime,
+            occurrenceString: this.occurrenceString,
+            recorded: this.recorded,
+            primarySource: this.primarySource,
+            reportOrigin: this.reportOrigin && this.reportOrigin.toJSONInternal(),
+            location: this.location && this.location.toJSONInternal(),
+            manufacturer: this.manufacturer && this.manufacturer.toJSONInternal(),
+            lotNumber: this.lotNumber,
+            expirationDate: this.expirationDate,
+            site: this.site && this.site.toJSONInternal(),
+            route: this.route && this.route.toJSONInternal(),
+            doseQuantity: this.doseQuantity && this.doseQuantity.toJSONInternal(),
+            performer: this.performer && this.performer.map(v => v.toJSONInternal()),
+            note: this.note && this.note.map(v => v.toJSONInternal()),
+            reasonCode: this.reasonCode && this.reasonCode.map(v => v.toJSONInternal()),
+            reasonReference: this.reasonReference && this.reasonReference.map(v => v.toJSONInternal()),
+            isSubpotent: this.isSubpotent,
+            subpotentReason: this.subpotentReason && this.subpotentReason.map(v => v.toJSONInternal()),
+            education: this.education && this.education.map(v => v.toJSONInternal()),
+            programEligibility: this.programEligibility && this.programEligibility.map(v => v.toJSONInternal()),
+            fundingSource: this.fundingSource && this.fundingSource.toJSONInternal(),
+            reaction: this.reaction && this.reaction.map(v => v.toJSONInternal()),
+            protocolApplied: this.protocolApplied && this.protocolApplied.map(v => v.toJSONInternal()),
+        };
+
 
         if (this._access) {
             json._access = this._access;

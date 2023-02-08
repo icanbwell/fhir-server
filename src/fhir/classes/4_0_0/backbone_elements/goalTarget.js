@@ -376,7 +376,22 @@ class GoalTarget extends Element {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            id: this.id,
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
+            measure: this.measure && this.measure.toJSONInternal(),
+            detailQuantity: this.detailQuantity && this.detailQuantity.toJSONInternal(),
+            detailRange: this.detailRange && this.detailRange.toJSONInternal(),
+            detailCodeableConcept: this.detailCodeableConcept && this.detailCodeableConcept.toJSONInternal(),
+            detailString: this.detailString,
+            detailBoolean: this.detailBoolean,
+            detailInteger: this.detailInteger,
+            detailRatio: this.detailRatio && this.detailRatio.toJSONInternal(),
+            dueDate: this.dueDate,
+            dueDuration: this.dueDuration && this.dueDuration.toJSONInternal(),
+        };
+
 
 
         return removeNull(json);

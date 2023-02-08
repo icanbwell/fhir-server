@@ -226,7 +226,16 @@ class Coding extends Element {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            id: this.id,
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            system: this.system,
+            version: this.version,
+            code: this.code,
+            display: this.display,
+            userSelected: this.userSelected,
+        };
+
 
 
         return removeNull(json);

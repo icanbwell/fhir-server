@@ -333,7 +333,20 @@ class RiskAssessmentPrediction extends Element {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            id: this.id,
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
+            outcome: this.outcome && this.outcome.toJSONInternal(),
+            probabilityDecimal: this.probabilityDecimal,
+            probabilityRange: this.probabilityRange && this.probabilityRange.toJSONInternal(),
+            qualitativeRisk: this.qualitativeRisk && this.qualitativeRisk.toJSONInternal(),
+            relativeRisk: this.relativeRisk,
+            whenPeriod: this.whenPeriod && this.whenPeriod.toJSONInternal(),
+            whenRange: this.whenRange && this.whenRange.toJSONInternal(),
+            rationale: this.rationale,
+        };
+
 
 
         return removeNull(json);

@@ -231,7 +231,16 @@ class DataRequirementDateFilter extends Element {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            id: this.id,
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            path: this.path,
+            searchParam: this.searchParam,
+            valueDateTime: this.valueDateTime,
+            valuePeriod: this.valuePeriod && this.valuePeriod.toJSONInternal(),
+            valueDuration: this.valueDuration && this.valueDuration.toJSONInternal(),
+        };
+
 
 
         return removeNull(json);

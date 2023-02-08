@@ -243,7 +243,16 @@ class MeasureReportStratum extends Element {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            id: this.id,
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
+            value: this.value && this.value.toJSONInternal(),
+            component: this.component && this.component.map(v => v.toJSONInternal()),
+            population: this.population && this.population.map(v => v.toJSONInternal()),
+            measureScore: this.measureScore && this.measureScore.toJSONInternal(),
+        };
+
 
 
         return removeNull(json);

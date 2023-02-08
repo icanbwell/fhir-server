@@ -39,7 +39,7 @@ class SupplyRequest extends Resource {
      * @param {Reference|undefined} [deliverFrom],
      * @param {Reference|undefined} [deliverTo],
      * @param {Object|undefined} [_access]
-     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_sourceAssigningAuthority]
      * @param {string|undefined} [_uuid]
      * @param {string|undefined} [_sourceId]
     */
@@ -627,7 +627,7 @@ class SupplyRequest extends Resource {
         });
         /**
          * @description _sourceAssigningAuthority
-         * @property {Object|undefined}
+         * @property {string|undefined}
          */
         Object.defineProperty(this, '_sourceAssigningAuthority', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -749,7 +749,7 @@ class SupplyRequest extends Resource {
      * @param {Reference|undefined} [deliverFrom],
      * @param {Reference|undefined} [deliverTo],
      * @param {Object|undefined} [_access]
-     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_sourceAssigningAuthority]
      * @param {string|undefined} [_uuid]
      * @param {string|undefined} [_sourceId]
      * @returns {SupplyRequest}
@@ -902,7 +902,36 @@ class SupplyRequest extends Resource {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            resourceType: this.resourceType,
+            id: this.id,
+            meta: this.meta && this.meta.toJSONInternal(),
+            implicitRules: this.implicitRules,
+            language: this.language,
+            text: this.text && this.text.toJSONInternal(),
+            contained: this.contained && this.contained.map(v => v.toJSONInternal()),
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
+            identifier: this.identifier && this.identifier.map(v => v.toJSONInternal()),
+            status: this.status,
+            category: this.category && this.category.toJSONInternal(),
+            priority: this.priority,
+            itemCodeableConcept: this.itemCodeableConcept && this.itemCodeableConcept.toJSONInternal(),
+            itemReference: this.itemReference && this.itemReference.toJSONInternal(),
+            quantity: this.quantity && this.quantity.toJSONInternal(),
+            parameter: this.parameter && this.parameter.map(v => v.toJSONInternal()),
+            occurrenceDateTime: this.occurrenceDateTime,
+            occurrencePeriod: this.occurrencePeriod && this.occurrencePeriod.toJSONInternal(),
+            occurrenceTiming: this.occurrenceTiming && this.occurrenceTiming.toJSONInternal(),
+            authoredOn: this.authoredOn,
+            requester: this.requester && this.requester.toJSONInternal(),
+            supplier: this.supplier && this.supplier.map(v => v.toJSONInternal()),
+            reasonCode: this.reasonCode && this.reasonCode.map(v => v.toJSONInternal()),
+            reasonReference: this.reasonReference && this.reasonReference.map(v => v.toJSONInternal()),
+            deliverFrom: this.deliverFrom && this.deliverFrom.toJSONInternal(),
+            deliverTo: this.deliverTo && this.deliverTo.toJSONInternal(),
+        };
+
 
         if (this._access) {
             json._access = this._access;

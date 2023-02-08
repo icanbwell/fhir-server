@@ -332,7 +332,20 @@ class DataRequirement extends Element {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            id: this.id,
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            type: this.type,
+            profile: this.profile,
+            subjectCodeableConcept: this.subjectCodeableConcept && this.subjectCodeableConcept.toJSONInternal(),
+            subjectReference: this.subjectReference && this.subjectReference.toJSONInternal(),
+            mustSupport: this.mustSupport,
+            codeFilter: this.codeFilter && this.codeFilter.map(v => v.toJSONInternal()),
+            dateFilter: this.dateFilter && this.dateFilter.map(v => v.toJSONInternal()),
+            limit: this.limit,
+            sort: this.sort && this.sort.map(v => v.toJSONInternal()),
+        };
+
 
 
         return removeNull(json);

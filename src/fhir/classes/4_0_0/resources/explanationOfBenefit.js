@@ -65,7 +65,7 @@ class ExplanationOfBenefit extends Resource {
      * @param {Period|undefined} [benefitPeriod],
      * @param {ExplanationOfBenefitBenefitBalance[]|undefined} [benefitBalance],
      * @param {Object|undefined} [_access]
-     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_sourceAssigningAuthority]
      * @param {string|undefined} [_uuid]
      * @param {string|undefined} [_sourceId]
     */
@@ -1173,7 +1173,7 @@ class ExplanationOfBenefit extends Resource {
         });
         /**
          * @description _sourceAssigningAuthority
-         * @property {Object|undefined}
+         * @property {string|undefined}
          */
         Object.defineProperty(this, '_sourceAssigningAuthority', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -1345,7 +1345,7 @@ class ExplanationOfBenefit extends Resource {
      * @param {Period|undefined} [benefitPeriod],
      * @param {ExplanationOfBenefitBenefitBalance[]|undefined} [benefitBalance],
      * @param {Object|undefined} [_access]
-     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_sourceAssigningAuthority]
      * @param {string|undefined} [_uuid]
      * @param {string|undefined} [_sourceId]
      * @returns {ExplanationOfBenefit}
@@ -1595,7 +1595,61 @@ class ExplanationOfBenefit extends Resource {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            resourceType: this.resourceType,
+            id: this.id,
+            meta: this.meta && this.meta.toJSONInternal(),
+            implicitRules: this.implicitRules,
+            language: this.language,
+            text: this.text && this.text.toJSONInternal(),
+            contained: this.contained && this.contained.map(v => v.toJSONInternal()),
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
+            identifier: this.identifier && this.identifier.map(v => v.toJSONInternal()),
+            status: this.status,
+            type: this.type && this.type.toJSONInternal(),
+            subType: this.subType && this.subType.toJSONInternal(),
+            use: this.use,
+            patient: this.patient && this.patient.toJSONInternal(),
+            billablePeriod: this.billablePeriod && this.billablePeriod.toJSONInternal(),
+            created: this.created,
+            enterer: this.enterer && this.enterer.toJSONInternal(),
+            insurer: this.insurer && this.insurer.toJSONInternal(),
+            provider: this.provider && this.provider.toJSONInternal(),
+            priority: this.priority && this.priority.toJSONInternal(),
+            fundsReserveRequested: this.fundsReserveRequested && this.fundsReserveRequested.toJSONInternal(),
+            fundsReserve: this.fundsReserve && this.fundsReserve.toJSONInternal(),
+            related: this.related && this.related.map(v => v.toJSONInternal()),
+            prescription: this.prescription && this.prescription.toJSONInternal(),
+            originalPrescription: this.originalPrescription && this.originalPrescription.toJSONInternal(),
+            payee: this.payee && this.payee.toJSONInternal(),
+            referral: this.referral && this.referral.toJSONInternal(),
+            facility: this.facility && this.facility.toJSONInternal(),
+            claim: this.claim && this.claim.toJSONInternal(),
+            claimResponse: this.claimResponse && this.claimResponse.toJSONInternal(),
+            outcome: this.outcome,
+            disposition: this.disposition,
+            preAuthRef: this.preAuthRef,
+            preAuthRefPeriod: this.preAuthRefPeriod && this.preAuthRefPeriod.map(v => v.toJSONInternal()),
+            careTeam: this.careTeam && this.careTeam.map(v => v.toJSONInternal()),
+            supportingInfo: this.supportingInfo && this.supportingInfo.map(v => v.toJSONInternal()),
+            diagnosis: this.diagnosis && this.diagnosis.map(v => v.toJSONInternal()),
+            procedure: this.procedure && this.procedure.map(v => v.toJSONInternal()),
+            precedence: this.precedence,
+            insurance: this.insurance && this.insurance.map(v => v.toJSONInternal()),
+            accident: this.accident && this.accident.toJSONInternal(),
+            item: this.item && this.item.map(v => v.toJSONInternal()),
+            addItem: this.addItem && this.addItem.map(v => v.toJSONInternal()),
+            adjudication: this.adjudication && this.adjudication.map(v => v.toJSONInternal()),
+            total: this.total && this.total.map(v => v.toJSONInternal()),
+            payment: this.payment && this.payment.toJSONInternal(),
+            formCode: this.formCode && this.formCode.toJSONInternal(),
+            form: this.form && this.form.toJSONInternal(),
+            processNote: this.processNote && this.processNote.map(v => v.toJSONInternal()),
+            benefitPeriod: this.benefitPeriod && this.benefitPeriod.toJSONInternal(),
+            benefitBalance: this.benefitBalance && this.benefitBalance.map(v => v.toJSONInternal()),
+        };
+
 
         if (this._access) {
             json._access = this._access;

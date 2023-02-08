@@ -49,7 +49,7 @@ class StructureDefinition extends Resource {
      * @param {StructureDefinitionSnapshot|undefined} [snapshot],
      * @param {StructureDefinitionDifferential|undefined} [differential],
      * @param {Object|undefined} [_access]
-     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_sourceAssigningAuthority]
      * @param {string|undefined} [_uuid]
      * @param {string|undefined} [_sourceId]
     */
@@ -848,7 +848,7 @@ class StructureDefinition extends Resource {
         });
         /**
          * @description _sourceAssigningAuthority
-         * @property {Object|undefined}
+         * @property {string|undefined}
          */
         Object.defineProperty(this, '_sourceAssigningAuthority', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -988,7 +988,7 @@ class StructureDefinition extends Resource {
      * @param {StructureDefinitionSnapshot|undefined} [snapshot],
      * @param {StructureDefinitionDifferential|undefined} [differential],
      * @param {Object|undefined} [_access]
-     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_sourceAssigningAuthority]
      * @param {string|undefined} [_uuid]
      * @param {string|undefined} [_sourceId]
      * @returns {StructureDefinition}
@@ -1163,7 +1163,45 @@ class StructureDefinition extends Resource {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            resourceType: this.resourceType,
+            id: this.id,
+            meta: this.meta && this.meta.toJSONInternal(),
+            implicitRules: this.implicitRules,
+            language: this.language,
+            text: this.text && this.text.toJSONInternal(),
+            contained: this.contained && this.contained.map(v => v.toJSONInternal()),
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
+            url: this.url,
+            identifier: this.identifier && this.identifier.map(v => v.toJSONInternal()),
+            version: this.version,
+            name: this.name,
+            title: this.title,
+            status: this.status,
+            experimental: this.experimental,
+            date: this.date,
+            publisher: this.publisher,
+            contact: this.contact && this.contact.map(v => v.toJSONInternal()),
+            description: this.description,
+            useContext: this.useContext && this.useContext.map(v => v.toJSONInternal()),
+            jurisdiction: this.jurisdiction && this.jurisdiction.map(v => v.toJSONInternal()),
+            purpose: this.purpose,
+            copyright: this.copyright,
+            keyword: this.keyword && this.keyword.map(v => v.toJSONInternal()),
+            fhirVersion: this.fhirVersion,
+            mapping: this.mapping && this.mapping.map(v => v.toJSONInternal()),
+            kind: this.kind,
+            abstract: this.abstract,
+            context: this.context && this.context.map(v => v.toJSONInternal()),
+            contextInvariant: this.contextInvariant,
+            type: this.type,
+            baseDefinition: this.baseDefinition,
+            derivation: this.derivation,
+            snapshot: this.snapshot && this.snapshot.toJSONInternal(),
+            differential: this.differential && this.differential.toJSONInternal(),
+        };
+
 
         if (this._access) {
             json._access = this._access;

@@ -495,7 +495,27 @@ class ObservationComponent extends Element {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            id: this.id,
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
+            code: this.code && this.code.toJSONInternal(),
+            valueQuantity: this.valueQuantity && this.valueQuantity.toJSONInternal(),
+            valueCodeableConcept: this.valueCodeableConcept && this.valueCodeableConcept.toJSONInternal(),
+            valueString: this.valueString,
+            valueBoolean: this.valueBoolean,
+            valueInteger: this.valueInteger,
+            valueRange: this.valueRange && this.valueRange.toJSONInternal(),
+            valueRatio: this.valueRatio && this.valueRatio.toJSONInternal(),
+            valueSampledData: this.valueSampledData && this.valueSampledData.toJSONInternal(),
+            valueTime: this.valueTime,
+            valueDateTime: this.valueDateTime,
+            valuePeriod: this.valuePeriod && this.valuePeriod.toJSONInternal(),
+            dataAbsentReason: this.dataAbsentReason && this.dataAbsentReason.toJSONInternal(),
+            interpretation: this.interpretation && this.interpretation.map(v => v.toJSONInternal()),
+            referenceRange: this.referenceRange && this.referenceRange.map(v => v.toJSONInternal()),
+        };
+
 
 
         return removeNull(json);

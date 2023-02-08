@@ -240,7 +240,16 @@ class ContractSecurityLabel extends Element {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            id: this.id,
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
+            number: this.number,
+            classification: this.classification && this.classification.toJSONInternal(),
+            category: this.category && this.category.map(v => v.toJSONInternal()),
+            control: this.control && this.control.map(v => v.toJSONInternal()),
+        };
+
 
 
         return removeNull(json);

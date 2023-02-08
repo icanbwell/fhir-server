@@ -262,7 +262,17 @@ class ClaimResponseInsurance extends Element {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            id: this.id,
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
+            sequence: this.sequence,
+            focal: this.focal,
+            coverage: this.coverage && this.coverage.toJSONInternal(),
+            businessArrangement: this.businessArrangement,
+            claimResponse: this.claimResponse && this.claimResponse.toJSONInternal(),
+        };
+
 
 
         return removeNull(json);

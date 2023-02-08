@@ -358,7 +358,21 @@ class SpecimenCollection extends Element {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            id: this.id,
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
+            collector: this.collector && this.collector.toJSONInternal(),
+            collectedDateTime: this.collectedDateTime,
+            collectedPeriod: this.collectedPeriod && this.collectedPeriod.toJSONInternal(),
+            duration: this.duration && this.duration.toJSONInternal(),
+            quantity: this.quantity && this.quantity.toJSONInternal(),
+            method: this.method && this.method.toJSONInternal(),
+            bodySite: this.bodySite && this.bodySite.toJSONInternal(),
+            fastingStatusCodeableConcept: this.fastingStatusCodeableConcept && this.fastingStatusCodeableConcept.toJSONInternal(),
+            fastingStatusDuration: this.fastingStatusDuration && this.fastingStatusDuration.toJSONInternal(),
+        };
+
 
 
         return removeNull(json);

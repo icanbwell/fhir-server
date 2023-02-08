@@ -50,7 +50,7 @@ class MedicationDispense extends Resource {
      * @param {Reference[]|undefined} [detectedIssue],
      * @param {Reference[]|undefined} [eventHistory],
      * @param {Object|undefined} [_access]
-     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_sourceAssigningAuthority]
      * @param {string|undefined} [_uuid]
      * @param {string|undefined} [_sourceId]
     */
@@ -813,7 +813,7 @@ class MedicationDispense extends Resource {
         });
         /**
          * @description _sourceAssigningAuthority
-         * @property {Object|undefined}
+         * @property {string|undefined}
          */
         Object.defineProperty(this, '_sourceAssigningAuthority', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -951,7 +951,7 @@ class MedicationDispense extends Resource {
      * @param {Reference[]|undefined} [detectedIssue],
      * @param {Reference[]|undefined} [eventHistory],
      * @param {Object|undefined} [_access]
-     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_sourceAssigningAuthority]
      * @param {string|undefined} [_uuid]
      * @param {string|undefined} [_sourceId]
      * @returns {MedicationDispense}
@@ -1137,7 +1137,44 @@ class MedicationDispense extends Resource {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            resourceType: this.resourceType,
+            id: this.id,
+            meta: this.meta && this.meta.toJSONInternal(),
+            implicitRules: this.implicitRules,
+            language: this.language,
+            text: this.text && this.text.toJSONInternal(),
+            contained: this.contained && this.contained.map(v => v.toJSONInternal()),
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
+            identifier: this.identifier && this.identifier.map(v => v.toJSONInternal()),
+            partOf: this.partOf && this.partOf.map(v => v.toJSONInternal()),
+            status: this.status,
+            statusReasonCodeableConcept: this.statusReasonCodeableConcept && this.statusReasonCodeableConcept.toJSONInternal(),
+            statusReasonReference: this.statusReasonReference && this.statusReasonReference.toJSONInternal(),
+            category: this.category && this.category.toJSONInternal(),
+            medicationCodeableConcept: this.medicationCodeableConcept && this.medicationCodeableConcept.toJSONInternal(),
+            medicationReference: this.medicationReference && this.medicationReference.toJSONInternal(),
+            subject: this.subject && this.subject.toJSONInternal(),
+            context: this.context && this.context.toJSONInternal(),
+            supportingInformation: this.supportingInformation && this.supportingInformation.map(v => v.toJSONInternal()),
+            performer: this.performer && this.performer.map(v => v.toJSONInternal()),
+            location: this.location && this.location.toJSONInternal(),
+            authorizingPrescription: this.authorizingPrescription && this.authorizingPrescription.map(v => v.toJSONInternal()),
+            type: this.type && this.type.toJSONInternal(),
+            quantity: this.quantity && this.quantity.toJSONInternal(),
+            daysSupply: this.daysSupply && this.daysSupply.toJSONInternal(),
+            whenPrepared: this.whenPrepared,
+            whenHandedOver: this.whenHandedOver,
+            destination: this.destination && this.destination.toJSONInternal(),
+            receiver: this.receiver && this.receiver.map(v => v.toJSONInternal()),
+            note: this.note && this.note.map(v => v.toJSONInternal()),
+            dosageInstruction: this.dosageInstruction && this.dosageInstruction.map(v => v.toJSONInternal()),
+            substitution: this.substitution && this.substitution.toJSONInternal(),
+            detectedIssue: this.detectedIssue && this.detectedIssue.map(v => v.toJSONInternal()),
+            eventHistory: this.eventHistory && this.eventHistory.map(v => v.toJSONInternal()),
+        };
+
 
         if (this._access) {
             json._access = this._access;

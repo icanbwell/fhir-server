@@ -255,7 +255,17 @@ class TerminologyCapabilitiesExpansion extends Element {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            id: this.id,
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
+            hierarchical: this.hierarchical,
+            paging: this.paging,
+            incomplete: this.incomplete,
+            parameter: this.parameter && this.parameter.map(v => v.toJSONInternal()),
+            textFilter: this.textFilter,
+        };
+
 
 
         return removeNull(json);

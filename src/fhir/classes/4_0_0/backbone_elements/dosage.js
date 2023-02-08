@@ -475,7 +475,26 @@ class Dosage extends Element {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            id: this.id,
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
+            sequence: this.sequence,
+            text: this.text,
+            additionalInstruction: this.additionalInstruction && this.additionalInstruction.map(v => v.toJSONInternal()),
+            patientInstruction: this.patientInstruction,
+            timing: this.timing && this.timing.toJSONInternal(),
+            asNeededBoolean: this.asNeededBoolean,
+            asNeededCodeableConcept: this.asNeededCodeableConcept && this.asNeededCodeableConcept.toJSONInternal(),
+            site: this.site && this.site.toJSONInternal(),
+            route: this.route && this.route.toJSONInternal(),
+            method: this.method && this.method.toJSONInternal(),
+            doseAndRate: this.doseAndRate && this.doseAndRate.map(v => v.toJSONInternal()),
+            maxDosePerPeriod: this.maxDosePerPeriod && this.maxDosePerPeriod.toJSONInternal(),
+            maxDosePerAdministration: this.maxDosePerAdministration && this.maxDosePerAdministration.toJSONInternal(),
+            maxDosePerLifetime: this.maxDosePerLifetime && this.maxDosePerLifetime.toJSONInternal(),
+        };
+
 
 
         return removeNull(json);

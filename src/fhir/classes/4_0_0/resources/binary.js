@@ -21,7 +21,7 @@ class Binary extends Resource {
      * @param {Reference|undefined} [securityContext],
      * @param {base64Binary|undefined} [data],
      * @param {Object|undefined} [_access]
-     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_sourceAssigningAuthority]
      * @param {string|undefined} [_uuid]
      * @param {string|undefined} [_sourceId]
     */
@@ -203,7 +203,7 @@ class Binary extends Resource {
         });
         /**
          * @description _sourceAssigningAuthority
-         * @property {Object|undefined}
+         * @property {string|undefined}
          */
         Object.defineProperty(this, '_sourceAssigningAuthority', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -287,7 +287,7 @@ class Binary extends Resource {
      * @param {Reference|undefined} [securityContext],
      * @param {base64Binary|undefined} [data],
      * @param {Object|undefined} [_access]
-     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_sourceAssigningAuthority]
      * @param {string|undefined} [_uuid]
      * @param {string|undefined} [_sourceId]
      * @returns {Binary}
@@ -366,7 +366,17 @@ class Binary extends Resource {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            resourceType: this.resourceType,
+            id: this.id,
+            meta: this.meta && this.meta.toJSONInternal(),
+            implicitRules: this.implicitRules,
+            language: this.language,
+            contentType: this.contentType,
+            securityContext: this.securityContext && this.securityContext.toJSONInternal(),
+            data: this.data,
+        };
+
 
         if (this._access) {
             json._access = this._access;

@@ -291,7 +291,18 @@ class ValueSetExpansion extends Element {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            id: this.id,
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
+            identifier: this.identifier,
+            timestamp: this.timestamp,
+            total: this.total,
+            offset: this.offset,
+            parameter: this.parameter && this.parameter.map(v => v.toJSONInternal()),
+            contains: this.contains && this.contains.map(v => v.toJSONInternal()),
+        };
+
 
 
         return removeNull(json);

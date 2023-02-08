@@ -411,7 +411,23 @@ class ConsentProvision extends Element {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            id: this.id,
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
+            type: this.type,
+            period: this.period && this.period.toJSONInternal(),
+            actor: this.actor && this.actor.map(v => v.toJSONInternal()),
+            action: this.action && this.action.map(v => v.toJSONInternal()),
+            securityLabel: this.securityLabel && this.securityLabel.map(v => v.toJSONInternal()),
+            purpose: this.purpose && this.purpose.map(v => v.toJSONInternal()),
+            class: this.class && this.class.map(v => v.toJSONInternal()),
+            code: this.code && this.code.map(v => v.toJSONInternal()),
+            dataPeriod: this.dataPeriod && this.dataPeriod.toJSONInternal(),
+            data: this.data && this.data.map(v => v.toJSONInternal()),
+            provision: this.provision && this.provision.map(v => v.toJSONInternal()),
+        };
+
 
 
         return removeNull(json);

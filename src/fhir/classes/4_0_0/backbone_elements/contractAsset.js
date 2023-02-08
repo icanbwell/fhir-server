@@ -499,7 +499,27 @@ class ContractAsset extends Element {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            id: this.id,
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
+            scope: this.scope && this.scope.toJSONInternal(),
+            type: this.type && this.type.map(v => v.toJSONInternal()),
+            typeReference: this.typeReference && this.typeReference.map(v => v.toJSONInternal()),
+            subtype: this.subtype && this.subtype.map(v => v.toJSONInternal()),
+            relationship: this.relationship && this.relationship.toJSONInternal(),
+            context: this.context && this.context.map(v => v.toJSONInternal()),
+            condition: this.condition,
+            periodType: this.periodType && this.periodType.map(v => v.toJSONInternal()),
+            period: this.period && this.period.map(v => v.toJSONInternal()),
+            usePeriod: this.usePeriod && this.usePeriod.map(v => v.toJSONInternal()),
+            text: this.text,
+            linkId: this.linkId,
+            answer: this.answer && this.answer.map(v => v.toJSONInternal()),
+            securityLabelNumber: this.securityLabelNumber,
+            valuedItem: this.valuedItem && this.valuedItem.map(v => v.toJSONInternal()),
+        };
+
 
 
         return removeNull(json);

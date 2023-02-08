@@ -237,7 +237,16 @@ class SubstanceReferenceInformationClassification extends Element {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            id: this.id,
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
+            domain: this.domain && this.domain.toJSONInternal(),
+            classification: this.classification && this.classification.toJSONInternal(),
+            subtype: this.subtype && this.subtype.map(v => v.toJSONInternal()),
+            source: this.source && this.source.map(v => v.toJSONInternal()),
+        };
+
 
 
         return removeNull(json);

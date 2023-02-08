@@ -45,7 +45,7 @@ class MedicationAdministration extends Resource {
      * @param {MedicationAdministrationDosage|undefined} [dosage],
      * @param {Reference[]|undefined} [eventHistory],
      * @param {Object|undefined} [_access]
-     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_sourceAssigningAuthority]
      * @param {string|undefined} [_uuid]
      * @param {string|undefined} [_sourceId]
     */
@@ -704,7 +704,7 @@ class MedicationAdministration extends Resource {
         });
         /**
          * @description _sourceAssigningAuthority
-         * @property {Object|undefined}
+         * @property {string|undefined}
          */
         Object.defineProperty(this, '_sourceAssigningAuthority', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -832,7 +832,7 @@ class MedicationAdministration extends Resource {
      * @param {MedicationAdministrationDosage|undefined} [dosage],
      * @param {Reference[]|undefined} [eventHistory],
      * @param {Object|undefined} [_access]
-     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_sourceAssigningAuthority]
      * @param {string|undefined} [_uuid]
      * @param {string|undefined} [_sourceId]
      * @returns {MedicationAdministration}
@@ -998,7 +998,39 @@ class MedicationAdministration extends Resource {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            resourceType: this.resourceType,
+            id: this.id,
+            meta: this.meta && this.meta.toJSONInternal(),
+            implicitRules: this.implicitRules,
+            language: this.language,
+            text: this.text && this.text.toJSONInternal(),
+            contained: this.contained && this.contained.map(v => v.toJSONInternal()),
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
+            identifier: this.identifier && this.identifier.map(v => v.toJSONInternal()),
+            instantiates: this.instantiates,
+            partOf: this.partOf && this.partOf.map(v => v.toJSONInternal()),
+            status: this.status,
+            statusReason: this.statusReason && this.statusReason.map(v => v.toJSONInternal()),
+            category: this.category && this.category.toJSONInternal(),
+            medicationCodeableConcept: this.medicationCodeableConcept && this.medicationCodeableConcept.toJSONInternal(),
+            medicationReference: this.medicationReference && this.medicationReference.toJSONInternal(),
+            subject: this.subject && this.subject.toJSONInternal(),
+            context: this.context && this.context.toJSONInternal(),
+            supportingInformation: this.supportingInformation && this.supportingInformation.map(v => v.toJSONInternal()),
+            effectiveDateTime: this.effectiveDateTime,
+            effectivePeriod: this.effectivePeriod && this.effectivePeriod.toJSONInternal(),
+            performer: this.performer && this.performer.map(v => v.toJSONInternal()),
+            reasonCode: this.reasonCode && this.reasonCode.map(v => v.toJSONInternal()),
+            reasonReference: this.reasonReference && this.reasonReference.map(v => v.toJSONInternal()),
+            request: this.request && this.request.toJSONInternal(),
+            device: this.device && this.device.map(v => v.toJSONInternal()),
+            note: this.note && this.note.map(v => v.toJSONInternal()),
+            dosage: this.dosage && this.dosage.toJSONInternal(),
+            eventHistory: this.eventHistory && this.eventHistory.map(v => v.toJSONInternal()),
+        };
+
 
         if (this._access) {
             json._access = this._access;

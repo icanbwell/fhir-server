@@ -288,7 +288,18 @@ class CodeSystemConcept extends Element {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            id: this.id,
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
+            code: this.code,
+            display: this.display,
+            definition: this.definition,
+            designation: this.designation && this.designation.map(v => v.toJSONInternal()),
+            property: this.property && this.property.map(v => v.toJSONInternal()),
+            concept: this.concept && this.concept.map(v => v.toJSONInternal()),
+        };
+
 
 
         return removeNull(json);

@@ -33,7 +33,7 @@ class OrganizationAffiliation extends Resource {
      * @param {ContactPoint[]|undefined} [telecom],
      * @param {Reference[]|undefined} [endpoint],
      * @param {Object|undefined} [_access]
-     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_sourceAssigningAuthority]
      * @param {string|undefined} [_uuid]
      * @param {string|undefined} [_sourceId]
     */
@@ -504,7 +504,7 @@ class OrganizationAffiliation extends Resource {
         });
         /**
          * @description _sourceAssigningAuthority
-         * @property {Object|undefined}
+         * @property {string|undefined}
          */
         Object.defineProperty(this, '_sourceAssigningAuthority', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -614,7 +614,7 @@ class OrganizationAffiliation extends Resource {
      * @param {ContactPoint[]|undefined} [telecom],
      * @param {Reference[]|undefined} [endpoint],
      * @param {Object|undefined} [_access]
-     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_sourceAssigningAuthority]
      * @param {string|undefined} [_uuid]
      * @param {string|undefined} [_sourceId]
      * @returns {OrganizationAffiliation}
@@ -746,7 +746,30 @@ class OrganizationAffiliation extends Resource {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            resourceType: this.resourceType,
+            id: this.id,
+            meta: this.meta && this.meta.toJSONInternal(),
+            implicitRules: this.implicitRules,
+            language: this.language,
+            text: this.text && this.text.toJSONInternal(),
+            contained: this.contained && this.contained.map(v => v.toJSONInternal()),
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
+            identifier: this.identifier && this.identifier.map(v => v.toJSONInternal()),
+            active: this.active,
+            period: this.period && this.period.toJSONInternal(),
+            organization: this.organization && this.organization.toJSONInternal(),
+            participatingOrganization: this.participatingOrganization && this.participatingOrganization.toJSONInternal(),
+            network: this.network && this.network.map(v => v.toJSONInternal()),
+            code: this.code && this.code.map(v => v.toJSONInternal()),
+            specialty: this.specialty && this.specialty.map(v => v.toJSONInternal()),
+            location: this.location && this.location.map(v => v.toJSONInternal()),
+            healthcareService: this.healthcareService && this.healthcareService.map(v => v.toJSONInternal()),
+            telecom: this.telecom && this.telecom.map(v => v.toJSONInternal()),
+            endpoint: this.endpoint && this.endpoint.map(v => v.toJSONInternal()),
+        };
+
 
         if (this._access) {
             json._access = this._access;

@@ -43,7 +43,7 @@ class ImplementationGuide extends Resource {
      * @param {ImplementationGuideDefinition|undefined} [definition],
      * @param {ImplementationGuideManifest|undefined} [manifest],
      * @param {Object|undefined} [_access]
-     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_sourceAssigningAuthority]
      * @param {string|undefined} [_uuid]
      * @param {string|undefined} [_sourceId]
     */
@@ -698,7 +698,7 @@ class ImplementationGuide extends Resource {
         });
         /**
          * @description _sourceAssigningAuthority
-         * @property {Object|undefined}
+         * @property {string|undefined}
          */
         Object.defineProperty(this, '_sourceAssigningAuthority', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -824,7 +824,7 @@ class ImplementationGuide extends Resource {
      * @param {ImplementationGuideDefinition|undefined} [definition],
      * @param {ImplementationGuideManifest|undefined} [manifest],
      * @param {Object|undefined} [_access]
-     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_sourceAssigningAuthority]
      * @param {string|undefined} [_uuid]
      * @param {string|undefined} [_sourceId]
      * @returns {ImplementationGuide}
@@ -976,7 +976,38 @@ class ImplementationGuide extends Resource {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            resourceType: this.resourceType,
+            id: this.id,
+            meta: this.meta && this.meta.toJSONInternal(),
+            implicitRules: this.implicitRules,
+            language: this.language,
+            text: this.text && this.text.toJSONInternal(),
+            contained: this.contained && this.contained.map(v => v.toJSONInternal()),
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
+            url: this.url,
+            version: this.version,
+            name: this.name,
+            title: this.title,
+            status: this.status,
+            experimental: this.experimental,
+            date: this.date,
+            publisher: this.publisher,
+            contact: this.contact && this.contact.map(v => v.toJSONInternal()),
+            description: this.description,
+            useContext: this.useContext && this.useContext.map(v => v.toJSONInternal()),
+            jurisdiction: this.jurisdiction && this.jurisdiction.map(v => v.toJSONInternal()),
+            copyright: this.copyright,
+            packageId: this.packageId,
+            license: this.license,
+            fhirVersion: this.fhirVersion,
+            dependsOn: this.dependsOn && this.dependsOn.map(v => v.toJSONInternal()),
+            global: this.global && this.global.map(v => v.toJSONInternal()),
+            definition: this.definition && this.definition.toJSONInternal(),
+            manifest: this.manifest && this.manifest.toJSONInternal(),
+        };
+
 
         if (this._access) {
             json._access = this._access;

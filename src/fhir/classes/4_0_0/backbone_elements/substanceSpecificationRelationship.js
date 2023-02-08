@@ -405,7 +405,23 @@ class SubstanceSpecificationRelationship extends Element {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            id: this.id,
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
+            substanceReference: this.substanceReference && this.substanceReference.toJSONInternal(),
+            substanceCodeableConcept: this.substanceCodeableConcept && this.substanceCodeableConcept.toJSONInternal(),
+            relationship: this.relationship && this.relationship.toJSONInternal(),
+            isDefining: this.isDefining,
+            amountQuantity: this.amountQuantity && this.amountQuantity.toJSONInternal(),
+            amountRange: this.amountRange && this.amountRange.toJSONInternal(),
+            amountRatio: this.amountRatio && this.amountRatio.toJSONInternal(),
+            amountString: this.amountString,
+            amountRatioLowLimit: this.amountRatioLowLimit && this.amountRatioLowLimit.toJSONInternal(),
+            amountType: this.amountType && this.amountType.toJSONInternal(),
+            source: this.source && this.source.map(v => v.toJSONInternal()),
+        };
+
 
 
         return removeNull(json);

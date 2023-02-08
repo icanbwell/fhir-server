@@ -191,7 +191,14 @@ class PlanDefinitionCondition extends Element {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            id: this.id,
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
+            kind: this.kind,
+            expression: this.expression && this.expression.toJSONInternal(),
+        };
+
 
 
         return removeNull(json);

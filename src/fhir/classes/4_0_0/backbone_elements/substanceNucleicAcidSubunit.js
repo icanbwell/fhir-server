@@ -340,7 +340,20 @@ class SubstanceNucleicAcidSubunit extends Element {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            id: this.id,
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
+            subunit: this.subunit,
+            sequence: this.sequence,
+            length: this.length,
+            sequenceAttachment: this.sequenceAttachment && this.sequenceAttachment.toJSONInternal(),
+            fivePrime: this.fivePrime && this.fivePrime.toJSONInternal(),
+            threePrime: this.threePrime && this.threePrime.toJSONInternal(),
+            linkage: this.linkage && this.linkage.map(v => v.toJSONInternal()),
+            sugar: this.sugar && this.sugar.map(v => v.toJSONInternal()),
+        };
+
 
 
         return removeNull(json);

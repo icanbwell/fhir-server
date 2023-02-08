@@ -271,7 +271,17 @@ class CarePlanActivity extends Element {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            id: this.id,
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
+            outcomeCodeableConcept: this.outcomeCodeableConcept && this.outcomeCodeableConcept.map(v => v.toJSONInternal()),
+            outcomeReference: this.outcomeReference && this.outcomeReference.map(v => v.toJSONInternal()),
+            progress: this.progress && this.progress.map(v => v.toJSONInternal()),
+            reference: this.reference && this.reference.toJSONInternal(),
+            detail: this.detail && this.detail.toJSONInternal(),
+        };
+
 
 
         return removeNull(json);

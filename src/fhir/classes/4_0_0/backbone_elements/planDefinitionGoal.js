@@ -318,7 +318,19 @@ class PlanDefinitionGoal extends Element {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            id: this.id,
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
+            category: this.category && this.category.toJSONInternal(),
+            description: this.description && this.description.toJSONInternal(),
+            priority: this.priority && this.priority.toJSONInternal(),
+            start: this.start && this.start.toJSONInternal(),
+            addresses: this.addresses && this.addresses.map(v => v.toJSONInternal()),
+            documentation: this.documentation && this.documentation.map(v => v.toJSONInternal()),
+            target: this.target && this.target.map(v => v.toJSONInternal()),
+        };
+
 
 
         return removeNull(json);

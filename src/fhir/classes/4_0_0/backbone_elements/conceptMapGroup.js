@@ -286,7 +286,18 @@ class ConceptMapGroup extends Element {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            id: this.id,
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
+            source: this.source,
+            sourceVersion: this.sourceVersion,
+            target: this.target,
+            targetVersion: this.targetVersion,
+            element: this.element && this.element.map(v => v.toJSONInternal()),
+            unmapped: this.unmapped && this.unmapped.toJSONInternal(),
+        };
+
 
 
         return removeNull(json);

@@ -350,7 +350,20 @@ class SubstanceSourceMaterialOrganism extends Element {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            id: this.id,
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
+            family: this.family && this.family.toJSONInternal(),
+            genus: this.genus && this.genus.toJSONInternal(),
+            species: this.species && this.species.toJSONInternal(),
+            intraspecificType: this.intraspecificType && this.intraspecificType.toJSONInternal(),
+            intraspecificDescription: this.intraspecificDescription,
+            author: this.author && this.author.map(v => v.toJSONInternal()),
+            hybrid: this.hybrid && this.hybrid.toJSONInternal(),
+            organismGeneral: this.organismGeneral && this.organismGeneral.toJSONInternal(),
+        };
+
 
 
         return removeNull(json);

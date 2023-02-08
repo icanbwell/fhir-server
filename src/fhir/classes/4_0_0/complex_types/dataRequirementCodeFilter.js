@@ -214,7 +214,15 @@ class DataRequirementCodeFilter extends Element {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            id: this.id,
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            path: this.path,
+            searchParam: this.searchParam,
+            valueSet: this.valueSet,
+            code: this.code && this.code.map(v => v.toJSONInternal()),
+        };
+
 
 
         return removeNull(json);

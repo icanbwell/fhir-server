@@ -33,7 +33,7 @@ class QuestionnaireResponse extends Resource {
      * @param {Reference|undefined} [source],
      * @param {QuestionnaireResponseItem[]|undefined} [item],
      * @param {Object|undefined} [_access]
-     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_sourceAssigningAuthority]
      * @param {string|undefined} [_uuid]
      * @param {string|undefined} [_sourceId]
     */
@@ -489,7 +489,7 @@ class QuestionnaireResponse extends Resource {
         });
         /**
          * @description _sourceAssigningAuthority
-         * @property {Object|undefined}
+         * @property {string|undefined}
          */
         Object.defineProperty(this, '_sourceAssigningAuthority', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -597,7 +597,7 @@ class QuestionnaireResponse extends Resource {
      * @param {Reference|undefined} [source],
      * @param {QuestionnaireResponseItem[]|undefined} [item],
      * @param {Object|undefined} [_access]
-     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_sourceAssigningAuthority]
      * @param {string|undefined} [_uuid]
      * @param {string|undefined} [_sourceId]
      * @returns {QuestionnaireResponse}
@@ -723,7 +723,29 @@ class QuestionnaireResponse extends Resource {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            resourceType: this.resourceType,
+            id: this.id,
+            meta: this.meta && this.meta.toJSONInternal(),
+            implicitRules: this.implicitRules,
+            language: this.language,
+            text: this.text && this.text.toJSONInternal(),
+            contained: this.contained && this.contained.map(v => v.toJSONInternal()),
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
+            identifier: this.identifier && this.identifier.toJSONInternal(),
+            basedOn: this.basedOn && this.basedOn.map(v => v.toJSONInternal()),
+            partOf: this.partOf && this.partOf.map(v => v.toJSONInternal()),
+            questionnaire: this.questionnaire,
+            status: this.status,
+            subject: this.subject && this.subject.toJSONInternal(),
+            encounter: this.encounter && this.encounter.toJSONInternal(),
+            authored: this.authored,
+            author: this.author && this.author.toJSONInternal(),
+            source: this.source && this.source.toJSONInternal(),
+            item: this.item && this.item.map(v => v.toJSONInternal()),
+        };
+
 
         if (this._access) {
             json._access = this._access;

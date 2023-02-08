@@ -33,7 +33,7 @@ class AuditEvent extends Resource {
      * @param {AuditEventSource} source,
      * @param {AuditEventEntity[]|undefined} [entity],
      * @param {Object|undefined} [_access]
-     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_sourceAssigningAuthority]
      * @param {string|undefined} [_uuid]
      * @param {string|undefined} [_sourceId]
     */
@@ -479,7 +479,7 @@ class AuditEvent extends Resource {
         });
         /**
          * @description _sourceAssigningAuthority
-         * @property {Object|undefined}
+         * @property {string|undefined}
          */
         Object.defineProperty(this, '_sourceAssigningAuthority', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -587,7 +587,7 @@ class AuditEvent extends Resource {
      * @param {AuditEventSource} source,
      * @param {AuditEventEntity[]|undefined} [entity],
      * @param {Object|undefined} [_access]
-     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_sourceAssigningAuthority]
      * @param {string|undefined} [_uuid]
      * @param {string|undefined} [_sourceId]
      * @returns {AuditEvent}
@@ -712,7 +712,29 @@ class AuditEvent extends Resource {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            resourceType: this.resourceType,
+            id: this.id,
+            meta: this.meta && this.meta.toJSONInternal(),
+            implicitRules: this.implicitRules,
+            language: this.language,
+            text: this.text && this.text.toJSONInternal(),
+            contained: this.contained && this.contained.map(v => v.toJSONInternal()),
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
+            type: this.type && this.type.toJSONInternal(),
+            subtype: this.subtype && this.subtype.map(v => v.toJSONInternal()),
+            action: this.action,
+            period: this.period && this.period.toJSONInternal(),
+            recorded: this.recorded,
+            outcome: this.outcome,
+            outcomeDesc: this.outcomeDesc,
+            purposeOfEvent: this.purposeOfEvent && this.purposeOfEvent.map(v => v.toJSONInternal()),
+            agent: this.agent && this.agent.map(v => v.toJSONInternal()),
+            source: this.source && this.source.toJSONInternal(),
+            entity: this.entity && this.entity.map(v => v.toJSONInternal()),
+        };
+
 
         if (this._access) {
             json._access = this._access;

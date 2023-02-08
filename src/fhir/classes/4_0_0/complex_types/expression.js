@@ -221,7 +221,16 @@ class Expression extends Element {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            id: this.id,
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            description: this.description,
+            name: this.name,
+            language: this.language,
+            expression: this.expression,
+            reference: this.reference,
+        };
+
 
 
         return removeNull(json);

@@ -259,7 +259,17 @@ class SubstancePolymerRepeatUnit extends Element {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            id: this.id,
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
+            orientationOfPolymerisation: this.orientationOfPolymerisation && this.orientationOfPolymerisation.toJSONInternal(),
+            repeatUnit: this.repeatUnit,
+            amount: this.amount && this.amount.toJSONInternal(),
+            degreeOfPolymerisation: this.degreeOfPolymerisation && this.degreeOfPolymerisation.map(v => v.toJSONInternal()),
+            structuralRepresentation: this.structuralRepresentation && this.structuralRepresentation.map(v => v.toJSONInternal()),
+        };
+
 
 
         return removeNull(json);

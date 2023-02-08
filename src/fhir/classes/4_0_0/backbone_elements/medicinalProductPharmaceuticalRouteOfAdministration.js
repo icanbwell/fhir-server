@@ -318,7 +318,19 @@ class MedicinalProductPharmaceuticalRouteOfAdministration extends Element {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            id: this.id,
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
+            code: this.code && this.code.toJSONInternal(),
+            firstDose: this.firstDose && this.firstDose.toJSONInternal(),
+            maxSingleDose: this.maxSingleDose && this.maxSingleDose.toJSONInternal(),
+            maxDosePerDay: this.maxDosePerDay && this.maxDosePerDay.toJSONInternal(),
+            maxDosePerTreatmentPeriod: this.maxDosePerTreatmentPeriod && this.maxDosePerTreatmentPeriod.toJSONInternal(),
+            maxTreatmentPeriod: this.maxTreatmentPeriod && this.maxTreatmentPeriod.toJSONInternal(),
+            targetSpecies: this.targetSpecies && this.targetSpecies.map(v => v.toJSONInternal()),
+        };
+
 
 
         return removeNull(json);

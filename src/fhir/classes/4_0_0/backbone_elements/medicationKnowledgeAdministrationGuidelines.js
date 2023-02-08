@@ -238,7 +238,16 @@ class MedicationKnowledgeAdministrationGuidelines extends Element {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            id: this.id,
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
+            dosage: this.dosage && this.dosage.map(v => v.toJSONInternal()),
+            indicationCodeableConcept: this.indicationCodeableConcept && this.indicationCodeableConcept.toJSONInternal(),
+            indicationReference: this.indicationReference && this.indicationReference.toJSONInternal(),
+            patientCharacteristics: this.patientCharacteristics && this.patientCharacteristics.map(v => v.toJSONInternal()),
+        };
+
 
 
         return removeNull(json);

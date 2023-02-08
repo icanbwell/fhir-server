@@ -19,7 +19,7 @@ class Parameters extends Resource {
      * @param {code|undefined} [language],
      * @param {ParametersParameter[]|undefined} [parameter],
      * @param {Object|undefined} [_access]
-     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_sourceAssigningAuthority]
      * @param {string|undefined} [_uuid]
      * @param {string|undefined} [_sourceId]
     */
@@ -154,7 +154,7 @@ class Parameters extends Resource {
         });
         /**
          * @description _sourceAssigningAuthority
-         * @property {Object|undefined}
+         * @property {string|undefined}
          */
         Object.defineProperty(this, '_sourceAssigningAuthority', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -234,7 +234,7 @@ class Parameters extends Resource {
      * @param {code|undefined} [language],
      * @param {ParametersParameter[]|undefined} [parameter],
      * @param {Object|undefined} [_access]
-     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_sourceAssigningAuthority]
      * @param {string|undefined} [_uuid]
      * @param {string|undefined} [_sourceId]
      * @returns {Parameters}
@@ -307,7 +307,15 @@ class Parameters extends Resource {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            resourceType: this.resourceType,
+            id: this.id,
+            meta: this.meta && this.meta.toJSONInternal(),
+            implicitRules: this.implicitRules,
+            language: this.language,
+            parameter: this.parameter && this.parameter.map(v => v.toJSONInternal()),
+        };
+
 
         if (this._access) {
             json._access = this._access;

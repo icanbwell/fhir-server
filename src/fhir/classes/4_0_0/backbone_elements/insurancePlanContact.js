@@ -238,7 +238,16 @@ class InsurancePlanContact extends Element {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            id: this.id,
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
+            purpose: this.purpose && this.purpose.toJSONInternal(),
+            name: this.name && this.name.toJSONInternal(),
+            telecom: this.telecom && this.telecom.map(v => v.toJSONInternal()),
+            address: this.address && this.address.toJSONInternal(),
+        };
+
 
 
         return removeNull(json);

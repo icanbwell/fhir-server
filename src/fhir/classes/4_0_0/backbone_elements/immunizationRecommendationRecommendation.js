@@ -473,7 +473,26 @@ class ImmunizationRecommendationRecommendation extends Element {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            id: this.id,
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
+            vaccineCode: this.vaccineCode && this.vaccineCode.map(v => v.toJSONInternal()),
+            targetDisease: this.targetDisease && this.targetDisease.toJSONInternal(),
+            contraindicatedVaccineCode: this.contraindicatedVaccineCode && this.contraindicatedVaccineCode.map(v => v.toJSONInternal()),
+            forecastStatus: this.forecastStatus && this.forecastStatus.toJSONInternal(),
+            forecastReason: this.forecastReason && this.forecastReason.map(v => v.toJSONInternal()),
+            dateCriterion: this.dateCriterion && this.dateCriterion.map(v => v.toJSONInternal()),
+            description: this.description,
+            series: this.series,
+            doseNumberPositiveInt: this.doseNumberPositiveInt,
+            doseNumberString: this.doseNumberString,
+            seriesDosesPositiveInt: this.seriesDosesPositiveInt,
+            seriesDosesString: this.seriesDosesString,
+            supportingImmunization: this.supportingImmunization && this.supportingImmunization.map(v => v.toJSONInternal()),
+            supportingPatientInformation: this.supportingPatientInformation && this.supportingPatientInformation.map(v => v.toJSONInternal()),
+        };
+
 
 
         return removeNull(json);

@@ -156,7 +156,13 @@ class Ratio extends Element {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            id: this.id,
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            numerator: this.numerator && this.numerator.toJSONInternal(),
+            denominator: this.denominator && this.denominator.toJSONInternal(),
+        };
+
 
 
         return removeNull(json);

@@ -236,7 +236,16 @@ class PlanDefinitionRelatedAction extends Element {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            id: this.id,
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
+            actionId: this.actionId,
+            relationship: this.relationship,
+            offsetDuration: this.offsetDuration && this.offsetDuration.toJSONInternal(),
+            offsetRange: this.offsetRange && this.offsetRange.toJSONInternal(),
+        };
+
 
 
         return removeNull(json);

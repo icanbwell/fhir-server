@@ -210,7 +210,15 @@ class ImplementationGuideTemplate extends Element {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            id: this.id,
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
+            code: this.code,
+            source: this.source,
+            scope: this.scope,
+        };
+
 
 
         return removeNull(json);

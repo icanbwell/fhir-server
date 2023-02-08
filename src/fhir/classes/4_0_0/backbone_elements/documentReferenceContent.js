@@ -195,7 +195,14 @@ class DocumentReferenceContent extends Element {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            id: this.id,
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
+            attachment: this.attachment && this.attachment.toJSONInternal(),
+            format: this.format && this.format.toJSONInternal(),
+        };
+
 
 
         return removeNull(json);

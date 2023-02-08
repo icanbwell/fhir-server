@@ -258,7 +258,17 @@ class MolecularSequenceStructureVariant extends Element {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            id: this.id,
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
+            variantType: this.variantType && this.variantType.toJSONInternal(),
+            exact: this.exact,
+            length: this.length,
+            outer: this.outer && this.outer.toJSONInternal(),
+            inner: this.inner && this.inner.toJSONInternal(),
+        };
+
 
 
         return removeNull(json);

@@ -36,7 +36,7 @@ class DeviceUseStatement extends Resource {
      * @param {CodeableConcept|undefined} [bodySite],
      * @param {Annotation[]|undefined} [note],
      * @param {Object|undefined} [_access]
-     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_sourceAssigningAuthority]
      * @param {string|undefined} [_uuid]
      * @param {string|undefined} [_sourceId]
     */
@@ -568,7 +568,7 @@ class DeviceUseStatement extends Resource {
         });
         /**
          * @description _sourceAssigningAuthority
-         * @property {Object|undefined}
+         * @property {string|undefined}
          */
         Object.defineProperty(this, '_sourceAssigningAuthority', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -684,7 +684,7 @@ class DeviceUseStatement extends Resource {
      * @param {CodeableConcept|undefined} [bodySite],
      * @param {Annotation[]|undefined} [note],
      * @param {Object|undefined} [_access]
-     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_sourceAssigningAuthority]
      * @param {string|undefined} [_uuid]
      * @param {string|undefined} [_sourceId]
      * @returns {DeviceUseStatement}
@@ -826,7 +826,33 @@ class DeviceUseStatement extends Resource {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            resourceType: this.resourceType,
+            id: this.id,
+            meta: this.meta && this.meta.toJSONInternal(),
+            implicitRules: this.implicitRules,
+            language: this.language,
+            text: this.text && this.text.toJSONInternal(),
+            contained: this.contained && this.contained.map(v => v.toJSONInternal()),
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
+            identifier: this.identifier && this.identifier.map(v => v.toJSONInternal()),
+            basedOn: this.basedOn && this.basedOn.map(v => v.toJSONInternal()),
+            status: this.status,
+            subject: this.subject && this.subject.toJSONInternal(),
+            derivedFrom: this.derivedFrom && this.derivedFrom.map(v => v.toJSONInternal()),
+            timingTiming: this.timingTiming && this.timingTiming.toJSONInternal(),
+            timingPeriod: this.timingPeriod && this.timingPeriod.toJSONInternal(),
+            timingDateTime: this.timingDateTime,
+            recordedOn: this.recordedOn,
+            source: this.source && this.source.toJSONInternal(),
+            device: this.device && this.device.toJSONInternal(),
+            reasonCode: this.reasonCode && this.reasonCode.map(v => v.toJSONInternal()),
+            reasonReference: this.reasonReference && this.reasonReference.map(v => v.toJSONInternal()),
+            bodySite: this.bodySite && this.bodySite.toJSONInternal(),
+            note: this.note && this.note.map(v => v.toJSONInternal()),
+        };
+
 
         if (this._access) {
             json._access = this._access;

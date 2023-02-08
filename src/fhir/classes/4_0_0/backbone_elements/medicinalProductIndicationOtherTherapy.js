@@ -214,7 +214,15 @@ class MedicinalProductIndicationOtherTherapy extends Element {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            id: this.id,
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
+            therapyRelationshipType: this.therapyRelationshipType && this.therapyRelationshipType.toJSONInternal(),
+            medicationCodeableConcept: this.medicationCodeableConcept && this.medicationCodeableConcept.toJSONInternal(),
+            medicationReference: this.medicationReference && this.medicationReference.toJSONInternal(),
+        };
+
 
 
         return removeNull(json);

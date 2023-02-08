@@ -214,7 +214,15 @@ class MedicationKnowledgeKinetics extends Element {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            id: this.id,
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
+            areaUnderCurve: this.areaUnderCurve && this.areaUnderCurve.map(v => v.toJSONInternal()),
+            lethalDose50: this.lethalDose50 && this.lethalDose50.map(v => v.toJSONInternal()),
+            halfLifePeriod: this.halfLifePeriod && this.halfLifePeriod.toJSONInternal(),
+        };
+
 
 
         return removeNull(json);

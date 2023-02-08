@@ -35,7 +35,7 @@ class PractitionerRole extends Resource {
      * @param {String|undefined} [availabilityExceptions],
      * @param {Reference[]|undefined} [endpoint],
      * @param {Object|undefined} [_access]
-     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_sourceAssigningAuthority]
      * @param {string|undefined} [_uuid]
      * @param {string|undefined} [_sourceId]
     */
@@ -548,7 +548,7 @@ class PractitionerRole extends Resource {
         });
         /**
          * @description _sourceAssigningAuthority
-         * @property {Object|undefined}
+         * @property {string|undefined}
          */
         Object.defineProperty(this, '_sourceAssigningAuthority', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -662,7 +662,7 @@ class PractitionerRole extends Resource {
      * @param {String|undefined} [availabilityExceptions],
      * @param {Reference[]|undefined} [endpoint],
      * @param {Object|undefined} [_access]
-     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_sourceAssigningAuthority]
      * @param {string|undefined} [_uuid]
      * @param {string|undefined} [_sourceId]
      * @returns {PractitionerRole}
@@ -801,7 +801,32 @@ class PractitionerRole extends Resource {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            resourceType: this.resourceType,
+            id: this.id,
+            meta: this.meta && this.meta.toJSONInternal(),
+            implicitRules: this.implicitRules,
+            language: this.language,
+            text: this.text && this.text.toJSONInternal(),
+            contained: this.contained && this.contained.map(v => v.toJSONInternal()),
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
+            identifier: this.identifier && this.identifier.map(v => v.toJSONInternal()),
+            active: this.active,
+            period: this.period && this.period.toJSONInternal(),
+            practitioner: this.practitioner && this.practitioner.toJSONInternal(),
+            organization: this.organization && this.organization.toJSONInternal(),
+            code: this.code && this.code.map(v => v.toJSONInternal()),
+            specialty: this.specialty && this.specialty.map(v => v.toJSONInternal()),
+            location: this.location && this.location.map(v => v.toJSONInternal()),
+            healthcareService: this.healthcareService && this.healthcareService.map(v => v.toJSONInternal()),
+            telecom: this.telecom && this.telecom.map(v => v.toJSONInternal()),
+            availableTime: this.availableTime && this.availableTime.map(v => v.toJSONInternal()),
+            notAvailable: this.notAvailable && this.notAvailable.map(v => v.toJSONInternal()),
+            availabilityExceptions: this.availabilityExceptions,
+            endpoint: this.endpoint && this.endpoint.map(v => v.toJSONInternal()),
+        };
+
 
         if (this._access) {
             json._access = this._access;

@@ -40,7 +40,7 @@ class SubstanceSpecification extends Resource {
      * @param {Reference|undefined} [protein],
      * @param {Reference|undefined} [sourceMaterial],
      * @param {Object|undefined} [_access]
-     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_sourceAssigningAuthority]
      * @param {string|undefined} [_uuid]
      * @param {string|undefined} [_sourceId]
     */
@@ -647,7 +647,7 @@ class SubstanceSpecification extends Resource {
         });
         /**
          * @description _sourceAssigningAuthority
-         * @property {Object|undefined}
+         * @property {string|undefined}
          */
         Object.defineProperty(this, '_sourceAssigningAuthority', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -771,7 +771,7 @@ class SubstanceSpecification extends Resource {
      * @param {Reference|undefined} [protein],
      * @param {Reference|undefined} [sourceMaterial],
      * @param {Object|undefined} [_access]
-     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_sourceAssigningAuthority]
      * @param {string|undefined} [_uuid]
      * @param {string|undefined} [_sourceId]
      * @returns {SubstanceSpecification}
@@ -930,7 +930,37 @@ class SubstanceSpecification extends Resource {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            resourceType: this.resourceType,
+            id: this.id,
+            meta: this.meta && this.meta.toJSONInternal(),
+            implicitRules: this.implicitRules,
+            language: this.language,
+            text: this.text && this.text.toJSONInternal(),
+            contained: this.contained && this.contained.map(v => v.toJSONInternal()),
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
+            identifier: this.identifier && this.identifier.toJSONInternal(),
+            type: this.type && this.type.toJSONInternal(),
+            status: this.status && this.status.toJSONInternal(),
+            domain: this.domain && this.domain.toJSONInternal(),
+            description: this.description,
+            source: this.source && this.source.map(v => v.toJSONInternal()),
+            comment: this.comment,
+            moiety: this.moiety && this.moiety.map(v => v.toJSONInternal()),
+            property: this.property && this.property.map(v => v.toJSONInternal()),
+            referenceInformation: this.referenceInformation && this.referenceInformation.toJSONInternal(),
+            structure: this.structure && this.structure.toJSONInternal(),
+            code: this.code && this.code.map(v => v.toJSONInternal()),
+            name: this.name && this.name.map(v => v.toJSONInternal()),
+            molecularWeight: this.molecularWeight && this.molecularWeight.map(v => v.toJSONInternal()),
+            relationship: this.relationship && this.relationship.map(v => v.toJSONInternal()),
+            nucleicAcid: this.nucleicAcid && this.nucleicAcid.toJSONInternal(),
+            polymer: this.polymer && this.polymer.toJSONInternal(),
+            protein: this.protein && this.protein.toJSONInternal(),
+            sourceMaterial: this.sourceMaterial && this.sourceMaterial.toJSONInternal(),
+        };
+
 
         if (this._access) {
             json._access = this._access;

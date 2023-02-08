@@ -334,7 +334,20 @@ class FamilyMemberHistoryCondition extends Element {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            id: this.id,
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
+            code: this.code && this.code.toJSONInternal(),
+            outcome: this.outcome && this.outcome.toJSONInternal(),
+            contributedToDeath: this.contributedToDeath,
+            onsetAge: this.onsetAge && this.onsetAge.toJSONInternal(),
+            onsetRange: this.onsetRange && this.onsetRange.toJSONInternal(),
+            onsetPeriod: this.onsetPeriod && this.onsetPeriod.toJSONInternal(),
+            onsetString: this.onsetString,
+            note: this.note && this.note.map(v => v.toJSONInternal()),
+        };
+
 
 
         return removeNull(json);

@@ -379,7 +379,22 @@ class SubstanceReferenceInformationTarget extends Element {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            id: this.id,
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
+            target: this.target && this.target.toJSONInternal(),
+            type: this.type && this.type.toJSONInternal(),
+            interaction: this.interaction && this.interaction.toJSONInternal(),
+            organism: this.organism && this.organism.toJSONInternal(),
+            organismType: this.organismType && this.organismType.toJSONInternal(),
+            amountQuantity: this.amountQuantity && this.amountQuantity.toJSONInternal(),
+            amountRange: this.amountRange && this.amountRange.toJSONInternal(),
+            amountString: this.amountString,
+            amountType: this.amountType && this.amountType.toJSONInternal(),
+            source: this.source && this.source.map(v => v.toJSONInternal()),
+        };
+
 
 
         return removeNull(json);

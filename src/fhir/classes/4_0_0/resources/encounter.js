@@ -44,7 +44,7 @@ class Encounter extends Resource {
      * @param {Reference|undefined} [serviceProvider],
      * @param {Reference|undefined} [partOf],
      * @param {Object|undefined} [_access]
-     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_sourceAssigningAuthority]
      * @param {string|undefined} [_uuid]
      * @param {string|undefined} [_sourceId]
     */
@@ -757,7 +757,7 @@ class Encounter extends Resource {
         });
         /**
          * @description _sourceAssigningAuthority
-         * @property {Object|undefined}
+         * @property {string|undefined}
          */
         Object.defineProperty(this, '_sourceAssigningAuthority', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -889,7 +889,7 @@ class Encounter extends Resource {
      * @param {Reference|undefined} [serviceProvider],
      * @param {Reference|undefined} [partOf],
      * @param {Object|undefined} [_access]
-     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_sourceAssigningAuthority]
      * @param {string|undefined} [_uuid]
      * @param {string|undefined} [_sourceId]
      * @returns {Encounter}
@@ -1065,7 +1065,41 @@ class Encounter extends Resource {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            resourceType: this.resourceType,
+            id: this.id,
+            meta: this.meta && this.meta.toJSONInternal(),
+            implicitRules: this.implicitRules,
+            language: this.language,
+            text: this.text && this.text.toJSONInternal(),
+            contained: this.contained && this.contained.map(v => v.toJSONInternal()),
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
+            identifier: this.identifier && this.identifier.map(v => v.toJSONInternal()),
+            status: this.status,
+            statusHistory: this.statusHistory && this.statusHistory.map(v => v.toJSONInternal()),
+            class: this.class && this.class.toJSONInternal(),
+            classHistory: this.classHistory && this.classHistory.map(v => v.toJSONInternal()),
+            type: this.type && this.type.map(v => v.toJSONInternal()),
+            serviceType: this.serviceType && this.serviceType.toJSONInternal(),
+            priority: this.priority && this.priority.toJSONInternal(),
+            subject: this.subject && this.subject.toJSONInternal(),
+            episodeOfCare: this.episodeOfCare && this.episodeOfCare.map(v => v.toJSONInternal()),
+            basedOn: this.basedOn && this.basedOn.map(v => v.toJSONInternal()),
+            participant: this.participant && this.participant.map(v => v.toJSONInternal()),
+            appointment: this.appointment && this.appointment.map(v => v.toJSONInternal()),
+            period: this.period && this.period.toJSONInternal(),
+            length: this.length && this.length.toJSONInternal(),
+            reasonCode: this.reasonCode && this.reasonCode.map(v => v.toJSONInternal()),
+            reasonReference: this.reasonReference && this.reasonReference.map(v => v.toJSONInternal()),
+            diagnosis: this.diagnosis && this.diagnosis.map(v => v.toJSONInternal()),
+            account: this.account && this.account.map(v => v.toJSONInternal()),
+            hospitalization: this.hospitalization && this.hospitalization.toJSONInternal(),
+            location: this.location && this.location.map(v => v.toJSONInternal()),
+            serviceProvider: this.serviceProvider && this.serviceProvider.toJSONInternal(),
+            partOf: this.partOf && this.partOf.toJSONInternal(),
+        };
+
 
         if (this._access) {
             json._access = this._access;

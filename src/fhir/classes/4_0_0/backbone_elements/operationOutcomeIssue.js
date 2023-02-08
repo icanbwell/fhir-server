@@ -287,7 +287,18 @@ class OperationOutcomeIssue extends Element {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            id: this.id,
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
+            severity: this.severity,
+            code: this.code,
+            details: this.details && this.details.toJSONInternal(),
+            diagnostics: this.diagnostics,
+            location: this.location,
+            expression: this.expression,
+        };
+
 
 
         return removeNull(json);

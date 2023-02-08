@@ -264,7 +264,17 @@ class ImplementationGuideManifest extends Element {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            id: this.id,
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
+            rendering: this.rendering,
+            resource: this.resource && this.resource.map(v => v.toJSONInternal()),
+            page: this.page && this.page.map(v => v.toJSONInternal()),
+            image: this.image,
+            other: this.other,
+        };
+
 
 
         return removeNull(json);

@@ -213,7 +213,15 @@ class SubstanceSpecificationRepresentation extends Element {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            id: this.id,
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
+            type: this.type && this.type.toJSONInternal(),
+            representation: this.representation,
+            attachment: this.attachment && this.attachment.toJSONInternal(),
+        };
+
 
 
         return removeNull(json);

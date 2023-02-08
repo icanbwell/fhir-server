@@ -194,7 +194,14 @@ class AdverseEventSuspectEntity extends Element {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            id: this.id,
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
+            instance: this.instance && this.instance.toJSONInternal(),
+            causality: this.causality && this.causality.map(v => v.toJSONInternal()),
+        };
+
 
 
         return removeNull(json);

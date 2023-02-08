@@ -424,7 +424,23 @@ class ProdCharacteristic extends Element {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            id: this.id,
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
+            height: this.height && this.height.toJSONInternal(),
+            width: this.width && this.width.toJSONInternal(),
+            depth: this.depth && this.depth.toJSONInternal(),
+            weight: this.weight && this.weight.toJSONInternal(),
+            nominalVolume: this.nominalVolume && this.nominalVolume.toJSONInternal(),
+            externalDiameter: this.externalDiameter && this.externalDiameter.toJSONInternal(),
+            shape: this.shape,
+            color: this.color,
+            imprint: this.imprint,
+            image: this.image && this.image.map(v => v.toJSONInternal()),
+            scoring: this.scoring && this.scoring.toJSONInternal(),
+        };
+
 
 
         return removeNull(json);

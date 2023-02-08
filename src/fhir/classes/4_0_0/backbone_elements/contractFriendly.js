@@ -190,7 +190,14 @@ class ContractFriendly extends Element {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            id: this.id,
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
+            contentAttachment: this.contentAttachment && this.contentAttachment.toJSONInternal(),
+            contentReference: this.contentReference && this.contentReference.toJSONInternal(),
+        };
+
 
 
         return removeNull(json);

@@ -289,7 +289,18 @@ class ConceptMapTarget extends Element {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            id: this.id,
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
+            code: this.code,
+            display: this.display,
+            equivalence: this.equivalence,
+            comment: this.comment,
+            dependsOn: this.dependsOn && this.dependsOn.map(v => v.toJSONInternal()),
+            product: this.product && this.product.map(v => v.toJSONInternal()),
+        };
+
 
 
         return removeNull(json);

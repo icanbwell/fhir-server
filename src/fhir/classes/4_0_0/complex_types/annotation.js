@@ -198,7 +198,15 @@ class Annotation extends Element {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            id: this.id,
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            authorReference: this.authorReference && this.authorReference.toJSONInternal(),
+            authorString: this.authorString,
+            time: this.time,
+            text: this.text,
+        };
+
 
 
         return removeNull(json);

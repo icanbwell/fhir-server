@@ -641,7 +641,34 @@ class TestScriptAssert extends Element {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            id: this.id,
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
+            label: this.label,
+            description: this.description,
+            direction: this.direction,
+            compareToSourceId: this.compareToSourceId,
+            compareToSourceExpression: this.compareToSourceExpression,
+            compareToSourcePath: this.compareToSourcePath,
+            contentType: this.contentType,
+            expression: this.expression,
+            headerField: this.headerField,
+            minimumId: this.minimumId,
+            navigationLinks: this.navigationLinks,
+            operator: this.operator,
+            path: this.path,
+            requestMethod: this.requestMethod,
+            requestURL: this.requestURL,
+            resource: this.resource,
+            response: this.response,
+            responseCode: this.responseCode,
+            sourceId: this.sourceId,
+            validateProfileId: this.validateProfileId,
+            value: this.value,
+            warningOnly: this.warningOnly,
+        };
+
 
 
         return removeNull(json);

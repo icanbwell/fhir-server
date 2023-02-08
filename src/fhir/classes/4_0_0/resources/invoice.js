@@ -37,7 +37,7 @@ class Invoice extends Resource {
      * @param {markdown|undefined} [paymentTerms],
      * @param {Annotation[]|undefined} [note],
      * @param {Object|undefined} [_access]
-     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_sourceAssigningAuthority]
      * @param {string|undefined} [_uuid]
      * @param {string|undefined} [_sourceId]
     */
@@ -589,7 +589,7 @@ class Invoice extends Resource {
         });
         /**
          * @description _sourceAssigningAuthority
-         * @property {Object|undefined}
+         * @property {string|undefined}
          */
         Object.defineProperty(this, '_sourceAssigningAuthority', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -707,7 +707,7 @@ class Invoice extends Resource {
      * @param {markdown|undefined} [paymentTerms],
      * @param {Annotation[]|undefined} [note],
      * @param {Object|undefined} [_access]
-     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_sourceAssigningAuthority]
      * @param {string|undefined} [_uuid]
      * @param {string|undefined} [_sourceId]
      * @returns {Invoice}
@@ -852,7 +852,34 @@ class Invoice extends Resource {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            resourceType: this.resourceType,
+            id: this.id,
+            meta: this.meta && this.meta.toJSONInternal(),
+            implicitRules: this.implicitRules,
+            language: this.language,
+            text: this.text && this.text.toJSONInternal(),
+            contained: this.contained && this.contained.map(v => v.toJSONInternal()),
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
+            identifier: this.identifier && this.identifier.map(v => v.toJSONInternal()),
+            status: this.status,
+            cancelledReason: this.cancelledReason,
+            type: this.type && this.type.toJSONInternal(),
+            subject: this.subject && this.subject.toJSONInternal(),
+            recipient: this.recipient && this.recipient.toJSONInternal(),
+            date: this.date,
+            participant: this.participant && this.participant.map(v => v.toJSONInternal()),
+            issuer: this.issuer && this.issuer.toJSONInternal(),
+            account: this.account && this.account.toJSONInternal(),
+            lineItem: this.lineItem && this.lineItem.map(v => v.toJSONInternal()),
+            totalPriceComponent: this.totalPriceComponent && this.totalPriceComponent.map(v => v.toJSONInternal()),
+            totalNet: this.totalNet && this.totalNet.toJSONInternal(),
+            totalGross: this.totalGross && this.totalGross.toJSONInternal(),
+            paymentTerms: this.paymentTerms,
+            note: this.note && this.note.map(v => v.toJSONInternal()),
+        };
+
 
         if (this._access) {
             json._access = this._access;

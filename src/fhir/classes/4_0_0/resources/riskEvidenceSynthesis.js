@@ -53,7 +53,7 @@ class RiskEvidenceSynthesis extends Resource {
      * @param {RiskEvidenceSynthesisRiskEstimate|undefined} [riskEstimate],
      * @param {RiskEvidenceSynthesisCertainty[]|undefined} [certainty],
      * @param {Object|undefined} [_access]
-     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_sourceAssigningAuthority]
      * @param {string|undefined} [_uuid]
      * @param {string|undefined} [_sourceId]
     */
@@ -931,7 +931,7 @@ class RiskEvidenceSynthesis extends Resource {
         });
         /**
          * @description _sourceAssigningAuthority
-         * @property {Object|undefined}
+         * @property {string|undefined}
          */
         Object.defineProperty(this, '_sourceAssigningAuthority', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -1079,7 +1079,7 @@ class RiskEvidenceSynthesis extends Resource {
      * @param {RiskEvidenceSynthesisRiskEstimate|undefined} [riskEstimate],
      * @param {RiskEvidenceSynthesisCertainty[]|undefined} [certainty],
      * @param {Object|undefined} [_access]
-     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_sourceAssigningAuthority]
      * @param {string|undefined} [_uuid]
      * @param {string|undefined} [_sourceId]
      * @returns {RiskEvidenceSynthesis}
@@ -1277,7 +1277,49 @@ class RiskEvidenceSynthesis extends Resource {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            resourceType: this.resourceType,
+            id: this.id,
+            meta: this.meta && this.meta.toJSONInternal(),
+            implicitRules: this.implicitRules,
+            language: this.language,
+            text: this.text && this.text.toJSONInternal(),
+            contained: this.contained && this.contained.map(v => v.toJSONInternal()),
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
+            url: this.url,
+            identifier: this.identifier && this.identifier.map(v => v.toJSONInternal()),
+            version: this.version,
+            name: this.name,
+            title: this.title,
+            status: this.status,
+            date: this.date,
+            publisher: this.publisher,
+            contact: this.contact && this.contact.map(v => v.toJSONInternal()),
+            description: this.description,
+            note: this.note && this.note.map(v => v.toJSONInternal()),
+            useContext: this.useContext && this.useContext.map(v => v.toJSONInternal()),
+            jurisdiction: this.jurisdiction && this.jurisdiction.map(v => v.toJSONInternal()),
+            copyright: this.copyright,
+            approvalDate: this.approvalDate,
+            lastReviewDate: this.lastReviewDate,
+            effectivePeriod: this.effectivePeriod && this.effectivePeriod.toJSONInternal(),
+            topic: this.topic && this.topic.map(v => v.toJSONInternal()),
+            author: this.author && this.author.map(v => v.toJSONInternal()),
+            editor: this.editor && this.editor.map(v => v.toJSONInternal()),
+            reviewer: this.reviewer && this.reviewer.map(v => v.toJSONInternal()),
+            endorser: this.endorser && this.endorser.map(v => v.toJSONInternal()),
+            relatedArtifact: this.relatedArtifact && this.relatedArtifact.map(v => v.toJSONInternal()),
+            synthesisType: this.synthesisType && this.synthesisType.toJSONInternal(),
+            studyType: this.studyType && this.studyType.toJSONInternal(),
+            population: this.population && this.population.toJSONInternal(),
+            exposure: this.exposure && this.exposure.toJSONInternal(),
+            outcome: this.outcome && this.outcome.toJSONInternal(),
+            sampleSize: this.sampleSize && this.sampleSize.toJSONInternal(),
+            riskEstimate: this.riskEstimate && this.riskEstimate.toJSONInternal(),
+            certainty: this.certainty && this.certainty.map(v => v.toJSONInternal()),
+        };
+
 
         if (this._access) {
             json._access = this._access;

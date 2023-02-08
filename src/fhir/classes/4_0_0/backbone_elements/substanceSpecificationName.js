@@ -401,7 +401,23 @@ class SubstanceSpecificationName extends Element {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            id: this.id,
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
+            name: this.name,
+            type: this.type && this.type.toJSONInternal(),
+            status: this.status && this.status.toJSONInternal(),
+            preferred: this.preferred,
+            language: this.language && this.language.map(v => v.toJSONInternal()),
+            domain: this.domain && this.domain.map(v => v.toJSONInternal()),
+            jurisdiction: this.jurisdiction && this.jurisdiction.map(v => v.toJSONInternal()),
+            synonym: this.synonym && this.synonym.map(v => v.toJSONInternal()),
+            translation: this.translation && this.translation.map(v => v.toJSONInternal()),
+            official: this.official && this.official.map(v => v.toJSONInternal()),
+            source: this.source && this.source.map(v => v.toJSONInternal()),
+        };
+
 
 
         return removeNull(json);

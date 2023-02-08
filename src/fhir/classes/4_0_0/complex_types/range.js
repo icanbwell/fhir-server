@@ -155,7 +155,13 @@ class Range extends Element {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            id: this.id,
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            low: this.low && this.low.toJSONInternal(),
+            high: this.high && this.high.toJSONInternal(),
+        };
+
 
 
         return removeNull(json);

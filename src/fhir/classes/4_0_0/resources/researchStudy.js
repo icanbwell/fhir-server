@@ -49,7 +49,7 @@ class ResearchStudy extends Resource {
      * @param {ResearchStudyArm[]|undefined} [arm],
      * @param {ResearchStudyObjective[]|undefined} [objective],
      * @param {Object|undefined} [_access]
-     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_sourceAssigningAuthority]
      * @param {string|undefined} [_uuid]
      * @param {string|undefined} [_sourceId]
     */
@@ -772,7 +772,7 @@ class ResearchStudy extends Resource {
         });
         /**
          * @description _sourceAssigningAuthority
-         * @property {Object|undefined}
+         * @property {string|undefined}
          */
         Object.defineProperty(this, '_sourceAssigningAuthority', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -906,7 +906,7 @@ class ResearchStudy extends Resource {
      * @param {ResearchStudyArm[]|undefined} [arm],
      * @param {ResearchStudyObjective[]|undefined} [objective],
      * @param {Object|undefined} [_access]
-     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_sourceAssigningAuthority]
      * @param {string|undefined} [_uuid]
      * @param {string|undefined} [_sourceId]
      * @returns {ResearchStudy}
@@ -1084,7 +1084,42 @@ class ResearchStudy extends Resource {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            resourceType: this.resourceType,
+            id: this.id,
+            meta: this.meta && this.meta.toJSONInternal(),
+            implicitRules: this.implicitRules,
+            language: this.language,
+            text: this.text && this.text.toJSONInternal(),
+            contained: this.contained && this.contained.map(v => v.toJSONInternal()),
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
+            identifier: this.identifier && this.identifier.map(v => v.toJSONInternal()),
+            title: this.title,
+            protocol: this.protocol && this.protocol.map(v => v.toJSONInternal()),
+            partOf: this.partOf && this.partOf.map(v => v.toJSONInternal()),
+            status: this.status,
+            primaryPurposeType: this.primaryPurposeType && this.primaryPurposeType.toJSONInternal(),
+            phase: this.phase && this.phase.toJSONInternal(),
+            category: this.category && this.category.map(v => v.toJSONInternal()),
+            focus: this.focus && this.focus.map(v => v.toJSONInternal()),
+            condition: this.condition && this.condition.map(v => v.toJSONInternal()),
+            contact: this.contact && this.contact.map(v => v.toJSONInternal()),
+            relatedArtifact: this.relatedArtifact && this.relatedArtifact.map(v => v.toJSONInternal()),
+            keyword: this.keyword && this.keyword.map(v => v.toJSONInternal()),
+            location: this.location && this.location.map(v => v.toJSONInternal()),
+            description: this.description,
+            enrollment: this.enrollment && this.enrollment.map(v => v.toJSONInternal()),
+            period: this.period && this.period.toJSONInternal(),
+            sponsor: this.sponsor && this.sponsor.toJSONInternal(),
+            principalInvestigator: this.principalInvestigator && this.principalInvestigator.toJSONInternal(),
+            site: this.site && this.site.map(v => v.toJSONInternal()),
+            reasonStopped: this.reasonStopped && this.reasonStopped.toJSONInternal(),
+            note: this.note && this.note.map(v => v.toJSONInternal()),
+            arm: this.arm && this.arm.map(v => v.toJSONInternal()),
+            objective: this.objective && this.objective.map(v => v.toJSONInternal()),
+        };
+
 
         if (this._access) {
             json._access = this._access;

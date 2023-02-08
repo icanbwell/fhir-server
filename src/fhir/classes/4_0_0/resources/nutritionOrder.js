@@ -38,7 +38,7 @@ class NutritionOrder extends Resource {
      * @param {NutritionOrderEnteralFormula|undefined} [enteralFormula],
      * @param {Annotation[]|undefined} [note],
      * @param {Object|undefined} [_access]
-     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_sourceAssigningAuthority]
      * @param {string|undefined} [_uuid]
      * @param {string|undefined} [_sourceId]
     */
@@ -625,7 +625,7 @@ class NutritionOrder extends Resource {
         });
         /**
          * @description _sourceAssigningAuthority
-         * @property {Object|undefined}
+         * @property {string|undefined}
          */
         Object.defineProperty(this, '_sourceAssigningAuthority', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -745,7 +745,7 @@ class NutritionOrder extends Resource {
      * @param {NutritionOrderEnteralFormula|undefined} [enteralFormula],
      * @param {Annotation[]|undefined} [note],
      * @param {Object|undefined} [_access]
-     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_sourceAssigningAuthority]
      * @param {string|undefined} [_uuid]
      * @param {string|undefined} [_sourceId]
      * @returns {NutritionOrder}
@@ -892,7 +892,35 @@ class NutritionOrder extends Resource {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            resourceType: this.resourceType,
+            id: this.id,
+            meta: this.meta && this.meta.toJSONInternal(),
+            implicitRules: this.implicitRules,
+            language: this.language,
+            text: this.text && this.text.toJSONInternal(),
+            contained: this.contained && this.contained.map(v => v.toJSONInternal()),
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
+            identifier: this.identifier && this.identifier.map(v => v.toJSONInternal()),
+            instantiatesCanonical: this.instantiatesCanonical,
+            instantiatesUri: this.instantiatesUri,
+            instantiates: this.instantiates,
+            status: this.status,
+            intent: this.intent,
+            patient: this.patient && this.patient.toJSONInternal(),
+            encounter: this.encounter && this.encounter.toJSONInternal(),
+            dateTime: this.dateTime,
+            orderer: this.orderer && this.orderer.toJSONInternal(),
+            allergyIntolerance: this.allergyIntolerance && this.allergyIntolerance.map(v => v.toJSONInternal()),
+            foodPreferenceModifier: this.foodPreferenceModifier && this.foodPreferenceModifier.map(v => v.toJSONInternal()),
+            excludeFoodModifier: this.excludeFoodModifier && this.excludeFoodModifier.map(v => v.toJSONInternal()),
+            oralDiet: this.oralDiet && this.oralDiet.toJSONInternal(),
+            supplement: this.supplement && this.supplement.map(v => v.toJSONInternal()),
+            enteralFormula: this.enteralFormula && this.enteralFormula.toJSONInternal(),
+            note: this.note && this.note.map(v => v.toJSONInternal()),
+        };
+
 
         if (this._access) {
             json._access = this._access;

@@ -32,7 +32,7 @@ class TestReport extends Resource {
      * @param {TestReportTest[]|undefined} [test],
      * @param {TestReportTeardown|undefined} [teardown],
      * @param {Object|undefined} [_access]
-     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_sourceAssigningAuthority]
      * @param {string|undefined} [_uuid]
      * @param {string|undefined} [_sourceId]
     */
@@ -499,7 +499,7 @@ class TestReport extends Resource {
         });
         /**
          * @description _sourceAssigningAuthority
-         * @property {Object|undefined}
+         * @property {string|undefined}
          */
         Object.defineProperty(this, '_sourceAssigningAuthority', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -609,7 +609,7 @@ class TestReport extends Resource {
      * @param {TestReportTest[]|undefined} [test],
      * @param {TestReportTeardown|undefined} [teardown],
      * @param {Object|undefined} [_access]
-     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_sourceAssigningAuthority]
      * @param {string|undefined} [_uuid]
      * @param {string|undefined} [_sourceId]
      * @returns {TestReport}
@@ -736,7 +736,30 @@ class TestReport extends Resource {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            resourceType: this.resourceType,
+            id: this.id,
+            meta: this.meta && this.meta.toJSONInternal(),
+            implicitRules: this.implicitRules,
+            language: this.language,
+            text: this.text && this.text.toJSONInternal(),
+            contained: this.contained && this.contained.map(v => v.toJSONInternal()),
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
+            identifier: this.identifier && this.identifier.toJSONInternal(),
+            name: this.name,
+            status: this.status,
+            testScript: this.testScript && this.testScript.toJSONInternal(),
+            result: this.result,
+            score: this.score,
+            tester: this.tester,
+            issued: this.issued,
+            participant: this.participant && this.participant.map(v => v.toJSONInternal()),
+            setup: this.setup && this.setup.toJSONInternal(),
+            test: this.test && this.test.map(v => v.toJSONInternal()),
+            teardown: this.teardown && this.teardown.toJSONInternal(),
+        };
+
 
         if (this._access) {
             json._access = this._access;

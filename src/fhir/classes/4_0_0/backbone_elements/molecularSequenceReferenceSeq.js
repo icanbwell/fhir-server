@@ -361,7 +361,21 @@ class MolecularSequenceReferenceSeq extends Element {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            id: this.id,
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
+            chromosome: this.chromosome && this.chromosome.toJSONInternal(),
+            genomeBuild: this.genomeBuild,
+            orientation: this.orientation,
+            referenceSeqId: this.referenceSeqId && this.referenceSeqId.toJSONInternal(),
+            referenceSeqPointer: this.referenceSeqPointer && this.referenceSeqPointer.toJSONInternal(),
+            referenceSeqString: this.referenceSeqString,
+            strand: this.strand,
+            windowStart: this.windowStart,
+            windowEnd: this.windowEnd,
+        };
+
 
 
         return removeNull(json);

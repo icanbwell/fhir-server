@@ -26,7 +26,7 @@ class SpecimenDefinition extends Resource {
      * @param {CodeableConcept[]|undefined} [collection],
      * @param {SpecimenDefinitionTypeTested[]|undefined} [typeTested],
      * @param {Object|undefined} [_access]
-     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_sourceAssigningAuthority]
      * @param {string|undefined} [_uuid]
      * @param {string|undefined} [_sourceId]
     */
@@ -372,7 +372,7 @@ class SpecimenDefinition extends Resource {
         });
         /**
          * @description _sourceAssigningAuthority
-         * @property {Object|undefined}
+         * @property {string|undefined}
          */
         Object.defineProperty(this, '_sourceAssigningAuthority', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -470,7 +470,7 @@ class SpecimenDefinition extends Resource {
      * @param {CodeableConcept[]|undefined} [collection],
      * @param {SpecimenDefinitionTypeTested[]|undefined} [typeTested],
      * @param {Object|undefined} [_access]
-     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_sourceAssigningAuthority]
      * @param {string|undefined} [_uuid]
      * @param {string|undefined} [_sourceId]
      * @returns {SpecimenDefinition}
@@ -578,7 +578,24 @@ class SpecimenDefinition extends Resource {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            resourceType: this.resourceType,
+            id: this.id,
+            meta: this.meta && this.meta.toJSONInternal(),
+            implicitRules: this.implicitRules,
+            language: this.language,
+            text: this.text && this.text.toJSONInternal(),
+            contained: this.contained && this.contained.map(v => v.toJSONInternal()),
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
+            identifier: this.identifier && this.identifier.toJSONInternal(),
+            typeCollected: this.typeCollected && this.typeCollected.toJSONInternal(),
+            patientPreparation: this.patientPreparation && this.patientPreparation.map(v => v.toJSONInternal()),
+            timeAspect: this.timeAspect,
+            collection: this.collection && this.collection.map(v => v.toJSONInternal()),
+            typeTested: this.typeTested && this.typeTested.map(v => v.toJSONInternal()),
+        };
+
 
         if (this._access) {
             json._access = this._access;

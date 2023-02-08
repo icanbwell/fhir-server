@@ -212,7 +212,15 @@ class MedicinalProductName extends Element {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            id: this.id,
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
+            productName: this.productName,
+            namePart: this.namePart && this.namePart.map(v => v.toJSONInternal()),
+            countryLanguage: this.countryLanguage && this.countryLanguage.map(v => v.toJSONInternal()),
+        };
+
 
 
         return removeNull(json);

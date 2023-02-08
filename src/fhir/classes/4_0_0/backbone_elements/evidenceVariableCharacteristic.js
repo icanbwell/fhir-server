@@ -494,7 +494,27 @@ class EvidenceVariableCharacteristic extends Element {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            id: this.id,
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
+            description: this.description,
+            definitionReference: this.definitionReference && this.definitionReference.toJSONInternal(),
+            definitionCanonical: this.definitionCanonical,
+            definitionCodeableConcept: this.definitionCodeableConcept && this.definitionCodeableConcept.toJSONInternal(),
+            definitionExpression: this.definitionExpression && this.definitionExpression.toJSONInternal(),
+            definitionDataRequirement: this.definitionDataRequirement && this.definitionDataRequirement.toJSONInternal(),
+            definitionTriggerDefinition: this.definitionTriggerDefinition && this.definitionTriggerDefinition.toJSONInternal(),
+            usageContext: this.usageContext && this.usageContext.map(v => v.toJSONInternal()),
+            exclude: this.exclude,
+            participantEffectiveDateTime: this.participantEffectiveDateTime,
+            participantEffectivePeriod: this.participantEffectivePeriod && this.participantEffectivePeriod.toJSONInternal(),
+            participantEffectiveDuration: this.participantEffectiveDuration && this.participantEffectiveDuration.toJSONInternal(),
+            participantEffectiveTiming: this.participantEffectiveTiming && this.participantEffectiveTiming.toJSONInternal(),
+            timeFromStart: this.timeFromStart && this.timeFromStart.toJSONInternal(),
+            groupMeasure: this.groupMeasure,
+        };
+
 
 
         return removeNull(json);

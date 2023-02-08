@@ -354,7 +354,21 @@ class AuditEventEntity extends Element {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            id: this.id,
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
+            what: this.what && this.what.toJSONInternal(),
+            type: this.type && this.type.toJSONInternal(),
+            role: this.role && this.role.toJSONInternal(),
+            lifecycle: this.lifecycle && this.lifecycle.toJSONInternal(),
+            securityLabel: this.securityLabel && this.securityLabel.map(v => v.toJSONInternal()),
+            name: this.name,
+            description: this.description,
+            query: this.query,
+            detail: this.detail && this.detail.map(v => v.toJSONInternal()),
+        };
+
 
 
         return removeNull(json);

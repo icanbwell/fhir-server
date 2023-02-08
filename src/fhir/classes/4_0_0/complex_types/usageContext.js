@@ -231,7 +231,16 @@ class UsageContext extends Element {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            id: this.id,
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            code: this.code && this.code.toJSONInternal(),
+            valueCodeableConcept: this.valueCodeableConcept && this.valueCodeableConcept.toJSONInternal(),
+            valueQuantity: this.valueQuantity && this.valueQuantity.toJSONInternal(),
+            valueRange: this.valueRange && this.valueRange.toJSONInternal(),
+            valueReference: this.valueReference && this.valueReference.toJSONInternal(),
+        };
+
 
 
         return removeNull(json);

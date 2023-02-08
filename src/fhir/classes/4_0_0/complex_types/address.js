@@ -340,7 +340,21 @@ class Address extends Element {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            id: this.id,
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            use: this.use,
+            type: this.type,
+            text: this.text,
+            line: this.line,
+            city: this.city,
+            district: this.district,
+            state: this.state,
+            postalCode: this.postalCode,
+            country: this.country,
+            period: this.period && this.period.toJSONInternal(),
+        };
+
 
 
         return removeNull(json);

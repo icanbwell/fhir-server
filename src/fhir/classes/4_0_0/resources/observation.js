@@ -58,7 +58,7 @@ class Observation extends Resource {
      * @param {Reference[]|undefined} [derivedFrom],
      * @param {ObservationComponent[]|undefined} [component],
      * @param {Object|undefined} [_access]
-     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_sourceAssigningAuthority]
      * @param {string|undefined} [_uuid]
      * @param {string|undefined} [_sourceId]
     */
@@ -1047,7 +1047,7 @@ class Observation extends Resource {
         });
         /**
          * @description _sourceAssigningAuthority
-         * @property {Object|undefined}
+         * @property {string|undefined}
          */
         Object.defineProperty(this, '_sourceAssigningAuthority', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -1207,7 +1207,7 @@ class Observation extends Resource {
      * @param {Reference[]|undefined} [derivedFrom],
      * @param {ObservationComponent[]|undefined} [component],
      * @param {Object|undefined} [_access]
-     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_sourceAssigningAuthority]
      * @param {string|undefined} [_uuid]
      * @param {string|undefined} [_sourceId]
      * @returns {Observation}
@@ -1431,7 +1431,55 @@ class Observation extends Resource {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            resourceType: this.resourceType,
+            id: this.id,
+            meta: this.meta && this.meta.toJSONInternal(),
+            implicitRules: this.implicitRules,
+            language: this.language,
+            text: this.text && this.text.toJSONInternal(),
+            contained: this.contained && this.contained.map(v => v.toJSONInternal()),
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
+            identifier: this.identifier && this.identifier.map(v => v.toJSONInternal()),
+            basedOn: this.basedOn && this.basedOn.map(v => v.toJSONInternal()),
+            partOf: this.partOf && this.partOf.map(v => v.toJSONInternal()),
+            status: this.status,
+            category: this.category && this.category.map(v => v.toJSONInternal()),
+            code: this.code && this.code.toJSONInternal(),
+            subject: this.subject && this.subject.toJSONInternal(),
+            focus: this.focus && this.focus.map(v => v.toJSONInternal()),
+            encounter: this.encounter && this.encounter.toJSONInternal(),
+            effectiveDateTime: this.effectiveDateTime,
+            effectivePeriod: this.effectivePeriod && this.effectivePeriod.toJSONInternal(),
+            effectiveTiming: this.effectiveTiming && this.effectiveTiming.toJSONInternal(),
+            effectiveInstant: this.effectiveInstant,
+            issued: this.issued,
+            performer: this.performer && this.performer.map(v => v.toJSONInternal()),
+            valueQuantity: this.valueQuantity && this.valueQuantity.toJSONInternal(),
+            valueCodeableConcept: this.valueCodeableConcept && this.valueCodeableConcept.toJSONInternal(),
+            valueString: this.valueString,
+            valueBoolean: this.valueBoolean,
+            valueInteger: this.valueInteger,
+            valueRange: this.valueRange && this.valueRange.toJSONInternal(),
+            valueRatio: this.valueRatio && this.valueRatio.toJSONInternal(),
+            valueSampledData: this.valueSampledData && this.valueSampledData.toJSONInternal(),
+            valueTime: this.valueTime,
+            valueDateTime: this.valueDateTime,
+            valuePeriod: this.valuePeriod && this.valuePeriod.toJSONInternal(),
+            dataAbsentReason: this.dataAbsentReason && this.dataAbsentReason.toJSONInternal(),
+            interpretation: this.interpretation && this.interpretation.map(v => v.toJSONInternal()),
+            note: this.note && this.note.map(v => v.toJSONInternal()),
+            bodySite: this.bodySite && this.bodySite.toJSONInternal(),
+            method: this.method && this.method.toJSONInternal(),
+            specimen: this.specimen && this.specimen.toJSONInternal(),
+            device: this.device && this.device.toJSONInternal(),
+            referenceRange: this.referenceRange && this.referenceRange.map(v => v.toJSONInternal()),
+            hasMember: this.hasMember && this.hasMember.map(v => v.toJSONInternal()),
+            derivedFrom: this.derivedFrom && this.derivedFrom.map(v => v.toJSONInternal()),
+            component: this.component && this.component.map(v => v.toJSONInternal()),
+        };
+
 
         if (this._access) {
             json._access = this._access;

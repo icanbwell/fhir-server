@@ -172,7 +172,14 @@ class Count extends Element {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            value: this.value,
+            comparator: this.comparator,
+            unit: this.unit,
+            system: this.system,
+            code: this.code,
+        };
+
 
 
         return removeNull(json);

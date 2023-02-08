@@ -46,7 +46,7 @@ class SubstanceSourceMaterial extends Resource {
      * @param {SubstanceSourceMaterialOrganism|undefined} [organism],
      * @param {SubstanceSourceMaterialPartDescription[]|undefined} [partDescription],
      * @param {Object|undefined} [_access]
-     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_sourceAssigningAuthority]
      * @param {string|undefined} [_uuid]
      * @param {string|undefined} [_sourceId]
     */
@@ -553,7 +553,7 @@ class SubstanceSourceMaterial extends Resource {
         });
         /**
          * @description _sourceAssigningAuthority
-         * @property {Object|undefined}
+         * @property {string|undefined}
          */
         Object.defineProperty(this, '_sourceAssigningAuthority', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -665,7 +665,7 @@ class SubstanceSourceMaterial extends Resource {
      * @param {SubstanceSourceMaterialOrganism|undefined} [organism],
      * @param {SubstanceSourceMaterialPartDescription[]|undefined} [partDescription],
      * @param {Object|undefined} [_access]
-     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_sourceAssigningAuthority]
      * @param {string|undefined} [_uuid]
      * @param {string|undefined} [_sourceId]
      * @returns {SubstanceSourceMaterial}
@@ -799,7 +799,31 @@ class SubstanceSourceMaterial extends Resource {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            resourceType: this.resourceType,
+            id: this.id,
+            meta: this.meta && this.meta.toJSONInternal(),
+            implicitRules: this.implicitRules,
+            language: this.language,
+            text: this.text && this.text.toJSONInternal(),
+            contained: this.contained && this.contained.map(v => v.toJSONInternal()),
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
+            sourceMaterialClass: this.sourceMaterialClass && this.sourceMaterialClass.toJSONInternal(),
+            sourceMaterialType: this.sourceMaterialType && this.sourceMaterialType.toJSONInternal(),
+            sourceMaterialState: this.sourceMaterialState && this.sourceMaterialState.toJSONInternal(),
+            organismId: this.organismId && this.organismId.toJSONInternal(),
+            organismName: this.organismName,
+            parentSubstanceId: this.parentSubstanceId && this.parentSubstanceId.map(v => v.toJSONInternal()),
+            parentSubstanceName: this.parentSubstanceName,
+            countryOfOrigin: this.countryOfOrigin && this.countryOfOrigin.map(v => v.toJSONInternal()),
+            geographicalLocation: this.geographicalLocation,
+            developmentStage: this.developmentStage && this.developmentStage.toJSONInternal(),
+            fractionDescription: this.fractionDescription && this.fractionDescription.map(v => v.toJSONInternal()),
+            organism: this.organism && this.organism.toJSONInternal(),
+            partDescription: this.partDescription && this.partDescription.map(v => v.toJSONInternal()),
+        };
+
 
         if (this._access) {
             json._access = this._access;

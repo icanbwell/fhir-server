@@ -330,7 +330,20 @@ class SpecimenDefinitionTypeTested extends Element {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            id: this.id,
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
+            isDerived: this.isDerived,
+            type: this.type && this.type.toJSONInternal(),
+            preference: this.preference,
+            container: this.container && this.container.toJSONInternal(),
+            requirement: this.requirement,
+            retentionTime: this.retentionTime && this.retentionTime.toJSONInternal(),
+            rejectionCriterion: this.rejectionCriterion && this.rejectionCriterion.map(v => v.toJSONInternal()),
+            handling: this.handling && this.handling.map(v => v.toJSONInternal()),
+        };
+
 
 
         return removeNull(json);

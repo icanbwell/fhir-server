@@ -255,7 +255,17 @@ class GraphDefinitionCompartment extends Element {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            id: this.id,
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
+            use: this.use,
+            code: this.code,
+            rule: this.rule,
+            expression: this.expression,
+            description: this.description,
+        };
+
 
 
         return removeNull(json);

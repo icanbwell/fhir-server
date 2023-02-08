@@ -56,7 +56,7 @@ class Contract extends Resource {
      * @param {Attachment|undefined} [legallyBindingAttachment],
      * @param {Reference|undefined} [legallyBindingReference],
      * @param {Object|undefined} [_access]
-     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_sourceAssigningAuthority]
      * @param {string|undefined} [_uuid]
      * @param {string|undefined} [_sourceId]
     */
@@ -1024,7 +1024,7 @@ class Contract extends Resource {
         });
         /**
          * @description _sourceAssigningAuthority
-         * @property {Object|undefined}
+         * @property {string|undefined}
          */
         Object.defineProperty(this, '_sourceAssigningAuthority', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -1180,7 +1180,7 @@ class Contract extends Resource {
      * @param {Attachment|undefined} [legallyBindingAttachment],
      * @param {Reference|undefined} [legallyBindingReference],
      * @param {Object|undefined} [_access]
-     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_sourceAssigningAuthority]
      * @param {string|undefined} [_uuid]
      * @param {string|undefined} [_sourceId]
      * @returns {Contract}
@@ -1396,7 +1396,53 @@ class Contract extends Resource {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            resourceType: this.resourceType,
+            id: this.id,
+            meta: this.meta && this.meta.toJSONInternal(),
+            implicitRules: this.implicitRules,
+            language: this.language,
+            text: this.text && this.text.toJSONInternal(),
+            contained: this.contained && this.contained.map(v => v.toJSONInternal()),
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
+            identifier: this.identifier && this.identifier.map(v => v.toJSONInternal()),
+            url: this.url,
+            version: this.version,
+            status: this.status,
+            legalState: this.legalState && this.legalState.toJSONInternal(),
+            instantiatesCanonical: this.instantiatesCanonical && this.instantiatesCanonical.toJSONInternal(),
+            instantiatesUri: this.instantiatesUri,
+            contentDerivative: this.contentDerivative && this.contentDerivative.toJSONInternal(),
+            issued: this.issued,
+            applies: this.applies && this.applies.toJSONInternal(),
+            expirationType: this.expirationType && this.expirationType.toJSONInternal(),
+            subject: this.subject && this.subject.map(v => v.toJSONInternal()),
+            authority: this.authority && this.authority.map(v => v.toJSONInternal()),
+            domain: this.domain && this.domain.map(v => v.toJSONInternal()),
+            site: this.site && this.site.map(v => v.toJSONInternal()),
+            name: this.name,
+            title: this.title,
+            subtitle: this.subtitle,
+            alias: this.alias,
+            author: this.author && this.author.toJSONInternal(),
+            scope: this.scope && this.scope.toJSONInternal(),
+            topicCodeableConcept: this.topicCodeableConcept && this.topicCodeableConcept.toJSONInternal(),
+            topicReference: this.topicReference && this.topicReference.toJSONInternal(),
+            type: this.type && this.type.toJSONInternal(),
+            subType: this.subType && this.subType.map(v => v.toJSONInternal()),
+            contentDefinition: this.contentDefinition && this.contentDefinition.toJSONInternal(),
+            term: this.term && this.term.map(v => v.toJSONInternal()),
+            supportingInfo: this.supportingInfo && this.supportingInfo.map(v => v.toJSONInternal()),
+            relevantHistory: this.relevantHistory && this.relevantHistory.map(v => v.toJSONInternal()),
+            signer: this.signer && this.signer.map(v => v.toJSONInternal()),
+            friendly: this.friendly && this.friendly.map(v => v.toJSONInternal()),
+            legal: this.legal && this.legal.map(v => v.toJSONInternal()),
+            rule: this.rule && this.rule.map(v => v.toJSONInternal()),
+            legallyBindingAttachment: this.legallyBindingAttachment && this.legallyBindingAttachment.toJSONInternal(),
+            legallyBindingReference: this.legallyBindingReference && this.legallyBindingReference.toJSONInternal(),
+        };
+
 
         if (this._access) {
             json._access = this._access;

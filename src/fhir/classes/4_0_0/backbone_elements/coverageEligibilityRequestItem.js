@@ -387,7 +387,22 @@ class CoverageEligibilityRequestItem extends Element {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            id: this.id,
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
+            supportingInfoSequence: this.supportingInfoSequence,
+            category: this.category && this.category.toJSONInternal(),
+            productOrService: this.productOrService && this.productOrService.toJSONInternal(),
+            modifier: this.modifier && this.modifier.map(v => v.toJSONInternal()),
+            provider: this.provider && this.provider.toJSONInternal(),
+            quantity: this.quantity && this.quantity.toJSONInternal(),
+            unitPrice: this.unitPrice && this.unitPrice.toJSONInternal(),
+            facility: this.facility && this.facility.toJSONInternal(),
+            diagnosis: this.diagnosis && this.diagnosis.map(v => v.toJSONInternal()),
+            detail: this.detail && this.detail.map(v => v.toJSONInternal()),
+        };
+
 
 
         return removeNull(json);

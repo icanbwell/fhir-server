@@ -236,7 +236,16 @@ class EffectEvidenceSynthesisResultsByExposure extends Element {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            id: this.id,
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
+            description: this.description,
+            exposureState: this.exposureState,
+            variantState: this.variantState && this.variantState.toJSONInternal(),
+            riskEvidenceSynthesis: this.riskEvidenceSynthesis && this.riskEvidenceSynthesis.toJSONInternal(),
+        };
+
 
 
         return removeNull(json);

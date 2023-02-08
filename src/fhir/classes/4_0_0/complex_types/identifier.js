@@ -249,7 +249,17 @@ class Identifier extends Element {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            id: this.id,
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            use: this.use,
+            type: this.type && this.type.toJSONInternal(),
+            system: this.system,
+            value: this.value,
+            period: this.period && this.period.toJSONInternal(),
+            assigner: this.assigner && this.assigner.toJSONInternal(),
+        };
+
 
 
         return removeNull(json);

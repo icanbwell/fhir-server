@@ -294,7 +294,18 @@ class SubstanceAmount extends Element {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            id: this.id,
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
+            amountQuantity: this.amountQuantity && this.amountQuantity.toJSONInternal(),
+            amountRange: this.amountRange && this.amountRange.toJSONInternal(),
+            amountString: this.amountString,
+            amountType: this.amountType && this.amountType.toJSONInternal(),
+            amountText: this.amountText,
+            referenceRange: this.referenceRange && this.referenceRange.toJSONInternal(),
+        };
+
 
 
         return removeNull(json);

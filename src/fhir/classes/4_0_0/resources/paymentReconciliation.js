@@ -36,7 +36,7 @@ class PaymentReconciliation extends Resource {
      * @param {CodeableConcept|undefined} [formCode],
      * @param {PaymentReconciliationProcessNote[]|undefined} [processNote],
      * @param {Object|undefined} [_access]
-     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_sourceAssigningAuthority]
      * @param {string|undefined} [_uuid]
      * @param {string|undefined} [_sourceId]
     */
@@ -560,7 +560,7 @@ class PaymentReconciliation extends Resource {
         });
         /**
          * @description _sourceAssigningAuthority
-         * @property {Object|undefined}
+         * @property {string|undefined}
          */
         Object.defineProperty(this, '_sourceAssigningAuthority', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -676,7 +676,7 @@ class PaymentReconciliation extends Resource {
      * @param {CodeableConcept|undefined} [formCode],
      * @param {PaymentReconciliationProcessNote[]|undefined} [processNote],
      * @param {Object|undefined} [_access]
-     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_sourceAssigningAuthority]
      * @param {string|undefined} [_uuid]
      * @param {string|undefined} [_sourceId]
      * @returns {PaymentReconciliation}
@@ -816,7 +816,33 @@ class PaymentReconciliation extends Resource {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            resourceType: this.resourceType,
+            id: this.id,
+            meta: this.meta && this.meta.toJSONInternal(),
+            implicitRules: this.implicitRules,
+            language: this.language,
+            text: this.text && this.text.toJSONInternal(),
+            contained: this.contained && this.contained.map(v => v.toJSONInternal()),
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
+            identifier: this.identifier && this.identifier.map(v => v.toJSONInternal()),
+            status: this.status,
+            period: this.period && this.period.toJSONInternal(),
+            created: this.created,
+            paymentIssuer: this.paymentIssuer && this.paymentIssuer.toJSONInternal(),
+            request: this.request && this.request.toJSONInternal(),
+            requestor: this.requestor && this.requestor.toJSONInternal(),
+            outcome: this.outcome,
+            disposition: this.disposition,
+            paymentDate: this.paymentDate,
+            paymentAmount: this.paymentAmount && this.paymentAmount.toJSONInternal(),
+            paymentIdentifier: this.paymentIdentifier && this.paymentIdentifier.toJSONInternal(),
+            detail: this.detail && this.detail.map(v => v.toJSONInternal()),
+            formCode: this.formCode && this.formCode.toJSONInternal(),
+            processNote: this.processNote && this.processNote.map(v => v.toJSONInternal()),
+        };
+
 
         if (this._access) {
             json._access = this._access;

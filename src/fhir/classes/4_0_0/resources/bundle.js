@@ -23,7 +23,7 @@ class Bundle extends Resource {
      * @param {BundleEntry[]|undefined} [entry],
      * @param {Signature|undefined} [signature],
      * @param {Object|undefined} [_access]
-     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_sourceAssigningAuthority]
      * @param {string|undefined} [_uuid]
      * @param {string|undefined} [_sourceId]
     */
@@ -281,7 +281,7 @@ class Bundle extends Resource {
         });
         /**
          * @description _sourceAssigningAuthority
-         * @property {Object|undefined}
+         * @property {string|undefined}
          */
         Object.defineProperty(this, '_sourceAssigningAuthority', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -373,7 +373,7 @@ class Bundle extends Resource {
      * @param {BundleEntry[]|undefined} [entry],
      * @param {Signature|undefined} [signature],
      * @param {Object|undefined} [_access]
-     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_sourceAssigningAuthority]
      * @param {string|undefined} [_uuid]
      * @param {string|undefined} [_sourceId]
      * @returns {Bundle}
@@ -467,7 +467,21 @@ class Bundle extends Resource {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            resourceType: this.resourceType,
+            id: this.id,
+            meta: this.meta && this.meta.toJSONInternal(),
+            implicitRules: this.implicitRules,
+            language: this.language,
+            identifier: this.identifier && this.identifier.toJSONInternal(),
+            type: this.type,
+            timestamp: this.timestamp,
+            total: this.total,
+            link: this.link && this.link.map(v => v.toJSONInternal()),
+            entry: this.entry && this.entry.map(v => v.toJSONInternal()),
+            signature: this.signature && this.signature.toJSONInternal(),
+        };
+
 
         if (this._access) {
             json._access = this._access;

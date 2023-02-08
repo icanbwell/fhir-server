@@ -38,7 +38,7 @@ class Coverage extends Resource {
      * @param {Boolean|undefined} [subrogation],
      * @param {Reference[]|undefined} [contract],
      * @param {Object|undefined} [_access]
-     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_sourceAssigningAuthority]
      * @param {string|undefined} [_uuid]
      * @param {string|undefined} [_sourceId]
     */
@@ -613,7 +613,7 @@ class Coverage extends Resource {
         });
         /**
          * @description _sourceAssigningAuthority
-         * @property {Object|undefined}
+         * @property {string|undefined}
          */
         Object.defineProperty(this, '_sourceAssigningAuthority', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -733,7 +733,7 @@ class Coverage extends Resource {
      * @param {Boolean|undefined} [subrogation],
      * @param {Reference[]|undefined} [contract],
      * @param {Object|undefined} [_access]
-     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_sourceAssigningAuthority]
      * @param {string|undefined} [_uuid]
      * @param {string|undefined} [_sourceId]
      * @returns {Coverage}
@@ -880,7 +880,35 @@ class Coverage extends Resource {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            resourceType: this.resourceType,
+            id: this.id,
+            meta: this.meta && this.meta.toJSONInternal(),
+            implicitRules: this.implicitRules,
+            language: this.language,
+            text: this.text && this.text.toJSONInternal(),
+            contained: this.contained && this.contained.map(v => v.toJSONInternal()),
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
+            identifier: this.identifier && this.identifier.map(v => v.toJSONInternal()),
+            status: this.status,
+            type: this.type && this.type.toJSONInternal(),
+            policyHolder: this.policyHolder && this.policyHolder.toJSONInternal(),
+            subscriber: this.subscriber && this.subscriber.toJSONInternal(),
+            subscriberId: this.subscriberId,
+            beneficiary: this.beneficiary && this.beneficiary.toJSONInternal(),
+            dependent: this.dependent,
+            relationship: this.relationship && this.relationship.toJSONInternal(),
+            period: this.period && this.period.toJSONInternal(),
+            payor: this.payor && this.payor.map(v => v.toJSONInternal()),
+            class: this.class && this.class.map(v => v.toJSONInternal()),
+            order: this.order,
+            network: this.network,
+            costToBeneficiary: this.costToBeneficiary && this.costToBeneficiary.map(v => v.toJSONInternal()),
+            subrogation: this.subrogation,
+            contract: this.contract && this.contract.map(v => v.toJSONInternal()),
+        };
+
 
         if (this._access) {
             json._access = this._access;

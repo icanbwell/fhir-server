@@ -211,7 +211,15 @@ class TestScriptTest extends Element {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            id: this.id,
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
+            name: this.name,
+            description: this.description,
+            action: this.action && this.action.map(v => v.toJSONInternal()),
+        };
+
 
 
         return removeNull(json);

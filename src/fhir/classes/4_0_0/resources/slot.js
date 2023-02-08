@@ -31,7 +31,7 @@ class Slot extends Resource {
      * @param {Boolean|undefined} [overbooked],
      * @param {String|undefined} [comment],
      * @param {Object|undefined} [_access]
-     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_sourceAssigningAuthority]
      * @param {string|undefined} [_uuid]
      * @param {string|undefined} [_sourceId]
     */
@@ -482,7 +482,7 @@ class Slot extends Resource {
         });
         /**
          * @description _sourceAssigningAuthority
-         * @property {Object|undefined}
+         * @property {string|undefined}
          */
         Object.defineProperty(this, '_sourceAssigningAuthority', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -590,7 +590,7 @@ class Slot extends Resource {
      * @param {Boolean|undefined} [overbooked],
      * @param {String|undefined} [comment],
      * @param {Object|undefined} [_access]
-     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_sourceAssigningAuthority]
      * @param {string|undefined} [_uuid]
      * @param {string|undefined} [_sourceId]
      * @returns {Slot}
@@ -714,7 +714,29 @@ class Slot extends Resource {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            resourceType: this.resourceType,
+            id: this.id,
+            meta: this.meta && this.meta.toJSONInternal(),
+            implicitRules: this.implicitRules,
+            language: this.language,
+            text: this.text && this.text.toJSONInternal(),
+            contained: this.contained && this.contained.map(v => v.toJSONInternal()),
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
+            identifier: this.identifier && this.identifier.map(v => v.toJSONInternal()),
+            serviceCategory: this.serviceCategory && this.serviceCategory.map(v => v.toJSONInternal()),
+            serviceType: this.serviceType && this.serviceType.map(v => v.toJSONInternal()),
+            specialty: this.specialty && this.specialty.map(v => v.toJSONInternal()),
+            appointmentType: this.appointmentType && this.appointmentType.toJSONInternal(),
+            schedule: this.schedule && this.schedule.toJSONInternal(),
+            status: this.status,
+            start: this.start,
+            end: this.end,
+            overbooked: this.overbooked,
+            comment: this.comment,
+        };
+
 
         if (this._access) {
             json._access = this._access;

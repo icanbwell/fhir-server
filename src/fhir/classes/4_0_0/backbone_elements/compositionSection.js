@@ -402,7 +402,22 @@ class CompositionSection extends Element {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            id: this.id,
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
+            title: this.title,
+            code: this.code && this.code.toJSONInternal(),
+            author: this.author && this.author.map(v => v.toJSONInternal()),
+            focus: this.focus && this.focus.toJSONInternal(),
+            text: this.text && this.text.toJSONInternal(),
+            mode: this.mode,
+            orderedBy: this.orderedBy && this.orderedBy.toJSONInternal(),
+            entry: this.entry && this.entry.map(v => v.toJSONInternal()),
+            emptyReason: this.emptyReason && this.emptyReason.toJSONInternal(),
+            section: this.section && this.section.map(v => v.toJSONInternal()),
+        };
+
 
 
         return removeNull(json);

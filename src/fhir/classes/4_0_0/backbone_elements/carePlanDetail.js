@@ -629,7 +629,32 @@ class CarePlanDetail extends Element {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            id: this.id,
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
+            kind: this.kind,
+            instantiatesCanonical: this.instantiatesCanonical,
+            instantiatesUri: this.instantiatesUri,
+            code: this.code && this.code.toJSONInternal(),
+            reasonCode: this.reasonCode && this.reasonCode.map(v => v.toJSONInternal()),
+            reasonReference: this.reasonReference && this.reasonReference.map(v => v.toJSONInternal()),
+            goal: this.goal && this.goal.map(v => v.toJSONInternal()),
+            status: this.status,
+            statusReason: this.statusReason && this.statusReason.toJSONInternal(),
+            doNotPerform: this.doNotPerform,
+            scheduledTiming: this.scheduledTiming && this.scheduledTiming.toJSONInternal(),
+            scheduledPeriod: this.scheduledPeriod && this.scheduledPeriod.toJSONInternal(),
+            scheduledString: this.scheduledString,
+            location: this.location && this.location.toJSONInternal(),
+            performer: this.performer && this.performer.map(v => v.toJSONInternal()),
+            productCodeableConcept: this.productCodeableConcept && this.productCodeableConcept.toJSONInternal(),
+            productReference: this.productReference && this.productReference.toJSONInternal(),
+            dailyAmount: this.dailyAmount && this.dailyAmount.toJSONInternal(),
+            quantity: this.quantity && this.quantity.toJSONInternal(),
+            description: this.description,
+        };
+
 
 
         return removeNull(json);

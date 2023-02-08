@@ -191,7 +191,14 @@ class TestScriptMetadata extends Element {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            id: this.id,
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
+            link: this.link && this.link.map(v => v.toJSONInternal()),
+            capability: this.capability && this.capability.map(v => v.toJSONInternal()),
+        };
+
 
 
         return removeNull(json);

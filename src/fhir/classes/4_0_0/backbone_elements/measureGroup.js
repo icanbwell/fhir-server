@@ -239,7 +239,16 @@ class MeasureGroup extends Element {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            id: this.id,
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
+            code: this.code && this.code.toJSONInternal(),
+            description: this.description,
+            population: this.population && this.population.map(v => v.toJSONInternal()),
+            stratifier: this.stratifier && this.stratifier.map(v => v.toJSONInternal()),
+        };
+
 
 
         return removeNull(json);

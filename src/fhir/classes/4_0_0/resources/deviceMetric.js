@@ -31,7 +31,7 @@ class DeviceMetric extends Resource {
      * @param {Timing|undefined} [measurementPeriod],
      * @param {DeviceMetricCalibration[]|undefined} [calibration],
      * @param {Object|undefined} [_access]
-     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_sourceAssigningAuthority]
      * @param {string|undefined} [_uuid]
      * @param {string|undefined} [_sourceId]
     */
@@ -479,7 +479,7 @@ class DeviceMetric extends Resource {
         });
         /**
          * @description _sourceAssigningAuthority
-         * @property {Object|undefined}
+         * @property {string|undefined}
          */
         Object.defineProperty(this, '_sourceAssigningAuthority', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -585,7 +585,7 @@ class DeviceMetric extends Resource {
      * @param {Timing|undefined} [measurementPeriod],
      * @param {DeviceMetricCalibration[]|undefined} [calibration],
      * @param {Object|undefined} [_access]
-     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_sourceAssigningAuthority]
      * @param {string|undefined} [_uuid]
      * @param {string|undefined} [_sourceId]
      * @returns {DeviceMetric}
@@ -707,7 +707,28 @@ class DeviceMetric extends Resource {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            resourceType: this.resourceType,
+            id: this.id,
+            meta: this.meta && this.meta.toJSONInternal(),
+            implicitRules: this.implicitRules,
+            language: this.language,
+            text: this.text && this.text.toJSONInternal(),
+            contained: this.contained && this.contained.map(v => v.toJSONInternal()),
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
+            identifier: this.identifier && this.identifier.map(v => v.toJSONInternal()),
+            type: this.type && this.type.toJSONInternal(),
+            unit: this.unit && this.unit.toJSONInternal(),
+            source: this.source && this.source.toJSONInternal(),
+            parent: this.parent && this.parent.toJSONInternal(),
+            operationalStatus: this.operationalStatus,
+            color: this.color,
+            category: this.category,
+            measurementPeriod: this.measurementPeriod && this.measurementPeriod.toJSONInternal(),
+            calibration: this.calibration && this.calibration.map(v => v.toJSONInternal()),
+        };
+
 
         if (this._access) {
             json._access = this._access;

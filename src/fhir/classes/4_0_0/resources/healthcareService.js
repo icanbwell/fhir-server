@@ -44,7 +44,7 @@ class HealthcareService extends Resource {
      * @param {String|undefined} [availabilityExceptions],
      * @param {Reference[]|undefined} [endpoint],
      * @param {Object|undefined} [_access]
-     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_sourceAssigningAuthority]
      * @param {string|undefined} [_uuid]
      * @param {string|undefined} [_sourceId]
     */
@@ -765,7 +765,7 @@ class HealthcareService extends Resource {
         });
         /**
          * @description _sourceAssigningAuthority
-         * @property {Object|undefined}
+         * @property {string|undefined}
          */
         Object.defineProperty(this, '_sourceAssigningAuthority', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -899,7 +899,7 @@ class HealthcareService extends Resource {
      * @param {String|undefined} [availabilityExceptions],
      * @param {Reference[]|undefined} [endpoint],
      * @param {Object|undefined} [_access]
-     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_sourceAssigningAuthority]
      * @param {string|undefined} [_uuid]
      * @param {string|undefined} [_sourceId]
      * @returns {HealthcareService}
@@ -1074,7 +1074,42 @@ class HealthcareService extends Resource {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            resourceType: this.resourceType,
+            id: this.id,
+            meta: this.meta && this.meta.toJSONInternal(),
+            implicitRules: this.implicitRules,
+            language: this.language,
+            text: this.text && this.text.toJSONInternal(),
+            contained: this.contained && this.contained.map(v => v.toJSONInternal()),
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
+            identifier: this.identifier && this.identifier.map(v => v.toJSONInternal()),
+            active: this.active,
+            providedBy: this.providedBy && this.providedBy.toJSONInternal(),
+            category: this.category && this.category.map(v => v.toJSONInternal()),
+            type: this.type && this.type.map(v => v.toJSONInternal()),
+            specialty: this.specialty && this.specialty.map(v => v.toJSONInternal()),
+            location: this.location && this.location.map(v => v.toJSONInternal()),
+            name: this.name,
+            comment: this.comment,
+            extraDetails: this.extraDetails,
+            photo: this.photo && this.photo.toJSONInternal(),
+            telecom: this.telecom && this.telecom.map(v => v.toJSONInternal()),
+            coverageArea: this.coverageArea && this.coverageArea.map(v => v.toJSONInternal()),
+            serviceProvisionCode: this.serviceProvisionCode && this.serviceProvisionCode.map(v => v.toJSONInternal()),
+            eligibility: this.eligibility && this.eligibility.map(v => v.toJSONInternal()),
+            program: this.program && this.program.map(v => v.toJSONInternal()),
+            characteristic: this.characteristic && this.characteristic.map(v => v.toJSONInternal()),
+            communication: this.communication && this.communication.map(v => v.toJSONInternal()),
+            referralMethod: this.referralMethod && this.referralMethod.map(v => v.toJSONInternal()),
+            appointmentRequired: this.appointmentRequired,
+            availableTime: this.availableTime && this.availableTime.map(v => v.toJSONInternal()),
+            notAvailable: this.notAvailable && this.notAvailable.map(v => v.toJSONInternal()),
+            availabilityExceptions: this.availabilityExceptions,
+            endpoint: this.endpoint && this.endpoint.map(v => v.toJSONInternal()),
+        };
+
 
         if (this._access) {
             json._access = this._access;

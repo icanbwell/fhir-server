@@ -317,7 +317,19 @@ class AllergyIntoleranceReaction extends Element {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            id: this.id,
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
+            substance: this.substance && this.substance.toJSONInternal(),
+            manifestation: this.manifestation && this.manifestation.map(v => v.toJSONInternal()),
+            description: this.description,
+            onset: this.onset,
+            severity: this.severity,
+            exposureRoute: this.exposureRoute && this.exposureRoute.toJSONInternal(),
+            note: this.note && this.note.map(v => v.toJSONInternal()),
+        };
+
 
 
         return removeNull(json);

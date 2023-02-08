@@ -340,7 +340,20 @@ class CapabilityStatementRest extends Element {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            id: this.id,
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
+            mode: this.mode,
+            documentation: this.documentation,
+            security: this.security && this.security.toJSONInternal(),
+            resource: this.resource && this.resource.map(v => v.toJSONInternal()),
+            interaction: this.interaction && this.interaction.map(v => v.toJSONInternal()),
+            searchParam: this.searchParam && this.searchParam.map(v => v.toJSONInternal()),
+            operation: this.operation && this.operation.map(v => v.toJSONInternal()),
+            compartment: this.compartment,
+        };
+
 
 
         return removeNull(json);

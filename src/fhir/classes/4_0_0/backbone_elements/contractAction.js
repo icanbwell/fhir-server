@@ -687,7 +687,35 @@ class ContractAction extends Element {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            id: this.id,
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
+            doNotPerform: this.doNotPerform,
+            type: this.type && this.type.toJSONInternal(),
+            subject: this.subject && this.subject.map(v => v.toJSONInternal()),
+            intent: this.intent && this.intent.toJSONInternal(),
+            linkId: this.linkId,
+            status: this.status && this.status.toJSONInternal(),
+            context: this.context && this.context.toJSONInternal(),
+            contextLinkId: this.contextLinkId,
+            occurrenceDateTime: this.occurrenceDateTime,
+            occurrencePeriod: this.occurrencePeriod && this.occurrencePeriod.toJSONInternal(),
+            occurrenceTiming: this.occurrenceTiming && this.occurrenceTiming.toJSONInternal(),
+            requester: this.requester && this.requester.map(v => v.toJSONInternal()),
+            requesterLinkId: this.requesterLinkId,
+            performerType: this.performerType && this.performerType.map(v => v.toJSONInternal()),
+            performerRole: this.performerRole && this.performerRole.toJSONInternal(),
+            performer: this.performer && this.performer.toJSONInternal(),
+            performerLinkId: this.performerLinkId,
+            reasonCode: this.reasonCode && this.reasonCode.map(v => v.toJSONInternal()),
+            reasonReference: this.reasonReference && this.reasonReference.map(v => v.toJSONInternal()),
+            reason: this.reason,
+            reasonLinkId: this.reasonLinkId,
+            note: this.note && this.note.map(v => v.toJSONInternal()),
+            securityLabelNumber: this.securityLabelNumber,
+        };
+
 
 
         return removeNull(json);

@@ -366,7 +366,21 @@ class NutritionOrderEnteralFormula extends Element {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            id: this.id,
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
+            baseFormulaType: this.baseFormulaType && this.baseFormulaType.toJSONInternal(),
+            baseFormulaProductName: this.baseFormulaProductName,
+            additiveType: this.additiveType && this.additiveType.toJSONInternal(),
+            additiveProductName: this.additiveProductName,
+            caloricDensity: this.caloricDensity && this.caloricDensity.toJSONInternal(),
+            routeofAdministration: this.routeofAdministration && this.routeofAdministration.toJSONInternal(),
+            administration: this.administration && this.administration.map(v => v.toJSONInternal()),
+            maxVolumeToDeliver: this.maxVolumeToDeliver && this.maxVolumeToDeliver.toJSONInternal(),
+            administrationInstruction: this.administrationInstruction,
+        };
+
 
 
         return removeNull(json);

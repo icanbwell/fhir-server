@@ -272,7 +272,18 @@ class SampledData extends Element {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            id: this.id,
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            origin: this.origin && this.origin.toJSONInternal(),
+            period: this.period,
+            factor: this.factor,
+            lowerLimit: this.lowerLimit,
+            upperLimit: this.upperLimit,
+            dimensions: this.dimensions,
+            data: this.data,
+        };
+
 
 
         return removeNull(json);

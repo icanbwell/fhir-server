@@ -403,7 +403,23 @@ class ExplanationOfBenefitSupportingInfo extends Element {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            id: this.id,
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
+            sequence: this.sequence,
+            category: this.category && this.category.toJSONInternal(),
+            code: this.code && this.code.toJSONInternal(),
+            timingDate: this.timingDate,
+            timingPeriod: this.timingPeriod && this.timingPeriod.toJSONInternal(),
+            valueBoolean: this.valueBoolean,
+            valueString: this.valueString,
+            valueQuantity: this.valueQuantity && this.valueQuantity.toJSONInternal(),
+            valueAttachment: this.valueAttachment && this.valueAttachment.toJSONInternal(),
+            valueReference: this.valueReference && this.valueReference.toJSONInternal(),
+            reason: this.reason && this.reason.toJSONInternal(),
+        };
+
 
 
         return removeNull(json);

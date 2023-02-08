@@ -459,7 +459,26 @@ class VisionPrescriptionLensSpecification extends Element {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            id: this.id,
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
+            product: this.product && this.product.toJSONInternal(),
+            eye: this.eye,
+            sphere: this.sphere,
+            cylinder: this.cylinder,
+            axis: this.axis,
+            prism: this.prism && this.prism.map(v => v.toJSONInternal()),
+            add: this.add,
+            power: this.power,
+            backCurve: this.backCurve,
+            diameter: this.diameter,
+            duration: this.duration && this.duration.toJSONInternal(),
+            color: this.color,
+            brand: this.brand,
+            note: this.note && this.note.map(v => v.toJSONInternal()),
+        };
+
 
 
         return removeNull(json);

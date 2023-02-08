@@ -41,7 +41,7 @@ class MedicinalProduct extends Resource {
      * @param {MedicinalProductManufacturingBusinessOperation[]|undefined} [manufacturingBusinessOperation],
      * @param {MedicinalProductSpecialDesignation[]|undefined} [specialDesignation],
      * @param {Object|undefined} [_access]
-     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_sourceAssigningAuthority]
      * @param {string|undefined} [_uuid]
      * @param {string|undefined} [_sourceId]
     */
@@ -676,7 +676,7 @@ class MedicinalProduct extends Resource {
         });
         /**
          * @description _sourceAssigningAuthority
-         * @property {Object|undefined}
+         * @property {string|undefined}
          */
         Object.defineProperty(this, '_sourceAssigningAuthority', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -802,7 +802,7 @@ class MedicinalProduct extends Resource {
      * @param {MedicinalProductManufacturingBusinessOperation[]|undefined} [manufacturingBusinessOperation],
      * @param {MedicinalProductSpecialDesignation[]|undefined} [specialDesignation],
      * @param {Object|undefined} [_access]
-     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_sourceAssigningAuthority]
      * @param {string|undefined} [_uuid]
      * @param {string|undefined} [_sourceId]
      * @returns {MedicinalProduct}
@@ -966,7 +966,38 @@ class MedicinalProduct extends Resource {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            resourceType: this.resourceType,
+            id: this.id,
+            meta: this.meta && this.meta.toJSONInternal(),
+            implicitRules: this.implicitRules,
+            language: this.language,
+            text: this.text && this.text.toJSONInternal(),
+            contained: this.contained && this.contained.map(v => v.toJSONInternal()),
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
+            identifier: this.identifier && this.identifier.map(v => v.toJSONInternal()),
+            type: this.type && this.type.toJSONInternal(),
+            domain: this.domain && this.domain.toJSONInternal(),
+            combinedPharmaceuticalDoseForm: this.combinedPharmaceuticalDoseForm && this.combinedPharmaceuticalDoseForm.toJSONInternal(),
+            legalStatusOfSupply: this.legalStatusOfSupply && this.legalStatusOfSupply.toJSONInternal(),
+            additionalMonitoringIndicator: this.additionalMonitoringIndicator && this.additionalMonitoringIndicator.toJSONInternal(),
+            specialMeasures: this.specialMeasures,
+            paediatricUseIndicator: this.paediatricUseIndicator && this.paediatricUseIndicator.toJSONInternal(),
+            productClassification: this.productClassification && this.productClassification.map(v => v.toJSONInternal()),
+            marketingStatus: this.marketingStatus && this.marketingStatus.map(v => v.toJSONInternal()),
+            pharmaceuticalProduct: this.pharmaceuticalProduct && this.pharmaceuticalProduct.map(v => v.toJSONInternal()),
+            packagedMedicinalProduct: this.packagedMedicinalProduct && this.packagedMedicinalProduct.map(v => v.toJSONInternal()),
+            attachedDocument: this.attachedDocument && this.attachedDocument.map(v => v.toJSONInternal()),
+            masterFile: this.masterFile && this.masterFile.map(v => v.toJSONInternal()),
+            contact: this.contact && this.contact.map(v => v.toJSONInternal()),
+            clinicalTrial: this.clinicalTrial && this.clinicalTrial.map(v => v.toJSONInternal()),
+            name: this.name && this.name.map(v => v.toJSONInternal()),
+            crossReference: this.crossReference && this.crossReference.map(v => v.toJSONInternal()),
+            manufacturingBusinessOperation: this.manufacturingBusinessOperation && this.manufacturingBusinessOperation.map(v => v.toJSONInternal()),
+            specialDesignation: this.specialDesignation && this.specialDesignation.map(v => v.toJSONInternal()),
+        };
+
 
         if (this._access) {
             json._access = this._access;

@@ -189,7 +189,14 @@ class SubstancePolymerDegreeOfPolymerisation extends Element {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            id: this.id,
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
+            degree: this.degree && this.degree.toJSONInternal(),
+            amount: this.amount && this.amount.toJSONInternal(),
+        };
+
 
 
         return removeNull(json);

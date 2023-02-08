@@ -543,7 +543,29 @@ class TimingRepeat extends Element {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            id: this.id,
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
+            boundsDuration: this.boundsDuration && this.boundsDuration.toJSONInternal(),
+            boundsRange: this.boundsRange && this.boundsRange.toJSONInternal(),
+            boundsPeriod: this.boundsPeriod && this.boundsPeriod.toJSONInternal(),
+            count: this.count,
+            countMax: this.countMax,
+            duration: this.duration,
+            durationMax: this.durationMax,
+            durationUnit: this.durationUnit,
+            frequency: this.frequency,
+            frequencyMax: this.frequencyMax,
+            period: this.period,
+            periodMax: this.periodMax,
+            periodUnit: this.periodUnit,
+            dayOfWeek: this.dayOfWeek,
+            timeOfDay: this.timeOfDay,
+            when: this.when,
+            offset: this.offset,
+        };
+
 
 
         return removeNull(json);

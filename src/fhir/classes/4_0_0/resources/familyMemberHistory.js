@@ -47,7 +47,7 @@ class FamilyMemberHistory extends Resource {
      * @param {Annotation[]|undefined} [note],
      * @param {FamilyMemberHistoryCondition[]|undefined} [condition],
      * @param {Object|undefined} [_access]
-     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_sourceAssigningAuthority]
      * @param {string|undefined} [_uuid]
      * @param {string|undefined} [_sourceId]
     */
@@ -797,7 +797,7 @@ class FamilyMemberHistory extends Resource {
         });
         /**
          * @description _sourceAssigningAuthority
-         * @property {Object|undefined}
+         * @property {string|undefined}
          */
         Object.defineProperty(this, '_sourceAssigningAuthority', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -935,7 +935,7 @@ class FamilyMemberHistory extends Resource {
      * @param {Annotation[]|undefined} [note],
      * @param {FamilyMemberHistoryCondition[]|undefined} [condition],
      * @param {Object|undefined} [_access]
-     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_sourceAssigningAuthority]
      * @param {string|undefined} [_uuid]
      * @param {string|undefined} [_sourceId]
      * @returns {FamilyMemberHistory}
@@ -1112,7 +1112,44 @@ class FamilyMemberHistory extends Resource {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            resourceType: this.resourceType,
+            id: this.id,
+            meta: this.meta && this.meta.toJSONInternal(),
+            implicitRules: this.implicitRules,
+            language: this.language,
+            text: this.text && this.text.toJSONInternal(),
+            contained: this.contained && this.contained.map(v => v.toJSONInternal()),
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
+            identifier: this.identifier && this.identifier.map(v => v.toJSONInternal()),
+            instantiatesCanonical: this.instantiatesCanonical,
+            instantiatesUri: this.instantiatesUri,
+            status: this.status,
+            dataAbsentReason: this.dataAbsentReason && this.dataAbsentReason.toJSONInternal(),
+            patient: this.patient && this.patient.toJSONInternal(),
+            date: this.date,
+            name: this.name,
+            relationship: this.relationship && this.relationship.toJSONInternal(),
+            sex: this.sex && this.sex.toJSONInternal(),
+            bornPeriod: this.bornPeriod && this.bornPeriod.toJSONInternal(),
+            bornDate: this.bornDate,
+            bornString: this.bornString,
+            ageAge: this.ageAge && this.ageAge.toJSONInternal(),
+            ageRange: this.ageRange && this.ageRange.toJSONInternal(),
+            ageString: this.ageString,
+            estimatedAge: this.estimatedAge,
+            deceasedBoolean: this.deceasedBoolean,
+            deceasedAge: this.deceasedAge && this.deceasedAge.toJSONInternal(),
+            deceasedRange: this.deceasedRange && this.deceasedRange.toJSONInternal(),
+            deceasedDate: this.deceasedDate,
+            deceasedString: this.deceasedString,
+            reasonCode: this.reasonCode && this.reasonCode.map(v => v.toJSONInternal()),
+            reasonReference: this.reasonReference && this.reasonReference.map(v => v.toJSONInternal()),
+            note: this.note && this.note.map(v => v.toJSONInternal()),
+            condition: this.condition && this.condition.map(v => v.toJSONInternal()),
+        };
+
 
         if (this._access) {
             json._access = this._access;

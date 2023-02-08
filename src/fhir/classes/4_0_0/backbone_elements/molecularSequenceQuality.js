@@ -499,7 +499,27 @@ class MolecularSequenceQuality extends Element {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            id: this.id,
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
+            type: this.type,
+            standardSequence: this.standardSequence && this.standardSequence.toJSONInternal(),
+            start: this.start,
+            end: this.end,
+            score: this.score && this.score.toJSONInternal(),
+            method: this.method && this.method.toJSONInternal(),
+            truthTP: this.truthTP,
+            queryTP: this.queryTP,
+            truthFN: this.truthFN,
+            queryFP: this.queryFP,
+            gtFP: this.gtFP,
+            precision: this.precision,
+            recall: this.recall,
+            fScore: this.fScore,
+            roc: this.roc && this.roc.toJSONInternal(),
+        };
+
 
 
         return removeNull(json);

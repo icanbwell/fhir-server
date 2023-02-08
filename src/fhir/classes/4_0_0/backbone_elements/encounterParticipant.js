@@ -215,7 +215,15 @@ class EncounterParticipant extends Element {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            id: this.id,
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
+            type: this.type && this.type.map(v => v.toJSONInternal()),
+            period: this.period && this.period.toJSONInternal(),
+            individual: this.individual && this.individual.toJSONInternal(),
+        };
+
 
 
         return removeNull(json);

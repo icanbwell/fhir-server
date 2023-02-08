@@ -266,7 +266,15 @@ class Reference extends Element {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            id: this.id,
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            reference: this.reference,
+            type: this.type,
+            identifier: this.identifier && this.identifier.toJSONInternal(),
+            display: this.display,
+        };
+
 
         if (this._sourceAssigningAuthority) {
             json._sourceAssigningAuthority = this._sourceAssigningAuthority;

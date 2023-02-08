@@ -283,7 +283,18 @@ class ExplanationOfBenefitProcedure extends Element {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            id: this.id,
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
+            sequence: this.sequence,
+            type: this.type && this.type.map(v => v.toJSONInternal()),
+            date: this.date,
+            procedureCodeableConcept: this.procedureCodeableConcept && this.procedureCodeableConcept.toJSONInternal(),
+            procedureReference: this.procedureReference && this.procedureReference.toJSONInternal(),
+            udi: this.udi && this.udi.map(v => v.toJSONInternal()),
+        };
+
 
 
         return removeNull(json);

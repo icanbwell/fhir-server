@@ -273,7 +273,17 @@ class SubstanceSourceMaterialHybrid extends Element {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            id: this.id,
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
+            maternalOrganismId: this.maternalOrganismId,
+            maternalOrganismName: this.maternalOrganismName,
+            paternalOrganismId: this.paternalOrganismId,
+            paternalOrganismName: this.paternalOrganismName,
+            hybridType: this.hybridType && this.hybridType.toJSONInternal(),
+        };
+
 
 
         return removeNull(json);

@@ -238,7 +238,16 @@ class ClaimResponseError extends Element {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            id: this.id,
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
+            itemSequence: this.itemSequence,
+            detailSequence: this.detailSequence,
+            subDetailSequence: this.subDetailSequence,
+            code: this.code && this.code.toJSONInternal(),
+        };
+
 
 
         return removeNull(json);

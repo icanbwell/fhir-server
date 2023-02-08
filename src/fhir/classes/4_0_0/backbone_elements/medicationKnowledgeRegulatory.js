@@ -239,7 +239,16 @@ class MedicationKnowledgeRegulatory extends Element {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            id: this.id,
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
+            regulatoryAuthority: this.regulatoryAuthority && this.regulatoryAuthority.toJSONInternal(),
+            substitution: this.substitution && this.substitution.map(v => v.toJSONInternal()),
+            schedule: this.schedule && this.schedule.map(v => v.toJSONInternal()),
+            maxDispense: this.maxDispense && this.maxDispense.toJSONInternal(),
+        };
+
 
 
         return removeNull(json);

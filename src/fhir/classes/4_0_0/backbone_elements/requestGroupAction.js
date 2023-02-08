@@ -704,7 +704,36 @@ class RequestGroupAction extends Element {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            id: this.id,
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
+            prefix: this.prefix,
+            title: this.title,
+            description: this.description,
+            textEquivalent: this.textEquivalent,
+            priority: this.priority,
+            code: this.code && this.code.map(v => v.toJSONInternal()),
+            documentation: this.documentation && this.documentation.map(v => v.toJSONInternal()),
+            condition: this.condition && this.condition.map(v => v.toJSONInternal()),
+            relatedAction: this.relatedAction && this.relatedAction.map(v => v.toJSONInternal()),
+            timingDateTime: this.timingDateTime,
+            timingAge: this.timingAge && this.timingAge.toJSONInternal(),
+            timingPeriod: this.timingPeriod && this.timingPeriod.toJSONInternal(),
+            timingDuration: this.timingDuration && this.timingDuration.toJSONInternal(),
+            timingRange: this.timingRange && this.timingRange.toJSONInternal(),
+            timingTiming: this.timingTiming && this.timingTiming.toJSONInternal(),
+            participant: this.participant && this.participant.map(v => v.toJSONInternal()),
+            type: this.type && this.type.toJSONInternal(),
+            groupingBehavior: this.groupingBehavior,
+            selectionBehavior: this.selectionBehavior,
+            requiredBehavior: this.requiredBehavior,
+            precheckBehavior: this.precheckBehavior,
+            cardinalityBehavior: this.cardinalityBehavior,
+            resource: this.resource && this.resource.toJSONInternal(),
+            action: this.action && this.action.map(v => v.toJSONInternal()),
+        };
+
 
 
         return removeNull(json);

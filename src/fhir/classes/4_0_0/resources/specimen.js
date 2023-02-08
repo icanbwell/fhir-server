@@ -33,7 +33,7 @@ class Specimen extends Resource {
      * @param {CodeableConcept[]|undefined} [condition],
      * @param {Annotation[]|undefined} [note],
      * @param {Object|undefined} [_access]
-     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_sourceAssigningAuthority]
      * @param {string|undefined} [_uuid]
      * @param {string|undefined} [_sourceId]
     */
@@ -525,7 +525,7 @@ class Specimen extends Resource {
         });
         /**
          * @description _sourceAssigningAuthority
-         * @property {Object|undefined}
+         * @property {string|undefined}
          */
         Object.defineProperty(this, '_sourceAssigningAuthority', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -637,7 +637,7 @@ class Specimen extends Resource {
      * @param {CodeableConcept[]|undefined} [condition],
      * @param {Annotation[]|undefined} [note],
      * @param {Object|undefined} [_access]
-     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_sourceAssigningAuthority]
      * @param {string|undefined} [_uuid]
      * @param {string|undefined} [_sourceId]
      * @returns {Specimen}
@@ -772,7 +772,31 @@ class Specimen extends Resource {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            resourceType: this.resourceType,
+            id: this.id,
+            meta: this.meta && this.meta.toJSONInternal(),
+            implicitRules: this.implicitRules,
+            language: this.language,
+            text: this.text && this.text.toJSONInternal(),
+            contained: this.contained && this.contained.map(v => v.toJSONInternal()),
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
+            identifier: this.identifier && this.identifier.map(v => v.toJSONInternal()),
+            accessionIdentifier: this.accessionIdentifier && this.accessionIdentifier.toJSONInternal(),
+            status: this.status,
+            type: this.type && this.type.toJSONInternal(),
+            subject: this.subject && this.subject.toJSONInternal(),
+            receivedTime: this.receivedTime,
+            parent: this.parent && this.parent.map(v => v.toJSONInternal()),
+            request: this.request && this.request.map(v => v.toJSONInternal()),
+            collection: this.collection && this.collection.toJSONInternal(),
+            processing: this.processing && this.processing.map(v => v.toJSONInternal()),
+            container: this.container && this.container.map(v => v.toJSONInternal()),
+            condition: this.condition && this.condition.map(v => v.toJSONInternal()),
+            note: this.note && this.note.map(v => v.toJSONInternal()),
+        };
+
 
         if (this._access) {
             json._access = this._access;

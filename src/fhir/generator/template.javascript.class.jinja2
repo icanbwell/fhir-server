@@ -409,7 +409,23 @@ class {{ fhir_entity.cleaned_name }} extends Element {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+        {% if fhir_entity.is_resource %}
+            resourceType: this.resourceType,
+        {%  endif %}
+{% for property in fhir_entity.properties %}
+    {%  if property.is_resource or property.is_extension or property.cleaned_type == "ResourceContainer" or property.fhir_type == "BackboneElement" or property.is_complex or property.fhir_type == "Element" %}
+        {% if property.is_list %}
+            {{ property.name -}}: this.{{ property.name }} && this.{{ property.name -}}.map(v => v.toJSONInternal()),
+        {%  else %}
+            {{ property.name -}}: this.{{ property.name }} && this.{{ property.name -}}.toJSONInternal(),
+        {% endif %}
+    {%  else %}
+            {{ property.name -}}: this.{{ property.name -}},
+    {% endif %}
+{% endfor %}
+        };
+
 
 {% for extra_property in extra_properties %}
         if (this.{{ extra_property.name -}}) {

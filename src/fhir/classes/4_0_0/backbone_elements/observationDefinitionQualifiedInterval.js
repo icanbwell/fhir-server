@@ -333,7 +333,20 @@ class ObservationDefinitionQualifiedInterval extends Element {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            id: this.id,
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
+            category: this.category,
+            range: this.range && this.range.toJSONInternal(),
+            context: this.context && this.context.toJSONInternal(),
+            appliesTo: this.appliesTo && this.appliesTo.map(v => v.toJSONInternal()),
+            gender: this.gender,
+            age: this.age && this.age.toJSONInternal(),
+            gestationalAge: this.gestationalAge && this.gestationalAge.toJSONInternal(),
+            condition: this.condition,
+        };
+
 
 
         return removeNull(json);

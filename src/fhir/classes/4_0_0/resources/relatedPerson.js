@@ -34,7 +34,7 @@ class RelatedPerson extends Resource {
      * @param {Period|undefined} [period],
      * @param {RelatedPersonCommunication[]|undefined} [communication],
      * @param {Object|undefined} [_access]
-     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_sourceAssigningAuthority]
      * @param {string|undefined} [_uuid]
      * @param {string|undefined} [_sourceId]
     */
@@ -500,7 +500,7 @@ class RelatedPerson extends Resource {
         });
         /**
          * @description _sourceAssigningAuthority
-         * @property {Object|undefined}
+         * @property {string|undefined}
          */
         Object.defineProperty(this, '_sourceAssigningAuthority', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -610,7 +610,7 @@ class RelatedPerson extends Resource {
      * @param {Period|undefined} [period],
      * @param {RelatedPersonCommunication[]|undefined} [communication],
      * @param {Object|undefined} [_access]
-     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_sourceAssigningAuthority]
      * @param {string|undefined} [_uuid]
      * @param {string|undefined} [_sourceId]
      * @returns {RelatedPerson}
@@ -740,7 +740,30 @@ class RelatedPerson extends Resource {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            resourceType: this.resourceType,
+            id: this.id,
+            meta: this.meta && this.meta.toJSONInternal(),
+            implicitRules: this.implicitRules,
+            language: this.language,
+            text: this.text && this.text.toJSONInternal(),
+            contained: this.contained && this.contained.map(v => v.toJSONInternal()),
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
+            identifier: this.identifier && this.identifier.map(v => v.toJSONInternal()),
+            active: this.active,
+            patient: this.patient && this.patient.toJSONInternal(),
+            relationship: this.relationship && this.relationship.map(v => v.toJSONInternal()),
+            name: this.name && this.name.map(v => v.toJSONInternal()),
+            telecom: this.telecom && this.telecom.map(v => v.toJSONInternal()),
+            gender: this.gender,
+            birthDate: this.birthDate,
+            address: this.address && this.address.map(v => v.toJSONInternal()),
+            photo: this.photo && this.photo.map(v => v.toJSONInternal()),
+            period: this.period && this.period.toJSONInternal(),
+            communication: this.communication && this.communication.map(v => v.toJSONInternal()),
+        };
+
 
         if (this._access) {
             json._access = this._access;

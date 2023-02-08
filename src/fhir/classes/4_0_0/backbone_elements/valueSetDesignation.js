@@ -212,7 +212,15 @@ class ValueSetDesignation extends Element {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            id: this.id,
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
+            language: this.language,
+            use: this.use && this.use.toJSONInternal(),
+            value: this.value,
+        };
+
 
 
         return removeNull(json);

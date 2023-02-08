@@ -261,7 +261,17 @@ class MedicinalProductAuthorizationJurisdictionalAuthorization extends Element {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            id: this.id,
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
+            identifier: this.identifier && this.identifier.map(v => v.toJSONInternal()),
+            country: this.country && this.country.toJSONInternal(),
+            jurisdiction: this.jurisdiction && this.jurisdiction.map(v => v.toJSONInternal()),
+            legalStatusOfSupply: this.legalStatusOfSupply && this.legalStatusOfSupply.toJSONInternal(),
+            validityPeriod: this.validityPeriod && this.validityPeriod.toJSONInternal(),
+        };
+
 
 
         return removeNull(json);

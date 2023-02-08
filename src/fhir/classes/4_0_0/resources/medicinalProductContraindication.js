@@ -28,7 +28,7 @@ class MedicinalProductContraindication extends Resource {
      * @param {MedicinalProductContraindicationOtherTherapy[]|undefined} [otherTherapy],
      * @param {Population[]|undefined} [population],
      * @param {Object|undefined} [_access]
-     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_sourceAssigningAuthority]
      * @param {string|undefined} [_uuid]
      * @param {string|undefined} [_sourceId]
     */
@@ -397,7 +397,7 @@ class MedicinalProductContraindication extends Resource {
         });
         /**
          * @description _sourceAssigningAuthority
-         * @property {Object|undefined}
+         * @property {string|undefined}
          */
         Object.defineProperty(this, '_sourceAssigningAuthority', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -497,7 +497,7 @@ class MedicinalProductContraindication extends Resource {
      * @param {MedicinalProductContraindicationOtherTherapy[]|undefined} [otherTherapy],
      * @param {Population[]|undefined} [population],
      * @param {Object|undefined} [_access]
-     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_sourceAssigningAuthority]
      * @param {string|undefined} [_uuid]
      * @param {string|undefined} [_sourceId]
      * @returns {MedicinalProductContraindication}
@@ -610,7 +610,25 @@ class MedicinalProductContraindication extends Resource {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            resourceType: this.resourceType,
+            id: this.id,
+            meta: this.meta && this.meta.toJSONInternal(),
+            implicitRules: this.implicitRules,
+            language: this.language,
+            text: this.text && this.text.toJSONInternal(),
+            contained: this.contained && this.contained.map(v => v.toJSONInternal()),
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
+            subject: this.subject && this.subject.map(v => v.toJSONInternal()),
+            disease: this.disease && this.disease.toJSONInternal(),
+            diseaseStatus: this.diseaseStatus && this.diseaseStatus.toJSONInternal(),
+            comorbidity: this.comorbidity && this.comorbidity.map(v => v.toJSONInternal()),
+            therapeuticIndication: this.therapeuticIndication && this.therapeuticIndication.map(v => v.toJSONInternal()),
+            otherTherapy: this.otherTherapy && this.otherTherapy.map(v => v.toJSONInternal()),
+            population: this.population && this.population.map(v => v.toJSONInternal()),
+        };
+
 
         if (this._access) {
             json._access = this._access;

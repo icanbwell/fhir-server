@@ -155,7 +155,13 @@ class DataRequirementSort extends Element {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            id: this.id,
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            path: this.path,
+            direction: this.direction,
+        };
+
 
 
         return removeNull(json);

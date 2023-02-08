@@ -48,7 +48,7 @@ class ClaimResponse extends Resource {
      * @param {ClaimResponseInsurance[]|undefined} [insurance],
      * @param {ClaimResponseError[]|undefined} [error],
      * @param {Object|undefined} [_access]
-     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_sourceAssigningAuthority]
      * @param {string|undefined} [_uuid]
      * @param {string|undefined} [_sourceId]
     */
@@ -825,7 +825,7 @@ class ClaimResponse extends Resource {
         });
         /**
          * @description _sourceAssigningAuthority
-         * @property {Object|undefined}
+         * @property {string|undefined}
          */
         Object.defineProperty(this, '_sourceAssigningAuthority', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -965,7 +965,7 @@ class ClaimResponse extends Resource {
      * @param {ClaimResponseInsurance[]|undefined} [insurance],
      * @param {ClaimResponseError[]|undefined} [error],
      * @param {Object|undefined} [_access]
-     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_sourceAssigningAuthority]
      * @param {string|undefined} [_uuid]
      * @param {string|undefined} [_sourceId]
      * @returns {ClaimResponse}
@@ -1152,7 +1152,45 @@ class ClaimResponse extends Resource {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            resourceType: this.resourceType,
+            id: this.id,
+            meta: this.meta && this.meta.toJSONInternal(),
+            implicitRules: this.implicitRules,
+            language: this.language,
+            text: this.text && this.text.toJSONInternal(),
+            contained: this.contained && this.contained.map(v => v.toJSONInternal()),
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
+            identifier: this.identifier && this.identifier.map(v => v.toJSONInternal()),
+            status: this.status,
+            type: this.type && this.type.toJSONInternal(),
+            subType: this.subType && this.subType.toJSONInternal(),
+            use: this.use,
+            patient: this.patient && this.patient.toJSONInternal(),
+            created: this.created,
+            insurer: this.insurer && this.insurer.toJSONInternal(),
+            requestor: this.requestor && this.requestor.toJSONInternal(),
+            request: this.request && this.request.toJSONInternal(),
+            outcome: this.outcome,
+            disposition: this.disposition,
+            preAuthRef: this.preAuthRef,
+            preAuthPeriod: this.preAuthPeriod && this.preAuthPeriod.toJSONInternal(),
+            payeeType: this.payeeType && this.payeeType.toJSONInternal(),
+            item: this.item && this.item.map(v => v.toJSONInternal()),
+            addItem: this.addItem && this.addItem.map(v => v.toJSONInternal()),
+            adjudication: this.adjudication && this.adjudication.map(v => v.toJSONInternal()),
+            total: this.total && this.total.map(v => v.toJSONInternal()),
+            payment: this.payment && this.payment.toJSONInternal(),
+            fundsReserve: this.fundsReserve && this.fundsReserve.toJSONInternal(),
+            formCode: this.formCode && this.formCode.toJSONInternal(),
+            form: this.form && this.form.toJSONInternal(),
+            processNote: this.processNote && this.processNote.map(v => v.toJSONInternal()),
+            communicationRequest: this.communicationRequest && this.communicationRequest.map(v => v.toJSONInternal()),
+            insurance: this.insurance && this.insurance.map(v => v.toJSONInternal()),
+            error: this.error && this.error.map(v => v.toJSONInternal()),
+        };
+
 
         if (this._access) {
             json._access = this._access;

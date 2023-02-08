@@ -414,7 +414,24 @@ class QuestionnaireEnableWhen extends Element {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            id: this.id,
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
+            question: this.question,
+            operator: this.operator,
+            answerBoolean: this.answerBoolean,
+            answerDecimal: this.answerDecimal,
+            answerInteger: this.answerInteger,
+            answerDate: this.answerDate,
+            answerDateTime: this.answerDateTime,
+            answerTime: this.answerTime,
+            answerString: this.answerString,
+            answerCoding: this.answerCoding && this.answerCoding.toJSONInternal(),
+            answerQuantity: this.answerQuantity && this.answerQuantity.toJSONInternal(),
+            answerReference: this.answerReference && this.answerReference.toJSONInternal(),
+        };
+
 
 
         return removeNull(json);

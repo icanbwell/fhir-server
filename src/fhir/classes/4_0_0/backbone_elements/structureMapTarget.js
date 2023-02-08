@@ -320,7 +320,20 @@ class StructureMapTarget extends Element {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            id: this.id,
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
+            context: this.context,
+            contextType: this.contextType,
+            element: this.element,
+            variable: this.variable,
+            listMode: this.listMode,
+            listRuleId: this.listRuleId,
+            transform: this.transform,
+            parameter: this.parameter && this.parameter.map(v => v.toJSONInternal()),
+        };
+
 
 
         return removeNull(json);

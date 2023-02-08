@@ -359,7 +359,21 @@ class EncounterHospitalization extends Element {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            id: this.id,
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
+            preAdmissionIdentifier: this.preAdmissionIdentifier && this.preAdmissionIdentifier.toJSONInternal(),
+            origin: this.origin && this.origin.toJSONInternal(),
+            admitSource: this.admitSource && this.admitSource.toJSONInternal(),
+            reAdmission: this.reAdmission && this.reAdmission.toJSONInternal(),
+            dietPreference: this.dietPreference && this.dietPreference.map(v => v.toJSONInternal()),
+            specialCourtesy: this.specialCourtesy && this.specialCourtesy.map(v => v.toJSONInternal()),
+            specialArrangement: this.specialArrangement && this.specialArrangement.map(v => v.toJSONInternal()),
+            destination: this.destination && this.destination.toJSONInternal(),
+            dischargeDisposition: this.dischargeDisposition && this.dischargeDisposition.toJSONInternal(),
+        };
+
 
 
         return removeNull(json);

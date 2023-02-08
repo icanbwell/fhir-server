@@ -33,7 +33,7 @@ class CatalogEntry extends Resource {
      * @param {CodeableConcept[]|undefined} [additionalClassification],
      * @param {CatalogEntryRelatedEntry[]|undefined} [relatedEntry],
      * @param {Object|undefined} [_access]
-     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_sourceAssigningAuthority]
      * @param {string|undefined} [_uuid]
      * @param {string|undefined} [_sourceId]
     */
@@ -520,7 +520,7 @@ class CatalogEntry extends Resource {
         });
         /**
          * @description _sourceAssigningAuthority
-         * @property {Object|undefined}
+         * @property {string|undefined}
          */
         Object.defineProperty(this, '_sourceAssigningAuthority', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -632,7 +632,7 @@ class CatalogEntry extends Resource {
      * @param {CodeableConcept[]|undefined} [additionalClassification],
      * @param {CatalogEntryRelatedEntry[]|undefined} [relatedEntry],
      * @param {Object|undefined} [_access]
-     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_sourceAssigningAuthority]
      * @param {string|undefined} [_uuid]
      * @param {string|undefined} [_sourceId]
      * @returns {CatalogEntry}
@@ -765,7 +765,31 @@ class CatalogEntry extends Resource {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            resourceType: this.resourceType,
+            id: this.id,
+            meta: this.meta && this.meta.toJSONInternal(),
+            implicitRules: this.implicitRules,
+            language: this.language,
+            text: this.text && this.text.toJSONInternal(),
+            contained: this.contained && this.contained.map(v => v.toJSONInternal()),
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
+            identifier: this.identifier && this.identifier.map(v => v.toJSONInternal()),
+            type: this.type && this.type.toJSONInternal(),
+            orderable: this.orderable,
+            referencedItem: this.referencedItem && this.referencedItem.toJSONInternal(),
+            additionalIdentifier: this.additionalIdentifier && this.additionalIdentifier.map(v => v.toJSONInternal()),
+            classification: this.classification && this.classification.map(v => v.toJSONInternal()),
+            status: this.status,
+            validityPeriod: this.validityPeriod && this.validityPeriod.toJSONInternal(),
+            validTo: this.validTo,
+            lastUpdated: this.lastUpdated,
+            additionalCharacteristic: this.additionalCharacteristic && this.additionalCharacteristic.map(v => v.toJSONInternal()),
+            additionalClassification: this.additionalClassification && this.additionalClassification.map(v => v.toJSONInternal()),
+            relatedEntry: this.relatedEntry && this.relatedEntry.map(v => v.toJSONInternal()),
+        };
+
 
         if (this._access) {
             json._access = this._access;

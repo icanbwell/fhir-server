@@ -297,7 +297,18 @@ class BundleEntry extends Element {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            id: this.id,
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
+            link: this.link && this.link.map(v => v.toJSONInternal()),
+            fullUrl: this.fullUrl,
+            resource: this.resource && this.resource.toJSONInternal(),
+            search: this.search && this.search.toJSONInternal(),
+            request: this.request && this.request.toJSONInternal(),
+            response: this.response && this.response.toJSONInternal(),
+        };
+
 
 
         return removeNull(json);

@@ -287,7 +287,18 @@ class DosageDoseAndRate extends Element {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            id: this.id,
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
+            type: this.type && this.type.toJSONInternal(),
+            doseRange: this.doseRange && this.doseRange.toJSONInternal(),
+            doseQuantity: this.doseQuantity && this.doseQuantity.toJSONInternal(),
+            rateRatio: this.rateRatio && this.rateRatio.toJSONInternal(),
+            rateRange: this.rateRange && this.rateRange.toJSONInternal(),
+            rateQuantity: this.rateQuantity && this.rateQuantity.toJSONInternal(),
+        };
+
 
 
         return removeNull(json);

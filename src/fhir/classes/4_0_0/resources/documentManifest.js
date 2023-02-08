@@ -33,7 +33,7 @@ class DocumentManifest extends Resource {
      * @param {Reference[]} content,
      * @param {DocumentManifestRelated[]|undefined} [related],
      * @param {Object|undefined} [_access]
-     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_sourceAssigningAuthority]
      * @param {string|undefined} [_uuid]
      * @param {string|undefined} [_sourceId]
     */
@@ -509,7 +509,7 @@ class DocumentManifest extends Resource {
         });
         /**
          * @description _sourceAssigningAuthority
-         * @property {Object|undefined}
+         * @property {string|undefined}
          */
         Object.defineProperty(this, '_sourceAssigningAuthority', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -619,7 +619,7 @@ class DocumentManifest extends Resource {
      * @param {Reference[]} content,
      * @param {DocumentManifestRelated[]|undefined} [related],
      * @param {Object|undefined} [_access]
-     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_sourceAssigningAuthority]
      * @param {string|undefined} [_uuid]
      * @param {string|undefined} [_sourceId]
      * @returns {DocumentManifest}
@@ -748,7 +748,30 @@ class DocumentManifest extends Resource {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            resourceType: this.resourceType,
+            id: this.id,
+            meta: this.meta && this.meta.toJSONInternal(),
+            implicitRules: this.implicitRules,
+            language: this.language,
+            text: this.text && this.text.toJSONInternal(),
+            contained: this.contained && this.contained.map(v => v.toJSONInternal()),
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
+            masterIdentifier: this.masterIdentifier && this.masterIdentifier.toJSONInternal(),
+            identifier: this.identifier && this.identifier.map(v => v.toJSONInternal()),
+            status: this.status,
+            type: this.type && this.type.toJSONInternal(),
+            subject: this.subject && this.subject.toJSONInternal(),
+            created: this.created,
+            author: this.author && this.author.map(v => v.toJSONInternal()),
+            recipient: this.recipient && this.recipient.map(v => v.toJSONInternal()),
+            source: this.source,
+            description: this.description,
+            content: this.content && this.content.map(v => v.toJSONInternal()),
+            related: this.related && this.related.map(v => v.toJSONInternal()),
+        };
+
 
         if (this._access) {
             json._access = this._access;

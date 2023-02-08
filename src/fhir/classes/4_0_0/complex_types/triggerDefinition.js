@@ -296,7 +296,19 @@ class TriggerDefinition extends Element {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            id: this.id,
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            type: this.type,
+            name: this.name,
+            timingTiming: this.timingTiming && this.timingTiming.toJSONInternal(),
+            timingReference: this.timingReference && this.timingReference.toJSONInternal(),
+            timingDate: this.timingDate,
+            timingDateTime: this.timingDateTime,
+            data: this.data && this.data.map(v => v.toJSONInternal()),
+            condition: this.condition && this.condition.toJSONInternal(),
+        };
+
 
 
         return removeNull(json);

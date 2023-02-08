@@ -51,7 +51,7 @@ class Task extends Resource {
      * @param {TaskInput[]|undefined} [input],
      * @param {TaskOutput[]|undefined} [output],
      * @param {Object|undefined} [_access]
-     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_sourceAssigningAuthority]
      * @param {string|undefined} [_uuid]
      * @param {string|undefined} [_sourceId]
     */
@@ -910,7 +910,7 @@ class Task extends Resource {
         });
         /**
          * @description _sourceAssigningAuthority
-         * @property {Object|undefined}
+         * @property {string|undefined}
          */
         Object.defineProperty(this, '_sourceAssigningAuthority', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -1058,7 +1058,7 @@ class Task extends Resource {
      * @param {TaskInput[]|undefined} [input],
      * @param {TaskOutput[]|undefined} [output],
      * @param {Object|undefined} [_access]
-     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_sourceAssigningAuthority]
      * @param {string|undefined} [_uuid]
      * @param {string|undefined} [_sourceId]
      * @returns {Task}
@@ -1259,7 +1259,49 @@ class Task extends Resource {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            resourceType: this.resourceType,
+            id: this.id,
+            meta: this.meta && this.meta.toJSONInternal(),
+            implicitRules: this.implicitRules,
+            language: this.language,
+            text: this.text && this.text.toJSONInternal(),
+            contained: this.contained && this.contained.map(v => v.toJSONInternal()),
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
+            identifier: this.identifier && this.identifier.map(v => v.toJSONInternal()),
+            instantiatesCanonical: this.instantiatesCanonical,
+            instantiatesUri: this.instantiatesUri,
+            basedOn: this.basedOn && this.basedOn.map(v => v.toJSONInternal()),
+            groupIdentifier: this.groupIdentifier && this.groupIdentifier.toJSONInternal(),
+            partOf: this.partOf && this.partOf.map(v => v.toJSONInternal()),
+            status: this.status,
+            statusReason: this.statusReason && this.statusReason.toJSONInternal(),
+            businessStatus: this.businessStatus && this.businessStatus.toJSONInternal(),
+            intent: this.intent,
+            priority: this.priority,
+            code: this.code && this.code.toJSONInternal(),
+            description: this.description,
+            focus: this.focus && this.focus.toJSONInternal(),
+            for: this.for && this.for.toJSONInternal(),
+            encounter: this.encounter && this.encounter.toJSONInternal(),
+            executionPeriod: this.executionPeriod && this.executionPeriod.toJSONInternal(),
+            authoredOn: this.authoredOn,
+            lastModified: this.lastModified,
+            requester: this.requester && this.requester.toJSONInternal(),
+            performerType: this.performerType && this.performerType.map(v => v.toJSONInternal()),
+            owner: this.owner && this.owner.toJSONInternal(),
+            location: this.location && this.location.toJSONInternal(),
+            reasonCode: this.reasonCode && this.reasonCode.toJSONInternal(),
+            reasonReference: this.reasonReference && this.reasonReference.toJSONInternal(),
+            insurance: this.insurance && this.insurance.map(v => v.toJSONInternal()),
+            note: this.note && this.note.map(v => v.toJSONInternal()),
+            relevantHistory: this.relevantHistory && this.relevantHistory.map(v => v.toJSONInternal()),
+            restriction: this.restriction && this.restriction.toJSONInternal(),
+            input: this.input && this.input.map(v => v.toJSONInternal()),
+            output: this.output && this.output.map(v => v.toJSONInternal()),
+        };
+
 
         if (this._access) {
             json._access = this._access;

@@ -39,7 +39,7 @@ class CoverageEligibilityRequest extends Resource {
      * @param {CoverageEligibilityRequestInsurance[]|undefined} [insurance],
      * @param {CoverageEligibilityRequestItem[]|undefined} [item],
      * @param {Object|undefined} [_access]
-     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_sourceAssigningAuthority]
      * @param {string|undefined} [_uuid]
      * @param {string|undefined} [_sourceId]
     */
@@ -571,7 +571,7 @@ class CoverageEligibilityRequest extends Resource {
         });
         /**
          * @description _sourceAssigningAuthority
-         * @property {Object|undefined}
+         * @property {string|undefined}
          */
         Object.defineProperty(this, '_sourceAssigningAuthority', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -687,7 +687,7 @@ class CoverageEligibilityRequest extends Resource {
      * @param {CoverageEligibilityRequestInsurance[]|undefined} [insurance],
      * @param {CoverageEligibilityRequestItem[]|undefined} [item],
      * @param {Object|undefined} [_access]
-     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_sourceAssigningAuthority]
      * @param {string|undefined} [_uuid]
      * @param {string|undefined} [_sourceId]
      * @returns {CoverageEligibilityRequest}
@@ -828,7 +828,33 @@ class CoverageEligibilityRequest extends Resource {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            resourceType: this.resourceType,
+            id: this.id,
+            meta: this.meta && this.meta.toJSONInternal(),
+            implicitRules: this.implicitRules,
+            language: this.language,
+            text: this.text && this.text.toJSONInternal(),
+            contained: this.contained && this.contained.map(v => v.toJSONInternal()),
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
+            identifier: this.identifier && this.identifier.map(v => v.toJSONInternal()),
+            status: this.status,
+            priority: this.priority && this.priority.toJSONInternal(),
+            purpose: this.purpose,
+            patient: this.patient && this.patient.toJSONInternal(),
+            servicedDate: this.servicedDate,
+            servicedPeriod: this.servicedPeriod && this.servicedPeriod.toJSONInternal(),
+            created: this.created,
+            enterer: this.enterer && this.enterer.toJSONInternal(),
+            provider: this.provider && this.provider.toJSONInternal(),
+            insurer: this.insurer && this.insurer.toJSONInternal(),
+            facility: this.facility && this.facility.toJSONInternal(),
+            supportingInfo: this.supportingInfo && this.supportingInfo.map(v => v.toJSONInternal()),
+            insurance: this.insurance && this.insurance.map(v => v.toJSONInternal()),
+            item: this.item && this.item.map(v => v.toJSONInternal()),
+        };
+
 
         if (this._access) {
             json._access = this._access;

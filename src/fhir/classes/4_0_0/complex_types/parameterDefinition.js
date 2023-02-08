@@ -268,7 +268,18 @@ class ParameterDefinition extends Element {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            id: this.id,
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            name: this.name,
+            use: this.use,
+            min: this.min,
+            max: this.max,
+            documentation: this.documentation,
+            type: this.type,
+            profile: this.profile,
+        };
+
 
 
         return removeNull(json);

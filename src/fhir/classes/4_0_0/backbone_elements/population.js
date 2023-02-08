@@ -264,7 +264,17 @@ class Population extends Element {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            id: this.id,
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
+            ageRange: this.ageRange && this.ageRange.toJSONInternal(),
+            ageCodeableConcept: this.ageCodeableConcept && this.ageCodeableConcept.toJSONInternal(),
+            gender: this.gender && this.gender.toJSONInternal(),
+            race: this.race && this.race.toJSONInternal(),
+            physiologicalCondition: this.physiologicalCondition && this.physiologicalCondition.toJSONInternal(),
+        };
+
 
 
         return removeNull(json);

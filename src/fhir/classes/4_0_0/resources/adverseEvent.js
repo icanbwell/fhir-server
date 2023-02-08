@@ -43,7 +43,7 @@ class AdverseEvent extends Resource {
      * @param {Reference[]|undefined} [referenceDocument],
      * @param {Reference[]|undefined} [study],
      * @param {Object|undefined} [_access]
-     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_sourceAssigningAuthority]
      * @param {string|undefined} [_uuid]
      * @param {string|undefined} [_sourceId]
     */
@@ -681,7 +681,7 @@ class AdverseEvent extends Resource {
         });
         /**
          * @description _sourceAssigningAuthority
-         * @property {Object|undefined}
+         * @property {string|undefined}
          */
         Object.defineProperty(this, '_sourceAssigningAuthority', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -807,7 +807,7 @@ class AdverseEvent extends Resource {
      * @param {Reference[]|undefined} [referenceDocument],
      * @param {Reference[]|undefined} [study],
      * @param {Object|undefined} [_access]
-     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_sourceAssigningAuthority]
      * @param {string|undefined} [_uuid]
      * @param {string|undefined} [_sourceId]
      * @returns {AdverseEvent}
@@ -968,7 +968,38 @@ class AdverseEvent extends Resource {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            resourceType: this.resourceType,
+            id: this.id,
+            meta: this.meta && this.meta.toJSONInternal(),
+            implicitRules: this.implicitRules,
+            language: this.language,
+            text: this.text && this.text.toJSONInternal(),
+            contained: this.contained && this.contained.map(v => v.toJSONInternal()),
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
+            identifier: this.identifier && this.identifier.toJSONInternal(),
+            actuality: this.actuality,
+            category: this.category && this.category.map(v => v.toJSONInternal()),
+            event: this.event && this.event.toJSONInternal(),
+            subject: this.subject && this.subject.toJSONInternal(),
+            encounter: this.encounter && this.encounter.toJSONInternal(),
+            date: this.date,
+            detected: this.detected,
+            recordedDate: this.recordedDate,
+            resultingCondition: this.resultingCondition && this.resultingCondition.map(v => v.toJSONInternal()),
+            location: this.location && this.location.toJSONInternal(),
+            seriousness: this.seriousness && this.seriousness.toJSONInternal(),
+            severity: this.severity && this.severity.toJSONInternal(),
+            outcome: this.outcome && this.outcome.toJSONInternal(),
+            recorder: this.recorder && this.recorder.toJSONInternal(),
+            contributor: this.contributor && this.contributor.map(v => v.toJSONInternal()),
+            suspectEntity: this.suspectEntity && this.suspectEntity.map(v => v.toJSONInternal()),
+            subjectMedicalHistory: this.subjectMedicalHistory && this.subjectMedicalHistory.map(v => v.toJSONInternal()),
+            referenceDocument: this.referenceDocument && this.referenceDocument.map(v => v.toJSONInternal()),
+            study: this.study && this.study.map(v => v.toJSONInternal()),
+        };
+
 
         if (this._access) {
             json._access = this._access;

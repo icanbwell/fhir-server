@@ -45,7 +45,7 @@ class TestScript extends Resource {
      * @param {TestScriptTest[]|undefined} [test],
      * @param {TestScriptTeardown|undefined} [teardown],
      * @param {Object|undefined} [_access]
-     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_sourceAssigningAuthority]
      * @param {string|undefined} [_uuid]
      * @param {string|undefined} [_sourceId]
     */
@@ -776,7 +776,7 @@ class TestScript extends Resource {
         });
         /**
          * @description _sourceAssigningAuthority
-         * @property {Object|undefined}
+         * @property {string|undefined}
          */
         Object.defineProperty(this, '_sourceAssigningAuthority', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -910,7 +910,7 @@ class TestScript extends Resource {
      * @param {TestScriptTest[]|undefined} [test],
      * @param {TestScriptTeardown|undefined} [teardown],
      * @param {Object|undefined} [_access]
-     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_sourceAssigningAuthority]
      * @param {string|undefined} [_uuid]
      * @param {string|undefined} [_sourceId]
      * @returns {TestScript}
@@ -1080,7 +1080,42 @@ class TestScript extends Resource {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            resourceType: this.resourceType,
+            id: this.id,
+            meta: this.meta && this.meta.toJSONInternal(),
+            implicitRules: this.implicitRules,
+            language: this.language,
+            text: this.text && this.text.toJSONInternal(),
+            contained: this.contained && this.contained.map(v => v.toJSONInternal()),
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
+            url: this.url,
+            identifier: this.identifier && this.identifier.toJSONInternal(),
+            version: this.version,
+            name: this.name,
+            title: this.title,
+            status: this.status,
+            experimental: this.experimental,
+            date: this.date,
+            publisher: this.publisher,
+            contact: this.contact && this.contact.map(v => v.toJSONInternal()),
+            description: this.description,
+            useContext: this.useContext && this.useContext.map(v => v.toJSONInternal()),
+            jurisdiction: this.jurisdiction && this.jurisdiction.map(v => v.toJSONInternal()),
+            purpose: this.purpose,
+            copyright: this.copyright,
+            origin: this.origin && this.origin.map(v => v.toJSONInternal()),
+            destination: this.destination && this.destination.map(v => v.toJSONInternal()),
+            metadata: this.metadata && this.metadata.toJSONInternal(),
+            fixture: this.fixture && this.fixture.map(v => v.toJSONInternal()),
+            profile: this.profile && this.profile.map(v => v.toJSONInternal()),
+            variable: this.variable && this.variable.map(v => v.toJSONInternal()),
+            setup: this.setup && this.setup.toJSONInternal(),
+            test: this.test && this.test.map(v => v.toJSONInternal()),
+            teardown: this.teardown && this.teardown.toJSONInternal(),
+        };
+
 
         if (this._access) {
             json._access = this._access;

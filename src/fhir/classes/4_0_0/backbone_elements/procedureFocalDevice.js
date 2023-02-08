@@ -191,7 +191,14 @@ class ProcedureFocalDevice extends Element {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            id: this.id,
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
+            action: this.action && this.action.toJSONInternal(),
+            manipulated: this.manipulated && this.manipulated.toJSONInternal(),
+        };
+
 
 
         return removeNull(json);

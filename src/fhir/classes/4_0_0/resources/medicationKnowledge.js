@@ -42,7 +42,7 @@ class MedicationKnowledge extends Resource {
      * @param {MedicationKnowledgeRegulatory[]|undefined} [regulatory],
      * @param {MedicationKnowledgeKinetics[]|undefined} [kinetics],
      * @param {Object|undefined} [_access]
-     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_sourceAssigningAuthority]
      * @param {string|undefined} [_uuid]
      * @param {string|undefined} [_sourceId]
     */
@@ -724,7 +724,7 @@ class MedicationKnowledge extends Resource {
         });
         /**
          * @description _sourceAssigningAuthority
-         * @property {Object|undefined}
+         * @property {string|undefined}
          */
         Object.defineProperty(this, '_sourceAssigningAuthority', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -854,7 +854,7 @@ class MedicationKnowledge extends Resource {
      * @param {MedicationKnowledgeRegulatory[]|undefined} [regulatory],
      * @param {MedicationKnowledgeKinetics[]|undefined} [kinetics],
      * @param {Object|undefined} [_access]
-     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_sourceAssigningAuthority]
      * @param {string|undefined} [_uuid]
      * @param {string|undefined} [_sourceId]
      * @returns {MedicationKnowledge}
@@ -1024,7 +1024,40 @@ class MedicationKnowledge extends Resource {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            resourceType: this.resourceType,
+            id: this.id,
+            meta: this.meta && this.meta.toJSONInternal(),
+            implicitRules: this.implicitRules,
+            language: this.language,
+            text: this.text && this.text.toJSONInternal(),
+            contained: this.contained && this.contained.map(v => v.toJSONInternal()),
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
+            code: this.code && this.code.toJSONInternal(),
+            status: this.status,
+            manufacturer: this.manufacturer && this.manufacturer.toJSONInternal(),
+            doseForm: this.doseForm && this.doseForm.toJSONInternal(),
+            amount: this.amount && this.amount.toJSONInternal(),
+            synonym: this.synonym,
+            relatedMedicationKnowledge: this.relatedMedicationKnowledge && this.relatedMedicationKnowledge.map(v => v.toJSONInternal()),
+            associatedMedication: this.associatedMedication && this.associatedMedication.map(v => v.toJSONInternal()),
+            productType: this.productType && this.productType.map(v => v.toJSONInternal()),
+            monograph: this.monograph && this.monograph.map(v => v.toJSONInternal()),
+            ingredient: this.ingredient && this.ingredient.map(v => v.toJSONInternal()),
+            preparationInstruction: this.preparationInstruction,
+            intendedRoute: this.intendedRoute && this.intendedRoute.map(v => v.toJSONInternal()),
+            cost: this.cost && this.cost.map(v => v.toJSONInternal()),
+            monitoringProgram: this.monitoringProgram && this.monitoringProgram.map(v => v.toJSONInternal()),
+            administrationGuidelines: this.administrationGuidelines && this.administrationGuidelines.map(v => v.toJSONInternal()),
+            medicineClassification: this.medicineClassification && this.medicineClassification.map(v => v.toJSONInternal()),
+            packaging: this.packaging && this.packaging.toJSONInternal(),
+            drugCharacteristic: this.drugCharacteristic && this.drugCharacteristic.map(v => v.toJSONInternal()),
+            contraindication: this.contraindication && this.contraindication.map(v => v.toJSONInternal()),
+            regulatory: this.regulatory && this.regulatory.map(v => v.toJSONInternal()),
+            kinetics: this.kinetics && this.kinetics.map(v => v.toJSONInternal()),
+        };
+
 
         if (this._access) {
             json._access = this._access;

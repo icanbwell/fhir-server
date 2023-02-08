@@ -254,7 +254,17 @@ class Meta extends Element {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            id: this.id,
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            versionId: this.versionId,
+            lastUpdated: this.lastUpdated,
+            source: this.source,
+            profile: this.profile,
+            security: this.security && this.security.map(v => v.toJSONInternal()),
+            tag: this.tag && this.tag.map(v => v.toJSONInternal()),
+        };
+
 
 
         return removeNull(json);

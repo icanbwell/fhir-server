@@ -47,7 +47,7 @@ class ClinicalImpression extends Resource {
      * @param {Reference[]|undefined} [supportingInfo],
      * @param {Annotation[]|undefined} [note],
      * @param {Object|undefined} [_access]
-     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_sourceAssigningAuthority]
      * @param {string|undefined} [_uuid]
      * @param {string|undefined} [_sourceId]
     */
@@ -703,7 +703,7 @@ class ClinicalImpression extends Resource {
         });
         /**
          * @description _sourceAssigningAuthority
-         * @property {Object|undefined}
+         * @property {string|undefined}
          */
         Object.defineProperty(this, '_sourceAssigningAuthority', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -831,7 +831,7 @@ class ClinicalImpression extends Resource {
      * @param {Reference[]|undefined} [supportingInfo],
      * @param {Annotation[]|undefined} [note],
      * @param {Object|undefined} [_access]
-     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_sourceAssigningAuthority]
      * @param {string|undefined} [_uuid]
      * @param {string|undefined} [_sourceId]
      * @returns {ClinicalImpression}
@@ -994,7 +994,39 @@ class ClinicalImpression extends Resource {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            resourceType: this.resourceType,
+            id: this.id,
+            meta: this.meta && this.meta.toJSONInternal(),
+            implicitRules: this.implicitRules,
+            language: this.language,
+            text: this.text && this.text.toJSONInternal(),
+            contained: this.contained && this.contained.map(v => v.toJSONInternal()),
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
+            identifier: this.identifier && this.identifier.map(v => v.toJSONInternal()),
+            status: this.status,
+            statusReason: this.statusReason && this.statusReason.toJSONInternal(),
+            code: this.code && this.code.toJSONInternal(),
+            description: this.description,
+            subject: this.subject && this.subject.toJSONInternal(),
+            encounter: this.encounter && this.encounter.toJSONInternal(),
+            effectiveDateTime: this.effectiveDateTime,
+            effectivePeriod: this.effectivePeriod && this.effectivePeriod.toJSONInternal(),
+            date: this.date,
+            assessor: this.assessor && this.assessor.toJSONInternal(),
+            previous: this.previous && this.previous.toJSONInternal(),
+            problem: this.problem && this.problem.map(v => v.toJSONInternal()),
+            investigation: this.investigation && this.investigation.map(v => v.toJSONInternal()),
+            protocol: this.protocol,
+            summary: this.summary,
+            finding: this.finding && this.finding.map(v => v.toJSONInternal()),
+            prognosisCodeableConcept: this.prognosisCodeableConcept && this.prognosisCodeableConcept.map(v => v.toJSONInternal()),
+            prognosisReference: this.prognosisReference && this.prognosisReference.map(v => v.toJSONInternal()),
+            supportingInfo: this.supportingInfo && this.supportingInfo.map(v => v.toJSONInternal()),
+            note: this.note && this.note.map(v => v.toJSONInternal()),
+        };
+
 
         if (this._access) {
             json._access = this._access;

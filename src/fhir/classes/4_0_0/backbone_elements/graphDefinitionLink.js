@@ -277,7 +277,18 @@ class GraphDefinitionLink extends Element {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            id: this.id,
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
+            path: this.path,
+            sliceName: this.sliceName,
+            min: this.min,
+            max: this.max,
+            description: this.description,
+            target: this.target && this.target.map(v => v.toJSONInternal()),
+        };
+
 
 
         return removeNull(json);

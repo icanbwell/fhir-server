@@ -337,7 +337,20 @@ class ValueSetContains extends Element {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            id: this.id,
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
+            system: this.system,
+            abstract: this.abstract,
+            inactive: this.inactive,
+            version: this.version,
+            code: this.code,
+            display: this.display,
+            designation: this.designation && this.designation.map(v => v.toJSONInternal()),
+            contains: this.contains && this.contains.map(v => v.toJSONInternal()),
+        };
+
 
 
         return removeNull(json);

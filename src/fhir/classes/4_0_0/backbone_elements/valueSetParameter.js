@@ -322,7 +322,20 @@ class ValueSetParameter extends Element {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            id: this.id,
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
+            name: this.name,
+            valueString: this.valueString,
+            valueBoolean: this.valueBoolean,
+            valueInteger: this.valueInteger,
+            valueDecimal: this.valueDecimal,
+            valueUri: this.valueUri,
+            valueCode: this.valueCode,
+            valueDateTime: this.valueDateTime,
+        };
+
 
 
         return removeNull(json);

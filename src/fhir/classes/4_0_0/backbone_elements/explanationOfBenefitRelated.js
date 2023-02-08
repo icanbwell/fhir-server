@@ -216,7 +216,15 @@ class ExplanationOfBenefitRelated extends Element {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            id: this.id,
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
+            claim: this.claim && this.claim.toJSONInternal(),
+            relationship: this.relationship && this.relationship.toJSONInternal(),
+            reference: this.reference && this.reference.toJSONInternal(),
+        };
+
 
 
         return removeNull(json);

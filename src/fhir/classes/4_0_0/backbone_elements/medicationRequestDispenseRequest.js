@@ -320,7 +320,19 @@ class MedicationRequestDispenseRequest extends Element {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            id: this.id,
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
+            initialFill: this.initialFill && this.initialFill.toJSONInternal(),
+            dispenseInterval: this.dispenseInterval && this.dispenseInterval.toJSONInternal(),
+            validityPeriod: this.validityPeriod && this.validityPeriod.toJSONInternal(),
+            numberOfRepeatsAllowed: this.numberOfRepeatsAllowed,
+            quantity: this.quantity && this.quantity.toJSONInternal(),
+            expectedSupplyDuration: this.expectedSupplyDuration && this.expectedSupplyDuration.toJSONInternal(),
+            performer: this.performer && this.performer.toJSONInternal(),
+        };
+
 
 
         return removeNull(json);

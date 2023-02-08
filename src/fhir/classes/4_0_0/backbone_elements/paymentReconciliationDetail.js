@@ -381,7 +381,22 @@ class PaymentReconciliationDetail extends Element {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            id: this.id,
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
+            identifier: this.identifier && this.identifier.toJSONInternal(),
+            predecessor: this.predecessor && this.predecessor.toJSONInternal(),
+            type: this.type && this.type.toJSONInternal(),
+            request: this.request && this.request.toJSONInternal(),
+            submitter: this.submitter && this.submitter.toJSONInternal(),
+            response: this.response && this.response.toJSONInternal(),
+            date: this.date,
+            responsible: this.responsible && this.responsible.toJSONInternal(),
+            payee: this.payee && this.payee.toJSONInternal(),
+            amount: this.amount && this.amount.toJSONInternal(),
+        };
+
 
 
         return removeNull(json);

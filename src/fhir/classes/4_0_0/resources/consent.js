@@ -36,7 +36,7 @@ class Consent extends Resource {
      * @param {ConsentVerification[]|undefined} [verification],
      * @param {ConsentProvision|undefined} [provision],
      * @param {Object|undefined} [_access]
-     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_sourceAssigningAuthority]
      * @param {string|undefined} [_uuid]
      * @param {string|undefined} [_sourceId]
     */
@@ -551,7 +551,7 @@ class Consent extends Resource {
         });
         /**
          * @description _sourceAssigningAuthority
-         * @property {Object|undefined}
+         * @property {string|undefined}
          */
         Object.defineProperty(this, '_sourceAssigningAuthority', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -665,7 +665,7 @@ class Consent extends Resource {
      * @param {ConsentVerification[]|undefined} [verification],
      * @param {ConsentProvision|undefined} [provision],
      * @param {Object|undefined} [_access]
-     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_sourceAssigningAuthority]
      * @param {string|undefined} [_uuid]
      * @param {string|undefined} [_sourceId]
      * @returns {Consent}
@@ -804,7 +804,32 @@ class Consent extends Resource {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            resourceType: this.resourceType,
+            id: this.id,
+            meta: this.meta && this.meta.toJSONInternal(),
+            implicitRules: this.implicitRules,
+            language: this.language,
+            text: this.text && this.text.toJSONInternal(),
+            contained: this.contained && this.contained.map(v => v.toJSONInternal()),
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
+            identifier: this.identifier && this.identifier.map(v => v.toJSONInternal()),
+            status: this.status,
+            scope: this.scope && this.scope.toJSONInternal(),
+            category: this.category && this.category.map(v => v.toJSONInternal()),
+            patient: this.patient && this.patient.toJSONInternal(),
+            dateTime: this.dateTime,
+            performer: this.performer && this.performer.map(v => v.toJSONInternal()),
+            organization: this.organization && this.organization.map(v => v.toJSONInternal()),
+            sourceAttachment: this.sourceAttachment && this.sourceAttachment.toJSONInternal(),
+            sourceReference: this.sourceReference && this.sourceReference.toJSONInternal(),
+            policy: this.policy && this.policy.map(v => v.toJSONInternal()),
+            policyRule: this.policyRule && this.policyRule.toJSONInternal(),
+            verification: this.verification && this.verification.map(v => v.toJSONInternal()),
+            provision: this.provision && this.provision.toJSONInternal(),
+        };
+
 
         if (this._access) {
             json._access = this._access;

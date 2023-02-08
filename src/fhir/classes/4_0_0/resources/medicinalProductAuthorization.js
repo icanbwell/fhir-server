@@ -36,7 +36,7 @@ class MedicinalProductAuthorization extends Resource {
      * @param {Reference|undefined} [regulator],
      * @param {MedicinalProductAuthorizationProcedure|undefined} [procedure],
      * @param {Object|undefined} [_access]
-     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_sourceAssigningAuthority]
      * @param {string|undefined} [_uuid]
      * @param {string|undefined} [_sourceId]
     */
@@ -586,7 +586,7 @@ class MedicinalProductAuthorization extends Resource {
         });
         /**
          * @description _sourceAssigningAuthority
-         * @property {Object|undefined}
+         * @property {string|undefined}
          */
         Object.defineProperty(this, '_sourceAssigningAuthority', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -704,7 +704,7 @@ class MedicinalProductAuthorization extends Resource {
      * @param {Reference|undefined} [regulator],
      * @param {MedicinalProductAuthorizationProcedure|undefined} [procedure],
      * @param {Object|undefined} [_access]
-     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_sourceAssigningAuthority]
      * @param {string|undefined} [_uuid]
      * @param {string|undefined} [_sourceId]
      * @returns {MedicinalProductAuthorization}
@@ -849,7 +849,34 @@ class MedicinalProductAuthorization extends Resource {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            resourceType: this.resourceType,
+            id: this.id,
+            meta: this.meta && this.meta.toJSONInternal(),
+            implicitRules: this.implicitRules,
+            language: this.language,
+            text: this.text && this.text.toJSONInternal(),
+            contained: this.contained && this.contained.map(v => v.toJSONInternal()),
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
+            identifier: this.identifier && this.identifier.map(v => v.toJSONInternal()),
+            subject: this.subject && this.subject.toJSONInternal(),
+            country: this.country && this.country.map(v => v.toJSONInternal()),
+            jurisdiction: this.jurisdiction && this.jurisdiction.map(v => v.toJSONInternal()),
+            status: this.status && this.status.toJSONInternal(),
+            statusDate: this.statusDate,
+            restoreDate: this.restoreDate,
+            validityPeriod: this.validityPeriod && this.validityPeriod.toJSONInternal(),
+            dataExclusivityPeriod: this.dataExclusivityPeriod && this.dataExclusivityPeriod.toJSONInternal(),
+            dateOfFirstAuthorization: this.dateOfFirstAuthorization,
+            internationalBirthDate: this.internationalBirthDate,
+            legalBasis: this.legalBasis && this.legalBasis.toJSONInternal(),
+            jurisdictionalAuthorization: this.jurisdictionalAuthorization && this.jurisdictionalAuthorization.map(v => v.toJSONInternal()),
+            holder: this.holder && this.holder.toJSONInternal(),
+            regulator: this.regulator && this.regulator.toJSONInternal(),
+            procedure: this.procedure && this.procedure.toJSONInternal(),
+        };
+
 
         if (this._access) {
             json._access = this._access;

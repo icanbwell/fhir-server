@@ -305,7 +305,19 @@ class ElementDefinitionConstraint extends Element {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            id: this.id,
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
+            key: this.key,
+            requirements: this.requirements,
+            severity: this.severity,
+            human: this.human,
+            expression: this.expression,
+            xpath: this.xpath,
+            source: this.source,
+        };
+
 
 
         return removeNull(json);

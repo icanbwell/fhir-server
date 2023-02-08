@@ -299,7 +299,18 @@ class ObservationReferenceRange extends Element {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            id: this.id,
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
+            low: this.low && this.low.toJSONInternal(),
+            high: this.high && this.high.toJSONInternal(),
+            type: this.type && this.type.toJSONInternal(),
+            appliesTo: this.appliesTo && this.appliesTo.map(v => v.toJSONInternal()),
+            age: this.age && this.age.toJSONInternal(),
+            text: this.text,
+        };
+
 
 
         return removeNull(json);

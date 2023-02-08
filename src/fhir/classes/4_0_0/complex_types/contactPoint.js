@@ -223,7 +223,16 @@ class ContactPoint extends Element {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            id: this.id,
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            system: this.system,
+            value: this.value,
+            use: this.use,
+            rank: this.rank,
+            period: this.period && this.period.toJSONInternal(),
+        };
+
 
 
         return removeNull(json);

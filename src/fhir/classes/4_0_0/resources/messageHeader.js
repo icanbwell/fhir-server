@@ -36,7 +36,7 @@ class MessageHeader extends Resource {
      * @param {Reference[]|undefined} [focus],
      * @param {canonical|undefined} [definition],
      * @param {Object|undefined} [_access]
-     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_sourceAssigningAuthority]
      * @param {string|undefined} [_uuid]
      * @param {string|undefined} [_sourceId]
     */
@@ -510,7 +510,7 @@ class MessageHeader extends Resource {
         });
         /**
          * @description _sourceAssigningAuthority
-         * @property {Object|undefined}
+         * @property {string|undefined}
          */
         Object.defineProperty(this, '_sourceAssigningAuthority', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -620,7 +620,7 @@ class MessageHeader extends Resource {
      * @param {Reference[]|undefined} [focus],
      * @param {canonical|undefined} [definition],
      * @param {Object|undefined} [_access]
-     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_sourceAssigningAuthority]
      * @param {string|undefined} [_uuid]
      * @param {string|undefined} [_sourceId]
      * @returns {MessageHeader}
@@ -751,7 +751,30 @@ class MessageHeader extends Resource {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            resourceType: this.resourceType,
+            id: this.id,
+            meta: this.meta && this.meta.toJSONInternal(),
+            implicitRules: this.implicitRules,
+            language: this.language,
+            text: this.text && this.text.toJSONInternal(),
+            contained: this.contained && this.contained.map(v => v.toJSONInternal()),
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
+            eventCoding: this.eventCoding && this.eventCoding.toJSONInternal(),
+            eventUri: this.eventUri,
+            destination: this.destination && this.destination.map(v => v.toJSONInternal()),
+            sender: this.sender && this.sender.toJSONInternal(),
+            enterer: this.enterer && this.enterer.toJSONInternal(),
+            author: this.author && this.author.toJSONInternal(),
+            source: this.source && this.source.toJSONInternal(),
+            responsible: this.responsible && this.responsible.toJSONInternal(),
+            reason: this.reason && this.reason.toJSONInternal(),
+            response: this.response && this.response.toJSONInternal(),
+            focus: this.focus && this.focus.map(v => v.toJSONInternal()),
+            definition: this.definition,
+        };
+
 
         if (this._access) {
             json._access = this._access;

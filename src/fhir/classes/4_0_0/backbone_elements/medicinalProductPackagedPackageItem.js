@@ -429,7 +429,24 @@ class MedicinalProductPackagedPackageItem extends Element {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            id: this.id,
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
+            identifier: this.identifier && this.identifier.map(v => v.toJSONInternal()),
+            type: this.type && this.type.toJSONInternal(),
+            quantity: this.quantity && this.quantity.toJSONInternal(),
+            material: this.material && this.material.map(v => v.toJSONInternal()),
+            alternateMaterial: this.alternateMaterial && this.alternateMaterial.map(v => v.toJSONInternal()),
+            device: this.device && this.device.map(v => v.toJSONInternal()),
+            manufacturedItem: this.manufacturedItem && this.manufacturedItem.map(v => v.toJSONInternal()),
+            packageItem: this.packageItem && this.packageItem.map(v => v.toJSONInternal()),
+            physicalCharacteristics: this.physicalCharacteristics && this.physicalCharacteristics.toJSONInternal(),
+            otherCharacteristics: this.otherCharacteristics && this.otherCharacteristics.map(v => v.toJSONInternal()),
+            shelfLifeStorage: this.shelfLifeStorage && this.shelfLifeStorage.map(v => v.toJSONInternal()),
+            manufacturer: this.manufacturer && this.manufacturer.map(v => v.toJSONInternal()),
+        };
+
 
 
         return removeNull(json);

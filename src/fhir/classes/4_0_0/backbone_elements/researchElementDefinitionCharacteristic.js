@@ -631,7 +631,33 @@ class ResearchElementDefinitionCharacteristic extends Element {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            id: this.id,
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
+            definitionCodeableConcept: this.definitionCodeableConcept && this.definitionCodeableConcept.toJSONInternal(),
+            definitionCanonical: this.definitionCanonical,
+            definitionExpression: this.definitionExpression && this.definitionExpression.toJSONInternal(),
+            definitionDataRequirement: this.definitionDataRequirement && this.definitionDataRequirement.toJSONInternal(),
+            usageContext: this.usageContext && this.usageContext.map(v => v.toJSONInternal()),
+            exclude: this.exclude,
+            unitOfMeasure: this.unitOfMeasure && this.unitOfMeasure.toJSONInternal(),
+            studyEffectiveDescription: this.studyEffectiveDescription,
+            studyEffectiveDateTime: this.studyEffectiveDateTime,
+            studyEffectivePeriod: this.studyEffectivePeriod && this.studyEffectivePeriod.toJSONInternal(),
+            studyEffectiveDuration: this.studyEffectiveDuration && this.studyEffectiveDuration.toJSONInternal(),
+            studyEffectiveTiming: this.studyEffectiveTiming && this.studyEffectiveTiming.toJSONInternal(),
+            studyEffectiveTimeFromStart: this.studyEffectiveTimeFromStart && this.studyEffectiveTimeFromStart.toJSONInternal(),
+            studyEffectiveGroupMeasure: this.studyEffectiveGroupMeasure,
+            participantEffectiveDescription: this.participantEffectiveDescription,
+            participantEffectiveDateTime: this.participantEffectiveDateTime,
+            participantEffectivePeriod: this.participantEffectivePeriod && this.participantEffectivePeriod.toJSONInternal(),
+            participantEffectiveDuration: this.participantEffectiveDuration && this.participantEffectiveDuration.toJSONInternal(),
+            participantEffectiveTiming: this.participantEffectiveTiming && this.participantEffectiveTiming.toJSONInternal(),
+            participantEffectiveTimeFromStart: this.participantEffectiveTimeFromStart && this.participantEffectiveTimeFromStart.toJSONInternal(),
+            participantEffectiveGroupMeasure: this.participantEffectiveGroupMeasure,
+        };
+
 
 
         return removeNull(json);

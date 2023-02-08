@@ -365,7 +365,22 @@ class ExampleScenarioOperation extends Element {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            id: this.id,
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
+            number: this.number,
+            type: this.type,
+            name: this.name,
+            initiator: this.initiator,
+            receiver: this.receiver,
+            description: this.description,
+            initiatorActive: this.initiatorActive,
+            receiverActive: this.receiverActive,
+            request: this.request && this.request.toJSONInternal(),
+            response: this.response && this.response.toJSONInternal(),
+        };
+
 
 
         return removeNull(json);

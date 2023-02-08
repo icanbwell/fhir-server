@@ -333,7 +333,20 @@ class ExplanationOfBenefitBenefitBalance extends Element {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            id: this.id,
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
+            category: this.category && this.category.toJSONInternal(),
+            excluded: this.excluded,
+            name: this.name,
+            description: this.description,
+            network: this.network && this.network.toJSONInternal(),
+            unit: this.unit && this.unit.toJSONInternal(),
+            term: this.term && this.term.toJSONInternal(),
+            financial: this.financial && this.financial.map(v => v.toJSONInternal()),
+        };
+
 
 
         return removeNull(json);

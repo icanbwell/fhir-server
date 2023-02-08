@@ -196,7 +196,14 @@ class SubstanceAmountReferenceRange extends Element {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            id: this.id,
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
+            lowLimit: this.lowLimit && this.lowLimit.toJSONInternal(),
+            highLimit: this.highLimit && this.highLimit.toJSONInternal(),
+        };
+
 
 
         return removeNull(json);

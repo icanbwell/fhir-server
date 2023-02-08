@@ -284,7 +284,18 @@ class MedicinalProductManufacturingBusinessOperation extends Element {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            id: this.id,
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
+            operationType: this.operationType && this.operationType.toJSONInternal(),
+            authorisationReferenceNumber: this.authorisationReferenceNumber && this.authorisationReferenceNumber.toJSONInternal(),
+            effectiveDate: this.effectiveDate,
+            confidentialityIndicator: this.confidentialityIndicator && this.confidentialityIndicator.toJSONInternal(),
+            manufacturer: this.manufacturer && this.manufacturer.map(v => v.toJSONInternal()),
+            regulator: this.regulator && this.regulator.toJSONInternal(),
+        };
+
 
 
         return removeNull(json);

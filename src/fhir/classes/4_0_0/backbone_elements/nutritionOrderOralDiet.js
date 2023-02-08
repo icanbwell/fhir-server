@@ -291,7 +291,18 @@ class NutritionOrderOralDiet extends Element {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            id: this.id,
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
+            type: this.type && this.type.map(v => v.toJSONInternal()),
+            schedule: this.schedule && this.schedule.map(v => v.toJSONInternal()),
+            nutrient: this.nutrient && this.nutrient.map(v => v.toJSONInternal()),
+            texture: this.texture && this.texture.map(v => v.toJSONInternal()),
+            fluidConsistencyType: this.fluidConsistencyType && this.fluidConsistencyType.map(v => v.toJSONInternal()),
+            instruction: this.instruction,
+        };
+
 
 
         return removeNull(json);

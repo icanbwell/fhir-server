@@ -33,7 +33,7 @@ class Endpoint extends Resource {
      * @param {url} address,
      * @param {String[]|undefined} [header],
      * @param {Object|undefined} [_access]
-     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_sourceAssigningAuthority]
      * @param {string|undefined} [_uuid]
      * @param {string|undefined} [_sourceId]
     */
@@ -484,7 +484,7 @@ class Endpoint extends Resource {
         });
         /**
          * @description _sourceAssigningAuthority
-         * @property {Object|undefined}
+         * @property {string|undefined}
          */
         Object.defineProperty(this, '_sourceAssigningAuthority', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -592,7 +592,7 @@ class Endpoint extends Resource {
      * @param {url} address,
      * @param {String[]|undefined} [header],
      * @param {Object|undefined} [_access]
-     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_sourceAssigningAuthority]
      * @param {string|undefined} [_uuid]
      * @param {string|undefined} [_sourceId]
      * @returns {Endpoint}
@@ -716,7 +716,29 @@ class Endpoint extends Resource {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            resourceType: this.resourceType,
+            id: this.id,
+            meta: this.meta && this.meta.toJSONInternal(),
+            implicitRules: this.implicitRules,
+            language: this.language,
+            text: this.text && this.text.toJSONInternal(),
+            contained: this.contained && this.contained.map(v => v.toJSONInternal()),
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
+            identifier: this.identifier && this.identifier.map(v => v.toJSONInternal()),
+            status: this.status,
+            connectionType: this.connectionType && this.connectionType.toJSONInternal(),
+            name: this.name,
+            managingOrganization: this.managingOrganization && this.managingOrganization.toJSONInternal(),
+            contact: this.contact && this.contact.map(v => v.toJSONInternal()),
+            period: this.period && this.period.toJSONInternal(),
+            payloadType: this.payloadType && this.payloadType.map(v => v.toJSONInternal()),
+            payloadMimeType: this.payloadMimeType,
+            address: this.address,
+            header: this.header,
+        };
+
 
         if (this._access) {
             json._access = this._access;

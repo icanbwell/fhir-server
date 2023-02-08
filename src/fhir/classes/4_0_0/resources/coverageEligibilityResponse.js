@@ -37,7 +37,7 @@ class CoverageEligibilityResponse extends Resource {
      * @param {CodeableConcept|undefined} [form],
      * @param {CoverageEligibilityResponseError[]|undefined} [error],
      * @param {Object|undefined} [_access]
-     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_sourceAssigningAuthority]
      * @param {string|undefined} [_uuid]
      * @param {string|undefined} [_sourceId]
     */
@@ -585,7 +585,7 @@ class CoverageEligibilityResponse extends Resource {
         });
         /**
          * @description _sourceAssigningAuthority
-         * @property {Object|undefined}
+         * @property {string|undefined}
          */
         Object.defineProperty(this, '_sourceAssigningAuthority', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -703,7 +703,7 @@ class CoverageEligibilityResponse extends Resource {
      * @param {CodeableConcept|undefined} [form],
      * @param {CoverageEligibilityResponseError[]|undefined} [error],
      * @param {Object|undefined} [_access]
-     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_sourceAssigningAuthority]
      * @param {string|undefined} [_uuid]
      * @param {string|undefined} [_sourceId]
      * @returns {CoverageEligibilityResponse}
@@ -845,7 +845,34 @@ class CoverageEligibilityResponse extends Resource {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            resourceType: this.resourceType,
+            id: this.id,
+            meta: this.meta && this.meta.toJSONInternal(),
+            implicitRules: this.implicitRules,
+            language: this.language,
+            text: this.text && this.text.toJSONInternal(),
+            contained: this.contained && this.contained.map(v => v.toJSONInternal()),
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
+            identifier: this.identifier && this.identifier.map(v => v.toJSONInternal()),
+            status: this.status,
+            purpose: this.purpose,
+            patient: this.patient && this.patient.toJSONInternal(),
+            servicedDate: this.servicedDate,
+            servicedPeriod: this.servicedPeriod && this.servicedPeriod.toJSONInternal(),
+            created: this.created,
+            requestor: this.requestor && this.requestor.toJSONInternal(),
+            request: this.request && this.request.toJSONInternal(),
+            outcome: this.outcome,
+            disposition: this.disposition,
+            insurer: this.insurer && this.insurer.toJSONInternal(),
+            insurance: this.insurance && this.insurance.map(v => v.toJSONInternal()),
+            preAuthRef: this.preAuthRef,
+            form: this.form && this.form.toJSONInternal(),
+            error: this.error && this.error.map(v => v.toJSONInternal()),
+        };
+
 
         if (this._access) {
             json._access = this._access;

@@ -411,7 +411,23 @@ class AuditEventAgent extends Element {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            id: this.id,
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
+            type: this.type && this.type.toJSONInternal(),
+            role: this.role && this.role.map(v => v.toJSONInternal()),
+            who: this.who && this.who.toJSONInternal(),
+            altId: this.altId,
+            name: this.name,
+            requestor: this.requestor,
+            location: this.location && this.location.toJSONInternal(),
+            policy: this.policy,
+            media: this.media && this.media.toJSONInternal(),
+            network: this.network && this.network.toJSONInternal(),
+            purposeOfUse: this.purposeOfUse && this.purposeOfUse.map(v => v.toJSONInternal()),
+        };
+
 
 
         return removeNull(json);

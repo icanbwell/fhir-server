@@ -258,7 +258,17 @@ class MedicationKnowledgeDrugCharacteristic extends Element {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            id: this.id,
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
+            type: this.type && this.type.toJSONInternal(),
+            valueCodeableConcept: this.valueCodeableConcept && this.valueCodeableConcept.toJSONInternal(),
+            valueString: this.valueString,
+            valueQuantity: this.valueQuantity && this.valueQuantity.toJSONInternal(),
+            valueBase64Binary: this.valueBase64Binary,
+        };
+
 
 
         return removeNull(json);

@@ -27,7 +27,7 @@ class MedicinalProductManufactured extends Resource {
      * @param {ProdCharacteristic|undefined} [physicalCharacteristics],
      * @param {CodeableConcept[]|undefined} [otherCharacteristics],
      * @param {Object|undefined} [_access]
-     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_sourceAssigningAuthority]
      * @param {string|undefined} [_uuid]
      * @param {string|undefined} [_sourceId]
     */
@@ -397,7 +397,7 @@ class MedicinalProductManufactured extends Resource {
         });
         /**
          * @description _sourceAssigningAuthority
-         * @property {Object|undefined}
+         * @property {string|undefined}
          */
         Object.defineProperty(this, '_sourceAssigningAuthority', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -497,7 +497,7 @@ class MedicinalProductManufactured extends Resource {
      * @param {ProdCharacteristic|undefined} [physicalCharacteristics],
      * @param {CodeableConcept[]|undefined} [otherCharacteristics],
      * @param {Object|undefined} [_access]
-     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_sourceAssigningAuthority]
      * @param {string|undefined} [_uuid]
      * @param {string|undefined} [_sourceId]
      * @returns {MedicinalProductManufactured}
@@ -610,7 +610,25 @@ class MedicinalProductManufactured extends Resource {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            resourceType: this.resourceType,
+            id: this.id,
+            meta: this.meta && this.meta.toJSONInternal(),
+            implicitRules: this.implicitRules,
+            language: this.language,
+            text: this.text && this.text.toJSONInternal(),
+            contained: this.contained && this.contained.map(v => v.toJSONInternal()),
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
+            manufacturedDoseForm: this.manufacturedDoseForm && this.manufacturedDoseForm.toJSONInternal(),
+            unitOfPresentation: this.unitOfPresentation && this.unitOfPresentation.toJSONInternal(),
+            quantity: this.quantity && this.quantity.toJSONInternal(),
+            manufacturer: this.manufacturer && this.manufacturer.map(v => v.toJSONInternal()),
+            ingredient: this.ingredient && this.ingredient.map(v => v.toJSONInternal()),
+            physicalCharacteristics: this.physicalCharacteristics && this.physicalCharacteristics.toJSONInternal(),
+            otherCharacteristics: this.otherCharacteristics && this.otherCharacteristics.map(v => v.toJSONInternal()),
+        };
+
 
         if (this._access) {
             json._access = this._access;

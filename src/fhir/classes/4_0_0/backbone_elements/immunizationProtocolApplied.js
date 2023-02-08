@@ -302,7 +302,19 @@ class ImmunizationProtocolApplied extends Element {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            id: this.id,
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
+            series: this.series,
+            authority: this.authority && this.authority.toJSONInternal(),
+            targetDisease: this.targetDisease && this.targetDisease.map(v => v.toJSONInternal()),
+            doseNumberPositiveInt: this.doseNumberPositiveInt,
+            doseNumberString: this.doseNumberString,
+            seriesDosesPositiveInt: this.seriesDosesPositiveInt,
+            seriesDosesString: this.seriesDosesString,
+        };
+
 
 
         return removeNull(json);

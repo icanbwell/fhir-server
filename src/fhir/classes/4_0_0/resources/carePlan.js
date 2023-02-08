@@ -45,7 +45,7 @@ class CarePlan extends Resource {
      * @param {CarePlanActivity[]|undefined} [activity],
      * @param {Annotation[]|undefined} [note],
      * @param {Object|undefined} [_access]
-     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_sourceAssigningAuthority]
      * @param {string|undefined} [_uuid]
      * @param {string|undefined} [_sourceId]
     */
@@ -744,7 +744,7 @@ class CarePlan extends Resource {
         });
         /**
          * @description _sourceAssigningAuthority
-         * @property {Object|undefined}
+         * @property {string|undefined}
          */
         Object.defineProperty(this, '_sourceAssigningAuthority', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -876,7 +876,7 @@ class CarePlan extends Resource {
      * @param {CarePlanActivity[]|undefined} [activity],
      * @param {Annotation[]|undefined} [note],
      * @param {Object|undefined} [_access]
-     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_sourceAssigningAuthority]
      * @param {string|undefined} [_uuid]
      * @param {string|undefined} [_sourceId]
      * @returns {CarePlan}
@@ -1046,7 +1046,41 @@ class CarePlan extends Resource {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            resourceType: this.resourceType,
+            id: this.id,
+            meta: this.meta && this.meta.toJSONInternal(),
+            implicitRules: this.implicitRules,
+            language: this.language,
+            text: this.text && this.text.toJSONInternal(),
+            contained: this.contained && this.contained.map(v => v.toJSONInternal()),
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
+            identifier: this.identifier && this.identifier.map(v => v.toJSONInternal()),
+            instantiatesCanonical: this.instantiatesCanonical,
+            instantiatesUri: this.instantiatesUri,
+            basedOn: this.basedOn && this.basedOn.map(v => v.toJSONInternal()),
+            replaces: this.replaces && this.replaces.map(v => v.toJSONInternal()),
+            partOf: this.partOf && this.partOf.map(v => v.toJSONInternal()),
+            status: this.status,
+            intent: this.intent,
+            category: this.category && this.category.map(v => v.toJSONInternal()),
+            title: this.title,
+            description: this.description,
+            subject: this.subject && this.subject.toJSONInternal(),
+            encounter: this.encounter && this.encounter.toJSONInternal(),
+            period: this.period && this.period.toJSONInternal(),
+            created: this.created,
+            author: this.author && this.author.toJSONInternal(),
+            contributor: this.contributor && this.contributor.map(v => v.toJSONInternal()),
+            careTeam: this.careTeam && this.careTeam.map(v => v.toJSONInternal()),
+            addresses: this.addresses && this.addresses.map(v => v.toJSONInternal()),
+            supportingInfo: this.supportingInfo && this.supportingInfo.map(v => v.toJSONInternal()),
+            goal: this.goal && this.goal.map(v => v.toJSONInternal()),
+            activity: this.activity && this.activity.map(v => v.toJSONInternal()),
+            note: this.note && this.note.map(v => v.toJSONInternal()),
+        };
+
 
         if (this._access) {
             json._access = this._access;

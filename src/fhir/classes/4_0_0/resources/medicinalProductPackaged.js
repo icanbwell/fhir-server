@@ -29,7 +29,7 @@ class MedicinalProductPackaged extends Resource {
      * @param {MedicinalProductPackagedBatchIdentifier[]|undefined} [batchIdentifier],
      * @param {MedicinalProductPackagedPackageItem[]} packageItem,
      * @param {Object|undefined} [_access]
-     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_sourceAssigningAuthority]
      * @param {string|undefined} [_uuid]
      * @param {string|undefined} [_sourceId]
     */
@@ -437,7 +437,7 @@ class MedicinalProductPackaged extends Resource {
         });
         /**
          * @description _sourceAssigningAuthority
-         * @property {Object|undefined}
+         * @property {string|undefined}
          */
         Object.defineProperty(this, '_sourceAssigningAuthority', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -541,7 +541,7 @@ class MedicinalProductPackaged extends Resource {
      * @param {MedicinalProductPackagedBatchIdentifier[]|undefined} [batchIdentifier],
      * @param {MedicinalProductPackagedPackageItem[]} packageItem,
      * @param {Object|undefined} [_access]
-     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_sourceAssigningAuthority]
      * @param {string|undefined} [_uuid]
      * @param {string|undefined} [_sourceId]
      * @returns {MedicinalProductPackaged}
@@ -661,7 +661,27 @@ class MedicinalProductPackaged extends Resource {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            resourceType: this.resourceType,
+            id: this.id,
+            meta: this.meta && this.meta.toJSONInternal(),
+            implicitRules: this.implicitRules,
+            language: this.language,
+            text: this.text && this.text.toJSONInternal(),
+            contained: this.contained && this.contained.map(v => v.toJSONInternal()),
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
+            identifier: this.identifier && this.identifier.map(v => v.toJSONInternal()),
+            subject: this.subject && this.subject.map(v => v.toJSONInternal()),
+            description: this.description,
+            legalStatusOfSupply: this.legalStatusOfSupply && this.legalStatusOfSupply.toJSONInternal(),
+            marketingStatus: this.marketingStatus && this.marketingStatus.map(v => v.toJSONInternal()),
+            marketingAuthorization: this.marketingAuthorization && this.marketingAuthorization.toJSONInternal(),
+            manufacturer: this.manufacturer && this.manufacturer.map(v => v.toJSONInternal()),
+            batchIdentifier: this.batchIdentifier && this.batchIdentifier.map(v => v.toJSONInternal()),
+            packageItem: this.packageItem && this.packageItem.map(v => v.toJSONInternal()),
+        };
+
 
         if (this._access) {
             json._access = this._access;

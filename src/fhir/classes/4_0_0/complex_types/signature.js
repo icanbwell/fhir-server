@@ -279,7 +279,18 @@ class Signature extends Element {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            id: this.id,
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            type: this.type && this.type.map(v => v.toJSONInternal()),
+            when: this.when,
+            who: this.who && this.who.toJSONInternal(),
+            onBehalfOf: this.onBehalfOf && this.onBehalfOf.toJSONInternal(),
+            targetFormat: this.targetFormat,
+            sigFormat: this.sigFormat,
+            data: this.data,
+        };
+
 
 
         return removeNull(json);

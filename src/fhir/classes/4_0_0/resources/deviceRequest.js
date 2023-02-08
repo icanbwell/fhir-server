@@ -48,7 +48,7 @@ class DeviceRequest extends Resource {
      * @param {Annotation[]|undefined} [note],
      * @param {Reference[]|undefined} [relevantHistory],
      * @param {Object|undefined} [_access]
-     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_sourceAssigningAuthority]
      * @param {string|undefined} [_uuid]
      * @param {string|undefined} [_sourceId]
     */
@@ -819,7 +819,7 @@ class DeviceRequest extends Resource {
         });
         /**
          * @description _sourceAssigningAuthority
-         * @property {Object|undefined}
+         * @property {string|undefined}
          */
         Object.defineProperty(this, '_sourceAssigningAuthority', {
             // https://www.w3schools.com/js/js_object_es5.asp
@@ -959,7 +959,7 @@ class DeviceRequest extends Resource {
      * @param {Annotation[]|undefined} [note],
      * @param {Reference[]|undefined} [relevantHistory],
      * @param {Object|undefined} [_access]
-     * @param {Object|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_sourceAssigningAuthority]
      * @param {string|undefined} [_uuid]
      * @param {string|undefined} [_sourceId]
      * @returns {DeviceRequest}
@@ -1145,7 +1145,45 @@ class DeviceRequest extends Resource {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            resourceType: this.resourceType,
+            id: this.id,
+            meta: this.meta && this.meta.toJSONInternal(),
+            implicitRules: this.implicitRules,
+            language: this.language,
+            text: this.text && this.text.toJSONInternal(),
+            contained: this.contained && this.contained.map(v => v.toJSONInternal()),
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
+            identifier: this.identifier && this.identifier.map(v => v.toJSONInternal()),
+            instantiatesCanonical: this.instantiatesCanonical,
+            instantiatesUri: this.instantiatesUri,
+            basedOn: this.basedOn && this.basedOn.map(v => v.toJSONInternal()),
+            priorRequest: this.priorRequest && this.priorRequest.map(v => v.toJSONInternal()),
+            groupIdentifier: this.groupIdentifier && this.groupIdentifier.toJSONInternal(),
+            status: this.status,
+            intent: this.intent,
+            priority: this.priority,
+            codeReference: this.codeReference && this.codeReference.toJSONInternal(),
+            codeCodeableConcept: this.codeCodeableConcept && this.codeCodeableConcept.toJSONInternal(),
+            parameter: this.parameter && this.parameter.map(v => v.toJSONInternal()),
+            subject: this.subject && this.subject.toJSONInternal(),
+            encounter: this.encounter && this.encounter.toJSONInternal(),
+            occurrenceDateTime: this.occurrenceDateTime,
+            occurrencePeriod: this.occurrencePeriod && this.occurrencePeriod.toJSONInternal(),
+            occurrenceTiming: this.occurrenceTiming && this.occurrenceTiming.toJSONInternal(),
+            authoredOn: this.authoredOn,
+            requester: this.requester && this.requester.toJSONInternal(),
+            performerType: this.performerType && this.performerType.toJSONInternal(),
+            performer: this.performer && this.performer.toJSONInternal(),
+            reasonCode: this.reasonCode && this.reasonCode.map(v => v.toJSONInternal()),
+            reasonReference: this.reasonReference && this.reasonReference.map(v => v.toJSONInternal()),
+            insurance: this.insurance && this.insurance.map(v => v.toJSONInternal()),
+            supportingInfo: this.supportingInfo && this.supportingInfo.map(v => v.toJSONInternal()),
+            note: this.note && this.note.map(v => v.toJSONInternal()),
+            relevantHistory: this.relevantHistory && this.relevantHistory.map(v => v.toJSONInternal()),
+        };
+
 
         if (this._access) {
             json._access = this._access;

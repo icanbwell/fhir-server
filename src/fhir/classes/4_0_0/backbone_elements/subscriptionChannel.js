@@ -236,7 +236,16 @@ class SubscriptionChannel extends Element {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            id: this.id,
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
+            type: this.type,
+            endpoint: this.endpoint,
+            payload: this.payload,
+            header: this.header,
+        };
+
 
 
         return removeNull(json);
