@@ -37,11 +37,14 @@ def clean_duplicate_lines(file_path: Union[Path, str]) -> None:
         lines: List[str] = file.readlines()
     new_lines: List[str] = []
     for line in lines:
-        if not line.strip() or not line.lstrip().startswith("from"):
-            new_lines.append(line)
-        elif line not in new_lines and line.lstrip() not in [
-            c.lstrip() for c in new_lines
-        ]:
+        if (
+            not line.strip() 
+            or not line.lstrip().startswith("from") 
+            or (
+                line not in new_lines 
+                and line.lstrip() not in [c.lstrip() for c in new_lines]
+            )
+        ):
             new_lines.append(line)
     with open(file_path, "w") as file:
         file.writelines(new_lines)
@@ -137,24 +140,7 @@ def main() -> int:
             if not path.exists(file_path):
                 with open(file_path, "w") as file2:
                     file2.write(result)
-        elif fhir_entity.is_extension:  # valueset
-            # write Javascript classes
-            with open(data_dir.joinpath("template.javascript.class.jinja2"), "r") as file:
-                template_contents = file.read()
-                from jinja2 import Template
-
-                file_path = classes_complex_types_folder.joinpath(f"{entity_file_name}.js")
-                print(f"Writing complex type: {entity_file_name} to {file_path}...")
-                template = Template(
-                    template_contents, trim_blocks=True, lstrip_blocks=True
-                )
-                result = template.render(
-                    fhir_entity=fhir_entity,
-                )
-            if not path.exists(file_path):
-                with open(file_path, "w") as file2:
-                    file2.write(result)
-        elif fhir_entity.type_ == "Element":  # valueset
+        elif fhir_entity.is_extension or fhir_entity.type_ == "Element":  # valueset
             # write Javascript classes
             with open(data_dir.joinpath("template.javascript.class.jinja2"), "r") as file:
                 template_contents = file.read()

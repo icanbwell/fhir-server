@@ -1053,9 +1053,8 @@ class FhirXmlSchemaParser:
                                 value_set_url_list.update(
                                     code_system.value_set_url_list
                                 )
-                        elif compose_include_code_system not in value_set_url_list:
-                            if is_code_system:
-                                value_set_url_list.add(compose_include_code_system)
+                        elif compose_include_code_system not in value_set_url_list and is_code_system:
+                            value_set_url_list.add(compose_include_code_system)
                     if hasattr(compose_include, "concept"):
                         concepts = compose_include["concept"]
                         for concept in concepts:
@@ -1112,6 +1111,7 @@ class FhirXmlSchemaParser:
                 if value_set_url_name != "" and value_set_url_name in [
                     c.split("/")[-1] for c in value_set_url_list
                 ]:
+                    # do nothing
                     pass
                 else:
                     value_set_url_list.add(value_set_url)
@@ -1170,13 +1170,12 @@ class FhirXmlSchemaParser:
             value_set_entry_resource: ObjectifiedElement = value_set_entry["resource"]
             is_code_system: bool = hasattr(value_set_entry_resource, "CodeSystem")
             is_value_set: bool = hasattr(value_set_entry_resource, "ValueSet")
-            value_set: ObjectifiedElement = (
-                value_set_entry_resource["ValueSet"]
-                if is_value_set
-                else value_set_entry_resource["CodeSystem"]
-                if is_code_system
-                else value_set_entry["resource"]
-            )
+            if is_value_set:
+                value_set = value_set_entry_resource["ValueSet"]
+            elif is_code_system:
+                value_set = value_set_entry_resource["CodeSystem"]
+            else:
+                value_set = value_set_entry["resource"]
             id_: str = value_set["id"].get("value")
             fhir_name: str = value_set["name"].get("value")
             name: str = fhir_name.replace("v3.", "")
@@ -1235,15 +1234,13 @@ class FhirXmlSchemaParser:
             value_set_entry_resource = value_set_entry["resource"]
             is_code_system = hasattr(value_set_entry_resource, "CodeSystem")
             is_value_set = hasattr(value_set_entry_resource, "ValueSet")
-            value_set = (
-                value_set_entry_resource["ValueSet"]
-                if is_value_set
-                else value_set_entry_resource["CodeSystem"]
-                if is_code_system
-                else value_set_entry["resource"]
-            )
+            if is_value_set:
+                value_set = value_set_entry_resource["ValueSet"]
+            elif is_code_system:
+                value_set = value_set_entry_resource["CodeSystem"]
+            else:
+                value_set = value_set_entry["resource"]
             id_ = value_set["id"].get("value")
-            url = value_set["url"].get("value")
             fhir_concepts = []
             value_set_url_list = set()
             if hasattr(value_set, "compose"):
@@ -1317,13 +1314,12 @@ class FhirXmlSchemaParser:
             value_set_entry_resource: ObjectifiedElement = value_set_entry.resource
             is_code_system: bool = hasattr(value_set_entry_resource, "CodeSystem")
             is_value_set: bool = hasattr(value_set_entry_resource, "ValueSet")
-            value_set: ObjectifiedElement = (
-                value_set_entry_resource.ValueSet
-                if is_value_set
-                else value_set_entry_resource.CodeSystem
-                if is_code_system
-                else value_set_entry_resource
-            )
+            if is_value_set:
+                value_set = value_set_entry_resource["ValueSet"]
+            elif is_code_system:
+                value_set = value_set_entry_resource["CodeSystem"]
+            else:
+                value_set = value_set_entry["resource"]
             id_: str = value_set.id.get("value")
             fhir_name: str = value_set.name.get("value")
             name: str = fhir_name.replace(".", "_")
