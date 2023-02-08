@@ -72,6 +72,9 @@
     "resourceType": "Observation",
     "status": "final",
     "subject": {
+      "_sourceAssigningAuthority": "A",
+      "_sourceId": "2354",
+      "_uuid": "a28ad76e-41dd-5c0d-b52d-a5841690c3bd",
       "extension": [
         {
           "id": "sourceId",
@@ -166,6 +169,9 @@
     "resourceType": "Observation",
     "status": "final",
     "subject": {
+      "_sourceAssigningAuthority": "C",
+      "_sourceId": "2354",
+      "_uuid": "6fbec29e-053e-51d6-8281-76f200e48fb8",
       "extension": [
         {
           "id": "sourceId",
