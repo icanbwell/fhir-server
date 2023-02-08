@@ -104,6 +104,9 @@ class ReferenceGlobalIdHandler extends PreSaveHandler {
 
         let referenceUpdated = false;
 
+        reference._uuid = uuid;
+        reference._sourceId = referenceId;
+        reference._sourceAssigningAuthority = sourceAssigningAuthority;
         // update sourceId extension if needed
         /**
          * @type {Extension|undefined}
