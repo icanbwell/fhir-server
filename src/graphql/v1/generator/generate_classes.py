@@ -127,22 +127,6 @@ def main() -> int:
         entity_file_name = fhir_entity.name_snake_case
         if fhir_entity.is_value_set:  # valueset
             pass
-            # with open(data_dir.joinpath("template.value_set.jinja2"), "r") as file:
-            #     template_contents = file.read()
-            #     from jinja2 import Template
-            #
-            #     file_path = value_sets_folder.joinpath(f"{entity_file_name}.graphql")
-            #     print(f"Writing value_set: {entity_file_name} to {file_path}...")
-            #     template = Template(
-            #         template_contents, trim_blocks=True, lstrip_blocks=True
-            #     )
-            #     result = template.render(
-            #         fhir_entity=fhir_entity,
-            #     )
-            #
-            # if not path.exists(file_path):
-            #     with open(file_path, "w") as file2:
-            #         file2.write(result)
         elif fhir_entity.is_resource:
             search_parameters_for_all_resources: Dict[str, Dict[str, Any]] = (
                 search_parameter_queries.get("Resource", {}) if fhir_entity.fhir_name != "Resource" else {}
@@ -325,7 +309,6 @@ def main() -> int:
                 with open(file_path, "w") as file2:
                     file2.write(result)
         else:
-            # assert False, f"{resource_name}: {fhir_entity.type_} is not supported"
             print(f"{resource_name}: {fhir_entity.type_} is not supported")
         # print(result)
 
