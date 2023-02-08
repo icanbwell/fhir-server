@@ -5,6 +5,7 @@ class BundleMetaApolloServerPlugin /*extends ApolloServerPlugin*/ {
      * This plugin set the meta from each query into the results to provide debugging information
      */
     constructor() {
+        // do nothing
     }
 
     // noinspection JSUnusedLocalSymbols

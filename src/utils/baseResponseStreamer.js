@@ -61,6 +61,7 @@ class BaseResponseStreamer {
      */
     // eslint-disable-next-line no-unused-vars
     setBundle({bundle}) {
+        // do nothing
     }
 
     /**
