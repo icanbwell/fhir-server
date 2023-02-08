@@ -63,6 +63,14 @@ class {{ fhir_entity.cleaned_name }} extends Element {
     {{- '} ' -}}
     [{{ extra_property.name }}]
 {%  endfor %}
+{% if fhir_entity.cleaned_name == "Reference"  %}
+    {% for extra_property in extra_properties_for_reference %}
+     * @param {{- ' {' -}}
+    {{ extra_property.type }}|undefined
+    {{- '} ' -}}
+    [{{ extra_property.name }}]
+    {%  endfor %}
+{%  endif %}
     */
     constructor(
         {
@@ -76,6 +84,11 @@ class {{ fhir_entity.cleaned_name }} extends Element {
 {% for extra_property in extra_properties %}
             {{ extra_property.name -}},
 {%  endfor %}
+{% if fhir_entity.cleaned_name == "Reference"  %}
+    {% for extra_property in extra_properties_for_reference %}
+            {{ extra_property.name -}},
+    {%  endfor %}
+{% endif %}
         }
     ) {
 {% if fhir_entity.cleaned_name == 'Element' %}
@@ -192,6 +205,24 @@ class {{ fhir_entity.cleaned_name }} extends Element {
         });
 {%  endfor %}
 
+{% if fhir_entity.cleaned_name == "Reference"  %}
+    {% for extra_property in extra_properties_for_reference %}
+        /**
+         * @description {{ extra_property.name }}
+         * @property {{ '{' + extra_property.type + '|undefined' +'}' }}
+         */
+        Object.defineProperty(this, '{{ extra_property.name -}}', {
+            // https://www.w3schools.com/js/js_object_es5.asp
+            enumerable: true,
+            configurable: true,
+            get: () => this.__data.{{ extra_property.name }},
+            set: valueProvided => {
+                this.__data.{{ extra_property.name }} = valueProvided;
+            }
+        });
+    {%  endfor %}
+{%  endif %}
+
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
 {% for property in fhir_entity.properties %}
@@ -204,6 +235,11 @@ class {{ fhir_entity.cleaned_name }} extends Element {
 {% for extra_property in extra_properties %}
             {{ extra_property.name -}},
 {% endfor %}
+{% if fhir_entity.cleaned_name == "Reference"  %}
+    {% for extra_property in extra_properties_for_reference %}
+            {{ extra_property.name -}},
+    {% endfor %}
+{%  endif %}
         });
 
 {% if fhir_entity.is_resource %}
@@ -263,6 +299,14 @@ class {{ fhir_entity.cleaned_name }} extends Element {
     {{- '} ' -}}
     [{{ extra_property.name }}]
 {%  endfor %}
+{% if fhir_entity.cleaned_name == "Reference"  %}
+    {% for extra_property in extra_properties_for_reference %}
+     * @param {{- ' {' -}}
+    {{ extra_property.type }}|undefined
+    {{- '} ' -}}
+    [{{ extra_property.name }}]
+    {%  endfor %}
+{% endif %}
      * @returns {{- ' {' -}}{{ fhir_entity.cleaned_name }} {{- '}' }}
     */
     create(
@@ -277,6 +321,11 @@ class {{ fhir_entity.cleaned_name }} extends Element {
 {% for extra_property in extra_properties %}
             {{ extra_property.name -}},
 {% endfor %}
+{% if fhir_entity.cleaned_name == "Reference"  %}
+    {% for extra_property in extra_properties_for_reference %}
+            {{ extra_property.name -}},
+    {% endfor %}
+{% endif %}
         }
     ) {
         return new {{ fhir_entity.cleaned_name }}({
@@ -290,6 +339,11 @@ class {{ fhir_entity.cleaned_name }} extends Element {
 {% for extra_property in extra_properties %}
             {{ extra_property.name -}},
 {% endfor %}
+{% if fhir_entity.cleaned_name == "Reference"  %}
+    {% for extra_property in extra_properties_for_reference %}
+            {{ extra_property.name -}},
+    {% endfor %}
+{%  endif %}
         });
     }
 
@@ -362,6 +416,13 @@ class {{ fhir_entity.cleaned_name }} extends Element {
             json.{{ extra_property.name }} = this.{{ extra_property.name -}};
         }
 {%  endfor %}
+{% if fhir_entity.cleaned_name == "Reference"  %}
+    {% for extra_property in extra_properties_for_reference %}
+        if (this.{{ extra_property.name -}}) {
+            json.{{ extra_property.name }} = this.{{ extra_property.name -}};
+        }
+    {%  endfor %}
+{%  endif %}
 
         return removeNull(json);
     }

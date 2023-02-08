@@ -390,6 +390,7 @@ class SubstanceProtein extends Resource {
             }
         });
 
+
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,

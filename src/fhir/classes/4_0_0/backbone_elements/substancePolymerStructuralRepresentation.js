@@ -161,6 +161,7 @@ class SubstancePolymerStructuralRepresentation extends Element {
 
 
 
+
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,

@@ -168,6 +168,7 @@ class Resource extends ResourceContainer {
             }
         });
 
+
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,

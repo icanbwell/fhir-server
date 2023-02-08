@@ -121,7 +121,7 @@ def main() -> int:
                         },
                         {
                             "name": "_sourceAssigningAuthority",
-                            "type": "Object"
+                            "type": "string"
                         },
                         {
                             "name": "_uuid",
@@ -159,12 +159,12 @@ def main() -> int:
                 from jinja2 import Template
 
                 file_path = classes_complex_types_folder.joinpath(f"{entity_file_name}.js")
-                print(f"Writing complex type: {entity_file_name} to {file_path}...")
+                print(f"Writing extension as complex type: {entity_file_name} to {file_path}...")
                 template = Template(
                     template_contents, trim_blocks=True, lstrip_blocks=True
                 )
                 result = template.render(
-                    fhir_entity=fhir_entity,
+                    fhir_entity=fhir_entity
                 )
             if not path.exists(file_path):
                 with open(file_path, "w") as file2:
@@ -182,6 +182,20 @@ def main() -> int:
                 )
                 result = template.render(
                     fhir_entity=fhir_entity,
+                    extra_properties_for_reference=[
+                        {
+                            "name": "_sourceAssigningAuthority",
+                            "type": "string"
+                        },
+                        {
+                            "name": "_uuid",
+                            "type": "string"
+                        },
+                        {
+                            "name": "_sourceId",
+                            "type": "string"
+                        }
+                    ]
                 )
             if not path.exists(file_path):
                 with open(file_path, "w") as file2:

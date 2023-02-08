@@ -18,6 +18,9 @@ class Reference extends Element {
      * @param {uri|undefined} [type],
      * @param {Identifier|undefined} [identifier],
      * @param {String|undefined} [display],
+     * @param {string|undefined} [_sourceAssigningAuthority]
+     * @param {string|undefined} [_uuid]
+     * @param {string|undefined} [_sourceId]
     */
     constructor(
         {
@@ -27,6 +30,9 @@ class Reference extends Element {
             type,
             identifier,
             display,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         }
     ) {
         super({});
@@ -171,6 +177,46 @@ class Reference extends Element {
 
 
 
+        /**
+         * @description _sourceAssigningAuthority
+         * @property {string|undefined}
+         */
+        Object.defineProperty(this, '_sourceAssigningAuthority', {
+            // https://www.w3schools.com/js/js_object_es5.asp
+            enumerable: true,
+            configurable: true,
+            get: () => this.__data._sourceAssigningAuthority,
+            set: valueProvided => {
+                this.__data._sourceAssigningAuthority = valueProvided;
+            }
+        });
+        /**
+         * @description _uuid
+         * @property {string|undefined}
+         */
+        Object.defineProperty(this, '_uuid', {
+            // https://www.w3schools.com/js/js_object_es5.asp
+            enumerable: true,
+            configurable: true,
+            get: () => this.__data._uuid,
+            set: valueProvided => {
+                this.__data._uuid = valueProvided;
+            }
+        });
+        /**
+         * @description _sourceId
+         * @property {string|undefined}
+         */
+        Object.defineProperty(this, '_sourceId', {
+            // https://www.w3schools.com/js/js_object_es5.asp
+            enumerable: true,
+            configurable: true,
+            get: () => this.__data._sourceId,
+            set: valueProvided => {
+                this.__data._sourceId = valueProvided;
+            }
+        });
+
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -179,6 +225,9 @@ class Reference extends Element {
             type,
             identifier,
             display,
+            _sourceAssigningAuthority,
+            _uuid,
+            _sourceId,
         });
 
     }
@@ -219,6 +268,15 @@ class Reference extends Element {
         const {removeNull} = require('../../../../utils/nullRemover');
         const json = this.toJSON();
 
+        if (this._sourceAssigningAuthority) {
+            json._sourceAssigningAuthority = this._sourceAssigningAuthority;
+        }
+        if (this._uuid) {
+            json._uuid = this._uuid;
+        }
+        if (this._sourceId) {
+            json._sourceId = this._sourceId;
+        }
 
         return removeNull(json);
     }
