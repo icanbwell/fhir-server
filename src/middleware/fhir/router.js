@@ -391,17 +391,17 @@ class FhirRouter {
         // all the configured profiles and find all the uniquely provided versions
         let routes1 = require('./base/base.config');
 
-        for (let i = 0; routes1.length; i++) {
+        for (let currentRoute of routes1.routes) {
             let versionValidationConfiguration = {
                 versions: this.getAllConfiguredVersions(config.profiles)
             };
             let corsOptions = Object.assign({}, corsDefaults, {
-                methods: [routes1[i].type.toUpperCase()]
+                methods: [currentRoute.type.toUpperCase()]
             }); // Enable cors with preflight
 
-            app.options(routes1[i].path, cors(corsOptions)); // Enable base route
+            app.options(currentRoute.path, cors(corsOptions)); // Enable base route
 
-            app[routes1[i].type](routes1[i].path, cors(corsOptions), versionValidationMiddleware(versionValidationConfiguration), sanitizeMiddleware(routes1[i].args), routes1[i].controller({
+            app[currentRoute.type](currentRoute.path, cors(corsOptions), versionValidationMiddleware(versionValidationConfiguration), sanitizeMiddleware(currentRoute.args), currentRoute.controller({
                 config
             }));
         }
