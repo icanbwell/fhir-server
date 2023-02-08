@@ -1,5 +1,3 @@
-// const {ApolloServerPlugin} = require('apollo-server-plugin-base');
-
 class BundleMetaApolloServerPlugin /*extends ApolloServerPlugin*/ {
     /**
      * This plugin set the meta from each query into the results to provide debugging information
@@ -10,9 +8,6 @@ class BundleMetaApolloServerPlugin /*extends ApolloServerPlugin*/ {
     // noinspection JSUnusedLocalSymbols
     // eslint-disable-next-line no-unused-vars
     async requestDidStart(requestContext1) {
-        // const start = Date.now();
-        // let op;
-
         // noinspection JSUnusedGlobalSymbols
         return {
             // didResolveOperation(context) {
@@ -39,12 +34,6 @@ class BundleMetaApolloServerPlugin /*extends ApolloServerPlugin*/ {
                         bundle.meta = dataSource.getBundleMeta();
                     }
                 }
-                // const stop = Date.now();
-                // const elapsed = stop - start;
-                // const size = JSON.stringify(context.response).length * 2;
-                // console.log(
-                //     `Operation ${op} completed in ${elapsed} ms and returned ${size} bytes`
-                // );
             }
         };
     }

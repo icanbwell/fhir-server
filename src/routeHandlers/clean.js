@@ -14,8 +14,6 @@ const {RethrownError} = require('../utils/rethrownError');
  * @return {Promise<void>}
  */
 module.exports.handleClean = async ({fnCreateContainer, req, res}) => {
-    // const query_args_array = Object.entries(req.query);
-    // return res.status(200).json(req.params);
     if (!env.DISABLE_CLEAN_ENDPOINT) {
         console.info('Running clean');
         const container = fnCreateContainer();
@@ -30,7 +28,6 @@ module.exports.handleClean = async ({fnCreateContainer, req, res}) => {
              */
             const db = await mongoDatabaseManager.getClientDbAsync();
             let collection_names = [];
-            // const collections = await db.listCollections().toArray();
 
             const specific_collection = req.params['collection'];
             console.log('specific_collection: ' + specific_collection);

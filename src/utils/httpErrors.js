@@ -2,7 +2,6 @@
  * This file implements custom HTTP errors for the FHIR server
  */
 
-// const {UserFacingError} = require('./baseErrors');
 const {ServerError} = require('../middleware/fhir/utils/server.error');
 const env = require('var');
 

@@ -1,7 +1,6 @@
 /**
  * This route handler implements the /stats endpoint which shows the collections in mongo and the number of records in each
  */
-// const env = require('var');
 const {AdminLogManager} = require('../admin/adminLogManager');
 const sanitize = require('sanitize-filename');
 const {shouldReturnHtml} = require('../utils/requestHelpers');
@@ -77,7 +76,6 @@ async function synchronizeIndexesAsync(
     res.set('Content-Type', 'text/html');
     res.send(Buffer.from(htmlContent));
     res.end();
-    // res.json({message: 'Started Synchronizing indexes'}).end();
     await indexManager.synchronizeIndexesWithConfigAsync({
         audit: audit
     });
@@ -160,13 +158,7 @@ async function handleAdmin(
                     if (id) {
                         const adminLogManager = new AdminLogManager();
                         const json = await adminLogManager.getLogAsync(id);
-                        // const filePath = __dirname + `/../views/admin/pages/${sanitize(operation)}`;
-                        // const parameters = {
-                        //     id,
-                        //     json
-                        // };
                         return res.json(json);
-                        // return res.render(filePath, parameters);
                     }
                     return res.json({
                         message: 'No id passed'

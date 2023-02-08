@@ -49,11 +49,6 @@ class DatabasePartitionedCursor {
          * @type {import('mongodb').Filter<import('mongodb').DefaultSchema>}
          */
         this.query = query;
-        // console.log(JSON.stringify({
-        //     message: 'Created DatabasePartitionedCursor',
-        //     collections: this._cursors.map(c => c.collection),
-        //     query: query
-        // }));
 
         partitionedCollectionsCount.labels(resourceType).observe(cursors.length);
     }
@@ -125,7 +120,6 @@ class DatabasePartitionedCursor {
 
             // check if the first cursor has next.  If not, remove that cursor from the list
             try {
-                // return Promise.reject(new Error('woops'));
                 const result = await this._cursors[0].cursor.next();
                 if (result !== null) {
                     const resourceType = result.resource ? 'BundleEntry' : result.resourceType || this.resourceType;
