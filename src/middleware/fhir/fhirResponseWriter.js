@@ -7,6 +7,7 @@ const Resource = require('../../fhir/classes/4_0_0/resources/resource');
  */
 class FhirResponseWriter {
     constructor() {
+        // ok to not specify
     }
 
 

@@ -3,6 +3,7 @@ class AddRequestIdToResponseHeadersPlugin /*extends ApolloServerPlugin*/ {
      * This plugin set the meta from each query into the results to provide debugging information
      */
     constructor() {
+        // ok to not specify
     }
 
     // eslint-disable-next-line no-unused-vars

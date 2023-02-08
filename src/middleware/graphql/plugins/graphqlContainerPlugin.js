@@ -5,7 +5,7 @@ class GraphqlContainerPlugin /*extends ApolloServerPlugin*/ {
     /**
      */
     constructor() {
-
+        // ok to not specify
     }
 
     /**
