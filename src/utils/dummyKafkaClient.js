@@ -22,7 +22,7 @@ class DummyKafkaClient extends KafkaClient {
      */
     // eslint-disable-next-line no-unused-vars
     init(clientId, brokers, ssl, sasl) {
-        // do nothing
+        // ok to not specify
     }
 
     /**
@@ -33,7 +33,7 @@ class DummyKafkaClient extends KafkaClient {
      */
     // eslint-disable-next-line no-unused-vars
     async sendMessagesAsync(topic, messages) {
-        // do nothing
+        // ok to not specify
     }
 }
 

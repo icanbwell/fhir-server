@@ -8,7 +8,7 @@ class ResourceManager {
     /**
      */
     constructor() {
-        // do nothing
+        // ok to not specify
     }
 
     /**

@@ -4,7 +4,7 @@ const {assertIsValid} = require('../../utils/assertType');
 
 class SearchOperation {
     constructor() {
-        // do nothing
+        // ok to not specify
     }
 
     /**

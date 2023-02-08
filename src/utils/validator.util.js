@@ -19,10 +19,10 @@ const validatorConfig = {
     allErrors: true,
     logger: {
         log: function log() {
-            // do nothing
+            // ok to not specify
         },
         warn: function warn() {
-            // do nothing
+            // ok to not specify
         },
         error: console.error.bind(console),
     },
