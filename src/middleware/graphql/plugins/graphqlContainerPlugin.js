@@ -1,5 +1,3 @@
-// const {ApolloServerPlugin} = require('apollo-server-plugin-base');
-
 /***
  * Plugin to log calls to GraphQL
  */
@@ -7,7 +5,7 @@ class GraphqlContainerPlugin /*extends ApolloServerPlugin*/ {
     /**
      */
     constructor() {
-
+        // ok to not specify
     }
 
     /**
@@ -45,7 +43,6 @@ class GraphqlContainerPlugin /*extends ApolloServerPlugin*/ {
                                 await requestSpecificCache.clearAsync({requestId});
                             }
                         }
-                        // console.log(`Sleep after response ended: ${requestId}`);
                     });
                 }
             }

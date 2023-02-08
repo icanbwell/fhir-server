@@ -227,8 +227,6 @@ class SearchBundleOperation {
              * @type {Set}
              */
             columns = __ret.columns;
-            // options = __ret.options;
-            // query = __ret.query;
             /**
              * @type {import('mongodb').Document[]}
              */

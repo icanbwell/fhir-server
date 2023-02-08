@@ -32,7 +32,6 @@ class MyFHIRServer {
      * @param {import('express').Express} app
      */
     constructor(fnCreateContainer, config = {}, app = null) {
-        // super(config, app);
         this.config = config;
         // validate(this.config); // TODO: REMOVE: logger in future versions, emit notices for now
         /**
@@ -344,7 +343,6 @@ class MyFHIRServer {
                              * @type {OperationOutcome}
                              */
                             const operationOutcome = convertErrorToOperationOutcome({error: err});
-                            // logger.error(error);
                             res1.status(status).json(operationOutcome);
                         } else {
                             next();
@@ -366,7 +364,6 @@ class MyFHIRServer {
                             }
                         ]
                     }));
-                    // next();
                 }
             }
         );
@@ -399,7 +396,6 @@ class MyFHIRServer {
             if (req.id && !res.headersSent) {
                 res.setHeader('X-Request-ID', String(req.id));
             }
-            // logger.error(error);
             res.status(404).json(error);
         });
 

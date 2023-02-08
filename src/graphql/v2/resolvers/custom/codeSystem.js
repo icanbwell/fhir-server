@@ -55,6 +55,7 @@ module.exports = {
                         cond: { $in: ['$$ct.code', args['code']] },
                     },
                 };
+                delete args['code'];
             }
             return await context.dataApi.getResourcesBundle(
                 parent,

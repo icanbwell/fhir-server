@@ -719,7 +719,6 @@ class SearchManager {
                 query = idResults.length === 1 ?
                     {id: idResults.map((r) => r.id)[0]} :
                     {id: {$in: idResults.map((r) => r.id)}};
-                // query = getQueryWithSecurityTags(securityTags, query);
                 options = {}; // reset options since we'll be looking by id
                 actualQuery.push(query);
                 actualOptions.push(options);
@@ -779,10 +778,6 @@ class SearchManager {
             // https://nodejs.org/docs/latest-v16.x/api/stream.html#additional-notes
 
             const readableMongoStream = createReadableMongoStream({cursor, signal: ac.signal});
-            // readableMongoStream.on('close', () => {
-            //     // console.log('Mongo read stream was closed');
-            //     // ac.abort();
-            // });
 
             await pipeline(
                 readableMongoStream,
@@ -815,7 +810,6 @@ class SearchManager {
                 error: e
             });
         }
-        // logDebug(user, 'Done with loading resources');
         return resources;
     }
 
@@ -1042,9 +1036,6 @@ class SearchManager {
         // if response is closed then abort the pipeline
         res.on('close', onResponseClose);
 
-        // res.on('error', (err) => {
-        //     console.error(err);
-        // });
         /**
          * @type {FhirResourceWriter|FhirResourceNdJsonWriter}
          */
@@ -1074,16 +1065,8 @@ class SearchManager {
          */
         const resourceIdTracker = new ResourceIdTracker({tracker, signal: ac.signal});
 
-        // function sleep(ms) {
-        //     return new Promise(resolve => setTimeout(resolve, ms));
-        // }
-
         try {
             const readableMongoStream = createReadableMongoStream({cursor, signal: ac.signal});
-            // readableMongoStream.on('close', () => {
-            //     // console.log('Mongo read stream was closed');
-            //     // ac.abort();
-            // });
 
             const objectChunker = new ObjectChunker({chunkSize: batchObjectCount, signal: ac.signal});
 
@@ -1116,7 +1099,6 @@ class SearchManager {
                     })
             });
             fhirWriter.writeOperationOutcome({operationOutcome});
-            // res.write(JSON.stringify(operationOutcome.toJSON()));
             ac.abort();
         } finally {
             res.removeListener('close', onResponseClose);

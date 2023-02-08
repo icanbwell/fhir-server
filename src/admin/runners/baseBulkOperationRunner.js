@@ -340,10 +340,7 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                                 startFromIdContainer.nModified += bulkResult.nModified;
                                 startFromIdContainer.nUpserted += bulkResult.nUpserted;
                                 startFromIdContainer.startFromId = previouslyCheckedId;
-                                // console.log(`Wrote: modified: ${bulkResult.nModified.toLocaleString()} (${nModified.toLocaleString()}), ` +
-                                //     `upserted: ${bulkResult.nUpserted} (${nUpserted.toLocaleString()})`);
                                 operations = [];
-                                // await session.commitTransaction();
                             },
                             {
                                 retries: 5,
@@ -379,7 +376,6 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                                 `Final writing ${operations.length.toLocaleString('en-US')} operations in bulk to ${destinationCollectionName}. ` +
                                 (retryNumber > 1 ? `retry=${retryNumber}` : ''));
                             const bulkResult = await destinationCollection.bulkWrite(operations, {ordered: ordered});
-                            // await session.commitTransaction();
                             startFromIdContainer.nModified += bulkResult.nModified;
                             startFromIdContainer.nUpserted += bulkResult.nUpserted;
                             startFromIdContainer.startFromId = previouslyCheckedId;

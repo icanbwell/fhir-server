@@ -234,8 +234,6 @@ class GraphHelper {
                                         debug
                                     }) {
         try {
-            // throw new Error('I am here');
-            // Promise.reject(new Error('woops'));
             if (!parentEntities || parentEntities.length === 0) {
                 return; // nothing to do
             }

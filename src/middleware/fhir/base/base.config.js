@@ -1,4 +1,4 @@
-const controller = require('./base.controller.js'); // const { routeArgs } = require('../route.config.js');
+const controller = require('./base.controller.js');
 
 
 let routes = [{
