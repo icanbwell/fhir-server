@@ -156,6 +156,10 @@ module.exports = {
                     throw new Error(`Patient not found ${args.patientId}`);
                 }
                 const patientToChange = patients[0];
+                /**
+                 * @type {FhirRequestInfo}
+                 */
+                const requestInfo = context.fhirRequestInfo;
                 if (deletePractitioner && patientToChange.generalPractitioner === null) {
                     return patientToChange;
                 } else if (deletePractitioner) {
@@ -163,10 +167,6 @@ module.exports = {
                         patientToChange.generalPractitioner,
                         args.practitionerId
                     );
-                    /**
-                     * @type {FhirRequestInfo}
-                     */
-                    const requestInfo = context.fhirRequestInfo;
                     /**
                      * @type {RemoveOperation}
                      */
@@ -201,10 +201,6 @@ module.exports = {
                         {reference: `Practitioner/${practitioners[0].id}`},
                     ];
                 }
-                /**
-                 * @type {FhirRequestInfo}
-                 */
-                const requestInfo = context.fhirRequestInfo;
                 requestInfo.body = [patientToChange];
 
                 /**
