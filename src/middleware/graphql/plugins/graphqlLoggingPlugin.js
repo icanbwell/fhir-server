@@ -45,14 +45,65 @@ class MyApolloServerLoggingPlugin /*extends ApolloServerPlugin*/ {
         return {
             async parsingDidStart() {
                 return async (err) => {
-                    await this.logParsingError(err, user, req, self.endpoint);
+                    if (err) {
+                        logError(
+                            {
+                                user,
+                                args:
+                                    {
+                                        message: 'GraphQL Request Parsing Error',
+                                        endpoint: self.endpoint,
+                                        operationName: req.operationName,
+                                        query: req.query,
+                                        error: err
+                                    }
+                            }
+                        );
+                    }
                 };
             },
             async validationDidStart() {
                 // This end hook is unique in that it can receive an array of errors,
                 // which will contain every validation error that occurred.
                 return async (errs) => {
-                    await this.logValidationErrors(errs, user, req, self.endpoint, container);
+                    if (errs) {
+                        await async.forEach(
+                            errs,
+                            async (err) => {
+                                logError(
+                                    {
+                                        user,
+                                        args: {
+                                            message: 'GraphQL Request Validation Error',
+                                            endpoint: self.endpoint,
+                                            operationName: req.operationName,
+                                            query: req.query,
+                                            error: err
+                                        }
+                                    }
+                                );
+                                if (container) {
+                                    /**
+                                     * @type {ErrorReporter}
+                                     */
+                                    const errorReporter = container.errorReporter;
+                                    if (errorReporter) {
+                                        await errorReporter.reportErrorAsync(
+                                            {
+                                                source: 'GraphQLv2',
+                                                message: `GraphQL Validation Error: ${err.message}`,
+                                                error: err,
+                                                args: {
+                                                    user,
+                                                    req,
+                                                }
+                                            }
+                                        );
+                                    }
+                                }
+                            }
+                        );
+                    }
                 };
             },
             async executionDidStart() {
@@ -97,65 +148,6 @@ class MyApolloServerLoggingPlugin /*extends ApolloServerPlugin*/ {
             },
         };
     }
-
-    async logParsingError(err, user, req, endpoint) {
-        if (err) {
-            logError(
-                {
-                    user,
-                    args:
-                        {
-                            message: 'GraphQL Request Parsing Error',
-                            endpoint: endpoint,
-                            operationName: req.operationName,
-                            query: req.query,
-                            error: err
-                        }
-                }
-            );
-        }
-    }
-
-    async logValidationErrors(errs, user, req, endpoint, container) {
-        if (errs) {
-            await async.forEach(
-                errs,
-                async (err) => {
-                    logError(
-                        {
-                            user,
-                            args: {
-                                message: 'GraphQL Request Validation Error',
-                                endpoint,
-                                operationName: req.operationName,
-                                query: req.query,
-                                error: err
-                            }
-                        }
-                    );
-                    if (container) {
-                        /**
-                         * @type {ErrorReporter}
-                         */
-                        const errorReporter = container.errorReporter;
-                        if (errorReporter) {
-                            await errorReporter.reportErrorAsync(
-                                {
-                                    source: 'GraphQLv2',
-                                    message: `GraphQL Validation Error: ${err.message}`,
-                                    error: err,
-                                    args: {
-                                        user,
-                                        req,
-                                    }
-                                }
-                            );
-                        }
-                    }
-                }
-            );
-        }
-    }
 }
 
 const getApolloServerLoggingPlugin = (endpoint) => {
@@ -165,5 +157,4 @@ const getApolloServerLoggingPlugin = (endpoint) => {
 module.exports = {
     getApolloServerLoggingPlugin: getApolloServerLoggingPlugin
 };
-
 
