@@ -53,6 +53,18 @@ const logWarn = ({user, args}) => {
 };
 
 /**
+ * Get detail array from args
+ * @param  {Object} args
+ * @returns {{valueString: string|undefined, valuePositiveInt: number|undefined, type: string}[]}
+ */
+const getDetailFromArgs = (args) => Object.entries(args).map(([k, v]) => {
+    return {
+        type: k,
+        valueString: (!v || typeof v === 'string') ? v : JSON.stringify(v, getCircularReplacer()),
+    };
+});
+
+/**
  * Logs a system event
  * @param {string} event
  * @param {string} message
@@ -62,13 +74,7 @@ const logSystemEventAsync = async ({event, message, args}) => {
     /**
      * @type {{valueString: string|undefined, valuePositiveInt: number|undefined, type: string}[]}
      */
-    const detail = Object.entries(args).map(([k, v]) => {
-            return {
-                type: k,
-                valueString: (!v || typeof v === 'string') ? v : JSON.stringify(v, getCircularReplacer())
-            };
-        }
-    );
+    const detail = getDetailFromArgs(args);
     if (os.hostname()) {
         const hostname = os.hostname();
         detail.push({
@@ -124,13 +130,7 @@ const logSystemErrorAsync = async ({event, message, args, error}) => {
     /**
      * @type {{valueString: string|undefined, valuePositiveInt: number|undefined, type: string}[]}
      */
-    const detail = Object.entries(args).map(([k, v]) => {
-            return {
-                type: k,
-                valueString: (!v || typeof v === 'string') ? v : JSON.stringify(v, getCircularReplacer())
-            };
-        }
-    );
+    const detail = getDetailFromArgs(args);
     if (os.hostname()) {
         const hostname = os.hostname();
         detail.push({

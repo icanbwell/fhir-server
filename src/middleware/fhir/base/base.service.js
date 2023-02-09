@@ -40,6 +40,34 @@ const makeResultBundle = (results, res, baseVersion, type) => {
   return bundle;
 };
 
+const createRequestPromises = (entries, req, baseVersion) => {
+    let {
+    protocol,
+    baseUrl
+  } = req;
+  let requestPromises = [];
+  let results = [];
+
+  entries.forEach(entry => {
+    let {
+      url,
+      method
+    } = entry.request;
+    let resource = entry.resource;
+    let destinationUrl = `${protocol}://${path.join(req.headers.host, baseUrl, baseVersion, url)}`;
+    results.push({
+      method: method,
+      url: destinationUrl
+    });
+    requestPromises.push(new Promise(resolve1 => {
+      resolve1(request[method.toLowerCase()](destinationUrl).send(resource).set('Content-Type', 'application/json+fhir'));
+    }).catch(err => {
+      return err;
+    }));
+  });
+  return {requestPromises, results};
+};
+
 module.exports.batch = (req, res) => new Promise((resolve, reject) => {
   logger.info('Base >>> batch');
   let {
@@ -59,29 +87,7 @@ module.exports.batch = (req, res) => new Promise((resolve, reject) => {
     return reject(errors.internal(`Expected 'type: batch'. Received 'type: ${type}'.`, baseVersion));
   }
 
-  let {
-    protocol,
-    baseUrl
-  } = req;
-  let requestPromises = [];
-  let results = [];
-  entries.forEach(entry => {
-    let {
-      url,
-      method
-    } = entry.request;
-    let resource = entry.resource;
-    let destinationUrl = `${protocol}://${path.join(req.headers.host, baseUrl, baseVersion, url)}`;
-    results.push({
-      method: method,
-      url: destinationUrl
-    });
-    requestPromises.push(new Promise(resolve1 => {
-      resolve1(request[method.toLowerCase()](destinationUrl).send(resource).set('Content-Type', 'application/json+fhir'));
-    }).catch(err => {
-      return err;
-    }));
-  });
+  const {requestPromises, results} = createRequestPromises(entries, req, baseVersion);
   return Promise.all(requestPromises).then(responses => {
     for (let i = 0; i < responses.length; i++) {
       results[`${i}`].status = responses[`${i}`].status;
@@ -112,29 +118,7 @@ module.exports.transaction = (req, res) => new Promise((resolve, reject) => {
     return reject(errors.internal(`Expected 'type: transaction'. Received 'type: ${type}'.`, baseVersion));
   }
 
-  let {
-    protocol,
-    baseUrl
-  } = req;
-  let requestPromises = [];
-  let results = [];
-  entries.forEach(entry => {
-    let {
-      url,
-      method
-    } = entry.request;
-    let resource = entry.resource;
-    let destinationUrl = `${protocol}://${path.join(req.headers.host, baseUrl, baseVersion, url)}`;
-    results.push({
-      method: method,
-      url: destinationUrl
-    });
-    requestPromises.push(new Promise(resolve1 => {
-      resolve1(request[method.toLowerCase()](destinationUrl).send(resource).set('Content-Type', 'application/json+fhir'));
-    }).catch(err => {
-      return err;
-    }));
-  });
+  const {requestPromises, results} = createRequestPromises(entries, req, baseVersion);
   return Promise.all(requestPromises).then(responses => {
     for (let i = 0; i < responses.length; i++) {
       results[`${i}`].status = responses[`${i}`].status;

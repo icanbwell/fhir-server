@@ -328,6 +328,18 @@ class AdminPersonPatientLinkManager {
         // find parents
         let parentPersons = [];
 
+        const mapResource = (resourceObj) => {
+            return {
+                id: resourceObj.id,
+                resourceType: resourceObj.resourceType,
+                source: resourceObj.meta ? resourceObj.meta.source : null,
+                owner: resourceObj.meta && resourceObj.meta.security ?
+                    resourceObj.meta.security.filter(s => s.system === SecurityTagSystem.owner).map(s => s.code) : [],
+                access: resourceObj.meta && resourceObj.meta.security ?
+                    resourceObj.meta.security.filter(s => s.system === SecurityTagSystem.access).map(s => s.code) : [],
+            };
+        };
+
         if (level === 1) {
             // find all links to this Person
             /**
@@ -341,17 +353,7 @@ class AdminPersonPatientLinkManager {
                 }
             );
 
-            parentPersons = (await personsLinkingToThisPersonId.toArrayAsync()).map(p => {
-                return {
-                    id: p.id,
-                    resourceType: p.resourceType,
-                    source: p.meta ? p.meta.source : null,
-                    owner: p.meta && p.meta.security ?
-                        p.meta.security.filter(s => s.system === SecurityTagSystem.owner).map(s => s.code) : [],
-                    access: p.meta && p.meta.security ?
-                        p.meta.security.filter(s => s.system === SecurityTagSystem.access).map(s => s.code) : [],
-                };
-            });
+            parentPersons = (await personsLinkingToThisPersonId.toArrayAsync()).map(mapResource);
         }
 
         /**
@@ -378,17 +380,7 @@ class AdminPersonPatientLinkManager {
              */
             const patients = await patientCursor.toArrayAsync();
             children = children.concat(
-                patients.map((p) => {
-                    return {
-                        id: p.id,
-                        resourceType: p.resourceType,
-                        source: p.meta ? p.meta.source : null,
-                        owner: p.meta && p.meta.security ?
-                            p.meta.security.filter(s => s.system === SecurityTagSystem.owner).map(s => s.code) : [],
-                        access: p.meta && p.meta.security ?
-                            p.meta.security.filter(s => s.system === SecurityTagSystem.access).map(s => s.code) : [],
-                    };
-                })
+                patients.map(mapResource)
             );
             const missingPatientIds = patientIds.filter(i => !patients.map(p => p.id).includes(i));
             if (missingPatientIds.length > 0) {
