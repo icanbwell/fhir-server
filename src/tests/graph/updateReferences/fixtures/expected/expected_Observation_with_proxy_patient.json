@@ -242,7 +242,7 @@
   "meta": {
     "tag": [
       {
-        "display": "db.Observation_4_0_0.find({'$or':[{'subject.reference':'Patient/00100000000'},{'subject.reference':'Patient/00200000000'},{'subject.reference':'Patient/person.m65633'}]}, {}).sort({'id':1}).limit(100)",
+        "display": "db.Observation_4_0_0.find({'$or':[{'subject._sourceId':'Patient/00100000000'},{'subject._sourceId':'Patient/00200000000'},{'subject._sourceId':'Patient/person.m65633'}]}, {}).sort({'id':1}).limit(100)",
         "system": "https://www.icanbwell.com/query"
       },
       {

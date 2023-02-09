@@ -162,10 +162,11 @@ describe('r4 search Tests', () => {
                 'base_version': VERSIONS['4_0_0'],
                 'subject': 'Patient/1234'
             };
+            const parsedArgs = r4ArgsParser.parseArgs({resourceType: 'Task', args});
             const result = r4SearchQueryCreator.buildR4SearchQuery({
-                resourceType: 'Task', parsedArgs: r4ArgsParser.parseArgs({resourceType: 'Task', args})
+                resourceType: 'Task', parsedArgs: parsedArgs
             });
-            expect(result.query['for.reference']).toStrictEqual('Patient/1234');
+            expect(result.query['for._sourceId']).toStrictEqual('Patient/1234');
         });
         test('r4 works with Person and multiple patients', async () => {
             await createTestRequest((container) => {
@@ -196,8 +197,8 @@ describe('r4 search Tests', () => {
             const result = r4SearchQueryCreator.buildR4SearchQuery({
                 resourceType: 'Person', parsedArgs: r4ArgsParser.parseArgs({resourceType: 'Person', args})
             });
-            expect(result.query.$or[0]['link.target.reference']).toStrictEqual('Patient/1234');
-            expect(result.query.$or[1]['link.target.reference']).toStrictEqual('Patient/4567');
+            expect(result.query.$or[0]['link.target._sourceId']).toStrictEqual('Patient/1234');
+            expect(result.query.$or[1]['link.target._sourceId']).toStrictEqual('Patient/4567');
         });
         test('r4 works with Person and multiple patients with reference type', async () => {
             await createTestRequest((container) => {
@@ -229,8 +230,8 @@ describe('r4 search Tests', () => {
                 resourceType: 'Person',
                 parsedArgs: r4ArgsParser.parseArgs({resourceType: 'Person', args})
             });
-            expect(result.query.$or[0]['link.target.reference']).toStrictEqual('Patient/1234');
-            expect(result.query.$or[1]['link.target.reference']).toStrictEqual('Patient/4567');
+            expect(result.query.$or[0]['link.target._sourceId']).toStrictEqual('Patient/1234');
+            expect(result.query.$or[1]['link.target._sourceId']).toStrictEqual('Patient/4567');
         });
         test('r4 works with Task and multiple subjects', async () => {
             await createTestRequest((container) => {
@@ -262,9 +263,9 @@ describe('r4 search Tests', () => {
                 resourceType: 'Task',
                 parsedArgs: r4ArgsParser.parseArgs({resourceType: 'Task', args})
             });
-            expect(result.query.$or[0]['for.reference']).toStrictEqual('Account/1234');
-            expect(result.query.$or[1]['for.reference']).toStrictEqual('ActivityDefinition/1234');
-            expect(result.query.$or[145]['for.reference']).toStrictEqual('Account/4567');
+            expect(result.query.$or[0]['for._sourceId']).toStrictEqual('Account/1234');
+            expect(result.query.$or[1]['for._sourceId']).toStrictEqual('ActivityDefinition/1234');
+            expect(result.query.$or[145]['for._sourceId']).toStrictEqual('Account/4567');
         });
         test('r4 works with Task and multiple subjects with reference type', async () => {
             await createTestRequest((container) => {
@@ -296,8 +297,8 @@ describe('r4 search Tests', () => {
                 resourceType: 'Task',
                 parsedArgs: r4ArgsParser.parseArgs({resourceType: 'Task', args})
             });
-            expect(result.query.$or[0]['for.reference']).toStrictEqual('Patient/1234');
-            expect(result.query.$or[1]['for.reference']).toStrictEqual('Patient/4567');
+            expect(result.query.$or[0]['for._sourceId']).toStrictEqual('Patient/1234');
+            expect(result.query.$or[1]['for._sourceId']).toStrictEqual('Patient/4567');
         });
         test('r4 works with boolean type true', async () => {
             await createTestRequest((container) => {

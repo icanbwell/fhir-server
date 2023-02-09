@@ -91,7 +91,7 @@
   "meta": {
     "tag": [
       {
-        "display": "db.Observation_4_0_0.find({'$and':[{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/owner','code':'C'}}},{'_sourceId':'1'},{'subject.reference':{'$in':['Patient/patient1']}}]}, {}).sort({'id':1}).limit(10000)",
+        "display": "db.Observation_4_0_0.find({'$and':[{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/owner','code':'C'}}},{'_sourceId':'1'},{'subject._sourceId':{'$in':['Patient/patient1']}}]}, {}).sort({'id':1}).limit(10000)",
         "system": "https://www.icanbwell.com/query"
       },
       {

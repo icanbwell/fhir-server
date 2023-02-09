@@ -3,7 +3,7 @@
   "meta": {
     "tag": [
       {
-        "display": "db.Observation_4_0_0.find({'$and':[{'$or':[{'subject.reference':'Patient/patient1|C'},{'subject.reference':'Group/patient1|C'}]},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':{'$in':['C','A']}}}}]}, {}).sort({'id':1}).limit(100)",
+        "display": "db.Observation_4_0_0.find({'$and':[{'$or':[{'subject._sourceId':'Patient/patient1|C'},{'subject._sourceId':'Group/patient1|C'}]},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':{'$in':['C','A']}}}}]}, {}).sort({'id':1}).limit(100)",
         "system": "https://www.icanbwell.com/query"
       },
       {

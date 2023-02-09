@@ -102,7 +102,7 @@
   "meta": {
     "tag": [
       {
-        "display": "db.Consent_4_0_0.find({'$or':[{'sourceAttachment.reference':'QuestionnaireResponse/fdf49831-d3c0-4a89-9459-e96c6c3beb0f'},{'sourceReference.reference':'QuestionnaireResponse/fdf49831-d3c0-4a89-9459-e96c6c3beb0f'}]}, {}).sort({'id':1}).limit(100)",
+        "display": "db.Consent_4_0_0.find({'$or':[{'sourceAttachment._sourceId':'QuestionnaireResponse/fdf49831-d3c0-4a89-9459-e96c6c3beb0f'},{'sourceReference._sourceId':'QuestionnaireResponse/fdf49831-d3c0-4a89-9459-e96c6c3beb0f'}]}, {}).sort({'id':1}).limit(100)",
         "system": "https://www.icanbwell.com/query"
       },
       {
