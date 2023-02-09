@@ -1200,6 +1200,7 @@ class FhirXmlSchemaParser:
             value_set_entry_resource: ObjectifiedElement = value_set_entry["resource"]
             is_code_system: bool = hasattr(value_set_entry_resource, "CodeSystem")
             is_value_set: bool = hasattr(value_set_entry_resource, "ValueSet")
+            value_set: ObjectifiedElement = None
             if is_value_set:
                 value_set = value_set_entry_resource["ValueSet"]
             elif is_code_system:
@@ -1264,6 +1265,7 @@ class FhirXmlSchemaParser:
             value_set_entry_resource = value_set_entry["resource"]
             is_code_system = hasattr(value_set_entry_resource, "CodeSystem")
             is_value_set = hasattr(value_set_entry_resource, "ValueSet")
+            value_set: ObjectifiedElement = None
             if is_value_set:
                 value_set = value_set_entry_resource["ValueSet"]
             elif is_code_system:
@@ -1344,6 +1346,7 @@ class FhirXmlSchemaParser:
             value_set_entry_resource: ObjectifiedElement = value_set_entry.resource
             is_code_system: bool = hasattr(value_set_entry_resource, "CodeSystem")
             is_value_set: bool = hasattr(value_set_entry_resource, "ValueSet")
+            value_set: ObjectifiedElement = None
             if is_value_set:
                 value_set = value_set_entry_resource["ValueSet"]
             elif is_code_system:
