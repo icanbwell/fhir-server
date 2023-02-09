@@ -1181,6 +1181,20 @@ class FhirXmlSchemaParser:
         return cleaned_display
 
     @staticmethod
+    def get_value_set(
+        is_code_system: bool, is_value_set: bool, value_set_entry_resource: ObjectifiedElement,
+        value_set_entry: Dict[str, Any]
+    ) -> ObjectifiedElement:
+        value_set: ObjectifiedElement = None
+        if is_value_set:
+            value_set = value_set_entry_resource["ValueSet"]
+        elif is_code_system:
+            value_set = value_set_entry_resource["CodeSystem"]
+        else:
+            value_set = value_set_entry["resource"]
+        return value_set
+
+    @staticmethod
     def get_v3_code_systems(data_dir: Path) -> List[FhirValueSet]:
         fhir_value_sets: List[FhirValueSet] = []
 
@@ -1200,13 +1214,9 @@ class FhirXmlSchemaParser:
             value_set_entry_resource: ObjectifiedElement = value_set_entry["resource"]
             is_code_system: bool = hasattr(value_set_entry_resource, "CodeSystem")
             is_value_set: bool = hasattr(value_set_entry_resource, "ValueSet")
-            value_set: ObjectifiedElement = None
-            if is_value_set:
-                value_set = value_set_entry_resource["ValueSet"]
-            elif is_code_system:
-                value_set = value_set_entry_resource["CodeSystem"]
-            else:
-                value_set = value_set_entry["resource"]
+            value_set: ObjectifiedElement = FhirXmlSchemaParser.get_value_set(
+                is_code_system, is_value_set, value_set_entry_resource, value_set_entry
+            )
             id_: str = value_set["id"].get("value")
             fhir_name: str = value_set["name"].get("value")
             name: str = fhir_name.replace("v3.", "")
@@ -1265,13 +1275,9 @@ class FhirXmlSchemaParser:
             value_set_entry_resource = value_set_entry["resource"]
             is_code_system = hasattr(value_set_entry_resource, "CodeSystem")
             is_value_set = hasattr(value_set_entry_resource, "ValueSet")
-            value_set: ObjectifiedElement = None
-            if is_value_set:
-                value_set = value_set_entry_resource["ValueSet"]
-            elif is_code_system:
-                value_set = value_set_entry_resource["CodeSystem"]
-            else:
-                value_set = value_set_entry["resource"]
+            value_set: ObjectifiedElement = FhirXmlSchemaParser.get_value_set(
+                is_code_system, is_value_set, value_set_entry_resource, value_set_entry
+            )
             id_ = value_set["id"].get("value")
             fhir_concepts = []
             value_set_url_list = set()
@@ -1346,13 +1352,9 @@ class FhirXmlSchemaParser:
             value_set_entry_resource: ObjectifiedElement = value_set_entry.resource
             is_code_system: bool = hasattr(value_set_entry_resource, "CodeSystem")
             is_value_set: bool = hasattr(value_set_entry_resource, "ValueSet")
-            value_set: ObjectifiedElement = None
-            if is_value_set:
-                value_set = value_set_entry_resource["ValueSet"]
-            elif is_code_system:
-                value_set = value_set_entry_resource["CodeSystem"]
-            else:
-                value_set = value_set_entry["resource"]
+            value_set: ObjectifiedElement = FhirXmlSchemaParser.get_value_set(
+                is_code_system, is_value_set, value_set_entry_resource, value_set_entry
+            )
             id_: str = value_set.id.get("value")
             fhir_name: str = value_set.name.get("value")
             name: str = fhir_name.replace(".", "_")
