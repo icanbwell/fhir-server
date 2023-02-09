@@ -555,7 +555,6 @@ class DatabaseBulkInserter extends EventEmitter {
                  * @type {Resource}
                  */
                 const previousResource = previousUpdate.resource;
-                lastVersionId = previousResource.meta.versionId;
                 /**
                  * returns null if doc is the same
                  * @type {Resource|null}
@@ -589,7 +588,6 @@ class DatabaseBulkInserter extends EventEmitter {
                      * @type {Resource}
                      */
                     const previousResource = previousInsert.resource;
-                    lastVersionId = previousResource.meta.versionId;
                     /**
                      * returns null if doc is the same
                      * @type {Resource|null}

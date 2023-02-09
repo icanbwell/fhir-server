@@ -131,18 +131,6 @@ function filterByToken({queryParameterValue, propertyObj, columns}) {
                     columns.add(`${propertyObj.field}.value`);
                     break;
 
-                case 'code':
-                    and_segments.push(
-                        exactMatchQueryBuilder(
-                            {
-                                target: tokenQueryItem,
-                                field: `${propertyObj.field}`
-                            }
-                        )
-                    );
-                    columns.add(`${propertyObj.field}`);
-                    break;
-
                 case 'boolean':
                     and_segments.push(
                         exactMatchQueryBuilder(
@@ -155,18 +143,8 @@ function filterByToken({queryParameterValue, propertyObj, columns}) {
                     columns.add(`${propertyObj.field}`);
                     break;
 
+                case 'code':
                 case 'uri':
-                    and_segments.push(
-                        exactMatchQueryBuilder(
-                            {
-                                target: tokenQueryItem,
-                                field: `${propertyObj.field}`
-                            }
-                        )
-                    );
-                    columns.add(`${propertyObj.field}`);
-                    break;
-
                 case 'string':
                     and_segments.push(
                         exactMatchQueryBuilder(

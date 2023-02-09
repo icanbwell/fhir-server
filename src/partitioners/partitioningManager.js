@@ -129,7 +129,8 @@ class PartitioningManager {
                 // sort the list again
                 const partitioner = this.getPartitionerForResourceType({resourceType});
                 if (partitioner) {
-                    this.partitionsCache.set(resourceType, partitions.sort(partitioner.getSortingFunction()));
+                    partitions.sort(partitioner.getSortingFunction());
+                    this.partitionsCache.set(resourceType, partitions);
                 }
             }
         } finally {

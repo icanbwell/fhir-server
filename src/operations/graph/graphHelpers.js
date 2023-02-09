@@ -319,7 +319,8 @@ class GraphHelper {
                         .includes(`${relatedResource.resourceType}/${relatedResource.id}`)));
 
                     if (matchingParentEntities.length === 0) {
-                        throw new Error(`Forward Reference: No match found for child entity ${relatedResource.resourceType}/${relatedResource.id}` + ' in parent entities' + ` ${parentEntities.map(p => `${p.resource.resourceType}/${p.resource.id}`).toString()}` + ` using property ${property}`);
+                        const parentEntitiesString = parentEntities.map(p => `${p.resource.resourceType}/${p.resource.id}`).toString();
+                        throw new Error(`Forward Reference: No match found for child entity ${relatedResource.resourceType}/${relatedResource.id}` + ' in parent entities' + ` ${parentEntitiesString} using property ${property}`);
                     }
 
                     // add it to each one since there can be multiple resources that point to the same related resource
@@ -499,7 +500,8 @@ class GraphHelper {
                     const matchingParentEntities = parentEntities.filter(p => references.includes(`${p.resource.resourceType}/${p.resource.id}`));
 
                     if (matchingParentEntities.length === 0) {
-                        throw new Error('Reverse Reference: No match found for parent entities' + ` ${parentEntities.map(p => `${p.resource.resourceType}/${p.resource.id}`).toString()}` + ` using property ${fieldForSearchParameter}` + ` in child entity ${relatedResourcePropertyCurrent.resourceType}/${relatedResourcePropertyCurrent.id}`);
+                        const parentEntitiesString = parentEntities.map(p => `${p.resource.resourceType}/${p.resource.id}`).toString();
+                        throw new Error('Reverse Reference: No match found for parent entities' + ` ${parentEntitiesString} using property ${fieldForSearchParameter}` + ` in child entity ${relatedResourcePropertyCurrent.resourceType}/${relatedResourcePropertyCurrent.id}`);
                     }
 
                     for (const matchingParentEntity of matchingParentEntities) {
@@ -726,7 +728,8 @@ class GraphHelper {
                         accessRequested: 'read'
                     });
                     if (!parentResourceType) {
-                        throw new Error('processOneGraphLinkAsync: No parent resource found for reverse references for parent entities:' + ` ${parentEntities.map(p => `${p.resource.resourceType}/${p.resource.id}`).toString()}` + ` using target.params: ${target.params}`);
+                        const parentEntitiesString = parentEntities.map(p => `${p.resource.resourceType}/${p.resource.id}`).toString();
+                        throw new Error('processOneGraphLinkAsync: No parent resource found for reverse references for parent entities:' + ` ${parentEntitiesString} using target.params: ${target.params}`);
                     }
                     const queryItem = await this.getReverseReferencesAsync({
                         requestInfo,
@@ -1434,11 +1437,7 @@ class GraphHelper {
                     startTime
                 });
 
-                /**
-                 * @type {{deletedCount: (number|null), error: (Error|null)}}
-                 */
-                    // eslint-disable-next-line no-unused-vars
-                const result = await databaseQueryManager.deleteManyAsync({
+                await databaseQueryManager.deleteManyAsync({
                         requestId: requestInfo.requestId,
                         query: {id: {$in: idList}}
                     });

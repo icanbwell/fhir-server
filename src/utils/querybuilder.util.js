@@ -33,7 +33,7 @@ const addressQueryBuilder = function ({target}) {
         /**
          * @type {string}
          */
-        const regExPattern = `${totalSplit[`${index}`]}`;
+        const regExPattern = totalSplit[`${index}`];
         /**
          * @type {RegExp}
          */
@@ -75,7 +75,7 @@ const nameQueryBuilder = function ({target}) {
          * @type {RegExp}
          */
             // eslint-disable-next-line security/detect-non-literal-regexp
-        const regExpObject = new RegExp(escapeRegExp(`${split[`${i}`]}`));
+        const regExpObject = new RegExp(escapeRegExp(split[`${i}`]));
         ors.push({
             $or: [
                 // eslint-disable-next-line security/detect-non-literal-regexp
