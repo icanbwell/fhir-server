@@ -51,7 +51,7 @@ describe('Practitioner Tests', () => {
                 resp.body.entry[0].resource.qualification[1].issuer.extension.find(e => e.id === 'uuid')
                     .valueString
             ).toStrictEqual(
-                generateUUIDv5('Stanford_Medical_School|medstar')
+                'Organization/' + generateUUIDv5('Stanford_Medical_School|medstar')
             );
 
             // pause enough so the lastUpdated time is later on the second resource so our sorting works properly
