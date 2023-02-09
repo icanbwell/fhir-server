@@ -138,16 +138,6 @@ let findMatchWithName = (name = '', params = {}) => {
 };
 
 /**
- * @function shouldUseParameter
- * @param {Object} param
- * @param {Object} req
- * @return {boolean} - Whether the param is to be used.
- */
-let shouldUseParameter = (param, req) => {
-    return !param.versions || param.versions === req.params.base_version;
-};
-
-/**
  * @function sanitizeMiddleware
  * @summary Sanitize the arguments by removing extra arguments, escaping some, and
  * throwing errors if arg should throw when an invalid one is passed. This will replace
@@ -164,7 +154,7 @@ let sanitizeMiddleware = function (config, required) {
         let cleanArgs = {}; // filter only ones with version or no version
 
         let version_specific_params = config ? config.filter(param => {
-            shouldUseParameter(param, req);
+            return !param.versions || param.versions === req.params.base_version;
         }) : []; // Check each argument in the config
 
         for (let i = 0; i < version_specific_params.length; i++) {
