@@ -49,12 +49,12 @@
                 {
                   "id": "sourceId",
                   "url": "https://www.icanbwell.com/sourceId",
-                  "valueString": "xxx"
+                  "valueString": "Patient/xxx"
                 },
                 {
                   "id": "uuid",
                   "url": "https://www.icanbwell.com/uuid",
-                  "valueString": "5779ee68-e131-5b46-b736-7ffeee2ce99c"
+                  "valueString": "Patient/5779ee68-e131-5b46-b736-7ffeee2ce99c"
                 },
                 {
                   "id": "sourceAssigningAuthority",
@@ -157,12 +157,12 @@
                 {
                   "id": "sourceId",
                   "url": "https://www.icanbwell.com/sourceId",
-                  "valueString": "xxx"
+                  "valueString": "Patient/xxx"
                 },
                 {
                   "id": "uuid",
                   "url": "https://www.icanbwell.com/uuid",
-                  "valueString": "5779ee68-e131-5b46-b736-7ffeee2ce99c"
+                  "valueString": "Patient/5779ee68-e131-5b46-b736-7ffeee2ce99c"
                 },
                 {
                   "id": "sourceAssigningAuthority",
@@ -265,12 +265,12 @@
                 {
                   "id": "sourceId",
                   "url": "https://www.icanbwell.com/sourceId",
-                  "valueString": "xxx"
+                  "valueString": "Patient/xxx"
                 },
                 {
                   "id": "uuid",
                   "url": "https://www.icanbwell.com/uuid",
-                  "valueString": "5779ee68-e131-5b46-b736-7ffeee2ce99c"
+                  "valueString": "Patient/5779ee68-e131-5b46-b736-7ffeee2ce99c"
                 },
                 {
                   "id": "sourceAssigningAuthority",
@@ -373,12 +373,12 @@
                 {
                   "id": "sourceId",
                   "url": "https://www.icanbwell.com/sourceId",
-                  "valueString": "xxx"
+                  "valueString": "Patient/xxx"
                 },
                 {
                   "id": "uuid",
                   "url": "https://www.icanbwell.com/uuid",
-                  "valueString": "5779ee68-e131-5b46-b736-7ffeee2ce99c"
+                  "valueString": "Patient/5779ee68-e131-5b46-b736-7ffeee2ce99c"
                 },
                 {
                   "id": "sourceAssigningAuthority",

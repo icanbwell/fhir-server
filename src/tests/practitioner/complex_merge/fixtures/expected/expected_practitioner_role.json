@@ -10,12 +10,12 @@
                 {
                   "id": "sourceId",
                   "url": "https://www.icanbwell.com/sourceId",
-                  "valueString": "AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He"
+                  "valueString": "InsurancePlan/AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He"
                 },
                 {
                   "id": "uuid",
                   "url": "https://www.icanbwell.com/uuid",
-                  "valueString": "24c117ef-4601-52ea-8812-ac66793956b5"
+                  "valueString": "InsurancePlan/24c117ef-4601-52ea-8812-ac66793956b5"
                 },
                 {
                   "id": "sourceAssigningAuthority",
@@ -66,12 +66,12 @@
         {
           "id": "sourceId",
           "url": "https://www.icanbwell.com/sourceId",
-          "valueString": "MWHC"
+          "valueString": "Organization/MWHC"
         },
         {
           "id": "uuid",
           "url": "https://www.icanbwell.com/uuid",
-          "valueString": "63eee0b1-2e54-53f9-8cd7-232375092da5"
+          "valueString": "Organization/63eee0b1-2e54-53f9-8cd7-232375092da5"
         },
         {
           "id": "sourceAssigningAuthority",
@@ -87,12 +87,12 @@
         {
           "id": "sourceId",
           "url": "https://www.icanbwell.com/sourceId",
-          "valueString": "1679033641"
+          "valueString": "Practitioner/1679033641"
         },
         {
           "id": "uuid",
           "url": "https://www.icanbwell.com/uuid",
-          "valueString": "53252897-13a1-5c6a-b631-a5a7bfc175b3"
+          "valueString": "Practitioner/53252897-13a1-5c6a-b631-a5a7bfc175b3"
         },
         {
           "id": "sourceAssigningAuthority",
@@ -123,12 +123,12 @@
           {
             "id": "sourceId",
             "url": "https://www.icanbwell.com/sourceId",
-            "valueString": "1679033641-UF3-UADM"
+            "valueString": "HealthcareService/1679033641-UF3-UADM"
           },
           {
             "id": "uuid",
             "url": "https://www.icanbwell.com/uuid",
-            "valueString": "4d559614-d4ed-5f67-8ae4-7bce7f08c2bb"
+            "valueString": "HealthcareService/4d559614-d4ed-5f67-8ae4-7bce7f08c2bb"
           },
           {
             "id": "sourceAssigningAuthority",
@@ -158,12 +158,12 @@
           {
             "id": "sourceId",
             "url": "https://www.icanbwell.com/sourceId",
-            "valueString": "UF3-UADM"
+            "valueString": "Location/UF3-UADM"
           },
           {
             "id": "uuid",
             "url": "https://www.icanbwell.com/uuid",
-            "valueString": "08641fe0-6bbd-5ac5-9d9a-f4a1eb4e1978"
+            "valueString": "Location/08641fe0-6bbd-5ac5-9d9a-f4a1eb4e1978"
           },
           {
             "id": "sourceAssigningAuthority",
@@ -196,12 +196,12 @@
         {
           "id": "sourceId",
           "url": "https://www.icanbwell.com/sourceId",
-          "valueString": "1679033641"
+          "valueString": "Practitioner/1679033641"
         },
         {
           "id": "uuid",
           "url": "https://www.icanbwell.com/uuid",
-          "valueString": "53252897-13a1-5c6a-b631-a5a7bfc175b3"
+          "valueString": "Practitioner/53252897-13a1-5c6a-b631-a5a7bfc175b3"
         },
         {
           "id": "sourceAssigningAuthority",
@@ -262,12 +262,12 @@
           {
             "id": "sourceId",
             "url": "https://www.icanbwell.com/sourceId",
-            "valueString": "MAX-MALX"
+            "valueString": "HealthcareService/MAX-MALX"
           },
           {
             "id": "uuid",
             "url": "https://www.icanbwell.com/uuid",
-            "valueString": "7e827ed9-327e-5554-897e-b49320c39ef1"
+            "valueString": "HealthcareService/7e827ed9-327e-5554-897e-b49320c39ef1"
           },
           {
             "id": "sourceAssigningAuthority",
@@ -311,12 +311,12 @@
           {
             "id": "sourceId",
             "url": "https://www.icanbwell.com/sourceId",
-            "valueString": "MAX-MALX"
+            "valueString": "Location/MAX-MALX"
           },
           {
             "id": "uuid",
             "url": "https://www.icanbwell.com/uuid",
-            "valueString": "7e827ed9-327e-5554-897e-b49320c39ef1"
+            "valueString": "Location/7e827ed9-327e-5554-897e-b49320c39ef1"
           },
           {
             "id": "sourceAssigningAuthority",
@@ -349,12 +349,12 @@
         {
           "id": "sourceId",
           "url": "https://www.icanbwell.com/sourceId",
-          "valueString": "1679033641"
+          "valueString": "Practitioner/1679033641"
         },
         {
           "id": "uuid",
           "url": "https://www.icanbwell.com/uuid",
-          "valueString": "53252897-13a1-5c6a-b631-a5a7bfc175b3"
+          "valueString": "Practitioner/53252897-13a1-5c6a-b631-a5a7bfc175b3"
         },
         {
           "id": "sourceAssigningAuthority",

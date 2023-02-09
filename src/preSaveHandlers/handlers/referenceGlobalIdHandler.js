@@ -112,8 +112,10 @@ class ReferenceGlobalIdHandler extends PreSaveHandler {
 
         let referenceUpdated = false;
 
-        reference._uuid = referenceResourceType ? `${referenceResourceType}/${uuid}` : uuid;
-        reference._sourceId = referenceResourceType ? `${referenceResourceType}/${referenceId}` : referenceId;
+        const referenceValueUuid = referenceResourceType ? `${referenceResourceType}/${uuid}` : uuid;
+        reference._uuid = referenceValueUuid;
+        const referenceValueSourceId = referenceResourceType ? `${referenceResourceType}/${referenceId}` : referenceId;
+        reference._sourceId = referenceValueSourceId;
         reference._sourceAssigningAuthority = sourceAssigningAuthority;
         // reference.type = referenceResourceType;
         // update sourceId extension if needed
@@ -127,13 +129,13 @@ class ReferenceGlobalIdHandler extends PreSaveHandler {
                     {
                         id: 'sourceId',
                         url: IdentifierSystem.sourceId,
-                        valueString: referenceId
+                        valueString: referenceValueSourceId
                     }
                 )
             );
             referenceUpdated = true;
-        } else if (sourceIdExtension.valueString !== referenceId) {
-            sourceIdExtension.valueString = referenceId;
+        } else if (sourceIdExtension.valueString !== referenceValueSourceId) {
+            sourceIdExtension.valueString = referenceValueSourceId;
             referenceUpdated = true;
         }
 
@@ -148,13 +150,13 @@ class ReferenceGlobalIdHandler extends PreSaveHandler {
                     {
                         id: 'uuid',
                         url: IdentifierSystem.uuid,
-                        valueString: uuid
+                        valueString: referenceValueUuid
                     }
                 )
             );
             referenceUpdated = true;
-        } else if (uuidExtension.valueString !== uuid) {
-            uuidExtension.valueString = uuid;
+        } else if (uuidExtension.valueString !== referenceValueUuid) {
+            uuidExtension.valueString = referenceValueUuid;
             referenceUpdated = true;
         }
 

@@ -36,12 +36,12 @@
         {
           "id": "sourceId",
           "url": "https://www.icanbwell.com/sourceId",
-          "valueString": "AETNA"
+          "valueString": "Organization/AETNA"
         },
         {
           "id": "uuid",
           "url": "https://www.icanbwell.com/uuid",
-          "valueString": "45eaebe0-537e-5bdb-ab35-7564668c39b5"
+          "valueString": "Organization/45eaebe0-537e-5bdb-ab35-7564668c39b5"
         },
         {
           "id": "sourceAssigningAuthority",
@@ -59,12 +59,12 @@
               {
                 "id": "sourceId",
                 "url": "https://www.icanbwell.com/sourceId",
-                "valueString": "1886535265"
+                "valueString": "Location/1886535265"
               },
               {
                 "id": "uuid",
                 "url": "https://www.icanbwell.com/uuid",
-                "valueString": "3bad6e83-d648-5f49-a429-80c38a51c38f"
+                "valueString": "Location/3bad6e83-d648-5f49-a429-80c38a51c38f"
               },
               {
                 "id": "sourceAssigningAuthority",

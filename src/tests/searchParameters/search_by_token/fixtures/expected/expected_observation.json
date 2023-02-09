@@ -69,7 +69,7 @@
             {
               "id": "sourceId",
               "url": "https://www.icanbwell.com/sourceId",
-              "valueString": "2354"
+              "valueString": "Patient/2354"
             },
             {
               "id": "uuid",

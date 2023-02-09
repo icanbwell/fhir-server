@@ -372,12 +372,12 @@
         {
           "id": "sourceId",
           "url": "https://www.icanbwell.com/sourceId",
-          "valueString": "029260322"
+          "valueString": "Patient/029260322"
         },
         {
           "id": "uuid",
           "url": "https://www.icanbwell.com/uuid",
-          "valueString": "5ac0d8f5-fb95-5374-98c9-e285acec507e"
+          "valueString": "Patient/5ac0d8f5-fb95-5374-98c9-e285acec507e"
         },
         {
           "id": "sourceAssigningAuthority",

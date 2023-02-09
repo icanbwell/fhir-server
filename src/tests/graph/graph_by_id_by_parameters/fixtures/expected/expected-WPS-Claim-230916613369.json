@@ -37,12 +37,12 @@
                 {
                   "id": "sourceId",
                   "url": "https://www.icanbwell.com/sourceId",
-                  "valueString": "WPS-6678928210"
+                  "valueString": "Coverage/WPS-6678928210"
                 },
                 {
                   "id": "uuid",
                   "url": "https://www.icanbwell.com/uuid",
-                  "valueString": "6a21b3c3-320e-55ff-bb16-fb94f037270e"
+                  "valueString": "Coverage/6a21b3c3-320e-55ff-bb16-fb94f037270e"
                 },
                 {
                   "id": "sourceAssigningAuthority",
@@ -60,12 +60,12 @@
             {
               "id": "sourceId",
               "url": "https://www.icanbwell.com/sourceId",
-              "valueString": "WPS-Health"
+              "valueString": "Organization/WPS-Health"
             },
             {
               "id": "uuid",
               "url": "https://www.icanbwell.com/uuid",
-              "valueString": "44cce4af-6804-5e85-9f39-768ef6a3daec"
+              "valueString": "Organization/44cce4af-6804-5e85-9f39-768ef6a3daec"
             },
             {
               "id": "sourceAssigningAuthority",
@@ -99,12 +99,12 @@
             {
               "id": "sourceId",
               "url": "https://www.icanbwell.com/sourceId",
-              "valueString": "WPS-0559166162"
+              "valueString": "Patient/WPS-0559166162"
             },
             {
               "id": "uuid",
               "url": "https://www.icanbwell.com/uuid",
-              "valueString": "17338495-211c-5641-872c-2fb91c857605"
+              "valueString": "Patient/17338495-211c-5641-872c-2fb91c857605"
             },
             {
               "id": "sourceAssigningAuthority",
@@ -119,12 +119,12 @@
             {
               "id": "sourceId",
               "url": "https://www.icanbwell.com/sourceId",
-              "valueString": "1407857790"
+              "valueString": "Organization/1407857790"
             },
             {
               "id": "uuid",
               "url": "https://www.icanbwell.com/uuid",
-              "valueString": "05d98aa7-9b62-532d-bbb7-37c2116d715a"
+              "valueString": "Organization/05d98aa7-9b62-532d-bbb7-37c2116d715a"
             },
             {
               "id": "sourceAssigningAuthority",

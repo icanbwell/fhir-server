@@ -48,12 +48,12 @@
                 {
                   "id": "sourceId",
                   "url": "https://www.icanbwell.com/sourceId",
-                  "valueString": "a58e50292d79469691d3048e787434cc"
+                  "valueString": "Person/a58e50292d79469691d3048e787434cc"
                 },
                 {
                   "id": "uuid",
                   "url": "https://www.icanbwell.com/uuid",
-                  "valueString": "d6d3a5b6-3178-5aa1-bca4-f60a5214bd2d"
+                  "valueString": "Person/d6d3a5b6-3178-5aa1-bca4-f60a5214bd2d"
                 },
                 {
                   "id": "sourceAssigningAuthority",
@@ -72,12 +72,12 @@
                 {
                   "id": "sourceId",
                   "url": "https://www.icanbwell.com/sourceId",
-                  "valueString": "26a2b5508f6840a1b4c5f67d38360060"
+                  "valueString": "Patient/26a2b5508f6840a1b4c5f67d38360060"
                 },
                 {
                   "id": "uuid",
                   "url": "https://www.icanbwell.com/uuid",
-                  "valueString": "aa0aae87-1b98-50ee-aefa-58f8f04bf6a3"
+                  "valueString": "Patient/aa0aae87-1b98-50ee-aefa-58f8f04bf6a3"
                 },
                 {
                   "id": "sourceAssigningAuthority",

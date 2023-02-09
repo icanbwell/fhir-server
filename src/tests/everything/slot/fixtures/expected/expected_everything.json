@@ -130,12 +130,12 @@
                 {
                   "id": "sourceId",
                   "url": "https://www.icanbwell.com/sourceId",
-                  "valueString": "MedStar-Union-Memorial-Hospital"
+                  "valueString": "Organization/MedStar-Union-Memorial-Hospital"
                 },
                 {
                   "id": "uuid",
                   "url": "https://www.icanbwell.com/uuid",
-                  "valueString": "51621560-6e26-5a22-8ad2-fe3b9e356ec2"
+                  "valueString": "Organization/51621560-6e26-5a22-8ad2-fe3b9e356ec2"
                 },
                 {
                   "id": "sourceAssigningAuthority",
@@ -170,12 +170,12 @@
               {
                 "id": "sourceId",
                 "url": "https://www.icanbwell.com/sourceId",
-                "valueString": "1275501447-UHG-MMMA"
+                "valueString": "PractitionerRole/1275501447-UHG-MMMA"
               },
               {
                 "id": "uuid",
                 "url": "https://www.icanbwell.com/uuid",
-                "valueString": "6f7f58d5-4ce9-58ed-92b5-9900db8181ee"
+                "valueString": "PractitionerRole/6f7f58d5-4ce9-58ed-92b5-9900db8181ee"
               },
               {
                 "id": "sourceAssigningAuthority",
@@ -311,12 +311,12 @@
               {
                 "id": "sourceId",
                 "url": "https://www.icanbwell.com/sourceId",
-                "valueString": "1275501447-UHG-MMMA"
+                "valueString": "HealthcareService/1275501447-UHG-MMMA"
               },
               {
                 "id": "uuid",
                 "url": "https://www.icanbwell.com/uuid",
-                "valueString": "6f7f58d5-4ce9-58ed-92b5-9900db8181ee"
+                "valueString": "HealthcareService/6f7f58d5-4ce9-58ed-92b5-9900db8181ee"
               },
               {
                 "id": "sourceAssigningAuthority",
@@ -360,12 +360,12 @@
               {
                 "id": "sourceId",
                 "url": "https://www.icanbwell.com/sourceId",
-                "valueString": "Medstar-Alias-UHG-MMMA"
+                "valueString": "Location/Medstar-Alias-UHG-MMMA"
               },
               {
                 "id": "uuid",
                 "url": "https://www.icanbwell.com/uuid",
-                "valueString": "4d0c1af3-40e8-582a-a6c5-0433400c884e"
+                "valueString": "Location/4d0c1af3-40e8-582a-a6c5-0433400c884e"
               },
               {
                 "id": "sourceAssigningAuthority",
@@ -399,12 +399,12 @@
             {
               "id": "sourceId",
               "url": "https://www.icanbwell.com/sourceId",
-              "valueString": "Medstar-Alias-UHG-MMMA"
+              "valueString": "Organization/Medstar-Alias-UHG-MMMA"
             },
             {
               "id": "uuid",
               "url": "https://www.icanbwell.com/uuid",
-              "valueString": "4d0c1af3-40e8-582a-a6c5-0433400c884e"
+              "valueString": "Organization/4d0c1af3-40e8-582a-a6c5-0433400c884e"
             },
             {
               "id": "sourceAssigningAuthority",
@@ -419,12 +419,12 @@
             {
               "id": "sourceId",
               "url": "https://www.icanbwell.com/sourceId",
-              "valueString": "1275501447"
+              "valueString": "Practitioner/1275501447"
             },
             {
               "id": "uuid",
               "url": "https://www.icanbwell.com/uuid",
-              "valueString": "f0d39fd9-7c7f-5f57-8579-05da5fa4615e"
+              "valueString": "Practitioner/f0d39fd9-7c7f-5f57-8579-05da5fa4615e"
             },
             {
               "id": "sourceAssigningAuthority",
@@ -489,12 +489,12 @@
             {
               "id": "sourceId",
               "url": "https://www.icanbwell.com/sourceId",
-              "valueString": "1275501447-UHG-MMMA"
+              "valueString": "Schedule/1275501447-UHG-MMMA"
             },
             {
               "id": "uuid",
               "url": "https://www.icanbwell.com/uuid",
-              "valueString": "6f7f58d5-4ce9-58ed-92b5-9900db8181ee"
+              "valueString": "Schedule/6f7f58d5-4ce9-58ed-92b5-9900db8181ee"
             },
             {
               "id": "sourceAssigningAuthority",

@@ -105,12 +105,12 @@
                 {
                   "id": "sourceId",
                   "url": "https://www.icanbwell.com/sourceId",
-                  "valueString": "Stanford_Medical_School"
+                  "valueString": "Organization/Stanford_Medical_School"
                 },
                 {
                   "id": "uuid",
                   "url": "https://www.icanbwell.com/uuid",
-                  "valueString": "f4bd1507-3193-5d87-8b24-463abe43b048"
+                  "valueString": "Organization/f4bd1507-3193-5d87-8b24-463abe43b048"
                 },
                 {
                   "id": "sourceAssigningAuthority",
@@ -241,12 +241,12 @@
                 {
                   "id": "sourceId",
                   "url": "https://www.icanbwell.com/sourceId",
-                  "valueString": "Stanford_Medical_School"
+                  "valueString": "Organization/Stanford_Medical_School"
                 },
                 {
                   "id": "uuid",
                   "url": "https://www.icanbwell.com/uuid",
-                  "valueString": "f4bd1507-3193-5d87-8b24-463abe43b048"
+                  "valueString": "Organization/f4bd1507-3193-5d87-8b24-463abe43b048"
                 },
                 {
                   "id": "sourceAssigningAuthority",

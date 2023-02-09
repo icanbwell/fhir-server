@@ -9,12 +9,12 @@
                 {
                   "id": "sourceId",
                   "url": "https://www.icanbwell.com/sourceId",
-                  "valueString": "WPS-1811965494-20A078097100"
+                  "valueString": "PractitionerRole/WPS-1811965494-20A078097100"
                 },
                 {
                   "id": "uuid",
                   "url": "https://www.icanbwell.com/uuid",
-                  "valueString": "9bf2a51d-6aa2-5e99-bf79-20dfd876c51d"
+                  "valueString": "PractitionerRole/9bf2a51d-6aa2-5e99-bf79-20dfd876c51d"
                 },
                 {
                   "id": "sourceAssigningAuthority",
@@ -135,12 +135,12 @@
                 {
                   "id": "sourceId",
                   "url": "https://www.icanbwell.com/sourceId",
-                  "valueString": "WPS-7446041751"
+                  "valueString": "Coverage/WPS-7446041751"
                 },
                 {
                   "id": "uuid",
                   "url": "https://www.icanbwell.com/uuid",
-                  "valueString": "7888d466-cbb3-5a00-9fe8-462a4de09392"
+                  "valueString": "Coverage/7888d466-cbb3-5a00-9fe8-462a4de09392"
                 },
                 {
                   "id": "sourceAssigningAuthority",
@@ -158,12 +158,12 @@
             {
               "id": "sourceId",
               "url": "https://www.icanbwell.com/sourceId",
-              "valueString": "WPS-Health"
+              "valueString": "Organization/WPS-Health"
             },
             {
               "id": "uuid",
               "url": "https://www.icanbwell.com/uuid",
-              "valueString": "44cce4af-6804-5e85-9f39-768ef6a3daec"
+              "valueString": "Organization/44cce4af-6804-5e85-9f39-768ef6a3daec"
             },
             {
               "id": "sourceAssigningAuthority",
@@ -327,12 +327,12 @@
             {
               "id": "sourceId",
               "url": "https://www.icanbwell.com/sourceId",
-              "valueString": "WPS-7446041751"
+              "valueString": "Patient/WPS-7446041751"
             },
             {
               "id": "uuid",
               "url": "https://www.icanbwell.com/uuid",
-              "valueString": "7888d466-cbb3-5a00-9fe8-462a4de09392"
+              "valueString": "Patient/7888d466-cbb3-5a00-9fe8-462a4de09392"
             },
             {
               "id": "sourceAssigningAuthority",
@@ -381,12 +381,12 @@
             {
               "id": "sourceId",
               "url": "https://www.icanbwell.com/sourceId",
-              "valueString": "1659305654"
+              "valueString": "Organization/1659305654"
             },
             {
               "id": "uuid",
               "url": "https://www.icanbwell.com/uuid",
-              "valueString": "8b240591-3c00-58b2-ae2c-1d9f32e94efb"
+              "valueString": "Organization/8b240591-3c00-58b2-ae2c-1d9f32e94efb"
             },
             {
               "id": "sourceAssigningAuthority",
@@ -403,12 +403,12 @@
                 {
                   "id": "sourceId",
                   "url": "https://www.icanbwell.com/sourceId",
-                  "valueString": "20A078097100"
+                  "valueString": "Claim/20A078097100"
                 },
                 {
                   "id": "uuid",
                   "url": "https://www.icanbwell.com/uuid",
-                  "valueString": "833273ca-d1a6-5c6a-a0da-13e47f9b65ad"
+                  "valueString": "Claim/833273ca-d1a6-5c6a-a0da-13e47f9b65ad"
                 },
                 {
                   "id": "sourceAssigningAuthority",

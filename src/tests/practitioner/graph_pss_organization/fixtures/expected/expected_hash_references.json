@@ -110,12 +110,12 @@
                   {
                     "id": "sourceId",
                     "url": "https://www.icanbwell.com/sourceId",
-                    "valueString": "Medstar-Alias-MPF-MPCR"
+                    "valueString": "Location/Medstar-Alias-MPF-MPCR"
                   },
                   {
                     "id": "uuid",
                     "url": "https://www.icanbwell.com/uuid",
-                    "valueString": "12dc060b-c65b-5655-be14-08af4ba1ad0e"
+                    "valueString": "Location/12dc060b-c65b-5655-be14-08af4ba1ad0e"
                   },
                   {
                     "id": "sourceAssigningAuthority",
@@ -149,12 +149,12 @@
                 {
                   "id": "sourceId",
                   "url": "https://www.icanbwell.com/sourceId",
-                  "valueString": "Medstar-Alias-MPF-MPCR"
+                  "valueString": "Organization/Medstar-Alias-MPF-MPCR"
                 },
                 {
                   "id": "uuid",
                   "url": "https://www.icanbwell.com/uuid",
-                  "valueString": "12dc060b-c65b-5655-be14-08af4ba1ad0e"
+                  "valueString": "Organization/12dc060b-c65b-5655-be14-08af4ba1ad0e"
                 },
                 {
                   "id": "sourceAssigningAuthority",
@@ -358,12 +358,12 @@
                 {
                   "id": "sourceId",
                   "url": "https://www.icanbwell.com/sourceId",
-                  "valueString": "Medstar-Alias-MPF-MPCR"
+                  "valueString": "Organization/Medstar-Alias-MPF-MPCR"
                 },
                 {
                   "id": "uuid",
                   "url": "https://www.icanbwell.com/uuid",
-                  "valueString": "12dc060b-c65b-5655-be14-08af4ba1ad0e"
+                  "valueString": "Organization/12dc060b-c65b-5655-be14-08af4ba1ad0e"
                 },
                 {
                   "id": "sourceAssigningAuthority",
@@ -444,12 +444,12 @@
                   {
                     "id": "sourceId",
                     "url": "https://www.icanbwell.com/sourceId",
-                    "valueString": "Medstar-Alias-MPF-MPCR"
+                    "valueString": "HealthcareService/Medstar-Alias-MPF-MPCR"
                   },
                   {
                     "id": "uuid",
                     "url": "https://www.icanbwell.com/uuid",
-                    "valueString": "12dc060b-c65b-5655-be14-08af4ba1ad0e"
+                    "valueString": "HealthcareService/12dc060b-c65b-5655-be14-08af4ba1ad0e"
                   },
                   {
                     "id": "sourceAssigningAuthority",
@@ -682,12 +682,12 @@
             {
               "id": "sourceId",
               "url": "https://www.icanbwell.com/sourceId",
-              "valueString": "Medstar--1169180118"
+              "valueString": "Organization/Medstar--1169180118"
             },
             {
               "id": "uuid",
               "url": "https://www.icanbwell.com/uuid",
-              "valueString": "69b986d5-7529-5aa3-aa11-5c9a4c5f14b1"
+              "valueString": "Organization/69b986d5-7529-5aa3-aa11-5c9a4c5f14b1"
             },
             {
               "id": "sourceAssigningAuthority",

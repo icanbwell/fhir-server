@@ -5,12 +5,12 @@
         {
           "id": "sourceId",
           "url": "https://www.icanbwell.com/sourceId",
-          "valueString": "11"
+          "valueString": "Practitioner/11"
         },
         {
           "id": "uuid",
           "url": "https://www.icanbwell.com/uuid",
-          "valueString": "3c54099d-bc35-5aa8-a5a8-e80506724602"
+          "valueString": "Practitioner/3c54099d-bc35-5aa8-a5a8-e80506724602"
         },
         {
           "id": "sourceAssigningAuthority",
@@ -40,12 +40,12 @@
       {
         "id": "sourceId",
         "url": "https://www.icanbwell.com/sourceId",
-        "valueString": "22"
+        "valueString": "Organization/22"
       },
       {
         "id": "uuid",
         "url": "https://www.icanbwell.com/uuid",
-        "valueString": "c591ee19-6a43-551f-99de-8d90ad1518cd"
+        "valueString": "Organization/c591ee19-6a43-551f-99de-8d90ad1518cd"
       },
       {
         "id": "sourceAssigningAuthority",

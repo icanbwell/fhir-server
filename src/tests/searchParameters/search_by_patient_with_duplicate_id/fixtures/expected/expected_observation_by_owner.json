@@ -69,12 +69,12 @@
             {
               "id": "sourceId",
               "url": "https://www.icanbwell.com/sourceId",
-              "valueString": "2354"
+              "valueString": "Patient/2354"
             },
             {
               "id": "uuid",
               "url": "https://www.icanbwell.com/uuid",
-              "valueString": "6fbec29e-053e-51d6-8281-76f200e48fb8"
+              "valueString": "Patient/6fbec29e-053e-51d6-8281-76f200e48fb8"
             },
             {
               "id": "sourceAssigningAuthority",
