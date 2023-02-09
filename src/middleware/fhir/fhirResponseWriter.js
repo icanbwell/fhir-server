@@ -37,7 +37,7 @@ class FhirResponseWriter {
      */
     read({req, res, result}) {
         assertTypeEquals(result, Resource);
-        this.setBaseResponseHeaders((req, res));
+        this.setBaseResponseHeaders({req, res});
         res.status(200).json(result.toJSON());
     }
 
@@ -49,7 +49,7 @@ class FhirResponseWriter {
      * @param {Resource|Object} result - json to send to client
      */
     readCustomOperation({req, res, result}) {
-        this.setBaseResponseHeaders((req, res));
+        this.setBaseResponseHeaders({req, res});
         res.status(200).json(result instanceof Resource ? result.toJSON() : result);
     }
 
@@ -61,7 +61,7 @@ class FhirResponseWriter {
      * @param {Resource|Object} result - json to send to client
      */
     graph({req, res}) {
-        this.setBaseResponseHeaders((req, res));
+        this.setBaseResponseHeaders({req, res});
     }
 
     /**
@@ -72,7 +72,7 @@ class FhirResponseWriter {
      * @param {Resource|Object} result - json to send to client
      */
     everything({req, res}) {
-        this.setBaseResponseHeaders((req, res));
+        this.setBaseResponseHeaders({req, res});
     }
 
     /**
@@ -83,7 +83,7 @@ class FhirResponseWriter {
      * @param {MergeResultEntry[]} result - json to send to client
      */
     merge({req, res, result}) {
-        this.setBaseResponseHeaders((req, res));
+        this.setBaseResponseHeaders({req, res});
         res.status(200).json(result);
     }
 
