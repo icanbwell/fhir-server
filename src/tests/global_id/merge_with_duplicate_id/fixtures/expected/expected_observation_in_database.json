@@ -4,9 +4,7 @@
       "A": 1,
       "B": 1
     },
-    "_sourceAssigningAuthority": {
-      "A": 1
-    },
+    "_sourceAssigningAuthority": "A",
     "_sourceId": "1",
     "_uuid": "dd402c77-8159-5539-a4c4-00e93edc0698",
     "code": {
@@ -101,9 +99,7 @@
       "B": 1,
       "C": 1
     },
-    "_sourceAssigningAuthority": {
-      "C": 1
-    },
+    "_sourceAssigningAuthority": "C",
     "_sourceId": "1",
     "_uuid": "7fcfcd47-31f1-5044-be40-cd2d0059bd67",
     "code": {

@@ -2,9 +2,7 @@
   "_access": {
     "medstar": 1
   },
-  "_sourceAssigningAuthority": {
-    "medstar": 1
-  },
+  "_sourceAssigningAuthority": "medstar",
   "_sourceId": "00500000000",
   "_uuid": "c8dccbb2-7d6c-4cf6-98cf-c6978c4a5d46",
   "birthDate": "2017-01-01",

@@ -3,9 +3,7 @@
     "_access": {
       "bwell": 1
     },
-    "_sourceAssigningAuthority": {
-      "bwell": 1
-    },
+    "_sourceAssigningAuthority": "bwell",
     "action": "C",
     "agent": [
       {

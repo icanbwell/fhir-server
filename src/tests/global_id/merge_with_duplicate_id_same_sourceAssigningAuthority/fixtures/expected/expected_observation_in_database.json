@@ -5,9 +5,7 @@
       "B": 1,
       "C": 1
     },
-    "_sourceAssigningAuthority": {
-      "A": 1
-    },
+    "_sourceAssigningAuthority": "A",
     "_sourceId": "1",
     "_uuid": "dd402c77-8159-5539-a4c4-00e93edc0698",
     "code": {

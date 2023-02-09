@@ -4,9 +4,7 @@
       "A": 1,
       "B": 1
     },
-    "_sourceAssigningAuthority": {
-      "A": 1
-    },
+    "_sourceAssigningAuthority": "A",
     "_sourceId": "12345678901234567890123456789012345678901234567890123456789012345678901234567890",
     "_uuid": "f656b8ae-2236-5b5f-b4f0-d2353d1438d0",
     "code": {
@@ -101,9 +99,7 @@
       "B": 1,
       "C": 1
     },
-    "_sourceAssigningAuthority": {
-      "C": 1
-    },
+    "_sourceAssigningAuthority": "C",
     "_sourceId": "12345678901234567890123456789012345678901234567890123456789012345678901234567890",
     "_uuid": "cef47f25-1592-5f67-9c4e-1a5e198d95b0",
     "code": {
