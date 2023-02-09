@@ -360,7 +360,7 @@ const getNameValue = (name) => {
 const getFieldValue = (res, name) => {
     switch (name) {
         case '_source':
-            return res.meta && res.meta.source || '';
+            return res?.meta?.source || '';
         case 'npi':
             return (res.identifier || [])
                 .map(id => id.value)

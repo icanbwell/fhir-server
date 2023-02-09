@@ -607,7 +607,9 @@ class DatabaseBulkInserter extends EventEmitter {
                         previousInsert.operation.updateOne.update.$setOnInsert = doc.toJSONInternal();
                     }
                 } else { // no previuous insert or update found
-                    const filter = await this.getFilter(id, lastVersionId);
+                    const filter = lastVersionId && lastVersionId !== '0' ?
+                        {$and: [{id: id.toString()}, {'meta.versionId': `${lastVersionId}`}]} :
+                        {id: id.toString()};
                     assertIsValid(!lastVersionId || lastVersionId < parseInt(doc.meta.versionId),
                         `lastVersionId ${lastVersionId} is not less than doc versionId ${doc.meta.versionId}` +
                         `, doc: ${JSON.stringify(doc.toJSONInternal(), getCircularReplacer())}`);
@@ -634,20 +636,6 @@ class DatabaseBulkInserter extends EventEmitter {
                 error: e
             });
         }
-    }
-
-    /**
-     * Creates a MongoDB filter used to query documents
-     * @param {string} id
-     * @param {string|null} lastVersionId
-     * @returns {Object}
-     */
-    async getFilter(id, lastVersionId) {
-        const filter = lastVersionId && lastVersionId !== '0' ?
-          {$and: [{id: id.toString()}, {'meta.versionId': `${lastVersionId}`}]} :
-          {id: id.toString()};
-
-        return filter;
     }
 
     /**

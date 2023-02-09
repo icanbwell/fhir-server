@@ -410,18 +410,18 @@ class FhirDataSource extends DataSource {
 
     /**
      * Concatenate code and/or display
-     * @param {Coding | undefined} foundCombinedMetaTag
-     * @param {Coding | undefined} metaTag
+     * @param {Coding | undefined} sourceMetaTag
+     * @param {Coding | undefined} targetMetaTag
      * @returns {Object}
      */
-    updateCombinedMetaTag(foundCombinedMetaTag, metaTag) {
-        if (metaTag.display && foundCombinedMetaTag.display) {
-            foundCombinedMetaTag.display = foundCombinedMetaTag.display + ',' + metaTag.display;
+    updateCombinedMetaTag(sourceMetaTag, targetMetaTag) {
+        if (targetMetaTag.display && sourceMetaTag.display) {
+            sourceMetaTag.display = sourceMetaTag.display + ',' + targetMetaTag.display;
         }
-        if (metaTag.code && foundCombinedMetaTag.code) {
-            foundCombinedMetaTag.code = foundCombinedMetaTag.code + ',' + metaTag.code;
+        if (targetMetaTag.code && sourceMetaTag.code) {
+            sourceMetaTag.code = sourceMetaTag.code + ',' + targetMetaTag.code;
         }
-        return foundCombinedMetaTag;
+        return sourceMetaTag;
     }
 }
 
