@@ -153,7 +153,7 @@ class SearchBundleOperation {
         /** @type {import('mongodb').Document}**/
         let query = {};
         /** @type {Set} **/
-        let columns = new Set();
+        let columns;
 
         // check if required filters for AuditEvent are passed
         if (resourceType === 'AuditEvent') {
