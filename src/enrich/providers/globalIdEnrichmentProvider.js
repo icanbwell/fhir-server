@@ -46,7 +46,7 @@ class GlobalIdEnrichmentProvider extends EnrichmentProvider {
                             resource.id = uuid;
                         }
                     }
-                    if (resource.updateReferences){
+                    if (resource.updateReferences) {
                         // update references
                         resource.updateReferences(
                             {
@@ -75,7 +75,6 @@ class GlobalIdEnrichmentProvider extends EnrichmentProvider {
         if (reference.reference) {
             const parts = reference.reference.split('/');
             const id = parts.slice(-1)[0];
-            const resourceType = parts[0];
             if (!isUuid(id) && reference.extension && reference.extension.length > 0) {
                 /**
                  * @type {Extension|undefined}
@@ -86,11 +85,7 @@ class GlobalIdEnrichmentProvider extends EnrichmentProvider {
                      * @type {string|undefined}
                      */
                     const uuid = uuidExtension.valueString;
-                    if (resourceType) {
-                        reference.reference = `${resourceType}/${uuid}`;
-                    } else {
-                        reference.reference = uuid;
-                    }
+                    reference.reference = uuid;
                 }
             }
         }
