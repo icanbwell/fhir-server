@@ -75,10 +75,10 @@ module.exports = {
             {
                 keys: {
                     '_sourceId': 1,
-                    '_sourceAssigningAuthority.medstar': 1,
+                    '_sourceAssigningAuthority': 1,
                 },
                 options: {
-                    name: 'sourceId._access_medstar'
+                    name: 'sourceId._sourceAssigningAuthority'
                 },
                 exclude: [
                     'AuditEvent_4_0_0'

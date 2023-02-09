@@ -52,7 +52,7 @@ describe('Patient Tests', () => {
             expect(result._access).toBeDefined();
             expect(result._access.myAccess).toStrictEqual(1);
             expect(result._sourceAssigningAuthority).toBeDefined();
-            expect(result._sourceAssigningAuthority.myAssigningAuthority).toStrictEqual(1);
+            expect(result._sourceAssigningAuthority).toStrictEqual('myAssigningAuthority');
         });
     });
 });

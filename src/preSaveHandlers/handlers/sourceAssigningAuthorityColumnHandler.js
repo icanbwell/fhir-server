@@ -26,18 +26,9 @@ class SourceAssigningAuthorityColumnHandler extends PreSaveHandler {
             }
             sourceAssigningAuthorityCodes = Array.from(new Set(sourceAssigningAuthorityCodes));
             if (sourceAssigningAuthorityCodes.length > 0) {
-                resource._sourceAssigningAuthority = resource._sourceAssigningAuthority || {};
-                // remove any tags that are don't have corresponding security tags
-                for (const [tagName] of Object.entries(resource._sourceAssigningAuthority)) {
-                    if (!sourceAssigningAuthorityCodes.includes(tagName)) {
-                        delete resource._sourceAssigningAuthority[`${tagName}`];
-                    }
-                }
-                // now add any new/updated tags
-                for (const /** @type {string} **/ sourceAssigningAuthorityCode of sourceAssigningAuthorityCodes) {
-                    if (resource._sourceAssigningAuthority[`${sourceAssigningAuthorityCode}`] !== 1) {
-                        resource._sourceAssigningAuthority[`${sourceAssigningAuthorityCode}`] = 1;
-                    }
+                const sourceAssigningAuthorityCode = sourceAssigningAuthorityCodes[0];
+                if (resource._sourceAssigningAuthority !== sourceAssigningAuthorityCode) {
+                    resource._sourceAssigningAuthority = sourceAssigningAuthorityCode;
                 }
             }
         }

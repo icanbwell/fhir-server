@@ -40,12 +40,12 @@ class MongoFilterGenerator {
                     $or: securityTagStructure.sourceAssigningAuthority.map(
                         sa => {
                             return {
-                                [`_sourceAssigningAuthority.${sa}`]: 1
+                                ['_sourceAssigningAuthority']: sa
                             };
                         }
                     )
                 } :
-                {[`_sourceAssigningAuthority.${securityTagStructure.sourceAssigningAuthority[0]}`]: 1};
+                {['_sourceAssigningAuthority']: securityTagStructure.sourceAssigningAuthority[0]};
             filter = {
                 $and: [
                     {'_sourceId': id.toString()},
