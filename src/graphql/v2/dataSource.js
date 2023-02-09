@@ -408,6 +408,12 @@ class FhirDataSource extends DataSource {
         return combinedMeta;
     }
 
+    /**
+     * Concatenate code and/or display
+     * @param {Coding | undefined} foundCombinedMetaTag
+     * @param {Coding | undefined} metaTag
+     * @returns {Object}
+     */
     updateCombinedMetaTag(foundCombinedMetaTag, metaTag) {
         if (metaTag.display && foundCombinedMetaTag.display) {
             foundCombinedMetaTag.display = foundCombinedMetaTag.display + ',' + metaTag.display;

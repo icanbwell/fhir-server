@@ -335,6 +335,11 @@ const givenNameValue = (nameObj) => {
     return nameMap.join(', ');
 };
 
+/**
+ * Returns updates date range for a field
+ * @param {string} name
+ * @return {string}
+ */
 const getNameValue = (name) => {
     if (!name) {return '';}
     if (typeof name === 'object') {
@@ -346,6 +351,12 @@ const getNameValue = (name) => {
     return name;
 };
 
+/**
+ * Returns updates date range for a field
+ * @param res
+ * @param {string} name
+ * @return {string}
+ */
 const getFieldValue = (res, name) => {
     switch (name) {
         case '_source':

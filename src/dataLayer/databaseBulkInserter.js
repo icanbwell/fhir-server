@@ -636,6 +636,12 @@ class DatabaseBulkInserter extends EventEmitter {
         }
     }
 
+    /**
+     * Creates a MongoDB filter used to query documents
+     * @param {string} id
+     * @param {string|null} lastVersionId
+     * @returns {Object}
+     */
     async getFilter(id, lastVersionId) {
         const filter = lastVersionId && lastVersionId !== '0' ?
           {$and: [{id: id.toString()}, {'meta.versionId': `${lastVersionId}`}]} :
@@ -879,7 +885,6 @@ class DatabaseBulkInserter extends EventEmitter {
                          * @type {BulkInsertUpdateEntry[]}
                          */
                         const expectedInsertsByUniqueId = operationsByCollection.filter(o => o.operationType === 'insertUniqueId');
-                        // const expectedInsertsCount = expectedInserts.length;
                         const expectedInsertsByUniqueIdCount = expectedInsertsByUniqueId.length;
                         /**
                          * @type {BulkInsertUpdateEntry[]}
@@ -937,7 +942,6 @@ class DatabaseBulkInserter extends EventEmitter {
                             expectedInsertsByUniqueIdCount > 0 &&
                             expectedInsertsByUniqueIdCount !== actualInsertsByUniqueIdCount
                         ) {
-                            // const upsertedIds = bulkWriteResult.upsertedIds;
                             await logTraceSystemEventAsync(
                                 {
                                     event: 'bulkWriteConcurrency' + `_${resourceType}` + `${useHistoryCollection ? '_hist' : ''}`,

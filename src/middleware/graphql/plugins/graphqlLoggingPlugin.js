@@ -1,8 +1,6 @@
 const async = require('async');
 const {logRequest, logError} = require('../../../operations/common/logging');
 
-// const {ApolloServerPlugin} = require('apollo-server-plugin-base');
-
 /***
  * Plugin to log calls to GraphQL
  */

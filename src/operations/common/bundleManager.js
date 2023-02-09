@@ -321,14 +321,27 @@ class BundleManager {
         return bundle;
     }
 
+    /**
+     * @param {string} collectionName
+     * @param {string[]|undefined} [allCollectionsToSearch]
+     * @return {string|undefined}
+    */
     getQueryCollection(allCollectionsToSearch, collectionName) {
         return allCollectionsToSearch ? allCollectionsToSearch.join(',') : collectionName;
     }
 
+    /**
+     * @param {import('mongodb').FindOneOptions | import('mongodb').FindOneOptions[]} originalOptions
+     * @return {string|undefined}
+    */
     getQueryOptions(originalOptions) {
         return originalOptions ? mongoQueryStringify(originalOptions) : null;
     }
 
+    /**
+     * @param {Set|undefined} columns
+     * @return {string|undefined}
+    */
     getQueryFields(columns) {
         return columns ? mongoQueryStringify(Array.from(columns)) : null;
     }

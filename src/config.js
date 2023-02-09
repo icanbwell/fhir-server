@@ -3,7 +3,6 @@
  */
 const env = require('var');
 const {profiles} = require('./profiles');
-// const {MongoClientOptions} = require('mongodb');
 
 let mongoUrl = env.MONGO_URL || `mongodb://${env.MONGO_HOSTNAME}:${env.MONGO_PORT}`;
 if (env.MONGO_USERNAME !== undefined) {

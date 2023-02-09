@@ -96,6 +96,12 @@ class YearMonthPartitioner extends BasePartitioner {
         return partitions;
     }
 
+    /**
+     * Returns updates date range for a field
+     * @param {Object|Object[]} clausesForDate
+     * @param {string} field
+     * @return {function(string, string): number}
+     */
     getUpdateDateRangeForField(clausesForDate, field) {
         /**
          * init to an initial value

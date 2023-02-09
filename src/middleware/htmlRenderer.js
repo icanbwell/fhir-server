@@ -15,10 +15,20 @@ const sanitize = require('sanitize-filename');
 const {getCircularReplacer} = require('../utils/getCircularReplacer');
 const Bundle = require('../fhir/classes/4_0_0/resources/bundle');
 
+/**
+ * Function to convert data into JSON format
+ * @param {Object} data
+ * @returns {Object|Object[]}
+ */
 const convertDataToJSON = (data) => {
     return data instanceof Bundle ? data.toJSONInternal() : JSON.parse(JSON.stringify(data, getCircularReplacer()));
 };
 
+/**
+ * Function to extract resources from parsed data
+ * @param {Object|Object[]} parsedData
+ * @returns {Object[]}
+ */
 const extractResources = (parsedData) => {
     let resources;
     if (!Array.isArray(parsedData) && parsedData.resourceType === 'Bundle') {

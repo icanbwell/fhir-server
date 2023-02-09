@@ -2,13 +2,12 @@ const path = require('path');
 const {assertTypeEquals} = require('../../utils/assertType');
 const Resource = require('../../fhir/classes/4_0_0/resources/resource');
 
-// const assert = require('node:assert/strict');
-
 /**
  * @classdesc Writes response in FHIR
  */
 class FhirResponseWriter {
     constructor() {
+        // ok to not specify
     }
 
 
@@ -43,7 +42,6 @@ class FhirResponseWriter {
             res.type(this.getContentType(fhirVersion));
         }
 
-        // assert(req.id);
         if (req.id && !res.headersSent) {
             res.setHeader('X-Request-ID', String(req.id));
         }
@@ -63,7 +61,6 @@ class FhirResponseWriter {
             res.type(this.getContentType(fhirVersion));
         }
 
-        // assert(req.id);
         if (req.id && !res.headersSent) {
             res.setHeader('X-Request-ID', String(req.id));
         }
@@ -83,7 +80,6 @@ class FhirResponseWriter {
             res.type(this.getContentType(fhirVersion));
         }
 
-        // assert(req.id);
         if (req.id && !res.headersSent) {
             res.setHeader('X-Request-ID', String(req.id));
         }
@@ -102,7 +98,6 @@ class FhirResponseWriter {
             res.type(this.getContentType(fhirVersion));
         }
 
-        // assert(req.id);
         if (req.id && !res.headersSent) {
             res.setHeader('X-Request-ID', String(req.id));
         }
@@ -121,7 +116,6 @@ class FhirResponseWriter {
             res.type(this.getContentType(fhirVersion));
         }
 
-        // assert(req.id);
         if (req.id && !res.headersSent) {
             res.setHeader('X-Request-ID', String(req.id));
         }

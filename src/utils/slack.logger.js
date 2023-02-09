@@ -154,7 +154,6 @@ class ErrorReporter {
      * @returns {string}
      */
     createCodeBlock(title, code) {
-        // if (_.isEmpty(code)) return '';
         code = typeof code === 'string' ? code.trim() : JSON.stringify(code, null, 2);
         const tripleBackticks = '```';
         return '_' + title + '_' + tripleBackticks + code + tripleBackticks + '\n';
@@ -185,6 +184,10 @@ class ErrorReporter {
         }
     }
 
+    /**
+     * @param req
+     * @returns {string}
+     */
     getUserName(req) {
         return (!req.user || typeof req.user === 'string') ? req.user : req.user.name || req.user.id;
     }
@@ -324,8 +327,6 @@ class ErrorReporter {
             ts: String(Date.now() / 1000)
         };
         const web = new WebClient(token);
-
-        // console.log(`Sending error message ${attachment} in channel ${channel}`);
 
         // Post a message to the channel, and await the result.
         // Find more arguments and details of the response: https://api.slack.com/methods/chat.postMessage
