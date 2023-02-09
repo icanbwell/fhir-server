@@ -43,6 +43,7 @@ function filterByReference({parsedArg, columns}) {
                                 target_type: reference.resourceType || target,
                                 target: reference.id,
                                 field: `${field1}._uuid`,
+                                sourceAssigningAuthorityField: `${field1}._sourceAssigningAuthority`
                             }
                         )
                     )
@@ -58,6 +59,7 @@ function filterByReference({parsedArg, columns}) {
                                 target_type: reference.resourceType || target,
                                 target: reference.id,
                                 field: `${field1}._sourceId`,
+                                sourceAssigningAuthorityField: `${field1}._sourceAssigningAuthority`
                             }
                         )
                     )
@@ -75,12 +77,14 @@ function filterByReference({parsedArg, columns}) {
                                     target_type: reference.resourceType || target,
                                     target: reference.id,
                                     field: `${field1}._sourceId`,
+                                    sourceAssigningAuthorityField: `${field1}._sourceAssigningAuthority`
                                 }
                             ),
                             referenceQueryBuilderOptimized({
                                     target_type: reference.resourceType || target,
                                     target: reference.id,
                                     field: `${field1}._uuid`,
+                                    sourceAssigningAuthorityField: `${field1}._sourceAssigningAuthority`
                                 }
                             )
                         ]

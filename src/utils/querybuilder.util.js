@@ -275,10 +275,19 @@ const referenceQueryBuilder = function ({target_type, target, field, exists_flag
  * @param {string} target_type
  * @param {string} target
  * @param {string} field
+ * @param {string|undefined} sourceAssigningAuthorityField
  * @param {boolean|undefined} [exists_flag]
  * @return {JSON} queryBuilder
  */
-const referenceQueryBuilderOptimized = function ({target_type, target, field, exists_flag}) {
+const referenceQueryBuilderOptimized = function (
+    {
+        target_type,
+        target,
+        field,
+        sourceAssigningAuthorityField,
+        exists_flag
+    }
+) {
     const queryBuilder = {};
     // noinspection JSIncompatibleTypesComparison
     if (target === null || exists_flag === false) {
@@ -290,7 +299,19 @@ const referenceQueryBuilderOptimized = function ({target_type, target, field, ex
         return queryBuilder;
     }
     if (target_type && target) {
-        queryBuilder[`${field}`] = `${target_type}/${target}`;
+        const targetPlusSourceAssigningAuthority = target.split('|');
+        if (targetPlusSourceAssigningAuthority.length > 1) {
+            queryBuilder['$and'] = [
+                {
+                    [`${sourceAssigningAuthorityField}`]: targetPlusSourceAssigningAuthority[1]
+                },
+                {
+                    [`${field}`]: `${target_type}/${targetPlusSourceAssigningAuthority[0]}`
+                }
+            ];
+        } else {
+            queryBuilder[`${field}`] = `${target_type}/${target}`;
+        }
         return queryBuilder;
     }
     // eslint-disable-next-line security/detect-unsafe-regex

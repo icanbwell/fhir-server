@@ -80,12 +80,12 @@
             {
               "id": "sourceId",
               "url": "https://www.icanbwell.com/sourceId",
-              "valueString": "fdf49831-d3c0-4a89-9459-e96c6c3beb0f"
+              "valueString": "QuestionnaireResponse/fdf49831-d3c0-4a89-9459-e96c6c3beb0f"
             },
             {
               "id": "uuid",
               "url": "https://www.icanbwell.com/uuid",
-              "valueString": "fdf49831-d3c0-4a89-9459-e96c6c3beb0f"
+              "valueString": "QuestionnaireResponse/fdf49831-d3c0-4a89-9459-e96c6c3beb0f"
             },
             {
               "id": "sourceAssigningAuthority",
@@ -102,7 +102,7 @@
   "meta": {
     "tag": [
       {
-        "display": "db.Consent_4_0_0.find({'$or':[{'sourceAttachment._sourceId':'QuestionnaireResponse/fdf49831-d3c0-4a89-9459-e96c6c3beb0f'},{'sourceReference._sourceId':'QuestionnaireResponse/fdf49831-d3c0-4a89-9459-e96c6c3beb0f'}]}, {}).sort({'id':1}).limit(100)",
+        "display": "db.Consent_4_0_0.find({'$or':[{'sourceAttachment._uuid':'QuestionnaireResponse/fdf49831-d3c0-4a89-9459-e96c6c3beb0f'},{'sourceReference._uuid':'QuestionnaireResponse/fdf49831-d3c0-4a89-9459-e96c6c3beb0f'}]}, {}).sort({'id':1}).limit(100)",
         "system": "https://www.icanbwell.com/query"
       },
       {
