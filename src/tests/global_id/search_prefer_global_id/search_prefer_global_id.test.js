@@ -4,6 +4,7 @@ const observation2Resource = require('./fixtures/Observation/observation2.json')
 
 // expected
 const expectedObservationResources = require('./fixtures/expected/expected_observation.json');
+const expectedObservationByReferenceResources = require('./fixtures/expected/expected_observation_by_reference.json');
 const expectedObservationBothResources = require('./fixtures/expected/expected_observation_both.json');
 
 const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest} = require('../../common');
@@ -38,7 +39,7 @@ describe('Observation Tests', () => {
             const headers = getHeaders();
             headers['Prefer'] = 'global_id=true';
             resp = await request
-                .get('/4_0_0/Observation/?_bundle=1')
+                .get('/4_0_0/Observation/?_bundle=1&_debug=1')
                 .set(headers);
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedObservationResources);
@@ -65,7 +66,7 @@ describe('Observation Tests', () => {
             const headers = getHeaders();
             headers['Prefer'] = 'global_id=true';
             resp = await request
-                .get('/4_0_0/Observation/?_bundle=1')
+                .get('/4_0_0/Observation/?_bundle=1&_debug=1')
                 .set(headers);
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedObservationBothResources);
@@ -110,7 +111,7 @@ describe('Observation Tests', () => {
                 .get(`/4_0_0/Observation/?_bundle=1&patient=${patientId}&_debug=1`)
                 .set(headers);
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse(expectedObservationResources);
+            expect(resp).toHaveResponse(expectedObservationByReferenceResources);
         });
     });
 });

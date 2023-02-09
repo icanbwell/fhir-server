@@ -77,10 +77,18 @@ class ReferenceGlobalIdHandler extends PreSaveHandler {
         let uuid;
 
         /**
+         * @type {string[]}
+         */
+        const referenceParts = referenceValue.split('/');
+        /**
+         * @type {string|null}
+         */
+        const referenceResourceType = referenceParts.length > 1 ? referenceParts[0] : null;
+        /**
          * get the part after/ as the id e.g., Patient/123 -> 123
          * @type {string}
          */
-        let referenceId = referenceValue.split('/').slice(-1)[0];
+        let referenceId = referenceParts.slice(-1)[0];
 
         // if sourceAssigningAuthority is specified then extract the id and sourceAssigningAuthority
         if (referenceId.includes('|')) {
@@ -104,9 +112,10 @@ class ReferenceGlobalIdHandler extends PreSaveHandler {
 
         let referenceUpdated = false;
 
-        reference._uuid = uuid;
-        reference._sourceId = referenceId;
+        reference._uuid = referenceResourceType ? `${referenceResourceType}/${uuid}` : uuid;
+        reference._sourceId = referenceResourceType ? `${referenceResourceType}/${referenceId}` : referenceId;
         reference._sourceAssigningAuthority = sourceAssigningAuthority;
+        // reference.type = referenceResourceType;
         // update sourceId extension if needed
         /**
          * @type {Extension|undefined}

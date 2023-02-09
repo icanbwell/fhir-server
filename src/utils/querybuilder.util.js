@@ -269,6 +269,69 @@ const referenceQueryBuilder = function ({target_type, target, field, exists_flag
     return queryBuilder;
 };
 
+
+/**
+ * @name referenceQueryBuilder
+ * @param {string} target_type
+ * @param {string} target
+ * @param {string} field
+ * @param {boolean|undefined} [exists_flag]
+ * @return {JSON} queryBuilder
+ */
+const referenceQueryBuilderOptimized = function ({target_type, target, field, exists_flag}) {
+    const queryBuilder = {};
+    // noinspection JSIncompatibleTypesComparison
+    if (target === null || exists_flag === false) {
+        queryBuilder[`${field}`] = {$exists: false};
+        return queryBuilder;
+    }
+    if (exists_flag === true) {
+        queryBuilder[`${field}`] = {$exists: true};
+        return queryBuilder;
+    }
+    if (target_type && target) {
+        queryBuilder[`${field}`] = `${target_type}/${target}`;
+        return queryBuilder;
+    }
+    // eslint-disable-next-line security/detect-unsafe-regex
+    const regex = /http(.*)?\/(\w+\/.+)$/;
+    const match = target.match(regex);
+
+    // Check if target is a url
+    if (match) {
+        queryBuilder[`${field}`] = match[2];
+    }
+    // target = type/id
+    else if (target.includes(',')) { // list was passed
+        const searchItems = target.split(',');
+        const fullResourceTypeAndIdList = [];
+        for (const searchItem of searchItems) {
+            if (searchItem.includes('/')) {
+                const [type, id] = searchItem.split('/');
+                fullResourceTypeAndIdList.push(`${type}/${id}`);
+            } else {
+                fullResourceTypeAndIdList.push(`${target_type}/${searchItem}`);
+            }
+        }
+        queryBuilder[`${field}`] = {$in: fullResourceTypeAndIdList.map(s => `${s}`)};
+    } else if (target.includes('/')) {
+        const [type, id] = target.split('/');
+        if (id.includes(',')) {
+            const idList = id.split(',');
+            queryBuilder[`${field}`] = {$in: idList.map(i => `${type}/${i}`)};
+        } else {
+            queryBuilder[`${field}`] = `${type}/${id}`;
+        }
+    }
+    // target = id The type may be there so we need to check the end of the field for the id
+    else {
+        // eslint-disable-next-line security/detect-non-literal-regexp
+        queryBuilder[`${field}`] = {$regex: new RegExp(escapeRegExp(`${target}$`))};
+    }
+
+    return queryBuilder;
+};
+
 /**
  * @name numberQueryBuilder
  * @description takes in number query and returns a mongo query. The target parameter can have a 2 constter prefix to
@@ -956,6 +1019,7 @@ module.exports = {
     stringQueryBuilder,
     tokenQueryBuilder,
     referenceQueryBuilder,
+    referenceQueryBuilderOptimized,
     addressQueryBuilder,
     nameQueryBuilder,
     numberQueryBuilder,
