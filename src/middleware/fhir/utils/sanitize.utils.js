@@ -140,7 +140,7 @@ let findMatchWithName = (name = '', params = {}) => {
 /**
  * @function shouldUseParameter
  * @param {Object} param
- * @param {Object} req 
+ * @param {Object} req
  * @return {boolean} - Whether the param is to be used.
  */
 let shouldUseParameter = (param, req) => {
