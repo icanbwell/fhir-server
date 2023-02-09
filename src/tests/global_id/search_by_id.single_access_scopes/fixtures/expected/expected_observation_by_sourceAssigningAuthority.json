@@ -91,7 +91,7 @@
   "meta": {
     "tag": [
       {
-        "display": "db.Observation_4_0_0.find({'$and':[{'_sourceId':'1'},{'_sourceAssigningAuthority.C':1},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':'C'}}}]}, {}).sort({'id':1}).limit(10000)",
+        "display": "db.Observation_4_0_0.find({'$and':[{'_sourceId':'1'},{'_sourceAssigningAuthority':'C'},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':'C'}}}]}, {}).sort({'id':1}).limit(10000)",
         "system": "https://www.icanbwell.com/query"
       },
       {
