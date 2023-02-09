@@ -694,8 +694,8 @@ class SearchManager {
             projection['_id'] = 0;
             projection['id'] = 1;
             options['projection'] = projection;
-            let originalQuery = [query];
-            let originalOptions = [options];
+            const originalQuery = [query];
+            const originalOptions = [options];
             const sortOption = originalOptions[0] && originalOptions[0].sort ? originalOptions[0].sort : {};
 
             const databaseQueryManager = this.databaseQueryFactory.createQuery(
