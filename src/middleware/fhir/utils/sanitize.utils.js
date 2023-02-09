@@ -136,6 +136,11 @@ let findMatchWithName = (name = '', params = {}) => {
         value: params[`${match}`]
     };
 };
+
+let shouldUseParameter = (param, req) => {
+    return !param.versions || param.versions === req.params.base_version;
+};
+
 /**
  * @function sanitizeMiddleware
  * @summary Sanitize the arguments by removing extra arguments, escaping some, and
@@ -153,7 +158,7 @@ let sanitizeMiddleware = function (config, required) {
         let cleanArgs = {}; // filter only ones with version or no version
 
         let version_specific_params = config ? config.filter(param => {
-            return !param.versions || param.versions === req.params.base_version;
+            shouldUseParameter(param, req);
         }) : []; // Check each argument in the config
 
         for (let i = 0; i < version_specific_params.length; i++) {
@@ -171,12 +176,7 @@ let sanitizeMiddleware = function (config, required) {
 
             try {
                 if (value) {
-                    if (Array.isArray(value)) {
-                        cleanArgs[`${field}`] = value.map(v => parseValue(conf.type, v));
-                    } else {
-                        cleanArgs[`${field}`] = parseValue(conf.type, value);
-
-                    }
+                    cleanArgs[`${field}`] = Array.isArray(value) ? value.map(v => parseValue(conf.type, v)) : parseValue(conf.type, value);
                 }
             } catch (err) {
                 return next(errors.invalidParameter(conf.name + ' is invalid', req.params.base_version));

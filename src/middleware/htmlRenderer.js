@@ -15,6 +15,22 @@ const sanitize = require('sanitize-filename');
 const {getCircularReplacer} = require('../utils/getCircularReplacer');
 const Bundle = require('../fhir/classes/4_0_0/resources/bundle');
 
+const convertDataToJSON = (data) => {
+    return data instanceof Bundle ? data.toJSONInternal() : JSON.parse(JSON.stringify(data, getCircularReplacer()));
+};
+
+const extractResources = (parsedData) => {
+    let resources;
+    if (!Array.isArray(parsedData) && parsedData.resourceType === 'Bundle') {
+      resources = parsedData.entry ? parsedData.entry : [];
+    } else if (!Array.isArray(parsedData)) {
+      resources = [parsedData];
+    } else {
+      resources = parsedData;
+    }
+    return resources;
+};
+
 /**
  * middleware to render HTML
  * @param {SimpleContainer} container
@@ -33,32 +49,25 @@ const htmlRenderer = ({container, req, res, next}) => {
             /**
              * @type {Object|Object[]}
              */
-            const parsedData = (data instanceof Bundle) ?
-                data.toJSONInternal() :
-                JSON.parse(JSON.stringify(data, getCircularReplacer()));
-            let total = 0;
-            if (parsedData.total) {
-                total = parsedData.total;
-            }
-            let meta = null;
-            if (parsedData.meta) {
-                meta = parsedData.meta;
-            }
+            const parsedData = convertDataToJSON(data);
+
+            let total = parsedData.total || 0;
+            let meta = parsedData.meta || null;
             /**
              * @type {Object[]}
              */
-            let resources;
+            let resources = extractResources(parsedData);
             // /**
             //  * @type {Bundle}
             //  */
             // let bundle;
-            if (!Array.isArray(parsedData) && parsedData.resourceType === 'Bundle') {
+            // if (!Array.isArray(parsedData) && parsedData.resourceType === 'Bundle') {
                 // bundle = data;
                 // unbundle
                 // resources = parsedData.entry ? parsedData.entry.map((entry) => entry.resource) : [];
-                resources = parsedData.entry ? parsedData.entry : [];
-            } else if (!Array.isArray(parsedData)) {
-                resources = [parsedData];
+                // resources = parsedData.entry ? parsedData.entry : [];
+            // } else if (!Array.isArray(parsedData)) {
+                // resources = [parsedData];
                 // bundle = new Bundle({
                 //     type: 'searchset',
                 //     entry: [
@@ -69,9 +78,9 @@ const htmlRenderer = ({container, req, res, next}) => {
                 //         )
                 //     ]
                 // });
-            } else {
-                resources = parsedData;
-            }
+            // } else {
+                // resources = parsedData;
+            // }
 
             res.json = oldJson; // set function back to avoid the 'double-send'
             res.set('Content-Type', 'text/html');

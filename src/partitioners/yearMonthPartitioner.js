@@ -71,29 +71,8 @@ class YearMonthPartitioner extends BasePartitioner {
          * @type {Object[]}
          */
         const clausesForDate = andClauses.filter(c => c[`${field}`] !== undefined);
+        let { greaterThan, lessThan } = this.getUpdateDateRangeForField(clausesForDate, field);
 
-        /**
-         * init to an initial value
-         * @type {moment.Moment}
-         */
-        let greaterThan = moment.utc(new Date(2010, 0, 1));
-        /**
-         * init to an initial value
-         * @type {moment.Moment}
-         */
-        let lessThan = moment.utc(new Date(2030, 0, 1));
-        for (const clauseForDate of clausesForDate) {
-            /**
-             * @type {{$gt:Date|undefined, $lt: Date|undefined }}
-             */
-            const value = clauseForDate[`${field}`];
-            if (value.$gt) {
-                greaterThan = moment.utc(value.$gt).isAfter(greaterThan) ? moment.utc(value.$gt) : greaterThan;
-            }
-            if (value.$lt) {
-                lessThan = moment.utc(value.$lt).isBefore(lessThan) ? moment.utc(value.$lt) : lessThan;
-            }
-        }
         // now find partitions for the months in between greaterThan and lessThan
         /**
          * @type {moment.Moment}
@@ -115,6 +94,33 @@ class YearMonthPartitioner extends BasePartitioner {
             currentDate = currentDate.utc().subtract(1, 'months');
         }
         return partitions;
+    }
+
+    getUpdateDateRangeForField(clausesForDate, field) {
+        /**
+         * init to an initial value
+         * @type {moment.Moment}
+         */
+        let greaterThan = moment.utc(new Date(2010, 0, 1));
+        /**
+         * init to an initial value
+         * @type {moment.Moment}
+         */
+        let lessThan = moment.utc(new Date(2030, 0, 1));
+
+        for (const clauseForDate of clausesForDate) {
+            /**
+             * @type {{$gt:Date|undefined, $lt: Date|undefined }}
+             */
+            const value = clauseForDate[`${field}`];
+            if (value.$gt) {
+                greaterThan = moment.utc(value.$gt).isAfter(greaterThan) ? moment.utc(value.$gt) : greaterThan;
+            }
+            if (value.$lt) {
+                lessThan = moment.utc(value.$lt).isBefore(lessThan) ? moment.utc(value.$lt) : lessThan;
+            }
+        }
+        return { greaterThan, lessThan };
     }
 
     /**

@@ -251,15 +251,15 @@ class BundleManager {
                 },
                 {
                     system: 'https://www.icanbwell.com/queryCollection',
-                    code: allCollectionsToSearch ? allCollectionsToSearch.join(',') : collectionName,
+                    code: this.getQueryCollection(allCollectionsToSearch, collectionName),
                 },
                 {
                     system: 'https://www.icanbwell.com/queryOptions',
-                    display: originalOptions ? mongoQueryStringify(originalOptions) : null,
+                    display: this.getQueryOptions(originalOptions),
                 },
                 {
                     system: 'https://www.icanbwell.com/queryFields',
-                    display: columns ? mongoQueryStringify(Array.from(columns)) : null,
+                    display: this.getQueryFields(columns),
                 },
                 {
                     system: 'https://www.icanbwell.com/queryTime',
@@ -319,6 +319,18 @@ class BundleManager {
             logDebug({user, args: bundle});
         }
         return bundle;
+    }
+
+    getQueryCollection(allCollectionsToSearch, collectionName) {
+        return allCollectionsToSearch ? allCollectionsToSearch.join(',') : collectionName;
+    }
+
+    getQueryOptions(originalOptions) {
+        return originalOptions ? mongoQueryStringify(originalOptions) : null;
+    }
+
+    getQueryFields(columns) {
+        return columns ? mongoQueryStringify(Array.from(columns)) : null;
     }
 
     /**

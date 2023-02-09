@@ -185,6 +185,10 @@ class ErrorReporter {
         }
     }
 
+    getUserName(req) {
+        return (!req.user || typeof req.user === 'string') ? req.user : req.user.name || req.user.id;
+    }
+
     /**
      * logs error and request to Slack
      * @param {string} token
@@ -199,11 +203,11 @@ class ErrorReporter {
             token, channel, error, req, args
         }
     ) {
+        const self = this;
         /**
          * @type {string|null}
          */
-        const user = (!req.user || typeof req.user === 'string') ? req.user : req.user.name || req.user.id;
-        const self = this;
+        const user = self.getUserName(req);
         const request = {
             method: req.method,
             url: req.url,

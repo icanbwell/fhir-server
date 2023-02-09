@@ -335,40 +335,54 @@ const givenNameValue = (nameObj) => {
     return nameMap.join(', ');
 };
 
+const getNameValue = (name) => {
+    if (!name) {return '';}
+    if (typeof name === 'object') {
+        if (Array.isArray(name)) {
+            return name.map(n => n.family).join(', ');
+        }
+        return name.family || JSON.stringify(name);
+    }
+    return name;
+};
+
 const getFieldValue = (res, name) => {
     switch (name) {
         case '_source':
-            return res.meta && res.meta.source ? res.meta.source : '';
+            return res.meta && res.meta.source || '';
         case 'npi':
-            return res.identifier ? res.identifier.map((id) => id.value).join(', ') : '';
+            return (res.identifier || [])
+                .map(id => id.value)
+                .join(', ');
         case 'given':
             return givenNameValue(res.name);
         case 'family':
-            return res.name ? res.name.map((n) => n.family).join(', ') : '';
+            return (res.name || [])
+                .map(n => n.family)
+                .join(', ');
         case 'name':
-            return res.name ?
-                (typeof res.name === 'object' ?
-                    Array.isArray(res.name) ?
-                        res.name.map(n => n.family).join(',') :
-                        Object.hasOwn(res.name, 'family') ?
-                            `${res.name.family}` :
-                            JSON.stringify(res.name) :
-                    res.name) :
-                '';
+            return getNameValue(res.name);
         case 'id':
-            return res.id ? res.id : '';
+            return res.id || '';
         case 'email':
-            return res.telecom ? res.telecom.filter(n => n.system === 'email').map((n) => n.value).join(', ') : '';
+            return (res.telecom || [])
+                .filter(n => n.system === 'email')
+                .map(n => n.value)
+                .join(', ');
         case 'identifier':
-            return res.identifier ? res.identifier.map((n) => `${n.value}(${n.system})`).join(', ') : '';
+            return (res.identifier || [])
+                .map(n => `${n.value}(${n.system})`)
+                .join(', ');
         case '_security':
-            return res.meta && res.meta.security ? res.meta.security.map((n) => `${n.code}(${n.system.split('/').pop()})`).join(', ') : '';
+            return (res.meta && res.meta.security || [])
+                .map(n => `${n.code}(${n.system.split('/').pop()})`)
+                .join(', ');
     }
-    if (Object.hasOwn(res, 'name')) {
+    if (res.name) {
         return res.name;
     }
     if (Array.isArray(res)) {
-        return res.map(r => r.name).join(',');
+        return res.map(r => r.name).join(', ');
     }
     return JSON.stringify(res[`${name}`]);
 };

@@ -384,20 +384,14 @@ class FhirDataSource extends DataSource {
         // get list of properties from first meta
         for (const /** @type {Meta} **/ meta of this.metaList) {
             for (const /** @type Coding **/ metaTag of meta.tag) {
-                const foundCombinedMetaTag = combinedMeta.tag.find(
+                let foundCombinedMetaTag = combinedMeta.tag.find(
                     (tag) => tag.system === metaTag.system
                 );
                 if (!foundCombinedMetaTag) {
                     combinedMeta.tag.push(metaTag);
                 } else {
                     // concatenate code and/or display
-                    if (metaTag.display && foundCombinedMetaTag.display) {
-                        foundCombinedMetaTag.display =
-                            foundCombinedMetaTag.display + ',' + metaTag.display;
-                    }
-                    if (metaTag.code && foundCombinedMetaTag.code) {
-                        foundCombinedMetaTag.code = foundCombinedMetaTag.code + ',' + metaTag.code;
-                    }
+                    foundCombinedMetaTag = this.updateCombinedMetaTag(foundCombinedMetaTag, metaTag);
                 }
             }
         }
@@ -412,6 +406,16 @@ class FhirDataSource extends DataSource {
             }
         }
         return combinedMeta;
+    }
+
+    updateCombinedMetaTag(foundCombinedMetaTag, metaTag) {
+        if (metaTag.display && foundCombinedMetaTag.display) {
+            foundCombinedMetaTag.display = foundCombinedMetaTag.display + ',' + metaTag.display;
+        }
+        if (metaTag.code && foundCombinedMetaTag.code) {
+            foundCombinedMetaTag.code = foundCombinedMetaTag.code + ',' + metaTag.code;
+        }
+        return foundCombinedMetaTag;
     }
 }
 

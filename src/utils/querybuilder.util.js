@@ -217,6 +217,7 @@ const exactMatchQueryBuilder = function ({target, field, exists_flag}) {
  */
 const referenceQueryBuilder = function ({target_type, target, field, exists_flag}) {
     const queryBuilder = {};
+
     // noinspection JSIncompatibleTypesComparison
     if (target === null || exists_flag === false) {
         queryBuilder[`${field}`] = {$exists: false};

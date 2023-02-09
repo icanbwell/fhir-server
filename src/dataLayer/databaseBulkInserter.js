@@ -607,9 +607,7 @@ class DatabaseBulkInserter extends EventEmitter {
                         previousInsert.operation.updateOne.update.$setOnInsert = doc.toJSONInternal();
                     }
                 } else { // no previuous insert or update found
-                    const filter = lastVersionId && lastVersionId !== '0' ?
-                        {$and: [{id: id.toString()}, {'meta.versionId': `${lastVersionId}`}]} :
-                        {id: id.toString()};
+                    const filter = await this.getFilter(id, lastVersionId);
                     assertIsValid(!lastVersionId || lastVersionId < parseInt(doc.meta.versionId),
                         `lastVersionId ${lastVersionId} is not less than doc versionId ${doc.meta.versionId}` +
                         `, doc: ${JSON.stringify(doc.toJSONInternal(), getCircularReplacer())}`);
@@ -636,6 +634,14 @@ class DatabaseBulkInserter extends EventEmitter {
                 error: e
             });
         }
+    }
+
+    async getFilter(id, lastVersionId) {
+        const filter = lastVersionId && lastVersionId !== '0' ?
+          {$and: [{id: id.toString()}, {'meta.versionId': `${lastVersionId}`}]} :
+          {id: id.toString()};
+
+        return filter;
     }
 
     /**
