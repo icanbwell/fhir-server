@@ -172,7 +172,7 @@ describe('graphHelper Tests', () => {
             await collection.insertOne({
                 id: '10',
                 resourceType: resourceType,
-                practitioner: {reference: 'Practitioner/1'},
+                practitioner: {reference: 'Practitioner/1', '_sourceId': 'Practitioner/1'},
             });
 
             resourceType = 'Practitioner';
@@ -237,7 +237,7 @@ describe('graphHelper Tests', () => {
             await collection.insertOne({
                 id: '10',
                 resourceType: resourceType,
-                practitioner: {reference: 'Practitioner/1'},
+                practitioner: {reference: 'Practitioner/1', _sourceId: 'Practitioner/1'},
             });
 
             resourceType = 'Practitioner';
@@ -302,7 +302,7 @@ describe('graphHelper Tests', () => {
             await collection.insertOne({
                 id: '10',
                 resourceType: resourceType,
-                practitioner: {reference: 'Practitioner/1'},
+                practitioner: {reference: 'Practitioner/1', _sourceId: 'Practitioner/1'},
             });
 
             resourceType = 'Practitioner';
@@ -365,7 +365,7 @@ describe('graphHelper Tests', () => {
             await collection.insertOne({
                 id: '10',
                 resourceType: resourceType,
-                practitioner: {reference: 'Practitioner/1'},
+                practitioner: {reference: 'Practitioner/1', _sourceId: 'Practitioner/1'},
             });
 
             resourceType = 'Practitioner';
@@ -506,7 +506,7 @@ describe('graphHelper Tests', () => {
             await collection.insertOne({
                 id: '10',
                 resourceType: resourceType,
-                practitioner: {reference: 'Practitioner/1'},
+                practitioner: {reference: 'Practitioner/1', _sourceId: 'Practitioner/1'},
             });
 
             resourceType = 'Practitioner';
@@ -572,9 +572,11 @@ describe('graphHelper Tests', () => {
                 resourceType: resourceType,
                 practitioner: {
                     reference: 'Practitioner/1',
+                    _sourceId: 'Practitioner/1',
                 },
                 organization: {
                     reference: 'Organization/100',
+                    _sourceId: 'Organization/100',
                 },
             });
             // add an Organization
@@ -662,9 +664,11 @@ describe('graphHelper Tests', () => {
                 resourceType: resourceType,
                 practitioner: {
                     reference: 'Practitioner/1',
+                    _sourceId: 'Practitioner/1',
                 },
                 organization: {
                     reference: 'Organization/100',
+                    _sourceId: 'Organization/100',
                 },
             });
             await collection.insertOne({
@@ -672,9 +676,11 @@ describe('graphHelper Tests', () => {
                 resourceType: resourceType,
                 practitioner: {
                     reference: 'Practitioner/2',
+                    _sourceId: 'Practitioner/2',
                 },
                 organization: {
                     reference: 'Organization/200',
+                    _sourceId: 'Organization/200',
                 },
             });
             // add an Organization
@@ -793,9 +799,11 @@ describe('graphHelper Tests', () => {
                 resourceType: resourceType,
                 practitioner: {
                     reference: 'Practitioner/1',
+                    _sourceId: 'Practitioner/1',
                 },
                 organization: {
                     reference: 'Organization/100',
+                    _sourceId: 'Organization/100',
                 },
             });
             await collection.insertOne({
@@ -803,9 +811,11 @@ describe('graphHelper Tests', () => {
                 resourceType: resourceType,
                 practitioner: {
                     reference: 'Practitioner/2',
+                    _sourceId: 'Practitioner/2',
                 },
                 organization: {
                     reference: 'Organization/200',
+                    _sourceId: 'Organization/200',
                 },
             });
             // add an Organization
@@ -1063,9 +1073,11 @@ describe('graphHelper Tests', () => {
                 resourceType: resourceType,
                 practitioner: {
                     reference: 'Practitioner/1',
+                    _sourceId: 'Practitioner/1',
                 },
                 organization: {
                     reference: 'Organization/100',
+                    _sourceId: 'Organization/100',
                 },
                 extension: [
                     {
@@ -1101,9 +1113,11 @@ describe('graphHelper Tests', () => {
                 resourceType: resourceType,
                 practitioner: {
                     reference: 'Practitioner/2',
+                    _sourceId: 'Practitioner/2',
                 },
                 organization: {
                     reference: 'Organization/200',
+                    _sourceId: 'Organization/200',
                 },
             });
             // add an Organization
@@ -1292,9 +1306,11 @@ describe('graphHelper Tests', () => {
                 resourceType: resourceType,
                 practitioner: {
                     reference: 'Practitioner/1',
+                    _sourceId: 'Practitioner/1',
                 },
                 organization: {
                     reference: 'Organization/100',
+                    _sourceId: 'Organization/100',
                 },
                 extension: [
                     {
@@ -1330,9 +1346,11 @@ describe('graphHelper Tests', () => {
                 resourceType: resourceType,
                 practitioner: {
                     reference: 'Practitioner/2',
+                    _sourceId: 'Practitioner/2',
                 },
                 organization: {
                     reference: 'Organization/200',
+                    _sourceId: 'Organization/200',
                 },
             });
             // add an Organization
@@ -1502,9 +1520,11 @@ describe('graphHelper Tests', () => {
                 resourceType: resourceType,
                 practitioner: {
                     reference: 'Practitioner/1',
+                    _sourceId: 'Practitioner/1',
                 },
                 organization: {
                     reference: 'Organization/100',
+                    _sourceId: 'Organization/100',
                 },
                 extension: [
                     {
@@ -1540,9 +1560,11 @@ describe('graphHelper Tests', () => {
                 resourceType: resourceType,
                 practitioner: {
                     reference: 'Practitioner/2',
+                    _sourceId: 'Practitioner/2',
                 },
                 organization: {
                     reference: 'Organization/200',
+                    _sourceId: 'Organization/200',
                 },
             });
             // add an Organization
@@ -1689,7 +1711,7 @@ describe('graphHelper Tests', () => {
                 'meta': {
                     'tag': [
                         {
-                            'display': 'db.Practitioner_4_0_0.find({\'id\':{\'$in\':[\'1\',\'2\']}}, {\'_id\':0})  | db.Practitioner_4_0_0.find({\'$or\':[{\'practitioner.reference\':\'Practitioner/1\'},{\'practitioner.reference\':\'Practitioner/2\'}]}, {}) | db.Practitioner_4_0_0.find({\'id\':{\'$in\':[\'100\',\'200\']}}, {}) | db.Practitioner_4_0_0.find({\'id\':{\'$in\':[\'AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He\']}}, {})',
+                            'display': 'db.Practitioner_4_0_0.find({\'id\':{\'$in\':[\'1\',\'2\']}}, {\'_id\':0})  | db.Practitioner_4_0_0.find({\'$or\':[{\'practitioner._sourceId\':\'Practitioner/1\'},{\'practitioner._sourceId\':\'Practitioner/2\'}]}, {}) | db.Practitioner_4_0_0.find({\'id\':{\'$in\':[\'100\',\'200\']}}, {}) | db.Practitioner_4_0_0.find({\'id\':{\'$in\':[\'AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He\']}}, {})',
                             'system': 'https://www.icanbwell.com/query'
                         },
                         {
@@ -1760,9 +1782,11 @@ describe('graphHelper Tests', () => {
                 resourceType: resourceType,
                 practitioner: {
                     reference: 'Practitioner/1',
+                    _sourceId: 'Practitioner/1',
                 },
                 organization: {
                     reference: 'Organization/100',
+                    _sourceId: 'Organization/100',
                 },
                 extension: [
                     {
@@ -1798,9 +1822,11 @@ describe('graphHelper Tests', () => {
                 resourceType: resourceType,
                 practitioner: {
                     reference: 'Practitioner/2',
+                    _sourceId: 'Practitioner/2',
                 },
                 organization: {
                     reference: 'Organization/200',
+                    _sourceId: 'Organization/200',
                 },
             });
             // add an Organization
@@ -1855,7 +1881,7 @@ describe('graphHelper Tests', () => {
                     'tag': [
                         {
                             'system': 'https://www.icanbwell.com/query',
-                            'display': 'db.Practitioner_4_0_0.find({\'id\':{\'$in\':[\'1\',\'2\']}}, {\'_id\':0})  | db.Practitioner_4_0_0.find({\'practitioner.reference\':\'Practitioner/1\'}, {}) | db.Practitioner_4_0_0.find({\'id\':{\'$in\':[\'100\']}}, {}) | db.Practitioner_4_0_0.find({\'id\':{\'$in\':[\'AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He\']}}, {})',
+                            'display': 'db.Practitioner_4_0_0.find({\'id\':{\'$in\':[\'1\',\'2\']}}, {\'_id\':0})  | db.Practitioner_4_0_0.find({\'practitioner._sourceId\':\'Practitioner/1\'}, {}) | db.Practitioner_4_0_0.find({\'id\':{\'$in\':[\'100\']}}, {}) | db.Practitioner_4_0_0.find({\'id\':{\'$in\':[\'AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He\']}}, {})',
                         },
                         {
                             'system': 'https://www.icanbwell.com/queryCollection',
@@ -1924,10 +1950,10 @@ describe('graphHelper Tests', () => {
                                         }
                                     ],
                                     'practitioner': {
-                                        'reference': 'Practitioner/1'
+                                        'reference': 'Practitioner/1',
                                     },
                                     'organization': {
-                                        'reference': 'Organization/100'
+                                        'reference': 'Organization/100',
                                     }
                                 },
                                 {

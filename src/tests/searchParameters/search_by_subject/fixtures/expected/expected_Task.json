@@ -21,12 +21,12 @@
             {
               "id": "sourceId",
               "url": "https://www.icanbwell.com/sourceId",
-              "valueString": "7890"
+              "valueString": "Encounter/7890"
             },
             {
               "id": "uuid",
               "url": "https://www.icanbwell.com/uuid",
-              "valueString": "200f182a-465a-5b2b-b606-631819746095"
+              "valueString": "Encounter/200f182a-465a-5b2b-b606-631819746095"
             },
             {
               "id": "sourceAssigningAuthority",
@@ -45,12 +45,12 @@
             {
               "id": "sourceId",
               "url": "https://www.icanbwell.com/sourceId",
-              "valueString": "lipid"
+              "valueString": "ServiceRequest/lipid"
             },
             {
               "id": "uuid",
               "url": "https://www.icanbwell.com/uuid",
-              "valueString": "d6822fe4-058b-5173-b671-914d93bc25d5"
+              "valueString": "ServiceRequest/d6822fe4-058b-5173-b671-914d93bc25d5"
             },
             {
               "id": "sourceAssigningAuthority",
@@ -138,12 +138,12 @@
                 {
                   "id": "sourceId",
                   "url": "https://www.icanbwell.com/sourceId",
-                  "valueString": "101"
+                  "valueString": "Specimen/101"
                 },
                 {
                   "id": "uuid",
                   "url": "https://www.icanbwell.com/uuid",
-                  "valueString": "89258ce7-d662-5442-9d81-5ad7cdffd339"
+                  "valueString": "Specimen/89258ce7-d662-5442-9d81-5ad7cdffd339"
                 },
                 {
                   "id": "sourceAssigningAuthority",
