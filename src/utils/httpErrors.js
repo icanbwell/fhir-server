@@ -16,8 +16,8 @@ class BadRequestError extends ServerError {
                     severity: 'error',
                     code: 'invalid',
                     details: {text: error.message},
-                    diagnostics: env.IS_PRODUCTION ? error.message :
-                        (typeof error.toString === 'function') ? error.toString() : error.message,
+                    diagnostics: (env.IS_PRODUCTION || typeof error.toString !== 'function') ?
+                        error.message : error.toString(),
                 },
             ],
         });
