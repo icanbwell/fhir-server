@@ -1,0 +1,114 @@
+fragment MetaTags on Meta {
+    tag {
+        system
+        code
+    }
+}
+fragment MetaSecurity on Meta {
+    security {
+        system
+        code
+    }
+}
+fragment PractitionerName on Practitioner {
+    name {
+        text
+        family
+        given
+        prefix
+        suffix
+    }
+}
+fragment CodeableConceptFields on CodeableConcept {
+    text
+    coding {
+        system
+        code
+        display
+    }
+}
+query Procedure($FHIR_DEFAULT_COUNT: Int, $from_date: date, $to_date: date) {
+    procedure(
+        _sort: [
+            "-performedDateTime",
+            "-performedPeriod.end",
+            "-performedPeriod.start",
+            "-encounter.period.end",
+            "-encounter.period.start"
+        ]
+        _count: $FHIR_DEFAULT_COUNT
+        date: {
+            values: [
+                {
+                    greaterThanOrEqualTo: $from_date
+                },
+                {
+                    lessThanOrEqualTo: $to_date
+                }
+            ]
+        }
+    )
+    {
+        entry {
+            resource {
+                id
+                __typename
+                meta {
+                    ...MetaTags
+                    ...MetaSecurity
+                }
+                performedDateTime
+                performedPeriod {
+                    start
+                    end
+                }
+                performer {
+                    actor {
+                        ...PractitionerName
+                    }
+                }
+                encounter {
+                    id
+                    identifier {
+                        system
+                        value
+                    }
+                    period {
+                        start
+                        end
+                    }
+                }
+                reasonCode {
+                    text
+                }
+                code {
+                    ...CodeableConceptFields
+                }
+                bodySite {
+                    coding {
+                        display
+                    }
+                }
+                outcome {
+                    text
+                    coding {
+                        display
+                    }
+                }
+                followUp {
+                    text
+                }
+                complication {
+                    text
+                }
+                note {
+                    id
+                    authorString
+                    time
+                    text
+                }
+            }
+        }
+    }
+}
+

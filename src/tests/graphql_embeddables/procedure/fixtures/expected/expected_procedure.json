@@ -1,0 +1,52 @@
+{
+  "entry": [
+    {
+      "resource": {
+        "__typename": "Procedure",
+        "bodySite": null,
+        "code": {
+          "coding": [
+            {
+              "code": "11466000",
+              "display": "cesarean section",
+              "system": "2.16.840.1.113883.6.96"
+            }
+          ],
+          "text": null
+        },
+        "complication": null,
+        "encounter": null,
+        "followUp": null,
+        "id": "HumanApi-5ef221a3eb5d1c7ed0773ebd",
+        "meta": {
+          "security": [
+            {
+              "code": "humanapi",
+              "system": "https://www.icanbwell.com/owner"
+            },
+            {
+              "code": "humanapi",
+              "system": "https://www.icanbwell.com/access"
+            },
+            {
+              "code": "humanapi",
+              "system": "https://www.icanbwell.com/vendor"
+            },
+            {
+              "code": "humanapi",
+              "system": "https://www.icanbwell.com/sourceAssigningAuthority"
+            }
+          ],
+          "tag": null
+        },
+        "note": null,
+        "outcome": null,
+        "performedDateTime": null,
+        "performedPeriod": null,
+        "performer": null,
+        "reasonCode": null
+      }
+    }
+  ],
+  "meta": null
+}
