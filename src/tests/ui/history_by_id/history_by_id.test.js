@@ -68,7 +68,7 @@ describe('History UI Tests', () => {
             expect(resp.type).toStrictEqual('text/html');
             expect(resp.body).toStrictEqual({});
             expect(resp.text).not.toBeNull();
-            const text = resp.text.replace('\\"', '"').replace('\n', '');
+            const text = resp.text.replace('\\"', '"').replaceAll('\n', '');
             logInfo('------- response html ------------');
             logInfo(text);
             logInfo('------- end response html ------------');
