@@ -81,7 +81,7 @@ describe('Observation Tests', () => {
                  * @type {Reference}
                  */
                 const subject = resource.subject;
-                const id = subject.extension.find(e => e.url === IdentifierSystem.sourceId).valueString;
+                const id = subject.extension.find(e => e.url === IdentifierSystem.sourceId).valueString.split('/')[1];
                 const sourceAssigningAuthority = subject.extension.find(
                     e => e.url === SecurityTagSystem.sourceAssigningAuthority).valueString;
                 const reference = subject.reference;
