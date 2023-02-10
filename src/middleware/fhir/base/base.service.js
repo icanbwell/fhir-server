@@ -68,63 +68,39 @@ const createRequestPromises = (entries, req, baseVersion) => {
   return {requestPromises, results};
 };
 
-module.exports.batch = (req, res) => new Promise((resolve, reject) => {
-  logger.info('Base >>> batch');
-  let {
-    resourceType,
-    type,
-    entry: entries
-  } = req.body;
-  let {
-    base_version: baseVersion
-  } = req.params;
+const processRequest = requestType => {
+  return (req, res) => new Promise((resolve, reject) => {
+    logger.info(`Base >>> ${requestType}`);
+    let {
+      resourceType,
+      type,
+      entry: entries,
+    } = req.body;
+    let {
+      base_version: baseVersion,
+    } = req.params;
 
-  if (resourceType !== 'Bundle') {
-    return reject(errors.internal(`Expected 'resourceType: Bundle'. Received 'resourceType: ${resourceType}'.`, baseVersion));
-  }
-
-  if (type.toLowerCase() !== 'batch') {
-    return reject(errors.internal(`Expected 'type: batch'. Received 'type: ${type}'.`, baseVersion));
-  }
-
-  const {requestPromises, results} = createRequestPromises(entries, req, baseVersion);
-  return Promise.all(requestPromises).then(responses => {
-    for (let i = 0; i < responses.length; i++) {
-      results[`${i}`].status = responses[`${i}`].status;
-    } // ver como resolver esta parte!!!
-
-
-    let resultsBundle = makeResultBundle(results, res, baseVersion, 'batch');
-    resolve(resultsBundle);
-  });
-});
-
-module.exports.transaction = (req, res) => new Promise((resolve, reject) => {
-  logger.info('Base >>> transaction');
-  let {
-    resourceType,
-    type,
-    entry: entries
-  } = req.body;
-  let {
-    base_version: baseVersion
-  } = req.params;
-
-  if (resourceType !== 'Bundle') {
-    return reject(errors.internal(`Expected 'resourceType: Bundle'. Received 'resourceType: ${resourceType}'.`, baseVersion));
-  }
-
-  if (type.toLowerCase() !== 'transaction') {
-    return reject(errors.internal(`Expected 'type: transaction'. Received 'type: ${type}'.`, baseVersion));
-  }
-
-  const {requestPromises, results} = createRequestPromises(entries, req, baseVersion);
-  return Promise.all(requestPromises).then(responses => {
-    for (let i = 0; i < responses.length; i++) {
-      results[`${i}`].status = responses[`${i}`].status;
+    if (resourceType !== 'Bundle') {
+      return reject(errors.internal(`Expected 'resourceType: Bundle'. Received 'resourceType: ${resourceType}'.`, baseVersion));
     }
 
-    let resultsBundle = makeResultBundle(results, res, baseVersion, 'transaction');
-    resolve(resultsBundle);
+    if (type.toLowerCase() !== requestType) {
+      return reject(errors.internal(`Expected 'type: ${requestType}'. Received 'type: ${type}'.`, baseVersion));
+    }
+
+    const { requestPromises, results } = createRequestPromises(entries, req, baseVersion);
+    return Promise.all(requestPromises).then(responses => {
+      for (let i = 0; i < responses.length; i++) {
+        results[`${i}`].status = responses[`${i}`].status;
+      } // ver como resolver esta parte!!!
+
+
+      let resultsBundle = makeResultBundle(results, res, baseVersion, requestType);
+      resolve(resultsBundle);
+    });
   });
-});
+};
+
+module.exports.batch = processRequest('batch');
+
+module.exports.transaction = processRequest('transaction');

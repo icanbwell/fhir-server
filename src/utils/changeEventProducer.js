@@ -599,7 +599,7 @@ class ChangeEventProducer {
                 const observationMessageMap = this.getObservationMessageMap({requestId});
                 const numberOfMessagesBefore = patientMessageMap.size + taskMessageMap.size + observationMessageMap.size;
 
-                const messageMapFn = ([/** @type {string} */ id, /** @type {Object} */ messageJson]) => {
+                const createKafkaClientMessageFn = ([/** @type {string} */ id, /** @type {Object} */ messageJson]) => {
                     return {
                         key: id,
                         fhirVersion: fhirVersion,
@@ -612,7 +612,7 @@ class ChangeEventProducer {
                  * @type {KafkaClientMessage[]}
                  */
                 const patientMessages = Array.from(
-                    patientMessageMap.entries(), messageMapFn
+                    patientMessageMap.entries(), createKafkaClientMessageFn
                 );
 
                 /**
@@ -629,7 +629,7 @@ class ChangeEventProducer {
                  * @type {KafkaClientMessage[]}
                  */
                 const taskMessages = Array.from(
-                    taskMessageMap.entries(), messageMapFn
+                    taskMessageMap.entries(), createKafkaClientMessageFn
                 );
 
                 await kafkaClient.sendMessagesAsync(this.taskChangeTopic, taskMessages);
@@ -641,7 +641,7 @@ class ChangeEventProducer {
                  * @type {KafkaClientMessage[]}
                  */
                 const observationMessages = Array.from(
-                    observationMessageMap.entries(), messageMapFn
+                    observationMessageMap.entries(), createKafkaClientMessageFn
                 );
 
                 await kafkaClient.sendMessagesAsync(this.observationChangeTopic, observationMessages);
