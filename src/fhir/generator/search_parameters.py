@@ -6393,7 +6393,7 @@ search_parameter_queries = {
 			'fieldFilter': '[system/@value=\'email\']',
 		},
 		'family': {
-			'description': 'Multiple Resources: * [Patient](patient.html): A portion of the family name of the patient* [Practitioner](practitioner.html): A portion of the family name',
+			'description': 'Multiple Resources: * [Patient](patient.html): A portion of the family name of the patient* [Practitioner](practitioner.html): A portion of the family name* [Person](person.html): A portion of the family name of the person',
 			'type': 'string',
 			'field': 'name.family',
 		},
@@ -6409,7 +6409,7 @@ search_parameter_queries = {
 			'target': ['Practitioner', 'Organization', 'PractitionerRole'],
 		},
 		'given': {
-			'description': 'Multiple Resources: * [Patient](patient.html): A portion of the given name of the patient* [Practitioner](practitioner.html): A portion of the given name',
+			'description': 'Multiple Resources: * [Patient](patient.html): A portion of the given name of the patient* [Practitioner](practitioner.html): A portion of the given name* [Person](person.html): A portion of the given name of the person',
 			'type': 'string',
 			'field': 'name.given',
 		},
@@ -6584,10 +6584,20 @@ search_parameter_queries = {
 			'field': 'telecom',
 			'fieldFilter': '[system/@value=\'email\']',
 		},
+		'family': {
+			'description': 'Multiple Resources: * [Patient](patient.html): A portion of the family name of the patient* [Practitioner](practitioner.html): A portion of the family name* [Person](person.html): A portion of the family name of the person',
+			'type': 'string',
+			'field': 'name.family',
+		},
 		'gender': {
 			'description': 'Multiple Resources: * [Patient](patient.html): Gender of the patient* [Person](person.html): The gender of the person* [Practitioner](practitioner.html): Gender of the practitioner* [RelatedPerson](relatedperson.html): Gender of the related person',
 			'type': 'token',
 			'field': 'gender',
+		},
+		'given': {
+			'description': 'Multiple Resources: * [Patient](patient.html): A portion of the given name of the patient* [Practitioner](practitioner.html): A portion of the given name* [Person](person.html): A portion of the given name of the person',
+			'type': 'string',
+			'field': 'name.given',
 		},
 		'identifier': {
 			'description': 'A person Identifier',
@@ -6817,7 +6827,7 @@ search_parameter_queries = {
 			'fieldFilter': '[system/@value=\'email\']',
 		},
 		'family': {
-			'description': 'Multiple Resources: * [Patient](patient.html): A portion of the family name of the patient* [Practitioner](practitioner.html): A portion of the family name',
+			'description': 'Multiple Resources: * [Patient](patient.html): A portion of the family name of the patient* [Practitioner](practitioner.html): A portion of the family name* [Person](person.html): A portion of the family name of the person',
 			'type': 'string',
 			'field': 'name.family',
 		},
@@ -6827,7 +6837,7 @@ search_parameter_queries = {
 			'field': 'gender',
 		},
 		'given': {
-			'description': 'Multiple Resources: * [Patient](patient.html): A portion of the given name of the patient* [Practitioner](practitioner.html): A portion of the given name',
+			'description': 'Multiple Resources: * [Patient](patient.html): A portion of the given name of the patient* [Practitioner](practitioner.html): A portion of the given name* [Person](person.html): A portion of the given name of the person',
 			'type': 'string',
 			'field': 'name.given',
 		},
