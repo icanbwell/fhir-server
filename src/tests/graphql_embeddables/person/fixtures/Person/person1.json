@@ -1,26 +1,162 @@
 {
-  "entry": [
-    {
-      "resource": {
-        "resourceType": "Person",
-        "id": "8ba1017f-0aad-1b91-ff9e-416a96e11f0b",
-        "meta": {
-          "versionId": "1",
-          "lastUpdated": "2021-10-21T18:22:53+00:00",
-          "profile": [
-            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-patient"
-          ],
-          "security": [
+    "resourceType": "Person",
+    "id": "79e59046-ffc7-4c41-9819-c8ef83275454",
+    "meta": {
+        "id": "90d8a9a1-ce43-4b2d-9c6a-84d1c5fe1c36",
+        "versionId": "3",
+        "lastUpdated": "2023-02-02T20:33:41.000Z",
+        "source": "https://www.icanbwell.com",
+        "security": [
             {
-              "system": "https://www.icanbwell.com/access",
-              "code": "mps-api"
+                "system": "https://www.icanbwell.com/owner",
+                "code": "bwell"
+            },
+            {
+                "system": "https://www.icanbwell.com/access",
+                "code": "bwell"
+            },
+            {
+                "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+                "code": "bwell"
             }
-          ]
+        ]
+    },
+    "extension": [
+        {
+            "id": "3bbd5d30-82e6-4cf8-b065-a2ffffb8e8e1",
+            "url": "https://icanbwell.com/userType",
+            "valueCodeableConcept": {
+                "id": "3865dc99-5dc3-4639-8112-0784409b8cdf",
+                "coding": [
+                    {
+                        "system": "https://icanbwell.com/userType",
+                        "code": "RX_AUTH",
+                        "display": "RX_AUTH"
+                    }
+                ],
+                "text": "user type"
+            }
+        },
+        {
+            "id": "programs",
+            "url": "https://icanbwell.com/programs",
+            "valueCodeableConcept": {
+                "id": "programs",
+                "coding": [
+                    {
+                        "system": "https://icanbwell.com/programs",
+                        "code": "mywag,harmony",
+                        "display": "mywag,harmony"
+                    }
+                ]
+            }
+        },
+        {
+            "id": "84ae6ff0-1b87-4c33-b0ec-7288f5911e75",
+            "url": "https://icanbwell.com/memberSince",
+            "valueCodeableConcept": {
+                "id": "289c5250-656c-4126-bf83-f5d94de7dbc5",
+                "coding": [
+                    {
+                        "system": "https://icanbwell.com/memberSince",
+                        "code": "2021-03-26 02:58:33:520",
+                        "display": "2021-03-26 02:58:33:520"
+                    }
+                ],
+                "text": "member since"
+            }
+        },
+        {
+            "id": "3a136d45-bb2a-4d11-8882-34fee12de319",
+            "url": "https://icanbwell.com/registrationDate",
+            "valueCodeableConcept": {
+                "id": "d3027cea-d212-4459-a318-34bb9f7c2e2f",
+                "coding": [
+                    {
+                        "system": "https://icanbwell.com/registrationDate",
+                        "code": "2021-03-26 02:58:33:520",
+                        "display": "2021-03-26 02:58:33:520"
+                    }
+                ],
+                "text": "registration date"
+            }
         }
-      }
-    }
-  ],
-  "resourceType": "Bundle",
-  "total": 0,
-  "type": "searchset"
+    ],
+    "identifier": [
+        {
+            "type": {
+                "coding": [
+                    {
+                        "system": "http://www.icanbwell.com/identifier-types",
+                        "code": "user-identifier"
+                    }
+                ]
+            },
+            "system": "http://www.walgreens.com/profileid",
+            "value": "1"
+        },
+        {
+            "system": "https://www.icanbwell.com/sourceId",
+            "value": "79e59046-ffc7-4c41-9819-c8ef83275454"
+        },
+        {
+            "system": "https://www.icanbwell.com/uuid",
+            "value": "79e59046-ffc7-4c41-9819-c8ef83275454"
+        }
+    ],
+    "name": [
+        {
+            "family": "Family",
+            "given": [
+                "First"
+            ]
+        }
+    ],
+    "telecom": [
+        {
+            "system": "email",
+            "value": "foo@hotmail.com"
+        },
+        {
+            "system": "phone",
+            "value": "1111111111",
+            "use": "mobile"
+        }
+    ],
+    "gender": "male",
+    "birthDate": "1920-01-01",
+    "address": [
+        {
+            "id": "e3ac5ce1-1477-4605-b53d-7ba6a9d8659e",
+            "line": [
+                "Address"
+            ],
+            "city": "CITY",
+            "state": "CA",
+            "postalCode": "99999"
+        }
+    ],
+    "active": true,
+    "link": [
+        {
+            "id": "4ec5aad4-d481-45fa-93dd-8ec418490670",
+            "target": {
+                "reference": "Patient/2e8fe968-8cdf-4a2f-aea7-8ddd2cc198b6"
+            }
+        },
+        {
+            "id": "c5804b54-8746-4300-9e95-d12f793dab20",
+            "target": {
+                "reference": "Person/4f77a49a-d8a8-4153-a2e9-13d6d0b4b301"
+            }
+        },
+        {
+            "id": "34266c79-0b93-4d70-aa52-72ca1997c7eb",
+            "target": {
+                "reference": "Person/34266c79-0b93-4d70-aa52-72ca1997c7eb",
+                "type": "Person"
+            },
+            "assurance": "level4"
+        }
+    ]
 }

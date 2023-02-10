@@ -1,24 +1,71 @@
 {
   "entry": [
     {
-      "id": "8ba1017f-0aad-1b91-ff9e-416a96e11f0b",
+      "id": "79e59046-ffc7-4c41-9819-c8ef83275454",
       "resource": {
-        "active": null,
-        "address": null,
-        "birthDate": null,
-        "gender": null,
+        "active": true,
+        "address": [
+          {
+            "city": "CITY",
+            "country": null,
+            "district": null,
+            "line": [
+              "Address"
+            ],
+            "period": null,
+            "postalCode": "99999",
+            "state": "CA",
+            "text": null,
+            "type": null,
+            "use": null
+          }
+        ],
+        "birthDate": "1920-01-01",
+        "gender": "male",
         "identifier": [
           {
+            "system": "http://www.walgreens.com/profileid",
+            "value": "1"
+          },
+          {
             "system": "https://www.icanbwell.com/sourceId",
-            "value": "8ba1017f-0aad-1b91-ff9e-416a96e11f0b"
+            "value": "79e59046-ffc7-4c41-9819-c8ef83275454"
           },
           {
             "system": "https://www.icanbwell.com/uuid",
-            "value": "8ba1017f-0aad-1b91-ff9e-416a96e11f0b"
+            "value": "79e59046-ffc7-4c41-9819-c8ef83275454"
           }
         ],
-        "name": null,
-        "telecom": null
+        "name": [
+          {
+            "family": "Family",
+            "given": [
+              "First"
+            ],
+            "id": null,
+            "period": null,
+            "prefix": null,
+            "suffix": null,
+            "text": null,
+            "use": null
+          }
+        ],
+        "telecom": [
+          {
+            "period": null,
+            "rank": null,
+            "system": "email",
+            "use": null,
+            "value": "foo@hotmail.com"
+          },
+          {
+            "period": null,
+            "rank": null,
+            "system": "phone",
+            "use": "mobile",
+            "value": "1111111111"
+          }
+        ]
       }
     }
   ],
