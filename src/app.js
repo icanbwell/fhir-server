@@ -200,12 +200,11 @@ function createApp({fnCreateContainer, trackMetrics}) {
         adminRouter.use(passport.initialize());
         adminRouter.use(passport.authenticate('adminStrategy', {session: false}, null));
     }
-    adminRouter.get('/admin/:op?', (req, res) => handleAdmin(
+    const adminHandler = (req, res) => handleAdmin(
         fnCreateContainer, req, res
-    ));
-    adminRouter.post('/admin/:op?', (req, res) => handleAdmin(
-        fnCreateContainer, req, res
-    ));
+    );
+    adminRouter.get('/admin/:op?', adminHandler);
+    adminRouter.post('/admin/:op?', adminHandler);
     app.use(adminRouter);
 
     if (isTrue(env.AUTH_ENABLED)) {

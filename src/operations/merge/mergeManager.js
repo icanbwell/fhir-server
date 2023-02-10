@@ -419,20 +419,15 @@ class MergeManager {
              */
             const non_duplicate_id_resources = findUniqueResources(resources_incoming);
 
+            const mergeResourceFn = async (/** @type {Object} */ x) => await this.mergeResourceWithRetryAsync(
+                {
+                    resourceToMerge: x, resourceType,
+                    user, currentDate, requestId, base_version, scope,
+                });
+
             await Promise.all([
-                async.map(non_duplicate_id_resources,
-                    async (/** @type {Object} */ x) => await this.mergeResourceWithRetryAsync(
-                        {
-                            resourceToMerge: x,
-                            resourceType,
-                            user, currentDate, requestId, base_version, scope
-                        }
-                    )), // run in parallel
-                async.mapSeries(duplicate_id_resources, async (/** @type {Object} */ x) => await this.mergeResourceWithRetryAsync(
-                    {
-                        resourceToMerge: x, resourceType,
-                        user, currentDate, requestId, base_version, scope
-                    })) // run in series
+                async.map(non_duplicate_id_resources, mergeResourceFn), // run in parallel
+                async.mapSeries(duplicate_id_resources, mergeResourceFn) // run in series
             ]);
         } catch (e) {
             throw new RethrownError({
