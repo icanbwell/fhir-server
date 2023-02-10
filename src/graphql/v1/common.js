@@ -75,16 +75,18 @@ module.exports.findResourceByReference = async (parent, args, context, info, ref
         );
     } catch (e) {
         if (e.name === 'NotFound') {
-            logWarn({
-                user: context.user,
-                args: {
-                    message: 'findResourcesByReference: Resource not found for parent',
-                    resourceType: typeOfReference,
-                    id: idOfReference,
-                    parentResourceType: parent.resourceType,
-                    parentId: parent.id,
-                },
-            });
+            logWarn(
+                'findResourcesByReference: Resource not found for parent',
+                {
+                    user: context.user,
+                    args: {
+                        resourceType: typeOfReference,
+                        id: idOfReference,
+                        parentResourceType: parent.resourceType,
+                        parentId: parent.id,
+                    }
+                }
+            );
             return null;
         }
     }
@@ -138,16 +140,18 @@ module.exports.findResourcesByReference = async (parent, args, context, info, re
             );
         } catch (e) {
             if (e.name === 'NotFound') {
-                logWarn({
-                    user: context.user,
-                    args: {
-                        message: 'findResourcesByReference: Resource not found for parent',
-                        resourceType: typeOfReference,
-                        id: idOfReference,
-                        parentResourceType: parent.resourceType,
-                        parentId: parent.id,
-                    },
-                });
+                logWarn(
+                    'findResourcesByReference: Resource not found for parent',
+                    {
+                        user: context.user,
+                        args: {
+                            resourceType: typeOfReference,
+                            id: idOfReference,
+                            parentResourceType: parent.resourceType,
+                            parentId: parent.id,
+                        }
+                    }
+                );
                 return null;
             }
         }

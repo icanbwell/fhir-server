@@ -315,7 +315,7 @@ class BundleManager {
             bundle['meta'] = {
                 tag: tag,
             };
-            logDebug({user, args: bundle});
+            logDebug('', {user, args: bundle});
         }
         return bundle;
     }

@@ -225,7 +225,7 @@ class CreateOperation {
             // Create a clone of the object without the _id parameter before assigning a value to
             // the _id parameter in the original document
             // noinspection JSValidateTypes
-            logDebug({user, args: {message: 'Inserting', doc: doc}});
+            logDebug('Inserting', {user, args: {doc: doc}});
 
             // Insert our resource record
             await this.databaseBulkInserter.insertOneAsync({requestId, resourceType, doc});

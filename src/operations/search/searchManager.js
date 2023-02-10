@@ -805,7 +805,7 @@ class SearchManager {
                 }),
             );
         } catch (e) {
-            logError({user, args: {error: e}});
+            logError('', {user, error: e});
             ac.abort();
             throw new RethrownError({
                 message: `Error reading resources for ${resourceType} with query: ${mongoQueryStringify(cursor.getQuery())}`,
@@ -870,10 +870,10 @@ class SearchManager {
         if (indexHint) {
             cursor = cursor.hint({indexHint});
             logDebug(
+                'Using index hint',
                 {
                     user,
                     args: {
-                        message: 'Using index hint',
                         indexHint: indexHint,
                         columns: Array.from(columns)
                     }
@@ -973,7 +973,7 @@ class SearchManager {
                 responseWriter
             );
         } catch (e) {
-            logError({user, args: {error: e}});
+            logError('', {user, error: e});
             ac.abort();
             throw new RethrownError({
                 message: `Error reading resources for ${resourceType} with query: ${mongoQueryStringify(cursor.getQuery())}`,
@@ -1095,7 +1095,7 @@ class SearchManager {
                 // res.type(contentType)
             );
         } catch (e) {
-            logError({user, args: {error: e}});
+            logError('', {user, error: e});
             /**
              * @type {OperationOutcome}
              */
