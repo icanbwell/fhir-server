@@ -4,11 +4,11 @@
 const process = require('node:process');
 const {ErrorReporter} = require('../utils/slack.logger');
 const {getImageVersion} = require('../utils/getImageVersion');
-const {logInfo} = require('../operations/common/logging');
+const {logInfo, logError} = require('../operations/common/logging');
 
 
 process.on('uncaughtException', async (err) => {
-    logInfo(err, {method: 'errorHandler.uncaughtException'});
+    logError(err, {method: 'errorHandler.uncaughtException'});
     const errorReporter = new ErrorReporter(getImageVersion());
     await errorReporter.reportErrorAsync({
             source: 'uncaughtException',
