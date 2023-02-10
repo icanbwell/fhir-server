@@ -384,7 +384,7 @@ class FhirDataSource extends DataSource {
         // get list of properties from first meta
         for (const /** @type {Meta} **/ meta of this.metaList) {
             for (const /** @type Coding **/ metaTag of meta.tag) {
-                let foundCombinedMetaTag = combinedMeta.tag.find(
+                const foundCombinedMetaTag = combinedMeta.tag.find(
                     (tag) => tag.system === metaTag.system
                 );
                 if (!foundCombinedMetaTag) {
