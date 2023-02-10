@@ -175,7 +175,7 @@ class FhirLoggingManager {
          * @type {string|null}
          */
         let firstAccessCode = null;
-        if (accessCodes && accessCodes.length > 0) {
+        if (accessCodes?.length > 0) {
             firstAccessCode = accessCodes[0] === '*' ? 'bwell' : accessCodes[0];
         }
 

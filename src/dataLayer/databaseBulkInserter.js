@@ -812,14 +812,9 @@ class DatabaseBulkInserter extends EventEmitter {
                     /**
                      * @type {string}
                      */
-                    let collectionName;
-                    if (useHistoryCollection) {
-                        collectionName = await resourceLocator.getHistoryCollectionNameAsync(
-                            resource.resource ? resource.resource : resource
-                    );
-                    } else {
-                        collectionName = await resourceLocator.getCollectionNameAsync(resource);
-                    }
+                    const collectionName = useHistoryCollection ?
+                        await resourceLocator.getHistoryCollectionNameAsync(resource.resource || resource) :
+                        await resourceLocator.getCollectionNameAsync(resource);
                     if (!(operationsByCollectionNames.has(collectionName))) {
                         operationsByCollectionNames.set(`${collectionName}`, []);
                     }
