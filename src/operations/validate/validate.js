@@ -89,7 +89,7 @@ class ValidateOperation {
                 /**
                  * @type {OperationOutcome}
                  */
-                const operationOutcome = new OperationOutcome({
+                return new OperationOutcome({
                     id: 'validationfail',
                     resourceType: 'OperationOutcome',
                     issue: [
@@ -102,7 +102,6 @@ class ValidateOperation {
                         })
                     ]
                 });
-                return operationOutcome;
             }
             // find the actual resource in the parameter called resource
             const resourceParameter = getFirstElementOrNull(parametersResource.parameter.filter(p => p.resource));
@@ -110,7 +109,7 @@ class ValidateOperation {
                 /**
                  * @type {OperationOutcome}
                  */
-                const operationOutcome = new OperationOutcome({
+                return new OperationOutcome({
                     id: 'validationfail',
                     resourceType: 'OperationOutcome',
                     issue: [
@@ -123,7 +122,6 @@ class ValidateOperation {
                         })
                     ]
                 });
-                return operationOutcome;
             }
             resource_incoming = resourceParameter.resource;
         }

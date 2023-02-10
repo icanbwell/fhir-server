@@ -34,8 +34,7 @@ module.exports = {
                     {reference: codeSystemProperty1.valueString}
                 );
                 if (binaryResource.data) {
-                    const decodedData = Buffer.from(binaryResource.data, 'base64').toString('utf8');
-                    return decodedData;
+                    return Buffer.from(binaryResource.data, 'base64').toString('utf8');
                 } else {
                     return null;
                 }

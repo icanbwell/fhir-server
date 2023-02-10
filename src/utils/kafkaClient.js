@@ -194,11 +194,6 @@ class KafkaClient {
             await consumer.run({
                 // eslint-disable-next-line no-unused-vars
                 eachMessage: async ({topic1, partition, message, heartbeat, pause}) => {
-                    // console.log({
-                    //     key: message.key.toString(),
-                    //     value: message.value.toString(),
-                    //     headers: message.headers,
-                    // });
                     await onMessageAsync({
                         key: message.key.toString(),
                         value: message.value.toString(),
@@ -212,7 +207,6 @@ class KafkaClient {
                     });
                 },
             });
-            // await this.waitForConsumerToJoinGroupAsync(consumer);
         } catch (e) {
             await logSystemErrorAsync({
                 event: 'kafkaClient',

@@ -235,7 +235,7 @@ class MergeOperation {
                     /**
                      * @type {OperationOutcome}
                      */
-                    const operationOutcome = new OperationOutcome({
+                    return new OperationOutcome({
                         id: 'validationfail',
                         resourceType: 'OperationOutcome',
                         issue: [
@@ -249,7 +249,6 @@ class MergeOperation {
                             )
                         ]
                     });
-                    return operationOutcome;
                 }
                 // find the actual resource in the parameter called resource
                 /**
@@ -260,7 +259,7 @@ class MergeOperation {
                     /**
                      * @type {OperationOutcome}
                      */
-                    const operationOutcome = new OperationOutcome({
+                    return new OperationOutcome({
                         id: 'validationfail',
                         resourceType: 'OperationOutcome',
                         issue: [
@@ -273,7 +272,6 @@ class MergeOperation {
                             })
                         ]
                     });
-                    return operationOutcome;
                 }
                 incomingObjects = resourceParameters.map(r => r.resource);
             }
@@ -462,7 +460,7 @@ class MergeOperation {
                  * @type {Resource[]}
                  */
                 const resources = operationOutcomes;
-                const bundle = this.bundleManager.createBundle(
+                return this.bundleManager.createBundle(
                     {
                         type: 'batch-response',
                         requestId: requestInfo.requestId,
@@ -482,7 +480,6 @@ class MergeOperation {
                         explanations: []
                     }
                 );
-                return bundle;
             } else {
                 return wasIncomingAList ? mergeResults : mergeResults[0];
             }

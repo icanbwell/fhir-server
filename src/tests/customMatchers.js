@@ -351,7 +351,7 @@ function toHaveResponse(resp, expected, fnCleanResource) {
 function toHaveStatusCode(resp, expectedStatusCode) {
     const pass = resp.status === expectedStatusCode;
     const message = pass ? () =>
-            `Status Code did not match: ${resp.text}`
+            `Status Code did match: ${resp.text}`
         : () => `Status Code did not match: ${resp.text}`;
     return {actual: resp.status, expected: expectedStatusCode, message, pass};
 }

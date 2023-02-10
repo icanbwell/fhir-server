@@ -136,6 +136,7 @@ let findMatchWithName = (name = '', params = {}) => {
         value: params[`${match}`]
     };
 };
+
 /**
  * @function sanitizeMiddleware
  * @summary Sanitize the arguments by removing extra arguments, escaping some, and
@@ -171,12 +172,7 @@ let sanitizeMiddleware = function (config, required) {
 
             try {
                 if (value) {
-                    if (Array.isArray(value)) {
-                        cleanArgs[`${field}`] = value.map(v => parseValue(conf.type, v));
-                    } else {
-                        cleanArgs[`${field}`] = parseValue(conf.type, value);
-
-                    }
+                    cleanArgs[`${field}`] = Array.isArray(value) ? value.map(v => parseValue(conf.type, v)) : parseValue(conf.type, value);
                 }
             } catch (err) {
                 return next(errors.invalidParameter(conf.name + ' is invalid', req.params.base_version));
