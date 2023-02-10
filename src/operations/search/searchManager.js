@@ -185,6 +185,7 @@ class SearchManager {
                     }));
                 }
             } catch (e) {
+                console.error(e);
                 throw e;
             }
             query = this.securityTagManager.getQueryWithSecurityTags(
