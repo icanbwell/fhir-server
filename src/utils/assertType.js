@@ -31,16 +31,14 @@ function assertTypeEquals(obj, type, message) {
         const message1 = message ?
             message :
             `obj of type ${type.name} is null or undefined`;
-        const assertionError = new AssertionError(message1);
-        throw assertionError;
+        throw new AssertionError(message1);
     }
     if (!(obj instanceof type)) {
-        const assertionError = new AssertionError(
+        throw new AssertionError(
             message ?
                 message :
                 `Type of obj ${typeof obj} is not the expected type ${type.name}`
         );
-        throw assertionError;
     }
 }
 
@@ -52,8 +50,7 @@ function assertTypeEquals(obj, type, message) {
  */
 function assertIsValid(obj, message) {
     if (!obj) {
-        const assertionError = new AssertionError(message ? message : 'obj is null or undefined');
-        throw assertionError;
+        throw new AssertionError(message ? message : 'obj is null or undefined');
     }
 }
 
@@ -78,8 +75,7 @@ function assertFail({source, message, args, error}) {
         if (error) {
             text += '|' + JSON.stringify(error, getCircularReplacer());
         }
-        const assertionError = new AssertionError(text);
-        throw assertionError;
+        throw new AssertionError(text);
     }
 }
 

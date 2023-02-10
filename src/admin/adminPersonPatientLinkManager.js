@@ -445,13 +445,7 @@ class AdminPersonPatientLinkManager {
      */
     async showPersonToPersonLinkAsync({bwellPersonId}) {
         bwellPersonId = bwellPersonId.replace('Person/', '');
-
-        const result = await this.findPersonAndChildrenAsync(
-            {
-                personId: bwellPersonId, level: 1
-            }
-        );
-        return result;
+        return await this.findPersonAndChildrenAsync({personId: bwellPersonId, level: 1});
     }
 
     /**

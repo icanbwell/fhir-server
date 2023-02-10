@@ -9,7 +9,7 @@ const env = require('var');
  * @returns {OperationOutcome}
  */
 function convertErrorToOperationOutcome({error}) {
-    const operationOutcome = error.issue && error.issue.length > 0 ?
+    return error.issue && error.issue.length > 0 ?
         new OperationOutcome({
             issue: error.issue
         }) :
@@ -25,7 +25,6 @@ function convertErrorToOperationOutcome({error}) {
                 }),
             ],
         });
-    return operationOutcome;
 }
 
 module.exports = {

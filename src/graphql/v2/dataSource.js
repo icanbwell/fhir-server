@@ -165,7 +165,7 @@ class FhirDataSource extends DataSource {
         /**
          * @type {(Resource|null)[]}
          */
-        const results = this.reorderResources(
+        return this.reorderResources(
             // run the loads in parallel by resourceType
             await async.flatMap(
                 Object.entries(groupKeysByResourceType),
@@ -201,8 +201,6 @@ class FhirDataSource extends DataSource {
             ),
             keys
         );
-
-        return results;
     }
 
     /**
