@@ -1,5 +1,11 @@
 query my_patient {
     patient(_debug: true) {
+        meta {
+            tag {
+                system
+                display
+            }
+        }
         entry {
             resource {
                 id

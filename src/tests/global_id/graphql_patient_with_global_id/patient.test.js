@@ -109,6 +109,12 @@ describe('GraphQL Patient Tests', () => {
             expect(resp).toHaveMergeResponse([{created: true}, {created: true}]);
 
             resp = await request
+                .get('/4_0_0/AllergyIntolerance')
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResourceCount(2);
+
+            resp = await request
                 .post('/4_0_0/CareTeam/1/$merge')
                 .send(careTeamBundleResource)
                 .set(getHeaders());

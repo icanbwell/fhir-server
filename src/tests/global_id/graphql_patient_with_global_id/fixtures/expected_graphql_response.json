@@ -9,7 +9,7 @@
           "text": "Mold (organism)"
         },
         "criticality": "low",
-        "id": "0af7ad3f-9f37-1a62-09e4-4ca127531c51",
+        "id": "6ddc360e-d8a6-5e25-a77a-ad6249e2f1f7",
         "type": "allergy"
       }
     ],
@@ -34,7 +34,7 @@
     ],
     "explanationOfBenefit": [
       {
-        "id": "WPS-Claim-230916613369",
+        "id": "2eb828dc-51bc-5140-a85e-ae80d04a9cf1",
         "identifier": [
           {
             "system": "https://www.wpshealth.com/",
@@ -51,7 +51,7 @@
         ]
       }
     ],
-    "id": "WPS-0559166162",
+    "id": "17338495-211c-5641-872c-2fb91c857605",
     "name": [
       {
         "family": "PATIENT1",
@@ -67,7 +67,7 @@
     "careTeam": [],
     "explanationOfBenefit": [
       {
-        "id": "WPS-Claim-429017018331",
+        "id": "232a204b-3881-56c8-b240-a4faf159ffed",
         "identifier": [
           {
             "system": "https://www.wpshealth.com/",
@@ -84,7 +84,7 @@
         ]
       }
     ],
-    "id": "WPS-5458231534",
+    "id": "d20a8c2b-75cc-5801-82e3-23ee8585b626",
     "name": [
       {
         "family": "PATIENT2",
