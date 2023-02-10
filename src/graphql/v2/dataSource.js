@@ -391,7 +391,7 @@ class FhirDataSource extends DataSource {
                     combinedMeta.tag.push(metaTag);
                 } else {
                     // concatenate code and/or display
-                    foundCombinedMetaTag = this.updateCombinedMetaTag(foundCombinedMetaTag, metaTag);
+                    this.updateCombinedMetaTag(foundCombinedMetaTag, metaTag);
                 }
             }
         }
@@ -410,18 +410,16 @@ class FhirDataSource extends DataSource {
 
     /**
      * Concatenate code and/or display
-     * @param {Coding | undefined} sourceMetaTag
      * @param {Coding | undefined} targetMetaTag
-     * @returns {Object}
+     * @param {Coding | undefined} sourceMetaTag
      */
-    updateCombinedMetaTag(sourceMetaTag, targetMetaTag) {
-        if (targetMetaTag.display && sourceMetaTag.display) {
-            sourceMetaTag.display = sourceMetaTag.display + ',' + targetMetaTag.display;
+    updateCombinedMetaTag(targetMetaTag, sourceMetaTag) {
+        if (sourceMetaTag.display && targetMetaTag.display) {
+            targetMetaTag.display = targetMetaTag.display + ',' + sourceMetaTag.display;
         }
-        if (targetMetaTag.code && sourceMetaTag.code) {
-            sourceMetaTag.code = sourceMetaTag.code + ',' + targetMetaTag.code;
+        if (sourceMetaTag.code && targetMetaTag.code) {
+            targetMetaTag.code = targetMetaTag.code + ',' + sourceMetaTag.code;
         }
-        return sourceMetaTag;
     }
 }
 
