@@ -8,8 +8,7 @@ function getImageVersion() {
     /**
      * @type {string|null}
      */
-    const version = image ? image.slice(image.lastIndexOf(':') + 1) : null;
-    return version;
+    return image ? image.slice(image.lastIndexOf(':') + 1) : null;
 }
 
 module.exports = {

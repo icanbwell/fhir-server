@@ -99,7 +99,7 @@ class BundleManager {
         /**
          * @type {Bundle}
          */
-        const bundle = this.createBundleFromEntries(
+        return this.createBundleFromEntries(
             {
                 requestId,
                 type,
@@ -125,7 +125,6 @@ class BundleManager {
                 explanations,
                 allCollectionsToSearch
             });
-        return bundle;
     }
 
     /**

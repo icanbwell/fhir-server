@@ -839,11 +839,7 @@ class GraphHelper {
             const result = await async.map(link_targets, async (target) => await this.processLinkTargetAsync({
                 requestInfo, base_version, parentResourceType, link, parentEntities, explain, debug, target
             }));
-            /**
-             * @type {QueryItem[]}
-             */
-            const queryItems = result.flatMap(r => r.queryItems);
-            return queryItems;
+            return result.flatMap(r => r.queryItems);
         } catch (e) {
             throw new RethrownError({
                 message: 'Error in processOneGraphLinkAsync(): ' +

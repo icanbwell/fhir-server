@@ -16,8 +16,7 @@ class YearMonthPartitioner extends BasePartitioner {
         const year = fieldDate.getUTCFullYear();
         const month = fieldDate.getUTCMonth() + 1; // 0 indexed
         const monthFormatted = String(month).padStart(2, '0');
-        const partition = `${resourceWithBaseVersion}_${year}_${monthFormatted}`;
-        return partition;
+        return `${resourceWithBaseVersion}_${year}_${monthFormatted}`;
     }
 
     /**
@@ -33,12 +32,8 @@ class YearMonthPartitioner extends BasePartitioner {
         if (!fieldValue) {
             return resourceWithBaseVersion;
         } else {
-            /**
-             * @type {string}
-             */
-            const partition = YearMonthPartitioner.getPartitionNameFromYearMonth(
+            return YearMonthPartitioner.getPartitionNameFromYearMonth(
                 {fieldValue, resourceWithBaseVersion});
-            return partition;
         }
     }
 
