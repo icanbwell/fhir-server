@@ -9,11 +9,6 @@ const {MongoClient} = require('mongodb');
  * @type import('mongodb').MongoClient
  */
 let clientConnection = null;
-// /**
-//  * client connection
-//  * @type import('mongodb').MongoClient
-//  */
-// let auditConnection = null;
 /**
  * client db
  * @type {import('mongodb').Db}
@@ -135,12 +130,10 @@ class MongoDatabaseManager {
         const client = await this.createClientAsync(clientConfig);
 
         clientConnection = client;
-        // globals.set(CLIENT, client);
         clientDb = client.db(clientConfig.db_name);
 
         const auditConfig = this.getAuditConfig();
         const auditEventClient = await this.createClientAsync(auditConfig);
-        // auditConnection = auditEventClient;
         auditClientDb = auditEventClient.db(auditConfig.db_name);
     }
 

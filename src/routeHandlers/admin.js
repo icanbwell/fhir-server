@@ -1,7 +1,6 @@
 /**
  * This route handler implements the /stats endpoint which shows the collections in mongo and the number of records in each
  */
-// const env = require('var');
 const {AdminLogManager} = require('../admin/adminLogManager');
 const sanitize = require('sanitize-filename');
 const {shouldReturnHtml} = require('../utils/requestHelpers');
@@ -78,11 +77,9 @@ async function synchronizeIndexesAsync(
     res.set('Content-Type', 'text/html');
     res.send(Buffer.from(htmlContent));
     res.end();
-    // res.json({message: 'Started Synchronizing indexes'}).end();
     await indexManager.synchronizeIndexesWithConfigAsync({
         audit: audit
     });
-    return;
 }
 
 /**
@@ -131,24 +128,9 @@ async function handleAdmin(
 
         if (!isTrue(env.AUTH_ENABLED) || adminScopes.length > 0) {
             switch (operation) {
-                case 'searchLog': {
-                    const parameters = {};
-                    const filePath = __dirname + `/../views/admin/pages/${sanitize(operation)}`;
-                    return res.render(filePath, parameters);
-                }
-
-                case 'personPatientLink': {
-                    const parameters = {};
-                    const filePath = __dirname + `/../views/admin/pages/${sanitize(operation)}`;
-                    return res.render(filePath, parameters);
-                }
-
-                case 'patientData': {
-                    const parameters = {};
-                    const filePath = __dirname + `/../views/admin/pages/${sanitize(operation)}`;
-                    return res.render(filePath, parameters);
-                }
-
+                case 'searchLog':
+                case 'personPatientLink':
+                case 'patientData':
                 case 'personMatch': {
                     const parameters = {};
                     const filePath = __dirname + `/../views/admin/pages/${sanitize(operation)}`;
@@ -161,13 +143,7 @@ async function handleAdmin(
                     if (id) {
                         const adminLogManager = new AdminLogManager();
                         const json = await adminLogManager.getLogAsync(id);
-                        // const filePath = __dirname + `/../views/admin/pages/${sanitize(operation)}`;
-                        // const parameters = {
-                        //     id,
-                        //     json
-                        // };
                         return res.json(json);
-                        // return res.render(filePath, parameters);
                     }
                     return res.json({
                         message: 'No id passed'
@@ -283,7 +259,7 @@ async function handleAdmin(
                         const resourceType = 'Patient';
                         const accessRequested = 'write';
                         // eslint-disable-next-line no-unused-vars
-                        let {error, success} = scopeChecker(resourceType, accessRequested, scopes);
+                        let {success} = scopeChecker(resourceType, accessRequested, scopes);
                         if (!success) {
                             let errorMessage = 'user with scopes [' + scopes +
                                 '] failed access check to [' + resourceType + '.' + accessRequested + ']';
@@ -362,7 +338,7 @@ async function handleAdmin(
                         const resourceType = 'Patient';
                         const accessRequested = 'write';
                         // eslint-disable-next-line no-unused-vars
-                        let {error, success} = scopeChecker(resourceType, accessRequested, scopes);
+                        let {success} = scopeChecker(resourceType, accessRequested, scopes);
                         if (!success) {
                             let errorMessage = 'user with scopes [' + scopes +
                                 '] failed access check to [' + resourceType + '.' + accessRequested + ']';

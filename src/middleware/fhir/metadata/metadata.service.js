@@ -4,11 +4,6 @@ const conformanceTemplate = require('./capability.template.js');
 
 const errors = require('../utils/error.utils.js');
 
-// const {
-//     getLogger
-// } = require('../../../winstonInit');
-//
-// let logger = getLogger();
 /**
  * Load the correct statement generators for the right version
  */

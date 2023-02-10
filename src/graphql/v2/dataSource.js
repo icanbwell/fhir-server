@@ -165,7 +165,7 @@ class FhirDataSource extends DataSource {
         /**
          * @type {(Resource|null)[]}
          */
-        const results = this.reorderResources(
+        return this.reorderResources(
             // run the loads in parallel by resourceType
             await async.flatMap(
                 Object.entries(groupKeysByResourceType),
@@ -201,8 +201,6 @@ class FhirDataSource extends DataSource {
             ),
             keys
         );
-
-        return results;
     }
 
     /**
@@ -322,9 +320,10 @@ class FhirDataSource extends DataSource {
      * @param {GraphQLContext} context
      * @param {Object} info
      * @param {string} resourceType
+     * @param {boolean} useAggregationPipeline
      * @return {Promise<Bundle>}
      */
-    async getResourcesBundle(parent, args, context, info, resourceType) {
+    async getResourcesBundle(parent, args, context, info, resourceType, useAggregationPipeline = false) {
         this.createDataLoader(args);
         // https://www.apollographql.com/blog/graphql/filtering/how-to-search-and-filter-results-with-graphql/
 
@@ -336,7 +335,8 @@ class FhirDataSource extends DataSource {
                     _bundle: '1',
                     ...args
                 },
-                resourceType
+                resourceType,
+                useAggregationPipeline
             }
         );
         if (bundle.meta) {
@@ -391,13 +391,7 @@ class FhirDataSource extends DataSource {
                     combinedMeta.tag.push(metaTag);
                 } else {
                     // concatenate code and/or display
-                    if (metaTag.display && foundCombinedMetaTag.display) {
-                        foundCombinedMetaTag.display =
-                            foundCombinedMetaTag.display + ',' + metaTag.display;
-                    }
-                    if (metaTag.code && foundCombinedMetaTag.code) {
-                        foundCombinedMetaTag.code = foundCombinedMetaTag.code + ',' + metaTag.code;
-                    }
+                    this.updateCombinedMetaTag(foundCombinedMetaTag, metaTag);
                 }
             }
         }
@@ -412,6 +406,20 @@ class FhirDataSource extends DataSource {
             }
         }
         return combinedMeta;
+    }
+
+    /**
+     * Concatenate code and/or display
+     * @param {Coding | undefined} targetMetaTag
+     * @param {Coding | undefined} sourceMetaTag
+     */
+    updateCombinedMetaTag(targetMetaTag, sourceMetaTag) {
+        if (sourceMetaTag.display && targetMetaTag.display) {
+            targetMetaTag.display = targetMetaTag.display + ',' + sourceMetaTag.display;
+        }
+        if (sourceMetaTag.code && targetMetaTag.code) {
+            targetMetaTag.code = targetMetaTag.code + ',' + sourceMetaTag.code;
+        }
     }
 }
 

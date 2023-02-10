@@ -185,6 +185,7 @@ class SearchManager {
                     }));
                 }
             } catch (e) {
+                console.error(e);
                 throw e;
             }
             query = this.securityTagManager.getQueryWithSecurityTags(
@@ -257,6 +258,7 @@ class SearchManager {
      * @param {string | null} user
      * @param {boolean} isStreaming
      * @param {boolean} useAccessIndex
+     * @param {boolean} useAggregationPipeline
      * @returns {Promise<GetCursorResult>}
      */
     async getCursorForQueryAsync(
@@ -270,7 +272,8 @@ class SearchManager {
             maxMongoTimeMS,
             user,
             isStreaming,
-            useAccessIndex
+            useAccessIndex,
+            useAggregationPipeline = false
         }
     ) {
         // if _elements=x,y,z is in url parameters then restrict mongo query to project only those fields
@@ -336,9 +339,7 @@ class SearchManager {
                     resourceType,
                     base_version,
                     options,
-                    originalQuery,
                     query,
-                    originalOptions,
                     maxMongoTimeMS
                 }
             );
@@ -390,7 +391,21 @@ class SearchManager {
         /**
          * @type {DatabasePartitionedCursor}
          */
-        let cursorQuery = await databaseQueryManager.findAsync({query, options});
+        let cursorQuery;
+        if (useAggregationPipeline) {
+            // Projection arguement to be used for aggregation query
+            let projection = args['projection'] || {};
+            if (options['projection']) {
+                projection = { ...projection, ...options['projection'] };
+            }
+            cursorQuery = await databaseQueryManager.findUsingAggregationAsync({
+                query,
+                projection,
+                options,
+            });
+        } else {
+            cursorQuery = await databaseQueryManager.findAsync({ query, options });
+        }
 
         if (isStreaming) {
             cursorQuery = cursorQuery.maxTimeMS({milliSecs: 60 * 60 * 1000}); // if streaming then set time out to an hour
@@ -430,7 +445,6 @@ class SearchManager {
                 });
             const __ret = this.setIndexHint(
                 {
-                    indexHint,
                     mongoCollectionName: collectionNamesForQueryForResourceType[0],
                     columns,
                     cursor,
@@ -441,12 +455,13 @@ class SearchManager {
             cursor = __ret.cursor;
         }
 
-        // if _total is specified then ask mongo for the total else set total to 0
+        // if _total is specified then ask mongo for the total else set total to 0.
+        // Value 'estimate' is not supported now but kept it for backward compatibility.
         if (args['_total'] && ['accurate', 'estimate'].includes(args['_total'])) {
             total_count = await this.handleGetTotalsAsync(
                 {
                     resourceType, base_version,
-                    args, query, maxMongoTimeMS
+                    query, maxMongoTimeMS
                 });
         }
 
@@ -589,7 +604,7 @@ class SearchManager {
     async handleGetTotalsAsync(
         {
             resourceType, base_version,
-            args, query, maxMongoTimeMS
+            query, maxMongoTimeMS
         }
     ) {
         try {
@@ -599,17 +614,10 @@ class SearchManager {
             const databaseQueryManager = this.databaseQueryFactory.createQuery(
                 {resourceType, base_version}
             );
-            if (args['_total'] === 'estimate') {
-                return await databaseQueryManager.exactDocumentCountAsync({
-                    query,
-                    options: {maxTimeMS: maxMongoTimeMS}
-                });
-            } else {
-                return await databaseQueryManager.exactDocumentCountAsync({
-                    query,
-                    options: {maxTimeMS: maxMongoTimeMS}
-                });
-            }
+            return await databaseQueryManager.exactDocumentCountAsync({
+                query,
+                options: {maxTimeMS: maxMongoTimeMS}
+            });
         } catch (e) {
             throw new RethrownError({
                 message: `Error getting totals for ${resourceType} with query: ${mongoQueryStringify(query)}`,
@@ -668,9 +676,7 @@ class SearchManager {
      * @param {string} resourceType
      * @param {string} base_version
      * @param {Object} options
-     * @param {Object|Object[]} originalQuery
      * @param {Object} query
-     * @param {Object} originalOptions
      * @param {number} maxMongoTimeMS
      * @return {Promise<{query: Object, options: Object, originalQuery: (Object|Object[]), originalOptions: Object}>}
      */
@@ -679,9 +685,7 @@ class SearchManager {
             resourceType,
             base_version,
             options,
-            originalQuery,
             query,
-            originalOptions,
             maxMongoTimeMS
         }
     ) {
@@ -691,8 +695,8 @@ class SearchManager {
             projection['_id'] = 0;
             projection['id'] = 1;
             options['projection'] = projection;
-            originalQuery = [query];
-            originalOptions = [options];
+            const originalQuery = [query];
+            const originalOptions = [options];
             const sortOption = originalOptions[0] && originalOptions[0].sort ? originalOptions[0].sort : {};
 
             const databaseQueryManager = this.databaseQueryFactory.createQuery(
@@ -714,7 +718,6 @@ class SearchManager {
                 query = idResults.length === 1 ?
                     {id: idResults.map((r) => r.id)[0]} :
                     {id: {$in: idResults.map((r) => r.id)}};
-                // query = getQueryWithSecurityTags(securityTags, query);
                 options = {}; // reset options since we'll be looking by id
                 originalQuery.push(query);
                 originalOptions.push(options);
@@ -776,10 +779,6 @@ class SearchManager {
             // https://nodejs.org/docs/latest-v16.x/api/stream.html#additional-notes
 
             const readableMongoStream = createReadableMongoStream({cursor, signal: ac.signal});
-            // readableMongoStream.on('close', () => {
-            //     // logInfo('Mongo read stream was closed');
-            //     // ac.abort();
-            // });
 
             await pipeline(
                 readableMongoStream,
@@ -813,7 +812,6 @@ class SearchManager {
                 error: e
             });
         }
-        // logDebug('Done with loading resources', {user});
         return resources;
     }
 
@@ -854,7 +852,6 @@ class SearchManager {
 
     /**
      * sets the index hint
-     * @param {string|null} indexHint
      * @param {string} mongoCollectionName
      * @param {Set} columns
      * @param {DatabasePartitionedCursor} cursor
@@ -863,14 +860,13 @@ class SearchManager {
      */
     setIndexHint(
         {
-            indexHint,
             mongoCollectionName,
             columns,
             cursor,
             user
         }
     ) {
-        indexHint = this.indexHinter.findIndexForFields(mongoCollectionName, Array.from(columns));
+        let indexHint = this.indexHinter.findIndexForFields(mongoCollectionName, Array.from(columns));
         if (indexHint) {
             cursor = cursor.hint({indexHint});
             logDebug(
@@ -1047,9 +1043,6 @@ class SearchManager {
         // if response is closed then abort the pipeline
         res.on('close', onResponseClose);
 
-        // res.on('error', (err) => {
-        //     logError(err);
-        // });
         /**
          * @type {FhirResourceWriter|FhirResourceNdJsonWriter}
          */
@@ -1080,16 +1073,8 @@ class SearchManager {
          */
         const resourceIdTracker = new ResourceIdTracker({tracker, signal: ac.signal});
 
-        // function sleep(ms) {
-        //     return new Promise(resolve => setTimeout(resolve, ms));
-        // }
-
         try {
             const readableMongoStream = createReadableMongoStream({cursor, signal: ac.signal});
-            // readableMongoStream.on('close', () => {
-            //     // logInfo('Mongo read stream was closed');
-            //     // ac.abort();
-            // });
 
             const objectChunker = new ObjectChunker({chunkSize: batchObjectCount, signal: ac.signal});
 
@@ -1122,7 +1107,6 @@ class SearchManager {
                     })
             });
             fhirWriter.writeOperationOutcome({operationOutcome});
-            // res.write(JSON.stringify(operationOutcome.toJSON()));
             ac.abort();
         } finally {
             res.removeListener('close', onResponseClose);

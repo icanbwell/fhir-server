@@ -2,17 +2,13 @@
  * 3rd party Error Tracking Middleware
  */
 const process = require('node:process');
-const Sentry = require('@sentry/node');
 const {ErrorReporter} = require('../utils/slack.logger');
 const {getImageVersion} = require('../utils/getImageVersion');
 const {logInfo} = require('../operations/common/logging');
 
-Sentry.init({dsn: process.env.SENTRY_DSN});
-
 
 process.on('uncaughtException', async (err) => {
-    logInfo(err, {method: 'sentryMiddleware.uncaughtException'});
-    Sentry.captureException(err);
+    logInfo(err, {method: 'errorHandler.uncaughtException'});
     const errorReporter = new ErrorReporter(getImageVersion());
     await errorReporter.reportErrorAsync({
             source: 'uncaughtException',
@@ -25,12 +21,11 @@ process.on('uncaughtException', async (err) => {
 
 process.on('unhandledRejection', async (reason, promise) => {
     logInfo('', {
-        method: 'sentryMiddleware.unhandledRejection',
+        method: 'errorHandler.unhandledRejection',
         promise: promise,
         reason: reason,
         stack: reason.stack
     });
-    Sentry.captureException(reason);
     const errorReporter1 = new ErrorReporter(getImageVersion());
     await errorReporter1.reportErrorAsync({
         source: 'unhandledRejection',
@@ -42,7 +37,7 @@ process.on('unhandledRejection', async (reason, promise) => {
 
 process.on('warning', (warning) => {
     logInfo(warning.message, {
-        method: 'sentryMiddleware.warning',
+        method: 'errorHandler.warning',
         name: warning.name,
         stack: warning.stack
     });
@@ -51,9 +46,7 @@ process.on('warning', (warning) => {
 process.on('exit', function (code) {
     if (code !== 0) {
         const stack = new Error().stack;
-        logInfo(`PROCESS EXIT: exit code: ${code}`, {method: 'sentryMiddleware.exit'});
+        logInfo(`PROCESS EXIT: exit code: ${code}`, {method: 'errorHandler.exit'});
         logInfo(stack);
     }
 });
-
-module.exports = Sentry;

@@ -93,10 +93,11 @@ class SearchBundleOperation {
      * @param {FhirRequestInfo} requestInfo
      * @param {Object} args
      * @param {string} resourceType
+     * @param {boolean} useAggregationPipeline
      * @return {Promise<Bundle>} array of resources or a bundle
      */
     async searchBundle(
-        {requestInfo, args, resourceType}
+        {requestInfo, args, resourceType, useAggregationPipeline = false}
     ) {
         assertIsValid(requestInfo !== undefined);
         assertIsValid(args !== undefined);
@@ -154,7 +155,7 @@ class SearchBundleOperation {
         /** @type {import('mongodb').Document}**/
         let query = {};
         /** @type {Set} **/
-        let columns = new Set();
+        let columns;
 
         // check if required filters for AuditEvent are passed
         if (resourceType === 'AuditEvent') {
@@ -219,14 +220,12 @@ class SearchBundleOperation {
                 {
                     resourceType, base_version,
                     args, columns, options, query,
-                    maxMongoTimeMS, user, isStreaming: false, useAccessIndex
+                    maxMongoTimeMS, user, isStreaming: false, useAccessIndex, useAggregationPipeline
                 });
             /**
              * @type {Set}
              */
             columns = __ret.columns;
-            // options = __ret.options;
-            // query = __ret.query;
             /**
              * @type {import('mongodb').Document[]}
              */
@@ -263,7 +262,7 @@ class SearchBundleOperation {
             /**
              * @type {import('mongodb').Document[]}
              */
-            const explanations = (cursor && (args['_explain'] || args['_debug'] || env.LOGLEVEL === 'DEBUG')) ? await cursor.explainAsync() : [];
+            const explanations = (cursor && !useAggregationPipeline && (args['_explain'] || args['_debug'] || env.LOGLEVEL === 'DEBUG')) ? await cursor.explainAsync() : [];
             if (cursor && args['_explain']) {
                 // if explain is requested then don't return any results
                 cursor.clear();

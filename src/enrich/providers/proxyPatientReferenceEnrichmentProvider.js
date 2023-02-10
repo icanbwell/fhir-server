@@ -21,13 +21,7 @@ class ProxyPatientReferenceEnrichmentProvider extends EnrichmentProvider {
                 a => a.startsWith('Patient/') ? a : `Patient/${a}`);
             for (const resource of resources) {
                 resource.updateReferences({
-                    fnUpdateReference: (reference) => {
-                        if (reference.reference && proxyPatientIds.includes(reference.reference)) {
-                            reference.reference = proxyPatientPersonId.startsWith('Patient/') ?
-                                proxyPatientPersonId : `Patient/${proxyPatientPersonId}`;
-                        }
-                        return reference;
-                    }
+                    fnUpdateReference: this.getUpdateReferenceFn(proxyPatientIds, proxyPatientPersonId)
                 });
             }
             // now copy the latest Patient and set the id to proxyPatient
@@ -82,13 +76,7 @@ class ProxyPatientReferenceEnrichmentProvider extends EnrichmentProvider {
                 a => a.startsWith('Patient/') ? a : `Patient/${a}`);
             for (const entry of entries) {
                 entry.resource.updateReferences({
-                    fnUpdateReference: (reference) => {
-                        if (reference.reference && proxyPatientIds.includes(reference.reference)) {
-                            reference.reference = proxyPatientPersonId.startsWith('Patient/') ?
-                                proxyPatientPersonId : `Patient/${proxyPatientPersonId}`;
-                        }
-                        return reference;
-                    }
+                    fnUpdateReference: this.getUpdateReferenceFn(proxyPatientIds, proxyPatientPersonId)
                 });
             }
             // now copy the latest Patient and set the id to proxyPatient
@@ -109,6 +97,22 @@ class ProxyPatientReferenceEnrichmentProvider extends EnrichmentProvider {
             }
         }
         return entries;
+    }
+
+    /**
+     * Get function to update references
+     * @param proxyPatientIds {string[]}
+     * @param proxyPatientPersonId {string|null}
+     * @returns {function(*): {reference}|*}
+     */
+    getUpdateReferenceFn(proxyPatientIds, proxyPatientPersonId) {
+        return (reference) => {
+            if (reference.reference && proxyPatientIds.includes(reference.reference)) {
+                reference.reference = proxyPatientPersonId.startsWith('Patient/') ?
+                    proxyPatientPersonId : `Patient/${proxyPatientPersonId}`;
+            }
+            return reference;
+        };
     }
 }
 

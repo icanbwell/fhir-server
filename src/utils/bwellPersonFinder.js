@@ -57,7 +57,7 @@ class BwellPersonFinder {
         let linkedPersons = await databaseQueryManager.findAsync({ query: { 'link.target.reference': currentSubject }});
 
         // iterate over linked Persons (breadth search)
-        while (!foundPersonId && linkedPersons && await linkedPersons.hasNext()) {
+        while (!foundPersonId && await linkedPersons.hasNext()) {
             let nextPerson = await linkedPersons.next();
 
             if (nextPerson.meta.security.find(s => s.system === SecurityTagSystem.access && s.code === BwellMasterPersonCode) &&

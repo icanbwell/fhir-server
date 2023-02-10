@@ -224,8 +224,6 @@ class GraphHelper {
                                         debug
                                     }) {
         try {
-            // throw new Error('I am here');
-            // Promise.reject(new Error('woops'));
             if (!parentEntities || parentEntities.length === 0) {
                 return; // nothing to do
             }
@@ -321,7 +319,8 @@ class GraphHelper {
                         .includes(`${relatedResource.resourceType}/${relatedResource.id}`)));
 
                     if (matchingParentEntities.length === 0) {
-                        throw new Error(`Forward Reference: No match found for child entity ${relatedResource.resourceType}/${relatedResource.id}` + ' in parent entities' + ` ${parentEntities.map(p => `${p.resource.resourceType}/${p.resource.id}`).toString()}` + ` using property ${property}`);
+                        const parentEntitiesString = parentEntities.map(p => `${p.resource.resourceType}/${p.resource.id}`).toString();
+                        throw new Error(`Forward Reference: No match found for child entity ${relatedResource.resourceType}/${relatedResource.id} in parent entities ${parentEntitiesString} using property ${property}`);
                     }
 
                     // add it to each one since there can be multiple resources that point to the same related resource
@@ -501,7 +500,8 @@ class GraphHelper {
                     const matchingParentEntities = parentEntities.filter(p => references.includes(`${p.resource.resourceType}/${p.resource.id}`));
 
                     if (matchingParentEntities.length === 0) {
-                        throw new Error('Reverse Reference: No match found for parent entities' + ` ${parentEntities.map(p => `${p.resource.resourceType}/${p.resource.id}`).toString()}` + ` using property ${fieldForSearchParameter}` + ` in child entity ${relatedResourcePropertyCurrent.resourceType}/${relatedResourcePropertyCurrent.id}`);
+                        const parentEntitiesString = parentEntities.map(p => `${p.resource.resourceType}/${p.resource.id}`).toString();
+                        throw new Error(`Reverse Reference: No match found for parent entities ${parentEntitiesString} using property ${fieldForSearchParameter} in child entity ${relatedResourcePropertyCurrent.resourceType}/${relatedResourcePropertyCurrent.id}`);
                     }
 
                     for (const matchingParentEntity of matchingParentEntities) {
@@ -728,7 +728,8 @@ class GraphHelper {
                         accessRequested: 'read'
                     });
                     if (!parentResourceType) {
-                        throw new Error('processOneGraphLinkAsync: No parent resource found for reverse references for parent entities:' + ` ${parentEntities.map(p => `${p.resource.resourceType}/${p.resource.id}`).toString()}` + ` using target.params: ${target.params}`);
+                        const parentEntitiesString = parentEntities.map(p => `${p.resource.resourceType}/${p.resource.id}`).toString();
+                        throw new Error(`processOneGraphLinkAsync: No parent resource found for reverse references for parent entities: ${parentEntitiesString} using target.params: ${target.params}`);
                     }
                     const queryItem = await this.getReverseReferencesAsync({
                         requestInfo,
@@ -838,11 +839,7 @@ class GraphHelper {
             const result = await async.map(link_targets, async (target) => await this.processLinkTargetAsync({
                 requestInfo, base_version, parentResourceType, link, parentEntities, explain, debug, target
             }));
-            /**
-             * @type {QueryItem[]}
-             */
-            const queryItems = result.flatMap(r => r.queryItems);
-            return queryItems;
+            return result.flatMap(r => r.queryItems);
         } catch (e) {
             throw new RethrownError({
                 message: 'Error in processOneGraphLinkAsync(): ' +
@@ -1436,11 +1433,7 @@ class GraphHelper {
                     startTime
                 });
 
-                /**
-                 * @type {{deletedCount: (number|null), error: (Error|null)}}
-                 */
-                    // eslint-disable-next-line no-unused-vars
-                const result = await databaseQueryManager.deleteManyAsync({
+                await databaseQueryManager.deleteManyAsync({
                         requestId: requestInfo.requestId,
                         query: {id: {$in: idList}}
                     });

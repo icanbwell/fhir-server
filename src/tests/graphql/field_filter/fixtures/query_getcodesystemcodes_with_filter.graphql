@@ -1,0 +1,19 @@
+query {
+    getCodeSystemCodes(code: ["3584-4", "random"]) {
+        entry {
+            resource {
+                id
+                resourceType
+                status
+                concept {
+                    code
+                    display
+                    property {
+                        code
+                        valueString
+                    }
+                }
+            }
+        }
+    }
+}

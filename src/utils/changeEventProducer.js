@@ -598,20 +598,21 @@ class ChangeEventProducer {
                 const taskMessageMap = this.getTaskMessageMap({requestId});
                 const observationMessageMap = this.getObservationMessageMap({requestId});
                 const numberOfMessagesBefore = patientMessageMap.size + taskMessageMap.size + observationMessageMap.size;
+
+                const createKafkaClientMessageFn = ([/** @type {string} */ id, /** @type {Object} */ messageJson]) => {
+                    return {
+                        key: id,
+                        fhirVersion: fhirVersion,
+                        requestId: requestId,
+                        value: JSON.stringify(messageJson),
+                    };
+                };
                 // --- Process Patient events ---
                 /**
                  * @type {KafkaClientMessage[]}
                  */
                 const patientMessages = Array.from(
-                    patientMessageMap.entries(),
-                    ([/** @type {string} */ id, /** @type {Object} */ messageJson]) => {
-                        return {
-                            key: id,
-                            fhirVersion: fhirVersion,
-                            requestId: requestId,
-                            value: JSON.stringify(messageJson)
-                        };
-                    }
+                    patientMessageMap.entries(), createKafkaClientMessageFn
                 );
 
                 /**
@@ -628,15 +629,7 @@ class ChangeEventProducer {
                  * @type {KafkaClientMessage[]}
                  */
                 const taskMessages = Array.from(
-                    taskMessageMap.entries(),
-                    ([/** @type {string} */ id, /** @type {Object} */ messageJson]) => {
-                        return {
-                            key: id,
-                            fhirVersion: fhirVersion,
-                            requestId: requestId,
-                            value: JSON.stringify(messageJson)
-                        };
-                    }
+                    taskMessageMap.entries(), createKafkaClientMessageFn
                 );
 
                 await kafkaClient.sendMessagesAsync(this.taskChangeTopic, taskMessages);
@@ -648,15 +641,7 @@ class ChangeEventProducer {
                  * @type {KafkaClientMessage[]}
                  */
                 const observationMessages = Array.from(
-                    observationMessageMap.entries(),
-                    ([/** @type {string} */ id, /** @type {Object} */ messageJson]) => {
-                        return {
-                            key: id,
-                            fhirVersion: fhirVersion,
-                            requestId: requestId,
-                            value: JSON.stringify(messageJson)
-                        };
-                    }
+                    observationMessageMap.entries(), createKafkaClientMessageFn
                 );
 
                 await kafkaClient.sendMessagesAsync(this.observationChangeTopic, observationMessages);

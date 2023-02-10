@@ -1,3 +1,6 @@
+const graphqlFields = require('graphql-fields');
+const { graphqlFieldsToMongoProjection } = require('../../../../utils/graphqlFieldsProjection');
+
 module.exports = {
     CodeSystem: {
         /**
@@ -26,6 +29,43 @@ module.exports = {
             } else {
                 return codeSystem.concept;
             }
+        },
+    },
+    Query: {
+        /**
+         * @param {Resource|null} parent
+         * @param {Object} args
+         * @param {GraphQLContext} context
+         * @param {Object} info
+         * @return {Promise<Resource>}
+         */
+        getCodeSystemCodes: async (parent, args, context, info) => {
+            // Add projection filter on the nested array i.e concept field and the graphql queried fields
+            let fields = graphqlFields(info);
+            let projection = {};
+            if (fields){
+                projection = graphqlFieldsToMongoProjection(fields?.['entry']?.['resource']);
+            }
+            if (args['code']){
+                projection['concept'] = {
+                    $filter: {
+                        input: '$concept',
+                        as: 'ct',
+                        cond: { $in: ['$$ct.code', args['code']] },
+                    },
+                };
+                delete args['code'];
+            }
+            return await context.dataApi.getResourcesBundle(
+                parent,
+                {
+                    projection, ...args,
+                },
+                context,
+                info,
+                'CodeSystem',
+                true
+            );
         },
     },
 };

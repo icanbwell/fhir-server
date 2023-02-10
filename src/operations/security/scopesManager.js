@@ -164,8 +164,7 @@ class ScopesManager {
          * @type {string[]}
          */
         const scopes = scope.split(' ');
-        const adminScopes = scopes.filter(s => s.startsWith('admin/'));
-        return adminScopes;
+        return scopes.filter(s => s.startsWith('admin/'));
     }
 
     /**
@@ -174,11 +173,7 @@ class ScopesManager {
      * @return {string|undefined}
      */
     getScopeFromRequest({req}) {
-        /**
-         * @type {string}
-         */
-        const scope = req.authInfo && req.authInfo.scope;
-        return scope;
+        return req.authInfo && req.authInfo.scope;
     }
 
     /**

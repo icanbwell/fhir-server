@@ -123,10 +123,10 @@ class AuditLogger {
                 }
             ],
             action: operationCodeMapping[`${operation}`],
-            entity: ids.slice(0, maxNumberOfIds).map((id, index) => {
+            entity: ids.slice(0, maxNumberOfIds).map((resourceId, index) => {
                 return {
                     what: {
-                        reference: `${resourceType}/${id}`
+                        reference: `${resourceType}/${resourceId}`
                     },
                     detail: index === 0 ?
                         Object.entries(cleanedArgs).filter(([_, value]) => typeof value === 'string').map(([key, value], _) => {

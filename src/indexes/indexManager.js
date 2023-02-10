@@ -598,7 +598,7 @@ class IndexManager {
                     )
                 };
             }
-        ).filter(c => c.indexes.length >= 0);
+        ).filter(c => c.indexes.length > 0);
 
         for (
             const /** @type {{indexes: {indexConfig: IndexConfig, missing?: boolean, extra?: boolean}[], collectionName: string}} */
@@ -638,7 +638,7 @@ class IndexManager {
                     )
                 };
             }
-        ).filter(c => c.indexes.length >= 0);
+        ).filter(c => c.indexes.length > 0);
 
         for (
             const /** @type {{indexes: {indexConfig: IndexConfig, missing?: boolean, extra?: boolean}[], collectionName: string}} */
