@@ -128,24 +128,9 @@ async function handleAdmin(
 
         if (!isTrue(env.AUTH_ENABLED) || adminScopes.length > 0) {
             switch (operation) {
-                case 'searchLog': {
-                    const parameters = {};
-                    const filePath = __dirname + `/../views/admin/pages/${sanitize(operation)}`;
-                    return res.render(filePath, parameters);
-                }
-
-                case 'personPatientLink': {
-                    const parameters = {};
-                    const filePath = __dirname + `/../views/admin/pages/${sanitize(operation)}`;
-                    return res.render(filePath, parameters);
-                }
-
-                case 'patientData': {
-                    const parameters = {};
-                    const filePath = __dirname + `/../views/admin/pages/${sanitize(operation)}`;
-                    return res.render(filePath, parameters);
-                }
-
+                case 'searchLog':
+                case 'personPatientLink':
+                case 'patientData':
                 case 'personMatch': {
                     const parameters = {};
                     const filePath = __dirname + `/../views/admin/pages/${sanitize(operation)}`;
@@ -274,7 +259,7 @@ async function handleAdmin(
                         const resourceType = 'Patient';
                         const accessRequested = 'write';
                         // eslint-disable-next-line no-unused-vars
-                        let {error, success} = scopeChecker(resourceType, accessRequested, scopes);
+                        let {success} = scopeChecker(resourceType, accessRequested, scopes);
                         if (!success) {
                             let errorMessage = 'user with scopes [' + scopes +
                                 '] failed access check to [' + resourceType + '.' + accessRequested + ']';
@@ -353,7 +338,7 @@ async function handleAdmin(
                         const resourceType = 'Patient';
                         const accessRequested = 'write';
                         // eslint-disable-next-line no-unused-vars
-                        let {error, success} = scopeChecker(resourceType, accessRequested, scopes);
+                        let {success} = scopeChecker(resourceType, accessRequested, scopes);
                         if (!success) {
                             let errorMessage = 'user with scopes [' + scopes +
                                 '] failed access check to [' + resourceType + '.' + accessRequested + ']';

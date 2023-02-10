@@ -59,9 +59,9 @@ const createRequestPromises = (entries, req, baseVersion) => {
       method: method,
       url: destinationUrl
     });
-    requestPromises.push(new Promise(resolve1 => {
-      resolve1(request[method.toLowerCase()](destinationUrl).send(resource).set('Content-Type', 'application/json+fhir'));
-    }).catch(err => {
+    requestPromises.push(Promise.resolve(
+        request[method.toLowerCase()](destinationUrl).send(resource).set('Content-Type', 'application/json+fhir')
+    ).catch(err => {
       return err;
     }));
   });

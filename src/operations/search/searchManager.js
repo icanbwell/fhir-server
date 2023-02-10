@@ -338,9 +338,7 @@ class SearchManager {
                     resourceType,
                     base_version,
                     options,
-                    originalQuery,
                     query,
-                    originalOptions,
                     maxMongoTimeMS
                 }
             );
@@ -677,9 +675,7 @@ class SearchManager {
      * @param {string} resourceType
      * @param {string} base_version
      * @param {Object} options
-     * @param {Object|Object[]} originalQuery
      * @param {Object} query
-     * @param {Object} originalOptions
      * @param {number} maxMongoTimeMS
      * @return {Promise<{query: Object, options: Object, originalQuery: (Object|Object[]), originalOptions: Object}>}
      */
@@ -688,23 +684,19 @@ class SearchManager {
             resourceType,
             base_version,
             options,
-            originalQuery,
             query,
-            originalOptions,
             maxMongoTimeMS
         }
     ) {
-        let actualQuery = originalQuery;
-        let actualOptions = originalOptions;
         try {
             // first get just the ids
             const projection = {};
             projection['_id'] = 0;
             projection['id'] = 1;
             options['projection'] = projection;
-            actualQuery = [query];
-            actualOptions = [options];
-            const sortOption = actualOptions[0] && actualOptions[0].sort ? actualOptions[0].sort : {};
+            const originalQuery = [query];
+            const originalOptions = [options];
+            const sortOption = originalOptions[0] && originalOptions[0].sort ? originalOptions[0].sort : {};
 
             const databaseQueryManager = this.databaseQueryFactory.createQuery(
                 {resourceType, base_version}
@@ -726,13 +718,13 @@ class SearchManager {
                     {id: idResults.map((r) => r.id)[0]} :
                     {id: {$in: idResults.map((r) => r.id)}};
                 options = {}; // reset options since we'll be looking by id
-                actualQuery.push(query);
-                actualOptions.push(options);
+                originalQuery.push(query);
+                originalOptions.push(options);
             } else {
                 // no results
                 query = null; //no need to query
             }
-            return {options, originalQuery: actualQuery, query, originalOptions: actualOptions};
+            return {options, originalQuery, query, originalOptions};
         } catch (e) {
             throw new RethrownError({
                 message: `Error in two step optimization for ${resourceType} with query: ${mongoQueryStringify(query)}`,
