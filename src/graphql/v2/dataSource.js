@@ -389,13 +389,7 @@ class FhirDataSource extends DataSource {
                     combinedMeta.tag.push(metaTag);
                 } else {
                     // concatenate code and/or display
-                    if (metaTag.display && foundCombinedMetaTag.display) {
-                        foundCombinedMetaTag.display =
-                            foundCombinedMetaTag.display + ',' + metaTag.display;
-                    }
-                    if (metaTag.code && foundCombinedMetaTag.code) {
-                        foundCombinedMetaTag.code = foundCombinedMetaTag.code + ',' + metaTag.code;
-                    }
+                    this.updateCombinedMetaTag(foundCombinedMetaTag, metaTag);
                 }
             }
         }
@@ -410,6 +404,20 @@ class FhirDataSource extends DataSource {
             }
         }
         return combinedMeta;
+    }
+
+    /**
+     * Concatenate code and/or display
+     * @param {Coding | undefined} targetMetaTag
+     * @param {Coding | undefined} sourceMetaTag
+     */
+    updateCombinedMetaTag(targetMetaTag, sourceMetaTag) {
+        if (sourceMetaTag.display && targetMetaTag.display) {
+            targetMetaTag.display = targetMetaTag.display + ',' + sourceMetaTag.display;
+        }
+        if (sourceMetaTag.code && targetMetaTag.code) {
+            targetMetaTag.code = targetMetaTag.code + ',' + sourceMetaTag.code;
+        }
     }
 }
 
