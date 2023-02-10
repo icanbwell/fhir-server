@@ -37,11 +37,14 @@ def clean_duplicate_lines(file_path: Union[Path, str]) -> None:
         lines: List[str] = file.readlines()
     new_lines: List[str] = []
     for line in lines:
-        if not line.strip() or not line.lstrip().startswith("from"):
-            new_lines.append(line)
-        elif line not in new_lines and line.lstrip() not in [
-            c.lstrip() for c in new_lines
-        ]:
+        if (
+            not line.strip() 
+            or not line.lstrip().startswith("from") 
+            or (
+                line not in new_lines 
+                and line.lstrip() not in [c.lstrip() for c in new_lines]
+            )
+        ):
             new_lines.append(line)
     with open(file_path, "w") as file:
         file.writelines(new_lines)

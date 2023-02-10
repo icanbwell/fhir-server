@@ -283,6 +283,22 @@ class FhirRouter {
         }
     }
 
+    /**
+     * @function enableProfileRoutes
+     * @description Start iterating over potential routes to enable for this profile
+     * @param {Object} app - Express application instance
+     * @param {Object} config - Application config
+     * @param {Object} profile - Profile configuration from end users
+     * @param {string} profileName - Profile name the user has configured
+     * @param {Array<Object>} parameters - Parameters allowed for this profile
+     * @param {Object} corsDefaults - Default cors settings
+     */
+    enableProfileRoutes(app, config, profile, profileName, parameters, corsDefaults) {
+        if (profile.operation && profile.operation.length) {
+          this.enableOperationRoutesForProfile(app, config, profile, profileName, parameters, corsDefaults);
+        } // Start iterating over potential routes to enable for this profile
+    }
+
     enableResourceRoutes(app, config, corsDefaults) {
         // Iterate over all of our provided profiles
         for (let profileName in config.profiles) {
@@ -309,11 +325,7 @@ class FhirRouter {
                 throw new Error(`${profileName} is an invalid profile configuration, please see the wiki for ` + 'instructions on how to enable a profile in your server, ' + 'https://github.com/Asymmetrik/node-fhir-server-core/wiki/Profile');
             } // Enable all provided operations for this profile
 
-
-            if (profile.operation && profile.operation.length) {
-                this.enableOperationRoutesForProfile(app, config, profile, profileName, parameters, corsDefaults);
-            } // Start iterating over potential routes to enable for this profile
-
+            this.enableProfileRoutes(app, config, profile, profileName, parameters, corsDefaults);
 
             for (let route of routes) {
                 // If we do not have a matching service function for this route, skip it

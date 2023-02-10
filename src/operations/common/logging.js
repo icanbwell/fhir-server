@@ -16,41 +16,53 @@ const fhirLogger = require('../../utils/fhirLogger').FhirLogger;
 
 /**
  * Always logs regardless of env.IS_PRODUCTION
- * @param {string} user
+ * @param {string} message
  * @param {Object} args
  */
-const logRequest = ({user, args}) => {
-    logger.info(JSON.stringify({user, args}));
+const logInfo = (message, args) => {
+    logger.info(message, args);
 };
 
 /**
  * Logs as info if env.IS_PRODUCTION is not set
- * @param {string} user
+ * @param {string} message
  * @param {Object} args
  */
-const logDebug = ({user, args}) => {
+const logDebug = (message, args) => {
     if ((!env.IS_PRODUCTION && env.LOGLEVEL !== 'INFO') || (env.LOGLEVEL === 'DEBUG')) {
-        logger.debug(JSON.stringify({user, args}));
+        logger.debug(message, args);
     }
 };
 
 /**
  * Logs as error
- * @param {string} user
+ * @param {string} message
  * @param {Object} args
  */
-const logError = ({user, args}) => {
-    logger.error(JSON.stringify({user, args}));
+const logError = (message, args) => {
+    logger.error(message, args);
 };
 
 /**
  * Logs as warning
- * @param {string} user
+ * @param {string} message
  * @param {Object} args
  */
-const logWarn = ({user, args}) => {
-    logger.warn(JSON.stringify({user, args}));
+const logWarn = (message, args) => {
+    logger.warn(message, args);
 };
+
+/**
+ * Get detail array from args
+ * @param  {Object} args
+ * @returns {{valueString: string|undefined, valuePositiveInt: number|undefined, type: string}[]}
+ */
+const getDetailFromArgs = (args) => Object.entries(args).map(([k, v]) => {
+    return {
+        type: k,
+        valueString: (!v || typeof v === 'string') ? v : JSON.stringify(v, getCircularReplacer()),
+    };
+});
 
 /**
  * Logs a system event
@@ -62,13 +74,7 @@ const logSystemEventAsync = async ({event, message, args}) => {
     /**
      * @type {{valueString: string|undefined, valuePositiveInt: number|undefined, type: string}[]}
      */
-    const detail = Object.entries(args).map(([k, v]) => {
-            return {
-                type: k,
-                valueString: (!v || typeof v === 'string') ? v : JSON.stringify(v, getCircularReplacer())
-            };
-        }
-    );
+    const detail = getDetailFromArgs(args);
     if (os.hostname()) {
         const hostname = os.hostname();
         detail.push({
@@ -124,13 +130,7 @@ const logSystemErrorAsync = async ({event, message, args, error}) => {
     /**
      * @type {{valueString: string|undefined, valuePositiveInt: number|undefined, type: string}[]}
      */
-    const detail = Object.entries(args).map(([k, v]) => {
-            return {
-                type: k,
-                valueString: (!v || typeof v === 'string') ? v : JSON.stringify(v, getCircularReplacer())
-            };
-        }
-    );
+    const detail = getDetailFromArgs(args);
     if (os.hostname()) {
         const hostname = os.hostname();
         detail.push({
@@ -175,7 +175,7 @@ const logVerboseAsync = async ({source, args: args}) => {
 };
 
 module.exports = {
-    logRequest,
+    logInfo,
     logDebug,
     logError,
     logWarn,

@@ -2,11 +2,7 @@ const moment = require('moment-timezone');
 
 class AdminLogger {
     async logTrace(message) {
-        if (message === '\n') {
-            console.log(message);
-        } else {
-            console.log(`[${moment().toISOString()}] ` + message);
-        }
+        await this.log(message);
     }
 
     async log(message) {

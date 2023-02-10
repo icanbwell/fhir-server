@@ -20,12 +20,7 @@ function omitProperty(obj, omitKey) {
  * @return {Resource}
  */
 function omitPropertyFromResource(obj, omitKey) {
-    // noinspection JSValidateTypes
-    /**
-     * @type {Resource}
-     */
-    const result = omitProperty(obj, omitKey);
-    return result;
+    return omitProperty(obj, omitKey);
 }
 
 module.exports = {

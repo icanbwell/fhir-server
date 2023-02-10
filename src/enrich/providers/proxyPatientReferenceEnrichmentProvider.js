@@ -136,6 +136,22 @@ class ProxyPatientReferenceEnrichmentProvider extends EnrichmentProvider {
         }
         return entries;
     }
+
+    /**
+     * Get function to update references
+     * @param proxyPatientIds {string[]}
+     * @param proxyPatientPersonId {string|null}
+     * @returns {function(*): {reference}|*}
+     */
+    getUpdateReferenceFn(proxyPatientIds, proxyPatientPersonId) {
+        return (reference) => {
+            if (reference.reference && proxyPatientIds.includes(reference.reference)) {
+                reference.reference = proxyPatientPersonId.startsWith('Patient/') ?
+                    proxyPatientPersonId : `Patient/${proxyPatientPersonId}`;
+            }
+            return reference;
+        };
+    }
 }
 
 module.exports = {

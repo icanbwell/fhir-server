@@ -16,6 +16,32 @@ const {getCircularReplacer} = require('../utils/getCircularReplacer');
 const Bundle = require('../fhir/classes/4_0_0/resources/bundle');
 
 /**
+ * Function to convert data into JSON format
+ * @param {Object} data
+ * @returns {Object|Object[]}
+ */
+const convertDataToJSON = (data) => {
+    return data instanceof Bundle ? data.toJSONInternal() : JSON.parse(JSON.stringify(data, getCircularReplacer()));
+};
+
+/**
+ * Function to extract resources from parsed data
+ * @param {Object|Object[]} parsedData
+ * @returns {Object[]}
+ */
+const extractResources = (parsedData) => {
+    let resources;
+    if (!Array.isArray(parsedData) && parsedData.resourceType === 'Bundle') {
+      resources = parsedData.entry ? parsedData.entry : [];
+    } else if (!Array.isArray(parsedData)) {
+      resources = [parsedData];
+    } else {
+      resources = parsedData;
+    }
+    return resources;
+};
+
+/**
  * middleware to render HTML
  * @param {SimpleContainer} container
  * @param {import('express').Request} req
@@ -33,28 +59,14 @@ const htmlRenderer = ({container, req, res, next}) => {
             /**
              * @type {Object|Object[]}
              */
-            const parsedData = (data instanceof Bundle) ?
-                data.toJSONInternal() :
-                JSON.parse(JSON.stringify(data, getCircularReplacer()));
-            let total = 0;
-            if (parsedData.total) {
-                total = parsedData.total;
-            }
-            let meta = null;
-            if (parsedData.meta) {
-                meta = parsedData.meta;
-            }
+            const parsedData = convertDataToJSON(data);
+
+            let total = parsedData.total || 0;
+            let meta = parsedData.meta || null;
             /**
              * @type {Object[]}
              */
-            let resources;
-            if (!Array.isArray(parsedData) && parsedData.resourceType === 'Bundle') {
-                resources = parsedData.entry ? parsedData.entry : [];
-            } else if (!Array.isArray(parsedData)) {
-                resources = [parsedData];
-            } else {
-                resources = parsedData;
-            }
+            let resources = extractResources(parsedData);
 
             res.json = oldJson; // set function back to avoid the 'double-send'
             res.set('Content-Type', 'text/html');

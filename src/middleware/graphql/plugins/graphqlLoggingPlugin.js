@@ -1,5 +1,5 @@
 const async = require('async');
-const {logRequest, logError} = require('../../../operations/common/logging');
+const {logInfo, logError} = require('../../../operations/common/logging');
 
 /***
  * Plugin to log calls to GraphQL
@@ -31,27 +31,28 @@ class MyApolloServerLoggingPlugin /*extends ApolloServerPlugin*/ {
         const container = requestContext.context ? requestContext.context.container : null;
         const self = this;
 
-        logRequest({
-            user,
-            args: {
-                message: 'GraphQL Request Received',
-                endpoint: self.endpoint,
-                operationName: req.operationName,
-                query: req.query,
+        logInfo(
+            'GraphQL Request Received',
+            {
+                user,
+                args: {
+                    endpoint: self.endpoint,
+                    operationName: req.operationName,
+                    query: req.query,
+                }
             }
-        });
-
+        );
 
         return {
             async parsingDidStart() {
                 return async (err) => {
                     if (err) {
                         logError(
+                            'GraphQL Request Parsing Error',
                             {
                                 user,
                                 args:
                                     {
-                                        message: 'GraphQL Request Parsing Error',
                                         endpoint: self.endpoint,
                                         operationName: req.operationName,
                                         query: req.query,
@@ -71,10 +72,10 @@ class MyApolloServerLoggingPlugin /*extends ApolloServerPlugin*/ {
                             errs,
                             async (err) => {
                                 logError(
+                                    'GraphQL Request Validation Error',
                                     {
                                         user,
                                         args: {
-                                            message: 'GraphQL Request Validation Error',
                                             endpoint: self.endpoint,
                                             operationName: req.operationName,
                                             query: req.query,
@@ -111,11 +112,11 @@ class MyApolloServerLoggingPlugin /*extends ApolloServerPlugin*/ {
                     async executionDidEnd(err) {
                         if (err) {
                             logError(
+                                'GraphQL Request Execution Error',
                                 {
                                     user,
                                     args:
                                         {
-                                            message: 'GraphQL Request Execution Error',
                                             endpoint: self.endpoint,
                                             operationName: req.operationName,
                                             query: req.query,
@@ -157,5 +158,4 @@ const getApolloServerLoggingPlugin = (endpoint) => {
 module.exports = {
     getApolloServerLoggingPlugin: getApolloServerLoggingPlugin
 };
-
 

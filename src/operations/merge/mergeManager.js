@@ -195,10 +195,13 @@ class MergeManager {
     ) {
         assertTypeEquals(resourceToMerge, Resource);
         // not found so insert
-        logDebug({
-            user,
-            args: {message: 'Merging new resource', id: resourceToMerge.id, resource: resourceToMerge}
-        });
+        logDebug(
+            'Merging new resource',
+            {
+                user,
+                args: {id: resourceToMerge.id, resource: resourceToMerge}
+            }
+        );
         if (this.configManager.checkAccessTagsOnSave) {
             if (!this.scopesManager.doesResourceHaveAccessTags(resourceToMerge)) {
                 throw new BadRequestError(
@@ -329,15 +332,17 @@ class MergeManager {
                     });
                 }
             } catch (e) {
-                logError({
-                    user: user,
-                    args: {
-                        message: 'Error with merging resource',
-                        resourceType: resourceToMerge.resourceType,
-                        id: id,
-                        error: e
+                logError(
+                    'Error with merging resource',
+                    {
+                        user: user,
+                        args: {
+                            resourceType: resourceToMerge.resourceType,
+                            id: id,
+                            error: e
+                        }
                     }
-                });
+                );
                 const operationOutcome = {
                     resourceType: 'OperationOutcome',
                     issue: [
@@ -414,13 +419,11 @@ class MergeManager {
              * @type {string[]}
              */
             const ids_of_resources = resources_incoming.map(r => r.id);
-            logDebug({
-                    user, args:
-                        {
-                            message: 'Merge received array',
-                            length: resources_incoming.length,
-                            id: ids_of_resources
-                        }
+            logDebug(
+                'Merge received array',
+                {
+                    user,
+                    args: {length: resources_incoming.length, id: ids_of_resources}
                 }
             );
             // find items without duplicates and run them in parallel
@@ -435,20 +438,15 @@ class MergeManager {
              */
             const non_duplicate_id_resources = findUniqueResources(resources_incoming);
 
+            const mergeResourceFn = async (/** @type {Object} */ x) => await this.mergeResourceWithRetryAsync(
+                {
+                    resourceToMerge: x, resourceType,
+                    user, currentDate, requestId, base_version, scope,
+                });
+
             await Promise.all([
-                async.map(non_duplicate_id_resources,
-                    async (/** @type {Object} */ x) => await this.mergeResourceWithRetryAsync(
-                        {
-                            resourceToMerge: x,
-                            resourceType,
-                            user, currentDate, requestId, base_version, scope
-                        }
-                    )), // run in parallel
-                async.mapSeries(duplicate_id_resources, async (/** @type {Object} */ x) => await this.mergeResourceWithRetryAsync(
-                    {
-                        resourceToMerge: x, resourceType,
-                        user, currentDate, requestId, base_version, scope
-                    })) // run in series
+                async.map(non_duplicate_id_resources, mergeResourceFn), // run in parallel
+                async.mapSeries(duplicate_id_resources, mergeResourceFn) // run in series
             ]);
         } catch (e) {
             throw new RethrownError({
