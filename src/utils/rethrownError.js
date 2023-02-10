@@ -62,12 +62,12 @@ class RethrownError extends Error {
         if (oldStackDescriptor.get) {
             return {
                 get: function () {
-                    var stack = oldStackDescriptor.get.call(this);
+                    let stack = oldStackDescriptor.get.call(this);
                     return this.buildCombinedStacks(stack, this.nested);
                 }
             };
         } else {
-            var stack = oldStackDescriptor.value;
+            let stack = oldStackDescriptor.value;
             return {
                 value: this.buildCombinedStacks(stack, nested)
             };

@@ -72,9 +72,6 @@ function assertFail({source, message, args, error}) {
         if (args) {
             text += ' | ' + JSON.stringify(args, getCircularReplacer());
         }
-        if (error) {
-            text += '|' + JSON.stringify(error, getCircularReplacer());
-        }
         throw new AssertionError(text);
     }
 }
