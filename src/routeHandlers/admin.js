@@ -79,7 +79,6 @@ async function synchronizeIndexesAsync(
     await indexManager.synchronizeIndexesWithConfigAsync({
         audit: audit
     });
-    return;
 }
 
 /**
