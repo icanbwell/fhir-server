@@ -76,10 +76,9 @@ async function synchronizeIndexesAsync(
     res.set('Content-Type', 'text/html');
     res.send(Buffer.from(htmlContent));
     res.end();
-    await indexManager.synchronizeIndexesWithConfigAsync({
+    return await indexManager.synchronizeIndexesWithConfigAsync({
         audit: audit
     });
-    return;
 }
 
 /**
