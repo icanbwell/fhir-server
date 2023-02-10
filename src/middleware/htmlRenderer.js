@@ -67,30 +67,6 @@ const htmlRenderer = ({container, req, res, next}) => {
              * @type {Object[]}
              */
             let resources = extractResources(parsedData);
-            // /**
-            //  * @type {Bundle}
-            //  */
-            // let bundle;
-            // if (!Array.isArray(parsedData) && parsedData.resourceType === 'Bundle') {
-                // bundle = data;
-                // unbundle
-                // resources = parsedData.entry ? parsedData.entry.map((entry) => entry.resource) : [];
-                // resources = parsedData.entry ? parsedData.entry : [];
-            // } else if (!Array.isArray(parsedData)) {
-                // resources = [parsedData];
-                // bundle = new Bundle({
-                //     type: 'searchset',
-                //     entry: [
-                //         new BundleEntry(
-                //             {
-                //                 resource: parsedData
-                //             }
-                //         )
-                //     ]
-                // });
-            // } else {
-                // resources = parsedData;
-            // }
 
             res.json = oldJson; // set function back to avoid the 'double-send'
             res.set('Content-Type', 'text/html');

@@ -174,9 +174,10 @@ class FhirLoggingManager {
         /**
          * @type {string|null}
          */
-        const firstAccessCode = (accessCodes && accessCodes.length > 0) ?
-            (accessCodes[0] === '*' ? 'bwell' : accessCodes[0]) :
-            null;
+        let firstAccessCode = null;
+        if (accessCodes && accessCodes.length > 0) {
+            firstAccessCode = accessCodes[0] === '*' ? 'bwell' : accessCodes[0];
+        }
 
         // This uses the FHIR Audit Event schema: https://hl7.org/fhir/auditevent.html
         const logEntry = {
