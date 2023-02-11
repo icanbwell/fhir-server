@@ -1,0 +1,52 @@
+fragment MetaTags on Meta {
+    tag {
+        system
+        code
+    }
+}
+
+fragment MetaSecurity on Meta {
+    security {
+        system
+        code
+    }
+}
+
+fragment CodeableConceptFields on CodeableConcept {
+    text
+    coding {
+        system
+        code
+        display
+    }
+}
+
+query Careplan {
+    carePlan(_count: 1) {
+        entry {
+            resource {
+                meta {
+                    ...MetaTags
+                    ...MetaSecurity
+                }
+                id
+                title
+                category {
+                    ...CodeableConceptFields
+                }
+                status
+                intent
+                subject {
+                    __typename
+                    ... on Patient {
+                        id
+                    }
+                }
+                period {
+                    start
+                    end
+                }
+            }
+        }
+    }
+}

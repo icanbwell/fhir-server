@@ -1,0 +1,40 @@
+{
+  "entry": [
+    {
+      "resource": {
+        "category": null,
+        "id": "HumanApi-63d941d287c5a31e41091dd2",
+        "intent": "order",
+        "meta": {
+          "security": [
+            {
+              "code": "humanapi",
+              "system": "https://www.icanbwell.com/owner"
+            },
+            {
+              "code": "humanapi",
+              "system": "https://www.icanbwell.com/access"
+            },
+            {
+              "code": "humanapi",
+              "system": "https://www.icanbwell.com/vendor"
+            },
+            {
+              "code": "humanapi",
+              "system": "https://www.icanbwell.com/sourceAssigningAuthority"
+            }
+          ],
+          "tag": null
+        },
+        "period": null,
+        "status": "active",
+        "subject": {
+          "__typename": "Patient",
+          "id": "8ba1017f-0aad-1b91-ff9e-416a96e11f0b"
+        },
+        "title": null
+      }
+    }
+  ],
+  "meta": null
+}
