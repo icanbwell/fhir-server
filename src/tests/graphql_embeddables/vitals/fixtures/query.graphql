@@ -1,0 +1,159 @@
+fragment MetaTags on Meta {
+    tag {
+        system
+        code
+    }
+}
+
+fragment MetaSecurity on Meta {
+    security {
+        system
+        code
+    }
+}
+
+fragment QuantityFields on Quantity {
+    value
+    unit
+    code
+    comparator
+}
+
+query Vitals($FHIR_DEFAULT_COUNT: Int) {
+    observation(
+        _sort: ["-effectiveDateTime"]
+        _count: $FHIR_DEFAULT_COUNT
+        category: {value: {code: "vital-signs"}}
+    ) {
+        entry {
+            resource {
+                id
+                __typename
+                meta {
+                    ...MetaTags
+                    ...MetaSecurity
+                }
+                code {
+                    text
+                    coding {
+                        display
+                    }
+                }
+                valueQuantity {
+                    ...QuantityFields
+                }
+                valueCodeableConcept {
+                    text
+                    coding {
+                        code
+                        display
+                    }
+                }
+                valueString
+                valueBoolean
+                valueInteger
+                valueRange {
+                    low {
+                        ...QuantityFields
+                    }
+                    high {
+                        ...QuantityFields
+                    }
+                }
+                valueRatio {
+                    numerator {
+                        ...QuantityFields
+                    }
+                    denominator {
+                        ...QuantityFields
+                    }
+                }
+                valueTime
+                valueDateTime
+                valuePeriod {
+                    start
+                    end
+                }
+                component {
+                    code {
+                        text
+                    }
+                    valueQuantity {
+                        ...QuantityFields
+                    }
+                    valueCodeableConcept {
+                        text
+                        coding {
+                            code
+                            display
+                        }
+                    }
+                    valueString
+                    valueBoolean
+                    valueInteger
+                    valueRange {
+                        low {
+                            ...QuantityFields
+                        }
+                        high {
+                            ...QuantityFields
+                        }
+                    }
+                    valueRatio {
+                        numerator {
+                            ...QuantityFields
+                        }
+                        denominator {
+                            ...QuantityFields
+                        }
+                    }
+                    valueTime
+                    valueDateTime
+                    valuePeriod {
+                        start
+                        end
+                    }
+                    interpretation {
+                        text
+                    }
+                }
+                effectiveDateTime
+                effectivePeriod {
+                    start
+                    end
+                }
+                note {
+                    authorString
+                    time
+                    text
+                }
+                referenceRange {
+                    low {
+                        ...QuantityFields
+                    }
+                    high {
+                        ...QuantityFields
+                    }
+                    text
+                    appliesTo {
+                        text
+                    }
+                    age {
+                        low {
+                            ...QuantityFields
+                        }
+                        high {
+                            ...QuantityFields
+                        }
+                    }
+                }
+                interpretation {
+                    coding {
+                        code
+                        display
+                    }
+                }
+            }
+        }
+    }
+}
