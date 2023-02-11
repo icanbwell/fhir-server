@@ -12,6 +12,8 @@ const personBundleResource = require('./fixtures/Person/person1.json');
 
 // expected
 const expectedMedicationRequestResources = require('./fixtures/expected/expected_medicationrequest.json');
+const expectedMedicationDispenseResources = require('./fixtures/expected/expected_medicationdispense.json');
+const expectedMedicationStatementResources = require('./fixtures/expected/expected_medicationstatement.json');
 
 const fs = require('fs');
 const path = require('path');
@@ -115,6 +117,10 @@ describe('GraphQL MedicationRequest Tests', () => {
 
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveGraphQLResponse(expectedMedicationRequestResources, 'medicationRequest');
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveGraphQLResponse(expectedMedicationDispenseResources, 'medicationDispense');
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveGraphQLResponse(expectedMedicationStatementResources, 'medicationStatement');
         });
     });
 });
