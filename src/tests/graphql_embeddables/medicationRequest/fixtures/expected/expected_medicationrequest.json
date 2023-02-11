@@ -77,7 +77,33 @@
         ],
         "id": "e0Bc6IYB2dYd3pqsAXvf.8GVSBPd1HaWwLB1VXj8gpoE3",
         "medicationCodeableConcept": null,
-        "medicationReference": null,
+        "medicationReference": {
+          "code": {
+            "coding": [
+              {
+                "code": "75216",
+                "display": null,
+                "system": "urn:oid:2.16.840.1.113883.6.253"
+              },
+              {
+                "code": "78512010000330",
+                "display": null,
+                "system": "urn:oid:2.16.840.1.113883.6.68"
+              },
+              {
+                "code": "30159",
+                "display": null,
+                "system": "urn:oid:2.16.840.1.113883.6.162"
+              }
+            ],
+            "text": "prenatal vitamin"
+          },
+          "ingredient": [
+            {
+              "strength": null
+            }
+          ]
+        },
         "meta": {
           "security": [
             {
