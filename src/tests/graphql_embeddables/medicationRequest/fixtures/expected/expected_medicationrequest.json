@@ -1,0 +1,217 @@
+{
+  "entry": [
+    {
+      "resource": {
+        "__typename": "MedicationRequest",
+        "authoredOn": "2014-06-11T19:48:31.000Z",
+        "dispenseRequest": null,
+        "dosage": [
+          {
+            "doseAndRate": [
+              {
+                "doseQuantity": {
+                  "code": "{tbl}",
+                  "comparator": null,
+                  "unit": "Tablet",
+                  "value": 1
+                },
+                "type": {
+                  "coding": [
+                    {
+                      "code": "calculated",
+                      "display": "calculated",
+                      "system": "http://epic.com/CodeSystem/dose-rate-type"
+                    }
+                  ],
+                  "text": "calculated"
+                }
+              },
+              {
+                "doseQuantity": {
+                  "code": "{tbl}",
+                  "comparator": null,
+                  "unit": "Tablet",
+                  "value": 1
+                },
+                "type": {
+                  "coding": [
+                    {
+                      "code": "admin-amount",
+                      "display": "admin-amount",
+                      "system": "http://epic.com/CodeSystem/dose-rate-type"
+                    }
+                  ],
+                  "text": "admin-amount"
+                }
+              },
+              {
+                "doseQuantity": {
+                  "code": "{tbl}",
+                  "comparator": null,
+                  "unit": "Tablet",
+                  "value": 1
+                },
+                "type": {
+                  "coding": [
+                    {
+                      "code": "ordered",
+                      "display": "ordered",
+                      "system": "http://epic.com/CodeSystem/dose-rate-type"
+                    }
+                  ],
+                  "text": "ordered"
+                }
+              }
+            ],
+            "patientInstruction": null,
+            "sequence": null,
+            "text": "1 Tablet DAILY, Oral, First dose on Thu 6/12/14 at 1000, Until Discontinued, Post-op",
+            "timing": {
+              "repeat": {
+                "boundsPeriod": {
+                  "start": "2014-06-12T14:00:00.000Z"
+                }
+              }
+            }
+          }
+        ],
+        "id": "e0Bc6IYB2dYd3pqsAXvf.8GVSBPd1HaWwLB1VXj8gpoE3",
+        "medicationCodeableConcept": null,
+        "medicationReference": null,
+        "meta": {
+          "security": [
+            {
+              "code": "A",
+              "system": "https://www.icanbwell.com/owner"
+            },
+            {
+              "code": "A",
+              "system": "https://www.icanbwell.com/access"
+            },
+            {
+              "code": "A",
+              "system": "https://www.icanbwell.com/vendor"
+            },
+            {
+              "code": "proa",
+              "system": "https://www.icanbwell.com/connectionType"
+            },
+            {
+              "code": "A",
+              "system": "https://www.icanbwell.com/sourceAssigningAuthority"
+            }
+          ],
+          "tag": null
+        },
+        "status": "stopped"
+      }
+    },
+    {
+      "resource": {
+        "__typename": "MedicationRequest",
+        "authoredOn": "2011-02-21T10:31:00.000Z",
+        "dispenseRequest": null,
+        "dosage": [
+          {
+            "doseAndRate": [
+              {
+                "doseQuantity": {
+                  "code": "mg",
+                  "comparator": null,
+                  "unit": "mg",
+                  "value": 650
+                },
+                "type": {
+                  "coding": [
+                    {
+                      "code": "calculated",
+                      "display": "calculated",
+                      "system": "http://epic.com/CodeSystem/dose-rate-type"
+                    }
+                  ],
+                  "text": "calculated"
+                }
+              },
+              {
+                "doseQuantity": {
+                  "code": "{tbl}",
+                  "comparator": null,
+                  "unit": "Tablet",
+                  "value": 2
+                },
+                "type": {
+                  "coding": [
+                    {
+                      "code": "admin-amount",
+                      "display": "admin-amount",
+                      "system": "http://epic.com/CodeSystem/dose-rate-type"
+                    }
+                  ],
+                  "text": "admin-amount"
+                }
+              },
+              {
+                "doseQuantity": {
+                  "code": "mg",
+                  "comparator": null,
+                  "unit": "mg",
+                  "value": 650
+                },
+                "type": {
+                  "coding": [
+                    {
+                      "code": "ordered",
+                      "display": "ordered",
+                      "system": "http://epic.com/CodeSystem/dose-rate-type"
+                    }
+                  ],
+                  "text": "ordered"
+                }
+              }
+            ],
+            "patientInstruction": null,
+            "sequence": null,
+            "text": "650 mg, Oral, EVERY 6 HOURS PRN, Fever, Temp > 101 , Starting Mon 2/21/11 at 0530\nFor mild pain Maximum dose of acetaminophen is 4000 mg from all sources in 24 hours.\nPost-op",
+            "timing": {
+              "repeat": {
+                "boundsPeriod": {
+                  "start": "2011-02-21T10:30:57.000Z"
+                }
+              }
+            }
+          }
+        ],
+        "id": "e0KCoLVWohg-G-hgz4OlNgTVlr75yqrmgGssLTpjovC83",
+        "medicationCodeableConcept": null,
+        "medicationReference": null,
+        "meta": {
+          "security": [
+            {
+              "code": "A",
+              "system": "https://www.icanbwell.com/owner"
+            },
+            {
+              "code": "A",
+              "system": "https://www.icanbwell.com/access"
+            },
+            {
+              "code": "A",
+              "system": "https://www.icanbwell.com/vendor"
+            },
+            {
+              "code": "proa",
+              "system": "https://www.icanbwell.com/connectionType"
+            },
+            {
+              "code": "A",
+              "system": "https://www.icanbwell.com/sourceAssigningAuthority"
+            }
+          ],
+          "tag": null
+        },
+        "status": "stopped"
+      }
+    }
+  ],
+  "meta": null
+}
