@@ -1,0 +1,101 @@
+{
+  "entry": [
+    {
+      "resource": {
+        "__typename": "Observation",
+        "code": {
+          "coding": [
+            {
+              "code": "2075-0",
+              "display": "Chloride [Moles/volume] in Serum or Plasma",
+              "system": "http://loinc.org"
+            },
+            {
+              "code": "L100.3400",
+              "display": null,
+              "system": "urn:oid:1.2.840.114350.1.13.221.2.7.5.737384.10003"
+            },
+            {
+              "code": "1558125",
+              "display": null,
+              "system": "urn:oid:1.2.840.114350.1.13.221.2.7.5.737384.146"
+            },
+            {
+              "code": "1558125",
+              "display": "Chloride",
+              "system": "urn:oid:1.2.840.114350.1.13.221.2.7.2.768282"
+            }
+          ],
+          "text": null
+        },
+        "component": null,
+        "effectiveDateTime": "2015-11-07T03:58:00.000Z",
+        "effectivePeriod": null,
+        "encounter": null,
+        "id": "e0OV-ohkeMKKADn4w9gYWeZOffh6NFfoxQEN0QM.WQNI8g7X",
+        "interpretation": null,
+        "meta": {
+          "security": [
+            {
+              "code": "A",
+              "system": "https://www.icanbwell.com/owner"
+            },
+            {
+              "code": "A",
+              "system": "https://www.icanbwell.com/access"
+            },
+            {
+              "code": "A",
+              "system": "https://www.icanbwell.com/vendor"
+            },
+            {
+              "code": "proa",
+              "system": "https://www.icanbwell.com/connectionType"
+            },
+            {
+              "code": "A",
+              "system": "https://www.icanbwell.com/sourceAssigningAuthority"
+            }
+          ],
+          "tag": null
+        },
+        "note": null,
+        "referenceRange": [
+          {
+            "age": null,
+            "appliesTo": null,
+            "high": {
+              "code": "mmol/L",
+              "comparator": null,
+              "unit": "mmol/L",
+              "value": 112
+            },
+            "low": {
+              "code": "mmol/L",
+              "comparator": null,
+              "unit": "mmol/L",
+              "value": 95
+            },
+            "text": "95 - 112 mmol/L"
+          }
+        ],
+        "valueBoolean": null,
+        "valueCodeableConcept": null,
+        "valueDateTime": null,
+        "valueInteger": null,
+        "valuePeriod": null,
+        "valueQuantity": {
+          "code": "mmol/L",
+          "comparator": null,
+          "unit": "mmol/L",
+          "value": 109
+        },
+        "valueRange": null,
+        "valueRatio": null,
+        "valueString": null,
+        "valueTime": null
+      }
+    }
+  ],
+  "meta": null
+}
