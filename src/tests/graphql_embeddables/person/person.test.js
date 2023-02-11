@@ -62,7 +62,7 @@ describe('GraphQL Person Tests', () => {
                 .set(getGraphQLHeaders());
 
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse(expectedPersonResources);
+            expect(resp).toHaveGraphQLResponse(expectedPersonResources, 'person');
         });
     });
 });

@@ -69,7 +69,7 @@ describe('GraphQL Condition Tests', () => {
                 .set(getGraphQLHeadersWithPerson('79e59046-ffc7-4c41-9819-c8ef83275454'));
 
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse(expectedConditionResources);
+            expect(resp).toHaveGraphQLResponse(expectedConditionResources, 'condition');
         });
     });
 });
