@@ -2,8 +2,9 @@
 const patient1Resource = require('./fixtures/Patient/patient1.json');
 const patient2Resource = require('./fixtures/Patient/patient2.json');
 const patient3Resource = require('./fixtures/Patient/patient3_with_uuid_but_no_identifier.json');
-const patient4Resource = require('./fixtures/Patient/patient4_with_all_fields.json');
-const patient5Resource = require('./fixtures/Patient/patient5_newer_than_threshold.json');
+const patient4Resource = require('./fixtures/Patient/patient4_with_all_fields_but_sourceAssigningAuthority.json');
+const patient5Resource = require('./fixtures/Patient/patient5_with_all_fields.json');
+const patient6Resource = require('./fixtures/Patient/patient6_newer_than_threshold.json');
 
 // expected
 const expectedPatientsInDatabaseBeforeRun = require('./fixtures/expected/expected_patients_in_database_before_run.json');
@@ -11,6 +12,8 @@ const expectedPatient1DatabaseAfterRun = require('./fixtures/expected/expected_p
 const expectedPatient2DatabaseAfterRun = require('./fixtures/expected/expected_patient2.json');
 const expectedPatient3DatabaseAfterRun = require('./fixtures/expected/expected_patient3.json');
 const expectedPatient4DatabaseAfterRun = require('./fixtures/expected/expected_patient4.json');
+const expectedPatient5DatabaseAfterRun = require('./fixtures/expected/expected_patient5.json');
+const expectedPatient6DatabaseAfterRun = require('./fixtures/expected/expected_patient6.json');
 
 const {
     commonBeforeEach,
@@ -23,6 +26,7 @@ const {AdminLogger} = require('../../../../admin/adminLogger');
 const {ConfigManager} = require('../../../../utils/configManager');
 const {RunPreSaveRunner} = require('../../../../admin/runners/runPreSaveRunner');
 const {IdentifierSystem} = require('../../../../utils/identifierSystem');
+const {assertTypeEquals} = require('../../../../utils/assertType');
 
 class MockConfigManagerWithoutGlobalId extends ConfigManager {
     get enableGlobalIdSupport() {
@@ -32,6 +36,38 @@ class MockConfigManagerWithoutGlobalId extends ConfigManager {
     get enableReturnBundle() {
         return true;
     }
+}
+
+async function setupDatabaseAsync(mongoDatabaseManager) {
+    const fhirDb = await mongoDatabaseManager.getClientDbAsync();
+
+    const collection = fhirDb.collection('Patient_4_0_0');
+    await collection.insertOne(patient1Resource);
+    await collection.insertOne(patient2Resource);
+    await collection.insertOne(patient3Resource);
+    await collection.insertOne(patient4Resource);
+    await collection.insertOne(patient5Resource);
+    await collection.insertOne(patient6Resource);
+
+    // ACT & ASSERT
+    // check that two entries were stored in the database
+    /**
+     * @type {Object[]}
+     */
+    let results = await collection.find({}).sort({id: 1}).toArray();
+    // const resultsJson = JSON.stringify(results);
+
+    expect(results.length).toStrictEqual(6);
+    for (const resource of results) {
+        delete resource._id;
+        delete resource.meta.lastUpdated;
+    }
+    for (const resource of expectedPatientsInDatabaseBeforeRun) {
+        delete resource._id;
+        delete resource.meta.lastUpdated;
+    }
+    expect(results).toStrictEqual(expectedPatientsInDatabaseBeforeRun);
+    return collection;
 }
 
 describe('Patient Tests', () => {
@@ -62,34 +98,7 @@ describe('Patient Tests', () => {
              * @type {MongoDatabaseManager}
              */
             const mongoDatabaseManager = container.mongoDatabaseManager;
-
-            const fhirDb = await mongoDatabaseManager.getClientDbAsync();
-
-            const collection = fhirDb.collection('Patient_4_0_0');
-            await collection.insertOne(patient1Resource);
-            await collection.insertOne(patient2Resource);
-            await collection.insertOne(patient3Resource);
-            await collection.insertOne(patient4Resource);
-            await collection.insertOne(patient5Resource);
-
-            // ACT & ASSERT
-            // check that two entries were stored in the database
-            /**
-             * @type {Object[]}
-             */
-            let results = await collection.find({}).sort({id: 1}).toArray();
-            // const resultsJson = JSON.stringify(results);
-
-            expect(results.length).toStrictEqual(5);
-            for (const resource of results) {
-                delete resource._id;
-                delete resource.meta.lastUpdated;
-            }
-            for (const resource of expectedPatientsInDatabaseBeforeRun) {
-                delete resource._id;
-                delete resource.meta.lastUpdated;
-            }
-            expect(results).toStrictEqual(expectedPatientsInDatabaseBeforeRun);
+            const collection = await setupDatabaseAsync(mongoDatabaseManager);
 
             // run admin runner
 
@@ -114,6 +123,7 @@ describe('Patient Tests', () => {
              * @type {RunPreSaveRunner}
              */
             const runPreSaveRunner = container.runPreSaveRunner;
+            assertTypeEquals(runPreSaveRunner, RunPreSaveRunner);
             await runPreSaveRunner.processAsync();
 
             // Check patient 1
@@ -162,21 +172,32 @@ describe('Patient Tests', () => {
                 .value = patient3._uuid;
             expect(patient3).toStrictEqual(expectedPatient3DatabaseAfterRun);
 
-            // Check patient 4 with all fields populated
+            // Check patient 4 with all fields populated except sourceAssigningAuthority
             const patient4 = await collection.findOne({id: patient4Resource.id});
             expect(patient4).toBeDefined();
             delete patient4._id;
             expect(patient4._uuid).toBeDefined();
             expect(patient4.meta).toBeDefined();
-            // no update should be done
-            expect(patient4.meta.lastUpdated).toStrictEqual(expectedPatient4DatabaseAfterRun.meta.lastUpdated);
+            expect(patient4.meta.lastUpdated).toBeDefined();
+            expect(patient4.meta.lastUpdated).not.toStrictEqual(expectedPatient4DatabaseAfterRun.meta.lastUpdated);
+            expectedPatient4DatabaseAfterRun.meta.lastUpdated = patient4.meta.lastUpdated;
             expect(patient4).toStrictEqual(expectedPatient4DatabaseAfterRun);
 
-            // check that patient 5 was skipped since it has a newer lastModified date
+            // patient 5 with all field populated so no update should be done
             const patient5 = await collection.findOne({id: patient5Resource.id});
             expect(patient5).toBeDefined();
-            expect(patient5.meta.lastUpdated).toStrictEqual(patient5Resource.meta.lastUpdated);
+            delete patient5._id;
+            expect(patient5._uuid).toBeDefined();
+            expect(patient5.meta).toBeDefined();
+            expect(patient5).toStrictEqual(expectedPatient5DatabaseAfterRun);
+            // no update should be done
+            expect(patient5.meta.lastUpdated).toStrictEqual(expectedPatient5DatabaseAfterRun.meta.lastUpdated);
 
+            // check that patient 6 was skipped since it has a newer lastModified date
+            const patient6 = await collection.findOne({id: patient6Resource.id});
+            expect(patient6).toBeDefined();
+            expect(patient6.meta.lastUpdated).toStrictEqual(patient6Resource.meta.lastUpdated);
+            expect(patient6).toStrictEqual(expectedPatient6DatabaseAfterRun);
         });
     });
 });

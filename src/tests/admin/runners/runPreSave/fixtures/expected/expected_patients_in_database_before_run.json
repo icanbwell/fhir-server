@@ -63,12 +63,66 @@
     "_access": {
       "medstar": 1
     },
-    "_sourceAssigningAuthority": "medstar",
+    "_sourceAssigningAuthority": {
+      "medstar": 1
+    },
     "_sourceId": "00300000000",
     "_uuid": "c8dccbb2-7d6c-4cf6-98cf-c6978c4a5d46",
     "birthDate": "2017-01-01",
     "gender": "female",
     "id": "00300000000",
+    "meta": {
+      "security": [
+        {
+          "code": "medstar",
+          "system": "https://www.icanbwell.com/access"
+        },
+        {
+          "code": "medstar",
+          "system": "https://www.icanbwell.com/owner"
+        },
+        {
+          "code": "medstar",
+          "system": "https://www.icanbwell.com/sourceAssigningAuthority"
+        }
+      ],
+      "source": "http://medstarhealth.org/provider",
+      "versionId": "1"
+    },
+    "name": [
+      {
+        "family": "PATIENT1",
+        "given": [
+          "SHYLA"
+        ],
+        "text": "t",
+        "use": "usual"
+      }
+    ],
+    "resourceType": "Patient"
+  },
+  {
+    "_access": {
+      "medstar": 1
+    },
+    "_sourceAssigningAuthority": {
+      "medstar": 1
+    },
+    "_sourceId": "00400000000",
+    "_uuid": "7e5b5072-622f-4482-991d-0bccb06b2f02",
+    "birthDate": "2017-01-01",
+    "gender": "female",
+    "id": "00400000000",
+    "identifier": [
+      {
+        "system": "https://www.icanbwell.com/sourceId",
+        "value": "00400000000"
+      },
+      {
+        "system": "https://www.icanbwell.com/uuid",
+        "value": "7e5b5072-622f-4482-991d-0bccb06b2f02"
+      }
+    ],
     "meta": {
       "security": [
         {
@@ -153,7 +207,9 @@
     "_access": {
       "medstar": 1
     },
-    "_sourceAssigningAuthority": "medstar",
+    "_sourceAssigningAuthority": {
+      "medstar": 1
+    },
     "_sourceId": "00500000000",
     "_uuid": "c8dccbb2-7d6c-4cf6-98cf-c6978c4a5d46",
     "birthDate": "2017-01-01",
