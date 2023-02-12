@@ -42,10 +42,16 @@ jobs:
       - run: | # retry since mongo memory server fails to download sometimes
           yarn install || yarn install
       - run: npm run build --if-present
+      - name: show memory
+        run: |
+          export NODE_OPTIONS="--max-old-space-size=8192"
+          NODE_OPTIONS=--max-old-space-size=8192 node --max-old-space-size=8192 --optimize_for_size --gc_interval=100 --always-compact ./src/utils/showMemory.js
+        env:
+          NODE_OPTIONS: "--max-old-space-size=10240"
       - name: jest
         run: |
-          export NODE_OPTIONS="--max-old-space-size=10240"
-          NODE_OPTIONS=--max-old-space-size=10240 node --max-old-space-size=10240 --optimize_for_size --gc_interval=100 --always-compact ./node_modules/.bin/jest --no-watchman --silent --logHeapUsage --runInBand --forceExit --shard=${{ matrix.shard }}/${{ strategy.job-total }} --coverage
+          export NODE_OPTIONS="--max-old-space-size=8192"
+          NODE_OPTIONS=--max-old-space-size=8192 node --max-old-space-size=8192 --optimize_for_size --gc_interval=100 --always-compact ./node_modules/.bin/jest --no-watchman --silent --logHeapUsage --runInBand --forceExit --shard=${{ matrix.shard }}/${{ strategy.job-total }} --coverage
         env:
           NODE_OPTIONS: "--max-old-space-size=10240"
       - name: Rename coverage file name
