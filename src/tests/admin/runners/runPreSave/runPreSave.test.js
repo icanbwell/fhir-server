@@ -44,6 +44,10 @@ class MockConfigManagerWithoutGlobalId extends ConfigManager {
     }
 }
 
+function sleepAsync(time) {
+    return new Promise(resolve => setTimeout(resolve, time));
+}
+
 async function setupDatabaseAsync(mongoDatabaseManager, patientResource, expectedPatientInDatabase) {
     const fhirDb = await mongoDatabaseManager.getClientDbAsync();
 
@@ -318,6 +322,8 @@ describe('Patient Tests', () => {
              */
             const runPreSaveRunner = container.runPreSaveRunner;
             assertTypeEquals(runPreSaveRunner, RunPreSaveRunner);
+
+            await sleepAsync(2000);
             await runPreSaveRunner.processAsync();
 
             // Check patient 4 with all fields populated except sourceAssigningAuthority
@@ -413,7 +419,7 @@ describe('Patient Tests', () => {
                 mongoDatabaseManager,
                 patient6Resource,
                 expectedPatient6InDatabaseBeforeRun
-                );
+            );
 
             // run admin runner
 

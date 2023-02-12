@@ -93,7 +93,7 @@ class RunPreSaveRunner extends BaseBulkOperationRunner {
          */
         // batch up the calls to update
         updatedResource.meta.lastUpdated = new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ssZ'));
-        const result = {replaceOne: {filter: {_id: doc._id}, replacement: updatedResourceJsonInternal}};
+        const result = {replaceOne: {filter: {_id: doc._id}, replacement: updatedResource.toJSONInternal()}};
         operations.push(result);
 
         return operations;
