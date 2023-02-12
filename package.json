@@ -129,7 +129,7 @@
     "cookie-parser": "^1.4.6",
     "cors": "^2.8.5",
     "dataloader": "^2.1.0",
-    "dd-trace": "^3.10.0",
+    "dd-trace": "^3.11.0",
     "deepcopy": "^2.1.0",
     "deepmerge": "^4.2.2",
     "ejs": "^3.1.8",
