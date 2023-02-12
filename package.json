@@ -158,7 +158,7 @@
     "sanitize-html": "^2.8.1",
     "snappy": "^7.2.2",
     "snyk": "^1.1082.0",
-    "superagent": "^8.0.6",
+    "superagent": "^8.0.8",
     "swagger-ui-express": "^4.6.0",
     "validator": "^13.7.0",
     "vanillajs-datepicker": "^1.2.0",
