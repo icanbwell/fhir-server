@@ -82,7 +82,9 @@ class RunPreSaveRunner extends BaseBulkOperationRunner {
          */
         const updatedResource = await this.preSaveManager.preSaveAsync(currentResource.clone());
         // for speed, first check if the incoming resource is exactly the same
-        if (deepEqual(updatedResource.toJSONInternal(), currentResource.toJSONInternal()) === true) {
+        const updatedResourceJsonInternal = updatedResource.toJSONInternal();
+        const currentResourceJsonInternal = currentResource.toJSONInternal();
+        if (deepEqual(updatedResourceJsonInternal, currentResourceJsonInternal) === true) {
             return operations;
         }
 
@@ -91,7 +93,7 @@ class RunPreSaveRunner extends BaseBulkOperationRunner {
          */
         // batch up the calls to update
         updatedResource.meta.lastUpdated = new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ssZ'));
-        const result = {replaceOne: {filter: {_id: doc._id}, replacement: updatedResource.toJSONInternal()}};
+        const result = {replaceOne: {filter: {_id: doc._id}, replacement: updatedResourceJsonInternal}};
         operations.push(result);
 
         return operations;

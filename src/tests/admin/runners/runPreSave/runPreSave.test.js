@@ -7,7 +7,13 @@ const patient5Resource = require('./fixtures/Patient/patient5_with_all_fields.js
 const patient6Resource = require('./fixtures/Patient/patient6_newer_than_threshold.json');
 
 // expected
-const expectedPatientsInDatabaseBeforeRun = require('./fixtures/expected/expected_patients_in_database_before_run.json');
+const expectedPatient1InDatabaseBeforeRun = require('./fixtures/expected/expected_patient_1_in_database_before_run.json');
+const expectedPatient2InDatabaseBeforeRun = require('./fixtures/expected/expected_patient_2_in_database_before_run.json');
+const expectedPatient3InDatabaseBeforeRun = require('./fixtures/expected/expected_patient_3_in_database_before_run.json');
+const expectedPatient4InDatabaseBeforeRun = require('./fixtures/expected/expected_patient_4_in_database_before_run.json');
+const expectedPatient5InDatabaseBeforeRun = require('./fixtures/expected/expected_patient_5_in_database_before_run.json');
+const expectedPatient6InDatabaseBeforeRun = require('./fixtures/expected/expected_patient_6_in_database_before_run.json');
+
 const expectedPatient1DatabaseAfterRun = require('./fixtures/expected/expected_patient1.json');
 const expectedPatient2DatabaseAfterRun = require('./fixtures/expected/expected_patient2.json');
 const expectedPatient3DatabaseAfterRun = require('./fixtures/expected/expected_patient3.json');
@@ -38,35 +44,25 @@ class MockConfigManagerWithoutGlobalId extends ConfigManager {
     }
 }
 
-async function setupDatabaseAsync(mongoDatabaseManager) {
+async function setupDatabaseAsync(mongoDatabaseManager, patientResource, expectedPatientInDatabase) {
     const fhirDb = await mongoDatabaseManager.getClientDbAsync();
 
     const collection = fhirDb.collection('Patient_4_0_0');
-    await collection.insertOne(patient1Resource);
-    await collection.insertOne(patient2Resource);
-    await collection.insertOne(patient3Resource);
-    await collection.insertOne(patient4Resource);
-    await collection.insertOne(patient5Resource);
-    await collection.insertOne(patient6Resource);
+    await collection.insertOne(patientResource);
 
     // ACT & ASSERT
     // check that two entries were stored in the database
     /**
-     * @type {Object[]}
+     * @type {import('mongodb').WithId<import('mongodb').Document> | null}
      */
-    let results = await collection.find({}).sort({id: 1}).toArray();
+    const resource = await collection.findOne({id: patientResource.id});
     // const resultsJson = JSON.stringify(results);
 
-    expect(results.length).toStrictEqual(6);
-    for (const resource of results) {
-        delete resource._id;
-        delete resource.meta.lastUpdated;
-    }
-    for (const resource of expectedPatientsInDatabaseBeforeRun) {
-        delete resource._id;
-        delete resource.meta.lastUpdated;
-    }
-    expect(results).toStrictEqual(expectedPatientsInDatabaseBeforeRun);
+    delete resource._id;
+
+    patientResource.meta.lastUpdated = resource.meta.lastUpdated;
+
+    expect(resource).toStrictEqual(expectedPatientInDatabase);
     return collection;
 }
 
@@ -80,7 +76,7 @@ describe('Patient Tests', () => {
     });
 
     describe('Patient runPreSave Tests', () => {
-        test('runPreSave works', async () => {
+        test('runPreSave works for patient 1', async () => {
             // eslint-disable-next-line no-unused-vars
             const request = await createTestRequest((c) => {
                 c.register('configManager', () => new MockConfigManagerWithoutGlobalId());
@@ -98,7 +94,9 @@ describe('Patient Tests', () => {
              * @type {MongoDatabaseManager}
              */
             const mongoDatabaseManager = container.mongoDatabaseManager;
-            const collection = await setupDatabaseAsync(mongoDatabaseManager);
+            const collection = await setupDatabaseAsync(
+                mongoDatabaseManager, patient1Resource, expectedPatient1InDatabaseBeforeRun
+            );
 
             // run admin runner
 
@@ -140,6 +138,56 @@ describe('Patient Tests', () => {
                 .filter(i => i.system === IdentifierSystem.uuid)[0]
                 .value = patient1._uuid;
             expect(patient1).toStrictEqual(expectedPatient1DatabaseAfterRun);
+        });
+        test('runPreSave works for patient 2', async () => {
+            // eslint-disable-next-line no-unused-vars
+            const request = await createTestRequest((c) => {
+                c.register('configManager', () => new MockConfigManagerWithoutGlobalId());
+                return c;
+            });
+            const container = getTestContainer();
+            /**
+             * @type {PostRequestProcessor}
+             */
+                // eslint-disable-next-line no-unused-vars
+            const postRequestProcessor = container.postRequestProcessor;
+
+            // insert directly into database instead of going through merge() so we simulate old records
+            /**
+             * @type {MongoDatabaseManager}
+             */
+            const mongoDatabaseManager = container.mongoDatabaseManager;
+            const collection = await setupDatabaseAsync(
+                mongoDatabaseManager,
+                patient2Resource,
+                expectedPatient2InDatabaseBeforeRun
+            );
+
+            // run admin runner
+
+            const collections = ['all'];
+            const batchSize = 10000;
+
+            container.register('runPreSaveRunner', (c) => new RunPreSaveRunner(
+                    {
+                        mongoCollectionManager: c.mongoCollectionManager,
+                        collections: collections,
+                        batchSize,
+                        beforeLastUpdatedDate: '2023-01-29',
+                        useAuditDatabase: false,
+                        adminLogger: new AdminLogger(),
+                        mongoDatabaseManager: c.mongoDatabaseManager,
+                        preSaveManager: c.preSaveManager
+                    }
+                )
+            );
+
+            /**
+             * @type {RunPreSaveRunner}
+             */
+            const runPreSaveRunner = container.runPreSaveRunner;
+            assertTypeEquals(runPreSaveRunner, RunPreSaveRunner);
+            await runPreSaveRunner.processAsync();
 
             // Check patient 2
             const patient2 = await collection.findOne({id: patient2Resource.id});
@@ -155,6 +203,56 @@ describe('Patient Tests', () => {
                 .filter(i => i.system === IdentifierSystem.uuid)[0]
                 .value = patient2._uuid;
             expect(patient2).toStrictEqual(expectedPatient2DatabaseAfterRun);
+        });
+        test('runPreSave works for patient 3 with uuid but no identifier', async () => {
+            // eslint-disable-next-line no-unused-vars
+            const request = await createTestRequest((c) => {
+                c.register('configManager', () => new MockConfigManagerWithoutGlobalId());
+                return c;
+            });
+            const container = getTestContainer();
+            /**
+             * @type {PostRequestProcessor}
+             */
+                // eslint-disable-next-line no-unused-vars
+            const postRequestProcessor = container.postRequestProcessor;
+
+            // insert directly into database instead of going through merge() so we simulate old records
+            /**
+             * @type {MongoDatabaseManager}
+             */
+            const mongoDatabaseManager = container.mongoDatabaseManager;
+            const collection = await setupDatabaseAsync(
+                mongoDatabaseManager,
+                patient3Resource,
+                expectedPatient3InDatabaseBeforeRun
+            );
+
+            // run admin runner
+
+            const collections = ['all'];
+            const batchSize = 10000;
+
+            container.register('runPreSaveRunner', (c) => new RunPreSaveRunner(
+                    {
+                        mongoCollectionManager: c.mongoCollectionManager,
+                        collections: collections,
+                        batchSize,
+                        beforeLastUpdatedDate: '2023-01-29',
+                        useAuditDatabase: false,
+                        adminLogger: new AdminLogger(),
+                        mongoDatabaseManager: c.mongoDatabaseManager,
+                        preSaveManager: c.preSaveManager
+                    }
+                )
+            );
+
+            /**
+             * @type {RunPreSaveRunner}
+             */
+            const runPreSaveRunner = container.runPreSaveRunner;
+            assertTypeEquals(runPreSaveRunner, RunPreSaveRunner);
+            await runPreSaveRunner.processAsync();
 
             // Check patient 3 with uuid but no identifier
             const patient3 = await collection.findOne({id: patient3Resource.id});
@@ -171,6 +269,56 @@ describe('Patient Tests', () => {
                 .filter(i => i.system === IdentifierSystem.uuid)[0]
                 .value = patient3._uuid;
             expect(patient3).toStrictEqual(expectedPatient3DatabaseAfterRun);
+        });
+        test('runPreSave works with patient 4 with all fields but sourceAssigningAuthority', async () => {
+            // eslint-disable-next-line no-unused-vars
+            const request = await createTestRequest((c) => {
+                c.register('configManager', () => new MockConfigManagerWithoutGlobalId());
+                return c;
+            });
+            const container = getTestContainer();
+            /**
+             * @type {PostRequestProcessor}
+             */
+                // eslint-disable-next-line no-unused-vars
+            const postRequestProcessor = container.postRequestProcessor;
+
+            // insert directly into database instead of going through merge() so we simulate old records
+            /**
+             * @type {MongoDatabaseManager}
+             */
+            const mongoDatabaseManager = container.mongoDatabaseManager;
+            const collection = await setupDatabaseAsync(
+                mongoDatabaseManager,
+                patient4Resource,
+                expectedPatient4InDatabaseBeforeRun
+            );
+
+            // run admin runner
+
+            const collections = ['all'];
+            const batchSize = 10000;
+
+            container.register('runPreSaveRunner', (c) => new RunPreSaveRunner(
+                    {
+                        mongoCollectionManager: c.mongoCollectionManager,
+                        collections: collections,
+                        batchSize,
+                        beforeLastUpdatedDate: '2023-01-29',
+                        useAuditDatabase: false,
+                        adminLogger: new AdminLogger(),
+                        mongoDatabaseManager: c.mongoDatabaseManager,
+                        preSaveManager: c.preSaveManager
+                    }
+                )
+            );
+
+            /**
+             * @type {RunPreSaveRunner}
+             */
+            const runPreSaveRunner = container.runPreSaveRunner;
+            assertTypeEquals(runPreSaveRunner, RunPreSaveRunner);
+            await runPreSaveRunner.processAsync();
 
             // Check patient 4 with all fields populated except sourceAssigningAuthority
             const patient4 = await collection.findOne({id: patient4Resource.id});
@@ -182,6 +330,56 @@ describe('Patient Tests', () => {
             expect(patient4.meta.lastUpdated).not.toStrictEqual(expectedPatient4DatabaseAfterRun.meta.lastUpdated);
             expectedPatient4DatabaseAfterRun.meta.lastUpdated = patient4.meta.lastUpdated;
             expect(patient4).toStrictEqual(expectedPatient4DatabaseAfterRun);
+        });
+        test('runPreSave works with patient 5 with all fields', async () => {
+            // eslint-disable-next-line no-unused-vars
+            const request = await createTestRequest((c) => {
+                c.register('configManager', () => new MockConfigManagerWithoutGlobalId());
+                return c;
+            });
+            const container = getTestContainer();
+            /**
+             * @type {PostRequestProcessor}
+             */
+                // eslint-disable-next-line no-unused-vars
+            const postRequestProcessor = container.postRequestProcessor;
+
+            // insert directly into database instead of going through merge() so we simulate old records
+            /**
+             * @type {MongoDatabaseManager}
+             */
+            const mongoDatabaseManager = container.mongoDatabaseManager;
+            const collection = await setupDatabaseAsync(
+                mongoDatabaseManager,
+                patient5Resource,
+                expectedPatient5InDatabaseBeforeRun
+            );
+
+            // run admin runner
+
+            const collections = ['all'];
+            const batchSize = 10000;
+
+            container.register('runPreSaveRunner', (c) => new RunPreSaveRunner(
+                    {
+                        mongoCollectionManager: c.mongoCollectionManager,
+                        collections: collections,
+                        batchSize,
+                        beforeLastUpdatedDate: '2023-01-29',
+                        useAuditDatabase: false,
+                        adminLogger: new AdminLogger(),
+                        mongoDatabaseManager: c.mongoDatabaseManager,
+                        preSaveManager: c.preSaveManager
+                    }
+                )
+            );
+
+            /**
+             * @type {RunPreSaveRunner}
+             */
+            const runPreSaveRunner = container.runPreSaveRunner;
+            assertTypeEquals(runPreSaveRunner, RunPreSaveRunner);
+            await runPreSaveRunner.processAsync();
 
             // patient 5 with all field populated so no update should be done
             const patient5 = await collection.findOne({id: patient5Resource.id});
@@ -192,6 +390,56 @@ describe('Patient Tests', () => {
             expect(patient5).toStrictEqual(expectedPatient5DatabaseAfterRun);
             // no update should be done
             expect(patient5.meta.lastUpdated).toStrictEqual(expectedPatient5DatabaseAfterRun.meta.lastUpdated);
+        });
+        test('runPreSave is skipped for patient 6 newer than threshold', async () => {
+            // eslint-disable-next-line no-unused-vars
+            const request = await createTestRequest((c) => {
+                c.register('configManager', () => new MockConfigManagerWithoutGlobalId());
+                return c;
+            });
+            const container = getTestContainer();
+            /**
+             * @type {PostRequestProcessor}
+             */
+                // eslint-disable-next-line no-unused-vars
+            const postRequestProcessor = container.postRequestProcessor;
+
+            // insert directly into database instead of going through merge() so we simulate old records
+            /**
+             * @type {MongoDatabaseManager}
+             */
+            const mongoDatabaseManager = container.mongoDatabaseManager;
+            const collection = await setupDatabaseAsync(
+                mongoDatabaseManager,
+                patient6Resource,
+                expectedPatient6InDatabaseBeforeRun
+                );
+
+            // run admin runner
+
+            const collections = ['all'];
+            const batchSize = 10000;
+
+            container.register('runPreSaveRunner', (c) => new RunPreSaveRunner(
+                    {
+                        mongoCollectionManager: c.mongoCollectionManager,
+                        collections: collections,
+                        batchSize,
+                        beforeLastUpdatedDate: '2023-01-29',
+                        useAuditDatabase: false,
+                        adminLogger: new AdminLogger(),
+                        mongoDatabaseManager: c.mongoDatabaseManager,
+                        preSaveManager: c.preSaveManager
+                    }
+                )
+            );
+
+            /**
+             * @type {RunPreSaveRunner}
+             */
+            const runPreSaveRunner = container.runPreSaveRunner;
+            assertTypeEquals(runPreSaveRunner, RunPreSaveRunner);
+            await runPreSaveRunner.processAsync();
 
             // check that patient 6 was skipped since it has a newer lastModified date
             const patient6 = await collection.findOne({id: patient6Resource.id});
