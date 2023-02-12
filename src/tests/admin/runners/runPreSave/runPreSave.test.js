@@ -450,6 +450,7 @@ describe('Patient Tests', () => {
             // check that patient 6 was skipped since it has a newer lastModified date
             const patient6 = await collection.findOne({id: patient6Resource.id});
             expect(patient6).toBeDefined();
+            delete patient6._id;
             expect(patient6.meta.lastUpdated).toStrictEqual(patient6Resource.meta.lastUpdated);
             expect(patient6).toStrictEqual(expectedPatient6DatabaseAfterRun);
         });
