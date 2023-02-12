@@ -1,0 +1,62 @@
+{
+  "entry": [
+    {
+      "resource": {
+        "abatementDateTime": null,
+        "abatementPeriod": null,
+        "category": null,
+        "clinicalStatus": null,
+        "code": {
+          "coding": [
+            {
+              "code": "83607001",
+              "display": "Gynecologic examination",
+              "system": "2.16.840.1.113883.6.96"
+            }
+          ],
+          "text": null
+        },
+        "id": "HumanApi-5ef221a3eb5d1c1e7f773f22",
+        "meta": {
+          "security": [
+            {
+              "code": "humanapi",
+              "system": "https://www.icanbwell.com/owner"
+            },
+            {
+              "code": "humanapi",
+              "system": "https://www.icanbwell.com/access"
+            },
+            {
+              "code": "humanapi",
+              "system": "https://www.icanbwell.com/vendor"
+            },
+            {
+              "code": "humanapi",
+              "system": "https://www.icanbwell.com/sourceAssigningAuthority"
+            }
+          ],
+          "tag": null
+        },
+        "onsetDateTime": null,
+        "onsetPeriod": null,
+        "severity": null,
+        "subject": {
+          "name": [
+            {
+              "given": [
+                "Annis955"
+              ]
+            },
+            {
+              "given": [
+                "Annis955"
+              ]
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "meta": null
+}

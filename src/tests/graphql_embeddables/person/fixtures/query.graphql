@@ -1,0 +1,49 @@
+query {
+    person(id: "79e59046-ffc7-4c41-9819-c8ef83275454") {
+        entry {
+            id
+            resource {
+                birthDate
+                identifier
+                {
+                    system
+                    value
+                }
+                address {
+                    line
+                    use
+                    type
+                    text
+                    city
+                    district
+                    state
+                    postalCode
+                    country
+                    period {
+                        start
+                        end
+                    }
+                }
+                name {
+                    id
+                    text
+                    use
+                    family
+                    given
+                    prefix
+                    suffix
+                    period { start end }
+                }
+                telecom {
+                    system
+                    value
+                    use
+                    rank
+                    period { start end }
+                }
+                active
+                gender
+            }
+        }
+    }
+}

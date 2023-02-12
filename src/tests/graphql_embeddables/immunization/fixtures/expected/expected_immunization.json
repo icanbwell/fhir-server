@@ -1,0 +1,40 @@
+{
+  "entry": [
+    {
+      "resource": {
+        "__typename": "Immunization",
+        "encounter": null,
+        "id": "148172d9-7015-4400-9d13-b7ddc49071f6",
+        "manufacturer": null,
+        "meta": {
+          "security": [
+            {
+              "code": "healthsystem1",
+              "system": "https://www.icanbwell.com/access"
+            }
+          ],
+          "tag": null
+        },
+        "occurrenceDateTime": "2021-03-30T00:00:00-05:00",
+        "protocolApplied": [
+          {
+            "doseNumberPositiveInt": null,
+            "doseNumberString": null
+          }
+        ],
+        "reaction": null,
+        "vaccineCode": {
+          "coding": [
+            {
+              "code": null,
+              "display": "Covid-19 Moderna",
+              "system": null
+            }
+          ],
+          "text": "Covid-19 Moderna"
+        }
+      }
+    }
+  ],
+  "meta": null
+}

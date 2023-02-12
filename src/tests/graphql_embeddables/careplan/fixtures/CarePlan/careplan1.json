@@ -1,0 +1,28 @@
+{
+        "resourceType": "CarePlan",
+        "id": "HumanApi-63d941d287c5a31e41091dd2",
+        "meta": {
+            "versionId": "1",
+            "lastUpdated": "2023-02-02T20:44:16.000Z",
+            "source": "https://api.humanapi.co/v1/human/medical/plans_of_care",
+            "security": [
+                {
+                    "system": "https://www.icanbwell.com/owner",
+                    "code": "humanapi"
+                },
+                {
+                    "system": "https://www.icanbwell.com/access",
+                    "code": "humanapi"
+                },
+                {
+                    "system": "https://www.icanbwell.com/vendor",
+                    "code": "humanapi"
+                }
+            ]
+        },
+        "status": "active",
+        "intent": "order",
+        "subject": {
+            "reference": "Patient/8ba1017f-0aad-1b91-ff9e-416a96e11f0b"
+        }
+    }

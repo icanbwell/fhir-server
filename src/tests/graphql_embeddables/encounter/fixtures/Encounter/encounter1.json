@@ -1,0 +1,141 @@
+{
+  "resourceType": "Encounter",
+  "id": "eQ8ZQzhMYcLCVXFFXBOlB3A3",
+  "meta": {
+    "versionId": "1",
+    "lastUpdated": "2023-02-02T05:10:55.000Z",
+    "source": "https://webproxy.foo.com/FHIR/api/FHIR/R4//Encounter/eQ8ZQzhMYcLCVXFFXBOlB3A3",
+    "security": [
+      {
+        "system": "https://www.icanbwell.com/owner",
+        "code": "A"
+      },
+      {
+        "system": "https://www.icanbwell.com/access",
+        "code": "A"
+      },
+      {
+        "system": "https://www.icanbwell.com/vendor",
+        "code": "A"
+      },
+      {
+        "system": "https://www.icanbwell.com/connectionType",
+        "code": "proa"
+      }
+    ]
+  },
+  "extension": [
+    {
+      "url": "http://open.epic.com/FHIR/StructureDefinition/extension/accidentrelated",
+      "valueBoolean": false
+    }
+  ],
+  "identifier": [
+    {
+      "use": "usual",
+      "system": "urn:oid:1.2.840.114350.1.13.8.2.7.3.698084.8",
+      "value": "416451826"
+    },
+    {
+      "system": "https://www.icanbwell.com/sourceId",
+      "value": "eQ8ZQzhMYcLCVXFFXBOlB3A3"
+    },
+    {
+      "system": "https://www.icanbwell.com/uuid",
+      "value": "67813281-6f1e-4ed2-aea2-01a7694fff0f"
+    }
+  ],
+  "status": "finished",
+  "class": {
+    "system": "urn:oid:1.2.840.114350.1.72.1.7.7.10.696784.13260",
+    "code": "5",
+    "display": "Appointment"
+  },
+  "type": [
+    {
+      "coding": [
+        {
+          "system": "urn:oid:1.2.840.114350.1.13.8.2.7.10.698084.30",
+          "code": "76",
+          "display": "Telemedicine"
+        }
+      ],
+      "text": "Telemedicine"
+    },
+    {
+      "coding": [
+        {
+          "system": "urn:oid:1.2.840.114350.1.13.8.2.7.2.808267",
+          "code": "1793",
+          "display": "Virtual Visit PGIHH Long"
+        }
+      ],
+      "text": "Virtual Visit PGIHH Long"
+    },
+    {
+      "coding": [
+        {
+          "system": "urn:oid:1.2.840.114350.1.13.8.2.7.10.698084.18875",
+          "code": "3",
+          "display": "Elective"
+        }
+      ],
+      "text": "Elective"
+    }
+  ],
+  "subject": {
+    "reference": "Patient/8ba1017f-0aad-1b91-ff9e-416a96e11f0b"
+  },
+  "participant": [
+    {
+      "individual": {
+        "reference": "Practitioner/eFTlaqBkksz4Cnz8x2eZPHw3"
+      }
+    }
+  ],
+  "period": {
+    "start": "2021-08-25T16:30:00.000Z",
+    "end": "2021-08-25T17:30:00.000Z"
+  },
+  "reasonCode": [
+    {
+      "coding": [
+        {
+          "system": "urn:oid:1.2.840.114350.1.13.8.2.7.2.728286",
+          "code": "265",
+          "display": "Telehealth"
+        }
+      ],
+      "text": "Telehealth"
+    },
+    {
+      "coding": [
+        {
+          "system": "urn:oid:1.2.840.114350.1.13.8.2.7.2.728286",
+          "code": "157",
+          "display": "Consult"
+        }
+      ],
+      "text": "Consult"
+    }
+  ],
+  "hospitalization": {
+    "admitSource": {
+      "coding": [
+        {
+          "system": "urn:oid:1.2.840.114350.1.13.8.2.7.10.698084.10310",
+          "code": "1",
+          "display": "Non-Health Care Facility Point of Origin"
+        }
+      ],
+      "text": "Non-Health Care Facility Point of Origin"
+    }
+  },
+  "location": [
+    {
+      "location": {
+        "reference": "Location/eZr-xXHM3Svs2Eip3YxthVQ3"
+      }
+    }
+  ]
+}

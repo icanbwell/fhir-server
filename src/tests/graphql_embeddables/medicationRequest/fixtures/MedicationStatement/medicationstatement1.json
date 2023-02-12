@@ -1,0 +1,41 @@
+{
+  "resourceType": "MedicationStatement",
+  "id": "e0Bc6IYB2dYd3pqsAXvf.8GVSBPd1HaWwLB1VXj8gpoE3",
+  "meta": {
+    "versionId": "1",
+    "lastUpdated": "2023-01-27T06:23:37.000Z",
+    "source": "https://epicarr.aahs.org/FHIR/api/FHIR/R4//MedicationRequest/e0Bc6IYB2dYd3pqsAXvf.8GVSBPd1HaWwLB1VXj8gpoE3",
+    "security": [
+      {
+        "system": "https://www.icanbwell.com/owner",
+        "code": "A"
+      },
+      {
+        "system": "https://www.icanbwell.com/access",
+        "code": "A"
+      },
+      {
+        "system": "https://www.icanbwell.com/vendor",
+        "code": "A"
+      },
+      {
+        "system": "https://www.icanbwell.com/connectionType",
+        "code": "proa"
+      }
+    ]
+  },
+  "basedOn": [
+    {
+      "reference": "MedicationRequest/e0Bc6IYB2dYd3pqsAXvf.8GVSBPd1HaWwLB1VXj8gpoE3"
+    }
+  ],
+  "status": "stopped",
+  "medicationReference": {
+    "reference": "Medication/e-Iox-Rzuv22NuqM-QLLxE7VyghEBbdy0fcuQudngT42xpnd",
+    "display": "prenatal vitamin"
+  },
+  "subject": {
+    "reference": "Patient/8ba1017f-0aad-1b91-ff9e-416a96e11f0b"
+  },
+  "effectiveDateTime": "2014-06-11T19:48:31.000Z"
+}

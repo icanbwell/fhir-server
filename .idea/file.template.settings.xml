@@ -3,11 +3,23 @@
   <component name="ExportableFileTemplateSettings">
     <default_templates>
       <template name="FhirTest.js" file-name="${NAME}/${NAME.toLowerCase()}.test.js" reformat="true" live-template-enabled="false">
-        <template name="FhirTest.js.child.0.json" file-name="${NAME}/fixtures/${ResourceName}/${ResourceName.toLowerCase()}1.json" reformat="true" live-template-enabled="false" />
         <template name="FhirTest.js.child.1.json" file-name="${NAME}/fixtures/expected/expected_${ResourceName.toLowerCase()}.json" reformat="true" live-template-enabled="false" />
+        <template name="FhirTest.js.child.0.json" file-name="${NAME}/fixtures/${ResourceName}/${ResourceName.toLowerCase()}1.json" reformat="true" live-template-enabled="false" />
       </template>
       <template name="FhirTest.js.child.0.json" file-name="${NAME}/fixtures/${ResourceName}/${ResourceName.toLowerCase()}1.json" reformat="true" live-template-enabled="false" />
       <template name="FhirTest.js.child.1.json" file-name="${NAME}/fixtures/expected/expected_${ResourceName.toLowerCase()}.json" reformat="true" live-template-enabled="false" />
+      <template name="GraphqlTest.js" file-name="${NAME}/${NAME.toLowerCase()}.test.js" reformat="true" live-template-enabled="false">
+        <template name="GraphqlTest.js.child.0.graphql" file-name="${NAME}/fixtures/query.graphql" reformat="true" live-template-enabled="false" />
+        <template name="GraphqlTest.js.child.1.json" file-name="${NAME}/fixtures/Patient/patient1.json" reformat="true" live-template-enabled="false" />
+        <template name="GraphqlTest.js.child.2.json" file-name="${NAME}/fixtures/${ResourceName}/${ResourceName.toLowerCase()}1.json" reformat="true" live-template-enabled="false" />
+        <template name="GraphqlTest.js.child.3.json" file-name="${NAME}/fixtures/expected/expected_${ResourceName.toLowerCase()}.json" reformat="true" live-template-enabled="false" />
+        <template name="GraphqlTest.js.child.4.json" file-name="${NAME}/fixtures/Person/person1.json" reformat="true" live-template-enabled="false" />
+      </template>
+      <template name="GraphqlTest.js.child.0.graphql" file-name="${NAME}/fixtures/query.graphql" reformat="true" live-template-enabled="false" />
+      <template name="GraphqlTest.js.child.1.json" file-name="${NAME}/fixtures/Patient/patient1.json" reformat="true" live-template-enabled="false" />
+      <template name="GraphqlTest.js.child.2.json" file-name="${NAME}/fixtures/${ResourceName}/${ResourceName.toLowerCase()}1.json" reformat="true" live-template-enabled="false" />
+      <template name="GraphqlTest.js.child.3.json" file-name="${NAME}/fixtures/expected/expected_${ResourceName.toLowerCase()}.json" reformat="true" live-template-enabled="false" />
+      <template name="GraphqlTest.js.child.4.json" file-name="${NAME}/fixtures/Person/person1.json" reformat="true" live-template-enabled="false" />
     </default_templates>
   </component>
 </project>

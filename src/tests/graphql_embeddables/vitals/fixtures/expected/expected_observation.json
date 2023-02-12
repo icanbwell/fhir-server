@@ -1,0 +1,121 @@
+{
+  "entry": [
+    {
+      "resource": {
+        "__typename": "Observation",
+        "code": {
+          "coding": [
+            {
+              "display": "Blood Pressure"
+            },
+            {
+              "display": "Blood Pressure"
+            },
+            {
+              "display": null
+            },
+            {
+              "display": null
+            },
+            {
+              "display": "Blood pressure systolic and diastolic"
+            },
+            {
+              "display": "Blood pressure panel with all children optional"
+            },
+            {
+              "display": "Vital signs"
+            }
+          ],
+          "text": null
+        },
+        "component": [
+          {
+            "code": {
+              "text": "Systolic blood pressure"
+            },
+            "interpretation": null,
+            "valueBoolean": null,
+            "valueCodeableConcept": null,
+            "valueDateTime": null,
+            "valueInteger": null,
+            "valuePeriod": null,
+            "valueQuantity": {
+              "code": "mm[Hg]",
+              "comparator": null,
+              "unit": "mm[Hg]",
+              "value": 120
+            },
+            "valueRange": null,
+            "valueRatio": null,
+            "valueString": null,
+            "valueTime": null
+          },
+          {
+            "code": {
+              "text": "Diastolic blood pressure"
+            },
+            "interpretation": null,
+            "valueBoolean": null,
+            "valueCodeableConcept": null,
+            "valueDateTime": null,
+            "valueInteger": null,
+            "valuePeriod": null,
+            "valueQuantity": {
+              "code": "mm[Hg]",
+              "comparator": null,
+              "unit": "mm[Hg]",
+              "value": 75
+            },
+            "valueRange": null,
+            "valueRatio": null,
+            "valueString": null,
+            "valueTime": null
+          }
+        ],
+        "effectiveDateTime": "2018-10-19T22:25:00.000Z",
+        "effectivePeriod": null,
+        "id": "exs2hLRJfViSgT3bVra9fQ-Kby.uXxCNtphbSgs6mos56m",
+        "interpretation": null,
+        "meta": {
+          "security": [
+            {
+              "code": "A",
+              "system": "https://www.icanbwell.com/owner"
+            },
+            {
+              "code": "A",
+              "system": "https://www.icanbwell.com/access"
+            },
+            {
+              "code": "A",
+              "system": "https://www.icanbwell.com/vendor"
+            },
+            {
+              "code": "proa",
+              "system": "https://www.icanbwell.com/connectionType"
+            },
+            {
+              "code": "A",
+              "system": "https://www.icanbwell.com/sourceAssigningAuthority"
+            }
+          ],
+          "tag": null
+        },
+        "note": null,
+        "referenceRange": null,
+        "valueBoolean": null,
+        "valueCodeableConcept": null,
+        "valueDateTime": null,
+        "valueInteger": null,
+        "valuePeriod": null,
+        "valueQuantity": null,
+        "valueRange": null,
+        "valueRatio": null,
+        "valueString": null,
+        "valueTime": null
+      }
+    }
+  ],
+  "meta": null
+}

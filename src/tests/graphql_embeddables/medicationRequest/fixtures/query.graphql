@@ -1,0 +1,284 @@
+fragment MetaTags on Meta {
+    tag {
+        system
+        code
+    }
+}
+
+fragment MetaSecurity on Meta {
+    security {
+        system
+        code
+    }
+}
+
+fragment CodeableConceptFields on CodeableConcept {
+    text
+    coding {
+        system
+        code
+        display
+    }
+}
+
+fragment QuantityFields on Quantity {
+    value
+    unit
+    code
+    comparator
+}
+
+fragment PractitionerName on Practitioner {
+    name {
+        text
+        family
+        given
+        prefix
+        suffix
+    }
+}
+
+fragment ContactPointFields on ContactPoint {
+    system
+    use
+    value
+    rank
+}
+
+fragment BasicOrgDetails on Organization {
+    name
+    telecom {
+        ...ContactPointFields
+    }
+}
+
+fragment MedicationReferenceFields on Medication {
+    code {
+        ...CodeableConceptFields
+    }
+    ingredient {
+        strength {
+            numerator {
+                ...QuantityFields
+            }
+            denominator {
+                ...QuantityFields
+            }
+        }
+    }
+}
+
+fragment DosageFields on Dosage {
+    sequence
+    text
+    patientInstruction
+    doseAndRate {
+        type {
+            ...CodeableConceptFields
+        }
+        doseQuantity {
+            ...QuantityFields
+        }
+    }
+    timing {
+        repeat {
+            boundsPeriod {
+                start
+            }
+        }
+    }
+}
+
+fragment RequestOverviewFields on MedicationRequest {
+    requester {
+        __typename
+        ... on Practitioner {
+            ...PractitionerName
+            telecom {
+                ...ContactPointFields
+            }
+        }
+    }
+}
+
+fragment StatementOverviewFields on MedicationStatement {
+    context {
+        ... on EpisodeOfCare {
+            careManager {
+                __typename
+                ... on Practitioner {
+                    ...PractitionerName
+                    telecom {
+                        ...ContactPointFields
+                    }
+                }
+            }
+            managingOrganization {
+                ...BasicOrgDetails
+            }
+        }
+    }
+}
+
+query MedicationList($patient: String, $from_date: date, $to_date: date, $page: Int, $count: Int, $id: [String], $include_request: Boolean = true, $include_statement: Boolean = true, $overview: Boolean = false) {
+    medicationRequest(
+        id: $id
+        patient: {value: $patient}
+        authoredon: {values: [{greaterThanOrEqualTo: $from_date}, {lessThanOrEqualTo: $to_date}]}
+        _sort: ["-authoredOn"]
+        _count: $count
+        _getpagesoffset: $page
+    ) @include(if: $include_request) {
+        entry {
+            resource {
+                __typename
+                id
+                meta {
+                    ...MetaTags
+                    ...MetaSecurity
+                }
+                status
+                medicationCodeableConcept {
+                    ...CodeableConceptFields
+                }
+                medicationReference {
+                    ...MedicationReferenceFields
+                }
+                authoredOn
+                dosage: dosageInstruction {
+                    ...DosageFields
+                }
+                dispenseRequest {
+                    numberOfRepeatsAllowed
+                    quantity {
+                        value
+                        unit
+                    }
+                }
+                ...RequestOverviewFields @include(if: $overview)
+            }
+        }
+    }
+    medicationDispense(
+        id: $id
+        patient: {value: $patient}
+        _sort: ["-whenHandedOver"]
+        _count: $count
+        _getpagesoffset: $page
+    ) {
+        entry {
+            resource {
+                __typename
+                id
+                identifier {
+                    system
+                    value
+                    type {
+                        ...CodeableConceptFields
+                    }
+                }
+                meta {
+                    ...MetaTags
+                    ...MetaSecurity
+                }
+                quantity {
+                    unit
+                    value
+                    code
+                }
+                extension {
+                    id
+                    url
+                    valueString
+                }
+                whenHandedOver
+                whenPrepared
+                performer {
+                    ... on MedicationDispensePerformer {
+                        function {
+                            id
+                            coding {
+                                code
+                                system
+                                display
+                            }
+                            text
+                        }
+                        actor {
+                            ...PractitionerName
+                        }
+                    }
+                }
+                medicationCodeableConcept {
+                    ...CodeableConceptFields
+                }
+                medicationReference {
+                    ...MedicationReferenceFields
+                }
+                authorizingPrescription {
+                    __typename
+                    id
+                    meta {
+                        ...MetaTags
+                    }
+                    status
+                    medicationCodeableConcept {
+                        ...CodeableConceptFields
+                    }
+                    medicationReference {
+                        ...MedicationReferenceFields
+                    }
+                    authoredOn
+                    dosage: dosageInstruction {
+                        ...DosageFields
+                    }
+                    dispenseRequest {
+                        numberOfRepeatsAllowed
+                        quantity {
+                            value
+                            unit
+                        }
+                    }
+                    ...RequestOverviewFields @include(if: $overview)
+                }
+            }
+        }
+    }
+    medicationStatement(
+        id: $id
+        patient: {value: $patient}
+        effective: {values: [{greaterThanOrEqualTo: $from_date}, {lessThanOrEqualTo: $to_date}]}
+        _sort: ["-effectiveDateTime", "-effectivePeriod.end", "-effectivePeriod.start"]
+        _count: $count
+        _getpagesoffset: $page
+    ) @include(if: $include_statement) {
+        entry {
+            resource {
+                __typename
+                id
+                meta {
+                    ...MetaTags
+                }
+                status
+                medicationCodeableConcept {
+                    ...CodeableConceptFields
+                }
+                medicationReference {
+                    ...MedicationReferenceFields
+                }
+                note {
+                    text
+                }
+                effectiveDateTime
+                effectivePeriod {
+                    start
+                    end
+                }
+                dosage {
+                    ...DosageFields
+                }
+                ...StatementOverviewFields @include(if: $overview)
+            }
+        }
+    }
+}
