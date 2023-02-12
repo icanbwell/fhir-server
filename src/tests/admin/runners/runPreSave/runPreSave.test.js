@@ -33,6 +33,7 @@ const {ConfigManager} = require('../../../../utils/configManager');
 const {RunPreSaveRunner} = require('../../../../admin/runners/runPreSaveRunner');
 const {IdentifierSystem} = require('../../../../utils/identifierSystem');
 const {assertTypeEquals} = require('../../../../utils/assertType');
+const {generateUUIDv5} = require('../../../../utils/uid.util');
 
 class MockConfigManagerWithoutGlobalId extends ConfigManager {
     get enableGlobalIdSupport() {
@@ -336,6 +337,8 @@ describe('Patient Tests', () => {
             expect(patient4.meta.lastUpdated).not.toStrictEqual(expectedPatient4DatabaseAfterRun.meta.lastUpdated);
             expectedPatient4DatabaseAfterRun.meta.lastUpdated = patient4.meta.lastUpdated;
             expect(patient4).toStrictEqual(expectedPatient4DatabaseAfterRun);
+            const expectedUuid = generateUUIDv5(`${expectedPatient4DatabaseAfterRun.id}|medstar`);
+            expect(patient4._uuid).toStrictEqual(expectedUuid);
         });
         test('runPreSave works with patient 5 with all fields', async () => {
             // eslint-disable-next-line no-unused-vars
@@ -396,6 +399,8 @@ describe('Patient Tests', () => {
             expect(patient5).toStrictEqual(expectedPatient5DatabaseAfterRun);
             // no update should be done
             expect(patient5.meta.lastUpdated).toStrictEqual(expectedPatient5DatabaseAfterRun.meta.lastUpdated);
+            const expectedUuid = generateUUIDv5(`${expectedPatient5DatabaseAfterRun.id}|medstar`);
+            expect(patient5._uuid).toStrictEqual(expectedUuid);
         });
         test('runPreSave is skipped for patient 6 newer than threshold', async () => {
             // eslint-disable-next-line no-unused-vars

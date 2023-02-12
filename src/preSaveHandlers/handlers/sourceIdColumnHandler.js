@@ -27,6 +27,12 @@ class SourceIdColumnHandler extends PreSaveHandler {
                     }
                 )
             );
+        } else if (resource.identifier && // uuid exists but is wrong
+            Array.isArray(resource.identifier) &&
+            resource.identifier.some(s => s.system === IdentifierSystem.sourceId)) {
+            const currentSourceIdResource = resource.identifier.find(s => s.system === IdentifierSystem.sourceId);
+            currentSourceIdResource.id = 'sourceId';
+            currentSourceIdResource.value = resource._sourceId;
         } else if (!resource.identifier && Object.hasOwn(resource, 'identifier')) {
             resource.identifier = [
                 new Identifier(
