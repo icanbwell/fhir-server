@@ -1,0 +1,36 @@
+{
+  "resourceType": "Condition",
+  "id": "HumanApi-5ef221a3eb5d1c1e7f773f22",
+  "meta": {
+    "versionId": "1",
+    "lastUpdated": "2023-01-27T18:44:14.000Z",
+    "source": "https://api.humanapi.co/v1/human/medical/issues",
+    "security": [
+      {
+        "system": "https://www.icanbwell.com/owner",
+        "code": "humanapi"
+      },
+      {
+        "system": "https://www.icanbwell.com/access",
+        "code": "humanapi"
+      },
+      {
+        "system": "https://www.icanbwell.com/vendor",
+        "code": "humanapi"
+      }
+    ]
+  },
+  "code": {
+    "coding": [
+      {
+        "id": "83607001",
+        "system": "2.16.840.1.113883.6.96",
+        "code": "83607001",
+        "display": "Gynecologic examination"
+      }
+    ]
+  },
+  "subject": {
+    "reference": "Patient/8ba1017f-0aad-1b91-ff9e-416a96e11f0b"
+  }
+}

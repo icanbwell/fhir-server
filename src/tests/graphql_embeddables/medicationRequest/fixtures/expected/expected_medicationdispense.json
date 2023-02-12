@@ -1,0 +1,268 @@
+{
+  "entry": [
+    {
+      "resource": {
+        "__typename": "MedicationDispense",
+        "authorizingPrescription": [
+          {
+            "__typename": "MedicationRequest",
+            "authoredOn": "2014-06-11T19:48:31.000Z",
+            "dispenseRequest": null,
+            "dosage": [
+              {
+                "doseAndRate": [
+                  {
+                    "doseQuantity": {
+                      "code": "{tbl}",
+                      "comparator": null,
+                      "unit": "Tablet",
+                      "value": 1
+                    },
+                    "type": {
+                      "coding": [
+                        {
+                          "code": "calculated",
+                          "display": "calculated",
+                          "system": "http://epic.com/CodeSystem/dose-rate-type"
+                        }
+                      ],
+                      "text": "calculated"
+                    }
+                  },
+                  {
+                    "doseQuantity": {
+                      "code": "{tbl}",
+                      "comparator": null,
+                      "unit": "Tablet",
+                      "value": 1
+                    },
+                    "type": {
+                      "coding": [
+                        {
+                          "code": "admin-amount",
+                          "display": "admin-amount",
+                          "system": "http://epic.com/CodeSystem/dose-rate-type"
+                        }
+                      ],
+                      "text": "admin-amount"
+                    }
+                  },
+                  {
+                    "doseQuantity": {
+                      "code": "{tbl}",
+                      "comparator": null,
+                      "unit": "Tablet",
+                      "value": 1
+                    },
+                    "type": {
+                      "coding": [
+                        {
+                          "code": "ordered",
+                          "display": "ordered",
+                          "system": "http://epic.com/CodeSystem/dose-rate-type"
+                        }
+                      ],
+                      "text": "ordered"
+                    }
+                  }
+                ],
+                "patientInstruction": null,
+                "sequence": null,
+                "text": "1 Tablet DAILY, Oral, First dose on Thu 6/12/14 at 1000, Until Discontinued, Post-op",
+                "timing": {
+                  "repeat": {
+                    "boundsPeriod": {
+                      "start": "2014-06-12T14:00:00.000Z"
+                    }
+                  }
+                }
+              }
+            ],
+            "id": "e0Bc6IYB2dYd3pqsAXvf.8GVSBPd1HaWwLB1VXj8gpoE3",
+            "medicationCodeableConcept": null,
+            "medicationReference": {
+              "code": {
+                "coding": [
+                  {
+                    "code": "75216",
+                    "display": null,
+                    "system": "urn:oid:2.16.840.1.113883.6.253"
+                  },
+                  {
+                    "code": "78512010000330",
+                    "display": null,
+                    "system": "urn:oid:2.16.840.1.113883.6.68"
+                  },
+                  {
+                    "code": "30159",
+                    "display": null,
+                    "system": "urn:oid:2.16.840.1.113883.6.162"
+                  }
+                ],
+                "text": "prenatal vitamin"
+              },
+              "ingredient": [
+                {
+                  "strength": null
+                }
+              ]
+            },
+            "meta": {
+              "tag": null
+            },
+            "status": "stopped"
+          }
+        ],
+        "extension": [
+          {
+            "id": "refills-remaining",
+            "url": "http://hl7.org/fhir/StructureDefinition/medicationdispense-refillsRemaining",
+            "valueString": "0"
+          }
+        ],
+        "id": "A0-01-31-2023",
+        "identifier": [
+          {
+            "system": "https://www.A.com/rxNumber",
+            "type": {
+              "coding": [
+                {
+                  "code": "RX",
+                  "display": null,
+                  "system": "https://fhir.icanbwell.com/4_0_0/CodeSystem/vs-identifier-type"
+                }
+              ],
+              "text": null
+            },
+            "value": "0"
+          },
+          {
+            "system": "https://www.icanbwell.com/sourceId",
+            "type": null,
+            "value": "A0-01-31-2023"
+          },
+          {
+            "system": "https://www.icanbwell.com/uuid",
+            "type": null,
+            "value": "6b4bf7c4-c2de-4b33-90e3-e3dbe8766fa4"
+          }
+        ],
+        "medicationCodeableConcept": {
+          "coding": [
+            {
+              "code": "08290-3268-95",
+              "display": "B-D Alcohol Swabs",
+              "system": "http://hl7.org/fhir/sid/ndc"
+            },
+            {
+              "code": "97703040004300",
+              "display": null,
+              "system": "http://terminology.hl7.org/CodeSystem/MGPI"
+            },
+            {
+              "code": "00002-1445-11",
+              "display": "Taltz 80mg/ml Autoinjector Syr Sd",
+              "system": "http://hl7.org/fhir/sid/ndc"
+            },
+            {
+              "code": "9025055400D520",
+              "display": null,
+              "system": "http://terminology.hl7.org/CodeSystem/MGPI"
+            },
+            {
+              "code": "88888-0000-01",
+              "display": "Ap-New Patient Packet (Home)",
+              "system": "http://hl7.org/fhir/sid/ndc"
+            },
+            {
+              "code": "488399",
+              "display": null,
+              "system": "http://terminology.hl7.org/CodeSystem/MGPI"
+            },
+            {
+              "code": "08290-3054-87",
+              "display": "B-D Sharps Container 1.5 Qt",
+              "system": "http://hl7.org/fhir/sid/ndc"
+            },
+            {
+              "code": "97058050006300",
+              "display": null,
+              "system": "http://terminology.hl7.org/CodeSystem/MGPI"
+            },
+            {
+              "code": "88888-4517-26",
+              "display": "Ap-New Pt Self Inject Guide",
+              "system": "http://hl7.org/fhir/sid/ndc"
+            },
+            {
+              "code": "2604399",
+              "display": null,
+              "system": "http://terminology.hl7.org/CodeSystem/MGPI"
+            }
+          ],
+          "text": null
+        },
+        "medicationReference": null,
+        "meta": {
+          "security": [
+            {
+              "code": "A",
+              "system": "https://www.icanbwell.com/owner"
+            },
+            {
+              "code": "A",
+              "system": "https://www.icanbwell.com/access"
+            },
+            {
+              "code": "A",
+              "system": "https://www.icanbwell.com/vendor"
+            },
+            {
+              "code": "A",
+              "system": "https://www.icanbwell.com/sourceAssigningAuthority"
+            }
+          ],
+          "tag": null
+        },
+        "performer": [
+          {
+            "actor": null,
+            "function": {
+              "coding": [
+                {
+                  "code": "prescribing",
+                  "display": null,
+                  "system": "https://fhir.icanbwell.com/4_0_0/CodeSystem/vs-performer-role-code"
+                }
+              ],
+              "id": null,
+              "text": null
+            }
+          },
+          {
+            "actor": null,
+            "function": {
+              "coding": [
+                {
+                  "code": "dispensing",
+                  "display": null,
+                  "system": "https://fhir.icanbwell.com/4_0_0/CodeSystem/vs-performer-role-code"
+                }
+              ],
+              "id": null,
+              "text": null
+            }
+          }
+        ],
+        "quantity": {
+          "code": "MISC",
+          "unit": "MISC",
+          "value": 1
+        },
+        "whenHandedOver": null,
+        "whenPrepared": "2023-01-31T00:00:00.000Z"
+      }
+    }
+  ],
+  "meta": null
+}

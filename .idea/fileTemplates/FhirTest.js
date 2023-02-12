@@ -5,7 +5,7 @@
 const ${ResourceNameLower}1Resource = require('./fixtures/${ResourceName}/${ResourceNameLower}1.json');
 
 // expected
-const expected${ResourceName}Resources = require('./fixtures/expected/expected_${ResourceName}.json');
+const expected${ResourceName}Resources = require('./fixtures/expected/expected_${ResourceNameLower}.json');
 
 const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest} = require('../../common');
 const {describe, beforeEach, afterEach, test} = require('@jest/globals');

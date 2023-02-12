@@ -1,0 +1,60 @@
+fragment MetaSecurity on Meta {
+    security {
+        system
+        code
+    }
+}
+
+fragment MetaTags on Meta {
+    tag {
+        system
+        code
+    }
+}
+
+query Allergies($FHIR_DEFAULT_COUNT: Int, $from_date: date, $to_date: date) {
+    allergyIntolerance(
+        _sort: ["-onsetDateTime", "-onsetPeriod.start", "-onsetPeriod.end"]
+        _count: $FHIR_DEFAULT_COUNT
+        date: {values: [{greaterThanOrEqualTo: $from_date}, {lessThanOrEqualTo: $to_date}]}
+    ) {
+        entry {
+            resource {
+                id
+                meta {
+                    ...MetaTags
+                    ...MetaSecurity
+                }
+                category
+                code {
+                    text
+                    coding {
+                        display
+                    }
+                }
+                criticality
+                onsetDateTime
+                onsetPeriod {
+                    start
+                    end
+                }
+                lastOccurrence
+                reaction {
+                    description
+                    manifestation {
+                        text
+                        coding {
+                            display
+                        }
+                    }
+                    onset
+                    severity
+                }
+                note {
+                    text
+                    time
+                }
+            }
+        }
+    }
+}

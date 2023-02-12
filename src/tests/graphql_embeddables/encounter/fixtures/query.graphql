@@ -1,0 +1,70 @@
+fragment MetaTags on Meta {
+    tag {
+        system
+        code
+    }
+}
+
+fragment MetaSecurity on Meta {
+    security {
+        system
+        code
+    }
+}
+
+fragment PractitionerName on Practitioner {
+    name {
+        text
+        family
+        given
+        prefix
+        suffix
+    }
+}
+
+fragment practitionerPhoto on Practitioner {
+    photo {
+        data
+        contentType
+        url
+        size
+    }
+}
+
+query Encounter($FHIR_DEFAULT_COUNT: Int, $from_date: date, $to_date: date) {
+    encounter(
+        _sort: ["-period.end", "-period.start"]
+        _count: $FHIR_DEFAULT_COUNT
+        date: {values: [{greaterThanOrEqualTo: $from_date}, {lessThanOrEqualTo: $to_date}]}
+    ) {
+        entry {
+            resource {
+                id
+                meta {
+                    ...MetaTags
+                    ...MetaSecurity
+                }
+                type {
+                    coding {
+                        display
+                    }
+                    text
+                }
+                status
+                participant {
+                    individual {
+                        ...PractitionerName
+                        ...practitionerPhoto
+                    }
+                }
+                period {
+                    start
+                    end
+                }
+                reasonCode {
+                    text
+                }
+            }
+        }
+    }
+}

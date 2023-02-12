@@ -226,6 +226,22 @@ module.exports.getGraphQLHeaders = (scope) => {
     };
 };
 
+module.exports.getGraphQLHeadersWithPerson = (personId) => {
+    const payload = {
+        'cognito:username': 'patient-123@example.com',
+        'custom:bwell_fhir_person_id': personId,
+        scope: 'patient/*.read user/*.* access/*.*',
+        username: 'patient-123@example.com',
+    };
+    return {
+        'Content-Type': 'application/json; charset=utf-8',
+        accept: '*/*',
+        Authorization: `Bearer ${
+            getTokenWithCustomPayload(payload)
+        }`
+    };
+};
+
 module.exports.getCustomGraphQLHeaders = (payload) => {
     return {
         'Content-Type': 'application/json; charset=utf-8',

@@ -1,0 +1,206 @@
+{
+  "resourceType": "MedicationDispense",
+  "id": "A0-01-31-2023",
+  "meta": {
+    "versionId": "19",
+    "lastUpdated": "2023-02-10T15:07:01.000Z",
+    "source": "https://www.walgreens.com",
+    "security": [
+      {
+        "system": "https://www.icanbwell.com/owner",
+        "code": "A"
+      },
+      {
+        "system": "https://www.icanbwell.com/access",
+        "code": "A"
+      },
+      {
+        "system": "https://www.icanbwell.com/vendor",
+        "code": "A"
+      },
+      {
+        "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+        "code": "A"
+      }
+    ]
+  },
+  "extension": [
+    {
+      "id": "refills-remaining",
+      "url": "http://hl7.org/fhir/StructureDefinition/medicationdispense-refillsRemaining",
+      "valueString": "0"
+    }
+  ],
+  "identifier": [
+    {
+      "id": "rx-number",
+      "type": {
+        "coding": [
+          {
+            "id": "rx",
+            "system": "https://fhir.icanbwell.com/4_0_0/CodeSystem/vs-identifier-type",
+            "code": "RX"
+          }
+        ]
+      },
+      "system": "https://www.A.com/rxNumber",
+      "value": "0"
+    },
+    {
+      "system": "https://www.icanbwell.com/sourceId",
+      "value": "A0-01-31-2023"
+    },
+    {
+      "system": "https://www.icanbwell.com/uuid",
+      "value": "6b4bf7c4-c2de-4b33-90e3-e3dbe8766fa4"
+    }
+  ],
+  "status": "unknown",
+  "medicationCodeableConcept": {
+    "coding": [
+      {
+        "id": "514",
+        "system": "http://hl7.org/fhir/sid/ndc",
+        "code": "08290-3268-95",
+        "display": "B-D Alcohol Swabs"
+      },
+      {
+        "id": "97703040004300",
+        "system": "http://terminology.hl7.org/CodeSystem/MGPI",
+        "code": "97703040004300"
+      },
+      {
+        "id": "680418",
+        "system": "http://hl7.org/fhir/sid/ndc",
+        "code": "00002-1445-11",
+        "display": "Taltz 80mg/ml Autoinjector Syr Sd"
+      },
+      {
+        "id": "9025055400D520",
+        "system": "http://terminology.hl7.org/CodeSystem/MGPI",
+        "code": "9025055400D520"
+      },
+      {
+        "id": "488399",
+        "system": "http://hl7.org/fhir/sid/ndc",
+        "code": "88888-0000-01",
+        "display": "Ap-New Patient Packet (Home)"
+      },
+      {
+        "id": "488399",
+        "system": "http://terminology.hl7.org/CodeSystem/MGPI",
+        "code": "488399"
+      },
+      {
+        "id": "641850",
+        "system": "http://hl7.org/fhir/sid/ndc",
+        "code": "08290-3054-87",
+        "display": "B-D Sharps Container 1.5 Qt"
+      },
+      {
+        "id": "97058050006300",
+        "system": "http://terminology.hl7.org/CodeSystem/MGPI",
+        "code": "97058050006300"
+      },
+      {
+        "id": "2604399",
+        "system": "http://hl7.org/fhir/sid/ndc",
+        "code": "88888-4517-26",
+        "display": "Ap-New Pt Self Inject Guide"
+      },
+      {
+        "id": "2604399",
+        "system": "http://terminology.hl7.org/CodeSystem/MGPI",
+        "code": "2604399"
+      }
+    ]
+  },
+  "subject": {
+    "reference": "Patient/8ba1017f-0aad-1b91-ff9e-416a96e11f0b"
+  },
+  "performer": [
+    {
+      "id": "prescribing-provider",
+      "function": {
+        "coding": [
+          {
+            "id": "prescribing",
+            "system": "https://fhir.icanbwell.com/4_0_0/CodeSystem/vs-performer-role-code",
+            "code": "prescribing"
+          }
+        ]
+      },
+      "actor": {
+        "reference": "Practitioner/PRESCRIBER"
+      }
+    },
+    {
+      "id": "dispensing-provider",
+      "function": {
+        "coding": [
+          {
+            "id": "dispensing",
+            "system": "https://fhir.icanbwell.com/4_0_0/CodeSystem/vs-performer-role-code",
+            "code": "dispensing"
+          }
+        ]
+      },
+      "actor": {
+        "reference": "Organization/A"
+      }
+    }
+  ],
+  "location": {
+    "reference": "Location/0"
+  },
+  "authorizingPrescription": [
+    {
+      "reference": "MedicationRequest/e0Bc6IYB2dYd3pqsAXvf.8GVSBPd1HaWwLB1VXj8gpoE3"
+    }
+  ],
+  "type": {
+    "coding": [
+      {
+        "system": "https://icanbwell.com/refillType"
+      }
+    ]
+  },
+  "quantity": {
+    "value": 1,
+    "unit": "MISC",
+    "system": "https://unitsofmeasure.org",
+    "code": "MISC"
+  },
+  "whenPrepared": "2023-01-31T00:00:00.000Z",
+  "dosageInstruction": [
+    {
+      "doseAndRate": [
+        {
+          "doseQuantity": {
+            "value": 70,
+            "unit": "%"
+          }
+        }
+      ]
+    },
+    {
+      "doseAndRate": [
+        {
+          "doseQuantity": {
+            "value": 80,
+            "unit": "MG/ML"
+          }
+        }
+      ]
+    },
+    {
+      "doseAndRate": [
+        {
+          "doseQuantity": {
+            "value": 0
+          }
+        }
+      ]
+    }
+  ]
+}
