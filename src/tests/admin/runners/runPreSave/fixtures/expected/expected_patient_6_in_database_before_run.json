@@ -11,6 +11,7 @@
   "gender": "female",
   "id": "00600000000",
   "meta": {
+    "lastUpdated": "2023-01-29T21:57:39.000Z",
     "security": [
       {
         "code": "medstar",
@@ -40,4 +41,3 @@
   ],
   "resourceType": "Patient"
 }
-
