@@ -68,7 +68,7 @@
   },
   "created": "2020-01-09T00:00:00.000Z",
   "insurer": {
-    "reference": "Organization/Anthem"
+    "reference": "Organization/Payer1"
   },
   "provider": {
     "reference": "Organization/Healthsystem1"
@@ -409,7 +409,7 @@
     {
       "focal": true,
       "coverage": {
-        "reference": "Coverage/TC-Anthem-Claim-665951904"
+        "reference": "Coverage/TC-Payer1-Claim-665951904"
       }
     }
   ],
