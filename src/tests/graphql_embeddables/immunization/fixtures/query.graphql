@@ -1,0 +1,75 @@
+fragment MetaTags on Meta {
+    tag {
+        system
+        code
+    }
+}
+
+fragment MetaSecurity on Meta {
+    security {
+        system
+        code
+    }
+}
+
+fragment PractitionerName on Practitioner {
+    name {
+        text
+        family
+        given
+        prefix
+        suffix
+    }
+}
+
+fragment CodeableConceptFields on CodeableConcept {
+    text
+    coding {
+        system
+        code
+        display
+    }
+}
+
+query Immunization($FHIR_DEFAULT_COUNT: Int) {
+    immunization(_sort: ["-effectiveDateTime"], _count: $FHIR_DEFAULT_COUNT) {
+        entry {
+            resource {
+                id
+                __typename
+                meta {
+                    ...MetaTags
+                    ...MetaSecurity
+                }
+                vaccineCode {
+                    ...CodeableConceptFields
+                }
+                encounter {
+                    id
+                    participant {
+                        individual {
+                            ...PractitionerName
+                        }
+                    }
+                }
+                occurrenceDateTime
+                reaction {
+                    date
+                    detail {
+                        code {
+                            text
+                        }
+                    }
+                    reported
+                }
+                protocolApplied {
+                    doseNumberString
+                    doseNumberPositiveInt
+                }
+                manufacturer {
+                    name
+                }
+            }
+        }
+    }
+}

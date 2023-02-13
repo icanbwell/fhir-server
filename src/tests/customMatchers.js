@@ -344,6 +344,130 @@ function toHaveResponse(resp, expected, fnCleanResource) {
 }
 
 /**
+ * expect response
+ * https://jestjs.io/docs/expect#custom-matchers-api
+ * @param {import('http').ServerResponse} resp
+ * @param {Object|Object[]} expected
+ * @param {string} queryName
+ * @param {(Resource) => Resource} [fnCleanResource]
+ * @returns {{pass: boolean, message: () => string}}
+ */
+function toHaveGraphQLResponse(resp, expected, queryName, fnCleanResource) {
+    const options = {
+        comment: 'Object.is equality',
+        isNot: this.isNot,
+        promise: this.promise,
+    };
+    /**
+     * @type {JestUtils}
+     */
+    const utils = this.utils;
+    const contentType = resp.headers['content-type'];
+    const body = contentType === 'application/fhir+ndjson' ? JSON.parse(ndjsonToJsonText(resp.text)) : resp.body;
+    if (Array.isArray(body) && !Array.isArray(expected)) {
+        expected = [expected];
+    }
+    if (!Array.isArray(body) && !body.data && Array.isArray(expected)) {
+        expected = expected[0];
+    }
+    if (!Array.isArray(body) && body.resourceType === 'Bundle') {
+        // handle bundles being returned
+        if (Array.isArray(expected)) {
+            // make into a bundle if it is not
+            expected = {
+                resourceType: 'Bundle',
+                type: 'searchset',
+                entry: expected.map((e) => {
+                    return {resource: e};
+                }),
+            };
+        }
+        return checkContent({
+            actual: body, expected, utils, options, expand: this.expand,
+            fnCleanResource
+        });
+    } else if (body.data && !(expected.body && expected.body.data) && !(expected.data)) {
+        // GraphQL response
+        // get first property of resp.body.data
+        // eslint-disable-next-line no-unused-vars
+        let propertyValue = body.data[`${queryName}`];
+        // see if the return value is a bundle
+        if (propertyValue && !(Array.isArray(propertyValue)) && propertyValue.entry && Array.isArray(expected)) {
+            propertyValue = propertyValue.entry.map(e => e.resource);
+        }
+        if (Array.isArray(propertyValue)) {
+            propertyValue.forEach(item => cleanMeta(item));
+        } else {
+            cleanMeta(propertyValue);
+        }
+        if (Array.isArray(expected)) {
+            expected.forEach(item => cleanMeta(item));
+        } else {
+            cleanMeta(expected);
+        }
+        return checkContent({
+            actual: propertyValue, expected, utils, options, expand: this.expand,
+            fnCleanResource
+        });
+    } else {
+        if (Array.isArray(body)) {
+            body.forEach((element) => {
+                // clean out stuff that changes
+                cleanMeta(element);
+            });
+        } else {
+            cleanMeta(body);
+            if (body.resourceType) {
+                const operationOutcome = validateResource(
+                    body,
+                    body.resourceType,
+                    ''
+                );
+                if (operationOutcome && operationOutcome.statusCode === 400) {
+                    assertFail({
+                        source: 'expectResponse',
+                        message: 'FHIR validation failed',
+                        args: {
+                            resourceType: body.resourceType,
+                            resource: body,
+                            operationOutcome: operationOutcome,
+                        },
+                    });
+                }
+            }
+        }
+        if (Array.isArray(expected)) {
+            expected.forEach((element) => {
+                // clean out stuff that changes
+                cleanMeta(element);
+            });
+        } else {
+            cleanMeta(expected);
+        }
+
+        // clean out meta for graphql
+        if (expected.data) {
+            for (const [, value] of Object.entries(expected.data)) {
+                if (value) {
+                    cleanMeta(value);
+                }
+            }
+        }
+        if (body.data) {
+            for (const [, value] of Object.entries(body.data)) {
+                if (value) {
+                    cleanMeta(value);
+                }
+            }
+        }
+    }
+    return checkContent({
+        actual: body, expected, utils, options, expand: this.expand,
+        fnCleanResource
+    });
+}
+
+/**
  *
  * @param {import('http').ServerResponse} resp
  * @param {number} expectedStatusCode
@@ -434,12 +558,13 @@ function toHaveResourceCount(resp, expected) {
     return {actual: count, expected: expected, message, pass};
 }
 
-
+// NOTE: Also need to register any new ones with Jest in src/tests/testSetup.js
 module.exports = {
     toHaveResponse,
     toHaveStatusCode,
     toHaveStatusOk,
     toHaveMergeResponse,
     toHaveResourceCount,
-    cleanMeta
+    cleanMeta,
+    toHaveGraphQLResponse
 };

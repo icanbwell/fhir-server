@@ -1,0 +1,479 @@
+{
+  "resourceType": "ExplanationOfBenefit",
+  "id": "10005760-1",
+  "meta": {
+    "versionId": "5",
+    "lastUpdated": "2022-11-12T01:00:42.000Z",
+    "source": "https://foo.org",
+    "security": [
+      {
+        "system": "https://www.icanbwell.com/owner",
+        "code": "payer1"
+      },
+      {
+        "system": "https://www.icanbwell.com/access",
+        "code": "payer1"
+      }
+    ]
+  },
+  "identifier": [
+    {
+      "type": {
+        "coding": [
+          {
+            "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+            "code": "mnDetailName",
+            "display": "Claim Number"
+          }
+        ],
+        "text": "Claim Number"
+      },
+      "system": "https://altruahealthshare.org",
+      "value": "111111-1"
+    },
+    {
+      "system": "https://www.icanbwell.com/sourceId",
+      "value": "10005760-1"
+    },
+    {
+      "system": "https://www.icanbwell.com/uuid",
+      "value": "d3df5b13-b49b-4682-afd4-e74fb8483c30"
+    }
+  ],
+  "status": "active",
+  "type": {
+    "coding": [
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/claim-type",
+        "code": "institutional"
+      }
+    ],
+    "text": "Claim Type"
+  },
+  "use": "claim",
+  "patient": {
+    "reference": "Patient/8ba1017f-0aad-1b91-ff9e-416a96e11f0b"
+  },
+  "billablePeriod": {
+    "start": "2018-10-17T00:00:00.000Z",
+    "end": "2018-10-17T00:00:00.000Z"
+  },
+  "created": "2018-10-17T00:00:00.000Z",
+  "insurer": {
+    "reference": "Organization/1003000209"
+  },
+  "provider": {
+    "reference": "Organization/1528067113"
+  },
+  "payee": {
+    "type": {
+      "coding": [
+        {
+          "system": "http://terminology.hl7.org/CodeSystem/payeetype",
+          "code": "other"
+        }
+      ]
+    }
+  },
+  "outcome": "complete",
+  "careTeam": [
+    {
+      "sequence": 1,
+      "provider": {
+        "reference": "Organization/1528067113"
+      },
+      "responsible": true,
+      "role": {
+        "coding": [
+          {
+            "system": "http://terminology.hl7.org/CodeSystem/claimcareteamrole",
+            "code": "billing"
+          }
+        ],
+        "text": "Billing Organization"
+      }
+    }
+  ],
+  "diagnosis": [
+    {
+      "sequence": 1,
+      "diagnosisCodeableConcept": {
+        "coding": [
+          {
+            "system": "http://hl7.org/fhir/sid/icd-10",
+            "code": "08."
+          }
+        ],
+        "text": "DIAGNOSIS_1"
+      },
+      "type": [
+        {
+          "coding": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/ex-diagnosistype",
+              "code": "RetrospectiveDiagnosis"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "sequence": 2,
+      "diagnosisCodeableConcept": {
+        "coding": [
+          {
+            "system": "http://hl7.org/fhir/sid/icd-10",
+            "code": "R07.89"
+          }
+        ],
+        "text": "DIAGNOSIS_2"
+      },
+      "type": [
+        {
+          "coding": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/ex-diagnosistype",
+              "code": "RetrospectiveDiagnosis"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "sequence": 3,
+      "diagnosisCodeableConcept": {
+        "coding": [
+          {
+            "system": "http://hl7.org/fhir/sid/icd-10",
+            "code": "R07.9"
+          }
+        ],
+        "text": "DIAGNOSIS_3"
+      },
+      "type": [
+        {
+          "coding": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/ex-diagnosistype",
+              "code": "RetrospectiveDiagnosis"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "sequence": 4,
+      "diagnosisCodeableConcept": {
+        "coding": [
+          {
+            "system": "http://hl7.org/fhir/sid/icd-10",
+            "code": "R51."
+          }
+        ],
+        "text": "DIAGNOSIS_4"
+      },
+      "type": [
+        {
+          "coding": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/ex-diagnosistype",
+              "code": "RetrospectiveDiagnosis"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "sequence": 5,
+      "diagnosisCodeableConcept": {
+        "coding": [
+          {
+            "system": "http://hl7.org/fhir/sid/icd-10",
+            "code": "E73.9"
+          }
+        ],
+        "text": "DIAGNOSIS_5"
+      },
+      "type": [
+        {
+          "coding": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/ex-diagnosistype",
+              "code": "RetrospectiveDiagnosis"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "sequence": 6,
+      "diagnosisCodeableConcept": {
+        "coding": [
+          {
+            "system": "http://hl7.org/fhir/sid/icd-10",
+            "code": "."
+          }
+        ],
+        "text": "DIAGNOSIS_6"
+      },
+      "type": [
+        {
+          "coding": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/ex-diagnosistype",
+              "code": "RetrospectiveDiagnosis"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "sequence": 7,
+      "diagnosisCodeableConcept": {
+        "coding": [
+          {
+            "system": "http://hl7.org/fhir/sid/icd-10",
+            "code": "."
+          }
+        ],
+        "text": "DIAGNOSIS_7"
+      },
+      "type": [
+        {
+          "coding": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/ex-diagnosistype",
+              "code": "RetrospectiveDiagnosis"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "sequence": 8,
+      "diagnosisCodeableConcept": {
+        "coding": [
+          {
+            "system": "http://hl7.org/fhir/sid/icd-10",
+            "code": "."
+          }
+        ],
+        "text": "DIAGNOSIS_8"
+      },
+      "type": [
+        {
+          "coding": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/ex-diagnosistype",
+              "code": "RetrospectiveDiagnosis"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "sequence": 9,
+      "diagnosisCodeableConcept": {
+        "coding": [
+          {
+            "system": "http://hl7.org/fhir/sid/icd-10",
+            "code": "."
+          }
+        ],
+        "text": "DIAGNOSIS_9"
+      },
+      "type": [
+        {
+          "coding": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/ex-diagnosistype",
+              "code": "RetrospectiveDiagnosis"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "sequence": 10,
+      "diagnosisCodeableConcept": {
+        "coding": [
+          {
+            "system": "http://hl7.org/fhir/sid/icd-10",
+            "code": "."
+          }
+        ],
+        "text": "DIAGNOSIS_10"
+      },
+      "type": [
+        {
+          "coding": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/ex-diagnosistype",
+              "code": "RetrospectiveDiagnosis"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "insurance": [
+    {
+      "focal": true,
+      "coverage": {
+        "reference": "Coverage/Altrua-10005760-1"
+      }
+    }
+  ],
+  "total": [
+    {
+      "category": {
+        "coding": [
+          {
+            "system": "http://terminology.hl7.org/CodeSystem/adjudication",
+            "code": "submitted",
+            "display": "Submitted Amount"
+          }
+        ]
+      },
+      "amount": {
+        "value": 7942,
+        "currency": "USD"
+      }
+    },
+    {
+      "category": {
+        "coding": [
+          {
+            "system": "http://terminology.hl7.org/CodeSystem/adjudication",
+            "code": "deductible",
+            "display": "Deductible"
+          }
+        ]
+      },
+      "amount": {
+        "value": 0,
+        "currency": "USD"
+      }
+    },
+    {
+      "category": {
+        "coding": [
+          {
+            "system": "http://hl7.org/fhir/us/carin-bb/CodeSystem/C4BBAdjudication",
+            "code": "coinsurance",
+            "display": "Coinsurance"
+          }
+        ]
+      },
+      "amount": {
+        "value": 623.1,
+        "currency": "USD"
+      }
+    },
+    {
+      "category": {
+        "coding": [
+          {
+            "system": "http://terminology.hl7.org/CodeSystem/adjudication",
+            "code": "copay",
+            "display": "Copay"
+          }
+        ]
+      },
+      "amount": {
+        "value": 0,
+        "currency": "USD"
+      }
+    },
+    {
+      "category": {
+        "coding": [
+          {
+            "system": "http://terminology.hl7.org/CodeSystem/adjudication",
+            "code": "eligible",
+            "display": "Eligible Amount"
+          }
+        ]
+      },
+      "amount": {
+        "value": 3176.01,
+        "currency": "USD"
+      }
+    },
+    {
+      "category": {
+        "coding": [
+          {
+            "system": "http://terminology.hl7.org/CodeSystem/adjudication",
+            "code": "benefit",
+            "display": "Benefit Amount"
+          }
+        ]
+      },
+      "amount": {
+        "value": 3176.01,
+        "currency": "USD"
+      }
+    },
+    {
+      "category": {
+        "coding": [
+          {
+            "system": "http://hl7.org/fhir/us/carin-bb/CodeSystem/C4BBAdjudication",
+            "code": "noncovered",
+            "display": "Noncovered"
+          }
+        ]
+      },
+      "amount": {
+        "value": 4765.99,
+        "currency": "USD"
+      }
+    },
+    {
+      "category": {
+        "coding": [
+          {
+            "system": "http://hl7.org/fhir/us/carin-bb/CodeSystem/C4BBAdjudication",
+            "code": "paidtoprovider",
+            "display": "Paid to provider"
+          }
+        ]
+      },
+      "amount": {
+        "value": 2582.9,
+        "currency": "USD"
+      }
+    },
+    {
+      "category": {
+        "coding": [
+          {
+            "system": "http://hl7.org/fhir/us/carin-bb/CodeSystem/C4BBAdjudication",
+            "code": "paidbypatient",
+            "display": "Paid to provider"
+          }
+        ]
+      },
+      "amount": {
+        "value": 2582.9,
+        "currency": "USD"
+      }
+    }
+  ],
+  "payment": {
+    "type": {
+      "coding": [
+        {
+          "system": "http://hl7.org/fhir/us/carin-bb/CodeSystem/C4BBPayerAdjudicationStatus",
+          "code": "paid",
+          "display": "Paid"
+        }
+      ]
+    },
+    "amount": {
+      "value": 10,
+      "currency": "USD"
+    }
+  }
+}

@@ -1,0 +1,73 @@
+{
+  "entry": [
+    {
+      "id": "79e59046-ffc7-4c41-9819-c8ef83275454",
+      "resource": {
+        "active": true,
+        "address": [
+          {
+            "city": "CITY",
+            "country": null,
+            "district": null,
+            "line": [
+              "Address"
+            ],
+            "period": null,
+            "postalCode": "99999",
+            "state": "CA",
+            "text": null,
+            "type": null,
+            "use": null
+          }
+        ],
+        "birthDate": "1920-01-01",
+        "gender": "male",
+        "identifier": [
+          {
+            "system": "http://www.walgreens.com/profileid",
+            "value": "1"
+          },
+          {
+            "system": "https://www.icanbwell.com/sourceId",
+            "value": "79e59046-ffc7-4c41-9819-c8ef83275454"
+          },
+          {
+            "system": "https://www.icanbwell.com/uuid",
+            "value": "79e59046-ffc7-4c41-9819-c8ef83275454"
+          }
+        ],
+        "name": [
+          {
+            "family": "Family",
+            "given": [
+              "First"
+            ],
+            "id": null,
+            "period": null,
+            "prefix": null,
+            "suffix": null,
+            "text": null,
+            "use": null
+          }
+        ],
+        "telecom": [
+          {
+            "period": null,
+            "rank": null,
+            "system": "email",
+            "use": null,
+            "value": "foo@hotmail.com"
+          },
+          {
+            "period": null,
+            "rank": null,
+            "system": "phone",
+            "use": "mobile",
+            "value": "1111111111"
+          }
+        ]
+      }
+    }
+  ],
+  "meta": null
+}

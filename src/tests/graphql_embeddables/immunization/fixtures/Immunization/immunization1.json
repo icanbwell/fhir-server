@@ -1,0 +1,73 @@
+{
+  "resourceType": "Immunization",
+  "id": "148172d9-7015-4400-9d13-b7ddc49071f6",
+  "meta": {
+    "versionId": "2",
+    "lastUpdated": "2022-02-10T18:07:09.000Z",
+    "security": [
+      {
+        "system": "https://www.icanbwell.com/access",
+        "code": "healthsystem1"
+      }
+    ]
+  },
+  "extension": [
+    {
+      "id": "reminder_needed_for_next_dose",
+      "url": "http://example.com/fhir/StructureDefinition/reminder-for-next-dose",
+      "valueBoolean": false
+    }
+  ],
+  "status": "completed",
+  "vaccineCode": {
+    "coding": [
+      {
+        "id": "user_immunization",
+        "display": "Covid-19 Moderna"
+      }
+    ],
+    "text": "Covid-19 Moderna"
+  },
+  "patient": {
+    "reference": "Patient/8ba1017f-0aad-1b91-ff9e-416a96e11f0b"
+  },
+  "occurrenceDateTime": "2021-03-30T00:00:00-05:00",
+  "recorded": "2022-02-10T18:05:29.517Z",
+  "lotNumber": "123456",
+  "site": {
+    "coding": [
+      {
+        "id": "user_arm",
+        "display": "Left Arm"
+      }
+    ],
+    "text": "Left Arm"
+  },
+  "note": [
+    {
+      "id": "physician_location",
+      "text": "physician_location=Dr. Smith"
+    }
+  ],
+  "education": [
+    {
+      "id": "vaccine_card",
+      "documentType": "Vaccine Card",
+      "reference": ""
+    }
+  ],
+  "protocolApplied": [
+    {
+      "targetDisease": [
+        {
+          "coding": [
+            {
+              "display": "COVID-19"
+            }
+          ],
+          "text": "COVID-19"
+        }
+      ]
+    }
+  ]
+}

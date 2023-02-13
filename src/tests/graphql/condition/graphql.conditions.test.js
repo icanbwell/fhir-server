@@ -17,7 +17,6 @@ const {
     createTestRequest,
 } = require('../../common');
 const {describe, beforeEach, afterEach, expect, test} = require('@jest/globals');
-const {logInfo} = require('../../../operations/common/logging');
 
 describe('GraphQL Condition Tests', () => {
     beforeEach(async () => {
@@ -32,37 +31,32 @@ describe('GraphQL Condition Tests', () => {
         test('GraphQL Condition properly', async () => {
             const request = await createTestRequest();
             const graphqlQueryText = conditionQuery.replace(/\\n/g, '');
-            let resp = await request.get('/4_0_0/Condition').set(getHeaders()).expect(200);
-            expect(resp.body.length).toBe(0);
-            logInfo('------- response 1 ------------');
-            logInfo('', {'resp': resp.body});
-            logInfo('------- end response 1 ------------');
+            let resp = await request.get('/4_0_0/Condition').set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResourceCount(0);
+
             resp = await request
                 .post('/4_0_0/Patient/1/$merge')
                 .send(patientBundleResource)
-                .set(getHeaders())
-                .expect(200);
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
 
-            logInfo('------- response 2 ------------');
-            logInfo('', {'resp': resp.body});
-            logInfo('------- end response 2  ------------');
             resp = await request
                 .post('/4_0_0/Condition/1/$merge')
                 .send(conditionBundleResource)
-                .set(getHeaders())
-                .expect(200);
-            logInfo('------- response 2 ------------');
-            logInfo('', {'resp': resp.body});
-            logInfo('------- end response 2  ------------');
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
 
-            resp = await request.get('/4_0_0/Patient/').set(getHeaders()).expect(200);
-            logInfo('------- response patient ------------');
-            logInfo('', {'resp': resp.body});
-            logInfo('------- end response patient  ------------');
-            resp = await request.get('/4_0_0/Condition/').set(getHeaders()).expect(200);
-            logInfo('------- response 2 ------------');
-            logInfo('', {'resp': resp.body});
-            logInfo('------- end response 2  ------------');
+            resp = await request.get('/4_0_0/Patient/').set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResourceCount(1);
+
+            resp = await request.get('/4_0_0/Condition/').set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResourceCount(10);
+
             resp = await request
                 // .get('/graphql/?query=' + graphqlQueryText)
                 // .set(getHeaders())
@@ -72,8 +66,7 @@ describe('GraphQL Condition Tests', () => {
                     variables: {},
                     query: graphqlQueryText,
                 })
-                .set(getGraphQLHeaders())
-                .expect(200);
+                .set(getGraphQLHeaders());
 
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedConditionBundleResource);
