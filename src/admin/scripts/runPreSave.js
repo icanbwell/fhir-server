@@ -65,7 +65,7 @@ async function main() {
 
 /**
  * To run this:
- * nvm use 16.17.1
+ * nvm use 18.14.0
  * node src/admin/scripts/runPreSave.js --collections=Practitioner_4_0_0 --batchSize=10000
  * node src/admin/scripts/runPreSave.js --collections=all --batchSize=10000
  * node src/admin/scripts/runPreSave.js --collections=all --audit --batchSize=10000

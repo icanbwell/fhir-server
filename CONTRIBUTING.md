@@ -151,9 +151,9 @@ curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash
 
 #### 4. install node
 ```shell
-nvm install 16.17.1
-nvm use 16.17.1
-npm install -g npm@8.19.2
+nvm install 18.14.0
+nvm use 18.14.0
+npm install -g npm@latest
 ```
 
 #### 5. Get code
