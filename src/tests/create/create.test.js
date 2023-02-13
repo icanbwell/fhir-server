@@ -13,6 +13,7 @@ const {
 } = require('../common');
 const {describe, beforeEach, afterEach, test} = require('@jest/globals');
 const {generateUUIDv5} = require('../../utils/uid.util');
+const {IdentifierSystem} = require('../../utils/identifierSystem');
 
 describe('Practitioner Tests', () => {
     beforeEach(async () => {
@@ -40,6 +41,9 @@ describe('Practitioner Tests', () => {
             expectedPractitionerInitialResources.entry[0].resource.id = id1;
             practitioner1Resource.id = id1;
             practitioner1Resource.meta.versionId = '1';
+            // update identifier
+            expectedPractitionerInitialResources.entry[0].resource.identifier.find(i => i.system === IdentifierSystem.sourceId).value = id1;
+            expectedPractitionerInitialResources.entry[0].resource.identifier.find(i => i.system === IdentifierSystem.uuid).value = id1;
 
             resp = await request
                 .get('/4_0_0/Practitioner?_bundle=1')
@@ -67,6 +71,11 @@ describe('Practitioner Tests', () => {
 
             const id2 = resp.headers['content-location'].split('/').splice(5, 1)[0];
             expectedPractitionerResources.entry[1].resource.id = id2;
+            // update identifier
+            expectedPractitionerResources.entry[0].resource.identifier.find(i => i.system === IdentifierSystem.sourceId).value = id1;
+            expectedPractitionerResources.entry[0].resource.identifier.find(i => i.system === IdentifierSystem.uuid).value = id1;
+            expectedPractitionerResources.entry[1].resource.identifier.find(i => i.system === IdentifierSystem.sourceId).value = id2;
+            expectedPractitionerResources.entry[1].resource.identifier.find(i => i.system === IdentifierSystem.uuid).value = id2;
 
             // ACT & ASSERT
             // search by token system and code and make sure we get the right Practitioner back
