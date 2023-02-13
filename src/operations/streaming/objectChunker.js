@@ -1,6 +1,7 @@
 const {Transform} = require('stream');
 const {isTrue} = require('../../utils/isTrue');
 const env = require('var');
+const {logInfo} = require('../common/logging');
 
 class ObjectChunker extends Transform {
     /**
@@ -36,7 +37,7 @@ class ObjectChunker extends Transform {
             for (const chunk1 of chunks) {
                 if (this._chunkSize === 0 || this._buffer.length === this._chunkSize) {
                     if (isTrue(env.LOG_STREAM_STEPS)) {
-                        console.log(JSON.stringify({message: 'ObjectChunker: _transform: write buffer to output'}));
+                        logInfo('ObjectChunker: _transform: write buffer to output');
                     }
                     this.push(this._buffer);
                     this._buffer = [];
@@ -55,7 +56,7 @@ class ObjectChunker extends Transform {
      */
     _flush(callback) {
         if (isTrue(env.LOG_STREAM_STEPS)) {
-            console.log(JSON.stringify({message: 'ObjectChunker: _flush'}));
+            logInfo('ObjectChunker: _flush');
         }
         try {
             if (this._buffer.length > 0) {

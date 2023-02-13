@@ -36,6 +36,7 @@ const {
 } = require('../../common');
 const {describe, beforeAll, afterAll, expect, test} = require('@jest/globals');
 const {ConfigManager} = require('../../../utils/configManager');
+const {logInfo} = require('../../../operations/common/logging');
 
 class MockConfigManager extends ConfigManager {
     get doNotRequirePersonOrPatientIdForPatientScope() {
@@ -246,9 +247,9 @@ describe('patient Tests', () => {
             expect(resp).toHaveStatusOk();
             // clear out the lastUpdated column since that changes
             let body = resp.body;
-            console.log('------- response graphql ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response graphql  ------------');
+            logInfo('------- response graphql ------------');
+            logInfo('', {'resp': resp.body});
+            logInfo('------- end response graphql  ------------');
             expect(body.errors).toBeUndefined();
             expect(body.data.allergyIntolerance.entry).toBeDefined();
             expect(body.data.allergyIntolerance.entry.length).toBe(1);

@@ -28,6 +28,8 @@ describe('PractitionerUpdateSecurityTagTests', () => {
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResourceCount(0);
 
+            expect(resp.body.length).toBe(0);
+
             resp = await request
                 .post('/4_0_0/Patient/00100000000/$merge?validate=true')
                 .send(patientWithSecurityTagResource)

@@ -14,6 +14,7 @@ const scopeChecker = require('@asymmetrik/sof-scope-checker');
 const OperationOutcome = require('../fhir/classes/4_0_0/resources/operationOutcome');
 const OperationOutcomeIssue = require('../fhir/classes/4_0_0/backbone_elements/operationOutcomeIssue');
 const { REQUEST_ID_HEADER } = require('../constants');
+const {logInfo} = require('../operations/common/logging');
 
 /**
  * shows indexes
@@ -28,7 +29,7 @@ async function showIndexesAsync(
         req, container, res,
         filterToProblems
     }) {
-    console.log(`showIndexesAsync: req.query: ${JSON.stringify(req.query)}`);
+    logInfo('showIndexesAsync', {'req.query': req.query});
     const audit = req.query['audit'];
     /**
      * @type {IndexManager}
@@ -64,7 +65,7 @@ async function synchronizeIndexesAsync(
         res
     }
 ) {
-    console.log(`synchronizeIndexesAsync: req.query: ${JSON.stringify(req.query)}`);
+    logInfo('synchronizeIndexesAsync', {'req.query': req.query});
     const audit = req.query['audit'];
     /**
      * @type {IndexManager}
@@ -105,7 +106,7 @@ async function handleAdmin(
     try {
         req.id = req.id || req.header(`${REQUEST_ID_HEADER}`) || generateUUID();
         const operation = req.params['op'];
-        console.log(`op=${operation}`);
+        logInfo(`op=${operation}`);
 
         // set up all the standard services in the container
         /**
@@ -137,7 +138,7 @@ async function handleAdmin(
                 }
 
                 case 'searchLogResults': {
-                    console.log(`req.query: ${JSON.stringify(req.query)}`);
+                    logInfo('', {'req.query': req.query});
                     const id = req.query['id'];
                     if (id) {
                         const adminLogManager = new AdminLogManager();
@@ -150,7 +151,7 @@ async function handleAdmin(
                 }
 
                 case 'showPersonToPersonLink': {
-                    console.log(`req.query: ${JSON.stringify(req.query)}`);
+                    logInfo('', {'req.query': req.query});
                     const bwellPersonId = req.query['bwellPersonId'];
                     if (bwellPersonId) {
                         /**
@@ -168,7 +169,7 @@ async function handleAdmin(
                 }
 
                 case 'deletePerson': {
-                    console.log(`req.query: ${JSON.stringify(req.query)}`);
+                    logInfo('', {'req.query': req.query});
                     const personId = req.query['personId'];
                     if (personId) {
                         /**
@@ -187,7 +188,7 @@ async function handleAdmin(
                 }
 
                 case 'createPersonToPersonLink': {
-                    console.log(`req.query: ${JSON.stringify(req.query)}`);
+                    logInfo('', {'req.query': req.query});
                     const bwellPersonId = req.query['bwellPersonId'];
                     const externalPersonId = req.query['externalPersonId'];
                     if (bwellPersonId && externalPersonId) {
@@ -207,7 +208,7 @@ async function handleAdmin(
                 }
 
                 case 'removePersonToPersonLink': {
-                    console.log(`req.query: ${JSON.stringify(req.query)}`);
+                    logInfo('', {'req.query': req.query});
                     const bwellPersonId = req.query['bwellPersonId'];
                     const externalPersonId = req.query['externalPersonId'];
                     if (bwellPersonId && externalPersonId) {
@@ -227,7 +228,7 @@ async function handleAdmin(
                 }
 
                 case 'createPersonToPatientLink': {
-                    console.log(`req.query: ${JSON.stringify(req.query)}`);
+                    logInfo('', {'req.query': req.query});
                     const externalPersonId = req.query['externalPersonId'];
                     const patientId = req.query['patientId'];
                     if (patientId) {
@@ -247,7 +248,7 @@ async function handleAdmin(
                 }
 
                 case 'deletePatientDataGraph': {
-                    console.log(`req.query: ${JSON.stringify(req.query)}`);
+                    logInfo('', {'req.query': req.query});
                     const patientId = req.query['id'];
                     const sync = req.query['sync'];
                     if (patientId) {
@@ -327,7 +328,7 @@ async function handleAdmin(
                 }
 
                 case 'deletePersonDataGraph': {
-                    console.log(`req.query: ${JSON.stringify(req.query)}`);
+                    logInfo('', {'req.query': req.query});
                     const personId = req.query['id'];
                     if (personId) {
                         /**
@@ -425,7 +426,7 @@ async function handleAdmin(
                 }
 
                 case 'runPersonMatch': {
-                    console.log(`req.query: ${JSON.stringify(req.query)}`);
+                    logInfo('', {'req.query': req.query});
                     const sourceId = req.query['sourceId'];
                     const sourceType = req.query['sourceType'];
                     const targetId = req.query['targetId'];

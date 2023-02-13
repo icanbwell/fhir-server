@@ -9,6 +9,7 @@ const {
     createTestRequest, getTestContainer, getRequestId,
 } = require('../../common');
 const {describe, beforeEach, afterEach, expect, test} = require('@jest/globals');
+const {logInfo} = require('../../../operations/common/logging');
 
 describe('History UI Tests', () => {
     beforeEach(async () => {
@@ -61,16 +62,16 @@ describe('History UI Tests', () => {
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveStatusOk();
 
-            console.log('------- response Patient sorted ------------');
-            console.log(JSON.stringify(resp, null, 2));
-            console.log('------- end response sort ------------');
+            logInfo('------- response Patient sorted ------------');
+            logInfo('', {resp});
+            logInfo('------- end response sort ------------');
             expect(resp.type).toStrictEqual('text/html');
             expect(resp.body).toStrictEqual({});
             expect(resp.text).not.toBeNull();
-            const text = resp.text.replace('\\"', '"').replace('\n', '');
-            console.log('------- response html ------------');
-            console.log(text);
-            console.log('------- end response html ------------');
+            const text = resp.text.replace('\\"', '"').replaceAll('\n', '');
+            logInfo('------- response html ------------');
+            logInfo(text);
+            logInfo('------- end response html ------------');
             expect(text).toMatch(new RegExp('^<!DOCTYPE html>?'));
             expect(text).toMatch(new RegExp('<b>Version:</b> 2'));
             expect(text).toMatch(new RegExp('family=PATIENT1'));

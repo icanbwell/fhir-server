@@ -5,6 +5,7 @@ const {describe, beforeEach, afterEach, test} = require('@jest/globals');
 
 const {customIndexes} = require('./mockCustomIndexes');
 const {IndexProvider} = require('../../../indexes/indexProvider');
+const {logInfo} = require('../../../operations/common/logging');
 
 class MockIndexProvider extends IndexProvider {
     getIndexes() {
@@ -66,7 +67,7 @@ describe('Synchronize Index Tests', () => {
             const synchronizeIndexesResult = await indexManager.synchronizeIndexesWithConfigAsync({
                 audit: false
             });
-            console.log(`created: ${JSON.stringify(synchronizeIndexesResult.created)}`);
+            logInfo('', {created: synchronizeIndexesResult.created});
             expect(synchronizeIndexesResult.created.length).toStrictEqual(0);
             expect(synchronizeIndexesResult.dropped.length).toStrictEqual(0);
         });

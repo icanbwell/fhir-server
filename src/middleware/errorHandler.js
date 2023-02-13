@@ -4,18 +4,11 @@
 const process = require('node:process');
 const {ErrorReporter} = require('../utils/slack.logger');
 const {getImageVersion} = require('../utils/getImageVersion');
-const {getCircularReplacer} = require('../utils/getCircularReplacer');
+const {logInfo, logError} = require('../operations/common/logging');
 
 
 process.on('uncaughtException', async (err) => {
-    console.log(
-        JSON.stringify(
-            {
-                method: 'errorHandler.uncaughtException',
-                message: JSON.stringify(err, getCircularReplacer())
-            }
-        )
-    );
+    logError(err, {method: 'errorHandler.uncaughtException'});
     const errorReporter = new ErrorReporter(getImageVersion());
     await errorReporter.reportErrorAsync({
             source: 'uncaughtException',
@@ -27,17 +20,12 @@ process.on('uncaughtException', async (err) => {
 });
 
 process.on('unhandledRejection', async (reason, promise) => {
-    console.log(
-        JSON.stringify(
-            {
-                method: 'errorHandler.unhandledRejection',
-                promise: promise,
-                reason: reason,
-                stack: reason.stack
-            },
-            getCircularReplacer()
-        )
-    );
+    logInfo('', {
+        method: 'errorHandler.unhandledRejection',
+        promise: promise,
+        reason: reason,
+        stack: reason.stack
+    });
     const errorReporter1 = new ErrorReporter(getImageVersion());
     await errorReporter1.reportErrorAsync({
         source: 'unhandledRejection',
@@ -48,22 +36,17 @@ process.on('unhandledRejection', async (reason, promise) => {
 });
 
 process.on('warning', (warning) => {
-    console.log(JSON.stringify(
-            {
-                method: 'errorHandler.warning',
-                name: warning.name,
-                message: warning.message,
-                stack: warning.stack
-            },
-            getCircularReplacer()
-        )
-    );
+    logInfo(warning.message, {
+        method: 'errorHandler.warning',
+        name: warning.name,
+        stack: warning.stack
+    });
 });
 
 process.on('exit', function (code) {
     if (code !== 0) {
         const stack = new Error().stack;
-        console.log(JSON.stringify({method: 'errorHandler.exit', message: `PROCESS EXIT: exit code: ${code}`}));
-        console.log(JSON.stringify({message: JSON.stringify(stack)}, getCircularReplacer()));
+        logInfo(`PROCESS EXIT: exit code: ${code}`, {method: 'errorHandler.exit'});
+        logInfo(stack);
     }
 });

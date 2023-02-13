@@ -285,7 +285,7 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                 // const fnRefreshSessionAsync = async () => {
                 //     session = sourceClient.startSession();
                 //     sessionId = session.serverSession.id;
-                //     console.log(`Restarted session ${JSON.stringify(sessionId)}`);
+                //     logInfo('Restarted session', {'session id': sessionId});
                 // };
                 while (await this.hasNext(cursor)) {
                     // Check if more than 5 minutes have passed since the last refresh

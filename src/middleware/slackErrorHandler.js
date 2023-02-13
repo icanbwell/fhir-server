@@ -5,7 +5,7 @@
 const env = require('var');
 const {ErrorReporter} = require('../utils/slack.logger');
 const {getImageVersion} = require('../utils/getImageVersion');
-const {getCircularReplacer} = require('../utils/getCircularReplacer');
+const {logError} = require('../operations/common/logging');
 
 /**
  * Middleware for logging errors to Slack
@@ -25,7 +25,7 @@ const errorReportingMiddleware = async (err, req, res, next) => {
             env.SLACK_STATUS_CODES_TO_IGNORE.split(',').map(x => parseInt(x)) :
             [200, 401, 404];
         if (!statusCodeToIgnore.includes(err.statusCode)) {
-            console.log(JSON.stringify({message: `slackErrorHandler logging: ${JSON.stringify(err)}`}, getCircularReplacer()));
+            logError('slackErrorHandler logging', {err});
             err.statusCode = err.statusCode || 500;
             const errorReporter = new ErrorReporter(getImageVersion());
             await errorReporter.reportErrorAndRequestAsync(
@@ -39,7 +39,7 @@ const errorReportingMiddleware = async (err, req, res, next) => {
             );
         }
     } catch (e) {
-        console.error(JSON.stringify({message: `Error sending slack message: ${e}`}));
+        logError('Error sending slack message', {'error': e});
     } finally {
         next(err);
     }

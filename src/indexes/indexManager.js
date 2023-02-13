@@ -3,7 +3,7 @@
  */
 
 const async = require('async');
-const {logSystemEventAsync, logSystemErrorAsync} = require('../operations/common/logging');
+const {logSystemEventAsync, logSystemErrorAsync, logInfo} = require('../operations/common/logging');
 const {ErrorReporter} = require('../utils/slack.logger');
 const {assertTypeEquals, assertIsValid} = require('../utils/assertType');
 const {IndexProvider} = require('./indexProvider');
@@ -548,11 +548,11 @@ class IndexManager {
         }
 
         for await (const collectionName of collectionNames) {
-            console.log(JSON.stringify({message: 'Deleting all indexes in ' + collectionName}));
+            logInfo('Deleting all indexes in collection', {collectionName});
             await this.deleteIndexesInCollectionAsync({collection_name: collectionName, db});
         }
 
-        console.log(JSON.stringify({message: 'Finished deleteIndexesInAllCollections'}));
+        logInfo('Finished deleteIndexesInAllCollections');
     }
 
     /**

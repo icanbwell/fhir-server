@@ -2,6 +2,7 @@ const env = require('var');
 const {assertIsValid} = require('../utils/assertType');
 const {getElasticSearchParameterAsync} = require('../utils/aws-ssm');
 const {Client} = require('@opensearch-project/opensearch');
+const {logInfo, logError} = require('../operations/common/logging');
 
 class AdminLogManager {
 
@@ -19,7 +20,7 @@ class AdminLogManager {
 
         let node = env.LOG_ELASTIC_SEARCH_URL;
         assertIsValid(node, 'LOG_ELASTIC_SEARCH_URL environment variable is not defined but LOG_ELASTIC_SEARCH_ENABLE is set');
-        console.info(JSON.stringify({message: `Reading from ${node}`}));
+        logInfo(`Reading from ${node}`);
         if (env.LOG_ELASTIC_SEARCH_USERNAME !== undefined && env.LOG_ELASTIC_SEARCH_PASSWORD !== undefined) {
             node = node.replace('https://', `https://${env.LOG_ELASTIC_SEARCH_USERNAME}:${env.LOG_ELASTIC_SEARCH_PASSWORD}@`);
         } else {
@@ -28,7 +29,7 @@ class AdminLogManager {
             assertIsValid(typeof username === 'string');
             assertIsValid(password);
             assertIsValid(typeof password === 'string');
-            console.info(JSON.stringify({message: `Reading from ${node} with username: ${username}`}));
+            logInfo(`Reading from ${node} with username: ${username}`);
             node = node.replace('https://', `https://${username}:${password}@`);
         }
 
@@ -53,7 +54,7 @@ class AdminLogManager {
                 }
             }
         };
-        console.log(`Searching in index ${indexPrefix} for ${JSON.stringify(body)}`);
+        logInfo(`Searching in index ${indexPrefix} for query`, {body});
 
         try {
             // Let's search!
@@ -62,14 +63,14 @@ class AdminLogManager {
                 body
             });
 
-            console.log(`result=${JSON.stringify(result)}`);
-            console.log(`body=${JSON.stringify(result.body)}`);
-            console.log(`body hits=${JSON.stringify(result.body.hits)}`);
-            console.log(`body hits hits=${JSON.stringify(result.body.hits.hits)}`);
+            logInfo('', {result});
+            logInfo('', {'body': result.body});
+            logInfo('', {'body hits': result.body.hits});
+            logInfo('', {'body hits hits': result.body.hits.hits});
 
             return result.body.hits.hits;
         } catch (e) {
-            console.error(`error ${e} ${e.message} json=${JSON.stringify(e)}`);
+            logError(e.message, {'error': e});
         }
         return [];
     }

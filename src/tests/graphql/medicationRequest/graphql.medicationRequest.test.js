@@ -17,6 +17,7 @@ const {
     createTestRequest,
 } = require('../../common');
 const { describe, beforeEach, afterEach, expect, test } = require('@jest/globals');
+const { logInfo, logError } = require('../../../operations/common/logging');
 
 describe('GraphQL MedicationRequest Tests', () => {
     beforeEach(async () => {
@@ -33,36 +34,36 @@ describe('GraphQL MedicationRequest Tests', () => {
             const graphqlQueryText = query.replace(/\\n/g, '');
             let resp = await request.get('/4_0_0/MedicationRequest').set(getHeaders()).expect(200);
             expect(resp.body.length).toBe(0);
-            console.log('------- response 1 ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response 1 ------------');
+            logInfo('------- response 1 ------------');
+            logInfo('', {'resp': resp.body});
+            logInfo('------- end response 1 ------------');
 
             resp = await request
                 .post('/4_0_0/Patient/$merge')
                 .send(patientBundleResource)
                 .set(getHeaders())
                 .expect(200);
-            console.log('------- response 2 ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response 2  ------------');
+            logInfo('------- response 2 ------------');
+            logInfo('', {'resp': resp.body});
+            logInfo('------- end response 2  ------------');
 
             resp = await request
                 .post('/4_0_0/MedicationRequest/$merge')
                 .send(medicationRequestBundleResource)
                 .set(getHeaders())
                 .expect(200);
-            console.log('------- response 3 ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response 3 ------------');
+            logInfo('------- response 3 ------------');
+            logInfo('', {'resp': resp.body});
+            logInfo('------- end response 3 ------------');
 
             resp = await request
                 .post('/4_0_0/MedicationDispense/$merge')
                 .send(medicationDispenseBundleResource)
                 .set(getHeaders())
                 .expect(200);
-            console.log('------- response 4 ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response 4 ------------');
+            logInfo('------- response 4 ------------');
+            logInfo('', {'resp': resp.body});
+            logInfo('------- end response 4 ------------');
             resp = await request
                 .post('/graphqlv2')
                 .send({
@@ -73,11 +74,11 @@ describe('GraphQL MedicationRequest Tests', () => {
                 .set(getGraphQLHeaders())
                 .expect(200);
             let body = resp.body;
-            console.log('------- response graphql ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response graphql  ------------');
+            logInfo('------- response graphql ------------');
+            logInfo('', {'resp': resp.body});
+            logInfo('------- end response graphql  ------------');
             if (body.errors) {
-                console.log(body.errors);
+                logError('', {'errors': body.errors});
                 expect(body.errors).toBeUndefined();
             }
             expect(body.data.medicationRequest.entry).toStrictEqual(expectedGraphQlResponse);

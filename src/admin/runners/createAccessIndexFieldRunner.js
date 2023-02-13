@@ -5,6 +5,7 @@ const {UuidColumnHandler} = require('../../preSaveHandlers/handlers/uuidColumnHa
 const {SourceAssigningAuthorityColumnHandler} = require('../../preSaveHandlers/handlers/sourceAssigningAuthorityColumnHandler');
 const {AccessColumnHandler} = require('../../preSaveHandlers/handlers/accessColumnHandler');
 const {SecurityTagSystem} = require('../../utils/securityTagSystem');
+const {logInfo, logError} = require('../../operations/common/logging');
 
 /**
  * @classdesc Copies documents from source collection into the appropriate partitioned collection
@@ -133,7 +134,7 @@ class CreateAccessIndexRunner extends BaseBulkOperationRunner {
 
             await this.init();
 
-            console.log(`Starting loop for ${this.collections.join(',')}`);
+            logInfo(`Starting loop for ${this.collections.join(',')}`);
 
             // if there is an exception, continue processing from the last id
             for (const collectionName of this.collections) {
@@ -174,16 +175,16 @@ class CreateAccessIndexRunner extends BaseBulkOperationRunner {
                         }
                     );
                 } catch (e) {
-                    console.log(`Got error ${e}.  At ${this.startFromIdContainer.startFromId}`);
+                    logError(`Got error at ${this.startFromIdContainer.startFromId}`, {'error': e});
                 }
-                console.log(`Finished loop ${collectionName}`);
+                logInfo(`Finished loop ${collectionName}`);
             }
-            console.log('Finished script');
-            console.log('Shutting down');
+            logInfo('Finished script');
+            logInfo('Shutting down');
             await this.shutdown();
-            console.log('Shutdown finished');
+            logInfo('Shutdown finished');
         } catch (e) {
-            console.log(`ERROR: ${e}`);
+            logError('ERROR', {'error': e});
         }
     }
 }

@@ -5,8 +5,9 @@ const pathToEnv = path.resolve(__dirname, '.env');
 dotenv.config({
     path: pathToEnv
 });
-console.log(`Reading config from ${pathToEnv}`);
-console.log(`AUDIT_EVENT_MONGO_URL=${process.env.AUDIT_EVENT_MONGO_URL}`);
+const {logInfo, logError} = require('../../operations/common/logging');
+logInfo(`Reading config from ${pathToEnv}`);
+logInfo(`AUDIT_EVENT_MONGO_URL=${process.env.AUDIT_EVENT_MONGO_URL}`);
 const {createContainer} = require('../../createContainer');
 const {CommandLineParser} = require('./commandLineParser');
 const {IndexCollectionsRunner} = require('../runners/indexCollectionsRunner');
@@ -58,5 +59,5 @@ async function main() {
  * collection can be a regex
  */
 main().catch(reason => {
-    console.error(reason);
+    logError(reason);
 });

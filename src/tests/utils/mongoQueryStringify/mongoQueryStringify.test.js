@@ -5,6 +5,7 @@ const {
 } = require('../../../utils/mongoQueryStringify');
 const { describe, beforeEach, afterEach, expect, test } = require('@jest/globals');
 const {SecurityTagSystem} = require('../../../utils/securityTagSystem');
+const {logInfo} = require('../../../operations/common/logging');
 
 describe('mongoQueryStringify Tests', () => {
     beforeEach(async () => {
@@ -41,7 +42,7 @@ describe('mongoQueryStringify Tests', () => {
             };
 
             const result = mongoQueryStringify(query);
-            console.log(result);
+            logInfo('', {result});
             expect(result).toStrictEqual(
                 "{'$and':[{'meta.lastUpdated':{'$gt':ISODate('2021-06-01T00:00:00.000Z')}},{'meta.lastUpdated':{'$lt':ISODate('2021-06-02T00:00:00.000Z')}},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':'fake'}}}]}"
             );
@@ -95,7 +96,7 @@ describe('mongoQueryStringify Tests', () => {
             ];
 
             const result = mongoQueryStringify(query);
-            console.log(result);
+            logInfo('', {result});
             expect(result).toStrictEqual(
                 "[{'$and':[{'meta.lastUpdated':{'$gt':ISODate('2021-06-01T00:00:00.000Z')}},{'meta.lastUpdated':{'$lt':ISODate('2021-06-02T00:00:00.000Z')}},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':'fake'}}}]},{'$and':[{'meta.lastUpdated':{'$gt':ISODate('2021-06-01T00:00:00.000Z')}},{'meta.lastUpdated':{'$lt':ISODate('2021-06-02T00:00:00.000Z')}},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':'fake'}}}]}]"
             );
@@ -133,7 +134,7 @@ describe('mongoQueryStringify Tests', () => {
                 limit: 20,
             };
             const result = mongoQueryAndOptionsStringify('AuditEvent_4_0_0', query, options);
-            console.log(result);
+            logInfo('', {result});
             expect(result).toStrictEqual(
                 "db.AuditEvent_4_0_0.find({'$and':[{'meta.lastUpdated':{'$gt':ISODate('2021-06-01T00:00:00.000Z')}},{'meta.lastUpdated':{'$lt':ISODate('2021-06-02T00:00:00.000Z')}},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':'fake'}}}]}, {'id':1,'meta.lastUpdated':1}).sort({'id':1}).skip(10).limit(20)"
             );
@@ -197,7 +198,7 @@ describe('mongoQueryStringify Tests', () => {
             ];
             const result = mongoQueryAndOptionsStringify('AuditEvent_4_0_0', query, options);
 
-            console.log(result);
+            logInfo('', {result});
             expect(result).toStrictEqual(
                 "db.AuditEvent_4_0_0.find({'$and':[{'meta.lastUpdated':{'$gt':ISODate('2021-06-01T00:00:00.000Z')}},{'meta.lastUpdated':{'$lt':ISODate('2021-06-02T00:00:00.000Z')}},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':'fake'}}}]}, {'id':1,'meta.lastUpdated':1}).sort({'id':1}).skip(10).limit(20)  | db.AuditEvent_4_0_0.find({'$and':[{'meta.lastUpdated':{'$gt':ISODate('2021-06-01T00:00:00.000Z')}},{'meta.lastUpdated':{'$lt':ISODate('2021-06-02T00:00:00.000Z')}},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':'fake'}}}]}, {})"
             );
