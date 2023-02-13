@@ -33,6 +33,7 @@ class BaseScriptRunner {
     }
 
     async shutdown() {
+        // ok to not specify
     }
 }
 

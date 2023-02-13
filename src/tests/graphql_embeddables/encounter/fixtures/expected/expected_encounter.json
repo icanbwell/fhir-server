@@ -1,0 +1,79 @@
+{
+  "entry": [
+    {
+      "resource": {
+        "id": "eQ8ZQzhMYcLCVXFFXBOlB3A3",
+        "meta": {
+          "security": [
+            {
+              "code": "A",
+              "system": "https://www.icanbwell.com/owner"
+            },
+            {
+              "code": "A",
+              "system": "https://www.icanbwell.com/access"
+            },
+            {
+              "code": "A",
+              "system": "https://www.icanbwell.com/vendor"
+            },
+            {
+              "code": "proa",
+              "system": "https://www.icanbwell.com/connectionType"
+            },
+            {
+              "code": "A",
+              "system": "https://www.icanbwell.com/sourceAssigningAuthority"
+            }
+          ],
+          "tag": null
+        },
+        "participant": [
+          {
+            "individual": null
+          }
+        ],
+        "period": {
+          "end": "2021-08-25T17:30:00.000Z",
+          "start": "2021-08-25T16:30:00.000Z"
+        },
+        "reasonCode": [
+          {
+            "text": "Telehealth"
+          },
+          {
+            "text": "Consult"
+          }
+        ],
+        "status": "finished",
+        "type": [
+          {
+            "coding": [
+              {
+                "display": "Telemedicine"
+              }
+            ],
+            "text": "Telemedicine"
+          },
+          {
+            "coding": [
+              {
+                "display": "Virtual Visit PGIHH Long"
+              }
+            ],
+            "text": "Virtual Visit PGIHH Long"
+          },
+          {
+            "coding": [
+              {
+                "display": "Elective"
+              }
+            ],
+            "text": "Elective"
+          }
+        ]
+      }
+    }
+  ],
+  "meta": null
+}

@@ -19,8 +19,8 @@ src/profiles.js
 .devcontainer
 globalConfig.json
 !/.vscode/launch.json
-.idea/
-!.idea/fileTemplates
+/.idea/*
+!/.idea/fileTemplates/
 #!/.idea/file.template.settings.xml
 /src/graphql/generator/__pycache__
 

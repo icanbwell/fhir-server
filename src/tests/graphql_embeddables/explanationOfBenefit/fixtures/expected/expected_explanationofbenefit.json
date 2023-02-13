@@ -1,0 +1,258 @@
+{
+  "entry": [
+    {
+      "resource": {
+        "billablePeriod": {
+          "end": "2020-01-09T00:00:00.000Z",
+          "start": "2020-01-06T00:00:00.000Z"
+        },
+        "id": "000426237700",
+        "insurer": null,
+        "item": null,
+        "meta": {
+          "security": [
+            {
+              "code": "A",
+              "system": "https://www.icanbwell.com/owner"
+            },
+            {
+              "code": "A",
+              "system": "https://www.icanbwell.com/access"
+            },
+            {
+              "code": "B",
+              "system": "https://www.icanbwell.com/vendor"
+            },
+            {
+              "code": "A",
+              "system": "https://www.icanbwell.com/sourceAssigningAuthority"
+            }
+          ],
+          "tag": null
+        },
+        "outcome": "complete",
+        "payment": null,
+        "provider": null,
+        "status": "active",
+        "total": [
+          {
+            "amount": {
+              "currency": null,
+              "value": 63.77
+            },
+            "category": {
+              "coding": [
+                {
+                  "code": "benefit",
+                  "display": null,
+                  "system": "http://terminology.hl7.org/CodeSystem/adjudication"
+                }
+              ],
+              "text": null
+            }
+          },
+          {
+            "amount": {
+              "currency": null,
+              "value": 0
+            },
+            "category": {
+              "coding": [
+                {
+                  "code": "copay",
+                  "display": null,
+                  "system": "http://terminology.hl7.org/CodeSystem/adjudication"
+                }
+              ],
+              "text": null
+            }
+          }
+        ]
+      }
+    },
+    {
+      "resource": {
+        "billablePeriod": {
+          "end": "2018-10-17T00:00:00.000Z",
+          "start": "2018-10-17T00:00:00.000Z"
+        },
+        "id": "10005760-1",
+        "insurer": null,
+        "item": null,
+        "meta": {
+          "security": [
+            {
+              "code": "payer1",
+              "system": "https://www.icanbwell.com/owner"
+            },
+            {
+              "code": "payer1",
+              "system": "https://www.icanbwell.com/access"
+            },
+            {
+              "code": "payer1",
+              "system": "https://www.icanbwell.com/sourceAssigningAuthority"
+            }
+          ],
+          "tag": null
+        },
+        "outcome": "complete",
+        "payment": {
+          "amount": {
+            "currency": "USD",
+            "value": 10
+          }
+        },
+        "provider": null,
+        "status": "active",
+        "total": [
+          {
+            "amount": {
+              "currency": "USD",
+              "value": 7942
+            },
+            "category": {
+              "coding": [
+                {
+                  "code": "submitted",
+                  "display": "Submitted Amount",
+                  "system": "http://terminology.hl7.org/CodeSystem/adjudication"
+                }
+              ],
+              "text": null
+            }
+          },
+          {
+            "amount": {
+              "currency": "USD",
+              "value": 0
+            },
+            "category": {
+              "coding": [
+                {
+                  "code": "deductible",
+                  "display": "Deductible",
+                  "system": "http://terminology.hl7.org/CodeSystem/adjudication"
+                }
+              ],
+              "text": null
+            }
+          },
+          {
+            "amount": {
+              "currency": "USD",
+              "value": 623.1
+            },
+            "category": {
+              "coding": [
+                {
+                  "code": "coinsurance",
+                  "display": "Coinsurance",
+                  "system": "http://hl7.org/fhir/us/carin-bb/CodeSystem/C4BBAdjudication"
+                }
+              ],
+              "text": null
+            }
+          },
+          {
+            "amount": {
+              "currency": "USD",
+              "value": 0
+            },
+            "category": {
+              "coding": [
+                {
+                  "code": "copay",
+                  "display": "Copay",
+                  "system": "http://terminology.hl7.org/CodeSystem/adjudication"
+                }
+              ],
+              "text": null
+            }
+          },
+          {
+            "amount": {
+              "currency": "USD",
+              "value": 3176.01
+            },
+            "category": {
+              "coding": [
+                {
+                  "code": "eligible",
+                  "display": "Eligible Amount",
+                  "system": "http://terminology.hl7.org/CodeSystem/adjudication"
+                }
+              ],
+              "text": null
+            }
+          },
+          {
+            "amount": {
+              "currency": "USD",
+              "value": 3176.01
+            },
+            "category": {
+              "coding": [
+                {
+                  "code": "benefit",
+                  "display": "Benefit Amount",
+                  "system": "http://terminology.hl7.org/CodeSystem/adjudication"
+                }
+              ],
+              "text": null
+            }
+          },
+          {
+            "amount": {
+              "currency": "USD",
+              "value": 4765.99
+            },
+            "category": {
+              "coding": [
+                {
+                  "code": "noncovered",
+                  "display": "Noncovered",
+                  "system": "http://hl7.org/fhir/us/carin-bb/CodeSystem/C4BBAdjudication"
+                }
+              ],
+              "text": null
+            }
+          },
+          {
+            "amount": {
+              "currency": "USD",
+              "value": 2582.9
+            },
+            "category": {
+              "coding": [
+                {
+                  "code": "paidtoprovider",
+                  "display": "Paid to provider",
+                  "system": "http://hl7.org/fhir/us/carin-bb/CodeSystem/C4BBAdjudication"
+                }
+              ],
+              "text": null
+            }
+          },
+          {
+            "amount": {
+              "currency": "USD",
+              "value": 2582.9
+            },
+            "category": {
+              "coding": [
+                {
+                  "code": "paidbypatient",
+                  "display": "Paid to provider",
+                  "system": "http://hl7.org/fhir/us/carin-bb/CodeSystem/C4BBAdjudication"
+                }
+              ],
+              "text": null
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "meta": null
+}

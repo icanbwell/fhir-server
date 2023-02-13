@@ -1,0 +1,42 @@
+{
+  "entry": [
+    {
+      "resource": {
+        "category": null,
+        "code": {
+          "coding": null,
+          "text": "Aspirin"
+        },
+        "criticality": null,
+        "id": "2333dac1071f4f6cf585fd0960488be90c11fde3",
+        "lastOccurrence": null,
+        "meta": {
+          "security": [
+            {
+              "code": "mps-api",
+              "system": "https://www.icanbwell.com/access"
+            }
+          ],
+          "tag": null
+        },
+        "note": null,
+        "onsetDateTime": null,
+        "onsetPeriod": null,
+        "reaction": [
+          {
+            "description": null,
+            "manifestation": [
+              {
+                "coding": null,
+                "text": "Rash (itching/hives)"
+              }
+            ],
+            "onset": null,
+            "severity": "moderate"
+          }
+        ]
+      }
+    }
+  ],
+  "meta": null
+}

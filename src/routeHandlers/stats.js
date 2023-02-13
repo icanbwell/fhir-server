@@ -43,7 +43,6 @@ module.exports.handleStats = async ({fnCreateContainer, req, res}) => {
          */
         const db = await mongoDatabaseManager.getClientDbAsync();
         let collection_names = [];
-        // const collections = await db.listCollections().toArray();
 
         for await (const /** @type {{name: string, type: string}} */ collection of db.listCollections(
             {}, {nameOnly: true})) {

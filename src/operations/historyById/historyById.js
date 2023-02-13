@@ -175,11 +175,15 @@ class HistoryByIdOperation {
              */
             let cursor;
             try {
-                cursor = await this.databaseHistoryFactory.createDatabaseHistoryManager(
+                /**
+                 * @type {DatabaseHistoryManager}
+                 */
+                const databaseHistoryManager = this.databaseHistoryFactory.createDatabaseHistoryManager(
                     {
                         resourceType, base_version
                     }
-                ).findAsync({query, options});
+                );
+                cursor = await databaseHistoryManager.findAsync({query, options});
             } catch (e) {
                 throw new NotFoundError(new Error(`Resource not found: ${resourceType}/${id}`));
             }

@@ -2,7 +2,6 @@
  * This file implements custom HTTP errors for the FHIR server
  */
 
-// const {UserFacingError} = require('./baseErrors');
 const {ServerError} = require('../middleware/fhir/utils/server.error');
 const env = require('var');
 
@@ -17,8 +16,8 @@ class BadRequestError extends ServerError {
                     severity: 'error',
                     code: 'invalid',
                     details: {text: error.message},
-                    diagnostics: env.IS_PRODUCTION ? error.message :
-                        (typeof error.toString === 'function') ? error.toString() : error.message,
+                    diagnostics: (env.IS_PRODUCTION || typeof error.toString !== 'function') ?
+                        error.message : error.toString(),
                 },
             ],
         });

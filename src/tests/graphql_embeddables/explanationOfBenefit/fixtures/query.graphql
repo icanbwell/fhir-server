@@ -1,0 +1,88 @@
+fragment MetaTags on Meta {
+    tag {
+        system
+        code
+    }
+}
+
+fragment MetaSecurity on Meta {
+    security {
+        system
+        code
+    }
+}
+
+fragment Money on Money {
+    value
+    currency
+}
+
+fragment CodeableConceptFields on CodeableConcept {
+    text
+    coding {
+        system
+        code
+        display
+    }
+}
+
+query Claims($patient: String) {
+    explanationOfBenefit(patient: {value: $patient}) {
+        entry {
+            resource {
+                id
+                meta {
+                    ...MetaTags
+                    ...MetaSecurity
+                }
+                billablePeriod {
+                    start
+                    end
+                }
+                outcome
+                status
+                item {
+                    adjudication {
+                        id
+                        category {
+                            ...CodeableConceptFields
+                        }
+                        amount {
+                            ...Money
+                        }
+                    }
+                    net {
+                        ...Money
+                    }
+                }
+                provider {
+                    __typename
+                    ... on Organization {
+                        name
+                    }
+                    ... on Practitioner {
+                        humanName: name {
+                            family
+                        }
+                    }
+                }
+                insurer {
+                    name
+                }
+                payment {
+                    amount {
+                        ...Money
+                    }
+                }
+                total {
+                    category {
+                        ...CodeableConceptFields
+                    }
+                    amount {
+                        ...Money
+                    }
+                }
+            }
+        }
+    }
+}

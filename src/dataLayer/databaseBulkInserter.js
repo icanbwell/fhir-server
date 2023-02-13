@@ -534,6 +534,7 @@ class DatabaseBulkInserter extends EventEmitter {
             patches
         }
     ) {
+        let lastVersionId = previousVersionId;
         try {
             assertTypeEquals(doc, Resource);
             await this.preSaveManager.preSaveAsync(doc);
@@ -554,7 +555,6 @@ class DatabaseBulkInserter extends EventEmitter {
                  * @type {Resource}
                  */
                 const previousResource = previousUpdate.resource;
-                previousVersionId = previousResource.meta.versionId;
                 /**
                  * returns null if doc is the same
                  * @type {Resource|null}
@@ -588,7 +588,6 @@ class DatabaseBulkInserter extends EventEmitter {
                      * @type {Resource}
                      */
                     const previousResource = previousInsert.resource;
-                    previousVersionId = previousResource.meta.versionId;
                     /**
                      * returns null if doc is the same
                      * @type {Resource|null}
@@ -606,11 +605,11 @@ class DatabaseBulkInserter extends EventEmitter {
                         previousInsert.operation.updateOne.update.$setOnInsert = doc.toJSONInternal();
                     }
                 } else { // no previuous insert or update found
-                    const filter = previousVersionId && previousVersionId !== '0' ?
-                        {$and: [{id: id.toString()}, {'meta.versionId': `${previousVersionId}`}]} :
+                    const filter = lastVersionId && lastVersionId !== '0' ?
+                        {$and: [{id: id.toString()}, {'meta.versionId': `${lastVersionId}`}]} :
                         {id: id.toString()};
-                    assertIsValid(!previousVersionId || previousVersionId < parseInt(doc.meta.versionId),
-                        `previousVersionId ${previousVersionId} is not less than doc versionId ${doc.meta.versionId}` +
+                    assertIsValid(!lastVersionId || lastVersionId < parseInt(doc.meta.versionId),
+                        `lastVersionId ${lastVersionId} is not less than doc versionId ${doc.meta.versionId}` +
                         `, doc: ${JSON.stringify(doc.toJSONInternal(), getCircularReplacer())}`);
                     // https://www.mongodb.com/docs/manual/reference/method/db.collection.bulkWrite/#mongodb-method-db.collection.bulkWrite
                     this.addOperationForResourceType({
@@ -814,7 +813,7 @@ class DatabaseBulkInserter extends EventEmitter {
                      * @type {string}
                      */
                     const collectionName = useHistoryCollection ?
-                        await resourceLocator.getHistoryCollectionNameAsync(resource.resource ? resource.resource : resource) :
+                        await resourceLocator.getHistoryCollectionNameAsync(resource.resource || resource) :
                         await resourceLocator.getCollectionNameAsync(resource);
                     if (!(operationsByCollectionNames.has(collectionName))) {
                         operationsByCollectionNames.set(`${collectionName}`, []);
@@ -872,7 +871,6 @@ class DatabaseBulkInserter extends EventEmitter {
                          * @type {BulkInsertUpdateEntry[]}
                          */
                         const expectedInsertsByUniqueId = operationsByCollection.filter(o => o.operationType === 'insertUniqueId');
-                        // const expectedInsertsCount = expectedInserts.length;
                         const expectedInsertsByUniqueIdCount = expectedInsertsByUniqueId.length;
                         /**
                          * @type {BulkInsertUpdateEntry[]}
@@ -930,7 +928,6 @@ class DatabaseBulkInserter extends EventEmitter {
                             expectedInsertsByUniqueIdCount > 0 &&
                             expectedInsertsByUniqueIdCount !== actualInsertsByUniqueIdCount
                         ) {
-                            // const upsertedIds = bulkWriteResult.upsertedIds;
                             await logTraceSystemEventAsync(
                                 {
                                     event: 'bulkWriteConcurrency' + `_${resourceType}` + `${useHistoryCollection ? '_hist' : ''}`,

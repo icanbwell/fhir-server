@@ -11,7 +11,6 @@ const {
  * @type {import('winston').logger}
  */
 const logger = getLogger();
-// const Sentry = require('./sentry');
 const moment = require('moment-timezone');
 
 const AWS_BUCKET = process.env.AWS_BUCKET;
@@ -60,7 +59,6 @@ module.exports = function sendToS3(prefix, resourceType, resource, currentDate, 
                             JSON.stringify(resource)
                         );
                         logger.error('[AWS-S3] Error: ' + key + ':', err);
-                        // Sentry.captureException(err);
                         return reject(err);
                     });
                 } else {

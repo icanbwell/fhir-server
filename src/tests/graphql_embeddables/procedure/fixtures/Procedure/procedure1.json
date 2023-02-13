@@ -1,0 +1,38 @@
+{
+  "resourceType": "Procedure",
+  "id": "HumanApi-5ef221a3eb5d1c7ed0773ebd",
+  "meta": {
+    "versionId": "1",
+    "lastUpdated": "2023-02-02T20:44:35.000Z",
+    "source": "https://api.humanapi.co/v1/human/medical/procedures",
+    "security": [
+      {
+        "system": "https://www.icanbwell.com/owner",
+        "code": "humanapi"
+      },
+      {
+        "system": "https://www.icanbwell.com/access",
+        "code": "humanapi"
+      },
+      {
+        "system": "https://www.icanbwell.com/vendor",
+        "code": "humanapi"
+      }
+    ]
+  },
+  "status": "completed",
+  "code": {
+    "coding": [
+      {
+        "id": "11466000",
+        "system": "2.16.840.1.113883.6.96",
+        "code": "11466000",
+        "display": "cesarean section"
+      }
+    ]
+  },
+  "subject": {
+    "reference": "Patient/8ba1017f-0aad-1b91-ff9e-416a96e11f0b"
+  }
+}
+

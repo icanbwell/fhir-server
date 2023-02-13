@@ -17,7 +17,6 @@ const {logError} = require('../operations/common/logging');
  */
 const errorReportingMiddleware = async (err, req, res, next) => {
     try {
-        // logInfo('', {'env.SLACK_STATUS_CODES_TO_IGNORE', env.SLACK_STATUS_CODES_TO_IGNORE});
         /**
          * status codes to ignore
          * @type {number[]}
@@ -25,11 +24,9 @@ const errorReportingMiddleware = async (err, req, res, next) => {
         const statusCodeToIgnore = env.SLACK_STATUS_CODES_TO_IGNORE ?
             env.SLACK_STATUS_CODES_TO_IGNORE.split(',').map(x => parseInt(x)) :
             [200, 401, 404];
-        // logError('slackErrorHandler', {err});
         if (!statusCodeToIgnore.includes(err.statusCode)) {
             logError('slackErrorHandler logging', {err});
             err.statusCode = err.statusCode || 500;
-            // if (skip !== false && skip(err, req, res)) return next(err);
             const errorReporter = new ErrorReporter(getImageVersion());
             await errorReporter.reportErrorAndRequestAsync(
                 {

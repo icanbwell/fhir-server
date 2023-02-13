@@ -4,10 +4,11 @@ const {
     toHaveStatusCode,
     toHaveStatusOk,
     toHaveMergeResponse,
-    toHaveResourceCount
+    toHaveResourceCount,
+    toHaveGraphQLResponse
 } = require('./customMatchers');
 
-expect.extend({toHaveResponse, toHaveStatusCode, toHaveStatusOk, toHaveMergeResponse, toHaveResourceCount});
+expect.extend({toHaveResponse, toHaveStatusCode, toHaveStatusOk, toHaveMergeResponse, toHaveResourceCount, toHaveGraphQLResponse});
 
 const {
     toBeArray,

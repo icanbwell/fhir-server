@@ -1,0 +1,90 @@
+{
+  "resourceType": "Medication",
+  "id": "e-Iox-Rzuv22NuqM-QLLxE7VyghEBbdy0fcuQudngT42xpnd",
+  "meta": {
+    "versionId": "3",
+    "lastUpdated": "2023-02-01T08:21:13.000Z",
+    "source": "https://epicarr.foo.org/FHIR/api/FHIR/R4/metadata",
+    "security": [
+      {
+        "system": "https://www.icanbwell.com/owner",
+        "code": "A"
+      },
+      {
+        "system": "https://www.icanbwell.com/access",
+        "code": "A"
+      },
+      {
+        "system": "https://www.icanbwell.com/vendor",
+        "code": "A"
+      },
+      {
+        "system": "https://www.icanbwell.com/connectionType",
+        "code": "proa"
+      }
+    ]
+  },
+  "identifier": [
+    {
+      "use": "usual",
+      "system": "urn:oid:1.2.840.114350.1.13.221.2.7.2.698288",
+      "value": "32099"
+    },
+    {
+      "system": "https://www.icanbwell.com/sourceId",
+      "value": "e-Iox-Rzuv22NuqM-QLLxE7VyghEBbdy0fcuQudngT42xpnd"
+    },
+    {
+      "system": "https://www.icanbwell.com/uuid",
+      "value": "17178ef8-1f73-49d1-9fb0-b4606177f8d7"
+    }
+  ],
+  "code": {
+    "coding": [
+      {
+        "system": "urn:oid:2.16.840.1.113883.6.253",
+        "code": "75216"
+      },
+      {
+        "system": "urn:oid:2.16.840.1.113883.6.68",
+        "code": "78512010000330"
+      },
+      {
+        "system": "urn:oid:2.16.840.1.113883.6.162",
+        "code": "30159"
+      }
+    ],
+    "text": "prenatal vitamin"
+  },
+  "form": {
+    "coding": [
+      {
+        "system": "urn:oid:1.2.840.114350.1.13.221.2.7.4.698288.310",
+        "code": "TABS",
+        "display": "Tablet"
+      }
+    ],
+    "text": "Tablet"
+  },
+  "ingredient": [
+    {
+      "itemCodeableConcept": {
+        "coding": [
+          {
+            "system": "urn:oid:2.16.840.1.113883.6.253",
+            "code": "75216"
+          },
+          {
+            "system": "urn:oid:2.16.840.1.113883.6.68",
+            "code": "78512010000330"
+          },
+          {
+            "system": "urn:oid:2.16.840.1.113883.6.162",
+            "code": "30159"
+          }
+        ],
+        "text": "prenatal vitamin"
+      }
+    }
+  ]
+}

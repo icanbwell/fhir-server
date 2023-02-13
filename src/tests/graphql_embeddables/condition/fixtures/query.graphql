@@ -1,0 +1,65 @@
+fragment MetaTags on Meta {
+    tag {
+        system
+        code
+    }
+}
+
+fragment MetaSecurity on Meta {
+    security {
+        system
+        code
+    }
+}
+
+fragment CodeableConceptFields on CodeableConcept {
+    text
+    coding {
+        system
+        code
+        display
+    }
+}
+
+query Conditions {
+    condition {
+        entry {
+            resource {
+                id
+                meta {
+                    ...MetaTags
+                    ...MetaSecurity
+                }
+                code {
+                    ...CodeableConceptFields
+                }
+                clinicalStatus {
+                    ...CodeableConceptFields
+                }
+                onsetDateTime
+                abatementDateTime
+                onsetPeriod {
+                    start
+                    end
+                }
+                abatementPeriod {
+                    start
+                    end
+                }
+                subject {
+                    ... on Patient {
+                        name {
+                            given
+                        }
+                    }
+                }
+                category {
+                    ...CodeableConceptFields
+                }
+                severity {
+                    ...CodeableConceptFields
+                }
+            }
+        }
+    }
+}

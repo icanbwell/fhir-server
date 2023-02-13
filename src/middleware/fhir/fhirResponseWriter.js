@@ -2,13 +2,12 @@ const path = require('path');
 const {assertTypeEquals} = require('../../utils/assertType');
 const Resource = require('../../fhir/classes/4_0_0/resources/resource');
 
-// const assert = require('node:assert/strict');
-
 /**
  * @classdesc Writes response in FHIR
  */
 class FhirResponseWriter {
     constructor() {
+        // ok to not specify
     }
 
 
@@ -38,15 +37,7 @@ class FhirResponseWriter {
      */
     read({req, res, result}) {
         assertTypeEquals(result, Resource);
-        if (!res.headersSent) {
-            let fhirVersion = req.params.base_version;
-            res.type(this.getContentType(fhirVersion));
-        }
-
-        // assert(req.id);
-        if (req.id && !res.headersSent) {
-            res.setHeader('X-Request-ID', String(req.id));
-        }
+        this.setBaseResponseHeaders({req, res});
         res.status(200).json(result.toJSON());
     }
 
@@ -58,15 +49,7 @@ class FhirResponseWriter {
      * @param {Resource|Object} result - json to send to client
      */
     readCustomOperation({req, res, result}) {
-        if (!res.headersSent) {
-            let fhirVersion = req.params.base_version;
-            res.type(this.getContentType(fhirVersion));
-        }
-
-        // assert(req.id);
-        if (req.id && !res.headersSent) {
-            res.setHeader('X-Request-ID', String(req.id));
-        }
+        this.setBaseResponseHeaders({req, res});
         res.status(200).json(result instanceof Resource ? result.toJSON() : result);
     }
 
@@ -78,15 +61,7 @@ class FhirResponseWriter {
      * @param {Resource|Object} result - json to send to client
      */
     graph({req, res}) {
-        if (!res.headersSent) {
-            let fhirVersion = req.params.base_version;
-            res.type(this.getContentType(fhirVersion));
-        }
-
-        // assert(req.id);
-        if (req.id && !res.headersSent) {
-            res.setHeader('X-Request-ID', String(req.id));
-        }
+        this.setBaseResponseHeaders({req, res});
     }
 
     /**
@@ -97,15 +72,7 @@ class FhirResponseWriter {
      * @param {Resource|Object} result - json to send to client
      */
     everything({req, res}) {
-        if (!res.headersSent) {
-            let fhirVersion = req.params.base_version;
-            res.type(this.getContentType(fhirVersion));
-        }
-
-        // assert(req.id);
-        if (req.id && !res.headersSent) {
-            res.setHeader('X-Request-ID', String(req.id));
-        }
+        this.setBaseResponseHeaders({req, res});
     }
 
     /**
@@ -116,15 +83,7 @@ class FhirResponseWriter {
      * @param {MergeResultEntry[]} result - json to send to client
      */
     merge({req, res, result}) {
-        if (!res.headersSent) {
-            let fhirVersion = req.params.base_version;
-            res.type(this.getContentType(fhirVersion));
-        }
-
-        // assert(req.id);
-        if (req.id && !res.headersSent) {
-            res.setHeader('X-Request-ID', String(req.id));
-        }
+        this.setBaseResponseHeaders({req, res});
         res.status(200).json(result);
     }
 
@@ -260,6 +219,23 @@ class FhirResponseWriter {
             res.setHeader('X-Request-ID', String(req.id));
         }
         res.status(200).json(json);
+    }
+
+    /**
+     * @function setBaseResponseHeaders
+     * @description Used to set base response headers
+     * @param {import('http').IncomingMessage} req - Express request object
+     * @param {import('express').Response} res - Express response object
+     */
+    setBaseResponseHeaders({ req, res }) {
+        if (!res.headersSent) {
+            let fhirVersion = req.params.base_version;
+            res.type(this.getContentType(fhirVersion));
+        }
+
+        if (req.id && !res.headersSent) {
+            res.setHeader('X-Request-ID', String(req.id));
+        }
     }
 }
 

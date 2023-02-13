@@ -1,8 +1,6 @@
 const async = require('async');
 const {logInfo, logError} = require('../../../operations/common/logging');
 
-// const {ApolloServerPlugin} = require('apollo-server-plugin-base');
-
 /***
  * Plugin to log calls to GraphQL
  */
@@ -160,5 +158,4 @@ const getApolloServerLoggingPlugin = (endpoint) => {
 module.exports = {
     getApolloServerLoggingPlugin: getApolloServerLoggingPlugin
 };
-
 

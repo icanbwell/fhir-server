@@ -31,7 +31,7 @@ jobs:
     name: test (chunk ${{ matrix.chunk }})
     strategy:
       matrix:
-        shard: [ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 ]
+        shard: [ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 ]
       fail-fast: false
     steps:
       - uses: actions/checkout@v3
@@ -45,6 +45,47 @@ jobs:
       - name: jest
         run: |
           export NODE_OPTIONS="--max-old-space-size=10240"
-          NODE_OPTIONS=--max-old-space-size=10240 node --max-old-space-size=10240 --optimize_for_size --gc_interval=100 --always-compact ./node_modules/.bin/jest --no-watchman --silent --logHeapUsage --runInBand --forceExit --shard=${{ matrix.shard }}/${{ strategy.job-total }}
+          NODE_OPTIONS=--max-old-space-size=10240 node --max-old-space-size=10240 --optimize_for_size --gc_interval=100 --always-compact ./node_modules/.bin/jest --no-watchman --silent --logHeapUsage --runInBand --forceExit --shard=${{ matrix.shard }}/${{ strategy.job-total }} --coverage
         env:
           NODE_OPTIONS: "--max-old-space-size=10240"
+      - name: Rename coverage file name
+        if: github.ref == 'refs/heads/master'
+        run: mv coverage/coverage-final.json coverage/${{matrix.shard}}.json
+      - name: Upload coverage file
+        uses: actions/upload-artifact@v3
+        if: github.ref == 'refs/heads/master'
+        with:
+          name: coverage-artifacts
+          path: coverage/
+  sonarqube:
+    name: Sonar Qube
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.ref == 'refs/heads/master'
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Download coverage files
+        uses: actions/download-artifact@v3
+        with:
+          name: coverage-artifacts
+          path: coverage
+      - name: Merge Code Coverage files
+        run: |
+          npx nyc merge coverage/ merged-output/merged-coverage.json
+          npx nyc report -t merged-output --report-dir merged-cov-report --reporter=lcov
+      - uses: sonarsource/sonarqube-scan-action@master
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+      - name: Remove the coverage files
+        uses: geekyeggo/delete-artifact@v2
+        with:
+          name: coverage-artifacts
+      # If you wish to fail your job when the Quality Gate is red, uncomment the
+      # following lines. This would typically be used to fail a deployment.
+      # - uses: sonarsource/sonarqube-quality-gate-action@master
+      #   timeout-minutes: 5
+      #   env:
+      #     SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}

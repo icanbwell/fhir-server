@@ -47,11 +47,9 @@ async function createServer(fnCreateContainer) {
         socket.setTimeout(10 * 60 * 1000);
         socket.once('timeout', function () {
             logInfo('Socket timeout');
-            // process.nextTick(socket.destroy);
         });
         socket.once('error', function (e) {
             logError('Socket error', {error: e});
-            // process.nextTick(socket.destroy);
         });
     });
 

@@ -237,6 +237,7 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
         const maxLoopRetries = 5;
         let continueLoop = true;
         let operations = [];
+        let previouslyCheckedId = lastCheckedId;
 
         while (continueLoop && (loopRetryNumber < maxLoopRetries)) {
             if (startFromIdContainer.startFromId) {
@@ -312,7 +313,7 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                     const numberOfDocumentsToCopy = skipExistingIds ?
                         numberOfSourceDocuments - numberOfDestinationDocuments :
                         numberOfSourceDocuments;
-                    lastCheckedId = doc.id;
+                    previouslyCheckedId = doc.id;
                     count += 1;
                     readline.cursorTo(process.stdout, 0);
                     process.stdout.write(`[${moment().toISOString()}] ` +
@@ -338,11 +339,8 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                                 const bulkResult = await destinationCollection.bulkWrite(operations, {ordered: ordered});
                                 startFromIdContainer.nModified += bulkResult.nModified;
                                 startFromIdContainer.nUpserted += bulkResult.nUpserted;
-                                startFromIdContainer.startFromId = lastCheckedId;
-                                // logInfo(`Wrote: modified: ${bulkResult.nModified.toLocaleString()} (${nModified.toLocaleString()}), ` +
-                                //     `upserted: ${bulkResult.nUpserted} (${nUpserted.toLocaleString()})`);
+                                startFromIdContainer.startFromId = previouslyCheckedId;
                                 operations = [];
-                                // await session.commitTransaction();
                             },
                             {
                                 retries: 5,
@@ -352,7 +350,7 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                             `Processed ${startFromIdContainer.convertedIds.toLocaleString()}, ` +
                             `modified: ${startFromIdContainer.nModified.toLocaleString('en-US')}, ` +
                             `upserted: ${startFromIdContainer.nUpserted.toLocaleString('en-US')}, ` +
-                            `from ${sourceCollectionName} to ${destinationCollectionName}. last id: ${lastCheckedId}`;
+                            `from ${sourceCollectionName} to ${destinationCollectionName}. last id: ${previouslyCheckedId}`;
                         this.adminLogger.logTrace('\n');
                         this.adminLogger.logTrace(message);
                         // https://nodejs.org/api/process.html#process_process_memoryusage
@@ -376,15 +374,14 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                                 `Final writing ${operations.length.toLocaleString('en-US')} operations in bulk to ${destinationCollectionName}. ` +
                                 (retryNumber > 1 ? `retry=${retryNumber}` : ''));
                             const bulkResult = await destinationCollection.bulkWrite(operations, {ordered: ordered});
-                            // await session.commitTransaction();
                             startFromIdContainer.nModified += bulkResult.nModified;
                             startFromIdContainer.nUpserted += bulkResult.nUpserted;
-                            startFromIdContainer.startFromId = lastCheckedId;
+                            startFromIdContainer.startFromId = previouslyCheckedId;
                             const message =
                                 `Final write ${startFromIdContainer.convertedIds.toLocaleString()} ` +
                                 `modified: ${startFromIdContainer.nModified.toLocaleString('en-US')}, ` +
                                 `upserted: ${startFromIdContainer.nUpserted.toLocaleString('en-US')} ` +
-                                `from ${sourceCollectionName} to ${destinationCollectionName}. last id: ${lastCheckedId}`;
+                                `from ${sourceCollectionName} to ${destinationCollectionName}. last id: ${previouslyCheckedId}`;
                             this.adminLogger.logTrace('\n');
                             this.adminLogger.logTrace(message);
                         },
@@ -406,7 +403,7 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                 }
             }
         }
-        return lastCheckedId;
+        return previouslyCheckedId;
     }
 
     async createConnectionAsync({config, destinationCollectionName, sourceCollectionName}) {
