@@ -16,6 +16,7 @@ const {
     createTestRequest,
 } = require('../../common');
 const { describe, beforeEach, afterEach, expect, test } = require('@jest/globals');
+const { logInfo, logError } = require('../../../operations/common/logging');
 
 describe('GraphQL Patient Update Care Team Tests', () => {
     beforeEach(async () => {
@@ -32,7 +33,7 @@ describe('GraphQL Patient Update Care Team Tests', () => {
             const graphqlQueryText = query.replace(/\\n/g, '');
 
             let resp = await request.get('/4_0_0/Patient').set(getHeaders()).expect(200);
-            console.log('------- end response 1 ------------');
+            logInfo('------- end response 1 ------------');
 
             resp = await request.get('/4_0_0/Practitioner').set(getHeaders()).expect(200);
             expect(resp.body.length).toBe(0);
@@ -68,7 +69,7 @@ describe('GraphQL Patient Update Care Team Tests', () => {
 
             let body = resp.body;
             if (body.errors) {
-                console.log(body.errors);
+                logError('', {'errors': body.errors});
                 expect(body.errors).toBeUndefined();
             }
             // noinspection JSUnresolvedFunction

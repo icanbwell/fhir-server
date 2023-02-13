@@ -10,10 +10,12 @@ const { createServer } = require('./server');
 const { createContainer } = require('./createContainer');
 const { ErrorReporter } = require('./utils/slack.logger');
 const { getImageVersion } = require('./utils/getImageVersion');
-const {getCircularReplacer} = require('./utils/getCircularReplacer');
+const { getCircularReplacer } = require('./utils/getCircularReplacer');
+const { initialize } = require('./winstonInit');
 
 const main = async function () {
     try {
+        initialize();
         await createServer(() => createContainer());
     } catch (e) {
         console.log(JSON.stringify({ method: 'main', message: JSON.stringify(e, getCircularReplacer()) }));

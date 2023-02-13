@@ -8,6 +8,7 @@ const moment = require('moment-timezone');
 const {SecurityTagSystem} = require('../utils/securityTagSystem');
 const PersonLink = require('../fhir/classes/4_0_0/backbone_elements/personLink');
 const {VERSIONS} = require('../middleware/fhir/utils/constants');
+const {logInfo} = require('../operations/common/logging');
 
 const maximumRecursionDepth = 5;
 const patientReferencePrefix = 'Patient/';
@@ -71,7 +72,7 @@ class AdminPersonPatientLinkManager {
             if (bwellPerson.link) {
                 // check if a link target already exists in bwellPerson for externalPersonId
                 if (!bwellPerson.link.some(l => l.target && l.target.reference === `Person/${externalPersonId}`)) {
-                    console.log(`link before (non-empty): ${JSON.stringify(bwellPerson.link)}`);
+                    logInfo('link before (non-empty)', {'link': bwellPerson.link});
                     bwellPerson.link = bwellPerson.link.concat([
                         new PersonLink(
                             {
@@ -80,7 +81,7 @@ class AdminPersonPatientLinkManager {
                                 )
                             })
                     ]);
-                    console.log(`link after (non-empty): ${JSON.stringify(bwellPerson.link)}`);
+                    logInfo('link after (non-empty)', {'link': bwellPerson.link});
                 } else {
                     return {
                         'message': `Link already exists from ${bwellPersonId} to ${externalPersonId}`,
@@ -90,14 +91,14 @@ class AdminPersonPatientLinkManager {
                 }
             } else {
                 // no existing link array so create one
-                console.log(`link before (empty): ${JSON.stringify(bwellPerson.link)}`);
+                logInfo('link before (empty)', {'link': bwellPerson.link});
                 bwellPerson.link = [new PersonLink(
                     {
                         target: new Reference(
                             {reference: `Person/${externalPersonId}`}
                         )
                     })];
-                console.log(`link after (empty): ${JSON.stringify(bwellPerson.link)}`);
+                logInfo('link after (empty)', {'link': bwellPerson.link});
             }
             await databaseUpdateManager.replaceOneAsync({
                 doc: bwellPerson
@@ -150,9 +151,9 @@ class AdminPersonPatientLinkManager {
                         'externalPersonId': externalPersonId
                     };
                 } else {
-                    console.log(`link before: ${JSON.stringify(bwellPerson.link)}`);
+                    logInfo('link before', {'link': bwellPerson.link});
                     bwellPerson.link = bwellPerson.link.filter(l => (l.target.reference !== `Person/${externalPersonId}`));
-                    console.log(`link after: ${JSON.stringify(bwellPerson.link)}`);
+                    logInfo('link after', {'link': bwellPerson.link});
                 }
             } else {
                 return {
@@ -262,7 +263,7 @@ class AdminPersonPatientLinkManager {
             if (sourcePerson.link) {
                 // check if a link target already exists in sourcePerson for externalPersonId
                 if (!sourcePerson.link.some(l => l.target && l.target.reference === `Patient/${patientId}`)) {
-                    console.log(`link before (non-empty): ${JSON.stringify(sourcePerson.link)}`);
+                    logInfo('link before (non-empty)', {'link': sourcePerson.link});
                     sourcePerson.link = sourcePerson.link.concat([
                         new PersonLink(
                             {
@@ -270,7 +271,7 @@ class AdminPersonPatientLinkManager {
                                 )
                             })
                     ]);
-                    console.log(`link before (non-empty): ${JSON.stringify(sourcePerson.link)}`);
+                    logInfo('link before (non-empty)', {'link': sourcePerson.link});
                 } else {
                     return {
                         'message': `Link already exists from Person/${externalPersonId} to Patient/${patientId}`,
@@ -279,7 +280,7 @@ class AdminPersonPatientLinkManager {
                     };
                 }
             } else {
-                console.log(`link before (empty): ${JSON.stringify(sourcePerson.link)}`);
+                logInfo('link before (empty)', {'link': sourcePerson.link});
                 sourcePerson.link = [
                     new PersonLink(
                         {
@@ -287,7 +288,7 @@ class AdminPersonPatientLinkManager {
                                 {reference: `Patient/${patientId}`}
                             )
                         })];
-                console.log(`link after: ${JSON.stringify(sourcePerson.link)}`);
+                logInfo('link after', {'link': sourcePerson.link});
             }
             await databaseUpdateManager.replaceOneAsync({
                 doc: sourcePerson

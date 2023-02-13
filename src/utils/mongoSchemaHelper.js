@@ -1,3 +1,5 @@
+const {logInfo} = require('../operations/common/logging');
+
 const getSchemaOfMongoDocument = (prefix, obj, indent) => {
     let result = {};
     for (const key in obj) {
@@ -12,7 +14,7 @@ const getSchemaOfMongoDocument = (prefix, obj, indent) => {
             }
             const keyName = prefix ? `${prefix}.${key}` : key;
             const keyType = type || typeof obj[`${key}`];
-            console.log(indent, keyName, keyType);
+            logInfo(`${indent} ${keyName} ${keyType}`);
             const query = {};
             query[`${keyName}`] = keyType;
             result = Object.assign(result, query);

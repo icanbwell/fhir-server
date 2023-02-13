@@ -7,6 +7,7 @@ const {
     createTestRequest,
 } = require('../../common');
 const { describe, beforeEach, afterEach, expect, test } = require('@jest/globals');
+const { logInfo } = require('../../../operations/common/logging');
 
 describe('Practitioner Update Tests', () => {
     beforeEach(async () => {
@@ -26,9 +27,9 @@ describe('Practitioner Update Tests', () => {
                 .expect(200);
 
             expect(resp.body.length).toBe(0);
-            console.log('------- response 1 ------------');
-            console.log(JSON.stringify(resp.body, null, 2));
-            console.log('------- end response 1 ------------');
+            logInfo('------- response 1 ------------');
+            logInfo('', {'resp': resp.body});
+            logInfo('------- end response 1 ------------');
 
             resp = await request
                 .post('/4_0_0/QuestionnaireResponse')
@@ -36,9 +37,9 @@ describe('Practitioner Update Tests', () => {
                 .set(getHeaders())
                 .expect(201);
             let body = resp.body;
-            console.log('------- response 1 ------------');
-            console.log(JSON.stringify(body, null, 2));
-            console.log('------- end response 1 ------------');
+            logInfo('------- response 1 ------------');
+            logInfo('', {body});
+            logInfo('------- end response 1 ------------');
         });
     });
 });

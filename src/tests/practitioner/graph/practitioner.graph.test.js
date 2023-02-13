@@ -20,6 +20,7 @@ const {
 
 const {findDuplicateResources} = require('../../../utils/list.util');
 const {describe, beforeEach, afterEach, expect, test } = require('@jest/globals');
+const {logInfo} = require('../../../operations/common/logging');
 
 describe('Practitioner Graph Contained Tests', () => {
     beforeEach(async () => {
@@ -83,11 +84,11 @@ describe('Practitioner Graph Contained Tests', () => {
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedHashReferencesResource);
 
-            console.log('----- Received resources ----');
-            console.log(
+            logInfo('----- Received resources ----');
+            logInfo(
                 `${resp.body.entry.map((e) => e.resource).map((a) => `${a.resourceType}/${a.id}`)}`
             );
-            console.log('----- End of Received resources ----');
+            logInfo('----- End of Received resources ----');
             // verify there are no duplicate ids
             const duplicates = findDuplicateResources(resp.body.entry.map((e) => e.resource));
             expect(duplicates.map((a) => `${a.resourceType}/${a.id}`)).toStrictEqual([]);
@@ -153,11 +154,11 @@ describe('Practitioner Graph Contained Tests', () => {
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedHashReferencesResource);
 
-            console.log('----- Received resources ----');
-            console.log(
+            logInfo('----- Received resources ----');
+            logInfo(
                 `${resp.body.entry.map((e) => e.resource).map((a) => `${a.resourceType}/${a.id}`)}`
             );
-            console.log('----- End of Received resources ----');
+            logInfo('----- End of Received resources ----');
             // verify there are no duplicate ids
             const duplicates = findDuplicateResources(resp.body.entry.map((e) => e.resource));
             expect(duplicates.map((a) => `${a.resourceType}/${a.id}`)).toStrictEqual([]);

@@ -79,7 +79,7 @@ function cleanRequestId(request) {
  * @returns {boolean}
  */
 function compareBundles({body, expected, fnCleanResource, ignoreMetaTags = false}) {
-    // console.log(JSON.stringify(body, null, 2));
+    // logInfo(body);
     // clear out the lastUpdated column since that changes
     // expect(body['entry'].length).toBe(2);
     delete body['timestamp'];

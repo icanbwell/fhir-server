@@ -6,6 +6,7 @@ const {mongoConfig} = require('../config');
 const async = require('async');
 const env = require('var');
 const {RethrownError} = require('../utils/rethrownError');
+const {logInfo} = require('../operations/common/logging');
 
 /**
  * Handles stats
@@ -16,7 +17,7 @@ const {RethrownError} = require('../utils/rethrownError');
  */
 // eslint-disable-next-line no-unused-vars
 module.exports.handleStats = async ({fnCreateContainer, req, res}) => {
-    console.info('Running stats');
+    logInfo('Running stats');
 
     /**
      * gets stats for a collection
@@ -25,9 +26,9 @@ module.exports.handleStats = async ({fnCreateContainer, req, res}) => {
      * @return {Promise<{name, count: *}>}
      */
     async function getStatsForCollectionAsync(collection_name, db) {
-        console.log(collection_name);
+        logInfo(collection_name);
         const count = await db.collection(collection_name).estimatedDocumentCount();
-        console.log(['Found: ', count, ' documents in ', collection_name].join(''));
+        logInfo(['Found: ', count, ' documents in ', collection_name].join(''));
         return {name: collection_name, count: count};
     }
 
@@ -52,7 +53,7 @@ module.exports.handleStats = async ({fnCreateContainer, req, res}) => {
 
         collection_names = collection_names.sort((a, b) => a.localeCompare(b));
 
-        console.info('Collection_names:' + collection_names);
+        logInfo(`Collection_names: ${collection_names}`);
         const collection_stats = await async.map(
             collection_names,
             async (collection_name) => await getStatsForCollectionAsync(collection_name, db)

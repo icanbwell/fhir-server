@@ -4,13 +4,13 @@
 
 const AWS = require('aws-sdk');
 const {
-  container
+    getLogger
 } = require('../winstonInit');
 
 /**
  * @type {import('winston').logger}
  */
-const logger = container.get('default');
+const logger = getLogger();
 const moment = require('moment-timezone');
 
 const AWS_BUCKET = process.env.AWS_BUCKET;

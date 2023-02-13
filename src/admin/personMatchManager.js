@@ -4,6 +4,7 @@ const superagent = require('superagent');
 const {ConfigManager} = require('../utils/configManager');
 const OperationOutcome = require('../fhir/classes/4_0_0/resources/operationOutcome');
 const OperationOutcomeIssue = require('../fhir/classes/4_0_0/backbone_elements/operationOutcomeIssue');
+const {logInfo} = require('../operations/common/logging');
 
 class PersonMatchManager {
     /**
@@ -132,8 +133,7 @@ class PersonMatchManager {
                 'Content-Type': 'application/json',
                 Accept: 'application/json',
             };
-            console.log(`Calling ${url} with body:`);
-            console.log(JSON.stringify(parameters));
+            logInfo(`Calling ${url} with body`, {'body': parameters});
             /**
              * @type {request.Response}
              */
@@ -142,7 +142,7 @@ class PersonMatchManager {
                 .send(parameters)
                 .set(header);
             const json = res.body;
-            console.log(JSON.stringify(json));
+            logInfo('', {json});
             return json;
         }
     }
