@@ -275,11 +275,11 @@ Output:
 ```
 
 ## Admin Logger
-Admin logger can be used by making instance of class `AdminLogger` class. Then you can use `logTrace` & `logError` methods accordingly.
+Admin logger can be used by making instance of class `AdminLogger` class. Then you can use `logInfo` & `logError` methods accordingly.
 For example:
 ```
 const adminLogger = new AdminLogger();
-adminLogger.logTrace('Logger Message');
+adminLogger.logInfo('Logger Message');
 ```
 Output:
 ```

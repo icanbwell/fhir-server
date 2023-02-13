@@ -206,7 +206,7 @@ class PartitionAuditEventRunner extends BaseBulkOperationRunner {
                     ).hasNext();
                     if (this.dropDestinationCollection) {
                         if (destinationCollectionExists) {
-                            this.adminLogger.logTrace(`Destination ${destinationCollectionName} already exists so dropping it`);
+                            this.adminLogger.logInfo(`Destination ${destinationCollectionName} already exists so dropping it`);
                             await db.dropCollection(destinationCollectionName);
                         }
                         destinationCollectionExists = false;
@@ -231,9 +231,9 @@ class PartitionAuditEventRunner extends BaseBulkOperationRunner {
                             $out: destinationCollectionName
                         }
                     ];
-                    this.adminLogger.logTrace('Running aggregation pipeline with specified pipeline', {pipeline});
+                    this.adminLogger.logInfo('Running aggregation pipeline with specified pipeline', {pipeline});
                     const sourceCollection = db.collection(sourceCollectionName);
-                    this.adminLogger.logTrace(
+                    this.adminLogger.logInfo(
                         `Sending count query to Mongo: ${mongoQueryStringify(query)}. ` +
                         `for ${sourceCollectionName} and ${destinationCollectionName}`);
                     const numberOfSourceDocuments = await sourceCollection.countDocuments(query, {});
@@ -249,32 +249,32 @@ class PartitionAuditEventRunner extends BaseBulkOperationRunner {
                          * @type {import('mongodb').Document[]}
                          */
                         const documents = await aggregationResult.toArray();
-                        this.adminLogger.logTrace('Aggregation result', {'result': documents});
+                        this.adminLogger.logInfo('Aggregation result', {'result': documents});
 
                         // get the count
-                        this.adminLogger.logTrace(
+                        this.adminLogger.logInfo(
                             `Sending count query to Mongo: ${mongoQueryStringify(query)}. ` +
                             `for ${sourceCollectionName} and ${destinationCollectionName}`);
                         const destinationCollection = db.collection(destinationCollectionName);
                         const numberOfDestinationDocuments = await destinationCollection.countDocuments({}, {});
-                        this.adminLogger.logTrace(
+                        this.adminLogger.logInfo(
                             `Count in source matching query ${sourceCollectionName}: ${numberOfSourceDocuments.toLocaleString('en-US')}, ` +
                             `Count in destination ${destinationCollectionName}: ${numberOfDestinationDocuments.toLocaleString('en-US')}`);
                         if (numberOfSourceDocuments === numberOfDestinationDocuments) {
-                            this.adminLogger.logTrace(`======= COUNT MATCHED ${sourceCollectionName} vs ${destinationCollectionName} ======`);
+                            this.adminLogger.logInfo(`======= COUNT MATCHED ${sourceCollectionName} vs ${destinationCollectionName} ======`);
                         } else {
                             this.adminLogger.logError(`======= ERROR: COUNT NOT MATCHED ${sourceCollectionName} vs ${destinationCollectionName} ======`);
                         }
                         // create indexes
-                        this.adminLogger.logTrace(`Creating indexes for ${destinationCollectionName}`);
+                        this.adminLogger.logInfo(`Creating indexes for ${destinationCollectionName}`);
                         await this.indexManager.indexCollectionAsync({
                             db,
                             collectionName: destinationCollectionName
                         });
-                        this.adminLogger.logTrace(`Finished creating indexes for ${destinationCollectionName}`);
+                        this.adminLogger.logInfo(`Finished creating indexes for ${destinationCollectionName}`);
 
                         // now update the _accessIndex
-                        this.adminLogger.logTrace(`Updating _access fields for ${destinationCollectionName}`);
+                        this.adminLogger.logInfo(`Updating _access fields for ${destinationCollectionName}`);
 
                         await this.runForQueryBatchesAsync(
                             {
@@ -293,23 +293,23 @@ class PartitionAuditEventRunner extends BaseBulkOperationRunner {
                                 dropDestinationIfCountIsDifferent: false
                             }
                         );
-                        this.adminLogger.logTrace(`Finished Updating _access fields for ${destinationCollectionName}`);
+                        this.adminLogger.logInfo(`Finished Updating _access fields for ${destinationCollectionName}`);
                     } else {
-                        this.adminLogger.logTrace(`No documents matched in  ${sourceCollectionName}`);
+                        this.adminLogger.logInfo(`No documents matched in  ${sourceCollectionName}`);
                     }
                     await this.mongoDatabaseManager.disconnectClientAsync(client);
 
                 } catch (e) {
                     this.adminLogger.logError(`Got error at ${this.startFromIdContainer.startFromId}`, {'error': e});
                 }
-                this.adminLogger.logTrace(`Finished loop from ${recordedAfterForLoop.utc().toISOString()} till ${recordedBeforeForLoop.utc().toISOString()}\n\n`);
+                this.adminLogger.logInfo(`Finished loop from ${recordedAfterForLoop.utc().toISOString()} till ${recordedBeforeForLoop.utc().toISOString()}\n\n`);
 
                 recordedBeforeForLoop = recordedAfterForLoop.clone();
             }
-            this.adminLogger.logTrace('Finished script');
-            this.adminLogger.logTrace('Shutting down');
+            this.adminLogger.logInfo('Finished script');
+            this.adminLogger.logInfo('Shutting down');
             await this.shutdown();
-            this.adminLogger.logTrace('Shutdown finished');
+            this.adminLogger.logInfo('Shutdown finished');
         } catch (e) {
             this.adminLogger.logError('ERROR', {'error': e});
         }
