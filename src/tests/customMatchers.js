@@ -200,12 +200,9 @@ function checkContent({actual, expected, utils, options, expand, fnCleanResource
             });
             return (
                 // eslint-disable-next-line prefer-template
-                utils.matcherHint('toBe', undefined, undefined, options) +
-                '\n\n' +
-                (diffString && diffString.includes('- Expect') ?
-                    `Difference:\n\n${diffString}` :
-                    `Expected: ${utils.printExpected(expected)}\n` +
-                    `Received: ${utils.printReceived(actual)}`)
+                (utils.matcherHint('toBe', undefined, undefined, options) +
+                '\n\n' + (diffString && diffString.includes('- Expect') ? `Difference:\n\n${diffString}` : `Expected: ${utils.printExpected(expected)}\n` +
+                `Received: ${utils.printReceived(actual)}`))
             );
         };
     return {actual: actual, expected: expected, message, pass};

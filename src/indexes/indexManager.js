@@ -81,7 +81,7 @@ class IndexManager {
         const columnsText = properties_to_index.join(',');
         // limitations: https://www.mongodb.com/docs/manual/reference/limits/
         try {
-            if (!await db.collection(collectionName).indexExists(indexName)) {
+            if (!(await db.collection(collectionName).indexExists(indexName))) {
                 const message = 'Creating index ' + indexName + ' with columnsText: [' + columnsText + ']' +
                     ' in ' + collectionName;
                 await logSystemEventAsync(

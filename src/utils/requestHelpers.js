@@ -35,10 +35,11 @@ function hasJsonMimeTypeInAcceptsHeader({req}) {
  */
 const shouldReturnHtml = (req) => {
     return (
-        (req.accepts('text/html') /*&& !hasJsonMimeTypeInAcceptsHeader({req})*/) && // if the request is for HTML
+        // Postman sends */* so we need this to avoid sending html to Postman
+        (// and does not have _format=json
+        ((req.accepts('text/html')) /*&& !hasJsonMimeTypeInAcceptsHeader({req})*/) && // if the request is for HTML
         (req.method === 'GET' || req.method === 'POST') && // and this is a GET or a POST
-        !hasJsonMimeTypeInFormatQuery({query: req.query}) && // and does not have _format=json
-        (req.useragent && req.useragent.isDesktop) // Postman sends */* so we need this to avoid sending html to Postman
+        !hasJsonMimeTypeInFormatQuery({query: req.query}) && (req.useragent && req.useragent.isDesktop))
     );
 };
 
