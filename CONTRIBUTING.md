@@ -271,6 +271,18 @@ logInfo('Logger Message', {user});
 ```
 Output: 
 ```
-{"level":"info","message":"Logger Message","timestamp":"Feb-01-2023 07:00:00","user":{"name":"Demo name"}}
+{"dd":{"service":"bwell-fhir-server","version":"0.0.1"},"level":"info","logger":"default","message":"Logger Message","timestamp":"Feb-10-2023 10:10:10+00:00","user":{"name":"Demo name"}}
+```
+
+## Admin Logger
+Admin logger can be used by making instance of class `AdminLogger` class. Then you can use `logTrace` & `logError` methods accordingly.
+For example:
+```
+const adminLogger = new AdminLogger();
+adminLogger.logTrace('Logger Message');
+```
+Output:
+```
+{"dd":{"service":"bwell-fhir-server","version":"0.0.1"},"level":"info","logger":"admin","message":"Logger Message","timestamp":"Feb-10-2023 10:10:10+00:00"}
 ```
 
