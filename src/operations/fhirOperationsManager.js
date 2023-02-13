@@ -27,9 +27,9 @@ const {R4ArgsParser} = require('./query/r4ArgsParser');
 // This is needed for JSON.stringify() can handle regex
 // https://stackoverflow.com/questions/12075927/serialization-of-regexp
 // eslint-disable-next-line no-extend-native
-Object.defineProperty(RegExp.prototype, 'toJSON', {
-    value: RegExp.prototype.toString
-});
+// Object.defineProperty(RegExp.prototype, 'toJSON', {
+//     value: RegExp.prototype.toString
+// });
 
 class FhirOperationsManager {
     /**

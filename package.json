@@ -68,6 +68,7 @@
       "<rootDir>/src/testutils/",
       "<rootDir>/src/fhir/classes",
       "<rootDir>/src/fhir/generator",
+      "<rootDir>/src/middleware/fhir/resources",
       "<rootDir>/src/views",
       "<rootDir>/src/services",
       "<rootDir>/src/graphql/v2/resolvers",

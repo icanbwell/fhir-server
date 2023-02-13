@@ -6,6 +6,9 @@
 function getCircularReplacer() {
     const seen = new WeakSet();
     return (key, value) => {
+        if (value instanceof RegExp) {
+            value = value.toString();
+        }
         if (typeof value === 'object' && value !== null) {
             if (seen.has(value)) {
                 return;
