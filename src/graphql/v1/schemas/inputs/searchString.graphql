@@ -1,8 +1,0 @@
-input SearchString {
-    searchType: String = "string"
-    value: String
-    values: [String]
-    missing: Boolean
-    above: Boolean
-    below: Boolean
-}

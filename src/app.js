@@ -9,7 +9,6 @@ const env = require('var');
 const helmet = require('helmet');
 const path = require('path');
 const useragent = require('express-useragent');
-const {graphqlv1} = require('./middleware/graphql/graphqlServer1');
 const {graphql} = require('./middleware/graphql/graphqlServer');
 const {resourceDefinitions} = require('./utils/resourceDefinitions');
 
@@ -214,72 +213,24 @@ function createApp({fnCreateContainer, trackMetrics}) {
     if (isTrue(env.ENABLE_GRAPHQL)) {
         app.use(cors(fhirServerConfig.server.corsOptions));
 
-        const useGraphQLv2 = isTrue(env.USE_GRAPHQL_v2);
-        if (useGraphQLv2) {
-            graphql(fnCreateContainer)
-                .then((graphqlMiddleware) => {
-                    // eslint-disable-next-line new-cap
-                    const router = express.Router();
-                    if (isTrue(env.AUTH_ENABLED)) {
-                        router.use(passport.initialize());
-                        router.use(passport.authenticate('graphqlStrategy', {session: false}, null));
-                    }
-                    // noinspection JSCheckFunctionSignatures
-                    router.use(graphqlMiddleware);
-                    app.use('/graphqlv2', router);
+        graphql(fnCreateContainer)
+            .then((graphqlMiddleware) => {
+                // eslint-disable-next-line new-cap
+                const router = express.Router();
+                if (isTrue(env.AUTH_ENABLED)) {
+                    router.use(passport.initialize());
+                    router.use(passport.authenticate('graphqlStrategy', {session: false}, null));
+                }
+                // noinspection JSCheckFunctionSignatures
+                router.use(graphqlMiddleware);
+                app.use('/graphqlv2', router);
 
-                    app.use('/graphql', router);
-                })
-                .then((_) => graphqlv1(fnCreateContainer))
-                .then((graphqlMiddlewareV1) => {
-                    // eslint-disable-next-line new-cap
-                    const router1 = express.Router();
-                    if (isTrue(env.AUTH_ENABLED)) {
-                        router1.use(passport.initialize());
-                        router1.use(passport.authenticate('graphqlStrategy', {session: false}, null));
-                    }
-                    // noinspection JSCheckFunctionSignatures
-                    router1.use(graphqlMiddlewareV1);
+                app.use('/graphql', router);
+            })
+            .then((_) => {
+                createFhirApp(fnCreateContainer, app);
+            });
 
-                    app.use('/graphqlv1', router1);
-                })
-                .then((_) => {
-                    createFhirApp(fnCreateContainer, app);
-                });
-        } else {
-            graphql(fnCreateContainer)
-                .then((graphqlMiddleware) => {
-                    // eslint-disable-next-line new-cap
-                    const router = express.Router();
-                    if (isTrue(env.AUTH_ENABLED)) {
-                        router.use(passport.initialize());
-                        router.use(passport.authenticate('graphqlStrategy', {session: false}, null));
-                    }
-                    // noinspection JSCheckFunctionSignatures
-                    router.use(graphqlMiddleware);
-                    app.use('/graphqlv2', router);
-                })
-                .then((_) => graphqlv1(fnCreateContainer))
-                .then((graphqlMiddlewareV1) => {
-                    /**
-                     * @type {import('express').Router}
-                     */
-                        // eslint-disable-next-line new-cap
-                    const router1 = express.Router();
-                    if (isTrue(env.AUTH_ENABLED)) {
-                        router1.use(passport.initialize());
-                        router1.use(passport.authenticate('graphqlStrategy', {session: false}, null));
-                    }
-                    // noinspection JSCheckFunctionSignatures
-                    router1.use(graphqlMiddlewareV1);
-
-                    app.use('/graphqlv1', router1);
-                    app.use('/graphql', router1);
-                })
-                .then((_) => {
-                    createFhirApp(fnCreateContainer, app);
-                });
-        }
     } else {
         createFhirApp(fnCreateContainer, app);
     }

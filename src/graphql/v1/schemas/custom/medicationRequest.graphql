@@ -1,5 +1,0 @@
-# import MedicationDispense from 'MedicationDispense.graphql'
-
-extend type MedicationRequest {
-    dispense: [MedicationDispense]
-}
