@@ -184,8 +184,9 @@ class MyFHIRServer {
                     // crossOriginResourcePolicy: false,
                 }
             )
-        ); // return self for chaining
+        );
 
+        // return self for chaining
         return this;
     } // Configure session
 

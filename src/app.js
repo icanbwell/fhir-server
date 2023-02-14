@@ -224,6 +224,32 @@ function createApp({fnCreateContainer, trackMetrics}) {
                 }
                 router.use(cors(fhirServerConfig.server.corsOptions));
                 router.use(json());
+                router.use(handleSecurityPolicy);
+                router.use(function (req, res, next) {
+                    res.once('finish', async () => {
+                        const req1 = req;
+                        const requestId = req.id;
+                        /**
+                         * @type {SimpleContainer}
+                         */
+                        const container = req1.container;
+                        if (container) {
+                            /**
+                             * @type {PostRequestProcessor}
+                             */
+                            const postRequestProcessor = container.postRequestProcessor;
+                            /**
+                             * @type {RequestSpecificCache}
+                             */
+                            const requestSpecificCache = container.requestSpecificCache;
+                            if (postRequestProcessor) {
+                                await postRequestProcessor.executeAsync({requestId});
+                                await requestSpecificCache.clearAsync({requestId});
+                            }
+                        }
+                    });
+                    next();
+                });
                 // noinspection JSCheckFunctionSignatures
                 router.use(graphqlMiddleware);
                 app.use('/graphqlv2', router);
@@ -252,8 +278,6 @@ function createApp({fnCreateContainer, trackMetrics}) {
  * @return {boolean}
  */
 function unmountRoutes(app) {
-    // eslint-disable-next-line new-cap
-    app.use('/graphqlv1', express.Router());
     // eslint-disable-next-line new-cap
     app.use('/graphql', express.Router());
     // eslint-disable-next-line new-cap

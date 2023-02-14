@@ -57,6 +57,7 @@ services:
             AUTH_CUSTOM_SCOPE: "custom:scope"
             VALIDATE_SCHEMA: "1"
             PERSON_MATCHING_SERVICE_URL: "https://person-matching.dev.bwell.zone/$$match"
+            WHITELIST: "https://embeddable-sandbox.cdn.apollographql.com"
         ports:
             - '3000:3000'
         volumes:

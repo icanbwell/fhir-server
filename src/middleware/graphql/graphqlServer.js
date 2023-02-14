@@ -16,11 +16,12 @@ const {
 } = require('@apollo/server-plugin-landing-page-graphql-playground');
 const {getBundleMetaApolloServerPlugin} = require('./plugins/graphqlBundleMetaPlugin');
 const {getApolloServerLoggingPlugin} = require('./plugins/graphqlLoggingPlugin');
-const {getGraphqlContainerPlugin} = require('./plugins/graphqlContainerPlugin');
 const {FhirRequestInfo} = require('../../utils/fhirRequestInfo');
 const {generateUUID} = require('../../utils/uid.util');
 const {getAddRequestIdToResponseHeadersPlugin} = require('./plugins/graphqlAddRequestIdToResponseHeadersPlugin');
 const contentType = require('content-type');
+// const {ApolloServerPluginLandingPageLocalDefault} = require('@apollo/server/plugin/landingPage/default');
+// const {ApolloServerPluginLandingPageProductionDefault} = require('@apollo/server/plugin/landingPage/default');
 
 
 /**
@@ -48,10 +49,27 @@ const graphql = async (fnCreateContainer) => {
                 faviconUrl: '',
             }
         ),
+        // eslint-disable-next-line new-cap
+        // ApolloServerPluginLandingPageLocalDefault({
+        //     footer: false,
+        //     // version: '32950616741c2593d815f65b554f220e599c8ff4',
+        //     embed: true,
+        //     includeCookies: true,
+        //     headers: {
+        //         'Cross-Origin-Resource-Policy': 'cross-origin',
+        //         'Access-Control-Allow-Origin': 'https://apollo-server-landing-page.cdn.apollographql.com https://embeddable-sandbox.cdn.apollographql.com',
+        //         'Content-Security-Policy': 'default-src \'self\' embeddable-sandbox.cdn.apollographql.com apollo-server-landing-page.cdn.apollographql.com;' +
+        //             'frame-src \'self\' sandbox.embed.apollographql.com;',
+        //     },
+        // }),
+        // eslint-disable-next-line new-cap
+        // ApolloServerPluginLandingPageProductionDefault({
+        //     embed: true,
+        //     includeCookies: true
+        // }),
         getBundleMetaApolloServerPlugin(),
         getApolloServerLoggingPlugin('graphqlv2'),
         getAddRequestIdToResponseHeadersPlugin(),
-        getGraphqlContainerPlugin(),
         // ApolloServerPluginLandingPageDisabled()
     ];
 
@@ -92,6 +110,8 @@ const graphql = async (fnCreateContainer) => {
                 method: req.method,
                 contentTypeFromHeader
             });
+
+        req.container = container;
         return {
             req,
             res,
