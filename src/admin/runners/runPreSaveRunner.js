@@ -145,6 +145,7 @@ class RunPreSaveRunner extends BaseBulkOperationRunner {
                         }
                     );
                 } catch (e) {
+                    console.error(e);
                     console.log(`Got error ${e}.  At ${this.startFromIdContainer.startFromId}`);
                 }
                 console.log(`Finished loop ${collectionName}`);

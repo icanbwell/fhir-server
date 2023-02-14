@@ -31,6 +31,9 @@ async function main() {
         collections = ['all'];
     }
     const batchSize = parameters.batchSize || process.env.BULK_BUFFER_SIZE || 10000;
+    /**
+     * @type {Date|undefined}
+     */
     const beforeLastUpdatedDate = parameters.before ? new Date(parameters.before) : undefined;
     console.log(`[${currentDateTime}] ` +
         `Running script for collections: ${collections.join(',')}`);
@@ -48,7 +51,7 @@ async function main() {
                 useAuditDatabase: parameters.audit ? true : false,
                 adminLogger: new AdminLogger(),
                 mongoDatabaseManager: c.mongoDatabaseManager,
-                preSaveManager: c.preSaveManager
+                preSaveManager: c.preSaveManager,
             }
         )
     );
@@ -68,6 +71,7 @@ async function main() {
  * nvm use 18.14.0
  * node src/admin/scripts/runPreSave.js --collections=Practitioner_4_0_0 --batchSize=10000
  * node src/admin/scripts/runPreSave.js --collections=all --batchSize=10000
+ * node src/admin/scripts/runPreSave.js --collections=Account_4_0_0 --batchSize=10000
  * node src/admin/scripts/runPreSave.js --collections=all --audit --batchSize=10000
  * node src/admin/scripts/runPreSave.js --collections=AuditEvent_4_0_0 --audit --batchSize=10000
  * node src/admin/scripts/runPreSave.js --collections=AuditEvent_4_0_0 --audit --batchSize=10000 --before 2021-12-31

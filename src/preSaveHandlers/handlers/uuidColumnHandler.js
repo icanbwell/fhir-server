@@ -1,5 +1,5 @@
 const {PreSaveHandler} = require('./preSaveHandler');
-const {isUuid, generateUUIDv5} = require('../../utils/uid.util');
+const {isUuid, generateUUIDv5, generateUUID} = require('../../utils/uid.util');
 const {IdentifierSystem} = require('../../utils/identifierSystem');
 const {getFirstElementOrNull} = require('../../utils/list.util');
 const Identifier = require('../../fhir/classes/4_0_0/complex_types/identifier');
@@ -32,6 +32,8 @@ class UuidColumnHandler extends PreSaveHandler {
 
         if (isUuid(resource.id)) {
             resource._uuid = resource.id;
+        } else if (!resource.id) {
+            resource._uuid = generateUUID();
         } else {
             if (this.configManager.checkAccessTagsOnSave) {
                 assertIsValid(resource.meta.security,
