@@ -69,7 +69,7 @@ services:
             test: ['CMD-SHELL', 'curl --silent --fail localhost:3000/health || exit 1']
 
     mongo:
-        image: mongo:5.0.13
+        image: mongo:5.0.14
         ports:
             - '27017:27017'
         environment:
@@ -90,7 +90,7 @@ services:
         #    image: bitnami/elasticsearch:7.9.3  # AWS Elastic Search supports upto 7.9
         # using OpenDistro for best compatibility with AWS Managed ElasticSearch:
         # https://opendistro.github.io/for-elasticsearch/downloads.html
-        image: opensearchproject/opensearch:1.3.2
+        image: opensearchproject/opensearch:1.3.8
         container_name: elasticsearch
         environment:
             - cluster.name=odfe-cluster
@@ -126,7 +126,7 @@ services:
         #    image: bitnami/kibana:7.9.3 # AWS Elastic Search supports upto 7.9
         # using OpenDistro for best compatibility with AWS Managed ElasticSearch:
         # https://opendistro.github.io/for-elasticsearch/downloads.html
-        image: opensearchproject/opensearch-dashboards:1.3.2
+        image: opensearchproject/opensearch-dashboards:1.3.8
         depends_on:
             - elasticsearch
         container_name: kibana

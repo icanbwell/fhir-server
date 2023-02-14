@@ -20,6 +20,8 @@ const {FhirRequestInfo} = require('../../utils/fhirRequestInfo');
 const {generateUUID} = require('../../utils/uid.util');
 const {getAddRequestIdToResponseHeadersPlugin} = require('./plugins/graphqlAddRequestIdToResponseHeadersPlugin');
 const contentType = require('content-type');
+// const {unwrapResolverError} = require('@apollo/server/errors');
+// const {ForbiddenError} = require('../../utils/httpErrors');
 // const {ApolloServerPluginLandingPageLocalDefault} = require('@apollo/server/plugin/landingPage/default');
 // const {ApolloServerPluginLandingPageProductionDefault} = require('@apollo/server/plugin/landingPage/default');
 
@@ -131,6 +133,14 @@ const graphql = async (fnCreateContainer) => {
             introspection: true,
             cache: 'bounded',
             plugins: plugins,
+            // formatError: (formattedError, error) => {
+            //     // if (unwrapResolverError(error) instanceof ForbiddenError) {
+            //     //     return {message: 'Internal server error'};
+            //     // }
+            //     // Otherwise return the formatted error. This error can also
+            //     // be manipulated in other ways, as long as it's returned.
+            //     return formattedError;
+            // },
         });
 
     // apollo requires us to start the server first
