@@ -222,7 +222,7 @@ function createApp({fnCreateContainer, trackMetrics}) {
                     router.use(passport.initialize());
                     router.use(passport.authenticate('graphqlStrategy', {session: false}, null));
                 }
-                router.use(cors());
+                router.use(cors(fhirServerConfig.server.corsOptions));
                 router.use(json());
                 // noinspection JSCheckFunctionSignatures
                 router.use(graphqlMiddleware);
