@@ -10,13 +10,16 @@ class AddRequestIdToResponseHeadersPlugin /*extends ApolloServerPlugin*/ {
     async requestDidStart(requestContext1) {
         return {
             willSendResponse(requestContext) {
-                const context = requestContext.context;
+                /**
+                 * @type {{req: IncomingMessage, res: ServerResponse, fhirRequestInfo: FhirRequestInfo, dataApi: FhirDataSource, container: SimpleContainer}}
+                 */
+                const context = requestContext.contextValue;
                 const response = requestContext.response;
                 if (!response) {
                     return;
                 }
-                if (context.requestId && !response.headersSent) {
-                    response.http.headers.set('X-Request-ID', String(context.requestId));
+                if (context.fhirRequestInfo.requestId && !response.headersSent) {
+                    response.http.headers.set('X-Request-ID', String(context.fhirRequestInfo.requestId));
                 } else if (context.req && context.req.id && !response.headersSent) {
                     response.http.headers.set('X-Request-ID', String(context.req.id));
                 }

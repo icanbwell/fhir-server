@@ -1,10 +1,11 @@
 /**
  * This middleware handles graphql requests
  */
-const {ApolloServer} = require('apollo-server-express');
+const {ApolloServer} = require('@apollo/server');
+const {expressMiddleware} = require('@apollo/server/express4');
 const {join} = require('path');
 const resolvers = require('../../graphql/v2/resolvers');
-const { REQUEST_ID_HEADER } = require('../../constants');
+const {REQUEST_ID_HEADER} = require('../../constants');
 const {loadFilesSync} = require('@graphql-tools/load-files');
 const {mergeTypeDefs} = require('@graphql-tools/merge');
 const {FhirDataSource} = require('../../graphql/v2/dataSource');
@@ -12,13 +13,14 @@ const {FhirDataSource} = require('../../graphql/v2/dataSource');
 const {
     ApolloServerPluginLandingPageGraphQLPlayground,
     // ApolloServerPluginLandingPageDisabled
-} = require('apollo-server-core');
+} = require('@apollo/server-plugin-landing-page-graphql-playground');
 const {getBundleMetaApolloServerPlugin} = require('./plugins/graphqlBundleMetaPlugin');
 const {getApolloServerLoggingPlugin} = require('./plugins/graphqlLoggingPlugin');
 const {getGraphqlContainerPlugin} = require('./plugins/graphqlContainerPlugin');
 const {FhirRequestInfo} = require('../../utils/fhirRequestInfo');
 const {generateUUID} = require('../../utils/uid.util');
 const {getAddRequestIdToResponseHeadersPlugin} = require('./plugins/graphqlAddRequestIdToResponseHeadersPlugin');
+const contentType = require('content-type');
 
 
 /**
@@ -63,7 +65,10 @@ const graphql = async (fnCreateContainer) => {
         const container = fnCreateContainer();
 
         req.id = req.id || req.header(`${REQUEST_ID_HEADER}`) || generateUUID();
-
+        /**
+         * @type {import('content-type').ContentType}
+         */
+        const contentTypeFromHeader = req.headers['content-type'] ? contentType.parse(req.headers['content-type']) : null;
         /**
          * @type {FhirRequestInfo}
          */
@@ -84,7 +89,8 @@ const graphql = async (fnCreateContainer) => {
                 isUser: req.authInfo && req.authInfo.context && req.authInfo.context.isUser,
                 personIdFromJwtToken: req.authInfo && req.authInfo.context && req.authInfo.context.personIdFromJwtToken,
                 headers: req.headers,
-                method: req.method
+                method: req.method,
+                contentTypeFromHeader
             });
         return {
             req,
@@ -105,13 +111,14 @@ const graphql = async (fnCreateContainer) => {
             introspection: true,
             cache: 'bounded',
             plugins: plugins,
-            context: async ({req, res}) => await getContext({req, res})
         });
 
     // apollo requires us to start the server first
     await server.start();
 
-    return server.getMiddleware({path: '/'});
+    return expressMiddleware(server, {
+        context: async ({req, res}) => await getContext({req, res})
+    });
 };
 
 module.exports.graphql = graphql;

@@ -26,9 +26,14 @@ class MyApolloServerLoggingPlugin /*extends ApolloServerPlugin*/ {
      * @return {Promise<{executionDidEnd(*): Promise<void>}|{executionDidStart(): Promise<{executionDidEnd(*): Promise<void>}>, parsingDidStart(): Promise<function(*): Promise<void>>, validationDidStart(): Promise<function(*): Promise<void>>}|(function(*): Promise<void>)|*>}
      */
     async requestDidStart(requestContext) {
+        /**
+         * @type {{req: IncomingMessage, res: ServerResponse, fhirRequestInfo: FhirRequestInfo, dataApi: FhirDataSource, container: SimpleContainer}}
+         */
+        const context = requestContext.contextValue;
+
         const req = requestContext.request;
-        const user = requestContext.context ? requestContext.context.user : null;
-        const container = requestContext.context ? requestContext.context.container : null;
+        const user = context ? context.user : null;
+        const container = context ? context.container : null;
         const self = this;
 
         logInfo(

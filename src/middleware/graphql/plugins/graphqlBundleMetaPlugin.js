@@ -15,24 +15,38 @@ class BundleMetaApolloServerPlugin /*extends ApolloServerPlugin*/ {
             //     op = context.operationName;
             // },
             willSendResponse(requestContext) {
-                const context = requestContext.context;
+                /**
+                 * @type {{req: IncomingMessage, res: ServerResponse, fhirRequestInfo: FhirRequestInfo, dataApi: FhirDataSource, container: SimpleContainer}}
+                 */
+                const context = requestContext.contextValue;
+
                 const response = requestContext.response;
-                if (!response) { return;}
-                /**
-                 * @type {Object}
-                 */
-                const data = response.data;
-                if (!data) {return;}
-                /**
-                 * @type {FhirDataSource}
-                 */
-                const dataSource = context.dataApi;
-                if (!dataSource) {
+                if (!response) {
                     return;
                 }
-                for (const [, bundle] of Object.entries(data)) {
-                    if (bundle){
-                        bundle.meta = dataSource.getBundleMeta();
+                // Augment response with an extension, as long as the operation
+                // actually executed. (The `kind` check allows you to handle
+                // incremental delivery responses specially.)
+                if (response.body.kind === 'single' && 'data' in response.body.singleResult) {
+                    /**
+                     * @type {Object}
+                     */
+                    const data = response.body.singleResult.data;
+
+                    if (!data) {
+                        return;
+                    }
+                    /**
+                     * @type {FhirDataSource}
+                     */
+                    const dataSource = context.dataApi;
+                    if (!dataSource) {
+                        return;
+                    }
+                    for (const [, bundle] of Object.entries(data)) {
+                        if (bundle) {
+                            bundle.meta = dataSource.getBundleMeta();
+                        }
                     }
                 }
             }

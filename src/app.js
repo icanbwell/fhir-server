@@ -27,6 +27,7 @@ const {handleSmartConfiguration} = require('./routeHandlers/smartConfiguration')
 const {isTrue} = require('./utils/isTrue');
 const cookieParser = require('cookie-parser');
 const {handleAdmin} = require('./routeHandlers/admin');
+const {json} = require('body-parser');
 
 /**
  * Creates the FHIR app
@@ -221,6 +222,8 @@ function createApp({fnCreateContainer, trackMetrics}) {
                     router.use(passport.initialize());
                     router.use(passport.authenticate('graphqlStrategy', {session: false}, null));
                 }
+                router.use(cors());
+                router.use(json());
                 // noinspection JSCheckFunctionSignatures
                 router.use(graphqlMiddleware);
                 app.use('/graphqlv2', router);

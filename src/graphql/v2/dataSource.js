@@ -1,4 +1,3 @@
-const {DataSource} = require('apollo-datasource');
 const {logWarn} = require('../../operations/common/logging');
 const async = require('async');
 const DataLoader = require('dataloader');
@@ -62,13 +61,12 @@ class ResourceWithId {
 /**
  * This class implements the DataSource pattern, so it is called by our GraphQL resolvers to load the data
  */
-class FhirDataSource extends DataSource {
+class FhirDataSource {
     /**
      * @param {SimpleContainer} container
      * @param {FhirRequestInfo} requestInfo
      */
     constructor({container, requestInfo}) {
-        super();
         assertTypeEquals(container, SimpleContainer);
         assertIsValid(requestInfo !== undefined);
         /**
@@ -104,14 +102,6 @@ class FhirDataSource extends DataSource {
          */
         this.queryRewriterManager = container.queryRewriterManager;
         assertTypeEquals(this.queryRewriterManager, QueryRewriterManager);
-    }
-
-    /**
-     * @param {import('apollo-datasource').DataSourceConfig<TContext>} config
-     * @return {void | Promise<void>}
-     */
-    initialize(config) {
-        return super.initialize(config);
     }
 
     /**

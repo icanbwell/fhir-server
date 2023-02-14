@@ -17,14 +17,24 @@ class GraphqlContainerPlugin /*extends ApolloServerPlugin*/ {
      * @return {Promise<{executionDidEnd(*): Promise<void>}|{executionDidStart(): Promise<{executionDidEnd(*): Promise<void>}>, parsingDidStart(): Promise<function(*): Promise<void>>, validationDidStart(): Promise<function(*): Promise<void>>}|(function(*): Promise<void>)|*>}
      */
     async requestDidStart(requestContext) {
-        const container = requestContext.context ? requestContext.context.container : null;
-        const requestId = requestContext.context && requestContext.context.req ? requestContext.context.req.id : null;
+        /**
+         * @type {{req: IncomingMessage, res: ServerResponse, fhirRequestInfo: FhirRequestInfo, dataApi: FhirDataSource, container: SimpleContainer}}
+         */
+        const context1 = requestContext.contextValue;
+
+        const container = context1 ? context1.container : null;
+        const requestId = context1 && context1.fhirRequestInfo ? context1.fhirRequestInfo.requestId : null;
 
         return {
+            /**
+             * Called before sending response
+             * @param {{req: IncomingMessage, res: ServerResponse, fhirRequestInfo: FhirRequestInfo, dataApi: FhirDataSource, container: SimpleContainer}} context
+             * @return {Promise<void>}
+             */
             async willSendResponse(context) {
-                if (context && context.context && context.context.res && !context.context.res.finished){
+                if (context && context && context.res && !context.res.finished) {
                     // AFTER the response has finished THEN run the postRequestProcessor
-                    context.context.res.once('finish', async () => {
+                    context.res.once('finish', async () => {
                         // uncomment this to test out timing of events
                         // await new Promise(resolve => {
                         //     setTimeout(resolve, 10 * 1000);
