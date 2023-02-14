@@ -3,7 +3,7 @@
 You will need:
 
 1. Docker Desktop: https://docs.docker.com/desktop/mac/install/
-2. Node.js 16.13: https://nodejs.org/en/download/releases/ or use brew: https://nodejs.org/tr/download/package-manager/#macos
+2. Node.js 18.14: https://nodejs.org/en/download/releases/ or use brew: https://nodejs.org/tr/download/package-manager/#macos
 
 ## Common developer processes
 
