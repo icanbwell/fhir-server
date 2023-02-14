@@ -130,13 +130,8 @@ function getPersonForm(params) {
      * @type {FieldInfo[]}
      */
     let personArray = [];
-    personArray.push({
-        label: 'Name',
-        name: 'name',
-        sortField: 'name',
-        value: params.name ? params.name : '',
-        useExactMatch: true
-    });
+    personArray.push(givenNameField(params));
+    personArray.push(familyNameField(params));
     personArray.push(emailField(params));
     personArray.push(securityTagField(params, 'owner'));
     return personArray;
