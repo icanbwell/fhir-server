@@ -1,20 +1,18 @@
-const moment = require('moment-timezone');
+const { getLogger } = require('../winstonInit');
 
 class AdminLogger {
-    async logTrace(message) {
-        await this.log(message);
+    constructor() {
+        const parentLogger = getLogger();
+        this.logger = parentLogger.child();
+        this.logger.defaultMeta = { ...parentLogger.defaultMeta, logger: 'admin' };
     }
 
-    async log(message) {
-        if (message === '\n') {
-            console.log(message);
-        } else {
-            console.log(`[${moment().toISOString()}] ` + message);
-        }
+    async logInfo(message, args) {
+        this.logger.info(message, args);
     }
 
-    async logError(message) {
-        console.error(`[${moment().toISOString()}] ` + message);
+    async logError(message, args) {
+        this.logger.error(message, args);
     }
 }
 
