@@ -1,6 +1,9 @@
 const {PreSaveHandler} = require('./preSaveHandler');
 const {SecurityTagSystem} = require('../../utils/securityTagSystem');
 
+/**
+ * @classdesc Adds the _access internal field from access tags to allow faster searching in Mongo
+ */
 class AccessColumnHandler extends PreSaveHandler {
     async preSaveAsync({resource}) {
         if (resource.meta && resource.meta.security) {

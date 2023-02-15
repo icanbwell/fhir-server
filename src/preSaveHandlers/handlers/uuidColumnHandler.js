@@ -7,6 +7,9 @@ const {SecurityTagSystem} = require('../../utils/securityTagSystem');
 const {assertIsValid, assertTypeEquals} = require('../../utils/assertType');
 const {ConfigManager} = require('../../utils/configManager');
 
+/**
+ * @classdesc Adds the uuid to the resource if not present
+ */
 class UuidColumnHandler extends PreSaveHandler {
     /**
      * constructor

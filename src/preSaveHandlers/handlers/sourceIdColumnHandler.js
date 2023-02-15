@@ -3,6 +3,9 @@ const {IdentifierSystem} = require('../../utils/identifierSystem');
 const {getFirstElementOrNull} = require('../../utils/list.util');
 const Identifier = require('../../fhir/classes/4_0_0/complex_types/identifier');
 
+/**
+ * @classdesc Adds the _sourceId internal column if not present
+ */
 class SourceIdColumnHandler extends PreSaveHandler {
     async preSaveAsync({resource}) {
         if (!resource._sourceId) {

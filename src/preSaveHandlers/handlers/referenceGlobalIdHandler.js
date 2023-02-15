@@ -6,6 +6,9 @@ const {IdentifierSystem} = require('../../utils/identifierSystem');
 const Extension = require('../../fhir/classes/4_0_0/complex_types/extension');
 const {ConfigManager} = require('../../utils/configManager');
 
+/**
+ * @classdesc Adds global id fields to every reference
+ */
 class ReferenceGlobalIdHandler extends PreSaveHandler {
     /**
      * constructor

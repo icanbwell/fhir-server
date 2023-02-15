@@ -82,6 +82,7 @@ const {UuidReferenceQueryRewriter} = require('./queryRewriters/rewriters/uuidRef
 const {UuidToIdReplacer} = require('./utils/uuidToIdReplacer');
 const {GlobalIdEnrichmentProvider} = require('./enrich/providers/globalIdEnrichmentProvider');
 const {ReferenceGlobalIdHandler} = require('./preSaveHandlers/handlers/referenceGlobalIdHandler');
+const {OwnerColumnHandler} = require('./preSaveHandlers/handlers/ownerColumnHandler');
 
 /**
  * Creates a container and sets up all the services
@@ -136,6 +137,7 @@ const createContainer = function () {
             new DateColumnHandler(),
             new SourceIdColumnHandler(),
             new AccessColumnHandler(),
+            new OwnerColumnHandler(),
             new SourceAssigningAuthorityColumnHandler(),
             // UuidColumnHandler MUST come after SourceAssigningAuthorityColumnHandler since
             // it uses sourceAssigningAuthority value
