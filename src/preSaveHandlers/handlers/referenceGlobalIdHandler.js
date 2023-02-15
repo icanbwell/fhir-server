@@ -44,6 +44,8 @@ class ReferenceGlobalIdHandler extends PreSaveHandler {
          * @type {string}
          */
         const sourceAssigningAuthority = sourceAssigningAuthorityCodes[0];
+        assertIsValid(sourceAssigningAuthority,
+            `sourceAssigningAuthority is null for ${resource.resourceType}/${resource.id}`);
         resource.updateReferences(
             {
                 fnUpdateReference: (reference) => this.updateReference(

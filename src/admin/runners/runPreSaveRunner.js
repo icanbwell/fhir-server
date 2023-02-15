@@ -108,8 +108,12 @@ class RunPreSaveRunner extends BaseBulkOperationRunner {
         // noinspection JSValidateTypes
         try {
             if (this.collections.length > 0 && this.collections[0] === 'all') {
-                this.collections = await this.getAllCollectionNamesAsync(
-                    {useAuditDatabase: this.useAuditDatabase});
+                /**
+                 * @type {string[]}
+                 */
+                this.collections = (await this.getAllCollectionNamesAsync(
+                    {useAuditDatabase: this.useAuditDatabase}));
+                this.collections = this.collections.sort();
             }
 
             await this.init();
@@ -129,7 +133,7 @@ class RunPreSaveRunner extends BaseBulkOperationRunner {
                     'meta.lastUpdated': {
                         $lt: this.beforeLastUpdatedDate,
                     }
-                } : {};
+                } : {_sourceAssigningAuthority: {$not: {$type: 'string'}}};
                 try {
                     await this.runForQueryBatchesAsync(
                         {
