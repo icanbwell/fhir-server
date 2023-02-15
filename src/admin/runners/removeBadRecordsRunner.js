@@ -6,29 +6,25 @@ const {MongoDatabaseManager} = require('../../utils/mongoDatabaseManager');
 
 
 /**
- * @classdesc Adds and removes indexes
+ * @classdesc Removes bad records from the database
  */
-class IndexCollectionsRunner extends BaseScriptRunner {
+class RemoveBadRecordsRunner extends BaseScriptRunner {
     /**
      * constructor
      * @param {IndexManager} indexManager
      * @param {string[]|undefined} [collections]
-     * @param {boolean|undefined} [dropIndexes]
      * @param {boolean|undefined} [useAuditDatabase]
      * @param {boolean} includeHistoryCollections
      * @param {AdminLogger} adminLogger
-     * @param {boolean} synchronizeIndexes
      * @param {MongoDatabaseManager} mongoDatabaseManager
      */
     constructor(
         {
             indexManager,
             collections,
-            dropIndexes,
             useAuditDatabase,
             includeHistoryCollections,
             adminLogger,
-            synchronizeIndexes,
             mongoDatabaseManager
         }
     ) {
@@ -47,11 +43,6 @@ class IndexCollectionsRunner extends BaseScriptRunner {
         /**
          * @type {boolean|undefined}
          */
-        this.dropIndexes = dropIndexes;
-
-        /**
-         * @type {boolean|undefined}
-         */
         this.useAuditDatabase = useAuditDatabase;
 
         /**
@@ -61,11 +52,6 @@ class IndexCollectionsRunner extends BaseScriptRunner {
 
         this.adminLogger = adminLogger;
         assertTypeEquals(adminLogger, AdminLogger);
-
-        /**
-         * @type {boolean}
-         */
-        this.synchronizeIndexes = synchronizeIndexes;
 
         /**
          * @type {MongoDatabaseManager}
@@ -86,32 +72,24 @@ class IndexCollectionsRunner extends BaseScriptRunner {
              */
             const db = this.useAuditDatabase ? await this.mongoDatabaseManager.getAuditDbAsync() :
                 await this.mongoDatabaseManager.getClientDbAsync();
-            if (this.synchronizeIndexes) {
-                await this.indexManager.synchronizeIndexesWithConfigAsync(
+            if (this.collections.length > 0 && this.collections[0] === 'all') {
+                this.collections = await this.getAllCollectionNamesAsync(
                     {
-                        audit: this.useAuditDatabase
-                    }
-                );
-            } else {
-                if (this.collections.length > 0 && this.collections[0] === 'all') {
-                    this.collections = await this.getAllCollectionNamesAsync(
-                        {
-                            useAuditDatabase: this.useAuditDatabase,
-                            includeHistoryCollections: this.includeHistoryCollections
-                        });
-                }
-                for (const collectionName of this.collections) {
-                    if (this.dropIndexes) {
-                        await this.indexManager.deleteIndexesInAllCollectionsInDatabaseAsync({
-                            db,
-                            collectionRegex: collectionName
-                        });
-                    }
-                    await this.indexManager.indexAllCollectionsInDatabaseAsync({
-                        db,
-                        collectionRegex: collectionName
+                        useAuditDatabase: this.useAuditDatabase,
+                        includeHistoryCollections: this.includeHistoryCollections
                     });
-                }
+                this.collections = this.collections.sort();
+            }
+            for (const collectionName of this.collections) {
+                this.adminLogger.log(`Processing ${collectionName}`);
+                let filter = {'id': null};
+                this.adminLogger.log(`Deleting in ${collectionName} by filter: ${filter}`);
+                let result = await db.collection(collectionName).deleteMany(filter);
+                this.adminLogger.log(`Deleted ${result.deletedCount} records by filter: ${filter}`);
+                filter = {'_access.undefined': 1};
+                this.adminLogger.log(`Deleting in ${collectionName} by filter: ${filter}`);
+                result = await db.collection(collectionName).deleteMany(filter);
+                this.adminLogger.log(`Deleted ${result.deletedCount} records by filter: ${filter}`);
             }
         } catch (e) {
             this.adminLogger.logError(`ERROR: ${e}`);
@@ -122,5 +100,5 @@ class IndexCollectionsRunner extends BaseScriptRunner {
 }
 
 module.exports = {
-    IndexCollectionsRunner
+    RemoveBadRecordsRunner
 };

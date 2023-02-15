@@ -8,7 +8,7 @@ const {SecurityTagSystem} = require('../../utils/securityTagSystem');
 const {logInfo, logError} = require('../../operations/common/logging');
 
 /**
- * @classdesc Copies documents from source collection into the appropriate partitioned collection
+ * @classdesc Creats _access field
  */
 class CreateAccessIndexRunner extends BaseBulkOperationRunner {
     /**

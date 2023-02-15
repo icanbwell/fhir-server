@@ -7,7 +7,7 @@ const {VERSIONS} = require('../../middleware/fhir/utils/constants');
 const moment = require('moment-timezone');
 
 /**
- * @classdesc Copies documents from source collection into the appropriate partitioned collection
+ * @classdesc runs preSave() on every record
  */
 class RunPreSaveRunner extends BaseBulkOperationRunner {
     /**
