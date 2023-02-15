@@ -20,6 +20,7 @@ class RunPreSaveRunner extends BaseBulkOperationRunner {
      * @param {AdminLogger} adminLogger
      * @param {MongoDatabaseManager} mongoDatabaseManager
      * @param {PreSaveManager} preSaveManager
+     * @param {boolean} includeHistoryCollections
      */
     constructor(
         {
@@ -30,7 +31,8 @@ class RunPreSaveRunner extends BaseBulkOperationRunner {
             useAuditDatabase,
             adminLogger,
             mongoDatabaseManager,
-            preSaveManager
+            preSaveManager,
+            includeHistoryCollections,
         }) {
         super({
             mongoCollectionManager,
@@ -59,6 +61,11 @@ class RunPreSaveRunner extends BaseBulkOperationRunner {
 
         this.preSaveManager = preSaveManager;
         assertTypeEquals(preSaveManager, PreSaveManager);
+
+        /**
+         * @type {boolean}
+         */
+        this.includeHistoryCollections = includeHistoryCollections;
     }
 
     /**
@@ -112,7 +119,12 @@ class RunPreSaveRunner extends BaseBulkOperationRunner {
                  * @type {string[]}
                  */
                 this.collections = (await this.getAllCollectionNamesAsync(
-                    {useAuditDatabase: this.useAuditDatabase}));
+                        {
+                            useAuditDatabase: this.useAuditDatabase,
+                            includeHistoryCollections: this.includeHistoryCollections
+                        }
+                    )
+                );
                 this.collections = this.collections.sort();
             }
 
