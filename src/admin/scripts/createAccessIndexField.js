@@ -5,10 +5,6 @@ const pathToEnv = path.resolve(__dirname, '.env');
 dotenv.config({
     path: pathToEnv
 });
-const {logInfo, logError} = require('../../operations/common/logging');
-logInfo(`Reading config from ${pathToEnv}`);
-logInfo(`MONGO_URL=${process.env.MONGO_URL}`);
-logInfo(`AUDIT_EVENT_MONGO_URL=${process.env.AUDIT_EVENT_MONGO_URL}`);
 const {createContainer} = require('../../createContainer');
 const {CommandLineParser} = require('./commandLineParser');
 const {CreateAccessIndexRunner} = require('../runners/createAccessIndexFieldRunner');
@@ -31,7 +27,7 @@ async function main() {
         collections = ['all'];
     }
     const batchSize = parameters.batchSize || process.env.BULK_BUFFER_SIZE || 10000;
-    logInfo(`Running script for collections: ${collections.join(',')}`);
+    console.log(`Running script for collections: ${collections.join(',')}`);
 
     // set up all the standard services in the container
     const container = createContainer();
@@ -44,7 +40,8 @@ async function main() {
                 batchSize,
                 useAuditDatabase: parameters.audit ? true : false,
                 adminLogger: new AdminLogger(),
-                mongoDatabaseManager: c.mongoDatabaseManager
+                mongoDatabaseManager: c.mongoDatabaseManager,
+                configManager: c.configManager
             }
         )
     );
@@ -55,7 +52,7 @@ async function main() {
     const createAccessIndexRunner = container.createAccessIndexRunner;
     await createAccessIndexRunner.processAsync();
 
-    logInfo('Exiting process');
+    console.log('Exiting process');
     process.exit(0);
 }
 
@@ -68,5 +65,5 @@ async function main() {
  * node src/admin/scripts/createAccessIndexField.js --collections=AuditEvent_4_0_0 --audit --batchSize=10000
  */
 main().catch(reason => {
-    logError(reason);
+    console.error(reason);
 });

@@ -1,8 +1,6 @@
 const {assertTypeEquals} = require('../../utils/assertType');
 const {IndexManager} = require('../../indexes/indexManager');
 const {BaseScriptRunner} = require('./baseScriptRunner');
-const {AdminLogger} = require('../adminLogger');
-const {MongoDatabaseManager} = require('../../utils/mongoDatabaseManager');
 
 
 /**
@@ -19,6 +17,7 @@ class IndexCollectionsRunner extends BaseScriptRunner {
      * @param {AdminLogger} adminLogger
      * @param {boolean} synchronizeIndexes
      * @param {MongoDatabaseManager} mongoDatabaseManager
+     * @param {MongoCollectionManager} mongoCollectionManager
      */
     constructor(
         {
@@ -29,10 +28,15 @@ class IndexCollectionsRunner extends BaseScriptRunner {
             includeHistoryCollections,
             adminLogger,
             synchronizeIndexes,
-            mongoDatabaseManager
+            mongoDatabaseManager,
+            mongoCollectionManager
         }
     ) {
-        super();
+        super({
+            mongoCollectionManager,
+            adminLogger,
+            mongoDatabaseManager
+        });
         /**
          * @type {IndexManager}
          */
@@ -58,20 +62,10 @@ class IndexCollectionsRunner extends BaseScriptRunner {
          * @type {boolean}
          */
         this.includeHistoryCollections = includeHistoryCollections;
-
-        this.adminLogger = adminLogger;
-        assertTypeEquals(adminLogger, AdminLogger);
-
         /**
          * @type {boolean}
          */
         this.synchronizeIndexes = synchronizeIndexes;
-
-        /**
-         * @type {MongoDatabaseManager}
-         */
-        this.mongoDatabaseManager = mongoDatabaseManager;
-        assertTypeEquals(mongoDatabaseManager, MongoDatabaseManager);
     }
 
     /**

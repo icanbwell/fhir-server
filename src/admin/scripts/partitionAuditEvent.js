@@ -5,9 +5,7 @@ const pathToEnv = path.resolve(__dirname, '.env');
 dotenv.config({
     path: pathToEnv
 });
-const {logInfo, logError} = require('../../operations/common/logging');
-logInfo(`Reading config from ${pathToEnv}`);
-logInfo(`AUDIT_EVENT_MONGO_URL=${process.env.AUDIT_EVENT_MONGO_URL}`);
+const {logInfo} = require('../../operations/common/logging');
 const {createContainer} = require('../../createContainer');
 const {CommandLineParser} = require('./commandLineParser');
 const moment = require('moment-timezone');
@@ -26,7 +24,7 @@ async function main() {
     const recordedAfter = parameters.from ? new Date(`${parameters.from}T00:00:00Z`) : new Date(2021, 6 - 1, 1);
     const recordedBefore = parameters.to ? new Date(`${parameters.to}T00:00:00Z`) : new Date(2022, 10 - 1, 1);
     const batchSize = parameters.batchSize || process.env.BULK_BUFFER_SIZE || 10000;
-    logInfo(`Running script from ${recordedAfter.toUTCString()} to ${recordedBefore.toUTCString()}`);
+    console.log(`Running script from ${recordedAfter.toUTCString()} to ${recordedBefore.toUTCString()}`);
 
     // set up all the standard services in the container
     const container = createContainer();
@@ -56,7 +54,7 @@ async function main() {
     const processAuditEventRunner = container.processAuditEventRunner;
     await processAuditEventRunner.processAsync();
 
-    logInfo('Exiting process');
+    console.log('Exiting process');
     process.exit(0);
 }
 
@@ -70,5 +68,5 @@ async function main() {
  * node src/admin/scripts/partitionAuditEvent.js --from=2022-08-01 --to=2022-09-01 --audit --batchSize=10000 --skipExistingIds --dropDestinationCollection
  */
 main().catch(reason => {
-    logError(reason);
+    console.error(reason);
 });

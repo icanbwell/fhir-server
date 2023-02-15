@@ -6,7 +6,6 @@ const {mongoQueryStringify} = require('../../utils/mongoQueryStringify');
 const {IndexManager} = require('../../indexes/indexManager');
 const {MongoDatabaseManager} = require('../../utils/mongoDatabaseManager');
 const {SecurityTagSystem} = require('../../utils/securityTagSystem');
-const {logInfo} = require('../../operations/common/logging');
 
 /**
  * @classdesc Copies documents from source collection into the appropriate partitioned collection
@@ -158,7 +157,7 @@ class PartitionAuditEventRunner extends BaseBulkOperationRunner {
         try {
             await this.init();
 
-            logInfo(`Starting loop from ${this.recordedAfter.utc().toISOString()} till ${this.recordedBefore.utc().toISOString()}`);
+            this.adminLogger.log(`Starting loop from ${this.recordedAfter.utc().toISOString()} till ${this.recordedBefore.utc().toISOString()}`);
             /**
              * @type {moment.Moment}
              */
@@ -175,7 +174,7 @@ class PartitionAuditEventRunner extends BaseBulkOperationRunner {
                 if (recordedAfterForLoop.isSame(recordedBeforeForLoop)) {
                     break;
                 }
-                logInfo(`From=${recordedAfterForLoop.utc().toISOString()} to=${recordedBeforeForLoop.utc().toISOString()}`);
+                this.adminLogger.log(`From=${recordedAfterForLoop.utc().toISOString()} to=${recordedBeforeForLoop.utc().toISOString()}`);
                 const destinationCollectionName = YearMonthPartitioner.getPartitionNameFromYearMonth({
                     fieldValue: recordedAfterForLoop.utc().toISOString(),
                     resourceWithBaseVersion: 'AuditEvent_4_0_0'

@@ -39,6 +39,7 @@ async function main() {
             includeHistoryCollections: parameters.includeHistoryCollections ? true : false,
             adminLogger: new AdminLogger(),
             mongoDatabaseManager: c.mongoDatabaseManager,
+            mongoCollectionManager: c.mongoCollectionManager
         }));
 
     /**

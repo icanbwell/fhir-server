@@ -5,7 +5,9 @@ const {UuidColumnHandler} = require('../../preSaveHandlers/handlers/uuidColumnHa
 const {SourceAssigningAuthorityColumnHandler} = require('../../preSaveHandlers/handlers/sourceAssigningAuthorityColumnHandler');
 const {AccessColumnHandler} = require('../../preSaveHandlers/handlers/accessColumnHandler');
 const {SecurityTagSystem} = require('../../utils/securityTagSystem');
-const {logInfo, logError} = require('../../operations/common/logging');
+const {logError} = require('../../operations/common/logging');
+const {assertTypeEquals} = require('../../utils/assertType');
+const {ConfigManager} = require('../../utils/configManager');
 
 /**
  * @classdesc Creats _access field
@@ -19,6 +21,7 @@ class CreateAccessIndexRunner extends BaseBulkOperationRunner {
      * @param {boolean} useAuditDatabase
      * @param {AdminLogger} adminLogger
      * @param {MongoDatabaseManager} mongoDatabaseManager
+     * @param {ConfigManager} configManager
      */
     constructor(
         {
@@ -27,7 +30,8 @@ class CreateAccessIndexRunner extends BaseBulkOperationRunner {
             batchSize,
             useAuditDatabase,
             adminLogger,
-            mongoDatabaseManager
+            mongoDatabaseManager,
+            configManager
         }) {
         super({
             mongoCollectionManager,
@@ -48,6 +52,11 @@ class CreateAccessIndexRunner extends BaseBulkOperationRunner {
          * @type {boolean}
          */
         this.useAuditDatabase = useAuditDatabase;
+        /**
+         * @type {ConfigManager}
+         */
+        this.configManager = configManager;
+        assertTypeEquals(configManager, ConfigManager);
     }
 
     /**
@@ -102,7 +111,7 @@ class CreateAccessIndexRunner extends BaseBulkOperationRunner {
         }
         // Step 4: add _uuid
         if (!doc['_uuid']) {
-            const uuidColumnHandler = new UuidColumnHandler();
+            const uuidColumnHandler = new UuidColumnHandler({configManager: this.configManager});
             doc = await uuidColumnHandler.preSaveAsync({resource: doc});
             setCommand['_uuid'] = doc._uuid;
             setCommand['meta'] = doc.meta;
@@ -134,7 +143,7 @@ class CreateAccessIndexRunner extends BaseBulkOperationRunner {
 
             await this.init();
 
-            logInfo(`Starting loop for ${this.collections.join(',')}`);
+            this.adminLogger.log(`Starting loop for ${this.collections.join(',')}`);
 
             // if there is an exception, continue processing from the last id
             for (const collectionName of this.collections) {
@@ -177,12 +186,12 @@ class CreateAccessIndexRunner extends BaseBulkOperationRunner {
                 } catch (e) {
                     logError(`Got error at ${this.startFromIdContainer.startFromId}`, {'error': e});
                 }
-                logInfo(`Finished loop ${collectionName}`);
+                this.adminLogger.log(`Finished loop ${collectionName}`);
             }
-            logInfo('Finished script');
-            logInfo('Shutting down');
+            this.adminLogger.log('Finished script');
+            this.adminLogger.log('Shutting down');
             await this.shutdown();
-            logInfo('Shutdown finished');
+            this.adminLogger.log('Shutdown finished');
         } catch (e) {
             logError('ERROR', {'error': e});
         }

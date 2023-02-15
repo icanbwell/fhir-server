@@ -41,6 +41,7 @@ async function main() {
             adminLogger: new AdminLogger(),
             synchronizeIndexes: parameters.synchronize ? true : false,
             mongoDatabaseManager: c.mongoDatabaseManager,
+            mongoCollectionManager: c.mongoCollectionManager
         }));
 
     /**
