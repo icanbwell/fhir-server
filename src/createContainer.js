@@ -78,7 +78,6 @@ const {AwsSecretsClientFactory} = require('./utils/awsSecretsClientFactory');
 const {PersonMatchManager} = require('./admin/personMatchManager');
 const {MongoFilterGenerator} = require('./utils/mongoFilterGenerator');
 const {R4ArgsParser} = require('./operations/query/r4ArgsParser');
-const {UuidReferenceQueryRewriter} = require('./queryRewriters/rewriters/uuidReferenceQueryRewriter');
 const {UuidToIdReplacer} = require('./utils/uuidToIdReplacer');
 const {GlobalIdEnrichmentProvider} = require('./enrich/providers/globalIdEnrichmentProvider');
 const {ReferenceGlobalIdHandler} = require('./preSaveHandlers/handlers/referenceGlobalIdHandler');
@@ -238,11 +237,6 @@ const createContainer = function () {
         queryRewriters: [
             new PatientProxyQueryRewriter({
                 personToPatientIdsExpander: c.personToPatientIdsExpander
-            }),
-            new UuidReferenceQueryRewriter({
-                uuidToIdReplacer: c.uuidToIdReplacer,
-                r4ArgsParser: c.r4ArgsParser,
-                configManager: c.configManager
             })
         ]
     }));
