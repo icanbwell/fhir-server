@@ -85,6 +85,7 @@ class RunPreSaveRunner extends BaseBulkOperationRunner {
         const updatedResourceJsonInternal = updatedResource.toJSONInternal();
         const currentResourceJsonInternal = currentResource.toJSONInternal();
         if (deepEqual(updatedResourceJsonInternal, currentResourceJsonInternal) === true) {
+            // console.log('No change detected for ');
             return operations;
         }
 
@@ -95,7 +96,7 @@ class RunPreSaveRunner extends BaseBulkOperationRunner {
         updatedResource.meta.lastUpdated = new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ssZ'));
         const result = {replaceOne: {filter: {_id: doc._id}, replacement: updatedResource.toJSONInternal()}};
         operations.push(result);
-
+        console.log(`Operation: ${JSON.stringify(result)}`);
         return operations;
     }
 

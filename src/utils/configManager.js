@@ -226,6 +226,9 @@ class ConfigManager {
      * @return {boolean}
      */
     get checkAccessTagsOnSave() {
+        if (env.CHECK_ACCESS_TAG_ON_SAVE === null || env.CHECK_ACCESS_TAG_ON_SAVE === undefined) {
+            return true;
+        }
         return isTrue(env.CHECK_ACCESS_TAG_ON_SAVE);
     }
 }
