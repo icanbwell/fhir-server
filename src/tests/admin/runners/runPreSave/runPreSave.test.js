@@ -5,6 +5,7 @@ const patient3Resource = require('./fixtures/Patient/patient3_with_uuid_but_no_i
 const patient4Resource = require('./fixtures/Patient/patient4_with_all_fields_but_sourceAssigningAuthority.json');
 const patient5Resource = require('./fixtures/Patient/patient5_with_all_fields.json');
 const patient6Resource = require('./fixtures/Patient/patient6_newer_than_threshold.json');
+const patient7Resource = require('./fixtures/Patient/patient7_id_is_uuid.json');
 
 // expected
 const expectedPatient1InDatabaseBeforeRun = require('./fixtures/expected/expected_patient_1_in_database_before_run.json');
@@ -13,6 +14,7 @@ const expectedPatient3InDatabaseBeforeRun = require('./fixtures/expected/expecte
 const expectedPatient4InDatabaseBeforeRun = require('./fixtures/expected/expected_patient_4_in_database_before_run.json');
 const expectedPatient5InDatabaseBeforeRun = require('./fixtures/expected/expected_patient_5_in_database_before_run.json');
 const expectedPatient6InDatabaseBeforeRun = require('./fixtures/expected/expected_patient_6_in_database_before_run.json');
+const expectedPatient7InDatabaseBeforeRun = require('./fixtures/expected/expected_patient_7_in_database_before_run.json');
 
 const expectedPatient1DatabaseAfterRun = require('./fixtures/expected/expected_patient1.json');
 const expectedPatient2DatabaseAfterRun = require('./fixtures/expected/expected_patient2.json');
@@ -20,6 +22,7 @@ const expectedPatient3DatabaseAfterRun = require('./fixtures/expected/expected_p
 const expectedPatient4DatabaseAfterRun = require('./fixtures/expected/expected_patient4.json');
 const expectedPatient5DatabaseAfterRun = require('./fixtures/expected/expected_patient5.json');
 const expectedPatient6DatabaseAfterRun = require('./fixtures/expected/expected_patient6.json');
+const expectedPatient7DatabaseAfterRun = require('./fixtures/expected/expected_patient7.json');
 
 const {
     commonBeforeEach,
@@ -458,6 +461,68 @@ describe('Patient Tests', () => {
             delete patient6._id;
             expect(patient6.meta.lastUpdated).toStrictEqual(patient6Resource.meta.lastUpdated);
             expect(patient6).toStrictEqual(expectedPatient6DatabaseAfterRun);
+        });
+        test('runPreSave works for patient 7 with id as uuid', async () => {
+            // eslint-disable-next-line no-unused-vars
+            const request = await createTestRequest((c) => {
+                c.register('configManager', () => new MockConfigManagerWithoutGlobalId());
+                return c;
+            });
+            const container = getTestContainer();
+            /**
+             * @type {PostRequestProcessor}
+             */
+                // eslint-disable-next-line no-unused-vars
+            const postRequestProcessor = container.postRequestProcessor;
+
+            // insert directly into database instead of going through merge() so we simulate old records
+            /**
+             * @type {MongoDatabaseManager}
+             */
+            const mongoDatabaseManager = container.mongoDatabaseManager;
+            const collection = await setupDatabaseAsync(
+                mongoDatabaseManager,
+                patient7Resource,
+                expectedPatient7InDatabaseBeforeRun
+            );
+
+            // run admin runner
+
+            const collections = ['all'];
+            const batchSize = 10000;
+
+            container.register('runPreSaveRunner', (c) => new RunPreSaveRunner(
+                    {
+                        mongoCollectionManager: c.mongoCollectionManager,
+                        collections: collections,
+                        batchSize,
+                        beforeLastUpdatedDate: '2023-01-29',
+                        useAuditDatabase: false,
+                        adminLogger: new AdminLogger(),
+                        mongoDatabaseManager: c.mongoDatabaseManager,
+                        preSaveManager: c.preSaveManager
+                    }
+                )
+            );
+
+            /**
+             * @type {RunPreSaveRunner}
+             */
+            const runPreSaveRunner = container.runPreSaveRunner;
+            assertTypeEquals(runPreSaveRunner, RunPreSaveRunner);
+            await runPreSaveRunner.processAsync();
+
+            // Check patient 3 with uuid but no identifier
+            const patient7 = await collection.findOne({id: patient7Resource.id});
+            expect(patient7).toBeDefined();
+            delete patient7._id;
+            expect(patient7._uuid).toBeDefined();
+            expectedPatient7DatabaseAfterRun._uuid = patient7._uuid;
+            expect(patient7.meta).toBeDefined();
+            expect(patient7.meta.lastUpdated).toBeDefined();
+            expect(patient7.meta.lastUpdated).not.toStrictEqual(expectedPatient7DatabaseAfterRun.meta.lastUpdated);
+            expectedPatient7DatabaseAfterRun.meta.lastUpdated = patient7.meta.lastUpdated;
+            expect(patient7).toStrictEqual(expectedPatient7DatabaseAfterRun);
         });
     });
 });

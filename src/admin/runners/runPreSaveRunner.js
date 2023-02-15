@@ -20,7 +20,7 @@ class RunPreSaveRunner extends BaseBulkOperationRunner {
      * @param {AdminLogger} adminLogger
      * @param {MongoDatabaseManager} mongoDatabaseManager
      * @param {PreSaveManager} preSaveManager
-     * @param {boolean} includeHistoryCollections
+     * @param {boolean|undefined} [includeHistoryCollections]
      */
     constructor(
         {
