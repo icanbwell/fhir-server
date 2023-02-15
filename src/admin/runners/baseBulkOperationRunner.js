@@ -386,6 +386,8 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                                 `from ${sourceCollectionName} to ${destinationCollectionName}. last id: ${previouslyCheckedId}`;
                             this.adminLogger.log('\n');
                             this.adminLogger.log(message);
+                            this.adminLogger.log('\n');
+                            this.adminLogger.log(JSON.stringify(operations[0]));
                         },
                         {
                             retries: 5,
