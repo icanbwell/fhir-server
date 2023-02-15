@@ -92,6 +92,7 @@ class RemoveBadRecordsRunner extends BaseScriptRunner {
                 this.adminLogger.log(`Deleted ${result.deletedCount} records by filter: ${filter}`);
             }
         } catch (e) {
+            console.error(e);
             this.adminLogger.logError(`ERROR: ${e}`);
         } finally {
             await this.shutdown();

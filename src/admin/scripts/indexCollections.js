@@ -5,9 +5,6 @@ const pathToEnv = path.resolve(__dirname, '.env');
 dotenv.config({
     path: pathToEnv
 });
-const {logInfo, logError} = require('../../operations/common/logging');
-logInfo(`Reading config from ${pathToEnv}`);
-logInfo(`AUDIT_EVENT_MONGO_URL=${process.env.AUDIT_EVENT_MONGO_URL}`);
 const {createContainer} = require('../../createContainer');
 const {CommandLineParser} = require('./commandLineParser');
 const {IndexCollectionsRunner} = require('../runners/indexCollectionsRunner');
@@ -25,12 +22,20 @@ async function main() {
     // set up all the standard services in the container
     const container = createContainer();
 
+    /**
+     * @type {string[]}
+     */
+    let collections = parameters.collections ? parameters.collections.split(',').map(x => x.trim()) : [];
+    if (parameters.collections === 'all') {
+        collections = ['all'];
+    }
+
     // now add our class
     container.register('indexCollectionsRunner', (c) => new IndexCollectionsRunner(
         {
             indexManager: c.indexManager,
-            collections: parameters.collections,
-            dropIndexes: parameters.drop,
+            collections: collections,
+            dropIndexes: parameters.drop ? true : false,
             useAuditDatabase: parameters.audit ? true : false,
             includeHistoryCollections: parameters.includeHistoryCollections ? true : false,
             adminLogger: new AdminLogger(),
@@ -50,7 +55,7 @@ async function main() {
 /**
  * To run this:
  * nvm use 18.14.0
- * node src/admin/scripts/indexCollections --collection=Patient_4_0_0 --drop
+ * node src/admin/scripts/indexCollections --collections=Patient_4_0_0 --drop
  * node src/admin/scripts/indexCollections --collections=all
  * node src/admin/scripts/indexCollections --synchronize
  * node src/admin/scripts/indexCollections --audit --synchronize
@@ -59,5 +64,5 @@ async function main() {
  * collection can be a regex
  */
 main().catch(reason => {
-    logError(reason);
+    console.error(reason);
 });
