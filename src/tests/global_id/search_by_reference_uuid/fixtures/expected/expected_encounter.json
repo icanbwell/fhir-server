@@ -1,0 +1,224 @@
+{
+  "entry": [
+    {
+      "resource": {
+        "class": {
+          "code": "AMB",
+          "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode"
+        },
+        "id": "0001968b-9ef1-f875-7686-1a56b879d202",
+        "identifier": [
+          {
+            "system": "https://github.com/synthetichealth/synthea",
+            "use": "official",
+            "value": "0001968b-9ef1-f875-7686-1a56b879d202"
+          },
+          {
+            "id": "sourceId",
+            "system": "https://www.icanbwell.com/sourceId",
+            "value": "0001968b-9ef1-f875-7686-1a56b879d202"
+          },
+          {
+            "id": "uuid",
+            "system": "https://www.icanbwell.com/uuid",
+            "value": "c57e6267-c5c5-58e3-8000-4ab4dc2139d4"
+          }
+        ],
+        "location": [
+          {
+            "id": "-1000003632",
+            "location": {
+              "display": "PCP193904",
+              "extension": [
+                {
+                  "id": "sourceId",
+                  "url": "https://www.icanbwell.com/sourceId",
+                  "valueString": "Location/-1000003632"
+                },
+                {
+                  "id": "uuid",
+                  "url": "https://www.icanbwell.com/uuid",
+                  "valueString": "Location/660ec00b-6d31-5e34-babe-16e43e53a9b0"
+                },
+                {
+                  "id": "sourceAssigningAuthority",
+                  "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                  "valueString": "walgreens"
+                }
+              ],
+              "reference": "Location/-1000003632"
+            }
+          }
+        ],
+        "meta": {
+          "profile": [
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-encounter"
+          ],
+          "security": [
+            {
+              "code": "mps-api",
+              "system": "https://www.icanbwell.com/access"
+            },
+            {
+              "code": "walgreens",
+              "system": "https://www.icanbwell.com/owner"
+            },
+            {
+              "code": "walgreens",
+              "system": "https://www.icanbwell.com/sourceAssigningAuthority"
+            }
+          ],
+          "versionId": "1"
+        },
+        "participant": [
+          {
+            "id": "0000005065",
+            "individual": {
+              "display": "Dr. Delora619 Schuppe920",
+              "extension": [
+                {
+                  "id": "sourceId",
+                  "url": "https://www.icanbwell.com/sourceId",
+                  "valueString": "Practitioner/0000005065"
+                },
+                {
+                  "id": "uuid",
+                  "url": "https://www.icanbwell.com/uuid",
+                  "valueString": "Practitioner/f8e27211-6619-5e6a-ab97-5dbf1c5f4acd"
+                },
+                {
+                  "id": "sourceAssigningAuthority",
+                  "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                  "valueString": "walgreens"
+                }
+              ],
+              "reference": "Practitioner/0000005065"
+            },
+            "period": {
+              "end": "2014-06-19T01:30:45+00:00",
+              "start": "2014-06-19T01:15:45+00:00"
+            },
+            "type": [
+              {
+                "coding": [
+                  {
+                    "code": "PPRF",
+                    "display": "primary performer",
+                    "system": "http://terminology.hl7.org/CodeSystem/v3-ParticipationType"
+                  }
+                ],
+                "text": "primary performer"
+              }
+            ]
+          }
+        ],
+        "period": {
+          "end": "2014-06-19T01:30:45+00:00",
+          "start": "2014-06-19T01:15:45+00:00"
+        },
+        "reasonCode": [
+          {
+            "text": "The patient is being seen for a routine exam."
+          }
+        ],
+        "resourceType": "Encounter",
+        "serviceProvider": {
+          "display": "PCP193904",
+          "extension": [
+            {
+              "id": "sourceId",
+              "url": "https://www.icanbwell.com/sourceId",
+              "valueString": "Organization/00ab3fbd-6157-3f4a-a58c-178d16b9e3f1"
+            },
+            {
+              "id": "uuid",
+              "url": "https://www.icanbwell.com/uuid",
+              "valueString": "Organization/00ab3fbd-6157-3f4a-a58c-178d16b9e3f1"
+            },
+            {
+              "id": "sourceAssigningAuthority",
+              "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+              "valueString": "walgreens"
+            }
+          ],
+          "id": "00ab3fbd-6157-3f4a-a58c-178d16b9e3f1",
+          "reference": "Organization/00ab3fbd-6157-3f4a-a58c-178d16b9e3f1"
+        },
+        "status": "finished",
+        "subject": {
+          "display": "Mr. Max124 Larry532 Gibson10",
+          "extension": [
+            {
+              "id": "sourceId",
+              "url": "https://www.icanbwell.com/sourceId",
+              "valueString": "Patient/d29e5ba6-0115-725c-ffc3-c7de4391fee6"
+            },
+            {
+              "id": "uuid",
+              "url": "https://www.icanbwell.com/uuid",
+              "valueString": "Patient/e4b185dd-9fb4-5661-9471-b9b8e3f5f184"
+            },
+            {
+              "id": "sourceAssigningAuthority",
+              "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+              "valueString": "walgreens"
+            }
+          ],
+          "reference": "Patient/d29e5ba6-0115-725c-ffc3-c7de4391fee6"
+        },
+        "type": [
+          {
+            "coding": [
+              {
+                "code": "162673000",
+                "display": "General examination of patient (procedure)",
+                "system": "http://snomed.info/sct"
+              }
+            ],
+            "text": "General examination of patient (procedure)"
+          }
+        ]
+      }
+    }
+  ],
+  "meta": {
+    "tag": [
+      {
+        "display": "db.Encounter_4_0_0.find({'$or':[{'subject._sourceId':'Patient/3ec4d201-e816-5cc2-899c-832cf5a81c79'},{'subject._uuid':'Patient/3ec4d201-e816-5cc2-899c-832cf5a81c79'},{'$and':[{'subject._sourceAssigningAuthority':'mps-api'},{'subject._sourceId':'Patient/d29e5ba6-0115-725c-ffc3-c7de4391fee6'}]},{'$and':[{'subject._sourceAssigningAuthority':'mps-api'},{'subject._uuid':'Patient/d29e5ba6-0115-725c-ffc3-c7de4391fee6'}]},{'subject._sourceId':'Patient/d29e5ba6-0115-725c-ffc3-c7de4391fee6'},{'subject._uuid':'Patient/d29e5ba6-0115-725c-ffc3-c7de4391fee6'}]}, {}).sort({'id':1}).limit(100)",
+        "system": "https://www.icanbwell.com/query"
+      },
+      {
+        "code": "Encounter_4_0_0",
+        "system": "https://www.icanbwell.com/queryCollection"
+      },
+      {
+        "display": "{'limit':100,'sort':{'id':1}}",
+        "system": "https://www.icanbwell.com/queryOptions"
+      },
+      {
+        "display": "['subject.reference','id']",
+        "system": "https://www.icanbwell.com/queryFields"
+      },
+      {
+        "system": "https://www.icanbwell.com/queryTime"
+      },
+      {
+        "display": "{'useTwoStepSearchOptimization':undefined}",
+        "system": "https://www.icanbwell.com/queryOptimization"
+      },
+      {
+        "code": "fhir",
+        "system": "https://www.icanbwell.com/queryDatabase"
+      },
+      {
+        "system": "https://www.icanbwell.com/queryExplain"
+      },
+      {
+        "system": "https://www.icanbwell.com/queryExplainSimple"
+      }
+    ]
+  },
+  "resourceType": "Bundle",
+  "total": 0,
+  "type": "searchset"
+}
