@@ -1,0 +1,138 @@
+{
+  "_id": "53341b2a35bf4d1cb47de4945a22c499",
+  "resourceType": "Person",
+  "id": "53341b2a35bf4d1cb47de4945a22c499",
+  "meta": {
+    "versionId": "2",
+    "lastUpdated": "2023-01-19T21:57:39.000Z",
+    "profile": [
+      "http://hl7.org/fhir/us/core/StructureDefinition/us-core-person"
+    ],
+    "security": [
+      {
+        "system": "https://www.icanbwell.com/access",
+        "code": "bwell"
+      },
+      {
+        "system": "https://www.icanbwell.com/owner",
+        "code": "bwell"
+      },
+      {
+        "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+        "code": "bwell"
+      }
+    ]
+  },
+  "identifier": [
+    {
+      "type": {
+        "coding": [
+          {
+            "system": "https://www.icanbwell.com",
+            "code": "FHIR_id",
+            "display": "bWell FHIR id"
+          }
+        ]
+      },
+      "system": "https://www.icanbwell.com",
+      "value": "bwell-53341b2a35bf4d1cb47de4945a22c499"
+    },
+    {
+      "type": {
+        "coding": [
+          {
+            "system": "https://www.icanbwell.com",
+            "code": "user_id",
+            "display": "bWell App user_id"
+          }
+        ]
+      },
+      "system": "https://www.icanbwell.com",
+      "value": "592492"
+    },
+    {
+      "type": {
+        "coding": [
+          {
+            "system": "https://www.icanbwell.com",
+            "code": "member_id",
+            "display": "bWell App member_id"
+          }
+        ]
+      },
+      "system": "https://www.icanbwell.com",
+      "value": "SJLw5Y3"
+    },
+    {
+      "id": "sourceId",
+      "system": "https://www.icanbwell.com/sourceId",
+      "value": "53341b2a35bf4d1cb47de4945a22c499"
+    },
+    {
+      "id": "uuid",
+      "system": "https://www.icanbwell.com/uuid",
+      "value": "0aed2b07-e451-591c-8af7-512ef4e9126b"
+    }
+  ],
+  "name": [
+    {
+      "use": "official",
+      "family": "PATERKA",
+      "given": [
+        "HANNAH"
+      ]
+    }
+  ],
+  "telecom": [
+    {
+      "system": "phone",
+      "value": "+12109953625",
+      "use": "home"
+    },
+    {
+      "system": "email",
+      "value": "paterkaddd@gmail.com",
+      "use": "home"
+    },
+    {
+      "system": "email",
+      "value": "paterka@mail.com",
+      "use": "home"
+    }
+  ],
+  "gender": "female",
+  "birthDate": "1950-09-22",
+  "address": [
+    {
+      "line": [
+        "330 Savannah Dr"
+      ],
+      "city": "San Antonio",
+      "state": "TX",
+      "postalCode": "78213-3444"
+    },
+    {
+      "line": [
+        "330 Savannah Dr"
+      ],
+      "city": "San Antonio",
+      "state": "TX",
+      "postalCode": "50320"
+    }
+  ],
+  "link": [
+    {
+      "target": {
+        "reference": "Person/a0b8be666f4a4f60a3f6129f7ddc8aab",
+        "type": "Person"
+      },
+      "assurance": "level4"
+    }
+  ],
+  "_access": {
+    "bwell": 1
+  },
+  "_sourceAssigningAuthority": "bwell",
+  "_uuid": "0aed2b07-e451-591c-8af7-512ef4e9126b",
+  "_sourceId": "53341b2a35bf4d1cb47de4945a22c499"
+}
