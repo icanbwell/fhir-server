@@ -16,7 +16,7 @@ const {logInfo} = require('../operations/common/logging');
  */
 // eslint-disable-next-line no-unused-vars
 module.exports.handleStats = async ({fnCreateContainer, req, res}) => {
-    logInfo('Running stats');
+    logInfo('Running stats', {});
 
     /**
      * gets stats for a collection
@@ -25,9 +25,9 @@ module.exports.handleStats = async ({fnCreateContainer, req, res}) => {
      * @return {Promise<{name, count: *}>}
      */
     async function getStatsForCollectionAsync(collection_name, db) {
-        logInfo(collection_name);
+        logInfo(collection_name, {});
         const count = await db.collection(collection_name).estimatedDocumentCount();
-        logInfo(['Found: ', count, ' documents in ', collection_name].join(''));
+        logInfo(['Found: ', count, ' documents in ', collection_name].join(''), {});
         return {name: collection_name, count: count};
     }
 
@@ -52,12 +52,12 @@ module.exports.handleStats = async ({fnCreateContainer, req, res}) => {
 
         collection_names = collection_names.sort((a, b) => a.localeCompare(b));
 
-        logInfo(`Collection_names: ${collection_names}`);
+        logInfo(`Collection_names: ${collection_names}`, {});
         const collection_stats = await async.map(
             collection_names,
             async (collection_name) => await getStatsForCollectionAsync(collection_name, db)
         );
-        const mongoConfig = mongoDatabaseManager.getClientConfig();
+        const mongoConfig = await mongoDatabaseManager.getClientConfigAsync();
         res.status(200).json({
             success: true,
             image: env.DOCKER_IMAGE || '',

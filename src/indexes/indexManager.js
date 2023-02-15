@@ -219,7 +219,9 @@ class IndexManager {
         /**
          * @type {import('mongodb').MongoClient}
          */
-        const client = await this.mongoDatabaseManager.createClientAsync(this.mongoDatabaseManager.getClientConfig());
+        const client = await this.mongoDatabaseManager.createClientAsync(
+            await this.mongoDatabaseManager.getClientConfigAsync()
+        );
         /**
          * @type {import('mongodb').Db}
          */
@@ -428,7 +430,9 @@ class IndexManager {
         /**
          * @type {import('mongodb').MongoClient}
          */
-        const client = await this.mongoDatabaseManager.createClientAsync(this.mongoDatabaseManager.getClientConfig());
+        const client = await this.mongoDatabaseManager.createClientAsync(
+            await this.mongoDatabaseManager.getClientConfigAsync()
+        );
         try {
             /**
              * @type {import('mongodb').Db}
@@ -513,7 +517,8 @@ class IndexManager {
         /**
          * @type {import('mongodb').MongoClient}
          */
-        const client = await this.mongoDatabaseManager.createClientAsync(this.mongoDatabaseManager.getClientConfig());
+        const client = await this.mongoDatabaseManager.createClientAsync(
+            await this.mongoDatabaseManager.getClientConfigAsync());
         /**
          * @type {import('mongodb').Db}
          */
@@ -552,7 +557,7 @@ class IndexManager {
             await this.deleteIndexesInCollectionAsync({collection_name: collectionName, db});
         }
 
-        logInfo('Finished deleteIndexesInAllCollections');
+        logInfo('Finished deleteIndexesInAllCollections', {});
     }
 
     /**

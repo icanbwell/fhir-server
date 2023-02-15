@@ -190,8 +190,8 @@ class PartitionAuditEventRunner extends BaseBulkOperationRunner {
                 };
                 try {
                     const config = this.useAuditDatabase ?
-                        this.mongoDatabaseManager.getAuditConfig() :
-                        this.mongoDatabaseManager.getClientConfig();
+                        await this.mongoDatabaseManager.getAuditConfigAsync() :
+                        await this.mongoDatabaseManager.getClientConfigAsync();
                     /**
                      * @type {import('mongodb').MongoClient}
                      */
@@ -278,7 +278,9 @@ class PartitionAuditEventRunner extends BaseBulkOperationRunner {
 
                         await this.runForQueryBatchesAsync(
                             {
-                                config: this.useAuditDatabase ? this.mongoDatabaseManager.getAuditConfig() : this.mongoDatabaseManager.getClientConfig(),
+                                config: this.useAuditDatabase ?
+                                    await this.mongoDatabaseManager.getAuditConfigAsync() :
+                                    await this.mongoDatabaseManager.getClientConfigAsync(),
                                 sourceCollectionName: destinationCollectionName,
                                 destinationCollectionName,
                                 query: {

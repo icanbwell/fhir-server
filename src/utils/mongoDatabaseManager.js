@@ -54,11 +54,11 @@ class MongoDatabaseManager {
             (await this.getAuditDbAsync()) : (await this.getClientDbAsync());
     }
 
-    getClientConfig() {
+    async getClientConfigAsync() {
         return mongoConfig;
     }
 
-    getAuditConfig() {
+    async getAuditConfigAsync() {
         return auditEventMongoConfig;
     }
 
@@ -126,13 +126,13 @@ class MongoDatabaseManager {
         if (clientConnection) {
             return;
         }
-        const clientConfig = this.getClientConfig();
+        const clientConfig = await this.getClientConfigAsync();
         const client = await this.createClientAsync(clientConfig);
 
         clientConnection = client;
         clientDb = client.db(clientConfig.db_name);
 
-        const auditConfig = this.getAuditConfig();
+        const auditConfig = await this.getAuditConfigAsync();
         const auditEventClient = await this.createClientAsync(auditConfig);
         auditClientDb = auditEventClient.db(auditConfig.db_name);
     }
