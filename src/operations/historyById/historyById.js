@@ -232,7 +232,7 @@ class HistoryByIdOperation {
                 }
             }
             if (entries.length === 0) {
-                throw new NotFoundError('Resource not found');
+                throw new NotFoundError(`History not found for resource ${resourceType}/${id}`);
             }
             await this.fhirLoggingManager.logOperationSuccessAsync(
                 {
