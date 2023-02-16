@@ -3,6 +3,7 @@ const observation1Resource = require('./fixtures/Observation/observation1.json')
 
 // expected
 const expectedObservationResources = require('./fixtures/expected/expected_observation.json');
+const expectedObservation1 = require('./fixtures/expected/expected_observation_1.json');
 const expectedObservationHistoryInDatabase = require('./fixtures/expected/expected_observation_history_database.json');
 
 const {
@@ -93,7 +94,7 @@ describe('Observation Tests', () => {
                 .get('/4_0_0/Observation/0028735c-80ac-4d14-9e35-a097d01b0b28/_history/15')
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse(expectedObservationResources);
+            expect(resp).toHaveResponse(expectedObservation1);
         });
     });
 });

@@ -61,9 +61,10 @@ class R4SearchQueryCreator {
      * Builds a mongo query for search parameters
      * @param {string} resourceType
      * @param {ParsedArgs} parsedArgs
+     * @param {boolean|undefined} [useHistoryTable]
      * @returns {{query:import('mongodb').Document, columns: Set}} A query object to use with Mongo
      */
-    buildR4SearchQuery({resourceType, parsedArgs}) {
+    buildR4SearchQuery({resourceType, parsedArgs, useHistoryTable}) {
         assertIsValid(resourceType);
         assertTypeEquals(parsedArgs, ParsedArgs);
         /**
@@ -92,7 +93,8 @@ class R4SearchQueryCreator {
                     queryParameterValue: parsedArg.queryParameterValue,
                     propertyObj: parsedArg.propertyObj,
                     enableGlobalIdSupport: this.configManager.enableGlobalIdSupport,
-                    parsedArg
+                    parsedArg,
+                    useHistoryTable
                 });
 
                 // replace andSegments according to modifiers
@@ -159,6 +161,7 @@ class R4SearchQueryCreator {
      * @param {SearchParameterDefinition} propertyObj
      * @param {boolean} enableGlobalIdSupport
      * @param {ParsedArgsItem} parsedArg
+     * @param {boolean|undefined} useHistoryTable
      * @returns {{columns: Set, andSegments: import('mongodb').Filter<import('mongodb').DefaultSchema>[]}} columns and andSegments for query parameter
      */
     getColumnsAndSegmentsForParameterType(
@@ -168,7 +171,8 @@ class R4SearchQueryCreator {
             queryParameterValue,
             propertyObj,
             enableGlobalIdSupport,
-            parsedArg
+            parsedArg,
+            useHistoryTable
         }
     ) {
         /**
@@ -191,7 +195,8 @@ class R4SearchQueryCreator {
             // handle id differently since it is a token, but we want to do exact match
             andSegments = filterById({
                 queryParameterValue, propertyObj, columns,
-                enableGlobalIdSupport
+                enableGlobalIdSupport,
+                useHistoryTable
             });
         } else if (propertyObj) {
             switch (propertyObj.type) {

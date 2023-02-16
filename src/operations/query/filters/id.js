@@ -10,6 +10,7 @@ const sourceIdFieldName = '_sourceId';
  * @param {SearchParameterDefinition} propertyObj
  * @param {Set} columns
  * @param {boolean} enableGlobalIdSupport
+ * @param {boolean|undefined} useHistoryTable
  * @return {import('mongodb').Filter<import('mongodb').DefaultSchema>[]}
  */
 function filterById(
@@ -17,7 +18,8 @@ function filterById(
         queryParameterValue,
         propertyObj,
         columns,
-        enableGlobalIdSupport
+        enableGlobalIdSupport,
+        useHistoryTable
     }
 ) {
     /**
@@ -32,6 +34,17 @@ function filterById(
      */
     let field = enableGlobalIdSupport ? sourceIdFieldName : propertyObj.field;
 
+    /**
+     * Gets field name.  In case of useHistoryTable, prepends the field namewith 'resource.' since in history
+     * we store data as a BundleEntry
+     * @param {string} fieldName
+     */
+    function getFullFieldName(fieldName) {
+        return useHistoryTable ?
+            `resource.${fieldName}` :
+            fieldName;
+    }
+
     function getFilterForIdList(idList) {
         let idFilters = [];
         if (idList.some(i => i.includes('|'))) {
@@ -40,17 +53,17 @@ function filterById(
                 return {
                     $and: [
                         {
-                            [`${field}`]: sourceAssigningAuthority,
+                            [getFullFieldName(field)]: sourceAssigningAuthority,
                         },
                         {
-                            ['_sourceAssigningAuthority']: sourceAssigningAuthority
+                            [getFullFieldName('_sourceAssigningAuthority')]: sourceAssigningAuthority
                         }
                     ]
                 };
             });
         } else {
             idFilters.push({
-                [`${field}`]: {
+                [getFullFieldName(field)]: {
                     $in: idList,
                 }
             });
@@ -64,7 +77,7 @@ function filterById(
     function getIdFilterForArray({idAndUuidList}) {
         if (!enableGlobalIdSupport) {
             and_segments.push({
-                [`${field}`]: {
+                [getFullFieldName(field)]: {
                     $in: idAndUuidList,
                 },
             });
@@ -83,7 +96,7 @@ function filterById(
         if (idList.length > 0 && uuidList.length > 0) {
             const idFilters = getFilterForIdList(idList);
             idFilters.push({
-                [`${uuidFieldName}`]: {
+                [getFullFieldName(uuidFieldName)]: {
                     $in: uuidList,
                 }
             });
@@ -97,7 +110,7 @@ function filterById(
             });
         } else if (uuidList.length > 0) {
             and_segments.push({
-                [`${uuidFieldName}`]: {
+                [getFullFieldName(uuidFieldName)]: {
                     $in: uuidList,
                 },
             });
@@ -126,22 +139,23 @@ function filterById(
                 and_segments.push({
                     $and: [
                         {
-                            [`${field}`]: id,
+                            [getFullFieldName(field)]: id,
                         },
                         {
-                            ['_sourceAssigningAuthority']: sourceAssigningAuthority
+                            [getFullFieldName('_sourceAssigningAuthority')]: sourceAssigningAuthority
                         }
                     ]
                 });
+                columns.add(getFullFieldName(field));
             }
         } else {
             // single value is passed
             and_segments.push({
-                [`${field}`]: queryParameterValue,
+                [getFullFieldName(field)]: queryParameterValue,
             });
+            columns.add(getFullFieldName(field));
         }
     }
-    columns.add(`${field}`);
     return and_segments;
 }
 
