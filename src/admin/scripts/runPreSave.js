@@ -76,7 +76,7 @@ async function main() {
  * node src/admin/scripts/runPreSave.js --collections=Account_4_0_0 --batchSize=10000
  * src/admin/scripts/runPreSave.js --collections=all --audit --batchSize=10000
  * node src/admin/scripts/runPreSave.js --collections=AuditEvent_4_0_0 --audit --batchSize=10000
- * node src/admin/scripts/runPreSave.js --collections=AuditEvent_4_0_0 --audit --batchSize=10000 --before 2021-12-31
+ * node src/admin/scripts/runPreSave.js --collections=AuditEvent_4_0_0 --audit --batchSize=10000 --before 2021-12-31 --
  */
 main().catch(reason => {
     console.error(reason);
