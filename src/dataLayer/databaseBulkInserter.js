@@ -1086,21 +1086,25 @@ class DatabaseBulkInserter extends EventEmitter {
                 }
             );
         }
+        const hasBulkWriteErrors = bulkWriteResult.hasWriteErrors();
         /**
          * @type {MergeResultEntry}
          */
         const mergeResultEntry = {
             'id': bulkInsertUpdateEntry.id,
-            created: bulkInsertUpdateEntry.isCreateOperation && !bulkWriteResult.error && !bulkInsertUpdateEntry.skipped,
-            updated: bulkInsertUpdateEntry.isUpdateOperation && !bulkWriteResult.error && !bulkInsertUpdateEntry.skipped,
+            created: bulkInsertUpdateEntry.isCreateOperation && !hasBulkWriteErrors && !bulkInsertUpdateEntry.skipped,
+            updated: bulkInsertUpdateEntry.isUpdateOperation && !hasBulkWriteErrors && !bulkInsertUpdateEntry.skipped,
             resourceType: resourceType,
         };
-        if (bulkWriteResult.error) {
-            const diagnostics = JSON.stringify(bulkWriteResult.error, getCircularReplacer());
+        if (hasBulkWriteErrors) {
+            const bulkWriteErrors = bulkWriteResult.getWriteErrors(),
+                bulkWriteErrorsMsg = bulkWriteErrors.map(error => error.toJSON()),
+                diagnostics = JSON.stringify(bulkWriteErrorsMsg, getCircularReplacer()),
+                bulkWriteResultError = new Error(diagnostics);
             mergeResultEntry.issue = new OperationOutcomeIssue({
                 severity: 'error',
                 code: 'exception',
-                details: new CodeableConcept({text: bulkWriteResult.error.message}),
+                details: new CodeableConcept({text: bulkWriteResultError.message}),
                 diagnostics: diagnostics,
                 expression: [
                     resourceType + '/' + bulkInsertUpdateEntry.id
@@ -1111,7 +1115,7 @@ class DatabaseBulkInserter extends EventEmitter {
                     source: 'databaseBulkInserter',
                     message: `databaseBulkInserter: Error resource ${resourceType} with operation:` +
                         ` ${JSON.stringify(bulkInsertUpdateEntry, getCircularReplacer())}`,
-                    error: bulkWriteResult.error,
+                    error: bulkWriteResultError,
                     args: {
                         requestId: requestId,
                         resourceType: resourceType,

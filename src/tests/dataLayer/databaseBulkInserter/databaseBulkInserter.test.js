@@ -17,6 +17,7 @@ const BundleRequest = require('../../../fhir/classes/4_0_0/backbone_elements/bun
 const BundleResponse = require('../../../fhir/classes/4_0_0/backbone_elements/bundleResponse');
 const OperationOutcome = require('../../../fhir/classes/4_0_0/resources/operationOutcome');
 const OperationOutcomeIssue = require('../../../fhir/classes/4_0_0/backbone_elements/operationOutcomeIssue');
+const { Collection } = require('mongodb');
 
 class MockChangeEventProducer extends ChangeEventProducer {
     /**
@@ -53,6 +54,7 @@ class MockChangeEventProducer extends ChangeEventProducer {
 describe('databaseBulkInserter Tests', () => {
     beforeEach(async () => {
         await commonBeforeEach();
+        jest.restoreAllMocks();
     });
 
     afterEach(async () => {
@@ -164,6 +166,134 @@ describe('databaseBulkInserter Tests', () => {
             const observations = await fhirDb.collection(observationCollection).find().toArray();
             expect(observations.length).toStrictEqual(1);
             expect(observations[0].id).toStrictEqual('2354-InAgeCohort');
+
+            expect(onPatientCreateAsyncMock).toBeCalledTimes(1);
+            expect(onPatientChangeAsyncMock).toBeCalledTimes(1);
+            expect(onObservationCreateAsync).toBeCalledTimes(1);
+            expect(onObservationChangeAsync).toBeCalledTimes(0);
+        });
+        test('execAsync handles mongo error', async () => {
+            /**
+             * @type {string}
+             */
+            const currentDate = moment.utc().format('YYYY-MM-DD');
+
+            const container = createTestContainer((container1) => {
+                container1.register(
+                    'changeEventProducer',
+                    (c) =>
+                        new MockChangeEventProducer({
+                            kafkaClientFactory: c.kafkaClientFactory,
+                            resourceManager: c.resourceManager,
+                            patientChangeTopic: env.KAFKA_PATIENT_CHANGE_TOPIC || 'business.events',
+                            taskChangeTopic: env.KAFKA_PATIENT_CHANGE_TOPIC || 'business.events',
+                            observationChangeTopic:
+                                env.KAFKA_PATIENT_CHANGE_TOPIC || 'business.events',
+                            bwellPersonFinder: c.bwellPersonFinder,
+                            requestSpecificCache: c.requestSpecificCache
+                        })
+                );
+                return container1;
+            });
+
+            // noinspection JSCheckFunctionSignatures
+            const onPatientCreateAsyncMock = jest
+                .spyOn(MockChangeEventProducer.prototype, 'onPatientCreateAsync')
+                .mockImplementation(() => {
+                });
+            // noinspection JSCheckFunctionSignatures
+            const onPatientChangeAsyncMock = jest
+                .spyOn(MockChangeEventProducer.prototype, 'onPatientChangeAsync')
+                .mockImplementation(() => {
+                });
+            // noinspection JSCheckFunctionSignatures
+            const onObservationCreateAsync = jest
+                .spyOn(MockChangeEventProducer.prototype, 'onObservationCreateAsync')
+                .mockImplementation(() => {
+                });
+            // noinspection JSCheckFunctionSignatures
+            const onObservationChangeAsync = jest
+                .spyOn(MockChangeEventProducer.prototype, 'onObservationChangeAsync')
+                .mockImplementation(() => {
+                });
+            /**
+             * @type {MongoDatabaseManager}
+             */
+            const mongoDatabaseManager = container.mongoDatabaseManager;
+            /**
+             * mongo connection
+             * @type {import('mongodb').Db}
+             */
+            const fhirDb = await mongoDatabaseManager.getClientDbAsync();
+            const base_version = '4_0_0';
+            const patientCollection = `Patient_${base_version}`;
+             // noinspection JSCheckFunctionSignatures
+            jest
+                .spyOn(Collection.prototype, 'bulkWrite')
+                .mockImplementation(() => {
+                    const result = {
+                        nMatched: 1, nUpserted: 1, hasWriteErrors: () => true,
+                        getWriteErrors: () => [
+                            {
+                                code: 1, index: 1, errMsg: 'Error msg test',
+                                toJSON: () => JSON.parse('{"code": 1, "index": 1, "errMsg": "Error msg test"}'),
+                            },
+                        ],
+                    };
+                    return result;
+                });
+            /**
+             * @type {DatabaseBulkInserter}
+             */
+            const databaseBulkInserter = container.databaseBulkInserter;
+            const requestId = '1234';
+
+            await databaseBulkInserter.insertOneAsync({
+                requestId: requestId,
+                resourceType: 'Patient', doc: new Patient(patient)
+            });
+            await databaseBulkInserter.insertOneAsync({
+                requestId: requestId,
+                resourceType: 'Observation',
+                doc: new Observation(observation),
+            });
+
+            patient.birthDate = '2020-01-01';
+            await databaseBulkInserter.mergeOneAsync({
+                requestId: requestId,
+                resourceType: 'Patient',
+                id: patient.id,
+                doc: new Patient(patient),
+                previousVersionId: '1',
+                patches: null
+            });
+
+            // now execute the bulk inserts
+            const result = await databaseBulkInserter.executeAsync({
+                requestId: requestId,
+                currentDate,
+                base_version,
+                method: 'POST'
+            });
+
+            /**
+             * @type {PostRequestProcessor}
+             */
+            const postRequestProcessor = container.postRequestProcessor;
+            await postRequestProcessor.executeAsync({requestId});
+            await postRequestProcessor.waitTillDoneAsync({requestId});
+
+            // Check the result has errors
+            expect(result).not.toBeNull();
+            expect(result.length).toBeGreaterThanOrEqual(2);
+
+            // check patients
+            const patients = await fhirDb.collection(patientCollection).find().toArray();
+            expect(patients.length).toStrictEqual(0);
+            // check observations
+            const observationCollection = `Observation_${base_version}`;
+            const observations = await fhirDb.collection(observationCollection).find().toArray();
+            expect(observations.length).toStrictEqual(0);
 
             expect(onPatientCreateAsyncMock).toBeCalledTimes(1);
             expect(onPatientChangeAsyncMock).toBeCalledTimes(1);
