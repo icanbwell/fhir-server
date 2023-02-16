@@ -139,7 +139,7 @@ module.exports = {
             },
             {
                 keys: {
-                    'entity.what.reference': 1,
+                    'entity.what._sourceId': 1,
                     'id': 1,
                     'recorded': 1
                 },
@@ -149,7 +149,7 @@ module.exports = {
             },
             {
                 keys: {
-                    'agent.who.reference': 1,
+                    'agent.who._sourceId': 1,
                     'id': 1,
                     'recorded': 1
                 },
@@ -161,66 +161,120 @@ module.exports = {
         'Coverage_4_0_0': [
             {
                 keys: {
-                    'beneficiary.reference': 1,
+                    'beneficiary._sourceId': 1,
                     'id': 1,
                 },
                 options: {
                     name: 'helix_coverage_1'
+                }
+            },
+            {
+                keys: {
+                    'beneficiary._uuid': 1,
+                    'id': 1,
+                },
+                options: {
+                    name: 'helix_coverage_uuid'
                 }
             }
         ],
         'Encounter_4_0_0': [
             {
                 keys: {
-                    'subject.reference': 1,
+                    'subject._sourceId': 1,
                     'id': 1,
                 },
                 options: {
                     name: 'helix_encounter_1'
+                }
+            },
+            {
+                keys: {
+                    'subject._uuid': 1,
+                    'id': 1,
+                },
+                options: {
+                    name: 'helix_encounter_uuid'
                 }
             }
         ],
         'ExplanationOfBenefit_4_0_0': [
             {
                 keys: {
-                    'patient.reference': 1,
+                    'patient._sourceId': 1,
                     'id': 1,
                 },
                 options: {
                     name: 'patient.reference_1'
+                }
+            },
+            {
+                keys: {
+                    'patient._uuid': 1,
+                    'id': 1,
+                },
+                options: {
+                    name: 'patient.reference_uuid'
                 }
             }
         ],
         'Location_4_0_0': [
             {
                 keys: {
-                    'managingOrganization.reference': 1,
+                    'managingOrganization._sourceId': 1,
                     'id': 1,
                 },
                 options: {
                     name: 'managingOrganization.reference_1'
+                }
+            },
+            {
+                keys: {
+                    'managingOrganization._uuid': 1,
+                    'id': 1,
+                },
+                options: {
+                    name: 'managingOrganization.reference_uuid'
                 }
             }
         ],
         'MedicationRequest_4_0_0': [
             {
                 keys: {
-                    'subject.reference': 1,
+                    'subject._sourceId': 1,
                     'id': 1,
                 },
                 options: {
                     name: 'helix_medication_request_1'
+                }
+            },
+            {
+                keys: {
+                    'subject._uuid': 1,
+                    'id': 1,
+                },
+                options: {
+                    name: 'helix_medication_request_uuid'
                 }
             }
         ],
         'MedicationDispense_4_0_0': [
             {
                 keys: {
-                    'subject.reference': 1,
+                    'subject._sourceId': 1,
                     'id': 1,
                 },
                 options: {
                     name: 'helix_medication_dispense_1'
+                }
+            },
+            {
+                keys: {
+                    'subject._uuid': 1,
+                    'id': 1,
+                },
+                options: {
+                    name: 'helix_medication_dispense_uuid'
                 }
             }
         ],
@@ -229,7 +283,7 @@ module.exports = {
                 keys: {
                     'effectiveDateTime': -1,
                     'id': 1,
-                    'subject.reference': 1
+                    'subject._sourceId': 1
                 },
                 options: {
                     name: 'reverse_helix_observation_effective_1'
@@ -237,23 +291,52 @@ module.exports = {
             },
             {
                 keys: {
-                    'subject.reference': 1,
+                    'subject._sourceId': 1,
                     'effectiveDateTime': -1,
                     'id': 1,
                 },
                 options: {
                     name: 'reverse_helix_observation_effective_2'
                 }
+            },
+            {
+                keys: {
+                    'effectiveDateTime': -1,
+                    'id': 1,
+                    'subject._uuid': 1
+                },
+                options: {
+                    name: 'reverse_helix_observation_effective_uuid_1'
+                }
+            },
+            {
+                keys: {
+                    'subject._uuid': 1,
+                    'effectiveDateTime': -1,
+                    'id': 1,
+                },
+                options: {
+                    name: 'reverse_helix_observation_effective_uuid_2'
+                }
             }
         ],
         'OrganizationAffiliation_4_0_0': [
             {
                 keys: {
-                    'participatingOrganization.reference': 1,
+                    'participatingOrganization._sourceId': 1,
                     'id': 1
                 },
                 options: {
                     name: 'helix_organization_reference_1'
+                }
+            },
+            {
+                keys: {
+                    'participatingOrganization._uuid': 1,
+                    'id': 1
+                },
+                options: {
+                    name: 'helix_organization_reference_uuid'
                 }
             }
         ],
@@ -372,7 +455,7 @@ module.exports = {
         'PractitionerRole_4_0_0': [
             {
                 keys: {
-                    'practitioner.reference': 1,
+                    'practitioner._sourceId': 1,
                     'id': 1
                 },
                 options: {
@@ -381,7 +464,16 @@ module.exports = {
             },
             {
                 keys: {
-                    'organization.reference': 1,
+                    'practitioner._uuid': 1,
+                    'id': 1
+                },
+                options: {
+                    name: 'practitioner.reference_uuid'
+                }
+            },
+            {
+                keys: {
+                    'organization._sourceId': 1,
                     'id': 1
                 },
                 options: {
@@ -390,34 +482,71 @@ module.exports = {
             },
             {
                 keys: {
-                    'location.reference': 1,
+                    'organization._uuid': 1,
+                    'id': 1
+                },
+                options: {
+                    name: 'organization.reference_uuid'
+                }
+            },
+            {
+                keys: {
+                    'location._sourceId': 1,
                     'id': 1
                 },
                 options: {
                     name: 'location.reference_1'
+                }
+            },
+            {
+                keys: {
+                    'location._uuid': 1,
+                    'id': 1
+                },
+                options: {
+                    name: 'location.reference_uuid'
                 }
             }
         ],
         'Schedule_4_0_0': [
             {
                 keys: {
-                    'actor.reference': 1,
+                    'actor._sourceId': 1,
                     'id': 1
                 },
                 options: {
                     name: 'actor.reference_1'
+                }
+            },
+            {
+                keys: {
+                    'actor._uuid': 1,
+                    'id': 1
+                },
+                options: {
+                    name: 'actor.reference_uuid'
                 }
             }
         ],
         'Task_4_0_0': [
             {
                 keys: {
-                    'for.reference': 1,
+                    'for._sourceId': 1,
                     'status': 1,
                     'id': 1,
                 },
                 options: {
                     name: 'for_reference_status_1'
+                }
+            },
+            {
+                keys: {
+                    'for._uuid': 1,
+                    'status': 1,
+                    'id': 1,
+                },
+                options: {
+                    name: 'for_reference_status_uuid'
                 }
             }
         ]
