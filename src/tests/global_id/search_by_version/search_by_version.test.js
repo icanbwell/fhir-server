@@ -95,6 +95,12 @@ describe('Observation Tests', () => {
             expect(resp).toHaveResponse(expectedObservations1);
 
             resp = await request
+                .get('/4_0_0/Observation/_history?id=0028735c-80ac-4d14-9e35-a097d01b0b28')
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedObservations1);
+
+            resp = await request
                 .get('/4_0_0/Observation/0028735c-80ac-4d14-9e35-a097d01b0b28/_history/1')
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
@@ -154,7 +160,19 @@ describe('Observation Tests', () => {
             expect(resp).toHaveResponse(expectedObservations2);
 
             resp = await request
+                .get('/4_0_0/Observation/_history?id=123')
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedObservations2);
+
+            resp = await request
                 .get('/4_0_0/Observation/d3adcaf2-1161-5f9c-8fbd-3148b9eb2122/_history')
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedObservations2);
+
+            resp = await request
+                .get('/4_0_0/Observation/_history?id=d3adcaf2-1161-5f9c-8fbd-3148b9eb2122')
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedObservations2);
