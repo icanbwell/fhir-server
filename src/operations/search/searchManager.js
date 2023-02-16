@@ -129,7 +129,8 @@ class SearchManager {
      */
     async constructQueryAsync(
         {
-            user, scope,
+            user,
+            scope,
             isUser,
             patientIdsFromJwtToken,
             resourceType,
@@ -395,7 +396,7 @@ class SearchManager {
             // Projection arguement to be used for aggregation query
             let projection = parsedArgs['projection'] || {};
             if (options['projection']) {
-                projection = { ...projection, ...options['projection'] };
+                projection = {...projection, ...options['projection']};
             }
             cursorQuery = await databaseQueryManager.findUsingAggregationAsync({
                 query,
@@ -403,7 +404,7 @@ class SearchManager {
                 options,
             });
         } else {
-            cursorQuery = await databaseQueryManager.findAsync({ query, options });
+            cursorQuery = await databaseQueryManager.findAsync({query, options});
         }
 
         if (isStreaming) {
@@ -719,7 +720,7 @@ class SearchManager {
                 // no results
                 query = null; //no need to query
             }
-            return {options, originalQuery, query, originalOptions};
+            return {options, actualQuery: originalQuery, query, actualOptions: originalOptions};
         } catch (e) {
             throw new RethrownError({
                 message: `Error in two step optimization for ${resourceType} with query: ${mongoQueryStringify(query)}`,
