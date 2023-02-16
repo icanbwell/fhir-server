@@ -1,5 +1,5 @@
 const async = require('async');
-const {logInfo, logError} = require('../../../operations/common/logging');
+const {logInfo, logError, logSlackAsync} = require('../../../operations/common/logging');
 
 /***
  * Plugin to log calls to GraphQL
@@ -101,6 +101,15 @@ class MyApolloServerLoggingPlugin /*extends ApolloServerPlugin*/ {
                                             }
                                         );
                                     }
+                                    await logSlackAsync({
+                                        source: 'GraphQLv2',
+                                        message: `GraphQL Validation Error: ${err.message}`,
+                                        args: {
+                                            user,
+                                            req,
+                                        },
+                                        error: err,
+                                    });
                                 }
                             }
                         );
@@ -142,6 +151,15 @@ class MyApolloServerLoggingPlugin /*extends ApolloServerPlugin*/ {
                                         }
                                     );
                                 }
+                                await logSlackAsync({
+                                    source: 'GraphQLv2',
+                                    message: `GraphQL Error: ${err.message}`,
+                                    args: {
+                                        user,
+                                        req,
+                                    },
+                                    error: err
+                                });
                             }
                         }
                     }

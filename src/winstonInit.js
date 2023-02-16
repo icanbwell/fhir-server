@@ -3,7 +3,10 @@ const {
     format,
     transports
 } = require('winston');
-const { combine, timestamp, json } = format;
+const { json } = format;
+const moment = require('moment');
+const { getImageVersion } = require('./utils/getImageVersion');
+
 /**
  * Features
  * - make it easy to pass in logging config
@@ -24,11 +27,12 @@ const container = new Container();
  */
 const defaultConfig = {
     level: 'info',
-    format: combine(
-        timestamp({ format: 'MMM-DD-YYYY HH:mm:ssZ' }),
-        json()
-    ),
-    defaultMeta: {logger: 'default'},
+    format: json(),
+    defaultMeta: {
+        logger: 'default',
+        asctime: moment.utc().format('YYYY-MM-DDTHH:mm:ssZ'),
+        version: getImageVersion()
+    },
     colorize: true,
     transports: [new transports.Console()]
 };

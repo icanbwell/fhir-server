@@ -2,7 +2,7 @@
 const async = require('async');
 const sendToS3 = require('../utils/aws-s3');
 const {EventEmitter} = require('events');
-const {logVerboseAsync, logSystemErrorAsync, logTraceSystemEventAsync} = require('../operations/common/logging');
+const {logVerboseAsync, logSystemErrorAsync, logTraceSystemEventAsync, logSlackAsync} = require('../operations/common/logging');
 const {ResourceManager} = require('../operations/common/resourceManager');
 const {PostRequestProcessor} = require('../utils/postRequestProcessor');
 const {ErrorReporter} = require('../utils/slack.logger');
@@ -354,6 +354,13 @@ class DatabaseBulkInserter extends EventEmitter {
             }
             if (doc._id) {
                 await this.errorReporter.reportMessageAsync({
+                    source: 'DatabaseBulkInserter.insertOneAsync',
+                    message: '_id still present',
+                    args: {
+                        doc: doc
+                    }
+                });
+                await logSlackAsync({
                     source: 'DatabaseBulkInserter.insertOneAsync',
                     message: '_id still present',
                     args: {
@@ -829,6 +836,15 @@ class DatabaseBulkInserter extends EventEmitter {
                                 operation
                             }
                         });
+                        await logSlackAsync({
+                            source: 'DatabaseBulkInserter.performBulkForResourceTypeAsync',
+                            message: '_id still present',
+                            args: {
+                                doc: resource,
+                                collection: collectionName,
+                                operation
+                            }
+                        });
                     }
                     operationsByCollectionNames.get(collectionName).push(operation);
                 }
@@ -1119,6 +1135,17 @@ class DatabaseBulkInserter extends EventEmitter {
                     }
                 }
             );
+            await logSlackAsync({
+                source: 'databaseBulkInserter',
+                message: `databaseBulkInserter: Error resource ${resourceType} with operation:` +
+                    ` ${JSON.stringify(bulkInsertUpdateEntry, getCircularReplacer())}`,
+                args: {
+                    requestId: requestId,
+                    resourceType: resourceType,
+                    operation: bulkInsertUpdateEntry
+                },
+                error: bulkWriteResult.error
+            });
         }
 
         // fire change events

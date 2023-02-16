@@ -4,11 +4,10 @@
 const process = require('node:process');
 const {ErrorReporter} = require('../utils/slack.logger');
 const {getImageVersion} = require('../utils/getImageVersion');
-const {logInfo, logError} = require('../operations/common/logging');
+const {logInfo, logSlackAsync} = require('../operations/common/logging');
 
 
 process.on('uncaughtException', async (err) => {
-    logError(err, {method: 'errorHandler.uncaughtException'});
     const errorReporter = new ErrorReporter(getImageVersion());
     await errorReporter.reportErrorAsync({
             source: 'uncaughtException',
@@ -16,20 +15,27 @@ process.on('uncaughtException', async (err) => {
             error: err
         }
     );
+    await logSlackAsync({
+        source: 'uncaughtException',
+        message: 'uncaughtException',
+        error: err
+    });
     process.exit(1);
 });
 
 process.on('unhandledRejection', async (reason, promise) => {
-    logInfo('', {
-        method: 'errorHandler.unhandledRejection',
-        promise: promise,
-        reason: reason,
-        stack: reason.stack
-    });
     const errorReporter1 = new ErrorReporter(getImageVersion());
     await errorReporter1.reportErrorAsync({
         source: 'unhandledRejection',
         message: 'unhandledRejection',
+        error: reason
+    });
+    await logSlackAsync({
+        source: 'unhandledRejection',
+        message: 'unhandledRejection',
+        args: {
+            promise: promise
+        },
         error: reason
     });
     process.exit(1);

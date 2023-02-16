@@ -172,6 +172,59 @@ const logVerboseAsync = async ({source, args: args}) => {
     }
 };
 
+/**
+ * Logs an event to slack
+ * @param {string} message
+ * @param {Object} args
+ * @param {Error|null} error
+ */
+const logSlackAsync = async ({source, message, args, error}) => {
+    if (error){
+        logError(message, {args, source, error});
+    } else {
+        logInfo(message, {args, source});
+    }
+};
+
+/**
+ * @param req
+ * @returns {string}
+ */
+const getUserName = (req) => {
+    return (!req.user || typeof req.user === 'string') ? req.user : req.user.name || req.user.id;
+};
+
+/**
+ * Gets IP address of caller
+ * @param {import('http').IncomingMessage} req
+ * @returns {string | undefined}
+ */
+const getRemoteAddress = (req) => {
+    return req.header('X-Forwarded-For') || req['x-real-ip'] || req.ip || req._remoteAddress || undefined;
+};
+
+/**
+ * Logs error and request to Slack
+ * @param {Error} error
+ * @param {import('http').IncomingMessage} req
+ * @param {Object} args
+ */
+const logSlackErrorAndRequestAsync = async ({error, req, args}) => {
+    /**
+     * @type {string|null}
+     */
+    const user = getUserName(req);
+    const request = {
+        method: req.method,
+        url: req.url,
+        headers: req.headers,
+        query: req.query,
+        body: req.body || {},
+        user: user
+    };
+    logError(error.message, {args, request, error, remoteAddress: getRemoteAddress(req)});
+};
+
 module.exports = {
     logInfo,
     logDebug,
@@ -181,4 +234,6 @@ module.exports = {
     logSystemEventAsync,
     logSystemErrorAsync,
     logVerboseAsync,
+    logSlackAsync,
+    logSlackErrorAndRequestAsync
 };

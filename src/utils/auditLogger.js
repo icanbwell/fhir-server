@@ -14,6 +14,7 @@ const {ErrorReporter} = require('./slack.logger');
 const {assertTypeEquals} = require('./assertType');
 const {SecurityTagSystem} = require('./securityTagSystem');
 const {getCircularReplacer} = require('./getCircularReplacer');
+const { logSlackAsync } = require('../operations/common/logging');
 
 class AuditLogger {
     /**
@@ -234,6 +235,14 @@ class AuditLogger {
                     }
                 }
             );
+            await logSlackAsync({
+                source: 'flushAsync',
+                message: `Error creating audit entries: ${JSON.stringify(mergeResultErrors, getCircularReplacer())}`,
+                args: {
+                    requestId: requestId,
+                    errors: mergeResultErrors
+                }
+            });
         }
     }
 }

@@ -10,24 +10,28 @@ const { createServer } = require('./server');
 const { createContainer } = require('./createContainer');
 const { ErrorReporter } = require('./utils/slack.logger');
 const { getImageVersion } = require('./utils/getImageVersion');
-const { getCircularReplacer } = require('./utils/getCircularReplacer');
 const { initialize } = require('./winstonInit');
+const { logSlackAsync, logError } = require('./operations/common/logging');
 
 const main = async function () {
     try {
         initialize();
         await createServer(() => createContainer());
     } catch (e) {
-        console.log(JSON.stringify({ method: 'main', message: JSON.stringify(e, getCircularReplacer()) }));
         const errorReporter = new ErrorReporter(getImageVersion());
         await errorReporter.reportErrorAsync({
             source: 'main',
             message: 'uncaughtException',
             error: e,
         });
+        await logSlackAsync({
+            source: 'main',
+            message: 'uncaughtException',
+            error: e
+        });
     }
 };
 
 main().catch((reason) => {
-    console.error(JSON.stringify({ message: `Top level error: ${reason}` }, getCircularReplacer()));
+    logError('Top level error', {reason: reason});
 });
