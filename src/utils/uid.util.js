@@ -46,7 +46,7 @@ const generateUUIDv5 = (name) => uuidv5(name, OID_NAMESPACE);
  */
 const generateUUID = () => crypto.randomUUID();
 
-// const uuidRegex = new RegExp('[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}');
+const uuidRegex = new RegExp('[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}');
 
 /**
  * Checks whether the provided string is a uuid using regex
@@ -54,7 +54,8 @@ const generateUUID = () => crypto.randomUUID();
  * @return {boolean}
  */
 function isUuid(text) {
-    return text && uuidValidate(text);
+    // uuidValidate does not support UUIDv7 yet: https://github.com/uuidjs/uuid/issues/580
+    return text && (uuidValidate(text) || uuidRegex.test(text));
 }
 
 

@@ -29,7 +29,7 @@ class UuidColumnHandler extends PreSaveHandler {
             // if an identifier with system=https://www.icanbwell.com/sourceId exists then use that
             if (resource.identifier && Array.isArray(resource.identifier) && resource.identifier.some(s => s.system === IdentifierSystem.uuid)) {
                 resource._uuid = getFirstElementOrNull(
-                    resource.meta.security.filter(s => s.system === IdentifierSystem.uuid).map(s => s.value));
+                    resource.identifier.filter(s => s.system === IdentifierSystem.uuid).map(s => s.value));
             }
         }
 
