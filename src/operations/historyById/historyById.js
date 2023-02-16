@@ -167,7 +167,7 @@ class HistoryByIdOperation {
         const options = {
             sort: [
                 {
-                    'meta.versionId': -1
+                    'resource.meta.versionId': -1
                 }
             ]
         };

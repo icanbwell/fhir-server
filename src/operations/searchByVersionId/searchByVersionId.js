@@ -125,7 +125,7 @@ class SearchByVersionIdOperation {
             /**
              * @type {{base_version, columns: Set, query: import('mongodb').Document}}
              */
-            const {
+            let {
                 /** @type {import('mongodb').Document}**/
                 query,
                 // /** @type {Set} **/
@@ -155,7 +155,12 @@ class SearchByVersionIdOperation {
             if (query.$and) {
                 query.$and.push(queryForVersionId);
             } else {
-                query.$and = [queryForVersionId];
+                query = {
+                    $and: [
+                        query,
+                        queryForVersionId
+                    ]
+                };
             }
             /**
              * @type {Resource|null}
@@ -198,7 +203,7 @@ class SearchByVersionIdOperation {
                     });
                 return resource;
             } else {
-                throw new NotFoundError('Resource not found');
+                throw new NotFoundError(`History not found for ${resourceType}/${id} with versionId:${version_id}`);
             }
         } catch (e) {
             await this.fhirLoggingManager.logOperationFailureAsync(

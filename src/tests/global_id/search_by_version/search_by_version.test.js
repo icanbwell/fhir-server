@@ -91,7 +91,7 @@ describe('Observation Tests', () => {
             expect(resp).toHaveResponse(expectedObservationResources);
 
             resp = await request
-                .get('/4_0_0/Observation/0028735c-80ac-4d14-9e35-a097d01b0b28/_history/15')
+                .get('/4_0_0/Observation/0028735c-80ac-4d14-9e35-a097d01b0b28/_history/1')
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedObservation1);

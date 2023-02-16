@@ -1,12 +1,82 @@
 {
-  "entry": [
-    {
-      "resource": {
-        "resourceType": "Observation"
+  "code": {
+    "coding": [
+      {
+        "code": "APH1",
+        "system": "http://www.icanbwell.com/cql/library"
+      },
+      {
+        "system": "http://www.icanbwell.com/cql/libraryVersion"
+      },
+      {
+        "code": "Completed_Output_Obs",
+        "system": "http://www.icanbwell.com/cql/rule"
       }
+    ]
+  },
+  "effectiveDateTime": "2023-02-02T03:16:38+00:00",
+  "extension": [
+    {
+      "url": "https://www.icanbwell.com/sourceType",
+      "valueString": "cql-engine"
     }
   ],
-  "resourceType": "Bundle",
-  "total": 0,
-  "type": "searchset"
+  "id": "0028735c-80ac-4d14-9e35-a097d01b0b28",
+  "identifier": [
+    {
+      "system": "https://www.icanbwell.com",
+      "value": "0074890c-bcdd-4a8e-9d7e-532e4ea8a702"
+    },
+    {
+      "id": "sourceId",
+      "system": "https://www.icanbwell.com/sourceId",
+      "value": "0028735c-80ac-4d14-9e35-a097d01b0b28"
+    },
+    {
+      "id": "uuid",
+      "system": "https://www.icanbwell.com/uuid",
+      "value": "0028735c-80ac-4d14-9e35-a097d01b0b28"
+    }
+  ],
+  "meta": {
+    "security": [
+      {
+        "code": "bwell",
+        "system": "https://www.icanbwell.com/owner"
+      },
+      {
+        "code": "bwell",
+        "system": "https://www.icanbwell.com/access"
+      },
+      {
+        "code": "bwell",
+        "system": "https://www.icanbwell.com/sourceAssigningAuthority"
+      }
+    ],
+    "source": "http://www.icanbwell.com/cql",
+    "versionId": "1"
+  },
+  "resourceType": "Observation",
+  "status": "final",
+  "subject": {
+    "extension": [
+      {
+        "id": "sourceId",
+        "url": "https://www.icanbwell.com/sourceId",
+        "valueString": "Patient/person.90000000-0000-0000-0000-000000000003"
+      },
+      {
+        "id": "uuid",
+        "url": "https://www.icanbwell.com/uuid",
+        "valueString": "Patient/person.90000000-0000-0000-0000-000000000003"
+      },
+      {
+        "id": "sourceAssigningAuthority",
+        "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+        "valueString": "bwell"
+      }
+    ],
+    "reference": "Patient/person.90000000-0000-0000-0000-000000000003"
+  },
+  "valueBoolean": false
 }
