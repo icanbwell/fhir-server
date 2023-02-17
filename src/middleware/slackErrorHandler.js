@@ -5,7 +5,7 @@
 const env = require('var');
 const {ErrorReporter} = require('../utils/slack.logger');
 const {getImageVersion} = require('../utils/getImageVersion');
-const {logError, logSlackErrorAndRequestAsync} = require('../operations/common/logging');
+const {logError, logErrorAndRequestAsync} = require('../operations/common/logging');
 
 /**
  * Middleware for logging errors to Slack
@@ -36,12 +36,9 @@ const errorReportingMiddleware = async (err, req, res, next) => {
                     }
                 }
             );
-            await logSlackErrorAndRequestAsync({
+            await logErrorAndRequestAsync({
                 error: err,
-                req,
-                args: {
-                    requestId: req.id
-                }
+                req
             });
         }
     } catch (e) {

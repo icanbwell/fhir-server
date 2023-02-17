@@ -2,7 +2,7 @@
 const async = require('async');
 const sendToS3 = require('../utils/aws-s3');
 const {EventEmitter} = require('events');
-const {logVerboseAsync, logSystemErrorAsync, logTraceSystemEventAsync, logSlackAsync} = require('../operations/common/logging');
+const {logVerboseAsync, logSystemErrorAsync, logTraceSystemEventAsync, logInfo, logError} = require('../operations/common/logging');
 const {ResourceManager} = require('../operations/common/resourceManager');
 const {PostRequestProcessor} = require('../utils/postRequestProcessor');
 const {ErrorReporter} = require('../utils/slack.logger');
@@ -360,13 +360,10 @@ class DatabaseBulkInserter extends EventEmitter {
                         doc: doc
                     }
                 });
-                await logSlackAsync({
+                logInfo('_id still present', {args: {
                     source: 'DatabaseBulkInserter.insertOneAsync',
-                    message: '_id still present',
-                    args: {
-                        doc: doc
-                    }
-                });
+                    doc: doc
+                }});
             }
         } catch (e) {
             throw new RethrownError({
@@ -836,15 +833,12 @@ class DatabaseBulkInserter extends EventEmitter {
                                 operation
                             }
                         });
-                        await logSlackAsync({
+                        logInfo('_id still present', {args: {
                             source: 'DatabaseBulkInserter.performBulkForResourceTypeAsync',
-                            message: '_id still present',
-                            args: {
-                                doc: resource,
-                                collection: collectionName,
-                                operation
-                            }
-                        });
+                            doc: resource,
+                            collection: collectionName,
+                            operation
+                        }});
                     }
                     operationsByCollectionNames.get(collectionName).push(operation);
                 }
@@ -1135,17 +1129,20 @@ class DatabaseBulkInserter extends EventEmitter {
                     }
                 }
             );
-            await logSlackAsync({
-                source: 'databaseBulkInserter',
-                message: `databaseBulkInserter: Error resource ${resourceType} with operation:` +
-                    ` ${JSON.stringify(bulkInsertUpdateEntry, getCircularReplacer())}`,
-                args: {
+            logError(
+                `databaseBulkInserter: Error resource ${resourceType} with operation: ${
+                  JSON.stringify(bulkInsertUpdateEntry, getCircularReplacer())
+                }`,
+                {
+                  args: {
+                    error: bulkWriteResult.error,
+                    source: 'databaseBulkInserter',
                     requestId: requestId,
                     resourceType: resourceType,
                     operation: bulkInsertUpdateEntry
-                },
-                error: bulkWriteResult.error
-            });
+                  }
+                }
+              );
         }
 
         // fire change events

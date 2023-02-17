@@ -11,7 +11,7 @@ const { createContainer } = require('./createContainer');
 const { ErrorReporter } = require('./utils/slack.logger');
 const { getImageVersion } = require('./utils/getImageVersion');
 const { initialize } = require('./winstonInit');
-const { logSlackAsync, logError } = require('./operations/common/logging');
+const { logError } = require('./operations/common/logging');
 
 const main = async function () {
     try {
@@ -24,11 +24,7 @@ const main = async function () {
             message: 'uncaughtException',
             error: e,
         });
-        await logSlackAsync({
-            source: 'main',
-            message: 'uncaughtException',
-            error: e
-        });
+        logError('uncaughtException', { error: e, source: 'main' });
     }
 };
 

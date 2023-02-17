@@ -3,8 +3,7 @@ const {
     format,
     transports
 } = require('winston');
-const { json } = format;
-const moment = require('moment');
+const { json, combine, timestamp } = format;
 const { getImageVersion } = require('./utils/getImageVersion');
 
 /**
@@ -27,10 +26,12 @@ const container = new Container();
  */
 const defaultConfig = {
     level: 'info',
-    format: json(),
+    format: combine(
+        timestamp({ format: 'YYYY-MM-DDTHH:mm:ssZ' }),
+        json()
+    ),
     defaultMeta: {
         logger: 'default',
-        asctime: moment.utc().format('YYYY-MM-DDTHH:mm:ssZ'),
         version: getImageVersion()
     },
     colorize: true,

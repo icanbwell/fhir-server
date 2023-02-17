@@ -173,20 +173,6 @@ const logVerboseAsync = async ({source, args: args}) => {
 };
 
 /**
- * Logs an event to slack
- * @param {string} message
- * @param {Object} args
- * @param {Error|null} error
- */
-const logSlackAsync = async ({source, message, args, error}) => {
-    if (error){
-        logError(message, {args, source, error});
-    } else {
-        logInfo(message, {args, source});
-    }
-};
-
-/**
  * @param req
  * @returns {string}
  */
@@ -204,25 +190,23 @@ const getRemoteAddress = (req) => {
 };
 
 /**
- * Logs error and request to Slack
+ * Logs error and request
  * @param {Error} error
  * @param {import('http').IncomingMessage} req
- * @param {Object} args
  */
-const logSlackErrorAndRequestAsync = async ({error, req, args}) => {
-    /**
-     * @type {string|null}
-     */
-    const user = getUserName(req);
+const logErrorAndRequestAsync = async ({error, req}) => {
     const request = {
+        id: req.id,
+        status: error.statusCode,
         method: req.method,
         url: req.url,
         headers: req.headers,
         query: req.query,
         body: req.body || {},
-        user: user
+        user: getUserName(req),
+        remoteAddress: getRemoteAddress(req)
     };
-    logError(error.message, {args, request, error, remoteAddress: getRemoteAddress(req)});
+    logError(error.message, {request, error});
 };
 
 module.exports = {
@@ -234,6 +218,5 @@ module.exports = {
     logSystemEventAsync,
     logSystemErrorAsync,
     logVerboseAsync,
-    logSlackAsync,
-    logSlackErrorAndRequestAsync
+    logErrorAndRequestAsync
 };

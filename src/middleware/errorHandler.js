@@ -4,7 +4,7 @@
 const process = require('node:process');
 const {ErrorReporter} = require('../utils/slack.logger');
 const {getImageVersion} = require('../utils/getImageVersion');
-const {logInfo, logSlackAsync} = require('../operations/common/logging');
+const {logInfo, logError} = require('../operations/common/logging');
 
 
 process.on('uncaughtException', async (err) => {
@@ -15,11 +15,7 @@ process.on('uncaughtException', async (err) => {
             error: err
         }
     );
-    await logSlackAsync({
-        source: 'uncaughtException',
-        message: 'uncaughtException',
-        error: err
-    });
+    logError('uncaughtException', { error: err, source: 'uncaughtException' });
     process.exit(1);
 });
 
@@ -30,14 +26,9 @@ process.on('unhandledRejection', async (reason, promise) => {
         message: 'unhandledRejection',
         error: reason
     });
-    await logSlackAsync({
-        source: 'unhandledRejection',
-        message: 'unhandledRejection',
-        args: {
-            promise: promise
-        },
-        error: reason
-    });
+    logError('unhandledRejection', { error: reason, source: 'unhandledRejection', args: {
+        promise: promise
+    }});
     process.exit(1);
 });
 
