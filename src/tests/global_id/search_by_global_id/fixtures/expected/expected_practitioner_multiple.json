@@ -314,7 +314,7 @@
         "system": "https://www.icanbwell.com/queryOptions"
       },
       {
-        "display": "['_sourceId','id']",
+        "display": "['id']",
         "system": "https://www.icanbwell.com/queryFields"
       },
       {
