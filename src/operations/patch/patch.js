@@ -154,14 +154,17 @@ class PatchOperation {
              */
             let resource = new ResourceCreator(resource_incoming);
 
-            if (foundResource && foundResource.meta) {
+            // source in metadata must exist either in incoming resource or found resource
+            if (foundResource && foundResource.meta &&
+                (foundResource.meta.source || (resource && resource.meta && resource.meta.source))) {
                 let meta = foundResource.meta;
                 // noinspection JSUnresolvedVariable
                 meta.versionId = `${parseInt(foundResource.meta.versionId) + 1}`;
                 meta.lastUpdated = new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ssZ'));
+                meta.source = meta.source || resource.meta.source;
                 resource.meta = meta;
             } else {
-                throw new BadRequestError(new Error('Unable to patch resource. Missing either foundResource or metadata.'));
+                throw new BadRequestError(new Error('Unable to patch resource. Missing either foundResource, metadata or metadata source.'));
             }
 
             // Same as update from this point on

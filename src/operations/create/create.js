@@ -5,7 +5,6 @@ const moment = require('moment-timezone');
 const sendToS3 = require('../../utils/aws-s3');
 const {NotValidatedError, BadRequestError} = require('../../utils/httpErrors');
 const {getResource} = require('../common/getResource');
-const {getMeta} = require('../common/getMeta');
 const {validationsFailedCounter} = require('../../utils/prometheus.utils');
 const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
 const {ChangeEventProducer} = require('../../utils/changeEventProducer');
@@ -188,17 +187,9 @@ class CreateOperation {
                 }
             }
 
-            // Create the resource's metadata
-            /**
-             * @type {function({Object}): Meta}
-             */
-            let Meta = getMeta(base_version);
-            if (!resource.meta) {
-                // noinspection SpellCheckingInspection
-                resource.meta = new Meta({
-                    versionId: '1',
-                    lastUpdated: new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ssZ')),
-                });
+            // Check if meta & meta.source exists in resource
+            if (!resource.meta || !resource.meta.source) {
+                throw new BadRequestError(new Error('Unable to create resource. Missing either metadata or metadata source.'));
             } else {
                 resource.meta['versionId'] = '1';
                 // noinspection JSValidateTypes,SpellCheckingInspection
