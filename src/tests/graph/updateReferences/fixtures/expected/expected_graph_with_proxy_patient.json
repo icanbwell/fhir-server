@@ -205,7 +205,7 @@
   "meta": {
     "tag": [
       {
-        "display": "db.Patient_4_0_0.find({'id':{'$in':['00100000000','00200000000','person.m65633']}}, {'_id':0})  | db.Patient_4_0_0.find({'subject._sourceId':'Patient/00100000000'}, {})",
+        "display": "db.Patient_4_0_0.find({'_sourceId':{'$in':['00100000000','00200000000','person.m65633']}}, {'_id':0})  | db.Patient_4_0_0.find({'subject._sourceId':'Patient/00100000000'}, {})",
         "system": "https://www.icanbwell.com/query"
       },
       {

@@ -3,7 +3,7 @@
   "meta": {
     "tag": [
       {
-        "display": "[db.ExplanationOfBenefit_4_0_0.find({'id':{'$in':['WPS-Claim-230916613369','WPS-Claim-429017018331']}}, {}).sort({'id':1}).limit(2)]",
+        "display": "[db.ExplanationOfBenefit_4_0_0.find({'_sourceId':{'$in':['WPS-Claim-230916613369','WPS-Claim-429017018331']}}, {}).sort({'id':1}).limit(2)]",
         "system": "https://www.icanbwell.com/query"
       },
       {
