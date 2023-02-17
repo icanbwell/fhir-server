@@ -210,6 +210,10 @@ class ConfigManager {
      * @returns {boolean}
      */
     get enableGlobalIdSupport() {
+        if (env.ENABLE_GLOBAL_ID === null || env.ENABLE_GLOBAL_ID === undefined) {
+            return true;
+        }
+
         return isTrue(env.ENABLE_GLOBAL_ID);
     }
 
