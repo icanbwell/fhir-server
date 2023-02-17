@@ -91,7 +91,7 @@ upgrade_packages:down
 .PHONY:tests
 tests:
 	. ${NVM_DIR}/nvm.sh && nvm use ${NODE_VERSION} && \
-	npm run test_shards
+	npm run test
 
 .PHONY:test_shards
 test_shards:

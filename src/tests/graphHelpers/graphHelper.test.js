@@ -37,7 +37,7 @@ describe('graphHelper Tests', () => {
          */
         const collection = db.collection(`${resourceType}_${base_version}`);
 
-        await collection.insertOne({id: '1', resourceType: 'Practitioner'});
+        await collection.insertOne({id: '1', _sourceId: '1', resourceType: 'Practitioner'});
         // const doc = await collection.findOne({id: '1'});
     });
 
@@ -113,7 +113,7 @@ describe('graphHelper Tests', () => {
             const resourceType = 'Practitioner';
             const collection = db.collection(`${resourceType}_${base_version}`);
 
-            await collection.insertOne({id: '2', resourceType: 'Practitioner'});
+            await collection.insertOne({id: '2', _sourceId: '2', resourceType: 'Practitioner'});
             /**
              * @type {R4ArgsParser}
              */
@@ -171,8 +171,9 @@ describe('graphHelper Tests', () => {
             const collection = db.collection(`${resourceType}_${base_version}`);
             await collection.insertOne({
                 id: '10',
+                _sourceId: '10',
                 resourceType: resourceType,
-                practitioner: {reference: 'Practitioner/1', '_sourceId': 'Practitioner/1'},
+                practitioner: {reference: 'Practitioner/1', _sourceId: 'Practitioner/1'},
             });
 
             resourceType = 'Practitioner';
@@ -236,6 +237,7 @@ describe('graphHelper Tests', () => {
             const collection = db.collection(`${resourceType}_${base_version}`);
             await collection.insertOne({
                 id: '10',
+                _sourceId: '10',
                 resourceType: resourceType,
                 practitioner: {reference: 'Practitioner/1', _sourceId: 'Practitioner/1'},
             });
@@ -301,6 +303,7 @@ describe('graphHelper Tests', () => {
             const collection = db.collection(`${resourceType}_${base_version}`);
             await collection.insertOne({
                 id: '10',
+                _sourceId: '10',
                 resourceType: resourceType,
                 practitioner: {reference: 'Practitioner/1', _sourceId: 'Practitioner/1'},
             });
@@ -364,6 +367,7 @@ describe('graphHelper Tests', () => {
             const collection = db.collection(`${resourceType}_${base_version}`);
             await collection.insertOne({
                 id: '10',
+                _sourceId: '10',
                 resourceType: resourceType,
                 practitioner: {reference: 'Practitioner/1', _sourceId: 'Practitioner/1'},
             });
@@ -428,6 +432,7 @@ describe('graphHelper Tests', () => {
             let collection = db.collection(`${resourceType}_${base_version}`);
             await collection.insertOne({
                 id: '10',
+                _sourceId: '10',
                 resourceType: resourceType,
                 practitioner: {
                     reference: 'Practitioner/1',
@@ -439,7 +444,7 @@ describe('graphHelper Tests', () => {
             // add an Organization
             resourceType = 'Organization';
             collection = db.collection(`${resourceType}_${base_version}`);
-            await collection.insertOne({id: '100', resourceType: resourceType});
+            await collection.insertOne({id: '100', _sourceId: '100', resourceType: resourceType});
 
             resourceType = 'PractitionerRole';
             /**
@@ -505,6 +510,7 @@ describe('graphHelper Tests', () => {
             const collection = db.collection(`${resourceType}_${base_version}`);
             await collection.insertOne({
                 id: '10',
+                _sourceId: '10',
                 resourceType: resourceType,
                 practitioner: {reference: 'Practitioner/1', _sourceId: 'Practitioner/1'},
             });
@@ -569,6 +575,7 @@ describe('graphHelper Tests', () => {
             let collection = db.collection(`${resourceType}_${base_version}`);
             await collection.insertOne({
                 id: '10',
+                _sourceId: '10',
                 resourceType: resourceType,
                 practitioner: {
                     reference: 'Practitioner/1',
@@ -582,7 +589,7 @@ describe('graphHelper Tests', () => {
             // add an Organization
             resourceType = 'Organization';
             collection = db.collection(`${resourceType}_${base_version}`);
-            await collection.insertOne({id: '100', resourceType: resourceType});
+            await collection.insertOne({id: '100', _sourceId: '100', resourceType: resourceType});
 
             resourceType = 'Practitioner';
             /**
@@ -654,13 +661,14 @@ describe('graphHelper Tests', () => {
             const db = await mongoDatabaseManager.getClientDbAsync();
             let resourceType = 'Practitioner';
             let collection = db.collection(`${resourceType}_${base_version}`);
-            await collection.insertOne({id: '2', resourceType: 'Practitioner'});
+            await collection.insertOne({id: '2', _sourceId: '2', resourceType: 'Practitioner'});
 
             // add a PractitionerRole
             resourceType = 'PractitionerRole';
             collection = db.collection(`${resourceType}_${base_version}`);
             await collection.insertOne({
                 id: '10',
+                _sourceId: '10',
                 resourceType: resourceType,
                 practitioner: {
                     reference: 'Practitioner/1',
@@ -673,6 +681,7 @@ describe('graphHelper Tests', () => {
             });
             await collection.insertOne({
                 id: '20',
+                _sourceId: '20',
                 resourceType: resourceType,
                 practitioner: {
                     reference: 'Practitioner/2',
@@ -686,8 +695,8 @@ describe('graphHelper Tests', () => {
             // add an Organization
             resourceType = 'Organization';
             collection = db.collection(`${resourceType}_${base_version}`);
-            await collection.insertOne({id: '100', resourceType: resourceType});
-            await collection.insertOne({id: '200', resourceType: resourceType});
+            await collection.insertOne({id: '100', _sourceId: '100', resourceType: resourceType});
+            await collection.insertOne({id: '200', _sourceId: '200', resourceType: resourceType});
 
             resourceType = 'Practitioner';
             /**
@@ -789,13 +798,14 @@ describe('graphHelper Tests', () => {
             const db = await mongoDatabaseManager.getClientDbAsync();
             let resourceType = 'Practitioner';
             let collection = db.collection(`${resourceType}_${base_version}`);
-            await collection.insertOne({id: '2', resourceType: 'Practitioner'});
+            await collection.insertOne({id: '2', _sourceId: '2', resourceType: 'Practitioner'});
 
             // add a PractitionerRole
             resourceType = 'PractitionerRole';
             collection = db.collection(`${resourceType}_${base_version}`);
             await collection.insertOne({
                 id: '10',
+                _sourceId: '10',
                 resourceType: resourceType,
                 practitioner: {
                     reference: 'Practitioner/1',
@@ -808,6 +818,7 @@ describe('graphHelper Tests', () => {
             });
             await collection.insertOne({
                 id: '20',
+                _sourceId: '20',
                 resourceType: resourceType,
                 practitioner: {
                     reference: 'Practitioner/2',
@@ -821,8 +832,8 @@ describe('graphHelper Tests', () => {
             // add an Organization
             resourceType = 'Organization';
             collection = db.collection(`${resourceType}_${base_version}`);
-            await collection.insertOne({id: '100', resourceType: resourceType});
-            await collection.insertOne({id: '200', resourceType: resourceType});
+            await collection.insertOne({id: '100', _sourceId: '100', resourceType: resourceType});
+            await collection.insertOne({id: '200', _sourceId: '200', resourceType: resourceType});
 
             resourceType = 'Practitioner';
             /**
@@ -915,6 +926,7 @@ describe('graphHelper Tests', () => {
             let collection = db.collection(`${resourceType}_${base_version}`);
             await collection.insertOne({
                 id: '10',
+                _sourceId: '10',
                 resourceType: resourceType,
                 practitioner: {
                     reference: 'Practitioner/1',
@@ -956,6 +968,7 @@ describe('graphHelper Tests', () => {
             collection = db.collection(`${resourceType}_${base_version}`);
             await collection.insertOne({
                 id: 'AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He',
+                _sourceId: 'AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He',
                 resourceType: resourceType,
             });
 
@@ -1052,6 +1065,7 @@ describe('graphHelper Tests', () => {
             let collection = db.collection(`${resourceType}_${base_version}`);
             await collection.insertOne({
                 id: '2',
+                _sourceId: '2',
                 resourceType: 'Practitioner',
                 extension: [
                     {
@@ -1070,6 +1084,7 @@ describe('graphHelper Tests', () => {
             collection = db.collection(`${resourceType}_${base_version}`);
             await collection.insertOne({
                 id: '10',
+                _sourceId: '10',
                 resourceType: resourceType,
                 practitioner: {
                     reference: 'Practitioner/1',
@@ -1110,6 +1125,7 @@ describe('graphHelper Tests', () => {
             });
             await collection.insertOne({
                 id: '20',
+                _sourceId: '20',
                 resourceType: resourceType,
                 practitioner: {
                     reference: 'Practitioner/2',
@@ -1123,14 +1139,15 @@ describe('graphHelper Tests', () => {
             // add an Organization
             resourceType = 'Organization';
             collection = db.collection(`${resourceType}_${base_version}`);
-            await collection.insertOne({id: '100', resourceType: resourceType});
-            await collection.insertOne({id: '200', resourceType: resourceType});
+            await collection.insertOne({id: '100', _sourceId: '100', resourceType: resourceType});
+            await collection.insertOne({id: '200', _sourceId: '200', resourceType: resourceType});
 
             // add an InsurancePlan
             resourceType = 'InsurancePlan';
             collection = db.collection(`${resourceType}_${base_version}`);
             await collection.insertOne({
                 id: 'AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He',
+                _sourceId: 'AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He',
                 resourceType: resourceType,
             });
 
@@ -1285,6 +1302,7 @@ describe('graphHelper Tests', () => {
             let collection = db.collection(`${resourceType}_${base_version}`);
             await collection.insertOne({
                 id: '2',
+                _sourceId: '2',
                 resourceType: 'Practitioner',
                 extension: [
                     {
@@ -1303,6 +1321,7 @@ describe('graphHelper Tests', () => {
             collection = db.collection(`${resourceType}_${base_version}`);
             await collection.insertOne({
                 id: '10',
+                _sourceId: '10',
                 resourceType: resourceType,
                 practitioner: {
                     reference: 'Practitioner/1',
@@ -1343,6 +1362,7 @@ describe('graphHelper Tests', () => {
             });
             await collection.insertOne({
                 id: '20',
+                _sourceId: '20',
                 resourceType: resourceType,
                 practitioner: {
                     reference: 'Practitioner/2',
@@ -1356,14 +1376,15 @@ describe('graphHelper Tests', () => {
             // add an Organization
             resourceType = 'Organization';
             collection = db.collection(`${resourceType}_${base_version}`);
-            await collection.insertOne({id: '100', resourceType: resourceType});
-            await collection.insertOne({id: '200', resourceType: resourceType});
+            await collection.insertOne({id: '100', _sourceId: '100', resourceType: resourceType});
+            await collection.insertOne({id: '200', _sourceId: '200', resourceType: resourceType});
 
             // add an InsurancePlan
             resourceType = 'InsurancePlan';
             collection = db.collection(`${resourceType}_${base_version}`);
             await collection.insertOne({
                 id: 'AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He',
+                _sourceId: 'AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He',
                 resourceType: resourceType,
             });
             resourceType = 'Practitioner';
@@ -1499,6 +1520,7 @@ describe('graphHelper Tests', () => {
             let collection = db.collection(`${resourceType}_${base_version}`);
             await collection.insertOne({
                 id: '2',
+                _sourceId: '2',
                 resourceType: 'Practitioner',
                 extension: [
                     {
@@ -1517,6 +1539,7 @@ describe('graphHelper Tests', () => {
             collection = db.collection(`${resourceType}_${base_version}`);
             await collection.insertOne({
                 id: '10',
+                _sourceId: '10',
                 resourceType: resourceType,
                 practitioner: {
                     reference: 'Practitioner/1',
@@ -1557,6 +1580,7 @@ describe('graphHelper Tests', () => {
             });
             await collection.insertOne({
                 id: '20',
+                _sourceId: '20',
                 resourceType: resourceType,
                 practitioner: {
                     reference: 'Practitioner/2',
@@ -1570,14 +1594,15 @@ describe('graphHelper Tests', () => {
             // add an Organization
             resourceType = 'Organization';
             collection = db.collection(`${resourceType}_${base_version}`);
-            await collection.insertOne({id: '100', resourceType: resourceType});
-            await collection.insertOne({id: '200', resourceType: resourceType});
+            await collection.insertOne({id: '100', _sourceId: '100', resourceType: resourceType});
+            await collection.insertOne({id: '200', _sourceId: '200', resourceType: resourceType});
 
             // add an InsurancePlan
             resourceType = 'InsurancePlan';
             collection = db.collection(`${resourceType}_${base_version}`);
             await collection.insertOne({
                 id: 'AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He',
+                _sourceId: 'AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He',
                 resourceType: resourceType,
             });
             resourceType = 'Practitioner';
@@ -1711,7 +1736,7 @@ describe('graphHelper Tests', () => {
                 'meta': {
                     'tag': [
                         {
-                            'display': 'db.Practitioner_4_0_0.find({\'id\':{\'$in\':[\'1\',\'2\']}}, {\'_id\':0})  | db.Practitioner_4_0_0.find({\'$or\':[{\'practitioner._sourceId\':\'Practitioner/1\'},{\'practitioner._sourceId\':\'Practitioner/2\'}]}, {}) | db.Practitioner_4_0_0.find({\'id\':{\'$in\':[\'100\',\'200\']}}, {}) | db.Practitioner_4_0_0.find({\'id\':{\'$in\':[\'AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He\']}}, {})',
+                            'display': "db.Practitioner_4_0_0.find({'_sourceId':{'$in':['1','2']}}, {'_id':0})  | db.Practitioner_4_0_0.find({'$or':[{'practitioner._sourceId':'Practitioner/1'},{'practitioner._sourceId':'Practitioner/2'}]}, {}) | db.Practitioner_4_0_0.find({'_sourceId':{'$in':['100','200']}}, {}) | db.Practitioner_4_0_0.find({'_sourceId':{'$in':['AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He']}}, {})",
                             'system': 'https://www.icanbwell.com/query'
                         },
                         {
@@ -1761,6 +1786,7 @@ describe('graphHelper Tests', () => {
             let collection = db.collection(`${resourceType}_${base_version}`);
             await collection.insertOne({
                 id: '2',
+                _sourceId: '2',
                 resourceType: 'Practitioner',
                 extension: [
                     {
@@ -1779,6 +1805,7 @@ describe('graphHelper Tests', () => {
             collection = db.collection(`${resourceType}_${base_version}`);
             await collection.insertOne({
                 id: '10',
+                _sourceId: '10',
                 resourceType: resourceType,
                 practitioner: {
                     reference: 'Practitioner/1',
@@ -1819,6 +1846,7 @@ describe('graphHelper Tests', () => {
             });
             await collection.insertOne({
                 id: '20',
+                _sourceId: '20',
                 resourceType: resourceType,
                 practitioner: {
                     reference: 'Practitioner/2',
@@ -1832,14 +1860,15 @@ describe('graphHelper Tests', () => {
             // add an Organization
             resourceType = 'Organization';
             collection = db.collection(`${resourceType}_${base_version}`);
-            await collection.insertOne({id: '100', resourceType: resourceType});
-            await collection.insertOne({id: '200', resourceType: resourceType});
+            await collection.insertOne({id: '100', _sourceId: '100', resourceType: resourceType});
+            await collection.insertOne({id: '200', _sourceId: '200', resourceType: resourceType});
 
             // add an InsurancePlan
             resourceType = 'InsurancePlan';
             collection = db.collection(`${resourceType}_${base_version}`);
             await collection.insertOne({
                 id: 'AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He',
+                _sourceId: 'AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He',
                 resourceType: resourceType,
             });
             resourceType = 'Practitioner';
@@ -1881,7 +1910,7 @@ describe('graphHelper Tests', () => {
                     'tag': [
                         {
                             'system': 'https://www.icanbwell.com/query',
-                            'display': 'db.Practitioner_4_0_0.find({\'id\':{\'$in\':[\'1\',\'2\']}}, {\'_id\':0})  | db.Practitioner_4_0_0.find({\'practitioner._sourceId\':\'Practitioner/1\'}, {}) | db.Practitioner_4_0_0.find({\'id\':{\'$in\':[\'100\']}}, {}) | db.Practitioner_4_0_0.find({\'id\':{\'$in\':[\'AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He\']}}, {})',
+                            'display': "db.Practitioner_4_0_0.find({'_sourceId':{'$in':['1','2']}}, {'_id':0})  | db.Practitioner_4_0_0.find({'practitioner._sourceId':'Practitioner/1'}, {}) | db.Practitioner_4_0_0.find({'_sourceId':{'$in':['100']}}, {}) | db.Practitioner_4_0_0.find({'_sourceId':{'$in':['AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He']}}, {})",
                         },
                         {
                             'system': 'https://www.icanbwell.com/queryCollection',
