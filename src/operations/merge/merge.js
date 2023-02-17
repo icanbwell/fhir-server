@@ -22,6 +22,7 @@ const Parameters = require('../../fhir/classes/4_0_0/resources/parameters');
 const {ResourceValidator} = require('../common/resourceValidator');
 const {getCircularReplacer} = require('../../utils/getCircularReplacer');
 const {ParsedArgs} = require('../query/parsedArgsItem');
+const {MergeResultEntry} = require('../common/mergeResultEntry');
 
 class MergeOperation {
     /**
@@ -135,12 +136,13 @@ class MergeOperation {
                 /**
                  * @type {MergeResultEntry}
                  */
-                const mergeResultItem = {
-                    id: id,
-                    resourceType: resourceType,
-                    created: false,
-                    updated: false,
-                };
+                const mergeResultItem = new MergeResultEntry({
+                        id: id,
+                        resourceType: resourceType,
+                        created: false,
+                        updated: false,
+                    }
+                );
                 mergeResults.push(mergeResultItem);
             }
         }

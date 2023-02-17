@@ -25,6 +25,7 @@ const {RethrownError} = require('../../utils/rethrownError');
 const {PreSaveManager} = require('../../preSaveHandlers/preSave');
 const {ConfigManager} = require('../../utils/configManager');
 const {SecurityTagSystem} = require('../../utils/securityTagSystem');
+const {MergeResultEntry} = require('../common/mergeResultEntry');
 
 const Mutex = require('async-mutex').Mutex;
 const mutex = new Mutex();
@@ -614,14 +615,16 @@ class MergeManager {
                     ]
                 });
                 const issue = (operationOutcome.issue && operationOutcome.issue.length > 0) ? operationOutcome.issue[0] : null;
-                return {
-                    id: id,
-                    created: false,
-                    updated: false,
-                    issue: issue,
-                    operationOutcome: operationOutcome,
-                    resourceType: resourceType
-                };
+                return new MergeResultEntry(
+                    {
+                        id: id,
+                        created: false,
+                        updated: false,
+                        issue: issue,
+                        operationOutcome: operationOutcome,
+                        resourceType: resourceType
+                    }
+                );
             }
 
             if (isTrue(this.configManager.authEnabled)) {
@@ -642,14 +645,16 @@ class MergeManager {
                             })
                         ]
                     });
-                    return {
-                        id: id,
-                        created: false,
-                        updated: false,
-                        issue: (operationOutcome.issue && operationOutcome.issue.length > 0) ? operationOutcome.issue[0] : null,
-                        operationOutcome: operationOutcome,
-                        resourceType: resourceToMerge.resourceType
-                    };
+                    return new MergeResultEntry(
+                        {
+                            id: id,
+                            created: false,
+                            updated: false,
+                            issue: (operationOutcome.issue && operationOutcome.issue.length > 0) ? operationOutcome.issue[0] : null,
+                            operationOutcome: operationOutcome,
+                            resourceType: resourceToMerge.resourceType
+                        }
+                    );
                 }
             }
 
@@ -708,14 +713,16 @@ class MergeManager {
                             })
                         ]
                     });
-                    return {
-                        id: id,
-                        created: false,
-                        updated: false,
-                        issue: (accessTagOperationOutcome.issue && accessTagOperationOutcome.issue.length > 0) ? accessTagOperationOutcome.issue[0] : null,
-                        operationOutcome: accessTagOperationOutcome,
-                        resourceType: resourceToMerge.resourceType
-                    };
+                    return new MergeResultEntry(
+                        {
+                            id: id,
+                            created: false,
+                            updated: false,
+                            issue: (accessTagOperationOutcome.issue && accessTagOperationOutcome.issue.length > 0) ? accessTagOperationOutcome.issue[0] : null,
+                            operationOutcome: accessTagOperationOutcome,
+                            resourceType: resourceToMerge.resourceType
+                        }
+                    );
                 }
                 if (!this.scopesManager.doesResourceHaveOwnerTags(resourceToMerge)) {
                     const accessTagOperationOutcome = new OperationOutcome({
@@ -735,14 +742,15 @@ class MergeManager {
                             })
                         ]
                     });
-                    return {
-                        id: id,
-                        created: false,
-                        updated: false,
-                        issue: (accessTagOperationOutcome.issue && accessTagOperationOutcome.issue.length > 0) ? accessTagOperationOutcome.issue[0] : null,
-                        operationOutcome: accessTagOperationOutcome,
-                        resourceType: resourceToMerge.resourceType
-                    };
+                    return new MergeResultEntry({
+                            id: id,
+                            created: false,
+                            updated: false,
+                            issue: (accessTagOperationOutcome.issue && accessTagOperationOutcome.issue.length > 0) ? accessTagOperationOutcome.issue[0] : null,
+                            operationOutcome: accessTagOperationOutcome,
+                            resourceType: resourceToMerge.resourceType
+                        }
+                    );
                 }
             }
 

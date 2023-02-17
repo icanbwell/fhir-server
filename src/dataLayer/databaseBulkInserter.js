@@ -27,44 +27,11 @@ const Meta = require('../fhir/classes/4_0_0/complex_types/meta');
 const BundleResponse = require('../fhir/classes/4_0_0/backbone_elements/bundleResponse');
 const OperationOutcome = require('../fhir/classes/4_0_0/resources/operationOutcome');
 const {MongoFilterGenerator} = require('../utils/mongoFilterGenerator');
+const {MergeResultEntry} = require('../operations/common/mergeResultEntry');
+const {BulkInsertUpdateEntry} = require('./bulkInsertUpdateEntry');
 
 const Mutex = require('async-mutex').Mutex;
 const mutex = new Mutex();
-
-/**
- * @typedef BulkResultEntry
- * @description Result of a bulk operation
- * @type {object}
- * @property {string} resourceType
- * @property {import('mongodb').BulkWriteOpResultObject|null} mergeResult
- * @property {MergeResultEntry[]|null} mergeResultEntries
- * @property {Error|null} error
- */
-
-/**
- * @desc Type of operation
- * @desc insert = blind insert without checking if id already exists
- * @desc insertUniqueId = insert if id does not exist else merge
- * @desc replace = replace entity with this one and do not merge
- * @desc merge = merge contents of this doc with what the database has
- * @typedef {('insert'|'insertUniqueId'|'replace'|'merge')} OperationType
- **/
-
-/**
- * @typedef BulkInsertUpdateEntry
- * @description Represent a single Insert or Update operation
- * @type {object}
- * @property {OperationType} operationType
- * @property {boolean} isCreateOperation
- * @property {boolean} isUpdateOperation
- * @property {string} resourceType
- * @property {string} id
- * @property {Resource} resource
- * @property {import('mongodb').AnyBulkWriteOperation} operation
- * @property {MergePatchEntry[]|undefined|null} patches
- * @property {boolean|undefined} [skipped]
- */
-
 
 /**
  * @classdesc This class accepts inserts and updates and when executeAsync() is called it sends them to Mongo in bulk
@@ -231,16 +198,19 @@ class DatabaseBulkInserter extends EventEmitter {
             operationsByResourceTypeMap.set(`${resourceType}`, []);
         }
         // add this operation to the list of operations for this collection
-        operationsByResourceTypeMap.get(resourceType).push({
-            id: resource.id,
-            resourceType,
-            resource,
-            operation,
-            operationType,
-            patches,
-            isCreateOperation: operationType === 'insert' || operationType === 'insertUniqueId',
-            isUpdateOperation: operationType === 'replace' || operationType === 'merge'
-        });
+        operationsByResourceTypeMap.get(resourceType).push(
+            new BulkInsertUpdateEntry({
+                    id: resource.id,
+                    resourceType,
+                    resource,
+                    operation,
+                    operationType,
+                    patches,
+                    isCreateOperation: operationType === 'insert' || operationType === 'insertUniqueId',
+                    isUpdateOperation: operationType === 'replace' || operationType === 'merge'
+                }
+            )
+        );
     }
 
     /**
@@ -269,16 +239,19 @@ class DatabaseBulkInserter extends EventEmitter {
             historyOperationsByResourceTypeMap.set(`${resourceType}`, []);
         }
         // add this operation to the list of operations for this collection
-        historyOperationsByResourceTypeMap.get(resourceType).push({
-            id: resource.id,
-            resourceType,
-            resource,
-            operation,
-            operationType,
-            patches,
-            isCreateOperation: true,
-            isUpdateOperation: false
-        });
+        historyOperationsByResourceTypeMap.get(resourceType).push(
+            new BulkInsertUpdateEntry({
+                    id: resource.id,
+                    resourceType,
+                    resource,
+                    operation,
+                    operationType,
+                    patches,
+                    isCreateOperation: true,
+                    isUpdateOperation: false
+                }
+            )
+        );
     }
 
     /**
@@ -1089,12 +1062,13 @@ class DatabaseBulkInserter extends EventEmitter {
         /**
          * @type {MergeResultEntry}
          */
-        const mergeResultEntry = {
+        const mergeResultEntry = new MergeResultEntry({
             'id': bulkInsertUpdateEntry.id,
+            uuid: bulkInsertUpdateEntry.uuid,
             created: bulkInsertUpdateEntry.isCreateOperation && !bulkWriteResult.error && !bulkInsertUpdateEntry.skipped,
             updated: bulkInsertUpdateEntry.isUpdateOperation && !bulkWriteResult.error && !bulkInsertUpdateEntry.skipped,
             resourceType: resourceType,
-        };
+        });
         if (bulkWriteResult.error) {
             const diagnostics = JSON.stringify(bulkWriteResult.error, getCircularReplacer());
             mergeResultEntry.issue = new OperationOutcomeIssue({
