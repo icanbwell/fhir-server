@@ -143,14 +143,7 @@ class SearchByVersionIdOperation {
             });
 
             const queryForVersionId = {
-                '$or': [
-                    {
-                        'meta.versionId': version_id
-                    },
-                    {
-                        'resource.meta.versionId': version_id
-                    },
-                ]
+                'resource.meta.versionId': version_id
             };
             if (query.$and) {
                 query.$and.push(queryForVersionId);

@@ -64,9 +64,9 @@ async function main() {
 /**
  * To run this:
  * nvm use 18.14.0
- * node src/admin/scripts/fixHistoryRunner.js --collections=Practitioner_4_0_0 --batchSize=10000
- * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/fixHistoryRunner.js --collections=all --batchSize=10000
- * node src/admin/scripts/fixHistoryRunner.js --collections=Account_4_0_0 --batchSize=10000
+ * node src/admin/scripts/fixHistory.js --collections=Practitioner_4_0_0_History --batchSize=10000
+ * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/fixHistory.js --collections=all --batchSize=10000
+ * node src/admin/scripts/fixHistory.js --collections=Account_4_0_0_History --batchSize=10000
  */
 main().catch(reason => {
     console.error(reason);
