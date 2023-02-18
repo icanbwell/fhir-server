@@ -420,7 +420,8 @@ const createContainer = function () {
             scopesValidator: c.scopesValidator,
             bundleManager: c.bundleManager,
             resourceLocatorFactory: c.resourceLocatorFactory,
-            resourceValidator: c.resourceValidator
+            resourceValidator: c.resourceValidator,
+            preSaveManager: c.preSaveManager
         }
     ));
     container.register('everythingOperation', (c) => new EverythingOperation({
