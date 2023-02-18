@@ -26,6 +26,7 @@ const {PreSaveManager} = require('../../preSaveHandlers/preSave');
 const {ConfigManager} = require('../../utils/configManager');
 const {SecurityTagSystem} = require('../../utils/securityTagSystem');
 const {MergeResultEntry} = require('../common/mergeResultEntry');
+const {MongoFilterGenerator} = require('../../utils/mongoFilterGenerator');
 
 const Mutex = require('async-mutex').Mutex;
 const mutex = new Mutex();
@@ -42,6 +43,7 @@ class MergeManager {
      * @param {ResourceValidator} resourceValidator
      * @param {PreSaveManager} preSaveManager
      * @param {ConfigManager} configManager
+     * @param {MongoFilterGenerator} mongoFilterGenerator
      */
     constructor(
         {
@@ -54,6 +56,7 @@ class MergeManager {
             resourceValidator,
             preSaveManager,
             configManager,
+            mongoFilterGenerator
         }
     ) {
         /**
@@ -105,6 +108,12 @@ class MergeManager {
          */
         this.configManager = configManager;
         assertTypeEquals(configManager, ConfigManager);
+
+        /**
+         * @type {MongoFilterGenerator}
+         */
+        this.mongoFilterGenerator = mongoFilterGenerator;
+        assertTypeEquals(mongoFilterGenerator, MongoFilterGenerator);
     }
 
     /**
@@ -129,7 +138,8 @@ class MergeManager {
         /**
          * @type {string}
          */
-        let id = resourceToMerge.id;
+        let uuid = resourceToMerge._uuid;
+        assertIsValid(uuid, `No uuid found for resource ${resourceToMerge.resourceType}/${resourceToMerge.id}`);
 
         // found an existing resource
         /**
@@ -142,7 +152,7 @@ class MergeManager {
         ))) {
             throw new ForbiddenError(
                 'user ' + user + ' with scopes [' + scope + '] has no access to resource ' +
-                foundResource.resourceType + ' with id ' + id);
+                foundResource.resourceType + ' with id ' + uuid);
         }
 
         await this.preSaveManager.preSaveAsync(currentResource);
@@ -162,7 +172,7 @@ class MergeManager {
                     'after': patched_resource_incoming
                 },
                 currentDate,
-                id,
+                uuid,
                 'merge_' + currentResource.meta.versionId + '_' + requestId);
         }
         if (patched_resource_incoming) {
@@ -200,7 +210,7 @@ class MergeManager {
             'Merging new resource',
             {
                 user,
-                args: {id: resourceToMerge.id, resource: resourceToMerge}
+                args: {uuid: resourceToMerge._uuid, resource: resourceToMerge}
             }
         );
         if (this.configManager.checkAccessTagsOnSave) {
@@ -279,11 +289,8 @@ class MergeManager {
         /**
          * @type {string}
          */
-        let id = resourceToMerge.id;
-
-        if (!id) {
-            return;
-        }
+        let uuid = resourceToMerge._uuid;
+        assertIsValid(uuid, `No uuid for resource ${resourceToMerge.resourceType}/${resourceToMerge.id}`);
 
         if (resourceToMerge.meta && resourceToMerge.meta.lastUpdated && typeof resourceToMerge.meta.lastUpdated !== 'string') {
             resourceToMerge.meta.lastUpdated = new Date(resourceToMerge.meta.lastUpdated).toISOString();
@@ -294,7 +301,7 @@ class MergeManager {
                 resourceToMerge.resourceType,
                 resourceToMerge,
                 currentDate,
-                id,
+                uuid,
                 'merge_' + requestId);
         }
 
@@ -308,16 +315,26 @@ class MergeManager {
                 /**
                  * @type {Resource|null}
                  */
-                let currentResource = this.databaseBulkLoader ?
-                    this.databaseBulkLoader.getResourceFromExistingList(
+                let currentResource;
+
+                if (this.databaseBulkLoader) {
+                    currentResource = this.databaseBulkLoader.getResourceFromExistingList(
                         {
                             requestId,
                             resourceType: resourceToMerge.resourceType,
-                            id: id.toString(),
-                            securityTagStructure: resourceToMerge.securityTagStructure
+                            uuid
                         }
-                    ) :
-                    await databaseQueryManager.findOneAsync({query: {id: id.toString()}});
+                    );
+                } else {
+                    currentResource = await databaseQueryManager.findOneAsync({
+                        query:
+                            this.mongoFilterGenerator.generateFilterForUuid(
+                                {
+                                    uuid
+                                }
+                            )
+                    });
+                }
 
                 // check if resource was found in database or not
                 if (currentResource && currentResource.meta) {
@@ -339,7 +356,8 @@ class MergeManager {
                         user: user,
                         args: {
                             resourceType: resourceToMerge.resourceType,
-                            id: id,
+                            id: resourceToMerge.id,
+                            sourceAssigningAuthority: resourceToMerge._sourceAssigningAuthority,
                             error: e
                         }
                     }
@@ -355,7 +373,7 @@ class MergeManager {
                             },
                             diagnostics: e.toString(),
                             expression: [
-                                resourceToMerge.resourceType + '/' + id
+                                resourceToMerge.resourceType + '/' + resourceToMerge.id
                             ]
                         }
                     ]
@@ -365,13 +383,13 @@ class MergeManager {
                         resourceToMerge.resourceType,
                         resourceToMerge,
                         currentDate,
-                        id,
+                        uuid,
                         'merge');
                     await sendToS3('errors',
                         resourceToMerge.resourceType,
                         operationOutcome,
                         currentDate,
-                        id,
+                        uuid,
                         'merge_error');
                 }
                 throw new RethrownError(
@@ -380,7 +398,8 @@ class MergeManager {
                         error: e,
                         source: 'MergeManager',
                         args: {
-                            id: id,
+                            id: resourceToMerge.id,
+                            sourceAssigningAuthority: resourceToMerge._sourceAssigningAuthority,
                             resourceType: resourceType,
                             created: false,
                             updated: false,
@@ -416,15 +435,17 @@ class MergeManager {
         }
     ) {
         try {
+            resources_incoming = await async.map(resources_incoming,
+                async resource => await this.preSaveManager.preSaveAsync(resource));
             /**
              * @type {string[]}
              */
-            const ids_of_resources = resources_incoming.map(r => r.id);
+            const uuidsOfResources = resources_incoming.map(r => r._uuid);
             logDebug(
                 'Merge received array',
                 {
                     user,
-                    args: {length: resources_incoming.length, id: ids_of_resources}
+                    args: {length: resources_incoming.length, id: uuidsOfResources}
                 }
             );
             // find items without duplicates and run them in parallel
@@ -433,11 +454,11 @@ class MergeManager {
             /**
              * @type {Resource[]}
              */
-            const duplicate_id_resources = findDuplicateResources(resources_incoming);
+            const duplicate_uuid_resources = findDuplicateResources(resources_incoming);
             /**
              * @type {Resource[]}
              */
-            const non_duplicate_id_resources = findUniqueResources(resources_incoming);
+            const non_duplicate_uuid_resources = findUniqueResources(resources_incoming);
 
             const mergeResourceFn = async (/** @type {Object} */ x) => await this.mergeResourceWithRetryAsync(
                 {
@@ -446,8 +467,8 @@ class MergeManager {
                 });
 
             await Promise.all([
-                async.map(non_duplicate_id_resources, mergeResourceFn), // run in parallel
-                async.mapSeries(duplicate_id_resources, mergeResourceFn) // run in series
+                async.map(non_duplicate_uuid_resources, mergeResourceFn), // run in parallel
+                async.mapSeries(duplicate_uuid_resources, mergeResourceFn) // run in series
             ]);
         } catch (e) {
             throw new RethrownError({
@@ -517,7 +538,7 @@ class MergeManager {
     ) {
         try {
             assertTypeEquals(resourceToMerge, Resource);
-            let id = resourceToMerge.id;
+            let uuid = resourceToMerge._uuid;
 
             await this.preSaveManager.preSaveAsync(resourceToMerge);
 
@@ -526,7 +547,7 @@ class MergeManager {
                 {
                     requestId,
                     resourceType: resourceToMerge.resourceType,
-                    id: id.toString(),
+                    uuid,
                     doc: resourceToMerge,
                     previousVersionId,
                     patches
@@ -618,6 +639,8 @@ class MergeManager {
                 return new MergeResultEntry(
                     {
                         id: id,
+                        uuid: resourceToMerge._uuid,
+                        sourceAssigningAuthority: resourceToMerge._sourceAssigningAuthority,
                         created: false,
                         updated: false,
                         issue: issue,
@@ -648,6 +671,8 @@ class MergeManager {
                     return new MergeResultEntry(
                         {
                             id: id,
+                            uuid: resourceToMerge._uuid,
+                            sourceAssigningAuthority: resourceToMerge._sourceAssigningAuthority,
                             created: false,
                             updated: false,
                             issue: (operationOutcome.issue && operationOutcome.issue.length > 0) ? operationOutcome.issue[0] : null,
@@ -716,6 +741,8 @@ class MergeManager {
                     return new MergeResultEntry(
                         {
                             id: id,
+                            uuid: resourceToMerge._uuid,
+                            sourceAssigningAuthority: resourceToMerge._sourceAssigningAuthority,
                             created: false,
                             updated: false,
                             issue: (accessTagOperationOutcome.issue && accessTagOperationOutcome.issue.length > 0) ? accessTagOperationOutcome.issue[0] : null,
@@ -744,6 +771,8 @@ class MergeManager {
                     });
                     return new MergeResultEntry({
                             id: id,
+                            uuid: resourceToMerge._uuid,
+                            sourceAssigningAuthority: resourceToMerge._sourceAssigningAuthority,
                             created: false,
                             updated: false,
                             issue: (accessTagOperationOutcome.issue && accessTagOperationOutcome.issue.length > 0) ? accessTagOperationOutcome.issue[0] : null,
@@ -859,7 +888,7 @@ class MergeManager {
                             {
                                 requestInfo, base_version, resourceType,
                                 operation: 'create', args: parsedArgs.getRawArgs(),
-                                ids: createdItems.map(r => r['id'])
+                                ids: createdItems.map(r => r._uuid)
                             }
                         );
                     }
@@ -868,7 +897,7 @@ class MergeManager {
                             {
                                 requestInfo, base_version, resourceType,
                                 operation: 'update', args: parsedArgs.getRawArgs(),
-                                ids: updatedItems.map(r => r['id'])
+                                ids: updatedItems.map(r => r._uuid)
                             }
                         );
                     }

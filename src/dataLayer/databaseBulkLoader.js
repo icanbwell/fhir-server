@@ -112,7 +112,11 @@ class DatabaseBulkLoader {
         // Start the FHIR request timer, saving a reference to the returned method
         const timer = databaseBulkLoaderTimer.startTimer();
         try {
-            const databaseQueryManager = this.databaseQueryFactory.createQuery({resourceType, base_version});
+            const databaseQueryManager = this.databaseQueryFactory.createQuery(
+                {
+                    resourceType, base_version
+                }
+            );
             /**
              * cursor
              * @type {DatabasePartitionedCursor}
@@ -164,11 +168,10 @@ class DatabaseBulkLoader {
      * gets resources from list
      * @param {string} requestId
      * @param {string} resourceType
-     * @param {string} id
-     * @param {SecurityTagStructure} securityTagStructure
+     * @param {string} uuid
      * @return {null|Resource}
      */
-    getResourceFromExistingList({requestId, resourceType, id, securityTagStructure}) {
+    getResourceFromExistingList({requestId, resourceType, uuid}) {
         const bulkCache = this.getBulkCache({requestId});
         // see if there is cache for this resourceType
         /**
@@ -178,7 +181,7 @@ class DatabaseBulkLoader {
         if (cacheEntryResources) {
             return this.getMatchingResource(
                 {
-                    cacheEntryResources, id, securityTagStructure
+                    cacheEntryResources, uuid
                 }
             );
         } else {
@@ -189,28 +192,18 @@ class DatabaseBulkLoader {
     /**
      * Gets matching resources from list
      * @param {Resource[]} cacheEntryResources
-     * @param {string} id
-     * @param {SecurityTagStructure} securityTagStructure
+     * @param {string} uuid
      * @return {Resource|null}
      */
-    getMatchingResource({cacheEntryResources, id, securityTagStructure}) {
+    getMatchingResource({cacheEntryResources, uuid}) {
         /**
          * @type {Resource[]}
          */
-        let matchingResources = cacheEntryResources.filter(
-            resource => resource.id === id.toString()
+        let matchingResources = [];
+        matchingResources = cacheEntryResources.filter(
+            resource => resource._uuid === uuid
         );
-        if (this.configManager.enableGlobalIdSupport) {
-            // match if sourceAssigningAuthority or owner tag matches
-            matchingResources = cacheEntryResources.filter(
-                resource =>
-                    securityTagStructure.matchesOnSourceAssigningAuthority(
-                        {
-                            other: resource.securityTagStructure
-                        }
-                    )
-            );
-        }
+
         return getFirstResourceOrNull(matchingResources);
     }
 }

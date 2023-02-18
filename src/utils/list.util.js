@@ -44,7 +44,7 @@ const findUniques = (listToCheck, fnKey) => {
  */
 const findDuplicateResources = (listToCheck) => {
     // noinspection JSValidateTypes
-    return findDuplicates(listToCheck, r => `${r.resourceType}/${r.id}`);
+    return findDuplicates(listToCheck, r => `${r.resourceType}/${r._uuid}`);
 };
 
 /**
@@ -53,7 +53,7 @@ const findDuplicateResources = (listToCheck) => {
  */
 const findUniqueResources = (listToCheck) => {
     // noinspection JSValidateTypes
-    return findUniques(listToCheck, r => `${r.resourceType}/${r.id}`);
+    return findUniques(listToCheck, r => `${r.resourceType}/${r._uuid}`);
 };
 
 /**

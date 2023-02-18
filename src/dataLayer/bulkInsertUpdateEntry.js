@@ -15,10 +15,12 @@ class BulkInsertUpdateEntry {
      * @param {boolean} isUpdateOperation
      * @param {string} resourceType
      * @param {string} id
+     * @param {string} uuid
      * @param {Resource} resource
      * @param {import('mongodb').AnyBulkWriteOperation} operation
      * @param {MergePatchEntry[]|undefined|null} patches
      * @param {boolean|undefined} [skipped]
+     * @param {string} sourceAssigningAuthority
      */
     constructor({
                     operationType,
@@ -26,10 +28,12 @@ class BulkInsertUpdateEntry {
                     isUpdateOperation,
                     resourceType,
                     id,
+                    uuid,
                     resource,
                     operation,
                     patches,
-                    skipped
+                    skipped,
+                    sourceAssigningAuthority
                 }
     ) {
         /**
@@ -52,6 +56,14 @@ class BulkInsertUpdateEntry {
          * @type {string}
          */
         this.id = id;
+        /**
+         * @type {string}
+         */
+        this.sourceAssigningAuthority = sourceAssigningAuthority;
+        /**
+         * @type {string}
+         */
+        this.uuid = uuid;
         /**
          * @type {Resource}
          */

@@ -126,7 +126,7 @@ class DatabaseUpdateManager {
              * @type {Resource|null}
              */
             let resourceInDatabase = await databaseQueryManager.findOneAsync({
-                query: {id: doc.id}
+                query: {_uuid: doc._uuid}
             });
             await logTraceSystemEventAsync(
                 {
@@ -134,6 +134,7 @@ class DatabaseUpdateManager {
                     message: 'Found existing resource',
                     args: {
                         id: doc.id,
+                        uuid: doc._uuid,
                         resourceType: doc.resourceType,
                         doc,
                         resourceInDatabase
@@ -146,10 +147,12 @@ class DatabaseUpdateManager {
             /**
              * @type {Resource|null}
              */
-            let {updatedResource, patches} = await this.resourceMerger.mergeResourceAsync({
-                currentResource: resourceInDatabase,
-                resourceToMerge: doc
-            });
+            let {updatedResource, patches} = await this.resourceMerger.mergeResourceAsync(
+                {
+                    currentResource: resourceInDatabase,
+                    resourceToMerge: doc
+                }
+            );
             if (!updatedResource) {
                 return {savedResource: null, patches: null}; // nothing to do
             }
@@ -162,8 +165,8 @@ class DatabaseUpdateManager {
             while (runsLeft > 0) {
                 const previousVersionId = parseInt(doc.meta.versionId) - 1;
                 const filter = previousVersionId > 0 ?
-                    {$and: [{id: doc.id}, {'meta.versionId': `${previousVersionId}`}]} :
-                    {id: doc.id};
+                    {$and: [{_uuid: doc._uuid}, {'meta.versionId': `${previousVersionId}`}]} :
+                    {_uuid: doc._uuid};
                 docVersionsTested.push(doc);
                 const updateResult = await collection.replaceOne(filter, doc.toJSONInternal());
                 await logTraceSystemEventAsync(
@@ -172,6 +175,7 @@ class DatabaseUpdateManager {
                         message: 'Merging existing resource',
                         args: {
                             id: doc.id,
+                            uuid: doc._uuid,
                             resourceType: doc.resourceType,
                             doc,
                             resourceInDatabase,
@@ -188,22 +192,25 @@ class DatabaseUpdateManager {
                      * @type {Resource|null}
                      */
                     resourceInDatabase = await databaseQueryManager.findOneAsync({
-                        query: {id: doc.id}
+                        query: {_uuid: doc._uuid}
                     });
 
                     if (resourceInDatabase !== null) {
                         // merge with our resource
-                        ({updatedResource, patches} = await this.resourceMerger.mergeResourceAsync({
-                            currentResource: resourceInDatabase,
-                            resourceToMerge: doc
-                        }));
+                        ({updatedResource, patches} = await this.resourceMerger.mergeResourceAsync(
+                                {
+                                    currentResource: resourceInDatabase,
+                                    resourceToMerge: doc
+                                }
+                            )
+                        );
                         if (!updatedResource) {
                             return {savedResource: null, patches: null};
                         } else {
                             doc = updatedResource;
                         }
                     } else {
-                        throw new Error(`Unable to read resource ${doc.resourceType}/${doc.id} from database`);
+                        throw new Error(`Unable to read resource ${doc.resourceType}/${doc._uuid} from database`);
                     }
                     runsLeft = runsLeft - 1;
                     logTraceSystemEventAsync({
@@ -221,6 +228,7 @@ class DatabaseUpdateManager {
                             message: 'Successful merged existing resource',
                             args: {
                                 id: doc.id,
+                                uuid: doc._uuid,
                                 resourceType: doc.resourceType,
                                 doc,
                                 resourceInDatabase,
@@ -240,7 +248,7 @@ class DatabaseUpdateManager {
                     getCircularReplacer()
                 );
                 throw new Error(
-                    `Unable to save resource ${doc.resourceType}/${doc.id} with version ${doc.meta.versionId} ` +
+                    `Unable to save resource ${doc.resourceType}/${doc._uuid} with version ${doc.meta.versionId} ` +
                     `(original=${originalDatabaseVersion}) after 10 tries. ` +
                     `(versions tested: ${documentsTestedAsText})`);
             }

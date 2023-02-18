@@ -144,7 +144,7 @@ class DatabaseQueryManager {
                                 {
                                     id: requestId,
                                     method: 'DELETE',
-                                    url: `${this._base_version}/${resource.resourceType}/${resource.id}`
+                                    url: `${this._base_version}/${resource.resourceType}/${resource._uuid}`
                                 }
                             )
                         }));
@@ -220,7 +220,7 @@ class DatabaseQueryManager {
             const cursors = [];
             for (const /** @type import('mongodb').Collection<import('mongodb').DefaultSchema> */ collection of collections) {
                 /**
-                 * @type {AggregationCursor<Document>}
+                 * @type {import('mongodb').AggregationCursor<Document>}
                  */
                 const cursor = collection.aggregate(
                     [
@@ -322,7 +322,7 @@ class DatabaseQueryManager {
              */
             const collections = await this.resourceLocator.getOrCreateCollectionsAsync({resources: resources});
             const query = {
-                id: {$in: resources.map(r => r.id)}
+                _uuid: {$in: resources.map(r => r._uuid)}
             };
             const options = {};
             /**
@@ -371,10 +371,7 @@ class DatabaseQueryManager {
          */
         const options = {
             projection: {
-                'id': 1,
                 '_uuid': 1,
-                '_sourceId': 1,
-                'meta': 1
             }
         };
         try {

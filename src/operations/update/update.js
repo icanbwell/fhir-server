@@ -255,7 +255,7 @@ class UpdateOperation {
                     await this.databaseBulkInserter.replaceOneAsync(
                         {
                             requestId, resourceType, doc,
-                            id,
+                            uuid: doc._uuid,
                             patches
                         }
                     );

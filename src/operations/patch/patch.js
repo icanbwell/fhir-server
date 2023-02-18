@@ -170,7 +170,7 @@ class PatchOperation {
             await this.databaseBulkInserter.replaceOneAsync(
                 {
                     requestId, resourceType, doc: resource,
-                    id,
+                    uuid: resource._uuid,
                     patches: patchContent.map(
                         p => {
                             return {

@@ -1,3 +1,5 @@
+const {ResourceComparer} = require('../../fhir/resourceComparer');
+
 class MergeResultEntry {
     /**
      * constructor
@@ -8,6 +10,7 @@ class MergeResultEntry {
      * @param {string} uuid
      * @param {string} resourceType
      * @param {boolean} updated
+     * @param {string} sourceAssigningAuthority
      */
     constructor(
         {
@@ -17,7 +20,8 @@ class MergeResultEntry {
             id,
             uuid,
             resourceType,
-            updated
+            updated,
+            sourceAssigningAuthority
         }
     ) {
         /**
@@ -39,7 +43,7 @@ class MergeResultEntry {
         /**
          * @type {string}
          */
-        this.uuid = uuid;
+        this._uuid = uuid;
         /**
          * @type {string}
          */
@@ -48,6 +52,24 @@ class MergeResultEntry {
          * @type {boolean}
          */
         this.updated = updated;
+        /**
+         * @type {string}
+         */
+        this._sourceAssigningAuthority = sourceAssigningAuthority;
+    }
+
+    /**
+     * Returns whether two resources are same
+     * @param {Resource} other
+     * @return {boolean}
+     */
+    isSameResourceByIdAndSecurityTag({other}) {
+        return ResourceComparer.isSameResourceByIdAndSecurityTag(
+            {
+                first: this,
+                second: other
+            }
+        );
     }
 }
 

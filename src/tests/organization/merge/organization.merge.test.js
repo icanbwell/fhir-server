@@ -6,9 +6,11 @@ const {
     commonBeforeEach,
     commonAfterEach,
     getHeaders,
-    createTestRequest,
+    createTestRequest, getTestContainer, getRequestId,
 } = require('../../common');
-const { describe, beforeEach, afterEach, expect, test } = require('@jest/globals');
+const {describe, beforeEach, afterEach, expect, test} = require('@jest/globals');
+const {assertTypeEquals} = require('../../../utils/assertType');
+const {PostRequestProcessor} = require('../../../utils/postRequestProcessor');
 
 describe('Organization Merge Tests', () => {
     beforeEach(async () => {
@@ -32,6 +34,16 @@ describe('Organization Merge Tests', () => {
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveMergeResponse([{created: true}, {created: true}]);
+
+            const container = getTestContainer();
+            /**
+             * @type {PostRequestProcessor}
+             */
+                // eslint-disable-next-line no-unused-vars
+            const postRequestProcessor = container.postRequestProcessor;
+            assertTypeEquals(postRequestProcessor, PostRequestProcessor);
+
+            await postRequestProcessor.waitTillDoneAsync({requestId: getRequestId(resp)});
 
             resp = await request
                 .post('/4_0_0/Organization/1/$merge')

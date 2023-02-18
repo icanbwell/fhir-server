@@ -1,4 +1,5 @@
 const {assertIsValid} = require('./assertType');
+const {isTrue} = require('./isTrue');
 
 /**
  * Store information about the HTTP request
@@ -109,6 +110,12 @@ class FhirRequestInfo {
          * @type {import('content-type').ContentType|null}
          */
         this.contentTypeFromHeader = contentTypeFromHeader;
+
+        /**
+         * whether the client wants to use global ids
+         * @type {boolean}
+         */
+        this.preferGlobalId = headers['Prefer'] && isTrue(headers['Prefer'].replace('global_id=', ''));
     }
 }
 

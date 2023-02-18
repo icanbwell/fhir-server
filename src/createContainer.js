@@ -274,7 +274,8 @@ const createContainer = function () {
                 resourceMerger: c.resourceMerger,
                 resourceValidator: c.resourceValidator,
                 preSaveManager: c.preSaveManager,
-                configManager: c.configManager
+                configManager: c.configManager,
+                mongoFilterGenerator: c.mongoFilterGenerator
             }
         )
     );

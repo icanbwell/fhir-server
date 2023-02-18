@@ -13,7 +13,7 @@ const BundleEntry = require('../fhir/classes/4_0_0/backbone_elements/bundleEntry
  * @typedef CursorInfo
  * @property {string} db
  * @property {string} collection
- * @property {import('mongodb').FindCursor<import('mongodb').WithId<import('mongodb').DefaultSchema>>} cursor
+ * @property {import('mongodb').AbstractCursor<import('mongodb').WithId<import('mongodb').DefaultSchema>>} cursor
  */
 
 class DatabasePartitionedCursor {
