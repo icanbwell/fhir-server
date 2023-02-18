@@ -19,7 +19,7 @@ const OperationOutcome = require('../../../fhir/classes/4_0_0/resources/operatio
 const Coding = require('../../../fhir/classes/4_0_0/complex_types/coding');
 const OperationOutcomeIssue = require('../../../fhir/classes/4_0_0/backbone_elements/operationOutcomeIssue');
 const {generateUUIDv5} = require('../../../utils/uid.util');
-const {Identifier} = require('../../../fhir/classes/4_0_0/complex_types/identifier');
+const Identifier = require('../../../fhir/classes/4_0_0/complex_types/identifier');
 
 class MockChangeEventProducer extends ChangeEventProducer {
     /**
@@ -669,6 +669,7 @@ describe('databaseBulkInserter Tests', () => {
 
             const codeSystemOriginal = new CodeSystem({
                 id: 'loinc-1',
+                _uuid: generateUUIDv5('loinc-1|medstar'),
                 status: 'active',
                 content: 'complete',
                 meta: new Meta({
@@ -720,6 +721,7 @@ describe('databaseBulkInserter Tests', () => {
 
             const codeSystem2 = new CodeSystem({
                 id: 'loinc-1',
+                _uuid: generateUUIDv5('loinc-1|medstar'),
                 status: 'active',
                 content: 'complete',
                 meta: new Meta({
@@ -760,6 +762,7 @@ describe('databaseBulkInserter Tests', () => {
             // now add in a new one while waiting
             const codeSystem1 = new CodeSystem({
                 id: 'loinc-1',
+                _uuid: generateUUIDv5('loinc-1|medstar'),
                 status: 'active',
                 content: 'complete',
                 meta: new Meta({
@@ -809,6 +812,7 @@ describe('databaseBulkInserter Tests', () => {
             expect(codeSystemsBeforeBulkUpdate.length).toStrictEqual(1);
             const expectedCodeSystemAfterFirstUpdate = new CodeSystem({
                 id: 'loinc-1',
+                _uuid: generateUUIDv5('loinc-1|medstar'),
                 status: 'active',
                 content: 'complete',
                 meta: new Meta({
@@ -887,8 +891,7 @@ describe('databaseBulkInserter Tests', () => {
             const codeSystems = await fhirDb.collection(collectionName).find().toArray();
             expect(codeSystems.length).toStrictEqual(1);
             const expectedCodeSystem = new CodeSystem({
-                '_sourceAssigningAuthority': 'medstar',
-                '_uuid': '6dfa2151-d5dc-5fbd-9cb0-8380b28c6428',
+                _uuid: generateUUIDv5('loinc-1|medstar'),
                 id: 'loinc-1',
                 status: 'active',
                 content: 'complete',
@@ -970,7 +973,7 @@ describe('databaseBulkInserter Tests', () => {
             expect(actualCodeSystemHistoryEntries.length).toStrictEqual(1);
             const expectedCodeSystemHistoryEntry = new BundleEntry(
                 {
-                    'id': 'loinc-1',
+                    'id': generateUUIDv5('loinc-1|medstar'),
                     'request': new BundleRequest({
                         'id': '1234',
                         'method': 'POST',
@@ -978,6 +981,7 @@ describe('databaseBulkInserter Tests', () => {
                     }),
                     resource: new CodeSystem({
                         id: 'loinc-1',
+                        _uuid: generateUUIDv5('loinc-1|medstar'),
                         status: 'active',
                         content: 'complete',
                         meta: new Meta({
