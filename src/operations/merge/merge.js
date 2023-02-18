@@ -332,11 +332,6 @@ class MergeOperation {
                     return new ResourceCreator(o);
                 });
 
-            resourcesIncomingArray = await async.map(
-                resourcesIncomingArray,
-                async resource => await this.preSaveManager.preSaveAsync(resource)
-            );
-
             const {
                 /** @type {MergeResultEntry[]} */ mergePreCheckErrors,
                 /** @type {Resource[]} */ validResources
@@ -347,6 +342,11 @@ class MergeOperation {
 
             // process only the resources that are valid
             resourcesIncomingArray = validResources;
+
+            resourcesIncomingArray = await async.map(
+                resourcesIncomingArray,
+                async resource => await this.preSaveManager.preSaveAsync(resource)
+            );
 
             // Load the resources from the database
             await this.databaseBulkLoader.loadResourcesAsync(
