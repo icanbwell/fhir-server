@@ -1,4 +1,4 @@
-const {ResourceComparer} = require('../../fhir/resourceComparer');
+const {removeNull} = require('../../utils/nullRemover');
 
 class MergeResultEntry {
     /**
@@ -58,16 +58,17 @@ class MergeResultEntry {
         this._sourceAssigningAuthority = sourceAssigningAuthority;
     }
 
-    /**
-     * Returns whether two resources are same
-     * @param {Resource} other
-     * @return {boolean}
-     */
-    isSameResourceByIdAndSecurityTag({other}) {
-        return ResourceComparer.isSameResourceByIdAndSecurityTag(
+    toJSON() {
+        return removeNull(
             {
-                first: this,
-                second: other
+                operationOutcome: this.operationOutcome,
+                issue: this.issue,
+                created: this.created,
+                id: this.id,
+                uuid: this._uuid,
+                resourceType: this.resourceType,
+                updated: this.updated,
+                sourceAssigningAuthority: this._sourceAssigningAuthority
             }
         );
     }

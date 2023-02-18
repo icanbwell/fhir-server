@@ -275,7 +275,9 @@ class DatabaseBulkInserter extends EventEmitter {
             if (!doc.meta.versionId || isNaN(parseInt(doc.meta.versionId))) {
                 doc.meta.versionId = '1';
             }
-            await this.preSaveManager.preSaveAsync(doc);
+            doc = await this.preSaveManager.preSaveAsync(doc);
+
+            assertIsValid(doc._uuid, `No uuid found for ${doc.resourceType}/${doc.id}`);
             // check to see if we already have this insert and if so use replace
             /**
              * @type {Map<string, BulkInsertUpdateEntry[]>}
@@ -294,7 +296,6 @@ class DatabaseBulkInserter extends EventEmitter {
                     {
                         requestId,
                         resourceType,
-                        uuid: doc._uuid,
                         doc,
                         previousVersionId: `${previousVersionId}`,
                         patches: null
@@ -375,7 +376,7 @@ class DatabaseBulkInserter extends EventEmitter {
                                         {
                                             id: requestId,
                                             method,
-                                            url: `/${base_version}/${resourceType}/${doc._uuid}`
+                                            url: `/${base_version}/${resourceType}/${doc.id}`
                                         }
                                     ),
                                     response: patches ?
@@ -431,7 +432,9 @@ class DatabaseBulkInserter extends EventEmitter {
     ) {
         try {
             assertTypeEquals(doc, Resource);
-            await this.preSaveManager.preSaveAsync(doc);
+            doc = await this.preSaveManager.preSaveAsync(doc);
+
+            assertIsValid(doc._uuid, `No uuid found for ${doc.resourceType}/${doc.id}`);
 
             // see if there are any other pending updates for this doc
             /**
@@ -495,7 +498,6 @@ class DatabaseBulkInserter extends EventEmitter {
      * Replaces a document in Mongo with this one
      * @param {string} requestId
      * @param {string} resourceType
-     * @param {string} uuid
      * @param {string|null} previousVersionId
      * @param {Resource} doc
      * @param {boolean} [upsert]
@@ -506,7 +508,6 @@ class DatabaseBulkInserter extends EventEmitter {
         {
             requestId,
             resourceType,
-            uuid,
             previousVersionId,
             doc,
             upsert = false,
@@ -516,7 +517,9 @@ class DatabaseBulkInserter extends EventEmitter {
         let lastVersionId = previousVersionId;
         try {
             assertTypeEquals(doc, Resource);
-            await this.preSaveManager.preSaveAsync(doc);
+            doc = await this.preSaveManager.preSaveAsync(doc);
+
+            assertIsValid(doc._uuid, `No uuid found for ${doc.resourceType}/${doc.id}`);
 
             // see if there are any other pending updates for this doc
             /**
@@ -587,8 +590,8 @@ class DatabaseBulkInserter extends EventEmitter {
                     }
                 } else { // no previuous insert or update found
                     const filter = lastVersionId && lastVersionId !== '0' ?
-                        {$and: [{_uuid: uuid}, {'meta.versionId': `${lastVersionId}`}]} :
-                        {_uuid: uuid};
+                        {$and: [{_uuid: doc._uuid}, {'meta.versionId': `${lastVersionId}`}]} :
+                        {_uuid: doc._uuid};
                     assertIsValid(!lastVersionId || lastVersionId < parseInt(doc.meta.versionId),
                         `lastVersionId ${lastVersionId} is not less than doc versionId ${doc.meta.versionId}` +
                         `, doc: ${JSON.stringify(doc.toJSONInternal(), getCircularReplacer())}`);

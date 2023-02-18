@@ -538,16 +538,13 @@ class MergeManager {
     ) {
         try {
             assertTypeEquals(resourceToMerge, Resource);
-            let uuid = resourceToMerge._uuid;
-
-            await this.preSaveManager.preSaveAsync(resourceToMerge);
+            resourceToMerge = await this.preSaveManager.preSaveAsync(resourceToMerge);
 
             // Insert/update our resource record
             await this.databaseBulkInserter.mergeOneAsync(
                 {
                     requestId,
                     resourceType: resourceToMerge.resourceType,
-                    uuid,
                     doc: resourceToMerge,
                     previousVersionId,
                     patches
