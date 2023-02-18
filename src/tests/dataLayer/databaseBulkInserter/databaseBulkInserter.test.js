@@ -17,6 +17,7 @@ const BundleRequest = require('../../../fhir/classes/4_0_0/backbone_elements/bun
 const BundleResponse = require('../../../fhir/classes/4_0_0/backbone_elements/bundleResponse');
 const OperationOutcome = require('../../../fhir/classes/4_0_0/resources/operationOutcome');
 const OperationOutcomeIssue = require('../../../fhir/classes/4_0_0/backbone_elements/operationOutcomeIssue');
+const {generateUUIDv5} = require('../../../utils/uid.util');
 
 class MockChangeEventProducer extends ChangeEventProducer {
     /**
@@ -423,10 +424,12 @@ describe('databaseBulkInserter Tests', () => {
             });
             expect(mergeResults).toStrictEqual([
                 {
-                    'id': 'loinc-1',
+                    '_sourceAssigningAuthority': 'medstar',
+                    '_uuid': '6dfa2151-d5dc-5fbd-9cb0-8380b28c6428',
                     'created': false,
-                    'updated': true,
-                    'resourceType': 'CodeSystem'
+                    'id': 'loinc-1',
+                    'resourceType': 'CodeSystem',
+                    'updated': true
                 }
             ]);
             /**
@@ -859,6 +862,8 @@ describe('databaseBulkInserter Tests', () => {
             });
             expect(mergeResults).toStrictEqual([
                 {
+                    '_sourceAssigningAuthority': 'medstar',
+                    '_uuid': '6dfa2151-d5dc-5fbd-9cb0-8380b28c6428',
                     'id': 'loinc-1',
                     'created': false,
                     'updated': true,
@@ -876,6 +881,8 @@ describe('databaseBulkInserter Tests', () => {
             const codeSystems = await fhirDb.collection(collectionName).find().toArray();
             expect(codeSystems.length).toStrictEqual(1);
             const expectedCodeSystem = new CodeSystem({
+                '_sourceAssigningAuthority': 'medstar',
+                '_uuid': '6dfa2151-d5dc-5fbd-9cb0-8380b28c6428',
                 id: 'loinc-1',
                 status: 'active',
                 content: 'complete',
@@ -1210,7 +1217,7 @@ describe('databaseBulkInserter Tests', () => {
 
             await databaseBulkInserter.mergeOneAsync({
                 requestId: requestId,
-                id: codeSystem2.id,
+                uuid: generateUUIDv5(`${codeSystem2.id}|medstar`),
                 resourceType: 'CodeSystem',
                 doc: codeSystem2,
                 previousVersionId: null,

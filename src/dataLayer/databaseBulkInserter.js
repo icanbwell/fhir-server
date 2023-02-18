@@ -287,7 +287,7 @@ class DatabaseBulkInserter extends EventEmitter {
             const operationsByResourceType = operationsByResourceTypeMap.get(resourceType);
             if (operationsByResourceType &&
                 operationsByResourceType.filter(
-                    bulkEntry => bulkEntry._uuid === doc._uuid &&
+                    bulkEntry => bulkEntry.uuid === doc._uuid &&
                         bulkEntry.operationType === 'insertUniqueId').length > 0) {
                 const previousVersionId = 1;
                 await this.mergeOneAsync(
