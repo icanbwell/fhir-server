@@ -152,7 +152,7 @@ class MergeManager {
         ))) {
             throw new ForbiddenError(
                 'user ' + user + ' with scopes [' + scope + '] has no access to resource ' +
-                foundResource.resourceType + ' with id ' + uuid);
+                foundResource.resourceType + ' with id ' + resourceToMerge.id);
         }
 
         await this.preSaveManager.preSaveAsync(currentResource);
