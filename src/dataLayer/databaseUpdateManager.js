@@ -105,6 +105,7 @@ class DatabaseUpdateManager {
      */
     async replaceOneAsync({doc}) {
         const originalDoc = doc.clone();
+        doc = await this.preSaveManager.preSaveAsync(doc);
         /**
          * @type {Resource[]}
          */
