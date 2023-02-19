@@ -46,6 +46,15 @@ class GlobalIdEnrichmentProvider extends EnrichmentProvider {
                             resource.id = uuid;
                         }
                     }
+                    if (resource.contained && resource.contained.length > 0) {
+                        const contained = await this.enrichAsync(
+                            {
+                                resources: resource.contained,
+                                parsedArgs
+                            }
+                        );
+                        resource.contained = contained;
+                    }
                     if (resource.updateReferences) {
                         // update references
                         resource.updateReferences(

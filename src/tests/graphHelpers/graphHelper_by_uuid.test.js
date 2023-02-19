@@ -375,6 +375,15 @@ describe('graphHelper Tests', () => {
                         id: uuid1,
                         fullUrl: `https://host/4_0_0/Practitioner/${uuid1}`,
                         resource: {
+                            contained: [
+                                {
+                                    id: uuid10,
+                                    practitioner: {
+                                        reference: `Practitioner/${uuid1}`,
+                                    },
+                                    resourceType: 'PractitionerRole',
+                                },
+                            ],
                             id: uuid1,
                             resourceType: 'Practitioner',
                         },
@@ -643,7 +652,7 @@ describe('graphHelper Tests', () => {
                     _uuid: `Practitioner/${uuid1}`
                 },
                 organization: {
-                    reference: 'Organization/uuid100',
+                    reference: 'Organization/100',
                     _sourceId: 'Organization/100',
                     _uuid: `Organization/${uuid100}`,
                 },
@@ -682,18 +691,18 @@ describe('graphHelper Tests', () => {
             expect(result.toJSON()).toStrictEqual({
                 entry: [
                     {
-                        id: '1',
+                        id: uuid1,
                         fullUrl: `https://host/4_0_0/Practitioner/${uuid1}`,
                         resource: {
-                            id: '1',
+                            id: uuid1,
                             resourceType: 'Practitioner',
                         },
                     },
                     {
-                        id: '10',
+                        id: uuid10,
                         fullUrl: `https://host/4_0_0/PractitionerRole/${uuid10}`,
                         resource: {
-                            id: '10',
+                            id: uuid10,
                             organization: {
                                 reference: `Organization/${uuid100}`,
                             },
