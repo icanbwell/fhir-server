@@ -6,7 +6,7 @@ const env = require('var');
 const sendToS3 = require('../../utils/aws-s3');
 const {getMeta} = require('../common/getMeta');
 const {isTrue} = require('../../utils/isTrue');
-const {findDuplicateResources, findUniqueResources, groupByLambda} = require('../../utils/list.util');
+const {groupByLambda, findDuplicateResourcesByUuid, findUniqueResourcesByUuid} = require('../../utils/list.util');
 const async = require('async');
 const scopeChecker = require('@asymmetrik/sof-scope-checker');
 const {AuditLogger} = require('../../utils/auditLogger');
@@ -454,11 +454,11 @@ class MergeManager {
             /**
              * @type {Resource[]}
              */
-            const duplicate_uuid_resources = findDuplicateResources(resources_incoming);
+            const duplicate_uuid_resources = findDuplicateResourcesByUuid(resources_incoming);
             /**
              * @type {Resource[]}
              */
-            const non_duplicate_uuid_resources = findUniqueResources(resources_incoming);
+            const non_duplicate_uuid_resources = findUniqueResourcesByUuid(resources_incoming);
 
             const mergeResourceFn = async (/** @type {Object} */ x) => await this.mergeResourceWithRetryAsync(
                 {
@@ -612,6 +612,40 @@ class MergeManager {
              * @type {string} id
              */
             let id = resourceToMerge.id;
+            if (!id) {
+                /**
+                 * @type {OperationOutcome}
+                 */
+                const operationOutcome = new OperationOutcome({
+                    resourceType: 'OperationOutcome',
+                    issue: [
+                        new OperationOutcomeIssue({
+                            severity: 'error',
+                            code: 'exception',
+                            details: new CodeableConcept({
+                                text: 'Error merging: ' + JSON.stringify(resourceToMerge.toJSON())
+                            }),
+                            diagnostics: 'resource is missing id',
+                            expression: [
+                                resourceType
+                            ]
+                        })
+                    ]
+                });
+                const issue = (operationOutcome.issue && operationOutcome.issue.length > 0) ? operationOutcome.issue[0] : null;
+                return new MergeResultEntry(
+                    {
+                        id: id,
+                        uuid: resourceToMerge._uuid,
+                        sourceAssigningAuthority: resourceToMerge._sourceAssigningAuthority,
+                        created: false,
+                        updated: false,
+                        issue: issue,
+                        operationOutcome: operationOutcome,
+                        resourceType: resourceType
+                    }
+                );
+            }
             if (!(resourceToMerge.resourceType)) {
                 /**
                  * @type {OperationOutcome}

@@ -18,9 +18,9 @@ const {
     createTestRequest,
 } = require('../../common');
 
-const {findDuplicateResources} = require('../../../utils/list.util');
 const {describe, beforeEach, afterEach, expect, test } = require('@jest/globals');
 const {logInfo} = require('../../../operations/common/logging');
+const {findDuplicateResourcesById} = require('../../../utils/list.util');
 
 describe('Practitioner Graph Contained Tests', () => {
     beforeEach(async () => {
@@ -84,13 +84,13 @@ describe('Practitioner Graph Contained Tests', () => {
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedHashReferencesResource);
 
-            logInfo('----- Received resources ----');
+            logInfo('----- Received resources ----', {});
             logInfo(
-                `${resp.body.entry.map((e) => e.resource).map((a) => `${a.resourceType}/${a.id}`)}`
+                `${resp.body.entry.map((e) => e.resource).map((a) => `${a.resourceType}/${a.id}`)}`, {}
             );
-            logInfo('----- End of Received resources ----');
+            logInfo('----- End of Received resources ----', {});
             // verify there are no duplicate ids
-            const duplicates = findDuplicateResources(resp.body.entry.map((e) => e.resource));
+            const duplicates = findDuplicateResourcesById(resp.body.entry.map((e) => e.resource));
             expect(duplicates.map((a) => `${a.resourceType}/${a.id}`)).toStrictEqual([]);
         });
         test('Graph contained works properly with parameters', async () => {
@@ -154,13 +154,13 @@ describe('Practitioner Graph Contained Tests', () => {
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedHashReferencesResource);
 
-            logInfo('----- Received resources ----');
+            logInfo('----- Received resources ----', {});
             logInfo(
-                `${resp.body.entry.map((e) => e.resource).map((a) => `${a.resourceType}/${a.id}`)}`
+                `${resp.body.entry.map((e) => e.resource).map((a) => `${a.resourceType}/${a.id}`)}`, {}
             );
-            logInfo('----- End of Received resources ----');
+            logInfo('----- End of Received resources ----', {});
             // verify there are no duplicate ids
-            const duplicates = findDuplicateResources(resp.body.entry.map((e) => e.resource));
+            const duplicates = findDuplicateResourcesById(resp.body.entry.map((e) => e.resource));
             expect(duplicates.map((a) => `${a.resourceType}/${a.id}`)).toStrictEqual([]);
         });
     });

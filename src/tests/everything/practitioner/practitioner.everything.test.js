@@ -34,7 +34,7 @@ const {
     createTestRequest,
 } = require('../../common');
 const {describe, beforeEach, afterEach, expect, test} = require('@jest/globals');
-const {findDuplicateResources} = require('../../../utils/list.util');
+const {findDuplicateResourcesById} = require('../../../utils/list.util');
 
 describe('Practitioner Everything Tests', () => {
     beforeEach(async () => {
@@ -184,8 +184,8 @@ describe('Practitioner Everything Tests', () => {
             expect(resp).toHaveResponse(expectedEverythingResource);
 
             // verify there are no duplicate ids
-            const duplicates = findDuplicateResources(resp.body.entry.map((e) => e.resource));
-            expect(duplicates.map((a) => `${a.resourceType}/${a._uuid}`)).toStrictEqual([]);
+            const duplicates = findDuplicateResourcesById(resp.body.entry.map((e) => e.resource));
+            expect(duplicates.map((a) => `${a.resourceType}/${a.id}`)).toStrictEqual([]);
         });
     });
 });

@@ -14,8 +14,8 @@ const {
     createTestRequest,
 } = require('../../common');
 const {describe, beforeEach, afterEach, expect, test} = require('@jest/globals');
-const {findDuplicateResources} = require('../../../utils/list.util');
 const {logInfo} = require('../../../operations/common/logging');
+const {findDuplicateResourcesById} = require('../../../utils/list.util');
 
 describe('Slot Everything Tests', () => {
     beforeEach(async () => {
@@ -67,13 +67,14 @@ describe('Slot Everything Tests', () => {
 
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedEverythingResource);
-            logInfo('----- Received resources ----');
+            logInfo('----- Received resources ----', {});
             logInfo(
-                `${resp.body.entry.map((e) => e.resource).map((a) => `${a.resourceType}/${a.id}`)}`
+                `${resp.body.entry.map((e) => e.resource).map((a) => `${a.resourceType}/${a.id}`)}`,
+                {}
             );
-            logInfo('----- End of Received resources ----');
+            logInfo('----- End of Received resources ----', {});
             // verify there are no duplicate ids
-            const duplicates = findDuplicateResources(resp.body.entry.map((e) => e.resource));
+            const duplicates = findDuplicateResourcesById(resp.body.entry.map((e) => e.resource));
             expect(duplicates.map((a) => `${a.resourceType}/${a.id}`)).toStrictEqual([]);
         });
     });
