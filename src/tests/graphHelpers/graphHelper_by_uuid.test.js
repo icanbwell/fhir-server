@@ -447,16 +447,13 @@ describe('graphHelper Tests', () => {
                         resource: {
                             contained: [
                                 {
+
                                     id: uuid10,
-                                    fullUrl: `https://host/4_0_0/PractitionerRole/${uuid10}`,
-                                    resource: {
-                                        id: uuid10,
-                                        practitioner: {
-                                            reference: `Practitioner/${uuid1}`,
-                                        },
-                                        resourceType: 'PractitionerRole',
+                                    practitioner: {
+                                        reference: `Practitioner/${uuid1}`,
                                     },
-                                },
+                                    resourceType: 'PractitionerRole',
+                                }
                             ],
                             id: uuid1,
                             resourceType: 'Practitioner',
@@ -467,7 +464,8 @@ describe('graphHelper Tests', () => {
                 resourceType: 'Bundle',
                 type: 'searchset',
             });
-        });
+        })
+        ;
         test('graphHelper simple single Practitioner with 1 level forward nesting works', async () => {
 
             /**
@@ -558,7 +556,6 @@ describe('graphHelper Tests', () => {
             });
         });
         test('graphHelper single Practitioner with 1 level nesting and contained and hash_references works', async () => {
-
             /**
              * @type {SimpleContainer}
              */
@@ -617,7 +614,7 @@ describe('graphHelper Tests', () => {
                                     resourceType: 'PractitionerRole',
                                 },
                             ],
-                            id: '1',
+                            id: uuid1,
                             resourceType: 'Practitioner',
                         },
                     },
@@ -946,8 +943,20 @@ describe('graphHelper Tests', () => {
             // add an Organization
             resourceType = 'Organization';
             collection = db.collection(`${resourceType}_${base_version}`);
-            await collection.insertOne({id: '100', _sourceId: '100', resourceType: resourceType});
-            await collection.insertOne({id: '200', _sourceId: '200', resourceType: resourceType});
+            await collection.insertOne({
+                    id: '100',
+                    _sourceId: '100',
+                    _uuid: uuid100,
+                    resourceType: resourceType
+                }
+            );
+            await collection.insertOne({
+                    id: '200',
+                    _sourceId: '200',
+                    _uuid: uuid200,
+                    resourceType: resourceType
+                }
+            );
 
             resourceType = 'Practitioner';
             /**
@@ -997,7 +1006,7 @@ describe('graphHelper Tests', () => {
                     },
                     {
                         id: uuid2,
-                        fullUrl: `https://host/4_0_0/Practitioner/${uuid20}`,
+                        fullUrl: `https://host/4_0_0/Practitioner/${uuid2}`,
                         resource: {
                             contained: [
                                 {
@@ -1631,7 +1640,7 @@ describe('graphHelper Tests', () => {
                         resource: {
                             contained: [
                                 {
-                                    id: '20',
+                                    id: uuid20,
                                     organization: {
                                         reference: `Organization/${uuid200}`,
                                     },
@@ -1641,7 +1650,7 @@ describe('graphHelper Tests', () => {
                                     resourceType: 'PractitionerRole',
                                 },
                                 {
-                                    id: '200',
+                                    id: uuid200,
                                     resourceType: 'Organization',
                                 },
                             ],
