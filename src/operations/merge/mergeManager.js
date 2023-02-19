@@ -919,7 +919,7 @@ class MergeManager {
                             {
                                 requestInfo, base_version, resourceType,
                                 operation: 'create', args: parsedArgs.getRawArgs(),
-                                ids: createdItems.map(r => r._uuid)
+                                ids: createdItems.map(r => r.id)
                             }
                         );
                     }
@@ -928,7 +928,7 @@ class MergeManager {
                             {
                                 requestInfo, base_version, resourceType,
                                 operation: 'update', args: parsedArgs.getRawArgs(),
-                                ids: updatedItems.map(r => r._uuid)
+                                ids: updatedItems.map(r => r.id)
                             }
                         );
                     }
