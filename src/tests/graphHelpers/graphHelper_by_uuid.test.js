@@ -26,6 +26,7 @@ describe('graphHelper Tests', () => {
     const uuid10 = generateUUIDv5('10|medstar');
     const uuid100 = generateUUIDv5('100|medstar');
     const uuid200 = generateUUIDv5('200|medstar');
+    const uuid2000 = generateUUIDv5('2000|medstar');
     const uuidAetna = generateUUIDv5('AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He|medstar');
 
     beforeEach(async () => {
@@ -199,7 +200,7 @@ describe('graphHelper Tests', () => {
                 resourceType: resourceType,
                 practitioner: {
                     reference: 'Practitioner/1',
-                    _sourceId: `Practitioner/${uuid1}`,
+                    _sourceId: 'Practitioner/1',
                     _uuid: `Practitioner/${uuid1}`
                 },
             });
@@ -414,7 +415,7 @@ describe('graphHelper Tests', () => {
              * @type {R4ArgsParser}
              */
             const r4ArgsParser = container.r4ArgsParser;
-            const args = {'base_version': '4_0_0', 'id': '1'};
+            const args = {'base_version': '4_0_0', 'id': uuid1};
             const parsedArgs = r4ArgsParser.parseArgs({resourceType, args});
             parsedArgs.headers = {'prefer': 'global_id=true'};
             const result = await getGraphHelper().processGraphAsync({
@@ -492,7 +493,7 @@ describe('graphHelper Tests', () => {
             await collection.insertOne({
                     id: '100',
                     _sourceId: '100',
-                    _uuid: uuid10,
+                    _uuid: uuid100,
                     resourceType: resourceType
                 }
             );
@@ -502,7 +503,7 @@ describe('graphHelper Tests', () => {
              * @type {R4ArgsParser}
              */
             const r4ArgsParser = container.r4ArgsParser;
-            const args = {'base_version': '4_0_0', 'id': '10'};
+            const args = {'base_version': '4_0_0', 'id': uuid10};
             const parsedArgs = r4ArgsParser.parseArgs({resourceType, args});
             parsedArgs.headers = {'prefer': 'global_id=true'};
             const result = await getGraphHelper().processGraphAsync({
@@ -521,7 +522,7 @@ describe('graphHelper Tests', () => {
                 entry: [
                     {
                         id: uuid10,
-                        fullUrl: `https://host/4_0_0/Practitioner/${uuid10}`,
+                        fullUrl: `https://host/4_0_0/PractitionerRole/${uuid10}`,
                         resource: {
                             id: uuid10,
                             organization: {
@@ -577,7 +578,7 @@ describe('graphHelper Tests', () => {
              * @type {R4ArgsParser}
              */
             const r4ArgsParser = container.r4ArgsParser;
-            const args = {'base_version': '4_0_0', 'id': '1'};
+            const args = {'base_version': '4_0_0', 'id': uuid1};
             const parsedArgs = r4ArgsParser.parseArgs({resourceType, args});
             parsedArgs.headers = {'prefer': 'global_id=true'};
             const result = await getGraphHelper().processGraphAsync({
@@ -653,6 +654,7 @@ describe('graphHelper Tests', () => {
             await collection.insertOne({
                     id: '100',
                     _sourceId: '100',
+                    _uuid: uuid100,
                     resourceType: resourceType
                 }
             );
@@ -662,7 +664,7 @@ describe('graphHelper Tests', () => {
              * @type {R4ArgsParser}
              */
             const r4ArgsParser = container.r4ArgsParser;
-            const args = {'base_version': '4_0_0', 'id': '1'};
+            const args = {'base_version': '4_0_0', 'id': uuid1};
             const parsedArgs = r4ArgsParser.parseArgs({resourceType, args});
             parsedArgs.headers = {'prefer': 'global_id=true'};
             const result = await getGraphHelper().processGraphAsync({
@@ -793,7 +795,7 @@ describe('graphHelper Tests', () => {
              * @type {R4ArgsParser}
              */
             const r4ArgsParser = container.r4ArgsParser;
-            const args = {'base_version': '4_0_0', 'id': '1,2'};
+            const args = {'base_version': '4_0_0', 'id': `${uuid1},${uuid2}`};
             const parsedArgs = r4ArgsParser.parseArgs({resourceType, args});
             parsedArgs.headers = {'prefer': 'global_id=true'};
             const result = await getGraphHelper().processGraphAsync({
@@ -811,26 +813,26 @@ describe('graphHelper Tests', () => {
             expect(result.toJSON()).toStrictEqual({
                 entry: [
                     {
-                        id: '1',
+                        id: uuid1,
                         fullUrl: `https://host/4_0_0/Practitioner/${uuid1}`,
                         resource: {
-                            id: '1',
+                            id: uuid1,
                             resourceType: 'Practitioner',
                         },
                     },
                     {
-                        id: '2',
+                        id: uuid2,
                         fullUrl: `https://host/4_0_0/Practitioner/${uuid20}`,
                         resource: {
-                            id: '2',
+                            id: uuid2,
                             resourceType: 'Practitioner',
                         },
                     },
                     {
-                        id: '10',
+                        id: uuid10,
                         fullUrl: `https://host/4_0_0/PractitionerRole/${uuid10}`,
                         resource: {
-                            id: '10',
+                            id: uuid10,
                             organization: {
                                 reference: `Organization/${uuid100}`,
                             },
@@ -849,10 +851,10 @@ describe('graphHelper Tests', () => {
                         },
                     },
                     {
-                        id: '20',
+                        id: uuid20,
                         fullUrl: `https://host/4_0_0/PractitionerRole/${uuid20}`,
                         resource: {
-                            id: '20',
+                            id: uuid20,
                             organization: {
                                 reference: `Organization/${uuid200}`,
                             },
@@ -863,10 +865,10 @@ describe('graphHelper Tests', () => {
                         },
                     },
                     {
-                        id: '200',
+                        id: uuid200,
                         fullUrl: `Organization/${uuid200}`,
                         resource: {
-                            id: '200',
+                            id: uuid200,
                             resourceType: 'Organization',
                         },
                     },
@@ -943,7 +945,7 @@ describe('graphHelper Tests', () => {
              * @type {R4ArgsParser}
              */
             const r4ArgsParser = container.r4ArgsParser;
-            const args = {'base_version': '4_0_0', 'id': '1,2'};
+            const args = {'base_version': '4_0_0', 'id': `${uuid1},${uuid2}`};
             const parsedArgs = r4ArgsParser.parseArgs({resourceType, args});
             parsedArgs.headers = {'prefer': 'global_id=true'};
             const result = await getGraphHelper().processGraphAsync({
@@ -961,12 +963,12 @@ describe('graphHelper Tests', () => {
             expect(result.toJSON()).toStrictEqual({
                 entry: [
                     {
-                        id: '1',
+                        id: uuid1,
                         fullUrl: `https://host/4_0_0/Practitioner/${uuid1}`,
                         resource: {
                             contained: [
                                 {
-                                    id: '10',
+                                    id: uuid10,
                                     organization: {
                                         reference: `Organization/${uuid100}`,
                                     },
@@ -980,17 +982,17 @@ describe('graphHelper Tests', () => {
                                     resourceType: 'Organization',
                                 },
                             ],
-                            id: '1',
+                            id: uuid1,
                             resourceType: 'Practitioner',
                         },
                     },
                     {
-                        id: '2',
+                        id: uuid2,
                         fullUrl: `https://host/4_0_0/Practitioner/${uuid20}`,
                         resource: {
                             contained: [
                                 {
-                                    id: '20',
+                                    id: uuid20,
                                     organization: {
                                         reference: `Organization/${uuid200}`,
                                     },
@@ -1000,11 +1002,11 @@ describe('graphHelper Tests', () => {
                                     resourceType: 'PractitionerRole',
                                 },
                                 {
-                                    id: '200',
+                                    id: uuid200,
                                     resourceType: 'Organization',
                                 },
                             ],
-                            id: '2',
+                            id: uuid2,
                             resourceType: 'Practitioner',
                         },
                     },
@@ -1083,7 +1085,7 @@ describe('graphHelper Tests', () => {
              * @type {R4ArgsParser}
              */
             const r4ArgsParser = container.r4ArgsParser;
-            const args = {'base_version': '4_0_0', 'id': '10'};
+            const args = {'base_version': '4_0_0', 'id': uuid10};
             const parsedArgs = r4ArgsParser.parseArgs({resourceType, args});
             parsedArgs.headers = {'prefer': 'global_id=true'};
             const result = await getGraphHelper().processGraphAsync({
@@ -1101,7 +1103,7 @@ describe('graphHelper Tests', () => {
             expect(result.toJSON()).toStrictEqual({
                 entry: [
                     {
-                        id: '10',
+                        id: uuid10,
                         fullUrl: `https://host/4_0_0/PractitionerRole/${uuid10}`,
                         resource: {
                             extension: [
@@ -1132,7 +1134,7 @@ describe('graphHelper Tests', () => {
                                     url: 'https://raw.githubusercontent.com/imranq2/SparkAutoMapper.FHIR/main/StructureDefinition/insurance_plan',
                                 },
                             ],
-                            id: '10',
+                            id: uuid10,
                             organization: {
                                 reference: `Organization/${uuid100}`,
                             },
@@ -1143,11 +1145,11 @@ describe('graphHelper Tests', () => {
                         },
                     },
                     {
-                        id: 'AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He',
+                        id: uuidAetna,
                         fullUrl:
-                            'https://host/4_0_0/InsurancePlan/AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He',
+                            `https://host/4_0_0/InsurancePlan/${uuidAetna}`,
                         resource: {
-                            id: 'AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He',
+                            id: uuidAetna,
                             resourceType: 'InsurancePlan',
                         },
                     },
@@ -1173,6 +1175,7 @@ describe('graphHelper Tests', () => {
             await collection.insertOne({
                 id: '2',
                 _sourceId: '2',
+                _uuid: uuid2,
                 resourceType: 'Practitioner',
                 extension: [
                     {
@@ -1180,6 +1183,7 @@ describe('graphHelper Tests', () => {
                             url: 'plan',
                             valueReference: {
                                 reference: 'InsurancePlan/2000',
+                                _uuid: `InsurancePlan/${uuid2000}`
                             },
                         },
                     },
@@ -1195,13 +1199,13 @@ describe('graphHelper Tests', () => {
                 _uuid: uuid10,
                 resourceType: resourceType,
                 practitioner: {
-                    reference: `Practitioner/${uuid1}`,
-                    _sourceId: `Practitioner/${uuid1}`,
+                    reference: 'Practitioner/1',
+                    _sourceId: 'Practitioner/1',
                     _uuid: `Practitioner/${uuid1}`
                 },
                 organization: {
-                    reference: `Organization/${uuid100}`,
-                    _sourceId: `Organization/${uuid100}`,
+                    reference: 'Organization/100',
+                    _sourceId: 'Organization/100',
                     _uuid: `Organization/${uuid100}`,
                 },
                 extension: [
@@ -1282,7 +1286,7 @@ describe('graphHelper Tests', () => {
              * @type {R4ArgsParser}
              */
             const r4ArgsParser = container.r4ArgsParser;
-            const args = {'base_version': '4_0_0', 'id': '1,2'};
+            const args = {'base_version': '4_0_0', 'id': `${uuid1},${uuid2}`};
             const parsedArgs = r4ArgsParser.parseArgs({resourceType, args});
             parsedArgs.headers = {'prefer': 'global_id=true'};
             const result = await getGraphHelper().processGraphAsync({
@@ -1300,16 +1304,16 @@ describe('graphHelper Tests', () => {
             expect(result.toJSON()).toStrictEqual({
                 entry: [
                     {
-                        id: '1',
+                        id: uuid1,
                         fullUrl: `https://host/4_0_0/Practitioner/${uuid1}`,
                         resource: {
-                            id: '1',
+                            id: uuid1,
                             resourceType: 'Practitioner',
                         },
                     },
                     {
-                        id: '2',
-                        fullUrl: `https://host/4_0_0/Practitioner/${uuid20}`,
+                        id: uuid2,
+                        fullUrl: `https://host/4_0_0/Practitioner/${uuid2}`,
                         resource: {
                             extension: [
                                 {
@@ -1323,12 +1327,12 @@ describe('graphHelper Tests', () => {
                                     ],
                                 },
                             ],
-                            id: '2',
+                            id: uuid2,
                             resourceType: 'Practitioner',
                         },
                     },
                     {
-                        id: '10',
+                        id: uuid10,
                         fullUrl: `https://host/4_0_0/PractitionerRole/${uuid10}`,
                         resource: {
                             extension: [
@@ -1359,7 +1363,7 @@ describe('graphHelper Tests', () => {
                                     url: 'https://raw.githubusercontent.com/imranq2/SparkAutoMapper.FHIR/main/StructureDefinition/insurance_plan',
                                 },
                             ],
-                            id: '10',
+                            id: uuid10,
                             organization: {
                                 reference: `Organization/${uuid100}`,
                             },
@@ -1378,19 +1382,19 @@ describe('graphHelper Tests', () => {
                         },
                     },
                     {
-                        id: 'AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He',
+                        id: uuidAetna,
                         fullUrl:
-                            'https://host/4_0_0/InsurancePlan/AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He',
+                            `https://host/4_0_0/InsurancePlan/${uuidAetna}`,
                         resource: {
-                            id: 'AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He',
+                            id: uuidAetna,
                             resourceType: 'InsurancePlan',
                         },
                     },
                     {
-                        id: '20',
+                        id: uuid20,
                         fullUrl: `https://host/4_0_0/PractitionerRole/${uuid20}`,
                         resource: {
-                            id: '20',
+                            id: uuid20,
                             organization: {
                                 reference: `Organization/${uuid200}`,
                             },
@@ -1401,10 +1405,10 @@ describe('graphHelper Tests', () => {
                         },
                     },
                     {
-                        id: '200',
+                        id: uuid200,
                         fullUrl: `Organization/${uuid200}`,
                         resource: {
-                            id: '200',
+                            id: uuid200,
                             resourceType: 'Organization',
                         },
                     },
@@ -1453,13 +1457,13 @@ describe('graphHelper Tests', () => {
                 _uuid: uuid10,
                 resourceType: resourceType,
                 practitioner: {
-                    reference: `Practitioner/${uuid1}`,
-                    _sourceId: `Practitioner/${uuid1}`,
+                    reference: 'Practitioner/1',
+                    _sourceId: 'Practitioner/1',
                     _uuid: `Practitioner/${uuid1}`
                 },
                 organization: {
-                    reference: `Organization/${uuid100}`,
-                    _sourceId: `Organization/${uuid100}`,
+                    reference: 'Organization/100',
+                    _sourceId: 'Organization/100',
                     _uuid: `Organization/${uuid100}`,
                 },
                 extension: [
@@ -1539,7 +1543,7 @@ describe('graphHelper Tests', () => {
              * @type {R4ArgsParser}
              */
             const r4ArgsParser = container.r4ArgsParser;
-            const args = {'base_version': '4_0_0', 'id': '1,2'};
+            const args = {'base_version': '4_0_0', 'id': `${uuid1},${uuid2}`};
             const parsedArgs = r4ArgsParser.parseArgs({resourceType, args});
             parsedArgs.headers = {'prefer': 'global_id=true'};
             const result = await getGraphHelper().processGraphAsync({
@@ -1557,7 +1561,7 @@ describe('graphHelper Tests', () => {
             expect(result.toJSON()).toStrictEqual({
                 entry: [
                     {
-                        id: '1',
+                        id: uuid1,
                         fullUrl: `https://host/4_0_0/Practitioner/${uuid1}`,
                         resource: {
                             contained: [
@@ -1590,7 +1594,7 @@ describe('graphHelper Tests', () => {
                                             url: 'https://raw.githubusercontent.com/imranq2/SparkAutoMapper.FHIR/main/StructureDefinition/insurance_plan',
                                         },
                                     ],
-                                    id: '10',
+                                    id: uuid10,
                                     organization: {
                                         reference: `Organization/${uuid100}`,
                                     },
@@ -1604,17 +1608,17 @@ describe('graphHelper Tests', () => {
                                     resourceType: 'Organization',
                                 },
                                 {
-                                    id: 'AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He',
+                                    id: uuidAetna,
                                     resourceType: 'InsurancePlan',
                                 },
                             ],
-                            id: '1',
+                            id: uuid1,
                             resourceType: 'Practitioner',
                         },
                     },
                     {
-                        id: '2',
-                        fullUrl: `https://host/4_0_0/Practitioner/${uuid20}`,
+                        id: uuid2,
+                        fullUrl: `https://host/4_0_0/Practitioner/${uuid2}`,
                         resource: {
                             contained: [
                                 {
@@ -1644,7 +1648,7 @@ describe('graphHelper Tests', () => {
                                     ],
                                 },
                             ],
-                            id: '2',
+                            id: uuid2,
                             resourceType: 'Practitioner',
                         },
                     },
@@ -1692,13 +1696,13 @@ describe('graphHelper Tests', () => {
                 _uuid: uuid10,
                 resourceType: resourceType,
                 practitioner: {
-                    reference: `Practitioner/${uuid1}`,
-                    _sourceId: `Practitioner/${uuid1}`,
+                    reference: 'Practitioner/1',
+                    _sourceId: 'Practitioner/1',
                     _uuid: `Practitioner/${uuid1}`
                 },
                 organization: {
-                    reference: `Organization/${uuid100}`,
-                    _sourceId: `Organization/${uuid100}`,
+                    reference: 'Organization/100',
+                    _sourceId: 'Organization/100',
                     _uuid: `Organization/${uuid100}`,
                 },
                 extension: [
@@ -1778,7 +1782,7 @@ describe('graphHelper Tests', () => {
              * @type {R4ArgsParser}
              */
             const r4ArgsParser = container.r4ArgsParser;
-            const args = {'base_version': '4_0_0', _debug: 1, 'id': '1,2'};
+            const args = {'base_version': '4_0_0', _debug: 1, 'id': `${uuid1},${uuid2}`};
             const parsedArgs = r4ArgsParser.parseArgs({resourceType, args: args});
             parsedArgs.headers = {'prefer': 'global_id=true'};
             const result = await getGraphHelper().processGraphAsync({
@@ -1810,7 +1814,7 @@ describe('graphHelper Tests', () => {
             expect(result.toJSON()).toStrictEqual({
                 entry: [
                     {
-                        id: '1',
+                        id: uuid1,
                         fullUrl: `https://host/4_0_0/Practitioner/${uuid1}`,
                         resource: {
                             contained: [
@@ -1843,7 +1847,7 @@ describe('graphHelper Tests', () => {
                                             url: 'https://raw.githubusercontent.com/imranq2/SparkAutoMapper.FHIR/main/StructureDefinition/insurance_plan',
                                         },
                                     ],
-                                    id: '10',
+                                    id: uuid10,
                                     organization: {
                                         reference: `Organization/${uuid100}`,
                                     },
@@ -1857,21 +1861,21 @@ describe('graphHelper Tests', () => {
                                     resourceType: 'Organization',
                                 },
                                 {
-                                    id: 'AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He',
+                                    id: uuidAetna,
                                     resourceType: 'InsurancePlan',
                                 },
                             ],
-                            id: '1',
+                            id: uuid1,
                             resourceType: 'Practitioner',
                         },
                     },
                     {
-                        id: '2',
-                        fullUrl: `https://host/4_0_0/Practitioner/${uuid20}`,
+                        id: uuid2,
+                        fullUrl: `https://host/4_0_0/Practitioner/${uuid2}`,
                         resource: {
                             contained: [
                                 {
-                                    id: '20',
+                                    id: uuid20,
                                     organization: {
                                         reference: `Organization/${uuid200}`,
                                     },
@@ -1881,7 +1885,7 @@ describe('graphHelper Tests', () => {
                                     resourceType: 'PractitionerRole',
                                 },
                                 {
-                                    id: '200',
+                                    id: uuid200,
                                     resourceType: 'Organization',
                                 },
                             ],
@@ -1897,7 +1901,7 @@ describe('graphHelper Tests', () => {
                                     ],
                                 },
                             ],
-                            id: '2',
+                            id: uuid2,
                             resourceType: 'Practitioner',
                         },
                     },
@@ -1964,6 +1968,7 @@ describe('graphHelper Tests', () => {
                             url: 'plan',
                             valueReference: {
                                 reference: 'InsurancePlan/2000',
+                                _uuid: `InsurancePlan/${uuid2000}`,
                             },
                         },
                     },
@@ -1979,13 +1984,13 @@ describe('graphHelper Tests', () => {
                 _uuid: uuid10,
                 resourceType: resourceType,
                 practitioner: {
-                    reference: `Practitioner/${uuid1}`,
-                    _sourceId: `Practitioner/${uuid1}`,
+                    reference: 'Practitioner/1',
+                    _sourceId: 'Practitioner/1',
                     _uuid: `Practitioner/${uuid1}`
                 },
                 organization: {
-                    reference: `Organization/${uuid100}`,
-                    _sourceId: `Organization/${uuid100}`,
+                    reference: 'Organization/100',
+                    _sourceId: 'Organization/100',
                     _uuid: `Organization/${uuid100}`,
                 },
                 extension: [
@@ -2065,7 +2070,7 @@ describe('graphHelper Tests', () => {
              * @type {R4ArgsParser}
              */
             const r4ArgsParser = container.r4ArgsParser;
-            const args = {'base_version': '4_0_0', _explain: 1, 'id': '1,2'};
+            const args = {'base_version': '4_0_0', _explain: 1, 'id': `${uuid1},${uuid2}`};
             const parsedArgs = r4ArgsParser.parseArgs({resourceType, args});
             parsedArgs.headers = {'prefer': 'global_id=true'};
             const result = await getGraphHelper().processGraphAsync({
@@ -2132,15 +2137,15 @@ describe('graphHelper Tests', () => {
                 'type': 'searchset',
                 'entry': [
                     {
-                        'id': '1',
+                        'id': uuid1,
                         'fullUrl': `https://host/4_0_0/Practitioner/${uuid1}`,
                         'resource': {
                             'resourceType': 'Practitioner',
-                            'id': '1',
+                            'id': uuid1,
                             'contained': [
                                 {
                                     'resourceType': 'PractitionerRole',
-                                    'id': '10',
+                                    'id': uuid10,
                                     'extension': [
                                         {
                                             'id': 'IDHP',
@@ -2181,7 +2186,7 @@ describe('graphHelper Tests', () => {
                                 },
                                 {
                                     'resourceType': 'InsurancePlan',
-                                    'id': 'AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He'
+                                    'id': uuidAetna
                                 }
                             ]
                         }
