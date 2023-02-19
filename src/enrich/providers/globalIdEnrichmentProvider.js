@@ -32,11 +32,12 @@ class GlobalIdEnrichmentProvider extends EnrichmentProvider {
      */
     // eslint-disable-next-line no-unused-vars
     async enrichAsync({resources, parsedArgs}) {
-        if (parsedArgs.headers && parsedArgs.headers['prefer']) {
-            /**
-             * @type {string}
-             */
-            const preferHeader = parsedArgs.headers['prefer'];
+        /**
+         * @type {string}
+         */
+        const preferHeader = parsedArgs.headers &&
+            (parsedArgs.headers['prefer'] || parsedArgs.headers['Prefer']);
+        if (preferHeader) {
             const parts = preferHeader.split('=');
             if (parts[0] === 'global_id' && parts.slice(-1)[0] === 'true') {
                 for (const resource of resources) {
