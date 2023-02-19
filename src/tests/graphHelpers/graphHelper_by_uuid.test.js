@@ -643,8 +643,8 @@ describe('graphHelper Tests', () => {
                     _uuid: `Practitioner/${uuid1}`
                 },
                 organization: {
-                    reference: `Organization/${uuid100}`,
-                    _sourceId: `Organization/${uuid100}`,
+                    reference: 'Organization/uuid100',
+                    _sourceId: 'Organization/100',
                     _uuid: `Organization/${uuid100}`,
                 },
             });
@@ -822,7 +822,7 @@ describe('graphHelper Tests', () => {
                     },
                     {
                         id: uuid2,
-                        fullUrl: `https://host/4_0_0/Practitioner/${uuid20}`,
+                        fullUrl: `https://host/4_0_0/Practitioner/${uuid2}`,
                         resource: {
                             id: uuid2,
                             resourceType: 'Practitioner',
@@ -866,7 +866,7 @@ describe('graphHelper Tests', () => {
                     },
                     {
                         id: uuid200,
-                        fullUrl: `Organization/${uuid200}`,
+                        fullUrl: `https://host/4_0_0/Organization/${uuid200}`,
                         resource: {
                             id: uuid200,
                             resourceType: 'Organization',
@@ -937,7 +937,7 @@ describe('graphHelper Tests', () => {
             // add an Organization
             resourceType = 'Organization';
             collection = db.collection(`${resourceType}_${base_version}`);
-            await collection.insertOne({id: uuid100, _sourceId: uuid100, resourceType: resourceType});
+            await collection.insertOne({id: '100', _sourceId: '100', resourceType: resourceType});
             await collection.insertOne({id: '200', _sourceId: '200', resourceType: resourceType});
 
             resourceType = 'Practitioner';
@@ -1257,8 +1257,8 @@ describe('graphHelper Tests', () => {
             resourceType = 'Organization';
             collection = db.collection(`${resourceType}_${base_version}`);
             await collection.insertOne({
-                    id: uuid100,
-                    _sourceId: uuid100,
+                    id: '100',
+                    _sourceId: '100',
                     _uuid: uuid100,
                     resourceType: resourceType
                 }
@@ -1321,7 +1321,7 @@ describe('graphHelper Tests', () => {
                                         {
                                             url: 'plan',
                                             valueReference: {
-                                                reference: 'InsurancePlan/2000',
+                                                reference: `InsurancePlan/${uuid2000}`,
                                             },
                                         },
                                     ],
@@ -1406,7 +1406,7 @@ describe('graphHelper Tests', () => {
                     },
                     {
                         id: uuid200,
-                        fullUrl: `Organization/${uuid200}`,
+                        fullUrl: `https://host/4_0_0/Organization/${uuid200}`,
                         resource: {
                             id: uuid200,
                             resourceType: 'Organization',
@@ -1515,8 +1515,8 @@ describe('graphHelper Tests', () => {
             resourceType = 'Organization';
             collection = db.collection(`${resourceType}_${base_version}`);
             await collection.insertOne({
-                    id: uuid100,
-                    _sourceId: uuid100,
+                    id: '100',
+                    _sourceId: '100',
                     _uuid: uuid100,
                     resourceType: resourceType
                 }
@@ -1754,8 +1754,8 @@ describe('graphHelper Tests', () => {
             resourceType = 'Organization';
             collection = db.collection(`${resourceType}_${base_version}`);
             await collection.insertOne({
-                    id: uuid100,
-                    _sourceId: uuid100,
+                    id: '100',
+                    _sourceId: '100',
                     _uuid: uuid100,
                     resourceType: resourceType
                 }
@@ -2042,8 +2042,8 @@ describe('graphHelper Tests', () => {
             resourceType = 'Organization';
             collection = db.collection(`${resourceType}_${base_version}`);
             await collection.insertOne({
-                    id: uuid100,
-                    _sourceId: uuid100,
+                    id: '100',
+                    _sourceId: '100',
                     _uuid: uuid100,
                     resourceType: resourceType
                 }
