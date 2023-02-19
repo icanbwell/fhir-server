@@ -1,7 +1,7 @@
 {
   "entry": [
     {
-      "id": "medline-loinc-labs",
+      "id": "dabb6ef3-7207-5719-98df-fd520be27e48",
       "request": {
         "method": "POST",
         "url": "/4_0_0/CodeSystem/medline-loinc-labs"

@@ -52,18 +52,18 @@
         ],
         "what": {
           "_sourceAssigningAuthority": "bwell",
-          "_sourceId": "Practitioner/1679033641",
-          "_uuid": "Practitioner/b3f870ff-dcbd-51bb-95a9-567cd3b142d4",
+          "_sourceId": "Practitioner/53252897-13a1-5c6a-b631-a5a7bfc175b3",
+          "_uuid": "Practitioner/53252897-13a1-5c6a-b631-a5a7bfc175b3",
           "extension": [
             {
               "id": "sourceId",
               "url": "https://www.icanbwell.com/sourceId",
-              "valueString": "Practitioner/1679033641"
+              "valueString": "Practitioner/53252897-13a1-5c6a-b631-a5a7bfc175b3"
             },
             {
               "id": "uuid",
               "url": "https://www.icanbwell.com/uuid",
-              "valueString": "Practitioner/b3f870ff-dcbd-51bb-95a9-567cd3b142d4"
+              "valueString": "Practitioner/53252897-13a1-5c6a-b631-a5a7bfc175b3"
             },
             {
               "id": "sourceAssigningAuthority",
@@ -71,7 +71,7 @@
               "valueString": "bwell"
             }
           ],
-          "reference": "Practitioner/1679033641"
+          "reference": "Practitioner/53252897-13a1-5c6a-b631-a5a7bfc175b3"
         }
       }
     ],

@@ -185,7 +185,7 @@ describe('Practitioner Everything Tests', () => {
 
             // verify there are no duplicate ids
             const duplicates = findDuplicateResources(resp.body.entry.map((e) => e.resource));
-            expect(duplicates.map((a) => `${a.resourceType}/${a.id}`)).toStrictEqual([]);
+            expect(duplicates.map((a) => `${a.resourceType}/${a._uuid}`)).toStrictEqual([]);
         });
     });
 });
