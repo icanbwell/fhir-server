@@ -20,6 +20,14 @@ function getGraphHelper() {
 
 describe('graphHelper Tests', () => {
     const base_version = '4_0_0';
+    const uuid1 = generateUUIDv5('1|medstar');
+    const uuid2 = generateUUIDv5('2|medstar');
+    const uuid20 = generateUUIDv5('20|medstar');
+    const uuid10 = generateUUIDv5('10|medstar');
+    const uuid100 = generateUUIDv5('100|medstar');
+    const uuid200 = generateUUIDv5('200|medstar');
+    const uuidAetna = generateUUIDv5('AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He|medstar');
+
     beforeEach(async () => {
         await commonBeforeEach();
         await createTestRequest();
@@ -38,11 +46,10 @@ describe('graphHelper Tests', () => {
          */
         const collection = db.collection(`${resourceType}_${base_version}`);
 
-        const uuid = generateUUIDv5('1|medstar');
         await collection.insertOne({
                 id: '1',
                 _sourceId: '1',
-                _uuid: uuid,
+                _uuid: uuid1,
                 resourceType: 'Practitioner'
             }
         );
@@ -76,7 +83,6 @@ describe('graphHelper Tests', () => {
              * @type {R4ArgsParser}
              */
             const r4ArgsParser = container.r4ArgsParser;
-            const uuid1 = generateUUIDv5('1|medstar');
             const args = {'base_version': '4_0_0', 'id': uuid1};
             const parsedArgs = r4ArgsParser.parseArgs({resourceType, args});
             parsedArgs.headers = {'prefer': 'global_id=true'};
@@ -115,8 +121,6 @@ describe('graphHelper Tests', () => {
              * @type {SimpleContainer}
              */
             const container = getTestContainer();
-            const uuid1 = generateUUIDv5('1|medstar');
-            const uuid2 = generateUUIDv5('2|medstar');
             /**
              * @type {MongoDatabaseManager}
              */
@@ -154,18 +158,18 @@ describe('graphHelper Tests', () => {
             expect(result.toJSON()).toStrictEqual({
                 entry: [
                     {
-                        id: '1',
-                        fullUrl: 'https://host/4_0_0/Practitioner/1',
+                        id: uuid1,
+                        fullUrl: `https://host/4_0_0/Practitioner/${uuid1}`,
                         resource: {
-                            id: '1',
+                            id: uuid1,
                             resourceType: 'Practitioner',
                         },
                     },
                     {
-                        id: '2',
-                        fullUrl: 'https://host/4_0_0/Practitioner/2',
+                        id: uuid2,
+                        fullUrl: `https://host/4_0_0/Practitioner/${uuid2}`,
                         resource: {
-                            id: '2',
+                            id: uuid2,
                             resourceType: 'Practitioner',
                         },
                     },
@@ -191,12 +195,12 @@ describe('graphHelper Tests', () => {
             await collection.insertOne({
                 id: '10',
                 _sourceId: '10',
-                _uuid: generateUUIDv5('10|medstar'),
+                _uuid: uuid10,
                 resourceType: resourceType,
                 practitioner: {
                     reference: 'Practitioner/1',
-                    _sourceId: 'Practitioner/1',
-                    _uuid: `Practitioner/${generateUUIDv5('1|medstar')}`
+                    _sourceId: `Practitioner/${uuid1}`,
+                    _uuid: `Practitioner/${uuid1}`
                 },
             });
 
@@ -205,7 +209,6 @@ describe('graphHelper Tests', () => {
              * @type {R4ArgsParser}
              */
             const r4ArgsParser = container.r4ArgsParser;
-            const uuid1 = generateUUIDv5('1|medstar');
             const args = {'base_version': '4_0_0', 'id': uuid1};
             const parsedArgs = r4ArgsParser.parseArgs({resourceType, args});
             parsedArgs.headers = {'prefer': 'global_id=true'};
@@ -224,20 +227,20 @@ describe('graphHelper Tests', () => {
             expect(result.toJSON()).toStrictEqual({
                 entry: [
                     {
-                        id: '1',
-                        fullUrl: 'https://host/4_0_0/Practitioner/1',
+                        id: uuid1,
+                        fullUrl: `https://host/4_0_0/Practitioner/${uuid1}`,
                         resource: {
-                            id: '1',
+                            id: uuid1,
                             resourceType: 'Practitioner',
                         },
                     },
                     {
-                        id: '10',
-                        fullUrl: 'https://host/4_0_0/PractitionerRole/10',
+                        id: uuid10,
+                        fullUrl: `https://host/4_0_0/PractitionerRole/${uuid10}`,
                         resource: {
-                            id: '10',
+                            id: uuid10,
                             practitioner: {
-                                reference: 'Practitioner/1',
+                                reference: `Practitioner/${uuid1}`,
                             },
                             resourceType: 'PractitionerRole',
                         },
@@ -264,9 +267,13 @@ describe('graphHelper Tests', () => {
             await collection.insertOne({
                 id: '10',
                 _sourceId: '10',
-                _uuid: generateUUIDv5('10|medstar'),
+                _uuid: uuid10,
                 resourceType: resourceType,
-                practitioner: {reference: 'Practitioner/1', _sourceId: 'Practitioner/1'},
+                practitioner: {
+                    reference: 'Practitioner/1',
+                    _sourceId: 'Practitioner/1',
+                    _uuid: `Practitioner/${uuid1}`
+                },
             });
 
             resourceType = 'Practitioner';
@@ -274,7 +281,6 @@ describe('graphHelper Tests', () => {
              * @type {R4ArgsParser}
              */
             const r4ArgsParser = container.r4ArgsParser;
-            const uuid1 = generateUUIDv5('1|medstar');
             const args = {'base_version': '4_0_0', 'id': uuid1};
             const parsedArgs = r4ArgsParser.parseArgs({resourceType, args});
             parsedArgs.headers = {'prefer': 'global_id=true'};
@@ -293,20 +299,20 @@ describe('graphHelper Tests', () => {
             expect(result.toJSON()).toStrictEqual({
                 entry: [
                     {
-                        id: '1',
-                        fullUrl: 'https://host/4_0_0/Practitioner/1',
+                        id: uuid1,
+                        fullUrl: `https://host/4_0_0/Practitioner/${uuid1}`,
                         resource: {
-                            id: '1',
+                            id: uuid1,
                             resourceType: 'Practitioner',
                         },
                     },
                     {
-                        id: '10',
-                        fullUrl: 'https://host/4_0_0/PractitionerRole/10',
+                        id: uuid10,
+                        fullUrl: `https://host/4_0_0/PractitionerRole/${uuid10}`,
                         resource: {
-                            id: '10',
+                            id: uuid10,
                             practitioner: {
-                                reference: 'Practitioner/1',
+                                reference: `Practitioner/${uuid1}`,
                             },
                             resourceType: 'PractitionerRole',
                         },
@@ -333,9 +339,13 @@ describe('graphHelper Tests', () => {
             await collection.insertOne({
                 id: '10',
                 _sourceId: '10',
-                _uuid: generateUUIDv5('10|medstar'),
+                _uuid: uuid10,
                 resourceType: resourceType,
-                practitioner: {reference: 'Practitioner/1', _sourceId: 'Practitioner/1'},
+                practitioner: {
+                    reference: 'Practitioner/1',
+                    _sourceId: 'Practitioner/1',
+                    _uuid: `Practitioner/${uuid1}`
+                },
             });
 
             resourceType = 'Practitioner';
@@ -343,7 +353,6 @@ describe('graphHelper Tests', () => {
              * @type {R4ArgsParser}
              */
             const r4ArgsParser = container.r4ArgsParser;
-            const uuid1 = generateUUIDv5('1|medstar');
             const args = {'base_version': '4_0_0', 'id': uuid1};
             const parsedArgs = r4ArgsParser.parseArgs({resourceType, args});
             parsedArgs.headers = {'prefer': 'global_id=true'};
@@ -362,19 +371,10 @@ describe('graphHelper Tests', () => {
             expect(result.toJSON()).toStrictEqual({
                 entry: [
                     {
-                        id: '1',
-                        fullUrl: 'https://host/4_0_0/Practitioner/1',
+                        id: uuid1,
+                        fullUrl: `https://host/4_0_0/Practitioner/${uuid1}`,
                         resource: {
-                            contained: [
-                                {
-                                    id: '10',
-                                    practitioner: {
-                                        reference: 'Practitioner/1',
-                                    },
-                                    resourceType: 'PractitionerRole',
-                                },
-                            ],
-                            id: '1',
+                            id: uuid1,
                             resourceType: 'Practitioner',
                         },
                     },
@@ -400,9 +400,13 @@ describe('graphHelper Tests', () => {
             await collection.insertOne({
                 id: '10',
                 _sourceId: '10',
-                _uuid: generateUUIDv5('10|medstar'),
+                _uuid: uuid10,
                 resourceType: resourceType,
-                practitioner: {reference: 'Practitioner/1', _sourceId: 'Practitioner/1'},
+                practitioner: {
+                    reference: 'Practitioner/1',
+                    _sourceId: 'Practitioner/1',
+                    _uuid: `Practitioner/${uuid1}`
+                },
             });
 
             resourceType = 'Practitioner';
@@ -428,19 +432,23 @@ describe('graphHelper Tests', () => {
             expect(result.toJSON()).toStrictEqual({
                 entry: [
                     {
-                        id: '1',
-                        fullUrl: 'https://host/4_0_0/Practitioner/1',
+                        id: uuid1,
+                        fullUrl: `https://host/4_0_0/Practitioner/${uuid1}`,
                         resource: {
                             contained: [
                                 {
-                                    id: '10',
-                                    practitioner: {
-                                        reference: 'Practitioner/1',
+                                    id: uuid10,
+                                    fullUrl: `https://host/4_0_0/PractitionerRole/${uuid10}`,
+                                    resource: {
+                                        id: uuid10,
+                                        practitioner: {
+                                            reference: `Practitioner/${uuid1}`,
+                                        },
+                                        resourceType: 'PractitionerRole',
                                     },
-                                    resourceType: 'PractitionerRole',
                                 },
                             ],
-                            id: '1',
+                            id: uuid1,
                             resourceType: 'Practitioner',
                         },
                     },
@@ -467,19 +475,27 @@ describe('graphHelper Tests', () => {
             await collection.insertOne({
                 id: '10',
                 _sourceId: '10',
-                _uuid: generateUUIDv5('10|medstar'),
+                _uuid: uuid10,
                 resourceType: resourceType,
                 practitioner: {
                     reference: 'Practitioner/1',
+                    _uuid: `Practitioner/${uuid1}`
                 },
                 organization: {
                     reference: 'Organization/100',
+                    _uuid: `Organization/${uuid100}`
                 },
             });
             // add an Organization
             resourceType = 'Organization';
             collection = db.collection(`${resourceType}_${base_version}`);
-            await collection.insertOne({id: '100', _sourceId: '100', resourceType: resourceType});
+            await collection.insertOne({
+                    id: '100',
+                    _sourceId: '100',
+                    _uuid: uuid10,
+                    resourceType: resourceType
+                }
+            );
 
             resourceType = 'PractitionerRole';
             /**
@@ -504,24 +520,24 @@ describe('graphHelper Tests', () => {
             expect(result.toJSON()).toStrictEqual({
                 entry: [
                     {
-                        id: '10',
-                        fullUrl: 'https://host/4_0_0/PractitionerRole/10',
+                        id: uuid10,
+                        fullUrl: `https://host/4_0_0/Practitioner/${uuid10}`,
                         resource: {
-                            id: '10',
+                            id: uuid10,
                             organization: {
-                                reference: 'Organization/100',
+                                reference: `Organization/${uuid100}`,
                             },
                             practitioner: {
-                                reference: 'Practitioner/1',
+                                reference: `Practitioner/${uuid1}`,
                             },
                             resourceType: 'PractitionerRole',
                         },
                     },
                     {
-                        id: '100',
-                        fullUrl: 'https://host/4_0_0/Organization/100',
+                        id: uuid100,
+                        fullUrl: `https://host/4_0_0/Organization/${uuid100}`,
                         resource: {
-                            id: '100',
+                            id: uuid100,
                             resourceType: 'Organization',
                         },
                     },
@@ -547,9 +563,13 @@ describe('graphHelper Tests', () => {
             await collection.insertOne({
                 id: '10',
                 _sourceId: '10',
-                _uuid: generateUUIDv5('10|medstar'),
+                _uuid: uuid10,
                 resourceType: resourceType,
-                practitioner: {reference: 'Practitioner/1', _sourceId: 'Practitioner/1'},
+                practitioner: {
+                    reference: 'Practitioner/1',
+                    _sourceId: 'Practitioner/1',
+                    _uuid: `Practitioner/${uuid1}`
+                },
             });
 
             resourceType = 'Practitioner';
@@ -575,14 +595,14 @@ describe('graphHelper Tests', () => {
             expect(result.toJSON()).toStrictEqual({
                 entry: [
                     {
-                        id: '1',
-                        fullUrl: 'https://host/4_0_0/Practitioner/1',
+                        id: uuid1,
+                        fullUrl: `https://host/4_0_0/Practitioner/${uuid1}`,
                         resource: {
                             contained: [
                                 {
-                                    id: '10',
+                                    id: uuid10,
                                     practitioner: {
-                                        reference: 'Practitioner/1',
+                                        reference: `Practitioner/${uuid1}`,
                                     },
                                     resourceType: 'PractitionerRole',
                                 },
@@ -614,21 +634,28 @@ describe('graphHelper Tests', () => {
             await collection.insertOne({
                 id: '10',
                 _sourceId: '10',
-                _uuid: generateUUIDv5('10|medstar'),
+                _uuid: uuid10,
                 resourceType: resourceType,
                 practitioner: {
                     reference: 'Practitioner/1',
                     _sourceId: 'Practitioner/1',
+                    _uuid: `Practitioner/${uuid1}`
                 },
                 organization: {
-                    reference: 'Organization/100',
-                    _sourceId: 'Organization/100',
+                    reference: `Organization/${uuid100}`,
+                    _sourceId: `Organization/${uuid100}`,
+                    _uuid: `Organization/${uuid100}`,
                 },
             });
             // add an Organization
             resourceType = 'Organization';
             collection = db.collection(`${resourceType}_${base_version}`);
-            await collection.insertOne({id: '100', _sourceId: '100', resourceType: resourceType});
+            await collection.insertOne({
+                    id: '100',
+                    _sourceId: '100',
+                    resourceType: resourceType
+                }
+            );
 
             resourceType = 'Practitioner';
             /**
@@ -654,7 +681,7 @@ describe('graphHelper Tests', () => {
                 entry: [
                     {
                         id: '1',
-                        fullUrl: 'https://host/4_0_0/Practitioner/1',
+                        fullUrl: `https://host/4_0_0/Practitioner/${uuid1}`,
                         resource: {
                             id: '1',
                             resourceType: 'Practitioner',
@@ -662,23 +689,23 @@ describe('graphHelper Tests', () => {
                     },
                     {
                         id: '10',
-                        fullUrl: 'https://host/4_0_0/PractitionerRole/10',
+                        fullUrl: `https://host/4_0_0/PractitionerRole/${uuid10}`,
                         resource: {
                             id: '10',
                             organization: {
-                                reference: 'Organization/100',
+                                reference: `Organization/${uuid100}`,
                             },
                             practitioner: {
-                                reference: 'Practitioner/1',
+                                reference: `Practitioner/${uuid1}`,
                             },
                             resourceType: 'PractitionerRole',
                         },
                     },
                     {
-                        id: '100',
-                        fullUrl: 'https://host/4_0_0/Organization/100',
+                        id: uuid100,
+                        fullUrl: `https://host/4_0_0/Organization/${uuid100}`,
                         resource: {
-                            id: '100',
+                            id: uuid100,
                             resourceType: 'Organization',
                         },
                     },
@@ -701,7 +728,13 @@ describe('graphHelper Tests', () => {
             const db = await mongoDatabaseManager.getClientDbAsync();
             let resourceType = 'Practitioner';
             let collection = db.collection(`${resourceType}_${base_version}`);
-            await collection.insertOne({id: '2', _sourceId: '2', resourceType: 'Practitioner'});
+            await collection.insertOne({
+                    id: '2',
+                    _sourceId: '2',
+                    _uuid: uuid2,
+                    resourceType: 'Practitioner'
+                }
+            );
 
             // add a PractitionerRole
             resourceType = 'PractitionerRole';
@@ -709,36 +742,51 @@ describe('graphHelper Tests', () => {
             await collection.insertOne({
                 id: '10',
                 _sourceId: '10',
-                _uuid: generateUUIDv5('10|medstar'),
+                _uuid: uuid10,
                 resourceType: resourceType,
                 practitioner: {
                     reference: 'Practitioner/1',
                     _sourceId: 'Practitioner/1',
+                    _uuid: `Practitioner/${uuid1}`
                 },
                 organization: {
                     reference: 'Organization/100',
                     _sourceId: 'Organization/100',
+                    _uuid: `Organization/${uuid100}`,
                 },
             });
             await collection.insertOne({
                 id: '20',
                 _sourceId: '20',
-                _uuid: generateUUIDv5('20|medstar'),
+                _uuid: uuid20,
                 resourceType: resourceType,
                 practitioner: {
                     reference: 'Practitioner/2',
                     _sourceId: 'Practitioner/2',
+                    _uuid: `Practitioner/${uuid2}`,
                 },
                 organization: {
                     reference: 'Organization/200',
                     _sourceId: 'Organization/200',
+                    _uuid: `Organization/${uuid200}`,
                 },
             });
             // add an Organization
             resourceType = 'Organization';
             collection = db.collection(`${resourceType}_${base_version}`);
-            await collection.insertOne({id: '100', _sourceId: '100', resourceType: resourceType});
-            await collection.insertOne({id: '200', _sourceId: '200', resourceType: resourceType});
+            await collection.insertOne({
+                    id: '100',
+                    _sourceId: '100',
+                    _uuid: uuid100,
+                    resourceType: resourceType
+                }
+            );
+            await collection.insertOne({
+                id: '200',
+                _sourceId: '200',
+                _uuid: uuid200,
+                resourceType: resourceType
+            });
 
             resourceType = 'Practitioner';
             /**
@@ -764,7 +812,7 @@ describe('graphHelper Tests', () => {
                 entry: [
                     {
                         id: '1',
-                        fullUrl: 'https://host/4_0_0/Practitioner/1',
+                        fullUrl: `https://host/4_0_0/Practitioner/${uuid1}`,
                         resource: {
                             id: '1',
                             resourceType: 'Practitioner',
@@ -772,7 +820,7 @@ describe('graphHelper Tests', () => {
                     },
                     {
                         id: '2',
-                        fullUrl: 'https://host/4_0_0/Practitioner/2',
+                        fullUrl: `https://host/4_0_0/Practitioner/${uuid20}`,
                         resource: {
                             id: '2',
                             resourceType: 'Practitioner',
@@ -780,43 +828,43 @@ describe('graphHelper Tests', () => {
                     },
                     {
                         id: '10',
-                        fullUrl: 'https://host/4_0_0/PractitionerRole/10',
+                        fullUrl: `https://host/4_0_0/PractitionerRole/${uuid10}`,
                         resource: {
                             id: '10',
                             organization: {
-                                reference: 'Organization/100',
+                                reference: `Organization/${uuid100}`,
                             },
                             practitioner: {
-                                reference: 'Practitioner/1',
+                                reference: `Practitioner/${uuid1}`,
                             },
                             resourceType: 'PractitionerRole',
                         },
                     },
                     {
-                        id: '100',
-                        fullUrl: 'https://host/4_0_0/Organization/100',
+                        id: uuid100,
+                        fullUrl: `https://host/4_0_0/Organization/${uuid100}`,
                         resource: {
-                            id: '100',
+                            id: uuid100,
                             resourceType: 'Organization',
                         },
                     },
                     {
                         id: '20',
-                        fullUrl: 'https://host/4_0_0/PractitionerRole/20',
+                        fullUrl: `https://host/4_0_0/PractitionerRole/${uuid20}`,
                         resource: {
                             id: '20',
                             organization: {
-                                reference: 'Organization/200',
+                                reference: `Organization/${uuid200}`,
                             },
                             practitioner: {
-                                reference: 'Practitioner/2',
+                                reference: `Practitioner/${uuid2}`,
                             },
                             resourceType: 'PractitionerRole',
                         },
                     },
                     {
                         id: '200',
-                        fullUrl: 'https://host/4_0_0/Organization/200',
+                        fullUrl: `Organization/${uuid200}`,
                         resource: {
                             id: '200',
                             resourceType: 'Organization',
@@ -841,7 +889,13 @@ describe('graphHelper Tests', () => {
             const db = await mongoDatabaseManager.getClientDbAsync();
             let resourceType = 'Practitioner';
             let collection = db.collection(`${resourceType}_${base_version}`);
-            await collection.insertOne({id: '2', _sourceId: '2', resourceType: 'Practitioner'});
+            await collection.insertOne({
+                    id: '2',
+                    _sourceId: '2',
+                    _uuid: uuid2,
+                    resourceType: 'Practitioner'
+                }
+            );
 
             // add a PractitionerRole
             resourceType = 'PractitionerRole';
@@ -849,35 +903,39 @@ describe('graphHelper Tests', () => {
             await collection.insertOne({
                 id: '10',
                 _sourceId: '10',
-                _uuid: generateUUIDv5('10|medstar'),
+                _uuid: uuid10,
                 resourceType: resourceType,
                 practitioner: {
                     reference: 'Practitioner/1',
                     _sourceId: 'Practitioner/1',
+                    _uuid: `Practitioner/${uuid1}`
                 },
                 organization: {
                     reference: 'Organization/100',
                     _sourceId: 'Organization/100',
+                    _uuid: `Organization/${uuid100}`,
                 },
             });
             await collection.insertOne({
                 id: '20',
                 _sourceId: '20',
-                _uuid: generateUUIDv5('20|medstar'),
+                _uuid: uuid20,
                 resourceType: resourceType,
                 practitioner: {
                     reference: 'Practitioner/2',
                     _sourceId: 'Practitioner/2',
+                    _uuid: `Practitioner/${uuid2}`,
                 },
                 organization: {
                     reference: 'Organization/200',
                     _sourceId: 'Organization/200',
+                    _uuid: `Organization/${uuid200}`,
                 },
             });
             // add an Organization
             resourceType = 'Organization';
             collection = db.collection(`${resourceType}_${base_version}`);
-            await collection.insertOne({id: '100', _sourceId: '100', resourceType: resourceType});
+            await collection.insertOne({id: uuid100, _sourceId: uuid100, resourceType: resourceType});
             await collection.insertOne({id: '200', _sourceId: '200', resourceType: resourceType});
 
             resourceType = 'Practitioner';
@@ -904,21 +962,21 @@ describe('graphHelper Tests', () => {
                 entry: [
                     {
                         id: '1',
-                        fullUrl: 'https://host/4_0_0/Practitioner/1',
+                        fullUrl: `https://host/4_0_0/Practitioner/${uuid1}`,
                         resource: {
                             contained: [
                                 {
                                     id: '10',
                                     organization: {
-                                        reference: 'Organization/100',
+                                        reference: `Organization/${uuid100}`,
                                     },
                                     practitioner: {
-                                        reference: 'Practitioner/1',
+                                        reference: `Practitioner/${uuid1}`,
                                     },
                                     resourceType: 'PractitionerRole',
                                 },
                                 {
-                                    id: '100',
+                                    id: uuid100,
                                     resourceType: 'Organization',
                                 },
                             ],
@@ -928,16 +986,16 @@ describe('graphHelper Tests', () => {
                     },
                     {
                         id: '2',
-                        fullUrl: 'https://host/4_0_0/Practitioner/2',
+                        fullUrl: `https://host/4_0_0/Practitioner/${uuid20}`,
                         resource: {
                             contained: [
                                 {
                                     id: '20',
                                     organization: {
-                                        reference: 'Organization/200',
+                                        reference: `Organization/${uuid200}`,
                                     },
                                     practitioner: {
-                                        reference: 'Practitioner/2',
+                                        reference: `Practitioner/${uuid2}`,
                                     },
                                     resourceType: 'PractitionerRole',
                                 },
@@ -973,13 +1031,13 @@ describe('graphHelper Tests', () => {
             await collection.insertOne({
                 id: '10',
                 _sourceId: '10',
-                _uuid: generateUUIDv5('10|medstar'),
+                _uuid: uuid10,
                 resourceType: resourceType,
                 practitioner: {
-                    reference: 'Practitioner/1',
+                    reference: `Practitioner/${uuid1}`,
                 },
                 organization: {
-                    reference: 'Organization/100',
+                    reference: `Organization/${uuid100}`,
                 },
                 extension: [
                     {
@@ -1016,7 +1074,7 @@ describe('graphHelper Tests', () => {
             await collection.insertOne({
                 id: 'AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He',
                 _sourceId: 'AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He',
-                _uuid: generateUUIDv5('AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He|medstar'),
+                _uuid: uuidAetna,
                 resourceType: resourceType,
             });
 
@@ -1044,7 +1102,7 @@ describe('graphHelper Tests', () => {
                 entry: [
                     {
                         id: '10',
-                        fullUrl: 'https://host/4_0_0/PractitionerRole/10',
+                        fullUrl: `https://host/4_0_0/PractitionerRole/${uuid10}`,
                         resource: {
                             extension: [
                                 {
@@ -1076,10 +1134,10 @@ describe('graphHelper Tests', () => {
                             ],
                             id: '10',
                             organization: {
-                                reference: 'Organization/100',
+                                reference: `Organization/${uuid100}`,
                             },
                             practitioner: {
-                                reference: 'Practitioner/1',
+                                reference: `Practitioner/${uuid1}`,
                             },
                             resourceType: 'PractitionerRole',
                         },
@@ -1134,15 +1192,17 @@ describe('graphHelper Tests', () => {
             await collection.insertOne({
                 id: '10',
                 _sourceId: '10',
-                _uuid: generateUUIDv5('10|medstar'),
+                _uuid: uuid10,
                 resourceType: resourceType,
                 practitioner: {
-                    reference: 'Practitioner/1',
-                    _sourceId: 'Practitioner/1',
+                    reference: `Practitioner/${uuid1}`,
+                    _sourceId: `Practitioner/${uuid1}`,
+                    _uuid: `Practitioner/${uuid1}`
                 },
                 organization: {
-                    reference: 'Organization/100',
-                    _sourceId: 'Organization/100',
+                    reference: `Organization/${uuid100}`,
+                    _sourceId: `Organization/${uuid100}`,
+                    _uuid: `Organization/${uuid100}`,
                 },
                 extension: [
                     {
@@ -1176,31 +1236,33 @@ describe('graphHelper Tests', () => {
             await collection.insertOne({
                 id: '20',
                 _sourceId: '20',
-                _uuid: generateUUIDv5('20|medstar'),
+                _uuid: uuid20,
                 resourceType: resourceType,
                 practitioner: {
                     reference: 'Practitioner/2',
                     _sourceId: 'Practitioner/2',
+                    _uuid: `Practitioner/${uuid2}`,
                 },
                 organization: {
                     reference: 'Organization/200',
                     _sourceId: 'Organization/200',
+                    _uuid: `Organization/${uuid200}`,
                 },
             });
             // add an Organization
             resourceType = 'Organization';
             collection = db.collection(`${resourceType}_${base_version}`);
             await collection.insertOne({
-                    id: '100',
-                    _sourceId: '100',
-                    _uuid: generateUUIDv5('100|medstar'),
+                    id: uuid100,
+                    _sourceId: uuid100,
+                    _uuid: uuid100,
                     resourceType: resourceType
                 }
             );
             await collection.insertOne({
                     id: '200',
                     _sourceId: '200',
-                    _uuid: generateUUIDv5('200|medstar'),
+                    _uuid: uuid200,
                     resourceType: resourceType
                 }
             );
@@ -1211,7 +1273,7 @@ describe('graphHelper Tests', () => {
             await collection.insertOne({
                 id: 'AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He',
                 _sourceId: 'AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He',
-                _uuid: generateUUIDv5('AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He|medstar'),
+                _uuid: uuidAetna,
                 resourceType: resourceType,
             });
 
@@ -1239,7 +1301,7 @@ describe('graphHelper Tests', () => {
                 entry: [
                     {
                         id: '1',
-                        fullUrl: 'https://host/4_0_0/Practitioner/1',
+                        fullUrl: `https://host/4_0_0/Practitioner/${uuid1}`,
                         resource: {
                             id: '1',
                             resourceType: 'Practitioner',
@@ -1247,7 +1309,7 @@ describe('graphHelper Tests', () => {
                     },
                     {
                         id: '2',
-                        fullUrl: 'https://host/4_0_0/Practitioner/2',
+                        fullUrl: `https://host/4_0_0/Practitioner/${uuid20}`,
                         resource: {
                             extension: [
                                 {
@@ -1267,7 +1329,7 @@ describe('graphHelper Tests', () => {
                     },
                     {
                         id: '10',
-                        fullUrl: 'https://host/4_0_0/PractitionerRole/10',
+                        fullUrl: `https://host/4_0_0/PractitionerRole/${uuid10}`,
                         resource: {
                             extension: [
                                 {
@@ -1299,19 +1361,19 @@ describe('graphHelper Tests', () => {
                             ],
                             id: '10',
                             organization: {
-                                reference: 'Organization/100',
+                                reference: `Organization/${uuid100}`,
                             },
                             practitioner: {
-                                reference: 'Practitioner/1',
+                                reference: `Practitioner/${uuid1}`,
                             },
                             resourceType: 'PractitionerRole',
                         },
                     },
                     {
-                        id: '100',
-                        fullUrl: 'https://host/4_0_0/Organization/100',
+                        id: uuid100,
+                        fullUrl: `https://host/4_0_0/Organization/${uuid100}`,
                         resource: {
-                            id: '100',
+                            id: uuid100,
                             resourceType: 'Organization',
                         },
                     },
@@ -1326,21 +1388,21 @@ describe('graphHelper Tests', () => {
                     },
                     {
                         id: '20',
-                        fullUrl: 'https://host/4_0_0/PractitionerRole/20',
+                        fullUrl: `https://host/4_0_0/PractitionerRole/${uuid20}`,
                         resource: {
                             id: '20',
                             organization: {
-                                reference: 'Organization/200',
+                                reference: `Organization/${uuid200}`,
                             },
                             practitioner: {
-                                reference: 'Practitioner/2',
+                                reference: `Practitioner/${uuid2}`,
                             },
                             resourceType: 'PractitionerRole',
                         },
                     },
                     {
                         id: '200',
-                        fullUrl: 'https://host/4_0_0/Organization/200',
+                        fullUrl: `Organization/${uuid200}`,
                         resource: {
                             id: '200',
                             resourceType: 'Organization',
@@ -1368,7 +1430,7 @@ describe('graphHelper Tests', () => {
             await collection.insertOne({
                 id: '2',
                 _sourceId: '2',
-                _uuid: generateUUIDv5('2|medstar'),
+                _uuid: uuid2,
                 resourceType: 'Practitioner',
                 extension: [
                     {
@@ -1388,15 +1450,17 @@ describe('graphHelper Tests', () => {
             await collection.insertOne({
                 id: '10',
                 _sourceId: '10',
-                _uuid: generateUUIDv5('10|medstar'),
+                _uuid: uuid10,
                 resourceType: resourceType,
                 practitioner: {
-                    reference: 'Practitioner/1',
-                    _sourceId: 'Practitioner/1',
+                    reference: `Practitioner/${uuid1}`,
+                    _sourceId: `Practitioner/${uuid1}`,
+                    _uuid: `Practitioner/${uuid1}`
                 },
                 organization: {
-                    reference: 'Organization/100',
-                    _sourceId: 'Organization/100',
+                    reference: `Organization/${uuid100}`,
+                    _sourceId: `Organization/${uuid100}`,
+                    _uuid: `Organization/${uuid100}`,
                 },
                 extension: [
                     {
@@ -1430,31 +1494,33 @@ describe('graphHelper Tests', () => {
             await collection.insertOne({
                 id: '20',
                 _sourceId: '20',
-                _uuid: generateUUIDv5('20|medstar'),
+                _uuid: uuid20,
                 resourceType: resourceType,
                 practitioner: {
                     reference: 'Practitioner/2',
                     _sourceId: 'Practitioner/2',
+                    _uuid: `Practitioner/${uuid2}`,
                 },
                 organization: {
                     reference: 'Organization/200',
                     _sourceId: 'Organization/200',
+                    _uuid: `Organization/${uuid200}`,
                 },
             });
             // add an Organization
             resourceType = 'Organization';
             collection = db.collection(`${resourceType}_${base_version}`);
             await collection.insertOne({
-                    id: '100',
-                    _sourceId: '100',
-                    _uuid: generateUUIDv5('100|medstar'),
+                    id: uuid100,
+                    _sourceId: uuid100,
+                    _uuid: uuid100,
                     resourceType: resourceType
                 }
             );
             await collection.insertOne({
                     id: '200',
                     _sourceId: '200',
-                    _uuid: generateUUIDv5('200|medstar'),
+                    _uuid: uuid200,
                     resourceType: resourceType
                 }
             );
@@ -1465,7 +1531,7 @@ describe('graphHelper Tests', () => {
             await collection.insertOne({
                 id: 'AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He',
                 _sourceId: 'AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He',
-                _uuid: generateUUIDv5('AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He|medstar'),
+                _uuid: uuidAetna,
                 resourceType: resourceType,
             });
             resourceType = 'Practitioner';
@@ -1492,7 +1558,7 @@ describe('graphHelper Tests', () => {
                 entry: [
                     {
                         id: '1',
-                        fullUrl: 'https://host/4_0_0/Practitioner/1',
+                        fullUrl: `https://host/4_0_0/Practitioner/${uuid1}`,
                         resource: {
                             contained: [
                                 {
@@ -1526,15 +1592,15 @@ describe('graphHelper Tests', () => {
                                     ],
                                     id: '10',
                                     organization: {
-                                        reference: 'Organization/100',
+                                        reference: `Organization/${uuid100}`,
                                     },
                                     practitioner: {
-                                        reference: 'Practitioner/1',
+                                        reference: `Practitioner/${uuid1}`,
                                     },
                                     resourceType: 'PractitionerRole',
                                 },
                                 {
-                                    id: '100',
+                                    id: uuid100,
                                     resourceType: 'Organization',
                                 },
                                 {
@@ -1548,16 +1614,16 @@ describe('graphHelper Tests', () => {
                     },
                     {
                         id: '2',
-                        fullUrl: 'https://host/4_0_0/Practitioner/2',
+                        fullUrl: `https://host/4_0_0/Practitioner/${uuid20}`,
                         resource: {
                             contained: [
                                 {
                                     id: '20',
                                     organization: {
-                                        reference: 'Organization/200',
+                                        reference: `Organization/${uuid200}`,
                                     },
                                     practitioner: {
-                                        reference: 'Practitioner/2',
+                                        reference: `Practitioner/${uuid2}`,
                                     },
                                     resourceType: 'PractitionerRole',
                                 },
@@ -1603,7 +1669,7 @@ describe('graphHelper Tests', () => {
             await collection.insertOne({
                 id: '2',
                 _sourceId: '2',
-                _uuid: generateUUIDv5('2|medstar'),
+                _uuid: uuid2,
                 resourceType: 'Practitioner',
                 extension: [
                     {
@@ -1623,15 +1689,17 @@ describe('graphHelper Tests', () => {
             await collection.insertOne({
                 id: '10',
                 _sourceId: '10',
-                _uuid: generateUUIDv5('10|medstar'),
+                _uuid: uuid10,
                 resourceType: resourceType,
                 practitioner: {
-                    reference: 'Practitioner/1',
-                    _sourceId: 'Practitioner/1',
+                    reference: `Practitioner/${uuid1}`,
+                    _sourceId: `Practitioner/${uuid1}`,
+                    _uuid: `Practitioner/${uuid1}`
                 },
                 organization: {
-                    reference: 'Organization/100',
-                    _sourceId: 'Organization/100',
+                    reference: `Organization/${uuid100}`,
+                    _sourceId: `Organization/${uuid100}`,
+                    _uuid: `Organization/${uuid100}`,
                 },
                 extension: [
                     {
@@ -1665,31 +1733,33 @@ describe('graphHelper Tests', () => {
             await collection.insertOne({
                 id: '20',
                 _sourceId: '20',
-                _uuid: generateUUIDv5('20|medstar'),
+                _uuid: uuid20,
                 resourceType: resourceType,
                 practitioner: {
                     reference: 'Practitioner/2',
                     _sourceId: 'Practitioner/2',
+                    _uuid: `Practitioner/${uuid2}`,
                 },
                 organization: {
                     reference: 'Organization/200',
                     _sourceId: 'Organization/200',
+                    _uuid: `Organization/${uuid200}`,
                 },
             });
             // add an Organization
             resourceType = 'Organization';
             collection = db.collection(`${resourceType}_${base_version}`);
             await collection.insertOne({
-                    id: '100',
-                    _sourceId: '100',
-                    _uuid: generateUUIDv5('100|medstar'),
+                    id: uuid100,
+                    _sourceId: uuid100,
+                    _uuid: uuid100,
                     resourceType: resourceType
                 }
             );
             await collection.insertOne({
                     id: '200',
                     _sourceId: '200',
-                    _uuid: generateUUIDv5('200|medstar'),
+                    _uuid: uuid200,
                     resourceType: resourceType
                 }
             );
@@ -1700,7 +1770,7 @@ describe('graphHelper Tests', () => {
             await collection.insertOne({
                 id: 'AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He',
                 _sourceId: 'AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He',
-                _uuid: generateUUIDv5('AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He|medstar'),
+                _uuid: uuidAetna,
                 resourceType: resourceType,
             });
             resourceType = 'Practitioner';
@@ -1741,7 +1811,7 @@ describe('graphHelper Tests', () => {
                 entry: [
                     {
                         id: '1',
-                        fullUrl: 'https://host/4_0_0/Practitioner/1',
+                        fullUrl: `https://host/4_0_0/Practitioner/${uuid1}`,
                         resource: {
                             contained: [
                                 {
@@ -1775,15 +1845,15 @@ describe('graphHelper Tests', () => {
                                     ],
                                     id: '10',
                                     organization: {
-                                        reference: 'Organization/100',
+                                        reference: `Organization/${uuid100}`,
                                     },
                                     practitioner: {
-                                        reference: 'Practitioner/1',
+                                        reference: `Practitioner/${uuid1}`,
                                     },
                                     resourceType: 'PractitionerRole',
                                 },
                                 {
-                                    id: '100',
+                                    id: uuid100,
                                     resourceType: 'Organization',
                                 },
                                 {
@@ -1797,16 +1867,16 @@ describe('graphHelper Tests', () => {
                     },
                     {
                         id: '2',
-                        fullUrl: 'https://host/4_0_0/Practitioner/2',
+                        fullUrl: `https://host/4_0_0/Practitioner/${uuid20}`,
                         resource: {
                             contained: [
                                 {
                                     id: '20',
                                     organization: {
-                                        reference: 'Organization/200',
+                                        reference: `Organization/${uuid200}`,
                                     },
                                     practitioner: {
-                                        reference: 'Practitioner/2',
+                                        reference: `Practitioner/${uuid2}`,
                                     },
                                     resourceType: 'PractitionerRole',
                                 },
@@ -1886,7 +1956,7 @@ describe('graphHelper Tests', () => {
             await collection.insertOne({
                 id: '2',
                 _sourceId: '2',
-                _uuid: generateUUIDv5('2|medstar'),
+                _uuid: uuid2,
                 resourceType: 'Practitioner',
                 extension: [
                     {
@@ -1906,15 +1976,17 @@ describe('graphHelper Tests', () => {
             await collection.insertOne({
                 id: '10',
                 _sourceId: '10',
-                _uuid: generateUUIDv5('10|medstar'),
+                _uuid: uuid10,
                 resourceType: resourceType,
                 practitioner: {
-                    reference: 'Practitioner/1',
-                    _sourceId: 'Practitioner/1',
+                    reference: `Practitioner/${uuid1}`,
+                    _sourceId: `Practitioner/${uuid1}`,
+                    _uuid: `Practitioner/${uuid1}`
                 },
                 organization: {
-                    reference: 'Organization/100',
-                    _sourceId: 'Organization/100',
+                    reference: `Organization/${uuid100}`,
+                    _sourceId: `Organization/${uuid100}`,
+                    _uuid: `Organization/${uuid100}`,
                 },
                 extension: [
                     {
@@ -1948,31 +2020,33 @@ describe('graphHelper Tests', () => {
             await collection.insertOne({
                 id: '20',
                 _sourceId: '20',
-                _uuid: generateUUIDv5('20|medstar'),
+                _uuid: uuid20,
                 resourceType: resourceType,
                 practitioner: {
                     reference: 'Practitioner/2',
                     _sourceId: 'Practitioner/2',
+                    _uuid: `Practitioner/${uuid2}`,
                 },
                 organization: {
                     reference: 'Organization/200',
                     _sourceId: 'Organization/200',
+                    _uuid: `Organization/${uuid200}`,
                 },
             });
             // add an Organization
             resourceType = 'Organization';
             collection = db.collection(`${resourceType}_${base_version}`);
             await collection.insertOne({
-                    id: '100',
-                    _sourceId: '100',
-                    _uuid: generateUUIDv5('100|medstar'),
+                    id: uuid100,
+                    _sourceId: uuid100,
+                    _uuid: uuid100,
                     resourceType: resourceType
                 }
             );
             await collection.insertOne({
                     id: '200',
                     _sourceId: '200',
-                    _uuid: generateUUIDv5('200|medstar'),
+                    _uuid: uuid200,
                     resourceType: resourceType
                 }
             );
@@ -1983,7 +2057,7 @@ describe('graphHelper Tests', () => {
             await collection.insertOne({
                 id: 'AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He',
                 _sourceId: 'AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He',
-                _uuid: generateUUIDv5('AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He|medstar'),
+                _uuid: uuidAetna,
                 resourceType: resourceType,
             });
             resourceType = 'Practitioner';
@@ -2059,7 +2133,7 @@ describe('graphHelper Tests', () => {
                 'entry': [
                     {
                         'id': '1',
-                        'fullUrl': 'https://host/4_0_0/Practitioner/1',
+                        'fullUrl': `https://host/4_0_0/Practitioner/${uuid1}`,
                         'resource': {
                             'resourceType': 'Practitioner',
                             'id': '1',
@@ -2095,15 +2169,15 @@ describe('graphHelper Tests', () => {
                                         }
                                     ],
                                     'practitioner': {
-                                        'reference': 'Practitioner/1',
+                                        'reference': `Practitioner/${uuid1}`,
                                     },
                                     'organization': {
-                                        'reference': 'Organization/100',
+                                        'reference': `Organization/${uuid100}`,
                                     }
                                 },
                                 {
                                     'resourceType': 'Organization',
-                                    'id': '100'
+                                    'id': uuid100
                                 },
                                 {
                                     'resourceType': 'InsurancePlan',

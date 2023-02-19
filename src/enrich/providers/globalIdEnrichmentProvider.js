@@ -3,7 +3,6 @@ const {assertTypeEquals} = require('../../utils/assertType');
 const {DatabaseQueryFactory} = require('../../dataLayer/databaseQueryFactory');
 const {isUuid} = require('../../utils/uid.util');
 const {isTrue} = require('../../utils/isTrue');
-const {IdentifierSystem} = require('../../utils/identifierSystem');
 
 /**
  * Abstract base class for an enrichment provider.  Inherit from this to create a new enrichment provider
@@ -74,20 +73,13 @@ class GlobalIdEnrichmentProvider extends EnrichmentProvider {
      */
     updateReference({reference}) {
         if (reference.reference) {
-            const parts = reference.reference.split('/');
-            const id = parts.slice(-1)[0];
-            if (!isUuid(id) && reference.extension && reference.extension.length > 0) {
-                /**
-                 * @type {Extension|undefined}
-                 */
-                const uuidExtension = reference.extension.find(e => e.url === IdentifierSystem.uuid);
-                if (uuidExtension) {
-                    /**
-                     * @type {string|undefined}
-                     */
-                    const uuid = uuidExtension.valueString;
-                    reference.reference = uuid;
-                }
+            /**
+             * The reference can be 'Patient/123|medstar' so we want to extract just the id
+             * @type {string}
+             */
+            const id = reference.reference.split('/').slice(-1)[0].split('|').slice(-1)[0];
+            if (!isUuid(id) && reference._uuid) {
+                reference.reference = reference._uuid;
             }
         }
         return reference;
