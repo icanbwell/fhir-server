@@ -17,6 +17,7 @@ const {
     createTestRequest,
 } = require('../../common');
 const {describe, beforeEach, afterEach, expect, test} = require('@jest/globals');
+const {generateUUIDv5} = require('../../../utils/uid.util');
 
 describe('Claim Graph By Id Contained Tests', () => {
     beforeEach(async () => {
@@ -74,6 +75,14 @@ describe('Claim Graph By Id Contained Tests', () => {
 
             resp = await request
                 .post('/4_0_0/ExplanationOfBenefit/WPS-Claim-230916613369/$graph?contained=true')
+                .set(getHeaders())
+                .send(graphDefinitionResource);
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedResource_230916613369);
+
+            const uuid = generateUUIDv5('WPS-Claim-230916613369|medstar');
+            resp = await request
+                .post(`/4_0_0/ExplanationOfBenefit/${uuid}/$graph?contained=true`)
                 .set(getHeaders())
                 .send(graphDefinitionResource);
             // noinspection JSUnresolvedFunction
