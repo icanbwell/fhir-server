@@ -4,7 +4,7 @@
       "id": "86467a80-01a3-528c-8438-bd179b523459",
       "request": {
         "method": "POST",
-        "url": "/4_0_0/Patient/86467a80-01a3-528c-8438-bd179b523459"
+        "url": "/4_0_0/Patient/00100000000"
       },
       "resource": {
         "birthDate": "2017-01-01",
@@ -57,7 +57,7 @@
       "id": "86467a80-01a3-528c-8438-bd179b523459",
       "request": {
         "method": "POST",
-        "url": "/4_0_0/Patient/86467a80-01a3-528c-8438-bd179b523459"
+        "url": "/4_0_0/Patient/00100000000"
       },
       "resource": {
         "birthDate": "2015-01-01",
