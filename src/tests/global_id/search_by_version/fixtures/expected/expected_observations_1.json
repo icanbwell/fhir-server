@@ -90,6 +90,38 @@
       }
     }
   ],
+  "meta": {
+    "tag": [
+      {
+        "display": "db.Observation_4_0_0_History.find({'resource._uuid':'0028735c-80ac-4d14-9e35-a097d01b0b28'}, {}).sort([{'resource.meta.versionId':-1}])",
+        "system": "https://www.icanbwell.com/query"
+      },
+      {
+        "code": "Observation_4_0_0_History",
+        "system": "https://www.icanbwell.com/queryCollection"
+      },
+      {
+        "display": "{'sort':[{'resource.meta.versionId':-1}]}",
+        "system": "https://www.icanbwell.com/queryOptions"
+      },
+      {
+        "system": "https://www.icanbwell.com/queryFields"
+      },
+      {
+        "system": "https://www.icanbwell.com/queryTime"
+      },
+      {
+        "display": "{'useTwoStepSearchOptimization':undefined}",
+        "system": "https://www.icanbwell.com/queryOptimization"
+      },
+      {
+        "system": "https://www.icanbwell.com/queryExplain"
+      },
+      {
+        "system": "https://www.icanbwell.com/queryExplainSimple"
+      }
+    ]
+  },
   "resourceType": "Bundle",
   "total": 1,
   "type": "history"

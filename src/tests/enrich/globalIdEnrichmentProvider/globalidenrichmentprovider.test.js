@@ -10,6 +10,7 @@ const {assertTypeEquals} = require('../../../utils/assertType');
 const {EnrichmentManager} = require('../../../enrich/enrich');
 const {R4ArgsParser} = require('../../../operations/query/r4ArgsParser');
 const {VERSIONS} = require('../../../middleware/fhir/utils/constants');
+const Resource = require('../../../fhir/classes/4_0_0/resources/resource');
 
 describe('Observation Tests', () => {
     beforeEach(async () => {
@@ -54,20 +55,22 @@ describe('Observation Tests', () => {
             };
 
             const resources = [
-                {
-                    'id': '1',
-                    '_uuid': '57881c89-78ca-4c66-91f7-2b8a9f99406a'
-                }
+                new Resource(
+                    {
+                        'id': '1',
+                        '_uuid': '57881c89-78ca-4c66-91f7-2b8a9f99406a'
+                    })
             ];
 
             const updatedResources = await enrichmentManager.enrichAsync({
                 resources: resources,
                 parsedArgs
             });
-            expect(updatedResources).toStrictEqual([
+            expect(updatedResources.map(r => r.toJSONInternal())).toStrictEqual([
                 {
+                    '_uuid': '57881c89-78ca-4c66-91f7-2b8a9f99406a',
                     'id': '57881c89-78ca-4c66-91f7-2b8a9f99406a',
-                    '_uuid': '57881c89-78ca-4c66-91f7-2b8a9f99406a'
+                    'resourceType': 'Resource'
                 }
             ]);
         });

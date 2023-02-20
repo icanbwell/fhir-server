@@ -170,7 +170,7 @@ class HistoryOperation {
         const options = {
             sort: [
                 {
-                    'meta.versionId': -1
+                    'resource.meta.versionId': -1
                 }
             ]
         };
@@ -279,9 +279,9 @@ class HistoryOperation {
                 base_version,
                 total_count: entries.length,
                 parsedArgs,
-                originalQuery: {},
+                originalQuery: query,
                 collectionName: entries.length > 0 ? (await resourceLocator.getHistoryCollectionNameAsync(entries[0].resource)) : null,
-                originalOptions: {},
+                originalOptions: options,
                 stopTime,
                 startTime,
                 user,
