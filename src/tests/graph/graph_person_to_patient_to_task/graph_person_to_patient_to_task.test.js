@@ -31,7 +31,7 @@ describe('Person Tests', () => {
     });
 
     describe('Person graph_person_to_patient_to_task Tests', () => {
-        test('graph_person_to_patient_to_task works', async () => {
+        test('graph_person_to_patient_to_task works (with reference id and sourceAssigningAuthority)', async () => {
             const request = await createTestRequest();
             // ARRANGE
             // add the resources to FHIR server
@@ -155,7 +155,7 @@ describe('Person Tests', () => {
             // ACT & ASSERT
             resp = await request
                 .post(
-                    '/4_0_0/Patient/$graph?id=person.002126287fbd412d8b52115e48edbd4c&contained=true'
+                    '/4_0_0/Patient/$graph?id=person.002126287fbd412d8b52115e48edbd4c&contained=true&_debug=1'
                 )
                 .set(getHeaders())
                 .send(graphProxyPatientDefinitionResource);

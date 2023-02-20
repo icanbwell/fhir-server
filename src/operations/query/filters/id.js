@@ -49,11 +49,12 @@ function filterById(
         let idFilters = [];
         if (idList.some(i => i.includes('|'))) {
             idFilters = idList.map(i => {
-                const sourceAssigningAuthority = i.split('|')[0];
+                const id = i.split('|')[0];
+                const sourceAssigningAuthority = i.split('|')[1];
                 return {
                     $and: [
                         {
-                            [getFullFieldName(field)]: sourceAssigningAuthority,
+                            [getFullFieldName(field)]: id,
                         },
                         {
                             [getFullFieldName('_sourceAssigningAuthority')]: sourceAssigningAuthority

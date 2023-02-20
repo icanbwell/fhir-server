@@ -26,6 +26,7 @@ const {EnrichmentManager} = require('../../enrich/enrich');
 const {R4ArgsParser} = require('../query/r4ArgsParser');
 const {ParsedArgs} = require('../query/parsedArgsItem');
 const {VERSIONS} = require('../../middleware/fhir/utils/constants');
+const {ReferenceParser} = require('../../utils/referenceParser');
 
 
 /**
@@ -175,7 +176,11 @@ class GraphHelper {
      * @return {string[]}
      */
     getReferencesFromPropertyValue({propertyValue}) {
-        return Array.isArray(propertyValue) ? propertyValue.map(a => a['_uuid']) : [propertyValue['_uuid']];
+        // concat uuids and ids so we can search both in case some reference does not have
+        // _sourceAssigningAuthority set correctly
+        return Array.isArray(propertyValue) ?
+            propertyValue.map(a => a._uuid).concat(propertyValue.map(a => a.reference)) :
+            [].concat([propertyValue._uuid]).concat([propertyValue.reference]);
     }
 
     /**
@@ -243,10 +248,19 @@ class GraphHelper {
                 .filter(r => r !== undefined && r !== null));
             // select just the ids from those reference properties
             // noinspection JSCheckFunctionSignatures
-            let relatedReferenceIds = relatedReferences
-                .filter(r => r.includes('/'))
-                .filter(r => r.split('/')[0] === resourceType) // resourceType matches the one we're looking for
-                .map(r => r.split('/')[1]);
+            let relatedReferenceIds = relatedReferences.map(reference => {
+                const {
+                    id: referenceId,
+                    resourceType: referenceResourceType,
+                    sourceAssigningAuthority: referenceSourceAssigningAuthority
+                } = ReferenceParser.parseReference(reference);
+                // if sourceAssigningAuthority is present in reference (e.g., 'Patient/123|medstar')
+                // then the uuid will be correct so no need to include.
+                // otherwise (e.g., 'Patient/123' include reference id too to handle where the reference id
+                // was not specified with sourceAssigningAuthority.
+                return referenceResourceType === resourceType && !referenceSourceAssigningAuthority ?
+                    referenceId : null;
+            }).filter(i => i !== null);
             if (relatedReferenceIds.length === 0) {
                 return; // nothing to do
             }
