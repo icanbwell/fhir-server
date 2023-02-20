@@ -5,6 +5,7 @@
 const hash = require('object-hash');
 const crypto = require('crypto');
 const {v5: uuidv5, validate: uuidValidate} = require('uuid');
+const {UUID} = require('mongodb').BSON;
 const OID_NAMESPACE = '6ba7b812-9dad-11d1-80b4-00c04fd430c8';
 
 
@@ -58,10 +59,29 @@ function isUuid(text) {
     return text && (uuidValidate(text) || uuidRegex.test(text));
 }
 
+/**
+ * Converts a uuid string to a mongo uuid object
+ * @param uuid
+ * @return {import('mongodb').BSON.UUID}
+ */
+function convertToMongoUuid(uuid) {
+    const mongoUuid = UUID.createFromHexString(uuid);
+    return mongoUuid;
+}
+
+/**
+ * Converts a mongo uuid to a uuid string
+ * @param {import('mongodb').BSON.UUID} uuid
+ */
+function convertFromMongoUuid(uuid) {
+    return uuid.toHexString(true);
+}
 
 module.exports = {
     getHash,
     generateUUID,
     isUuid,
-    generateUUIDv5
+    generateUUIDv5,
+    convertToMongoUuid,
+    convertFromMongoUuid
 };
