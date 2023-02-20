@@ -65,6 +65,9 @@ function isUuid(text) {
  * @return {import('mongodb').BSON.UUID}
  */
 function convertToMongoUuid(uuid) {
+    if (uuid instanceof UUID) {
+        return uuid;
+    }
     const mongoUuid = UUID.createFromHexString(uuid);
     return mongoUuid;
 }
@@ -74,6 +77,9 @@ function convertToMongoUuid(uuid) {
  * @param {import('mongodb').BSON.UUID} uuid
  */
 function convertFromMongoUuid(uuid) {
+    if (uuid instanceof String) {
+        return uuid;
+    }
     return uuid.toHexString(true);
 }
 
