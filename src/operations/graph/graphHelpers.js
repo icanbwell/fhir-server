@@ -175,7 +175,7 @@ class GraphHelper {
      * @return {string[]}
      */
     getReferencesFromPropertyValue({propertyValue}) {
-        return Array.isArray(propertyValue) ? propertyValue.map(a => a['reference']) : [propertyValue['reference']];
+        return Array.isArray(propertyValue) ? propertyValue.map(a => a['_uuid']) : [propertyValue['_uuid']];
     }
 
     /**
@@ -318,7 +318,7 @@ class GraphHelper {
                 if (relatedResource) {
                     // create a class to hold information about this resource
                     const relatedEntityAndContained = new ResourceEntityAndContained({
-                        entityId: relatedResource.id,
+                        entityId: relatedResource._uuid,
                         entityResourceType: relatedResource.resourceType,
                         includeInOutput: true,
                         resource: relatedResource,
@@ -332,11 +332,11 @@ class GraphHelper {
                     })
                         .flatMap(r => this.getReferencesFromPropertyValue({propertyValue: r}))
                         .filter(r => r !== undefined && r !== null)
-                        .includes(`${relatedResource.resourceType}/${relatedResource.id}`)));
+                        .includes(`${relatedResource.resourceType}/${relatedResource._uuid}`)));
 
                     if (matchingParentEntities.length === 0) {
-                        const parentEntitiesString = parentEntities.map(p => `${p.resource.resourceType}/${p.resource.id}`).toString();
-                        throw new Error(`Forward Reference: No match found for child entity ${relatedResource.resourceType}/${relatedResource.id} in parent entities ${parentEntitiesString} using property ${property}`);
+                        const parentEntitiesString = parentEntities.map(p => `${p.resource.resourceType}/${p.resource._uuid}`).toString();
+                        throw new Error(`Forward Reference: No match found for child entity ${relatedResource.resourceType}/${relatedResource._uuid} in parent entities ${parentEntitiesString} using property ${property}`);
                     }
 
                     // add it to each one since there can be multiple resources that point to the same related resource
@@ -513,7 +513,7 @@ class GraphHelper {
                     }
                     // create the entry
                     const resourceEntityAndContained = new ResourceEntityAndContained({
-                        entityId: relatedResourcePropertyCurrent.id,
+                        entityId: relatedResourcePropertyCurrent._uuid,
                         entityResourceType: relatedResourcePropertyCurrent.resourceType,
                         includeInOutput: true,
                         resource: relatedResourcePropertyCurrent,
@@ -530,11 +530,17 @@ class GraphHelper {
                     const references = properties
                         .flatMap(r => this.getReferencesFromPropertyValue({propertyValue: r}))
                         .filter(r => r !== undefined);
-                    const matchingParentEntities = parentEntities.filter(p => references.includes(`${p.resource.resourceType}/${p.resource.id}`));
+                    const matchingParentEntities = parentEntities.filter(
+                        p => references.includes(`${p.resource.resourceType}/${p.resource._uuid}`));
 
                     if (matchingParentEntities.length === 0) {
-                        const parentEntitiesString = parentEntities.map(p => `${p.resource.resourceType}/${p.resource.id}`).toString();
-                        throw new Error(`Reverse Reference: No match found for parent entities ${parentEntitiesString} using property ${fieldForSearchParameter} in child entity ${relatedResourcePropertyCurrent.resourceType}/${relatedResourcePropertyCurrent.id}`);
+                        const parentEntitiesString = parentEntities.map(
+                            p => `${p.resource.resourceType}/${p.resource._uuid}`).toString();
+                        throw new Error(
+                            `Reverse Reference: No match found for parent entities ${parentEntitiesString} ` +
+                            `using property ${fieldForSearchParameter} in ` +
+                            'child entity ' +
+                            `${relatedResourcePropertyCurrent.resourceType}/${relatedResourcePropertyCurrent._uuid}`);
                     }
 
                     for (const matchingParentEntity of matchingParentEntities) {
@@ -763,7 +769,7 @@ class GraphHelper {
                         accessRequested: 'read'
                     });
                     if (!parentResourceType) {
-                        const parentEntitiesString = parentEntities.map(p => `${p.resource.resourceType}/${p.resource.id}`).toString();
+                        const parentEntitiesString = parentEntities.map(p => `${p.resource.resourceType}/${p.resource._uuid}`).toString();
                         throw new Error(`processOneGraphLinkAsync: No parent resource found for reverse references for parent entities: ${parentEntitiesString} using target.params: ${target.params}`);
                     }
                     const queryItem = await this.getReverseReferencesAsync(
@@ -938,7 +944,7 @@ class GraphHelper {
              * @type {ResourceEntityAndContained[]}
              */
             const resultEntities = parentEntities.map(parentEntity => new ResourceEntityAndContained({
-                entityId: parentEntity.id,
+                entityId: parentEntity._uuid,
                 entityResourceType: parentEntity.resourceType,
                 includeInOutput: true,
                 resource: parentEntity,
@@ -1186,12 +1192,12 @@ class GraphHelper {
                  * @type {ResourceEntityAndContained}
                  */
                 const matchingEntity = allRelatedEntries.find(
-                    e => e.entityId === topLevelBundleEntry.resource.id &&
+                    e => e.entityId === topLevelBundleEntry.resource._uuid &&
                         e.entityResourceType === topLevelBundleEntry.resource.resourceType
                 );
                 assertIsValid(matchingEntity,
                     'No matching entity found in graph for ' +
-                    `${topLevelBundleEntry.resource.resourceType}/${topLevelBundleEntry.resource.id}`);
+                    `${topLevelBundleEntry.resource.resourceType}/${topLevelBundleEntry.resource._uuid}`);
                 /**
                  * @type {[EntityAndContainedBase]}
                  */
@@ -1333,7 +1339,7 @@ class GraphHelper {
                 for (const resource of resources) {
                     await responseStreamer.writeBundleEntryAsync({
                         bundleEntry: new BundleEntry({
-                                id: resource.id,
+                                id: resource._uuid,
                                 resource
                             }
                         )
@@ -1441,7 +1447,7 @@ class GraphHelper {
                 /**
                  * @type {string[]}
                  */
-                const idList = [resource.id];
+                const idList = [resource._uuid];
                 /**
                  * @type {DatabaseQueryManager}
                  */
@@ -1459,9 +1465,9 @@ class GraphHelper {
                 });
 
                 await databaseQueryManager.deleteManyAsync({
-                        requestId: requestInfo.requestId,
-                        query: {id: {$in: idList}}
-                    });
+                    requestId: requestInfo.requestId,
+                    query: {_uuid: {$in: idList}}
+                });
 
                 // for testing with delay
                 // await new Promise(r => setTimeout(r, 10000));
@@ -1471,7 +1477,8 @@ class GraphHelper {
                     const bundleEntry = new BundleEntry({
                         id: resultResourceId,
                         resource: new ResourceCreator({
-                            id: resultResourceId, resourceType: resultResourceType
+                            id: resultResourceId,
+                            resourceType: resultResourceType
                         }),
                         request: new BundleRequest(
                             {
