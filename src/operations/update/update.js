@@ -289,7 +289,7 @@ class UpdateOperation {
                 }
 
                 // Check if meta & meta.source exists in incoming resource
-                if (!resource_incoming.meta || !resource_incoming.meta.source) {
+                if (!resource_incoming.meta?.source) {
                     throw new BadRequestError(new Error('Unable to update resource. Missing either metadata or metadata source.'));
                 } else {
                     resource_incoming.meta['versionId'] = '1';
