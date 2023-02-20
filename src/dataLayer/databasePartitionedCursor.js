@@ -13,7 +13,7 @@ const BundleEntry = require('../fhir/classes/4_0_0/backbone_elements/bundleEntry
  * @typedef CursorInfo
  * @property {string} db
  * @property {string} collection
- * @property {import('mongodb').FindCursor<import('mongodb').WithId<import('mongodb').DefaultSchema>>} cursor
+ * @property {import('mongodb').AbstractCursor<import('mongodb').WithId<import('mongodb').DefaultSchema>>} cursor
  */
 
 class DatabasePartitionedCursor {
@@ -102,10 +102,89 @@ class DatabasePartitionedCursor {
     }
 
     /**
+     * maps a doc from the database into a Resource
+     * @param {Object} doc
+     * @return {Promise<Resource|BundleEntry>}
+     */
+    async mapDocumentToResourceAsync({doc}) {
+        const resourceType = doc.resource ? 'BundleEntry' : doc.resourceType || this.resourceType;
+        try {
+            if (resourceType === 'BundleEntry') {
+                // noinspection JSCheckFunctionSignatures
+                return new BundleEntry(doc);
+            }
+            const ResourceCreator = getResource(this.base_version, resourceType);
+            return new ResourceCreator(doc);
+        } catch (e) {
+            throw new RethrownError({
+                message: `Error hydrating resource from database: ${resourceType}/${doc.id}`,
+                collections: this._cursors.map(c => c.collection),
+                databases: this._cursors.map(c => c.db),
+                error: e,
+                query: this.query,
+                id: doc.id
+            });
+        }
+
+    }
+
+    /**
      * Get the next available document from the cursors, returns null if no more documents are available
      * @return {Promise<Resource|BundleEntry|null>}
      */
     async next() {
+        while (this._cursors.length > 0) {
+            await logTraceSystemEventAsync(
+                {
+                    event: 'DatabasePartitionedCursor: next',
+                    message: 'DatabasePartitionedCursor: next',
+                    args: {
+                        collections: this._cursors.map(c => c.collection),
+                        query: this.query
+                    }
+                }
+            );
+
+            // check if the first cursor has next.  If not, remove that cursor from the list
+            try {
+                // return Promise.reject(new Error('woops'));
+                /**
+                 * @type {Object}
+                 */
+                const result = await this._cursors[0].cursor.next();
+                if (result !== null) {
+                    return await this.mapDocumentToResourceAsync({doc: result});
+                } else {
+                    assertFail({
+                        source: 'DatabasePartitionedCursor.next',
+                        message: 'Data is null',
+                        args: {
+                            value: result,
+                            query: this.query
+                        }
+                    });
+                }
+            } catch (e) {
+                throw new RethrownError({
+                    collections: this._cursors.map(c => c.collection),
+                    databases: this._cursors.map(c => c.db),
+                    error: e,
+                    query: this.query
+                });
+            }
+            this._cursors.shift();
+        }
+        return null;
+    }
+
+    /**
+     * Get the next available document from the cursors, returns null if no more documents are available
+     * Unlike next() this returns raw documents and not resources.
+     * This can be used when you're doing projections and the document fields you get back may not validate
+     *  as a full FHIR resource
+     * @return {Promise<Object|null>}
+     */
+    async nextRaw() {
         while (this._cursors.length > 0) {
             await logTraceSystemEventAsync(
                 {
@@ -128,8 +207,7 @@ class DatabasePartitionedCursor {
                             // noinspection JSCheckFunctionSignatures
                             return new BundleEntry(result);
                         }
-                        const ResourceCreator = getResource(this.base_version, resourceType);
-                        return new ResourceCreator(result);
+                        return result;
                     } catch (e) {
                         throw new RethrownError({
                             message: `Error hydrating resource from database: ${resourceType}/${result.id}`,
@@ -188,18 +266,18 @@ class DatabasePartitionedCursor {
     }
 
     /**
-     * Returns an array of documents.
+     * Returns an array of raw documents.
      * The caller is responsible for making sure that there is enough memory to store the results.
      * Note that the array only contains partial results when this cursor had been previously accessed.
      * In that case, cursor.rewind() can be used to reset the cursor.
      * @return {Promise<import('mongodb').DefaultSchema[]>}
      */
-    async toArrayAsync() {
+    async toArrayRawAsync() {
         try {
             await logTraceSystemEventAsync(
                 {
-                    event: 'DatabasePartitionedCursor: toArray',
-                    message: 'DatabasePartitionedCursor: toArray',
+                    event: 'DatabasePartitionedCursor: toArrayRawAsync',
+                    message: 'DatabasePartitionedCursor: toArrayRawAsync',
                     args: {
                         collections: this._cursors.map(c => c.collection),
                         query: this.query
@@ -208,6 +286,41 @@ class DatabasePartitionedCursor {
             );
 
             return await async.flatMap(this._cursors, async (c) => await c.cursor.toArray());
+        } catch (e) {
+            throw new RethrownError({
+                collections: this._cursors.map(c => c.collection),
+                databases: this._cursors.map(c => c.db),
+                error: e,
+                query: this.query
+            });
+        }
+    }
+
+    /**
+     * Returns an array of resources.
+     * The caller is responsible for making sure that there is enough memory to store the results.
+     * Note that the array only contains partial results when this cursor had been previously accessed.
+     * In that case, cursor.rewind() can be used to reset the cursor.
+     * @return {Promise<Resource[]>}
+     */
+    async toArrayAsync() {
+        try {
+            await logTraceSystemEventAsync(
+                {
+                    event: 'DatabasePartitionedCursor: toArrayAsync',
+                    message: 'DatabasePartitionedCursor: toArrayAsync',
+                    args: {
+                        collections: this._cursors.map(c => c.collection),
+                        query: this.query
+                    }
+                }
+            );
+
+            /**
+             * @type {import('mongodb').DefaultSchema[]}
+             */
+            const docs = await this.toArrayRawAsync();
+            return await async.map(docs, async doc => await this.mapDocumentToResourceAsync({doc}));
         } catch (e) {
             throw new RethrownError({
                 collections: this._cursors.map(c => c.collection),

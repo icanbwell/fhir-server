@@ -1,0 +1,34 @@
+{
+  "birthDate": "2017-01-01",
+  "gender": "female",
+  "id": "patient1",
+  "meta": {
+    "security": [
+      {
+        "code": "C",
+        "system": "https://www.icanbwell.com/access"
+      },
+      {
+        "code": "C",
+        "system": "https://www.icanbwell.com/owner"
+      },
+      {
+        "code": "C",
+        "system": "https://www.icanbwell.com/sourceAssigningAuthority"
+      }
+    ],
+    "source": "http://medstarhealth.org/patient",
+    "versionId": "2"
+  },
+  "name": [
+    {
+      "family": "PATIENT1",
+      "given": [
+        "SHYLA"
+      ],
+      "text": "t",
+      "use": "usual"
+    }
+  ],
+  "resourceType": "Patient"
+}

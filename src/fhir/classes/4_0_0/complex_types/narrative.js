@@ -111,6 +111,7 @@ class Narrative extends Element {
 
 
 
+
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -153,7 +154,13 @@ class Narrative extends Element {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            id: this.id,
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            status: this.status,
+            div: this.div,
+        };
+
 
 
         return removeNull(json);

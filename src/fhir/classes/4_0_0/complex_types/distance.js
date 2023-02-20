@@ -126,6 +126,7 @@ class Distance extends Element {
 
 
 
+
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             value,
@@ -169,7 +170,14 @@ class Distance extends Element {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            value: this.value,
+            comparator: this.comparator,
+            unit: this.unit,
+            system: this.system,
+            code: this.code,
+        };
+
 
 
         return removeNull(json);

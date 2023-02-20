@@ -2,6 +2,10 @@
  * Implements enrich function that finds any registered enrichment providers for that resource and runs them
  */
 const {RethrownError} = require('../utils/rethrownError');
+const {assertTypeEquals} = require('../utils/assertType');
+const {ParsedArgs} = require('../operations/query/parsedArgsItem');
+const Resource = require('../fhir/classes/4_0_0/resources/resource');
+const BundleEntry = require('../fhir/classes/4_0_0/backbone_elements/bundleEntry');
 
 class EnrichmentManager {
     /**
@@ -17,27 +21,27 @@ class EnrichmentManager {
 
     /**
      * Runs any registered enrichment providers
-     * @param {Object} args
+     * @param {ParsedArgs} parsedArgs
      * @param {Resource[]} resources
-     * @param {Object} originalArgs
      * @return {Promise<Resource[]>}
      */
-    async enrichAsync({resources, args, originalArgs}) {
+    async enrichAsync({resources, parsedArgs}) {
+        assertTypeEquals(parsedArgs, ParsedArgs);
         try {
             for (const enrichmentProvider of this.enrichmentProviders) {
                 resources = await enrichmentProvider.enrichAsync(
                     {
-                        resources, args, originalArgs
+                        resources, parsedArgs
                     }
                 );
-
+                resources.forEach(resource => assertTypeEquals(resource, Resource));
             }
             return resources;
         } catch (e) {
             throw new RethrownError({
                     message: 'Error in enrichAsync()',
                     error: e,
-                    args: {resources, args, originalArgs}
+                    args: {resources, parsedArgs}
                 }
             );
         }
@@ -45,26 +49,26 @@ class EnrichmentManager {
 
     /**
      * Runs any registered enrichment providers
-     * @param {Object} args
+     * @param {ParsedArgs} parsedArgs
      * @param {BundleEntry[]} entries
-     * @param {Object} originalArgs
      * @return {Promise<BundleEntry[]>}
      */
-    async enrichBundleEntriesAsync({entries, args, originalArgs}) {
+    async enrichBundleEntriesAsync({entries, parsedArgs}) {
         try {
             for (const enrichmentProvider of this.enrichmentProviders) {
                 entries = await enrichmentProvider.enrichBundleEntriesAsync(
                     {
-                        entries, args, originalArgs
+                        entries, parsedArgs
                     }
                 );
             }
+            entries.forEach(entry => assertTypeEquals(entry, BundleEntry));
             return entries;
         } catch (e) {
             throw new RethrownError({
                     message: 'Error in enrichBundleEntriesAsync()',
                     error: e,
-                    args: {entries, args, originalArgs}
+                    args: {entries, parsedArgs}
                 }
             );
         }

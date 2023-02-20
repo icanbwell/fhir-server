@@ -27,11 +27,14 @@
   "id": "2.16.840.1.113762.1.4.1235.31",
   "identifier": [
     {
+      "id": "sourceId",
       "system": "https://www.icanbwell.com/sourceId",
       "value": "2.16.840.1.113762.1.4.1235.31"
     },
     {
-      "system": "https://www.icanbwell.com/uuid"
+      "id": "uuid",
+      "system": "https://www.icanbwell.com/uuid",
+      "value": "730b7244-27db-5808-90a7-dde5000e076b"
     }
   ],
   "meta": {

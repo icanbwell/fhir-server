@@ -40,12 +40,12 @@ class MongoFilterGenerator {
                     $or: securityTagStructure.sourceAssigningAuthority.map(
                         sa => {
                             return {
-                                [`_sourceAssigningAuthority.${sa}`]: 1
+                                ['_sourceAssigningAuthority']: sa
                             };
                         }
                     )
                 } :
-                {[`_sourceAssigningAuthority.${securityTagStructure.sourceAssigningAuthority[0]}`]: 1};
+                {['_sourceAssigningAuthority']: securityTagStructure.sourceAssigningAuthority[0]};
             filter = {
                 $and: [
                     {'_sourceId': id.toString()},
@@ -53,6 +53,19 @@ class MongoFilterGenerator {
                 ]
             };
         }
+        return filter;
+    }
+
+    /**
+     * generates a mongo filter for lookup by uuid
+     * @param {string} uuid
+     * @return {import('mongodb').Filter<import('mongodb').DefaultSchema>}
+     */
+    generateFilterForUuid({uuid}) {
+        /**
+         * @type {import('mongodb').Filter<import('mongodb').DefaultSchema>}
+         */
+        let filter = {'_uuid': uuid.toString()};
         return filter;
     }
 }

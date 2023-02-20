@@ -213,6 +213,7 @@ class HumanName extends Element {
 
 
 
+
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -266,7 +267,18 @@ class HumanName extends Element {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            id: this.id,
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            use: this.use,
+            text: this.text,
+            family: this.family,
+            given: this.given,
+            prefix: this.prefix,
+            suffix: this.suffix,
+            period: this.period && this.period.toJSONInternal(),
+        };
+
 
 
         return removeNull(json);

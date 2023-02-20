@@ -1,0 +1,62 @@
+{
+  "id": "b5eea5f7-54ee-4a59-8ab3-003a7b4fbed2",
+  "request": {
+    "id": "8edbda21-82ee-438f-9803-e6352de7b1e4",
+    "method": "POST",
+    "url": "/4_0_0/Patient/b5eea5f7-54ee-4a59-8ab3-003a7b4fbed2"
+  },
+  "resource": {
+    "address": [
+      {
+        "city": "Schimmelshire",
+        "line": [
+          "669 Ray Stream"
+        ],
+        "postalCode": "47374",
+        "state": "SC"
+      }
+    ],
+    "birthDate": "1927-09-01",
+    "gender": "male",
+    "id": "b5eea5f7-54ee-4a59-8ab3-003a7b4fbed2",
+    "meta": {
+      "lastUpdated": "2023-01-19T21:57:39.000Z",
+      "profile": [
+        "http://hl7.org/fhir/us/core/StructureDefinition/us-core-person"
+      ],
+      "security": [
+        {
+          "code": "unitypoint",
+          "system": "https://www.icanbwell.com/access"
+        },
+        {
+          "code": "unitypoint",
+          "system": "https://www.icanbwell.com/owner"
+        }
+      ],
+      "versionId": "1"
+    },
+    "name": [
+      {
+        "family": "Weber",
+        "given": [
+          "Liliana"
+        ],
+        "use": "official"
+      }
+    ],
+    "resourceType": "Patient",
+    "telecom": [
+      {
+        "system": "phone",
+        "use": "home",
+        "value": "+1988-208-3004"
+      },
+      {
+        "system": "email",
+        "use": "home",
+        "value": "Gus.OConner95@yahoo.com"
+      }
+    ]
+  }
+}

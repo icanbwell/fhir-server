@@ -1,7 +1,7 @@
 /**
  * Builds a mongo query for search parameters
- * @param {Object} args
- * @returns {Object}
+ * @param {ParsedArgs} args
+ * @returns {import('mongodb').Document}
  */
 module.exports.buildStu3SearchQuery = (args) => {
     // Common search params

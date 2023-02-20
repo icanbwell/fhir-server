@@ -1,0 +1,891 @@
+{
+  "_access": {
+    "centene": 1
+  },
+  "_sourceAssigningAuthority": "centene",
+  "_sourceId": "Centene-3289",
+  "_uuid": "6acd3e2e-4e87-5e93-a125-542a89251ca0",
+  "billablePeriod": {
+    "end": "2021-04-21T11:00:00.000Z",
+    "start": "2021-04-17T01:00:00.000Z"
+  },
+  "careTeam": [
+    {
+      "provider": {
+        "_sourceAssigningAuthority": "centene",
+        "_sourceId": "Organization/2645",
+        "_uuid": "Organization/719f80e9-5f3b-5f0a-ae23-70432f94932f",
+        "extension": [
+          {
+            "id": "sourceId",
+            "url": "https://www.icanbwell.com/sourceId",
+            "valueString": "Organization/2645"
+          },
+          {
+            "id": "uuid",
+            "url": "https://www.icanbwell.com/uuid",
+            "valueString": "Organization/719f80e9-5f3b-5f0a-ae23-70432f94932f"
+          },
+          {
+            "id": "sourceAssigningAuthority",
+            "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+            "valueString": "centene"
+          }
+        ],
+        "reference": "Organization/2645"
+      },
+      "role": {
+        "coding": [
+          {
+            "code": "unknown",
+            "display": "Unknown",
+            "system": "http://terminology.hl7.org/CodeSystem/data-absent-reason"
+          }
+        ]
+      },
+      "sequence": 1
+    }
+  ],
+  "created": "2021-05-18T00:00:00.000Z",
+  "diagnosis": [
+    {
+      "diagnosisCodeableConcept": {
+        "coding": [
+          {
+            "code": "unknown",
+            "display": "Unknown",
+            "system": "http://terminology.hl7.org/CodeSystem/data-absent-reason"
+          }
+        ]
+      },
+      "sequence": 1,
+      "type": [
+        {
+          "coding": [
+            {
+              "code": "unknown",
+              "display": "Unknown",
+              "system": "http://terminology.hl7.org/CodeSystem/data-absent-reason"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "diagnosisCodeableConcept": {
+        "coding": [
+          {
+            "code": "unknown",
+            "display": "Unknown",
+            "system": "http://terminology.hl7.org/CodeSystem/data-absent-reason"
+          }
+        ]
+      },
+      "sequence": 2,
+      "type": [
+        {
+          "coding": [
+            {
+              "code": "unknown",
+              "display": "Unknown",
+              "system": "http://terminology.hl7.org/CodeSystem/data-absent-reason"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "diagnosisCodeableConcept": {
+        "coding": [
+          {
+            "code": "unknown",
+            "display": "Unknown",
+            "system": "http://terminology.hl7.org/CodeSystem/data-absent-reason"
+          }
+        ]
+      },
+      "sequence": 3,
+      "type": [
+        {
+          "coding": [
+            {
+              "code": "unknown",
+              "display": "Unknown",
+              "system": "http://terminology.hl7.org/CodeSystem/data-absent-reason"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "id": "Centene-3289",
+  "identifier": [
+    {
+      "system": "https://sandbox.api.centene.com/fhir/patientaccess",
+      "type": {
+        "coding": [
+          {
+            "code": "claimnumber",
+            "display": "Claim Number",
+            "system": "http://terminology.hl7.org/CodeSystem/v2-0203"
+          }
+        ],
+        "text": "Claim Number"
+      },
+      "value": "3289"
+    },
+    {
+      "id": "sourceId",
+      "system": "https://www.icanbwell.com/sourceId",
+      "value": "Centene-3289"
+    },
+    {
+      "id": "uuid",
+      "system": "https://www.icanbwell.com/uuid",
+      "value": "6acd3e2e-4e87-5e93-a125-542a89251ca0"
+    }
+  ],
+  "insurance": [
+    {
+      "coverage": {
+        "_sourceAssigningAuthority": "centene",
+        "_sourceId": "Coverage/3288",
+        "_uuid": "Coverage/3d43782d-4896-597a-bd87-c607dedbaa1c",
+        "extension": [
+          {
+            "id": "sourceId",
+            "url": "https://www.icanbwell.com/sourceId",
+            "valueString": "Coverage/3288"
+          },
+          {
+            "id": "uuid",
+            "url": "https://www.icanbwell.com/uuid",
+            "valueString": "Coverage/3d43782d-4896-597a-bd87-c607dedbaa1c"
+          },
+          {
+            "id": "sourceAssigningAuthority",
+            "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+            "valueString": "centene"
+          }
+        ],
+        "reference": "Coverage/3288"
+      },
+      "focal": true
+    }
+  ],
+  "insurer": {
+    "_sourceAssigningAuthority": "centene",
+    "_sourceId": "Organization/3287",
+    "_uuid": "Organization/0bbb2960-c281-5f09-9ec7-5263183a85a1",
+    "extension": [
+      {
+        "id": "sourceId",
+        "url": "https://www.icanbwell.com/sourceId",
+        "valueString": "Organization/3287"
+      },
+      {
+        "id": "uuid",
+        "url": "https://www.icanbwell.com/uuid",
+        "valueString": "Organization/0bbb2960-c281-5f09-9ec7-5263183a85a1"
+      },
+      {
+        "id": "sourceAssigningAuthority",
+        "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+        "valueString": "centene"
+      }
+    ],
+    "reference": "Organization/3287"
+  },
+  "item": [
+    {
+      "adjudication": [
+        {
+          "amount": {
+            "value": 0
+          },
+          "category": {
+            "coding": [
+              {
+                "code": "drugcost",
+                "system": "http://hl7.org/fhir/us/carin-bb/CodeSystem/C4BBAdjudication"
+              }
+            ]
+          }
+        },
+        {
+          "amount": {
+            "value": 0
+          },
+          "category": {
+            "coding": [
+              {
+                "code": "memberliability",
+                "system": "http://hl7.org/fhir/us/carin-bb/CodeSystem/C4BBAdjudication"
+              }
+            ]
+          }
+        },
+        {
+          "amount": {
+            "value": 0
+          },
+          "category": {
+            "coding": [
+              {
+                "code": "priorpayerpaid",
+                "system": "http://hl7.org/fhir/us/carin-bb/CodeSystem/C4BBAdjudication"
+              }
+            ]
+          }
+        },
+        {
+          "amount": {
+            "value": 12500
+          },
+          "category": {
+            "coding": [
+              {
+                "code": "noncovered",
+                "system": "http://hl7.org/fhir/us/carin-bb/CodeSystem/C4BBAdjudication"
+              }
+            ]
+          }
+        },
+        {
+          "amount": {
+            "value": 0
+          },
+          "category": {
+            "coding": [
+              {
+                "code": "paidbypatient",
+                "system": "http://hl7.org/fhir/us/carin-bb/CodeSystem/C4BBAdjudication"
+              }
+            ]
+          }
+        },
+        {
+          "amount": {
+            "value": 0
+          },
+          "category": {
+            "coding": [
+              {
+                "code": "eligible",
+                "system": "http://terminology.hl7.org/CodeSystem/adjudication"
+              }
+            ]
+          }
+        },
+        {
+          "amount": {
+            "value": 12500
+          },
+          "category": {
+            "coding": [
+              {
+                "code": "paidtopatient",
+                "system": "http://hl7.org/fhir/us/carin-bb/CodeSystem/C4BBAdjudication"
+              }
+            ]
+          }
+        },
+        {
+          "amount": {
+            "value": 0
+          },
+          "category": {
+            "coding": [
+              {
+                "code": "discount",
+                "system": "http://hl7.org/fhir/us/carin-bb/CodeSystem/C4BBAdjudication"
+              }
+            ]
+          }
+        },
+        {
+          "amount": {
+            "value": 0
+          },
+          "category": {
+            "coding": [
+              {
+                "code": "coinsurance",
+                "system": "http://hl7.org/fhir/us/carin-bb/CodeSystem/C4BBAdjudication"
+              }
+            ]
+          }
+        },
+        {
+          "amount": {
+            "value": 0
+          },
+          "category": {
+            "coding": [
+              {
+                "code": "paidtoprovider",
+                "system": "http://hl7.org/fhir/us/carin-bb/CodeSystem/C4BBAdjudication"
+              }
+            ]
+          }
+        },
+        {
+          "category": {
+            "coding": [
+              {
+                "code": "denialreason",
+                "display": "Denial Reason",
+                "system": "http://hl7.org/fhir/us/carin-bb/CodeSystem/C4BBAdjudicationDiscriminator"
+              }
+            ]
+          },
+          "reason": {
+            "coding": [
+              {
+                "code": "unknown",
+                "display": "Unknown",
+                "system": "http://terminology.hl7.org/CodeSystem/data-absent-reason"
+              }
+            ]
+          }
+        },
+        {
+          "category": {
+            "coding": [
+              {
+                "code": "allowedunits",
+                "display": "allowed units",
+                "system": "http://hl7.org/fhir/us/carin-bb/CodeSystem/C4BBAdjudicationDiscriminator"
+              }
+            ]
+          },
+          "value": 4
+        }
+      ],
+      "noteNumber": [
+        1
+      ],
+      "productOrService": {
+        "coding": [
+          {
+            "code": "unknown",
+            "display": "Unknown",
+            "system": "http://terminology.hl7.org/CodeSystem/data-absent-reason"
+          }
+        ]
+      },
+      "quantity": {
+        "value": 0
+      },
+      "revenue": {
+        "coding": [
+          {
+            "code": "unknown",
+            "display": "Unknown",
+            "system": "http://terminology.hl7.org/CodeSystem/data-absent-reason"
+          }
+        ]
+      },
+      "sequence": 1
+    }
+  ],
+  "meta": {
+    "lastUpdated": {},
+    "profile": [
+      "http://hl7.org/fhir/us/carin-bb/StructureDefinition/C4BB-ExplanationOfBenefit-Inpatient-Institutional"
+    ],
+    "security": [
+      {
+        "code": "centene",
+        "system": "https://www.icanbwell.com/owner"
+      },
+      {
+        "code": "centene",
+        "system": "https://www.icanbwell.com/access"
+      },
+      {
+        "code": "centene",
+        "system": "https://www.icanbwell.com/vendor"
+      },
+      {
+        "code": "centene",
+        "system": "https://www.icanbwell.com/sourceAssigningAuthority"
+      }
+    ],
+    "source": "https://sandbox.api.centene.com/fhir/patientaccess",
+    "versionId": "1"
+  },
+  "outcome": "partial",
+  "patient": {
+    "_sourceAssigningAuthority": "centene",
+    "_sourceId": "Patient/Centene-3286",
+    "_uuid": "Patient/206deb6d-3260-5825-9312-2c99f8812fb6",
+    "extension": [
+      {
+        "id": "sourceId",
+        "url": "https://www.icanbwell.com/sourceId",
+        "valueString": "Patient/Centene-3286"
+      },
+      {
+        "id": "uuid",
+        "url": "https://www.icanbwell.com/uuid",
+        "valueString": "Patient/206deb6d-3260-5825-9312-2c99f8812fb6"
+      },
+      {
+        "id": "sourceAssigningAuthority",
+        "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+        "valueString": "centene"
+      }
+    ],
+    "reference": "Patient/Centene-3286"
+  },
+  "payee": {
+    "party": {
+      "_sourceAssigningAuthority": "centene",
+      "_sourceId": "Patient/3286",
+      "_uuid": "Patient/997aa639-acb0-5d2a-a5c7-0c27afb59f28",
+      "extension": [
+        {
+          "id": "sourceId",
+          "url": "https://www.icanbwell.com/sourceId",
+          "valueString": "Patient/3286"
+        },
+        {
+          "id": "uuid",
+          "url": "https://www.icanbwell.com/uuid",
+          "valueString": "Patient/997aa639-acb0-5d2a-a5c7-0c27afb59f28"
+        },
+        {
+          "id": "sourceAssigningAuthority",
+          "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+          "valueString": "centene"
+        }
+      ],
+      "reference": "Patient/3286"
+    },
+    "type": {
+      "coding": [
+        {
+          "code": "beneficiary",
+          "system": "http://hl7.org/fhir/us/carin-bb/CodeSystem/C4BBPayeeType"
+        }
+      ],
+      "text": "The beneficiary (patient) will be reimbursed."
+    }
+  },
+  "payment": {
+    "type": {
+      "coding": [
+        {
+          "code": "denied",
+          "system": "http://hl7.org/fhir/us/carin-bb/CodeSystem/C4BBPayerAdjudicationStatus"
+        }
+      ]
+    }
+  },
+  "procedure": [
+    {
+      "date": "2021-04-17T00:00:00.000Z",
+      "procedureCodeableConcept": {
+        "coding": [
+          {
+            "code": "unknown",
+            "display": "Unknown",
+            "system": "http://terminology.hl7.org/CodeSystem/data-absent-reason"
+          }
+        ]
+      },
+      "sequence": 1,
+      "type": [
+        {
+          "coding": [
+            {
+              "code": "unknown",
+              "display": "Unknown",
+              "system": "http://terminology.hl7.org/CodeSystem/data-absent-reason"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "processNote": [
+    {
+      "text": "Payable, Not Reported"
+    }
+  ],
+  "provider": {
+    "_sourceAssigningAuthority": "centene",
+    "_sourceId": "Organization/2645",
+    "_uuid": "Organization/719f80e9-5f3b-5f0a-ae23-70432f94932f",
+    "extension": [
+      {
+        "id": "sourceId",
+        "url": "https://www.icanbwell.com/sourceId",
+        "valueString": "Organization/2645"
+      },
+      {
+        "id": "uuid",
+        "url": "https://www.icanbwell.com/uuid",
+        "valueString": "Organization/719f80e9-5f3b-5f0a-ae23-70432f94932f"
+      },
+      {
+        "id": "sourceAssigningAuthority",
+        "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+        "valueString": "centene"
+      }
+    ],
+    "reference": "Organization/2645"
+  },
+  "related": [
+    {
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/data-absent-reason",
+          "valueCode": "unknown"
+        }
+      ],
+      "relationship": {
+        "coding": [
+          {
+            "code": "prior",
+            "system": "http://terminology.hl7.org/CodeSystem/ex-relatedclaimrelationship"
+          }
+        ]
+      }
+    }
+  ],
+  "resourceType": "ExplanationOfBenefit",
+  "status": "active",
+  "subType": {
+    "coding": [
+      {
+        "code": "inpatient",
+        "system": "http://hl7.org/fhir/us/carin-bb/CodeSystem/C4BBInstitutionalClaimSubType"
+      }
+    ]
+  },
+  "supportingInfo": [
+    {
+      "category": {
+        "coding": [
+          {
+            "code": "billingnetworkcontractingstatus",
+            "display": "Billing Network Contracting Status",
+            "system": "http://hl7.org/fhir/us/carin-bb/CodeSystem/C4BBSupportingInfoType"
+          }
+        ]
+      },
+      "code": {
+        "coding": [
+          {
+            "code": "contracted",
+            "system": "http://hl7.org/fhir/us/carin-bb/CodeSystem/C4BBPayerAdjudicationStatus"
+          }
+        ]
+      },
+      "sequence": 1
+    },
+    {
+      "category": {
+        "coding": [
+          {
+            "code": "medicalrecordnumber",
+            "display": "Medical Record Number",
+            "system": "http://hl7.org/fhir/us/carin-bb/CodeSystem/C4BBSupportingInfoType"
+          }
+        ]
+      },
+      "sequence": 2,
+      "valueBoolean": false
+    },
+    {
+      "category": {
+        "coding": [
+          {
+            "code": "patientaccountnumber",
+            "display": "Patient Account Number",
+            "system": "http://hl7.org/fhir/us/carin-bb/CodeSystem/C4BBSupportingInfoType"
+          }
+        ]
+      },
+      "sequence": 3,
+      "valueString": "TD-IL3_837I_T10"
+    },
+    {
+      "category": {
+        "coding": [
+          {
+            "code": "admissionperiod",
+            "display": "Admission Period",
+            "system": "http://hl7.org/fhir/us/carin-bb/CodeSystem/C4BBSupportingInfoType"
+          }
+        ]
+      },
+      "sequence": 4,
+      "timingPeriod": {
+        "end": "2021-04-21T11:00:00.000Z",
+        "start": "2021-04-17T01:00:00.000Z"
+      }
+    },
+    {
+      "category": {
+        "coding": [
+          {
+            "code": "clmrecvddate",
+            "display": "Claim Received Date",
+            "system": "http://hl7.org/fhir/us/carin-bb/CodeSystem/C4BBSupportingInfoType"
+          }
+        ]
+      },
+      "sequence": 5,
+      "timingDate": "2021-05-18"
+    },
+    {
+      "category": {
+        "coding": [
+          {
+            "code": "typeofbill",
+            "display": "Type of Bill",
+            "system": "http://hl7.org/fhir/us/carin-bb/CodeSystem/C4BBSupportingInfoType"
+          }
+        ]
+      },
+      "code": {
+        "coding": [
+          {
+            "code": "unknown",
+            "display": "Unknown",
+            "system": "http://terminology.hl7.org/CodeSystem/data-absent-reason"
+          }
+        ]
+      },
+      "sequence": 6
+    },
+    {
+      "category": {
+        "coding": [
+          {
+            "code": "pointoforigin",
+            "display": "Point Of Origin",
+            "system": "http://hl7.org/fhir/us/carin-bb/CodeSystem/C4BBSupportingInfoType"
+          }
+        ]
+      },
+      "code": {
+        "coding": [
+          {
+            "code": "unknown",
+            "display": "Unknown",
+            "system": "http://terminology.hl7.org/CodeSystem/data-absent-reason"
+          }
+        ]
+      },
+      "sequence": 7
+    },
+    {
+      "category": {
+        "coding": [
+          {
+            "code": "admtype",
+            "display": "Admission Type",
+            "system": "http://hl7.org/fhir/us/carin-bb/CodeSystem/C4BBSupportingInfoType"
+          }
+        ]
+      },
+      "code": {
+        "coding": [
+          {
+            "code": "unknown",
+            "display": "Unknown",
+            "system": "http://terminology.hl7.org/CodeSystem/data-absent-reason"
+          }
+        ]
+      },
+      "sequence": 8
+    },
+    {
+      "category": {
+        "coding": [
+          {
+            "code": "discharge-status",
+            "display": "Discharge Status",
+            "system": "http://hl7.org/fhir/us/carin-bb/CodeSystem/C4BBSupportingInfoType"
+          }
+        ]
+      },
+      "code": {
+        "coding": [
+          {
+            "code": "unknown",
+            "display": "Unknown",
+            "system": "http://terminology.hl7.org/CodeSystem/data-absent-reason"
+          }
+        ]
+      },
+      "sequence": 9
+    },
+    {
+      "category": {
+        "coding": [
+          {
+            "code": "drg",
+            "display": "DRG",
+            "system": "http://hl7.org/fhir/us/carin-bb/CodeSystem/C4BBSupportingInfoType"
+          }
+        ]
+      },
+      "code": {
+        "coding": [
+          {
+            "code": "unknown",
+            "display": "Unknown",
+            "system": "http://terminology.hl7.org/CodeSystem/data-absent-reason"
+          }
+        ]
+      },
+      "sequence": 10
+    }
+  ],
+  "total": [
+    {
+      "amount": {
+        "value": 0
+      },
+      "category": {
+        "coding": [
+          {
+            "code": "drugcost",
+            "system": "http://hl7.org/fhir/us/carin-bb/CodeSystem/C4BBAdjudication"
+          }
+        ]
+      }
+    },
+    {
+      "amount": {
+        "value": 12500
+      },
+      "category": {
+        "coding": [
+          {
+            "code": "memberliability",
+            "system": "http://hl7.org/fhir/us/carin-bb/CodeSystem/C4BBAdjudication"
+          }
+        ]
+      }
+    },
+    {
+      "amount": {
+        "value": 0
+      },
+      "category": {
+        "coding": [
+          {
+            "code": "priorpayerpaid",
+            "system": "http://hl7.org/fhir/us/carin-bb/CodeSystem/C4BBAdjudication"
+          }
+        ]
+      }
+    },
+    {
+      "amount": {
+        "value": 12500
+      },
+      "category": {
+        "coding": [
+          {
+            "code": "noncovered",
+            "system": "http://hl7.org/fhir/us/carin-bb/CodeSystem/C4BBAdjudication"
+          }
+        ]
+      }
+    },
+    {
+      "amount": {
+        "value": 0
+      },
+      "category": {
+        "coding": [
+          {
+            "code": "eligible",
+            "system": "http://terminology.hl7.org/CodeSystem/adjudication"
+          }
+        ]
+      }
+    },
+    {
+      "amount": {
+        "value": 0
+      },
+      "category": {
+        "coding": [
+          {
+            "code": "paidbypatient",
+            "system": "http://hl7.org/fhir/us/carin-bb/CodeSystem/C4BBAdjudication"
+          }
+        ]
+      }
+    },
+    {
+      "amount": {
+        "value": -12500
+      },
+      "category": {
+        "coding": [
+          {
+            "code": "paidtopatient",
+            "system": "http://hl7.org/fhir/us/carin-bb/CodeSystem/C4BBAdjudication"
+          }
+        ]
+      }
+    },
+    {
+      "amount": {
+        "value": 0
+      },
+      "category": {
+        "coding": [
+          {
+            "code": "discount",
+            "system": "http://hl7.org/fhir/us/carin-bb/CodeSystem/C4BBAdjudication"
+          }
+        ]
+      }
+    },
+    {
+      "amount": {
+        "value": 0
+      },
+      "category": {
+        "coding": [
+          {
+            "code": "coinsurance",
+            "system": "http://hl7.org/fhir/us/carin-bb/CodeSystem/C4BBAdjudication"
+          }
+        ]
+      }
+    },
+    {
+      "amount": {
+        "value": -12500
+      },
+      "category": {
+        "coding": [
+          {
+            "code": "paidtoprovider",
+            "system": "http://hl7.org/fhir/us/carin-bb/CodeSystem/C4BBAdjudication"
+          }
+        ]
+      }
+    }
+  ],
+  "type": {
+    "coding": [
+      {
+        "code": "institutional",
+        "system": "http://terminology.hl7.org/CodeSystem/claim-type"
+      }
+    ]
+  },
+  "use": "claim"
+}

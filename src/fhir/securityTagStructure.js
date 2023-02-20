@@ -45,22 +45,32 @@ class SecurityTagStructure {
      * @returns {SecurityTagStructure}
      */
     static fromResource({resource}) {
+        // noinspection JSCheckFunctionSignatures
+        return SecurityTagStructure.fromDocument({doc: resource});
+    }
+
+    /**
+     * Gets SecurityTagStructure from resource
+     * @param {meta: {security: {system: string, code: string}[]}} doc
+     * @returns {SecurityTagStructure}
+     */
+    static fromDocument({doc}) {
         return new SecurityTagStructure(
             {
-                owner: resource.meta && resource.meta.security ?
-                    resource.meta.security
+                owner: doc.meta && doc.meta.security ?
+                    doc.meta.security
                         .filter(s => s.system === SecurityTagSystem.owner)
                         .map(s => s.code) : [],
-                access: resource.meta && resource.meta.security ?
-                    resource.meta.security
+                access: doc.meta && doc.meta.security ?
+                    doc.meta.security
                         .filter(s => s.system === SecurityTagSystem.access)
                         .map(s => s.code) : [],
-                vendor: resource.meta && resource.meta.security ?
-                    resource.meta.security
+                vendor: doc.meta && doc.meta.security ?
+                    doc.meta.security
                         .filter(s => s.system === SecurityTagSystem.vendor)
                         .map(s => s.code) : [],
-                sourceAssigningAuthority: resource.meta && resource.meta.security ?
-                    resource.meta.security
+                sourceAssigningAuthority: doc.meta && doc.meta.security ?
+                    doc.meta.security
                         .filter(s => s.system === SecurityTagSystem.sourceAssigningAuthority)
                         .map(s => s.code) : [],
             }

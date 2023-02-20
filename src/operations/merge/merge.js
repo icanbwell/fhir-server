@@ -21,6 +21,10 @@ const Bundle = require('../../fhir/classes/4_0_0/resources/bundle');
 const Parameters = require('../../fhir/classes/4_0_0/resources/parameters');
 const {ResourceValidator} = require('../common/resourceValidator');
 const {getCircularReplacer} = require('../../utils/getCircularReplacer');
+const {ParsedArgs} = require('../query/parsedArgsItem');
+const {MergeResultEntry} = require('../common/mergeResultEntry');
+const {PreSaveManager} = require('../../preSaveHandlers/preSave');
+const async = require('async');
 
 class MergeOperation {
     /**
@@ -36,6 +40,7 @@ class MergeOperation {
      * @param {BundleManager} bundleManager
      * @param {ResourceLocatorFactory} resourceLocatorFactory
      * @param {ResourceValidator} resourceValidator
+     * @param {PreSaveManager} preSaveManager
      */
     constructor(
         {
@@ -50,7 +55,8 @@ class MergeOperation {
             scopesValidator,
             bundleManager,
             resourceLocatorFactory,
-            resourceValidator
+            resourceValidator,
+            preSaveManager
         }
     ) {
         /**
@@ -115,31 +121,41 @@ class MergeOperation {
          */
         this.resourceValidator = resourceValidator;
         assertTypeEquals(resourceValidator, ResourceValidator);
+
+        /**
+         * @type {PreSaveManager}
+         */
+        this.preSaveManager = preSaveManager;
+        assertTypeEquals(preSaveManager, PreSaveManager);
     }
 
     /**
      * Add successful merges
-     * @param {{id: string, resourceType: string}[]} incomingResourceTypeAndIds
-     * @param {{id: string, resourceType: string}[]} idsInMergeResults
+     * @param {Resource[]} resourcesIncomingArray
+     * @param {MergeResultEntry[]} currentMergeResults
      * @return {MergeResultEntry[]}
      */
-    addSuccessfulMergesToMergeResult(incomingResourceTypeAndIds, idsInMergeResults) {
+    addSuccessfulMergesToMergeResult(resourcesIncomingArray, currentMergeResults) {
         /**
          * @type {MergeResultEntry[]}
          */
         const mergeResults = [];
-        for (const {resourceType, id} of incomingResourceTypeAndIds) {
+        for (const resource of resourcesIncomingArray) {
             // if this resourceType,id is not in the merge results then add it as an unchanged entry
-            if (idsInMergeResults.filter(i => i.id === id && i.resourceType === resourceType).length === 0) {
+            if (currentMergeResults.filter(
+                i => i._uuid === resource._uuid).length === 0) {
                 /**
                  * @type {MergeResultEntry}
                  */
-                const mergeResultItem = {
-                    id: id,
-                    resourceType: resourceType,
-                    created: false,
-                    updated: false,
-                };
+                const mergeResultItem = new MergeResultEntry({
+                        id: resource.id,
+                        uuid: resource._uuid,
+                        sourceAssigningAuthority: resource._sourceAssigningAuthority,
+                        resourceType: resource.resourceType,
+                        created: false,
+                        updated: false,
+                    }
+                );
                 mergeResults.push(mergeResultItem);
             }
         }
@@ -149,14 +165,14 @@ class MergeOperation {
     /**
      * does a FHIR Merge
      * @param {FhirRequestInfo} requestInfo
-     * @param {Object} args
+     * @param {ParsedArgs} parsedArgs
      * @param {string} resourceType
      * @returns {Promise<MergeResultEntry[]> | Promise<MergeResultEntry>| Promise<Resource>}
      */
-    async merge({requestInfo, args, resourceType}) {
+    async merge({requestInfo, parsedArgs, resourceType}) {
         assertIsValid(requestInfo !== undefined);
-        assertIsValid(args !== undefined);
         assertIsValid(resourceType !== undefined);
+        assertTypeEquals(parsedArgs, ParsedArgs);
         const currentOperationName = 'merge';
         // Start the FHIR request timer, saving a reference to the returned method
         const timer = fhirRequestTimer.startTimer();
@@ -191,7 +207,7 @@ class MergeOperation {
         await this.scopesValidator.verifyHasValidScopesAsync(
             {
                 requestInfo,
-                args,
+                parsedArgs,
                 resourceType,
                 startTime,
                 action: currentOperationName,
@@ -206,7 +222,7 @@ class MergeOperation {
 
         // noinspection JSCheckFunctionSignatures
         try {
-            let {/** @type {string} */ base_version} = args;
+            let {/** @type {string} */ base_version} = parsedArgs;
 
             /**
              * @type {string[]}
@@ -216,7 +232,7 @@ class MergeOperation {
             /**
              * @type {Object|Object[]|undefined}
              */
-            let incomingObjects = args.resource ? args.resource : body;
+            let incomingObjects = parsedArgs.resource ? parsedArgs.resource : body;
 
             // see if the resources were passed as parameters
             if (incomingObjects.resourceType === 'Parameters') {
@@ -286,13 +302,15 @@ class MergeOperation {
                 /**
                  * @type {OperationOutcome|null}
                  */
-                const validationOperationOutcome = await this.resourceValidator.validateResourceAsync({
-                    id: bundle1.id,
-                    resourceType: 'Bundle',
-                    resourceToValidate: bundle1,
-                    path: path,
-                    currentDate: currentDate
-                });
+                const validationOperationOutcome = await this.resourceValidator.validateResourceAsync(
+                    {
+                        id: bundle1.id,
+                        resourceType: 'Bundle',
+                        resourceToValidate: bundle1,
+                        path: path,
+                        currentDate: currentDate
+                    }
+                );
                 if (validationOperationOutcome && validationOperationOutcome.statusCode === 400) {
                     validationsFailedCounter.inc({action: currentOperationName, resourceType}, 1);
                     return validationOperationOutcome;
@@ -325,12 +343,10 @@ class MergeOperation {
             // process only the resources that are valid
             resourcesIncomingArray = validResources;
 
-            /**
-             * @type {{id: string, resourceType: string}[]}
-             */
-            const incomingResourceTypeAndIds = resourcesIncomingArray.map(r => {
-                return {resourceType: r.resourceType, id: r.id};
-            });
+            resourcesIncomingArray = await async.map(
+                resourcesIncomingArray,
+                async resource => await this.preSaveManager.preSaveAsync(resource)
+            );
 
             // Load the resources from the database
             await this.databaseBulkLoader.loadResourcesAsync(
@@ -375,22 +391,18 @@ class MergeOperation {
             // add in any pre-merge failures
             mergeResults = mergeResults.concat(mergePreCheckErrors);
 
-            // add in unchanged for ids that we did not merge
-            const idsInMergeResults = mergeResults.map(r => {
-                return {resourceType: r.resourceType, id: r.id};
-            });
             mergeResults = mergeResults.concat(
-                this.addSuccessfulMergesToMergeResult(incomingResourceTypeAndIds, idsInMergeResults));
+                this.addSuccessfulMergesToMergeResult(resourcesIncomingArray, mergeResults));
             await this.mergeManager.logAuditEntriesForMergeResults(
                 {
-                    requestInfo, requestId, base_version, args, mergeResults,
+                    requestInfo, requestId, base_version, parsedArgs, mergeResults,
                     method
                 });
 
             await this.fhirLoggingManager.logOperationSuccessAsync(
                 {
                     requestInfo,
-                    args,
+                    args: parsedArgs.getRawArgs(),
                     resourceType,
                     startTime,
                     action: currentOperationName,
@@ -470,14 +482,14 @@ class MergeOperation {
                         resources: resources,
                         base_version,
                         total_count: operationOutcomes.length,
-                        args,
                         originalQuery: {},
                         collectionName: firstCollectionNameForQuery,
                         originalOptions: {},
                         stopTime,
                         startTime,
                         user,
-                        explanations: []
+                        explanations: [],
+                        parsedArgs
                     }
                 );
             } else {
@@ -487,7 +499,7 @@ class MergeOperation {
             await this.fhirLoggingManager.logOperationFailureAsync(
                 {
                     requestInfo,
-                    args,
+                    args: parsedArgs.getRawArgs(),
                     resourceType,
                     startTime,
                     action: currentOperationName,

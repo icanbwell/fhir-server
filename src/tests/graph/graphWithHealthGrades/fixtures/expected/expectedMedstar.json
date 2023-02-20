@@ -31,11 +31,14 @@
             "value": "1376656959"
           },
           {
+            "id": "sourceId",
             "system": "https://www.icanbwell.com/sourceId",
             "value": "1376656959"
           },
           {
-            "system": "https://www.icanbwell.com/uuid"
+            "id": "uuid",
+            "system": "https://www.icanbwell.com/uuid",
+            "value": "a60d5bf2-0836-569e-907e-34ac6befc07b"
           }
         ],
         "meta": {
@@ -43,6 +46,14 @@
             {
               "code": "medstar",
               "system": "https://www.icanbwell.com/access"
+            },
+            {
+              "code": "medstar",
+              "system": "https://www.icanbwell.com/owner"
+            },
+            {
+              "code": "medstar",
+              "system": "https://www.icanbwell.com/sourceAssigningAuthority"
             }
           ],
           "versionId": "1"
@@ -71,7 +82,7 @@
   "meta": {
     "tag": [
       {
-        "display": "db.Practitioner_4_0_0.find({'$and':[{'id':{'$in':['1376656959']}}]}, {'_id':0})  | db.Practitioner_4_0_0.find({'$and':[{'practitioner.reference':'Practitioner/1376656959'},{'_access.medstar':1}]}, {}) | db.Practitioner_4_0_0.find({'$and':[{'member.entity.reference':'Practitioner/1376656959'},{'_access.medstar':1}]}, {}) | db.Practitioner_4_0_0.find({'$and':[{'subject.reference':'Practitioner/1376656959'},{'_access.medstar':1}]}, {})",
+        "display": "db.Practitioner_4_0_0.find({'_sourceId':'1376656959'}, {'_id':0})  | db.Practitioner_4_0_0.find({'$and':[{'practitioner._sourceId':'Practitioner/1376656959'},{'_access.medstar':1}]}, {}) | db.Practitioner_4_0_0.find({'$and':[{'member.entity._sourceId':'Practitioner/1376656959'},{'_access.medstar':1}]}, {}) | db.Practitioner_4_0_0.find({'$and':[{'subject._sourceId':'Practitioner/1376656959'},{'_access.medstar':1}]}, {})",
         "system": "https://www.icanbwell.com/query"
       },
       {

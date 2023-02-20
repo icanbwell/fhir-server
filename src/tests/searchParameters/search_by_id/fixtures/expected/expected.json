@@ -2,11 +2,14 @@
   "id": "798521c5-844a-4ced-a011-030249b6a12b",
   "identifier": [
     {
+      "id": "sourceId",
       "system": "https://www.icanbwell.com/sourceId",
       "value": "798521c5-844a-4ced-a011-030249b6a12b"
     },
     {
-      "system": "https://www.icanbwell.com/uuid"
+      "id": "uuid",
+      "system": "https://www.icanbwell.com/uuid",
+      "value": "798521c5-844a-4ced-a011-030249b6a12b"
     }
   ],
   "meta": {
@@ -14,6 +17,14 @@
       {
         "code": "bwell",
         "system": "https://www.icanbwell.com/access"
+      },
+      {
+        "code": "bwell",
+        "system": "https://www.icanbwell.com/owner"
+      },
+      {
+        "code": "bwell",
+        "system": "https://www.icanbwell.com/sourceAssigningAuthority"
       }
     ],
     "versionId": "1"

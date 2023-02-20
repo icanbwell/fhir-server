@@ -9,7 +9,6 @@ const env = require('var');
 const helmet = require('helmet');
 const path = require('path');
 const useragent = require('express-useragent');
-const {graphqlv1} = require('./middleware/graphql/graphqlServer1');
 const {graphql} = require('./middleware/graphql/graphqlServer');
 const {resourceDefinitions} = require('./utils/resourceDefinitions');
 
@@ -28,6 +27,7 @@ const {handleSmartConfiguration} = require('./routeHandlers/smartConfiguration')
 const {isTrue} = require('./utils/isTrue');
 const cookieParser = require('cookie-parser');
 const {handleAdmin} = require('./routeHandlers/admin');
+const {json} = require('body-parser');
 
 /**
  * Creates the FHIR app
@@ -214,72 +214,52 @@ function createApp({fnCreateContainer, trackMetrics}) {
     if (isTrue(env.ENABLE_GRAPHQL)) {
         app.use(cors(fhirServerConfig.server.corsOptions));
 
-        const useGraphQLv2 = isTrue(env.USE_GRAPHQL_v2);
-        if (useGraphQLv2) {
-            graphql(fnCreateContainer)
-                .then((graphqlMiddleware) => {
-                    // eslint-disable-next-line new-cap
-                    const router = express.Router();
-                    if (isTrue(env.AUTH_ENABLED)) {
-                        router.use(passport.initialize());
-                        router.use(passport.authenticate('graphqlStrategy', {session: false}, null));
-                    }
-                    // noinspection JSCheckFunctionSignatures
-                    router.use(graphqlMiddleware);
-                    app.use('/graphqlv2', router);
-
-                    app.use('/graphql', router);
-                })
-                .then((_) => graphqlv1(fnCreateContainer))
-                .then((graphqlMiddlewareV1) => {
-                    // eslint-disable-next-line new-cap
-                    const router1 = express.Router();
-                    if (isTrue(env.AUTH_ENABLED)) {
-                        router1.use(passport.initialize());
-                        router1.use(passport.authenticate('graphqlStrategy', {session: false}, null));
-                    }
-                    // noinspection JSCheckFunctionSignatures
-                    router1.use(graphqlMiddlewareV1);
-
-                    app.use('/graphqlv1', router1);
-                })
-                .then((_) => {
-                    createFhirApp(fnCreateContainer, app);
+        graphql(fnCreateContainer)
+            .then((graphqlMiddleware) => {
+                // eslint-disable-next-line new-cap
+                const router = express.Router();
+                if (isTrue(env.AUTH_ENABLED)) {
+                    router.use(passport.initialize());
+                    router.use(passport.authenticate('graphqlStrategy', {session: false}, null));
+                }
+                router.use(cors(fhirServerConfig.server.corsOptions));
+                router.use(json());
+                router.use(handleSecurityPolicy);
+                router.use(function (req, res, next) {
+                    res.once('finish', async () => {
+                        const req1 = req;
+                        const requestId = req.id;
+                        /**
+                         * @type {SimpleContainer}
+                         */
+                        const container = req1.container;
+                        if (container) {
+                            /**
+                             * @type {PostRequestProcessor}
+                             */
+                            const postRequestProcessor = container.postRequestProcessor;
+                            /**
+                             * @type {RequestSpecificCache}
+                             */
+                            const requestSpecificCache = container.requestSpecificCache;
+                            if (postRequestProcessor) {
+                                await postRequestProcessor.executeAsync({requestId});
+                                await requestSpecificCache.clearAsync({requestId});
+                            }
+                        }
+                    });
+                    next();
                 });
-        } else {
-            graphql(fnCreateContainer)
-                .then((graphqlMiddleware) => {
-                    // eslint-disable-next-line new-cap
-                    const router = express.Router();
-                    if (isTrue(env.AUTH_ENABLED)) {
-                        router.use(passport.initialize());
-                        router.use(passport.authenticate('graphqlStrategy', {session: false}, null));
-                    }
-                    // noinspection JSCheckFunctionSignatures
-                    router.use(graphqlMiddleware);
-                    app.use('/graphqlv2', router);
-                })
-                .then((_) => graphqlv1(fnCreateContainer))
-                .then((graphqlMiddlewareV1) => {
-                    /**
-                     * @type {import('express').Router}
-                     */
-                        // eslint-disable-next-line new-cap
-                    const router1 = express.Router();
-                    if (isTrue(env.AUTH_ENABLED)) {
-                        router1.use(passport.initialize());
-                        router1.use(passport.authenticate('graphqlStrategy', {session: false}, null));
-                    }
-                    // noinspection JSCheckFunctionSignatures
-                    router1.use(graphqlMiddlewareV1);
+                // noinspection JSCheckFunctionSignatures
+                router.use(graphqlMiddleware);
+                app.use('/graphqlv2', router);
 
-                    app.use('/graphqlv1', router1);
-                    app.use('/graphql', router1);
-                })
-                .then((_) => {
-                    createFhirApp(fnCreateContainer, app);
-                });
-        }
+                app.use('/graphql', router);
+            })
+            .then((_) => {
+                createFhirApp(fnCreateContainer, app);
+            });
+
     } else {
         createFhirApp(fnCreateContainer, app);
     }
@@ -298,8 +278,6 @@ function createApp({fnCreateContainer, trackMetrics}) {
  * @return {boolean}
  */
 function unmountRoutes(app) {
-    // eslint-disable-next-line new-cap
-    app.use('/graphqlv1', express.Router());
     // eslint-disable-next-line new-cap
     app.use('/graphql', express.Router());
     // eslint-disable-next-line new-cap

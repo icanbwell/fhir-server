@@ -12,7 +12,7 @@ const {getFirstElementOrNull} = require('../../utils/list.util');
 const {ResourceValidator} = require('../common/resourceValidator');
 const moment = require('moment-timezone');
 const {ResourceLocatorFactory} = require('../common/resourceLocatorFactory');
-const deepcopy = require('deepcopy');
+const {ParsedArgs} = require('../query/parsedArgsItem');
 
 class GraphOperation {
     /**
@@ -64,16 +64,16 @@ class GraphOperation {
      * Supports $graph
      * @param {FhirRequestInfo} requestInfo
      * @param {import('express').Response} res
-     * @param {Object} args
+     * @param {ParsedArgs} parsedArgs
      * @param {string} resourceType
      * @param {BaseResponseStreamer|undefined} [responseStreamer]
      * @return {Promise<Bundle>}
      */
-    async graph({requestInfo, res, args, resourceType, responseStreamer}) {
+    async graph({requestInfo, res, parsedArgs, resourceType, responseStreamer}) {
         assertIsValid(requestInfo !== undefined);
-        assertIsValid(args !== undefined);
         assertIsValid(res !== undefined);
         assertIsValid(resourceType !== undefined);
+        assertTypeEquals(parsedArgs, ParsedArgs);
         const currentOperationName = 'graph';
 
         /**
@@ -95,7 +95,7 @@ class GraphOperation {
 
         await this.scopesValidator.verifyHasValidScopesAsync({
             requestInfo,
-            args,
+            parsedArgs,
             resourceType,
             startTime,
             action: currentOperationName,
@@ -106,23 +106,16 @@ class GraphOperation {
             /**
              * @type {string}
              */
-            let {base_version, id} = args;
-
-            const originalArgs = deepcopy(args);
+            let {base_version, id} = parsedArgs;
 
             if (!id) {
                 throw new BadRequestError(new Error('No id parameter was passed'));
             }
 
-            id = id.split(',');
             /**
              * @type {boolean}
              */
-            const contained = isTrue(args['contained']);
-            /**
-             * @type {boolean}
-             */
-            const hash_references = isTrue(args['_hash_references']);
+            const contained = isTrue(parsedArgs['contained']);
             /**
              * @type {string}
              */
@@ -135,8 +128,8 @@ class GraphOperation {
             /**
              * @type {Object|null}
              */
-            let graphDefinitionRaw = args.resource && Object.keys(args.resource).length > 0 ?
-                args.resource : body;
+            let graphDefinitionRaw = parsedArgs.resource && Object.keys(parsedArgs.resource).length > 0 ?
+                parsedArgs.resource : body;
 
             // check if this is a Parameters resourceType
             if (graphDefinitionRaw.resourceType === 'Parameters') {
@@ -177,7 +170,7 @@ class GraphOperation {
                 const notValidatedError = new NotValidatedError(validationOperationOutcome);
                 await this.fhirLoggingManager.logOperationFailureAsync({
                     requestInfo,
-                    args,
+                    args: parsedArgs.getRawArgs(),
                     resourceType,
                     startTime,
                     action: currentOperationName,
@@ -194,31 +187,26 @@ class GraphOperation {
                         requestInfo,
                         base_version,
                         resourceType,
-                        id,
                         graphDefinitionJson: graphDefinitionRaw,
-                        args,
-                        originalArgs,
-                        responseStreamer
+                        responseStreamer,
+                        parsedArgs
                     }
                 ) : await this.graphHelper.processGraphAsync(
                     {
                         requestInfo,
                         base_version,
                         resourceType,
-                        id,
                         graphDefinitionJson: graphDefinitionRaw,
                         contained,
-                        hash_references,
-                        args,
-                        originalArgs,
-                        responseStreamer
+                        responseStreamer,
+                        parsedArgs
                     }
                 );
 
             await this.fhirLoggingManager.logOperationSuccessAsync(
                 {
                     requestInfo,
-                    args,
+                    args: parsedArgs.getRawArgs(),
                     resourceType,
                     startTime,
                     action: currentOperationName
@@ -229,7 +217,7 @@ class GraphOperation {
             await this.fhirLoggingManager.logOperationFailureAsync(
                 {
                     requestInfo,
-                    args,
+                    args: parsedArgs.getRawArgs(),
                     resourceType,
                     startTime,
                     action: currentOperationName,

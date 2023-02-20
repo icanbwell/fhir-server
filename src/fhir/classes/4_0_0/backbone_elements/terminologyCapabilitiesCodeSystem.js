@@ -162,6 +162,7 @@ class TerminologyCapabilitiesCodeSystem extends Element {
 
 
 
+
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -210,7 +211,15 @@ class TerminologyCapabilitiesCodeSystem extends Element {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            id: this.id,
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
+            uri: this.uri,
+            version: this.version && this.version.map(v => v.toJSONInternal()),
+            subsumption: this.subsumption,
+        };
+
 
 
         return removeNull(json);

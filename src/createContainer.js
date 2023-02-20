@@ -77,6 +77,12 @@ const {KafkaClientFactory} = require('./utils/kafkaClientFactory');
 const {AwsSecretsClientFactory} = require('./utils/awsSecretsClientFactory');
 const {PersonMatchManager} = require('./admin/personMatchManager');
 const {MongoFilterGenerator} = require('./utils/mongoFilterGenerator');
+const {R4ArgsParser} = require('./operations/query/r4ArgsParser');
+const {UuidToIdReplacer} = require('./utils/uuidToIdReplacer');
+const {GlobalIdEnrichmentProvider} = require('./enrich/providers/globalIdEnrichmentProvider');
+const {ReferenceGlobalIdHandler} = require('./preSaveHandlers/handlers/referenceGlobalIdHandler');
+const {OwnerColumnHandler} = require('./preSaveHandlers/handlers/ownerColumnHandler');
+const {HashReferencesEnrichmentProvider} = require('./enrich/providers/hashedReferencesEnrichmentProvider');
 
 /**
  * Creates a container and sets up all the services
@@ -109,10 +115,14 @@ const createContainer = function () {
     container.register('patientFilterManager', () => new PatientFilterManager());
 
 
-    container.register('enrichmentManager', () => new EnrichmentManager({
+    container.register('enrichmentManager', (c) => new EnrichmentManager({
         enrichmentProviders: [
             new IdEnrichmentProvider(),
-            new ProxyPatientReferenceEnrichmentProvider()
+            new ProxyPatientReferenceEnrichmentProvider(),
+            new GlobalIdEnrichmentProvider({
+                databaseQueryFactory: c.databaseQueryFactory
+            }),
+            new HashReferencesEnrichmentProvider()
         ]
     }));
     container.register('resourcePreparer', (c) => new ResourcePreparer(
@@ -123,13 +133,22 @@ const createContainer = function () {
             resourceManager: c.resourceManager
         }
     ));
-    container.register('preSaveManager', () => new PreSaveManager({
+    container.register('preSaveManager', (c) => new PreSaveManager({
         preSaveHandlers: [
             new DateColumnHandler(),
             new SourceIdColumnHandler(),
-            new UuidColumnHandler(),
             new AccessColumnHandler(),
-            new SourceAssigningAuthorityColumnHandler()
+            new OwnerColumnHandler(),
+            new SourceAssigningAuthorityColumnHandler(),
+            // UuidColumnHandler MUST come after SourceAssigningAuthorityColumnHandler since
+            // it uses sourceAssigningAuthority value
+            new UuidColumnHandler({
+                configManager: c.configManager
+            }),
+            // ReferenceGlobalIdHandler should come after SourceAssigningAuthorityColumnHandler and UuidColumnHandler
+            new ReferenceGlobalIdHandler({
+                configManager: c.configManager
+            }),
         ]
     }));
     container.register('resourceMerger', (c) => new ResourceMerger({
@@ -192,7 +211,8 @@ const createContainer = function () {
 
     container.register('databaseQueryFactory', (c) => new DatabaseQueryFactory(
         {
-            resourceLocatorFactory: c.resourceLocatorFactory
+            resourceLocatorFactory: c.resourceLocatorFactory,
+            mongoFilterGenerator: c.mongoFilterGenerator
         }));
     container.register('databaseHistoryFactory', (c) => new DatabaseHistoryFactory(
         {
@@ -256,7 +276,8 @@ const createContainer = function () {
                 resourceMerger: c.resourceMerger,
                 resourceValidator: c.resourceValidator,
                 preSaveManager: c.preSaveManager,
-                configManager: c.configManager
+                configManager: c.configManager,
+                mongoFilterGenerator: c.mongoFilterGenerator
             }
         )
     );
@@ -307,7 +328,8 @@ const createContainer = function () {
                 resourceLocatorFactory: c.resourceLocatorFactory,
                 r4SearchQueryCreator: c.r4SearchQueryCreator,
                 searchManager: c.searchManager,
-                enrichmentManager: c.enrichmentManager
+                enrichmentManager: c.enrichmentManager,
+                r4ArgsParser: c.r4ArgsParser
             }
         )
     );
@@ -364,7 +386,8 @@ const createContainer = function () {
                 fhirLoggingManager: c.fhirLoggingManager,
                 scopesValidator: c.scopesValidator,
                 resourceValidator: c.resourceValidator,
-                databaseBulkInserter: c.databaseBulkInserter
+                databaseBulkInserter: c.databaseBulkInserter,
+                configManager: c.configManager
             }
         )
     );
@@ -381,7 +404,8 @@ const createContainer = function () {
                 bundleManager: c.bundleManager,
                 resourceLocatorFactory: c.resourceLocatorFactory,
                 databaseBulkInserter: c.databaseBulkInserter,
-                resourceMerger: c.resourceMerger
+                resourceMerger: c.resourceMerger,
+                configManager: c.configManager
             }
         )
     );
@@ -398,7 +422,8 @@ const createContainer = function () {
             scopesValidator: c.scopesValidator,
             bundleManager: c.bundleManager,
             resourceLocatorFactory: c.resourceLocatorFactory,
-            resourceValidator: c.resourceValidator
+            resourceValidator: c.resourceValidator,
+            preSaveManager: c.preSaveManager
         }
     ));
     container.register('everythingOperation', (c) => new EverythingOperation({
@@ -415,7 +440,9 @@ const createContainer = function () {
             fhirLoggingManager: c.fhirLoggingManager,
             scopesValidator: c.scopesValidator,
             configManager: c.configManager,
-            r4SearchQueryCreator: c.r4SearchQueryCreator
+            r4SearchQueryCreator: c.r4SearchQueryCreator,
+            r4ArgsParser: c.r4ArgsParser,
+            queryRewriterManager: c.queryRewriterManager
         }
     ));
     container.register('searchByVersionIdOperation', (c) => new SearchByVersionIdOperation(
@@ -509,7 +536,9 @@ const createContainer = function () {
                 patchOperation: c.patchOperation,
                 validateOperation: c.validateOperation,
                 graphOperation: c.graphOperation,
-                expandOperation: c.expandOperation
+                expandOperation: c.expandOperation,
+                r4ArgsParser: c.r4ArgsParser,
+                queryRewriterManager: c.queryRewriterManager
             }
         )
     );
@@ -558,7 +587,7 @@ const createContainer = function () {
         {
             configManager: c.configManager,
             accessIndexManager: c.accessIndexManager,
-            fhirTypesManager: c.fhirTypesManager
+            r4ArgsParser: c.r4ArgsParser
         }));
 
     container.register('adminPersonPatientLinkManager', (c) => new AdminPersonPatientLinkManager({
@@ -575,7 +604,8 @@ const createContainer = function () {
             fhirOperationsManager: c.fhirOperationsManager,
             everythingOperation: c.everythingOperation,
             databaseQueryFactory: c.databaseQueryFactory,
-            databaseUpdateFactory: c.databaseUpdateFactory
+            databaseUpdateFactory: c.databaseUpdateFactory,
+            r4ArgsParser: c.r4ArgsParser
         }));
 
     container.register('personMatchManager', (c) => new PersonMatchManager(
@@ -591,6 +621,14 @@ const createContainer = function () {
             configManager: c.configManager
         }
     ));
+
+    container.register('r4ArgsParser', (c) => new R4ArgsParser({
+        fhirTypesManager: c.fhirTypesManager
+    }));
+
+    container.register('uuidToIdReplacer', (c) => new UuidToIdReplacer({
+        databaseQueryFactory: c.databaseQueryFactory
+    }));
 
     return container;
 };

@@ -228,6 +228,7 @@ class ExplanationOfBenefitDiagnosis extends Element {
 
 
 
+
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -286,7 +287,18 @@ class ExplanationOfBenefitDiagnosis extends Element {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            id: this.id,
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
+            sequence: this.sequence,
+            diagnosisCodeableConcept: this.diagnosisCodeableConcept && this.diagnosisCodeableConcept.toJSONInternal(),
+            diagnosisReference: this.diagnosisReference && this.diagnosisReference.toJSONInternal(),
+            type: this.type && this.type.map(v => v.toJSONInternal()),
+            onAdmission: this.onAdmission && this.onAdmission.toJSONInternal(),
+            packageCode: this.packageCode && this.packageCode.toJSONInternal(),
+        };
+
 
 
         return removeNull(json);

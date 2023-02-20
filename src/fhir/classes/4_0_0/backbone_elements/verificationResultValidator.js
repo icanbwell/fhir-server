@@ -162,6 +162,7 @@ class VerificationResultValidator extends Element {
 
 
 
+
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -211,7 +212,15 @@ class VerificationResultValidator extends Element {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            id: this.id,
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
+            organization: this.organization && this.organization.toJSONInternal(),
+            identityCertificate: this.identityCertificate,
+            attestationSignature: this.attestationSignature && this.attestationSignature.toJSONInternal(),
+        };
+
 
 
         return removeNull(json);

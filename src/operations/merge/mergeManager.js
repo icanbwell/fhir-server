@@ -6,7 +6,7 @@ const env = require('var');
 const sendToS3 = require('../../utils/aws-s3');
 const {getMeta} = require('../common/getMeta');
 const {isTrue} = require('../../utils/isTrue');
-const {findDuplicateResources, findUniqueResources, groupByLambda} = require('../../utils/list.util');
+const {groupByLambda, findDuplicateResourcesByUuid, findUniqueResourcesByUuid} = require('../../utils/list.util');
 const async = require('async');
 const scopeChecker = require('@asymmetrik/sof-scope-checker');
 const {AuditLogger} = require('../../utils/auditLogger');
@@ -24,6 +24,9 @@ const {ResourceValidator} = require('../common/resourceValidator');
 const {RethrownError} = require('../../utils/rethrownError');
 const {PreSaveManager} = require('../../preSaveHandlers/preSave');
 const {ConfigManager} = require('../../utils/configManager');
+const {SecurityTagSystem} = require('../../utils/securityTagSystem');
+const {MergeResultEntry} = require('../common/mergeResultEntry');
+const {MongoFilterGenerator} = require('../../utils/mongoFilterGenerator');
 
 const Mutex = require('async-mutex').Mutex;
 const mutex = new Mutex();
@@ -40,6 +43,7 @@ class MergeManager {
      * @param {ResourceValidator} resourceValidator
      * @param {PreSaveManager} preSaveManager
      * @param {ConfigManager} configManager
+     * @param {MongoFilterGenerator} mongoFilterGenerator
      */
     constructor(
         {
@@ -52,6 +56,7 @@ class MergeManager {
             resourceValidator,
             preSaveManager,
             configManager,
+            mongoFilterGenerator
         }
     ) {
         /**
@@ -103,6 +108,12 @@ class MergeManager {
          */
         this.configManager = configManager;
         assertTypeEquals(configManager, ConfigManager);
+
+        /**
+         * @type {MongoFilterGenerator}
+         */
+        this.mongoFilterGenerator = mongoFilterGenerator;
+        assertTypeEquals(mongoFilterGenerator, MongoFilterGenerator);
     }
 
     /**
@@ -127,7 +138,8 @@ class MergeManager {
         /**
          * @type {string}
          */
-        let id = resourceToMerge.id;
+        let uuid = resourceToMerge._uuid;
+        assertIsValid(uuid, `No uuid found for resource ${resourceToMerge.resourceType}/${resourceToMerge.id}`);
 
         // found an existing resource
         /**
@@ -140,7 +152,7 @@ class MergeManager {
         ))) {
             throw new ForbiddenError(
                 'user ' + user + ' with scopes [' + scope + '] has no access to resource ' +
-                foundResource.resourceType + ' with id ' + id);
+                foundResource.resourceType + ' with id ' + resourceToMerge.id);
         }
 
         await this.preSaveManager.preSaveAsync(currentResource);
@@ -160,7 +172,7 @@ class MergeManager {
                     'after': patched_resource_incoming
                 },
                 currentDate,
-                id,
+                uuid,
                 'merge_' + currentResource.meta.versionId + '_' + requestId);
         }
         if (patched_resource_incoming) {
@@ -198,12 +210,27 @@ class MergeManager {
             'Merging new resource',
             {
                 user,
-                args: {id: resourceToMerge.id, resource: resourceToMerge}
+                args: {uuid: resourceToMerge._uuid, resource: resourceToMerge}
             }
         );
-        if (env.CHECK_ACCESS_TAG_ON_SAVE === '1') {
+        if (this.configManager.checkAccessTagsOnSave) {
             if (!this.scopesManager.doesResourceHaveAccessTags(resourceToMerge)) {
-                throw new BadRequestError(new Error('Resource is missing a security access tag with system: https://www.icanbwell.com/access '));
+                throw new BadRequestError(
+                    new Error(
+                        `Resource ${resourceToMerge.resourceType}/${resourceToMerge.id}` +
+                        ' is missing a security access tag with system: ' +
+                        `${SecurityTagSystem.access}`
+                    )
+                );
+            }
+            if (!this.scopesManager.doesResourceHaveOwnerTags(resourceToMerge)) {
+                throw new BadRequestError(
+                    new Error(
+                        `Resource ${resourceToMerge.resourceType}/${resourceToMerge.id}` +
+                        ' is missing a security access tag with system: ' +
+                        `${SecurityTagSystem.owner}`
+                    )
+                );
             }
         }
 
@@ -262,11 +289,8 @@ class MergeManager {
         /**
          * @type {string}
          */
-        let id = resourceToMerge.id;
-
-        if (!id) {
-            return;
-        }
+        let uuid = resourceToMerge._uuid;
+        assertIsValid(uuid, `No uuid for resource ${resourceToMerge.resourceType}/${resourceToMerge.id}`);
 
         if (resourceToMerge.meta && resourceToMerge.meta.lastUpdated && typeof resourceToMerge.meta.lastUpdated !== 'string') {
             resourceToMerge.meta.lastUpdated = new Date(resourceToMerge.meta.lastUpdated).toISOString();
@@ -277,7 +301,7 @@ class MergeManager {
                 resourceToMerge.resourceType,
                 resourceToMerge,
                 currentDate,
-                id,
+                uuid,
                 'merge_' + requestId);
         }
 
@@ -291,16 +315,26 @@ class MergeManager {
                 /**
                  * @type {Resource|null}
                  */
-                let currentResource = this.databaseBulkLoader ?
-                    this.databaseBulkLoader.getResourceFromExistingList(
+                let currentResource;
+
+                if (this.databaseBulkLoader) {
+                    currentResource = this.databaseBulkLoader.getResourceFromExistingList(
                         {
                             requestId,
                             resourceType: resourceToMerge.resourceType,
-                            id: id.toString(),
-                            securityTagStructure: resourceToMerge.securityTagStructure
+                            uuid
                         }
-                    ) :
-                    await databaseQueryManager.findOneAsync({query: {id: id.toString()}});
+                    );
+                } else {
+                    currentResource = await databaseQueryManager.findOneAsync({
+                        query:
+                            this.mongoFilterGenerator.generateFilterForUuid(
+                                {
+                                    uuid
+                                }
+                            )
+                    });
+                }
 
                 // check if resource was found in database or not
                 if (currentResource && currentResource.meta) {
@@ -322,7 +356,8 @@ class MergeManager {
                         user: user,
                         args: {
                             resourceType: resourceToMerge.resourceType,
-                            id: id,
+                            id: resourceToMerge.id,
+                            sourceAssigningAuthority: resourceToMerge._sourceAssigningAuthority,
                             error: e
                         }
                     }
@@ -338,7 +373,7 @@ class MergeManager {
                             },
                             diagnostics: e.toString(),
                             expression: [
-                                resourceToMerge.resourceType + '/' + id
+                                resourceToMerge.resourceType + '/' + resourceToMerge.id
                             ]
                         }
                     ]
@@ -348,13 +383,13 @@ class MergeManager {
                         resourceToMerge.resourceType,
                         resourceToMerge,
                         currentDate,
-                        id,
+                        uuid,
                         'merge');
                     await sendToS3('errors',
                         resourceToMerge.resourceType,
                         operationOutcome,
                         currentDate,
-                        id,
+                        uuid,
                         'merge_error');
                 }
                 throw new RethrownError(
@@ -363,7 +398,8 @@ class MergeManager {
                         error: e,
                         source: 'MergeManager',
                         args: {
-                            id: id,
+                            id: resourceToMerge.id,
+                            sourceAssigningAuthority: resourceToMerge._sourceAssigningAuthority,
                             resourceType: resourceType,
                             created: false,
                             updated: false,
@@ -399,15 +435,17 @@ class MergeManager {
         }
     ) {
         try {
+            resources_incoming = await async.map(resources_incoming,
+                async resource => await this.preSaveManager.preSaveAsync(resource));
             /**
              * @type {string[]}
              */
-            const ids_of_resources = resources_incoming.map(r => r.id);
+            const uuidsOfResources = resources_incoming.map(r => r._uuid);
             logDebug(
                 'Merge received array',
                 {
                     user,
-                    args: {length: resources_incoming.length, id: ids_of_resources}
+                    args: {length: resources_incoming.length, id: uuidsOfResources}
                 }
             );
             // find items without duplicates and run them in parallel
@@ -416,11 +454,11 @@ class MergeManager {
             /**
              * @type {Resource[]}
              */
-            const duplicate_id_resources = findDuplicateResources(resources_incoming);
+            const duplicate_uuid_resources = findDuplicateResourcesByUuid(resources_incoming);
             /**
              * @type {Resource[]}
              */
-            const non_duplicate_id_resources = findUniqueResources(resources_incoming);
+            const non_duplicate_uuid_resources = findUniqueResourcesByUuid(resources_incoming);
 
             const mergeResourceFn = async (/** @type {Object} */ x) => await this.mergeResourceWithRetryAsync(
                 {
@@ -429,8 +467,8 @@ class MergeManager {
                 });
 
             await Promise.all([
-                async.map(non_duplicate_id_resources, mergeResourceFn), // run in parallel
-                async.mapSeries(duplicate_id_resources, mergeResourceFn) // run in series
+                async.map(non_duplicate_uuid_resources, mergeResourceFn), // run in parallel
+                async.mapSeries(duplicate_uuid_resources, mergeResourceFn) // run in series
             ]);
         } catch (e) {
             throw new RethrownError({
@@ -500,16 +538,13 @@ class MergeManager {
     ) {
         try {
             assertTypeEquals(resourceToMerge, Resource);
-            let id = resourceToMerge.id;
-
-            await this.preSaveManager.preSaveAsync(resourceToMerge);
+            resourceToMerge = await this.preSaveManager.preSaveAsync(resourceToMerge);
 
             // Insert/update our resource record
             await this.databaseBulkInserter.mergeOneAsync(
                 {
                     requestId,
                     resourceType: resourceToMerge.resourceType,
-                    id: id.toString(),
                     doc: resourceToMerge,
                     previousVersionId,
                     patches
@@ -577,6 +612,40 @@ class MergeManager {
              * @type {string} id
              */
             let id = resourceToMerge.id;
+            if (!id) {
+                /**
+                 * @type {OperationOutcome}
+                 */
+                const operationOutcome = new OperationOutcome({
+                    resourceType: 'OperationOutcome',
+                    issue: [
+                        new OperationOutcomeIssue({
+                            severity: 'error',
+                            code: 'exception',
+                            details: new CodeableConcept({
+                                text: 'Error merging: ' + JSON.stringify(resourceToMerge.toJSON())
+                            }),
+                            diagnostics: 'resource is missing id',
+                            expression: [
+                                resourceType
+                            ]
+                        })
+                    ]
+                });
+                const issue = (operationOutcome.issue && operationOutcome.issue.length > 0) ? operationOutcome.issue[0] : null;
+                return new MergeResultEntry(
+                    {
+                        id: id,
+                        uuid: resourceToMerge._uuid,
+                        sourceAssigningAuthority: resourceToMerge._sourceAssigningAuthority,
+                        created: false,
+                        updated: false,
+                        issue: issue,
+                        operationOutcome: operationOutcome,
+                        resourceType: resourceType
+                    }
+                );
+            }
             if (!(resourceToMerge.resourceType)) {
                 /**
                  * @type {OperationOutcome}
@@ -598,14 +667,18 @@ class MergeManager {
                     ]
                 });
                 const issue = (operationOutcome.issue && operationOutcome.issue.length > 0) ? operationOutcome.issue[0] : null;
-                return {
-                    id: id,
-                    created: false,
-                    updated: false,
-                    issue: issue,
-                    operationOutcome: operationOutcome,
-                    resourceType: resourceType
-                };
+                return new MergeResultEntry(
+                    {
+                        id: id,
+                        uuid: resourceToMerge._uuid,
+                        sourceAssigningAuthority: resourceToMerge._sourceAssigningAuthority,
+                        created: false,
+                        updated: false,
+                        issue: issue,
+                        operationOutcome: operationOutcome,
+                        resourceType: resourceType
+                    }
+                );
             }
 
             if (isTrue(this.configManager.authEnabled)) {
@@ -626,14 +699,18 @@ class MergeManager {
                             })
                         ]
                     });
-                    return {
-                        id: id,
-                        created: false,
-                        updated: false,
-                        issue: (operationOutcome.issue && operationOutcome.issue.length > 0) ? operationOutcome.issue[0] : null,
-                        operationOutcome: operationOutcome,
-                        resourceType: resourceToMerge.resourceType
-                    };
+                    return new MergeResultEntry(
+                        {
+                            id: id,
+                            uuid: resourceToMerge._uuid,
+                            sourceAssigningAuthority: resourceToMerge._sourceAssigningAuthority,
+                            created: false,
+                            updated: false,
+                            issue: (operationOutcome.issue && operationOutcome.issue.length > 0) ? operationOutcome.issue[0] : null,
+                            operationOutcome: operationOutcome,
+                            resourceType: resourceToMerge.resourceType
+                        }
+                    );
                 }
             }
 
@@ -673,7 +750,7 @@ class MergeManager {
                 };
             }
 
-            if (env.CHECK_ACCESS_TAG_ON_SAVE === '1') {
+            if (this.configManager.checkAccessTagsOnSave) {
                 if (!this.scopesManager.doesResourceHaveAccessTags(resourceToMerge)) {
                     const accessTagOperationOutcome = new OperationOutcome({
                         resourceType: 'OperationOutcome',
@@ -684,21 +761,56 @@ class MergeManager {
                                 details: new CodeableConcept({
                                     text: 'Error merging: ' + JSON.stringify(resourceToMerge.toJSON())
                                 }),
-                                diagnostics: 'Resource is missing a meta.security tag with system: https://www.icanbwell.com/access',
+                                diagnostics: 'Resource is missing a meta.security tag with system: ' +
+                                    `${SecurityTagSystem.access}`,
                                 expression: [
                                     resourceToMerge.resourceType + '/' + id
                                 ]
                             })
                         ]
                     });
-                    return {
-                        id: id,
-                        created: false,
-                        updated: false,
-                        issue: (accessTagOperationOutcome.issue && accessTagOperationOutcome.issue.length > 0) ? accessTagOperationOutcome.issue[0] : null,
-                        operationOutcome: accessTagOperationOutcome,
-                        resourceType: resourceToMerge.resourceType
-                    };
+                    return new MergeResultEntry(
+                        {
+                            id: id,
+                            uuid: resourceToMerge._uuid,
+                            sourceAssigningAuthority: resourceToMerge._sourceAssigningAuthority,
+                            created: false,
+                            updated: false,
+                            issue: (accessTagOperationOutcome.issue && accessTagOperationOutcome.issue.length > 0) ? accessTagOperationOutcome.issue[0] : null,
+                            operationOutcome: accessTagOperationOutcome,
+                            resourceType: resourceToMerge.resourceType
+                        }
+                    );
+                }
+                if (!this.scopesManager.doesResourceHaveOwnerTags(resourceToMerge)) {
+                    const accessTagOperationOutcome = new OperationOutcome({
+                        resourceType: 'OperationOutcome',
+                        issue: [
+                            new OperationOutcomeIssue({
+                                severity: 'error',
+                                code: 'exception',
+                                details: new CodeableConcept({
+                                    text: 'Error merging: ' + JSON.stringify(resourceToMerge.toJSON())
+                                }),
+                                diagnostics: 'Resource is missing a meta.security tag with system: ' +
+                                    `${SecurityTagSystem.owner}`,
+                                expression: [
+                                    resourceToMerge.resourceType + '/' + id
+                                ]
+                            })
+                        ]
+                    });
+                    return new MergeResultEntry({
+                            id: id,
+                            uuid: resourceToMerge._uuid,
+                            sourceAssigningAuthority: resourceToMerge._sourceAssigningAuthority,
+                            created: false,
+                            updated: false,
+                            issue: (accessTagOperationOutcome.issue && accessTagOperationOutcome.issue.length > 0) ? accessTagOperationOutcome.issue[0] : null,
+                            operationOutcome: accessTagOperationOutcome,
+                            resourceType: resourceToMerge.resourceType
+                        }
+                    );
                 }
             }
 
@@ -767,7 +879,7 @@ class MergeManager {
      * @param {FhirRequestInfo} requestInfo
      * @param {string} requestId
      * @param {string} base_version
-     * @param {Object} args
+     * @param {ParsedArgs} parsedArgs
      * @param {MergeResultEntry[]} mergeResults
      * @param {string} method
      * @returns {Promise<void>}
@@ -776,7 +888,8 @@ class MergeManager {
         {
             requestInfo,
             requestId,
-            base_version, args,
+            base_version,
+            parsedArgs,
             mergeResults,
             method
         }
@@ -805,8 +918,8 @@ class MergeManager {
                         await this.auditLogger.logAuditEntryAsync(
                             {
                                 requestInfo, base_version, resourceType,
-                                operation: 'create', args,
-                                ids: createdItems.map(r => r['id'])
+                                operation: 'create', args: parsedArgs.getRawArgs(),
+                                ids: createdItems.map(r => r.id)
                             }
                         );
                     }
@@ -814,8 +927,8 @@ class MergeManager {
                         await this.auditLogger.logAuditEntryAsync(
                             {
                                 requestInfo, base_version, resourceType,
-                                operation: 'update', args,
-                                ids: updatedItems.map(r => r['id'])
+                                operation: 'update', args: parsedArgs.getRawArgs(),
+                                ids: updatedItems.map(r => r.id)
                             }
                         );
                     }

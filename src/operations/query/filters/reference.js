@@ -1,83 +1,101 @@
-const {referenceQueryBuilder} = require('../../../utils/querybuilder.util');
-const { getIndexHints } = require('../../common/getIndexHints');
+const {referenceQueryBuilderOptimized} = require('../../../utils/querybuilder.util');
+const {getIndexHints} = require('../../common/getIndexHints');
+const {isUuid} = require('../../../utils/uid.util');
 
 /**
  * Filters by reference
  * https://www.hl7.org/fhir/search.html#reference
- * @param {SearchParameterDefinition} propertyObj
- * @param {string | string[]} queryParameterValue
+ * @param {ParsedArgsItem} parsedArg
  * @param {Set} columns
  * @return {import('mongodb').Filter<import('mongodb').DefaultSchema>[]}
  */
-function filterByReference({propertyObj, queryParameterValue, columns}) {
+function filterByReference({parsedArg, columns}) {
     /**
      * @type {Object[]}
      */
     const and_segments = [];
-    if (propertyObj.target.length === 1) {
-        // handle simple case without an OR to keep it simple
-        /**
-         * @type {string}
-         */
-        const target = propertyObj.target[0];
-        if (propertyObj.fields && Array.isArray(propertyObj.fields)) {
-            and_segments.push(
-                {
-                    $or: propertyObj.fields.map((field1) =>
-                        referenceQueryBuilder({
-                                target_type: target,
-                                target: queryParameterValue.includes('/') ? queryParameterValue
-                                    : `${target}/` + queryParameterValue,
-                                field: `${field1}.reference`,
+    const propertyObj = parsedArg.propertyObj;
+
+
+    const fields = propertyObj.fields && Array.isArray(propertyObj.fields) ?
+        propertyObj.fields :
+        [propertyObj.field];
+
+    /**
+     * @type {import('mongodb').Filter<import('mongodb').DefaultSchema>}
+     */
+    let filter;
+    /**
+     * @type {boolean}
+     */
+    const allReferencesAreUuids = parsedArg.references.every(reference => isUuid(reference.id));
+    /**
+     * @type {boolean}
+     */
+    const noReferencesAreUuids = !parsedArg.references.some(reference => isUuid(reference.id));
+    if (allReferencesAreUuids) {
+        //optimize by looking only in _uuid field
+        filter = {
+            $or: propertyObj.target.flatMap(target =>
+                fields.flatMap((field1) =>
+                    parsedArg.references.map(reference =>
+                        referenceQueryBuilderOptimized({
+                                target_type: reference.resourceType || target,
+                                target: reference.id,
+                                field: `${field1}._uuid`,
+                                sourceAssigningAuthorityField: `${field1}._sourceAssigningAuthority`
                             }
                         )
-                    ),
-                },
-            );
-        } else {
-            and_segments.push(
-                referenceQueryBuilder(
-                    {
-                        target_type: target,
-                        target: queryParameterValue.includes('/') ? queryParameterValue
-                            : `${target}/` + queryParameterValue,
-                        field: `${propertyObj.field}.reference`
-                    }
+                    )
                 )
-            );
-        }
+            ),
+        };
+    } else if (noReferencesAreUuids) {
+        filter = {
+            $or: propertyObj.target.flatMap(target =>
+                fields.flatMap((field1) =>
+                    parsedArg.references.map(reference =>
+                        referenceQueryBuilderOptimized({
+                                target_type: reference.resourceType || target,
+                                target: reference.id,
+                                field: `${field1}._sourceId`,
+                                sourceAssigningAuthorityField: `${field1}._sourceAssigningAuthority`
+                            }
+                        )
+                    )
+                )
+            ),
+        };
     } else {
-        var field = propertyObj.fields ? `${propertyObj.fields[propertyObj.fields.length - 1]}.reference` // set field to 'library' if propertyObj.fields
-            : `${propertyObj.field}.reference`;
-        // handle multiple targets
-        // if resourceType is specified then search for only those resources
-        if (queryParameterValue.includes('/')) {
-            const target = propertyObj.target[0];
-            and_segments.push(
-                referenceQueryBuilder(
-                    {
-                        target_type: target,
-                        target: queryParameterValue,
-                        field: field
-                    }
+        // there is a mix of uuids and ids so we have to look in both fields
+        filter = {
+            $or: propertyObj.target.flatMap(target =>
+                fields.flatMap((field1) =>
+                    parsedArg.references.flatMap(reference =>
+                        [
+                            referenceQueryBuilderOptimized({
+                                    target_type: reference.resourceType || target,
+                                    target: reference.id,
+                                    field: `${field1}._sourceId`,
+                                    sourceAssigningAuthorityField: `${field1}._sourceAssigningAuthority`
+                                }
+                            ),
+                            referenceQueryBuilderOptimized({
+                                    target_type: reference.resourceType || target,
+                                    target: reference.id,
+                                    field: `${field1}._uuid`,
+                                    sourceAssigningAuthorityField: `${field1}._sourceAssigningAuthority`
+                                }
+                            )
+                        ]
+                    )
                 )
-            );
-        } else {
-            // else search for these ids in all the target resources
-            and_segments.push(
-                {
-                    $or: propertyObj.target.map((target1) =>
-                        referenceQueryBuilder({
-                                target_type: target1,
-                                target: queryParameterValue.includes('/') ? queryParameterValue
-                                    : `${target1}/` + queryParameterValue,
-                                field: `${field}`,
-                            }
-                        )
-                    ),
-                },
-            );
-        }
+            ),
+        };
+    }
+
+    if (filter) {
+        and_segments.push(filter);
     }
     getIndexHints(columns, propertyObj, 'reference');
     return and_segments;

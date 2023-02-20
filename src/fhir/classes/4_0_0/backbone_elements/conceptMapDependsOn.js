@@ -186,6 +186,7 @@ class ConceptMapDependsOn extends Element {
 
 
 
+
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -235,7 +236,16 @@ class ConceptMapDependsOn extends Element {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            id: this.id,
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
+            property: this.property,
+            system: this.system,
+            value: this.value,
+            display: this.display,
+        };
+
 
 
         return removeNull(json);

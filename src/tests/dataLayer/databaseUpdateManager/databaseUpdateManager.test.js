@@ -5,6 +5,7 @@ const person3Resource = require('./fixtures/Person/person3.json');
 
 // expected
 const expectedPersonResources = require('./fixtures/expected/expected_Person.json');
+const expectedPersonBeforeUpdateResources = require('./fixtures/expected/expected_Person_before_update.json');
 const expectedPerson3Resources = require('./fixtures/expected/expected_Person3.json');
 
 const {commonBeforeEach, commonAfterEach, createTestRequest, getTestContainer} = require('../../common');
@@ -44,8 +45,6 @@ describe('Person Tests', () => {
 
             await databaseUpdateManager.insertOneAsync({doc: new Person(person1Resource)});
 
-            await databaseUpdateManager.replaceOneAsync({doc: new Person(person2Resource)});
-
             /**
              * @type {DatabaseQueryFactory}
              */
@@ -56,6 +55,21 @@ describe('Person Tests', () => {
                 resourceType: 'Person',
                 base_version: '4_0_0'
             });
+
+            /**
+             * @type {Resource|null}
+             */
+            const resourceBeforeReplace = await databaseQueryManager.findOneAsync(
+                {
+                    query: {'id': '9b3326ba-2421-4b9a-9d57-1eba0481cbd4'}
+                }
+            );
+            resourceBeforeReplace.meta.lastUpdated = null;
+            expect(resourceBeforeReplace.toJSON()).toStrictEqual(expectedPersonBeforeUpdateResources);
+
+            // Now replace it
+            await databaseUpdateManager.replaceOneAsync({doc: new Person(person2Resource)});
+
             /**
              * @type {Resource|null}
              */

@@ -232,6 +232,7 @@ class Attachment extends Element {
 
 
 
+
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -286,7 +287,19 @@ class Attachment extends Element {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            id: this.id,
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            contentType: this.contentType,
+            language: this.language,
+            data: this.data,
+            url: this.url,
+            size: this.size,
+            hash: this.hash,
+            title: this.title,
+            creation: this.creation,
+        };
+
 
 
         return removeNull(json);

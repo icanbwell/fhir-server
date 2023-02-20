@@ -5,6 +5,7 @@ const {ScopesManager} = require('../security/scopesManager');
 const {AccessIndexManager} = require('./accessIndexManager');
 const {SecurityTagSystem} = require('../../utils/securityTagSystem');
 const {PatientFilterManager} = require('../../fhir/patientFilterManager');
+const {isUuid} = require('../../utils/uid.util');
 
 /**
  * This class manages queries for security tags
@@ -162,9 +163,11 @@ class SecurityTagManager {
         if (!this.patientFilterManager.canAccessResourceWithPatientScope({resourceType})) {
             throw new ForbiddenError(`Resource type ${resourceType} cannot be accessed via a patient scope`);
         }
-        if (patientIds && patientIds.length > 0) {
+        // separate uuids from non-uuids
+        const patientUuids = patientIds.filter(id => isUuid(id));
+        if (patientUuids && patientUuids.length > 0) {
             const inQuery = {
-                '$in': resourceType === 'Patient' ? patientIds : patientIds.map(p => `Patient/${p}`)
+                '$in': resourceType === 'Patient' ? patientUuids : patientUuids.map(p => `Patient/${p}`)
             };
             /**
              * @type {string|string[]|null}
@@ -180,16 +183,47 @@ class SecurityTagManager {
                     const patientFilterList = patientFilterProperty;
                     const patientsQuery = {
                         '$or': patientFilterList.map(p => {
-                                return {[p]: inQuery};
+                                return {[p.replace('.reference', '._uuid')]: inQuery};
                             }
                         )
                     };
                     query = this.appendAndQuery(query, patientsQuery);
                 } else {
-                    const patientsQuery = {[patientFilterProperty]: inQuery};
+                    const patientsQuery = {
+                        [patientFilterProperty.replace('.reference', '._uuid')]: inQuery
+                    };
                     query = this.appendAndQuery(query, patientsQuery);
                 }
-
+            }
+        }
+        const patientNonUuids = patientIds.filter(id => !isUuid(id));
+        if (patientNonUuids && patientNonUuids.length > 0) {
+            const inQuery = {
+                '$in': resourceType === 'Patient' ? patientNonUuids : patientNonUuids.map(p => `Patient/${p}`)
+            };
+            /**
+             * @type {string|string[]|null}
+             */
+            const patientFilterProperty = this.patientFilterManager.getPatientPropertyForResource({
+                resourceType
+            });
+            if (patientFilterProperty) {
+                if (Array.isArray(patientFilterProperty)) {
+                    /**
+                     * @type {string[]}
+                     */
+                    const patientFilterList = patientFilterProperty;
+                    const patientsQuery = {
+                        '$or': patientFilterList.map(p => {
+                                return {[p.replace('.reference', '._sourceId')]: inQuery};
+                            }
+                        )
+                    };
+                    query = this.appendAndQuery(query, patientsQuery);
+                } else {
+                    const patientsQuery = {[patientFilterProperty.replace('.reference', '._sourceId')]: inQuery};
+                    query = this.appendAndQuery(query, patientsQuery);
+                }
             }
         }
         return query;

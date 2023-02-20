@@ -159,6 +159,7 @@ class TestReportOperation extends Element {
 
 
 
+
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -206,7 +207,15 @@ class TestReportOperation extends Element {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            id: this.id,
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
+            result: this.result,
+            message: this.message,
+            detail: this.detail,
+        };
+
 
 
         return removeNull(json);

@@ -3,11 +3,14 @@
   "id": "ab2d17e3-3996-487c-bf81-cbe31abde0be",
   "identifier": [
     {
+      "id": "sourceId",
       "system": "https://www.icanbwell.com/sourceId",
       "value": "ab2d17e3-3996-487c-bf81-cbe31abde0be"
     },
     {
-      "system": "https://www.icanbwell.com/uuid"
+      "id": "uuid",
+      "system": "https://www.icanbwell.com/uuid",
+      "value": "ab2d17e3-3996-487c-bf81-cbe31abde0be"
     }
   ],
   "library": [

@@ -354,7 +354,7 @@ class AdminPersonPatientLinkManager {
                 }
             );
 
-            parentPersons = (await personsLinkingToThisPersonId.toArrayAsync()).map(mapResource);
+            parentPersons = (await personsLinkingToThisPersonId.toArrayRawAsync()).map(mapResource);
         }
 
         /**
@@ -379,7 +379,7 @@ class AdminPersonPatientLinkManager {
             /**
              * @type {Patient[]}
              */
-            const patients = await patientCursor.toArrayAsync();
+            const patients = await patientCursor.toArrayRawAsync();
             children = children.concat(
                 patients.map(mapResource)
             );

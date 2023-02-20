@@ -7,11 +7,14 @@
         "id": "person.m65634",
         "identifier": [
           {
+            "id": "sourceId",
             "system": "https://www.icanbwell.com/sourceId",
             "value": "00100000000"
           },
           {
-            "system": "https://www.icanbwell.com/uuid"
+            "id": "uuid",
+            "system": "https://www.icanbwell.com/uuid",
+            "value": "262230ac-b567-55ca-a224-0ed5ed1e285b"
           }
         ],
         "meta": {

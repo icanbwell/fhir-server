@@ -355,12 +355,14 @@
   "id": "medline-loinc-labs",
   "identifier": [
     {
+      "id": "sourceId",
       "system": "https://www.icanbwell.com/sourceId",
       "value": "medline-loinc-labs"
     },
     {
+      "id": "uuid",
       "system": "https://www.icanbwell.com/uuid",
-      "value": "ec9283bc-6874-468a-a219-4f41080a977f"
+      "value": "dabb6ef3-7207-5719-98df-fd520be27e48"
     }
   ],
   "meta": {

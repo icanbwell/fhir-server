@@ -3,7 +3,6 @@
  */
 
 const async = require('async');
-const {mongoConfig} = require('../config');
 const {logSystemEventAsync, logSystemErrorAsync, logInfo} = require('../operations/common/logging');
 const {ErrorReporter} = require('../utils/slack.logger');
 const {assertTypeEquals, assertIsValid} = require('../utils/assertType');
@@ -82,7 +81,7 @@ class IndexManager {
         const columnsText = properties_to_index.join(',');
         // limitations: https://www.mongodb.com/docs/manual/reference/limits/
         try {
-            if (!await db.collection(collectionName).indexExists(indexName)) {
+            if (!(await db.collection(collectionName).indexExists(indexName))) {
                 const message = 'Creating index ' + indexName + ' with columnsText: [' + columnsText + ']' +
                     ' in ' + collectionName;
                 await logSystemEventAsync(
@@ -220,7 +219,9 @@ class IndexManager {
         /**
          * @type {import('mongodb').MongoClient}
          */
-        const client = await this.mongoDatabaseManager.createClientAsync(mongoConfig);
+        const client = await this.mongoDatabaseManager.createClientAsync(
+            await this.mongoDatabaseManager.getClientConfigAsync()
+        );
         /**
          * @type {import('mongodb').Db}
          */
@@ -429,7 +430,9 @@ class IndexManager {
         /**
          * @type {import('mongodb').MongoClient}
          */
-        const client = await this.mongoDatabaseManager.createClientAsync(mongoConfig);
+        const client = await this.mongoDatabaseManager.createClientAsync(
+            await this.mongoDatabaseManager.getClientConfigAsync()
+        );
         try {
             /**
              * @type {import('mongodb').Db}
@@ -514,7 +517,8 @@ class IndexManager {
         /**
          * @type {import('mongodb').MongoClient}
          */
-        const client = await this.mongoDatabaseManager.createClientAsync(mongoConfig);
+        const client = await this.mongoDatabaseManager.createClientAsync(
+            await this.mongoDatabaseManager.getClientConfigAsync());
         /**
          * @type {import('mongodb').Db}
          */
@@ -553,7 +557,7 @@ class IndexManager {
             await this.deleteIndexesInCollectionAsync({collection_name: collectionName, db});
         }
 
-        logInfo('Finished deleteIndexesInAllCollections');
+        logInfo('Finished deleteIndexesInAllCollections', {});
     }
 
     /**

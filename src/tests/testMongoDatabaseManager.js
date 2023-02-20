@@ -1,17 +1,20 @@
 const {MongoDatabaseManager} = require('../utils/mongoDatabaseManager');
+const {getMongoUrlAsync} = require('./mongoTestRunner');
 
 class TestMongoDatabaseManager extends MongoDatabaseManager {
-    getClientConfig() {
+    async getClientConfigAsync() {
+        const mongoUrl = await getMongoUrlAsync();
         return {
-            connection: global.__MONGO_URI__, // set by https://github.com/shelfio/jest-mongodb
+            connection: mongoUrl, // set by https://github.com/shelfio/jest-mongodb
             db_name: 'fhir',
             options: {}
         };
     }
 
-    getAuditConfig() {
+    async getAuditConfigAsync() {
+        const mongoUrl = await getMongoUrlAsync();
         return {
-            connection: global.__MONGO_URI__,
+            connection: mongoUrl,
             db_name: 'audit-event',
             options: {}
         };
@@ -25,7 +28,7 @@ class TestMongoDatabaseManager extends MongoDatabaseManager {
         await auditDb.dropDatabase();
 
         // check if database is done
-        const clientConfig = this.getClientConfig();
+        const clientConfig = await this.getClientConfigAsync();
         const client = await this.createClientAsync(clientConfig);
 
         /**
@@ -37,7 +40,7 @@ class TestMongoDatabaseManager extends MongoDatabaseManager {
         }
 
         // check if audit database is gone
-        const auditConfig = this.getAuditConfig();
+        const auditConfig = await this.getAuditConfigAsync();
         const auditEventClient = await this.createClientAsync(auditConfig);
         /**
          * @type {import('mongo').ListDatabasesResult}

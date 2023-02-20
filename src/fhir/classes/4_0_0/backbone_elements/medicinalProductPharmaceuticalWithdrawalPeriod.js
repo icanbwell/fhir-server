@@ -162,6 +162,7 @@ class MedicinalProductPharmaceuticalWithdrawalPeriod extends Element {
 
 
 
+
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -211,7 +212,15 @@ class MedicinalProductPharmaceuticalWithdrawalPeriod extends Element {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            id: this.id,
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
+            tissue: this.tissue && this.tissue.toJSONInternal(),
+            value: this.value && this.value.toJSONInternal(),
+            supportingInformation: this.supportingInformation,
+        };
+
 
 
         return removeNull(json);

@@ -210,7 +210,30 @@ class ConfigManager {
      * @returns {boolean}
      */
     get enableGlobalIdSupport() {
+        if (env.ENABLE_GLOBAL_ID === null || env.ENABLE_GLOBAL_ID === undefined) {
+            return true;
+        }
+
         return isTrue(env.ENABLE_GLOBAL_ID);
+    }
+
+    /**
+     * whether to return data as bundle
+     * @return {boolean}
+     */
+    get enableReturnBundle() {
+        return isTrue(env.RETURN_BUNDLE);
+    }
+
+    /**
+     * whether to check access tags on save
+     * @return {boolean}
+     */
+    get checkAccessTagsOnSave() {
+        if (env.CHECK_ACCESS_TAG_ON_SAVE === null || env.CHECK_ACCESS_TAG_ON_SAVE === undefined) {
+            return true;
+        }
+        return isTrue(env.CHECK_ACCESS_TAG_ON_SAVE);
     }
 }
 

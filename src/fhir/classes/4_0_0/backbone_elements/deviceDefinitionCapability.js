@@ -142,6 +142,7 @@ class DeviceDefinitionCapability extends Element {
 
 
 
+
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -189,7 +190,14 @@ class DeviceDefinitionCapability extends Element {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            id: this.id,
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
+            type: this.type && this.type.toJSONInternal(),
+            description: this.description && this.description.map(v => v.toJSONInternal()),
+        };
+
 
 
         return removeNull(json);

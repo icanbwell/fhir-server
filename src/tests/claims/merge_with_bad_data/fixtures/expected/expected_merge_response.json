@@ -3,7 +3,9 @@
     "created": true,
     "id": "WPS-Claim-230916613369",
     "resourceType": "ExplanationOfBenefit",
-    "updated": false
+    "sourceAssigningAuthority": "medstar",
+    "updated": false,
+    "uuid": "2eb828dc-51bc-5140-a85e-ae80d04a9cf1"
   },
   {
     "created": false,

@@ -262,6 +262,7 @@ class CodeSystemProperty1 extends Element {
 
 
 
+
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -320,7 +321,20 @@ class CodeSystemProperty1 extends Element {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            id: this.id,
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
+            code: this.code,
+            valueCode: this.valueCode,
+            valueCoding: this.valueCoding && this.valueCoding.toJSONInternal(),
+            valueString: this.valueString,
+            valueInteger: this.valueInteger,
+            valueBoolean: this.valueBoolean,
+            valueDateTime: this.valueDateTime,
+            valueDecimal: this.valueDecimal,
+        };
+
 
 
         return removeNull(json);

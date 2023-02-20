@@ -30,24 +30,23 @@ class PatientProxyQueryRewriter extends QueryRewriter {
     /**
      * rewrites the args
      * @param {string} base_version
-     * @param {Object} args
+     * @param {ParsedArgs} parsedArgs
      * @param {string} resourceType
-     * @return {Promise<Object>}
+     * @return {Promise<ParsedArgs>}
      */
     // eslint-disable-next-line no-unused-vars
-    async rewriteArgsAsync({base_version, args, resourceType}) {
+    async rewriteArgsAsync({base_version, parsedArgs, resourceType}) {
         assertIsValid(resourceType);
         assertIsValid(base_version);
-        for (const [
-            /** @type {string} */ argName,
-            /** @type {string|string[]} */ argValue
-        ] of Object.entries(args)) {
+        for (const parsedArg of parsedArgs.parsedArgItems) {
             if (resourceType === 'Patient') {
-                if (argName === 'id') {
-                    if (Array.isArray(argValue)) {
-                        if (argValue.some(a => a.startsWith(personProxyPrefix) || a.startsWith(patientReferencePlusPersonProxyPrefix))) {
-                            args[`${argName}`] = await async.mapSeries(
-                                argValue,
+                if (parsedArg.queryParameter === 'id' || parsedArg.queryParameter === '_id') {
+                    if (Array.isArray(parsedArg.queryParameterValue)) {
+                        if (parsedArg.queryParameterValue.some(
+                            a => a.startsWith(personProxyPrefix) || a.startsWith(patientReferencePlusPersonProxyPrefix))
+                        ) {
+                            parsedArg.queryParameterValue = await async.flatMapSeries(
+                                parsedArg.queryParameterValue,
                                 async a => a.startsWith(personProxyPrefix) || a.startsWith(patientReferencePlusPersonProxyPrefix) ?
                                     await this.personToPatientIdsExpander.getPatientProxyIdsAsync(
                                         {
@@ -56,23 +55,23 @@ class PatientProxyQueryRewriter extends QueryRewriter {
                                             includePatientPrefix: false
                                         }) : a
                             );
-                            args[`${argName}`] = args[`${argName}`].join(',');
                         }
-                    } else if (typeof argValue === 'string' && (argValue.startsWith(personProxyPrefix) || argValue.startsWith(patientReferencePlusPersonProxyPrefix))) {
-                        args[`${argName}`] = await this.personToPatientIdsExpander.getPatientProxyIdsAsync(
+                    } else if (typeof parsedArg.queryParameterValue === 'string' && (
+                        parsedArg.queryParameterValue.startsWith(personProxyPrefix) || parsedArg.queryParameterValue.startsWith(patientReferencePlusPersonProxyPrefix))) {
+                        parsedArg.queryParameterValue = await this.personToPatientIdsExpander.getPatientProxyIdsAsync(
                             {
                                 base_version,
-                                id: argValue,
+                                id: parsedArg.queryParameterValue,
                                 includePatientPrefix: false
                             });
                     }
                 }
             } else { // resourceType other than Patient
-                if (Array.isArray(argValue)) {
-                    if (argValue.some(a => typeof argValue === 'string' && a.startsWith(patientReferencePlusPersonProxyPrefix))) {
+                if (Array.isArray(parsedArg.queryParameterValue)) {
+                    if (parsedArg.queryParameterValue.some(a => typeof parsedArg.queryParameterValue === 'string' && a.startsWith(patientReferencePlusPersonProxyPrefix))) {
                         // replace with patient ids from person
-                        args[`${argName}`] = await async.mapSeries(
-                            argValue,
+                        parsedArg.queryParameterValue = await async.flatMapSeries(
+                            parsedArg.queryParameterValue,
                             async a => a.startsWith(patientReferencePlusPersonProxyPrefix) ?
                                 await this.personToPatientIdsExpander.getPatientProxyIdsAsync(
                                     {
@@ -80,19 +79,18 @@ class PatientProxyQueryRewriter extends QueryRewriter {
                                         id: a, includePatientPrefix: true
                                     }) : a
                         );
-                        args[`${argName}`] = args[`${argName}`].join(',');
                     }
-                } else if (typeof argValue === 'string' && argValue.startsWith(patientReferencePlusPersonProxyPrefix)) {
-                    args[`${argName}`] = await this.personToPatientIdsExpander.getPatientProxyIdsAsync(
+                } else if (typeof parsedArg.queryParameterValue === 'string' && parsedArg.queryParameterValue.startsWith(patientReferencePlusPersonProxyPrefix)) {
+                    parsedArg.queryParameterValue = await this.personToPatientIdsExpander.getPatientProxyIdsAsync(
                         {
                             base_version,
-                            id: argValue, includePatientPrefix: true
+                            id: parsedArg.queryParameterValue, includePatientPrefix: true
                         });
                 }
             }
         }
 
-        return args;
+        return parsedArgs;
     }
 }
 

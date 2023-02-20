@@ -363,6 +363,7 @@ class ImagingStudySeries extends Element {
 
 
 
+
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -435,7 +436,24 @@ class ImagingStudySeries extends Element {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            id: this.id,
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            modifierExtension: this.modifierExtension && this.modifierExtension.map(v => v.toJSONInternal()),
+            uid: this.uid,
+            number: this.number,
+            modality: this.modality && this.modality.toJSONInternal(),
+            description: this.description,
+            numberOfInstances: this.numberOfInstances,
+            endpoint: this.endpoint && this.endpoint.map(v => v.toJSONInternal()),
+            bodySite: this.bodySite && this.bodySite.toJSONInternal(),
+            laterality: this.laterality && this.laterality.toJSONInternal(),
+            specimen: this.specimen && this.specimen.map(v => v.toJSONInternal()),
+            started: this.started,
+            performer: this.performer && this.performer.map(v => v.toJSONInternal()),
+            instance: this.instance && this.instance.map(v => v.toJSONInternal()),
+        };
+
 
 
         return removeNull(json);

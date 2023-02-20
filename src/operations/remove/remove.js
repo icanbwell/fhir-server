@@ -15,6 +15,9 @@ const {ScopesValidator} = require('../security/scopesValidator');
 const {VERSIONS} = require('../../middleware/fhir/utils/constants');
 const {ConfigManager} = require('../../utils/configManager');
 const {SecurityTagSystem} = require('../../utils/securityTagSystem');
+const {R4ArgsParser} = require('../query/r4ArgsParser');
+const {QueryRewriterManager} = require('../../queryRewriters/queryRewriterManager');
+const {ParsedArgs} = require('../query/parsedArgsItem');
 
 class RemoveOperation {
     /**
@@ -25,6 +28,8 @@ class RemoveOperation {
      * @param {ScopesValidator} scopesValidator
      * @param {ConfigManager} configManager
      * @param {R4SearchQueryCreator} r4SearchQueryCreator
+     * @param {R4ArgsParser} r4ArgsParser
+     * @param {QueryRewriterManager} queryRewriterManager
      */
     constructor(
         {
@@ -34,7 +39,9 @@ class RemoveOperation {
             fhirLoggingManager,
             scopesValidator,
             configManager,
-            r4SearchQueryCreator
+            r4SearchQueryCreator,
+            r4ArgsParser,
+            queryRewriterManager
         }
     ) {
         /**
@@ -74,18 +81,30 @@ class RemoveOperation {
          */
         this.r4SearchQueryCreator = r4SearchQueryCreator;
         assertTypeEquals(r4SearchQueryCreator, R4SearchQueryCreator);
+
+        /**
+         * @type {R4ArgsParser}
+         */
+        this.r4ArgsParser = r4ArgsParser;
+        assertTypeEquals(r4ArgsParser, R4ArgsParser);
+
+        /**
+         * @type {QueryRewriterManager}
+         */
+        this.queryRewriterManager = queryRewriterManager;
+        assertTypeEquals(queryRewriterManager, QueryRewriterManager);
     }
 
     /**
      * does a FHIR Remove (DELETE)
      * @param {FhirRequestInfo} requestInfo
-     * @param {Object} args
+     * @param {ParsedArgs} parsedArgs
      * @param {string} resourceType
      */
-    async remove({requestInfo, args, resourceType}) {
+    async remove({requestInfo, parsedArgs, resourceType}) {
         assertIsValid(requestInfo !== undefined);
-        assertIsValid(args !== undefined);
         assertIsValid(resourceType !== undefined);
+        assertTypeEquals(parsedArgs, ParsedArgs);
         const currentOperationName = 'remove';
 
         /**
@@ -94,8 +113,21 @@ class RemoveOperation {
         const startTime = Date.now();
         const {user, scope, /** @type {string|null} */ requestId, /** @type {string} */ method} = requestInfo;
 
-        if (args['id'] === '0') {
-            delete args['id'];
+        if (parsedArgs.get('id') &&
+            (
+                !parsedArgs.get('id').queryParameterValue ||
+                parsedArgs.get('id').queryParameterValue === '0'
+            )
+        ) {
+            parsedArgs.remove('id');
+        }
+        if (parsedArgs.get('_id') &&
+            (
+                !parsedArgs.get('_id').queryParameterValue ||
+                parsedArgs.get('_id').queryParameterValue === '0'
+            )
+        ) {
+            parsedArgs.remove('_id');
         }
         /**
          * @type {string[]}
@@ -118,7 +150,7 @@ class RemoveOperation {
         }
         await this.scopesValidator.verifyHasValidScopesAsync({
             requestInfo,
-            args,
+            parsedArgs,
             resourceType,
             startTime,
             action: currentOperationName,
@@ -126,22 +158,21 @@ class RemoveOperation {
         });
 
         try {
-            let {base_version} = args;
+            let {base_version} = parsedArgs;
             /**
              * @type {import('mongodb').Document}
              */
             let query = {};
-
             // eslint-disable-next-line no-useless-catch
             try {
                 if (base_version === VERSIONS['3_0_1']) {
-                    query = buildStu3SearchQuery(args);
+                    query = buildStu3SearchQuery(parsedArgs);
                 } else if (base_version === VERSIONS['1_0_2']) {
-                    query = buildDstu2SearchQuery(args);
+                    query = buildDstu2SearchQuery(parsedArgs);
                 } else {
                     ({query} = this.r4SearchQueryCreator.buildR4SearchQuery(
                         {
-                            resourceType, args
+                            resourceType, parsedArgs
                         }));
                 }
             } catch (e) {
@@ -191,7 +222,7 @@ class RemoveOperation {
                 await this.auditLogger.logAuditEntryAsync(
                     {
                         requestInfo, base_version, resourceType,
-                        operation: 'delete', args, ids: []
+                        operation: 'delete', args: parsedArgs.getRawArgs(), ids: []
                     }
                 );
                 const currentDate = moment.utc().format('YYYY-MM-DD');
@@ -204,7 +235,7 @@ class RemoveOperation {
             await this.fhirLoggingManager.logOperationSuccessAsync(
                 {
                     requestInfo,
-                    args,
+                    args: parsedArgs.getRawArgs(),
                     resourceType,
                     startTime,
                     action: currentOperationName
@@ -214,7 +245,7 @@ class RemoveOperation {
             await this.fhirLoggingManager.logOperationFailureAsync(
                 {
                     requestInfo,
-                    args,
+                    args: parsedArgs.getRawArgs(),
                     resourceType,
                     startTime,
                     action: currentOperationName,

@@ -111,6 +111,7 @@ class Period extends Element {
 
 
 
+
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
             id,
@@ -153,7 +154,13 @@ class Period extends Element {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+            id: this.id,
+            extension: this.extension && this.extension.map(v => v.toJSONInternal()),
+            start: this.start,
+            end: this.end,
+        };
+
 
 
         return removeNull(json);

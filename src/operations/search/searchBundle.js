@@ -15,7 +15,7 @@ const {ScopesValidator} = require('../security/scopesValidator');
 const {BundleManager} = require('../common/bundleManager');
 const {ConfigManager} = require('../../utils/configManager');
 const {BadRequestError} = require('../../utils/httpErrors');
-const deepcopy = require('deepcopy');
+const {ParsedArgs} = require('../query/parsedArgsItem');
 
 class SearchBundleOperation {
     /**
@@ -91,17 +91,17 @@ class SearchBundleOperation {
     /**
      * does a FHIR Search
      * @param {FhirRequestInfo} requestInfo
-     * @param {Object} args
+     * @param {ParsedArgs} parsedArgs
      * @param {string} resourceType
      * @param {boolean} useAggregationPipeline
      * @return {Promise<Bundle>} array of resources or a bundle
      */
     async searchBundle(
-        {requestInfo, args, resourceType, useAggregationPipeline = false}
+        {requestInfo, parsedArgs, resourceType, useAggregationPipeline}
     ) {
         assertIsValid(requestInfo !== undefined);
-        assertIsValid(args !== undefined);
         assertIsValid(resourceType !== undefined);
+        assertTypeEquals(parsedArgs, ParsedArgs);
         const currentOperationName = 'search';
         // Start the FHIR request timer, saving a reference to the returned method
         const timer = fhirRequestTimer.startTimer();
@@ -133,12 +133,10 @@ class SearchBundleOperation {
             /** @type {string} */ method
         } = requestInfo;
 
-        const originalArgs = deepcopy(args);
-
         assertIsValid(requestId, 'requestId is null');
         await this.scopesValidator.verifyHasValidScopesAsync({
             requestInfo,
-            args,
+            parsedArgs,
             resourceType,
             startTime,
             action: currentOperationName,
@@ -148,9 +146,9 @@ class SearchBundleOperation {
         /**
          * @type {boolean}
          */
-        const useAccessIndex = (this.configManager.useAccessIndex || isTrue(args['_useAccessIndex']));
+        const useAccessIndex = (this.configManager.useAccessIndex || isTrue(parsedArgs['_useAccessIndex']));
 
-        const {/** @type {string} **/base_version} = args;
+        const {/** @type {string} **/base_version} = parsedArgs;
 
         /** @type {import('mongodb').Document}**/
         let query = {};
@@ -162,7 +160,7 @@ class SearchBundleOperation {
             // args must contain one of these
             const requiredFiltersForAuditEvent = this.configManager.requiredFiltersForAuditEvent;
             if (requiredFiltersForAuditEvent && requiredFiltersForAuditEvent.length > 0) {
-                if (requiredFiltersForAuditEvent.filter(r => args[`${r}`]).length === 0) {
+                if (requiredFiltersForAuditEvent.filter(r => parsedArgs[`${r}`]).length === 0) {
                     const message = `One of the filters [${requiredFiltersForAuditEvent.join(',')}] are required to query AuditEvent`;
                     throw new BadRequestError(
                         {
@@ -184,14 +182,15 @@ class SearchBundleOperation {
                 columns
             } = await this.searchManager.constructQueryAsync(
                 {
-                    user, scope, isUser, patientIdsFromJwtToken, args, resourceType, useAccessIndex,
-                    personIdFromJwtToken
+                    user, scope, isUser, patientIdsFromJwtToken, resourceType, useAccessIndex,
+                    personIdFromJwtToken,
+                    parsedArgs
                 }));
         } catch (e) {
             await this.fhirLoggingManager.logOperationFailureAsync(
                 {
                     requestInfo,
-                    args,
+                    args: parsedArgs.getRawArgs(),
                     resourceType,
                     startTime,
                     action: currentOperationName,
@@ -219,8 +218,10 @@ class SearchBundleOperation {
             const __ret = await this.searchManager.getCursorForQueryAsync(
                 {
                     resourceType, base_version,
-                    args, columns, options, query,
-                    maxMongoTimeMS, user, isStreaming: false, useAccessIndex, useAggregationPipeline
+                    columns, options, query,
+                    maxMongoTimeMS, user, isStreaming: false, useAccessIndex,
+                    parsedArgs,
+                    useAggregationPipeline
                 });
             /**
              * @type {Set}
@@ -262,8 +263,8 @@ class SearchBundleOperation {
             /**
              * @type {import('mongodb').Document[]}
              */
-            const explanations = (cursor && !useAggregationPipeline && (args['_explain'] || args['_debug'] || env.LOGLEVEL === 'DEBUG')) ? await cursor.explainAsync() : [];
-            if (cursor && args['_explain']) {
+            const explanations = (cursor && !useAggregationPipeline && (parsedArgs['_explain'] || parsedArgs['_debug'] || env.LOGLEVEL === 'DEBUG')) ? await cursor.explainAsync() : [];
+            if (cursor && parsedArgs['_explain']) {
                 // if explain is requested then don't return any results
                 cursor.clear();
             }
@@ -280,10 +281,9 @@ class SearchBundleOperation {
                 });
                 resources = await this.searchManager.readResourcesFromCursorAsync(
                     {
-                        cursor, user, scope, args,
+                        cursor, user, scope, parsedArgs,
                         resourceType,
-                        useAccessIndex,
-                        originalArgs
+                        useAccessIndex
                     }
                 );
 
@@ -295,7 +295,7 @@ class SearchBundleOperation {
                             base_version,
                             resourceType,
                             operation: 'read',
-                            args,
+                            args: parsedArgs.getRawArgs(),
                             ids: resources.map((r) => r['id'])
                         }
                     );
@@ -338,7 +338,6 @@ class SearchBundleOperation {
                     resources,
                     base_version,
                     total_count,
-                    args,
                     originalQuery,
                     collectionName,
                     originalOptions,
@@ -350,13 +349,14 @@ class SearchBundleOperation {
                     cursorBatchSize,
                     user,
                     explanations,
-                    allCollectionsToSearch
+                    allCollectionsToSearch,
+                    parsedArgs
                 }
             );
             await this.fhirLoggingManager.logOperationSuccessAsync(
                 {
                     requestInfo,
-                    args,
+                    args: parsedArgs.getRawArgs(),
                     resourceType,
                     startTime,
                     action: currentOperationName,
@@ -374,7 +374,7 @@ class SearchBundleOperation {
             await this.fhirLoggingManager.logOperationFailureAsync(
                 {
                     requestInfo,
-                    args,
+                    args: parsedArgs.getRawArgs(),
                     resourceType,
                     startTime,
                     action: currentOperationName,
