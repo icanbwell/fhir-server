@@ -1927,7 +1927,7 @@ describe('graphHelper Tests', () => {
                 'meta': {
                     'tag': [
                         {
-                            'display': 'db.Practitioner_4_0_0.find({\'_sourceId\':{\'$in\':[\'1\',\'2\']}}, {\'_id\':0})  | db.Practitioner_4_0_0.find({\'$or\':[{\'practitioner._sourceId\':\'Practitioner/1\'},{\'practitioner._sourceId\':\'Practitioner/2\'}]}, {}) | db.Practitioner_4_0_0.find({\'_sourceId\':{\'$in\':[\'100\',\'200\']}}, {}) | db.Practitioner_4_0_0.find({\'_sourceId\':{\'$in\':[\'AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He\']}}, {})',
+                            'display': "db.Practitioner_4_0_0.find({'_uuid':{'$in':['18ba3527-77e0-5ae6-a872-181654110d28','034ef9e0-007c-54a7-a0be-a06db20b9ea9']}}, {'_id':0})  | db.Practitioner_4_0_0.find({'$or':[{'practitioner._sourceId':'Practitioner/1'},{'practitioner._sourceId':'Practitioner/2'}]}, {}) | db.Practitioner_4_0_0.find({'_sourceId':{'$in':['100','200']}}, {}) | db.Practitioner_4_0_0.find({'_sourceId':{'$in':['AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He']}}, {})",
                             'system': 'https://www.icanbwell.com/query'
                         },
                         {
@@ -2123,7 +2123,7 @@ describe('graphHelper Tests', () => {
                     'tag': [
                         {
                             'system': 'https://www.icanbwell.com/query',
-                            'display': 'db.Practitioner_4_0_0.find({\'_sourceId\':{\'$in\':[\'1\',\'2\']}}, {\'_id\':0})  | db.Practitioner_4_0_0.find({\'practitioner._sourceId\':\'Practitioner/1\'}, {}) | db.Practitioner_4_0_0.find({\'_sourceId\':{\'$in\':[\'100\']}}, {}) | db.Practitioner_4_0_0.find({\'_sourceId\':{\'$in\':[\'AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He\']}}, {})',
+                            'display': "db.Practitioner_4_0_0.find({'_uuid':{'$in':['18ba3527-77e0-5ae6-a872-181654110d28','034ef9e0-007c-54a7-a0be-a06db20b9ea9']}}, {'_id':0})  | db.Practitioner_4_0_0.find({'practitioner._sourceId':'Practitioner/1'}, {}) | db.Practitioner_4_0_0.find({'_sourceId':{'$in':['100']}}, {}) | db.Practitioner_4_0_0.find({'_sourceId':{'$in':['AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He']}}, {})",
                         },
                         {
                             'system': 'https://www.icanbwell.com/queryCollection',

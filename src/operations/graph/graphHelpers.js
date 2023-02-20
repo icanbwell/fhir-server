@@ -1042,7 +1042,6 @@ class GraphHelper {
      * @param {string} resourceType
      * @param {Resource} graphDefinition
      * @param {boolean} contained
-     * @param {boolean} hash_references
      * @param {boolean} [explain]
      * @param {boolean} [debug]
      * @param {ParsedArgs} parsedArgs
@@ -1055,7 +1054,6 @@ class GraphHelper {
             resourceType,
             graphDefinition,
             contained,
-            hash_references,
             explain,
             debug,
             parsedArgs
@@ -1198,24 +1196,6 @@ class GraphHelper {
                  * @type {[EntityAndContainedBase]}
                  */
                 const related_entries = matchingEntity.containedEntries;
-                if (env.HASH_REFERENCE || hash_references) {
-                    /**
-                     * @type {[string]}
-                     */
-                    const related_references = [];
-                    for (const /** @type  EntityAndContainedBase */ related_item of related_entries) {
-                        /**
-                         * @type {string}
-                         */
-                        const relatedItemElementElement = related_item['resource']['resourceType'];
-                        related_references.push(relatedItemElementElement.concat('/', related_item['resource']['id']));
-                    }
-                    if (related_references.length > 0) {
-                        topLevelBundleEntry.resource = await this.convertToHashedReferencesAsync({
-                            parent_entity: topLevelBundleEntry.resource, linkReferences: related_references
-                        });
-                    }
-                }
                 /**
                  * @type {BundleEntry[]}
                  */
@@ -1249,7 +1229,6 @@ class GraphHelper {
                     resourceType,
                     graphDefinition,
                     contained,
-                    hash_references,
                     explain,
                     debug,
                     parsedArgs
@@ -1265,7 +1244,6 @@ class GraphHelper {
      * @param {string} resourceType
      * @param {Object} graphDefinitionJson (a GraphDefinition resource)
      * @param {boolean} contained
-     * @param {boolean} hash_references
      * @param {BaseResponseStreamer|undefined} [responseStreamer]
      * @param {ParsedArgs} parsedArgs
      * @return {Promise<Bundle>}
@@ -1277,7 +1255,6 @@ class GraphHelper {
             resourceType,
             graphDefinitionJson,
             contained,
-            hash_references,
             responseStreamer,
             parsedArgs
         }
@@ -1307,7 +1284,6 @@ class GraphHelper {
                     resourceType,
                     graphDefinition,
                     contained,
-                    hash_references,
                     explain: parsedArgs['_explain'] ? true : false,
                     debug: parsedArgs['_debug'] ? true : false,
                     parsedArgs
@@ -1402,7 +1378,6 @@ class GraphHelper {
                     resourceType,
                     graphDefinitionJson,
                     contained,
-                    hash_references,
                     parsedArgs,
                     responseStreamer
                 }
@@ -1444,7 +1419,6 @@ class GraphHelper {
                     base_version,
                     resourceType,
                     contained: false,
-                    hash_references: false,
                     graphDefinitionJson,
                     responseStreamer: null, // don't let graph send the response
                     parsedArgs

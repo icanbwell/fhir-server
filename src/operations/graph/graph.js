@@ -117,10 +117,6 @@ class GraphOperation {
              */
             const contained = isTrue(parsedArgs['contained']);
             /**
-             * @type {boolean}
-             */
-            const hash_references = isTrue(parsedArgs['_hash_references']);
-            /**
              * @type {string}
              */
             const currentDate = moment.utc().format('YYYY-MM-DD');
@@ -202,7 +198,6 @@ class GraphOperation {
                         resourceType,
                         graphDefinitionJson: graphDefinitionRaw,
                         contained,
-                        hash_references,
                         responseStreamer,
                         parsedArgs
                     }

@@ -82,6 +82,7 @@ const {UuidToIdReplacer} = require('./utils/uuidToIdReplacer');
 const {GlobalIdEnrichmentProvider} = require('./enrich/providers/globalIdEnrichmentProvider');
 const {ReferenceGlobalIdHandler} = require('./preSaveHandlers/handlers/referenceGlobalIdHandler');
 const {OwnerColumnHandler} = require('./preSaveHandlers/handlers/ownerColumnHandler');
+const {HashReferencesEnrichmentProvider} = require('./enrich/providers/hashedReferencesEnrichmentProvider');
 
 /**
  * Creates a container and sets up all the services
@@ -120,7 +121,8 @@ const createContainer = function () {
             new ProxyPatientReferenceEnrichmentProvider(),
             new GlobalIdEnrichmentProvider({
                 databaseQueryFactory: c.databaseQueryFactory
-            })
+            }),
+            new HashReferencesEnrichmentProvider()
         ]
     }));
     container.register('resourcePreparer', (c) => new ResourcePreparer(
