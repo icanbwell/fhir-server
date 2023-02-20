@@ -475,8 +475,7 @@ describe('graphHelper Tests', () => {
                 resourceType: 'Bundle',
                 type: 'searchset',
             });
-        })
-        ;
+        });
         test('graphHelper simple single Practitioner with 1 level forward nesting works', async () => {
 
             /**
@@ -1930,7 +1929,7 @@ describe('graphHelper Tests', () => {
                 'meta': {
                     'tag': [
                         {
-                            'display': "db.Practitioner_4_0_0.find({'_uuid':{'$in':['18ba3527-77e0-5ae6-a872-181654110d28','034ef9e0-007c-54a7-a0be-a06db20b9ea9']}}, {'_id':0})  | db.Practitioner_4_0_0.find({'$or':[{'practitioner._uuid':'Practitioner/18ba3527-77e0-5ae6-a872-181654110d28'},{'practitioner._uuid':'Practitioner/034ef9e0-007c-54a7-a0be-a06db20b9ea9'}]}, {}) | db.Practitioner_4_0_0.find({'_uuid':{'$in':['5a1d6b34-dbdc-5974-9816-53a13b80c839','2cab0141-cb78-5ca1-8673-8c7bcdcf524d']}}, {}) | db.Practitioner_4_0_0.find({'_uuid':{'$in':['24c117ef-4601-52ea-8812-ac66793956b5']}}, {})",
+                            'display': 'db.Practitioner_4_0_0.find({\'_uuid\':{\'$in\':[\'18ba3527-77e0-5ae6-a872-181654110d28\',\'034ef9e0-007c-54a7-a0be-a06db20b9ea9\']}}, {\'_id\':0})  | db.Practitioner_4_0_0.find({\'$or\':[{\'practitioner._uuid\':\'Practitioner/18ba3527-77e0-5ae6-a872-181654110d28\'},{\'practitioner._uuid\':\'Practitioner/034ef9e0-007c-54a7-a0be-a06db20b9ea9\'}]}, {}) | db.Practitioner_4_0_0.find({\'_uuid\':{\'$in\':[\'5a1d6b34-dbdc-5974-9816-53a13b80c839\',\'2cab0141-cb78-5ca1-8673-8c7bcdcf524d\']}}, {}) | db.Practitioner_4_0_0.find({\'_uuid\':{\'$in\':[\'24c117ef-4601-52ea-8812-ac66793956b5\']}}, {})',
                             'system': 'https://www.icanbwell.com/query'
                         },
                         {
@@ -2126,7 +2125,7 @@ describe('graphHelper Tests', () => {
                     'tag': [
                         {
                             'system': 'https://www.icanbwell.com/query',
-                            'display': "db.Practitioner_4_0_0.find({'_uuid':{'$in':['18ba3527-77e0-5ae6-a872-181654110d28','034ef9e0-007c-54a7-a0be-a06db20b9ea9']}}, {'_id':0})  | db.Practitioner_4_0_0.find({'practitioner._uuid':'Practitioner/18ba3527-77e0-5ae6-a872-181654110d28'}, {}) | db.Practitioner_4_0_0.find({'_uuid':{'$in':['5a1d6b34-dbdc-5974-9816-53a13b80c839']}}, {}) | db.Practitioner_4_0_0.find({'_uuid':{'$in':['24c117ef-4601-52ea-8812-ac66793956b5']}}, {})",
+                            'display': 'db.Practitioner_4_0_0.find({\'_uuid\':{\'$in\':[\'18ba3527-77e0-5ae6-a872-181654110d28\',\'034ef9e0-007c-54a7-a0be-a06db20b9ea9\']}}, {\'_id\':0})  | db.Practitioner_4_0_0.find({\'practitioner._uuid\':\'Practitioner/18ba3527-77e0-5ae6-a872-181654110d28\'}, {}) | db.Practitioner_4_0_0.find({\'_uuid\':{\'$in\':[\'5a1d6b34-dbdc-5974-9816-53a13b80c839\']}}, {}) | db.Practitioner_4_0_0.find({\'_uuid\':{\'$in\':[\'24c117ef-4601-52ea-8812-ac66793956b5\']}}, {})',
                         },
                         {
                             'system': 'https://www.icanbwell.com/queryCollection',
