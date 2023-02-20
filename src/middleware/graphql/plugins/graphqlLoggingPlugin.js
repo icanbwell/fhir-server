@@ -71,18 +71,15 @@ class MyApolloServerLoggingPlugin /*extends ApolloServerPlugin*/ {
                         await async.forEach(
                             errs,
                             async (err) => {
-                                logError(
-                                    'GraphQL Request Validation Error',
-                                    {
+                                logError(`GraphQL Request Validation Error: ${err.message}`, {
+                                    error: err,
+                                    source: 'GraphQLv2',
+                                    args: {
+                                        endpoint: self.endpoint,
                                         user,
-                                        args: {
-                                            endpoint: self.endpoint,
-                                            operationName: req.operationName,
-                                            query: req.query,
-                                            error: err
-                                        }
+                                        req,
                                     }
-                                );
+                                });
                                 if (container) {
                                     /**
                                      * @type {ErrorReporter}
@@ -101,14 +98,6 @@ class MyApolloServerLoggingPlugin /*extends ApolloServerPlugin*/ {
                                             }
                                         );
                                     }
-                                    logError(`GraphQL Validation Error: ${err.message}`, {
-                                        error: err,
-                                        source: 'GraphQLv2',
-                                        args: {
-                                            user,
-                                            req,
-                                        }
-                                    });
                                 }
                             }
                         );
@@ -119,19 +108,15 @@ class MyApolloServerLoggingPlugin /*extends ApolloServerPlugin*/ {
                 return {
                     async executionDidEnd(err) {
                         if (err) {
-                            logError(
-                                'GraphQL Request Execution Error',
-                                {
+                            logError(`GraphQL Request Execution Error: ${err.message}`, {
+                                error: err,
+                                source: 'GraphQLv2',
+                                args: {
+                                    endpoint: self.endpoint,
                                     user,
-                                    args:
-                                        {
-                                            endpoint: self.endpoint,
-                                            operationName: req.operationName,
-                                            query: req.query,
-                                            error: err
-                                        }
+                                    req,
                                 }
-                            );
+                            });
                             if (container) {
                                 /**
                                  * @type {ErrorReporter}
@@ -150,14 +135,6 @@ class MyApolloServerLoggingPlugin /*extends ApolloServerPlugin*/ {
                                         }
                                     );
                                 }
-                                logError(`GraphQL Error: ${err.message}`, {
-                                    error: err,
-                                    source: 'GraphQLv2',
-                                    args: {
-                                        user,
-                                        req,
-                                    }
-                                });
                             }
                         }
                     }

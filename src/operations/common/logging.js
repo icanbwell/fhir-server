@@ -197,7 +197,7 @@ const getRemoteAddress = (req) => {
 const logErrorAndRequestAsync = async ({error, req}) => {
     const request = {
         id: req.id,
-        status: error.statusCode,
+        statusCode: error.statusCode,
         method: req.method,
         url: req.url,
         headers: req.headers,
@@ -206,7 +206,12 @@ const logErrorAndRequestAsync = async ({error, req}) => {
         user: getUserName(req),
         remoteAddress: getRemoteAddress(req)
     };
-    logError(error.message, {request, error});
+    const logData = { request, error };
+    if (error.elapsedTimeInSecs) {
+        logData.elapsedTimeInSecs = error.elapsedTimeInSecs;
+        delete error.elapsedTimeInSecs;
+    }
+    logError(error.message, logData);
 };
 
 module.exports = {

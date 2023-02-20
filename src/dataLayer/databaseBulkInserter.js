@@ -2,7 +2,13 @@
 const async = require('async');
 const sendToS3 = require('../utils/aws-s3');
 const {EventEmitter} = require('events');
-const {logVerboseAsync, logSystemErrorAsync, logTraceSystemEventAsync, logInfo, logError} = require('../operations/common/logging');
+const {
+    logVerboseAsync,
+    logSystemErrorAsync,
+    logTraceSystemEventAsync,
+    logInfo,
+    logError
+} = require('../operations/common/logging');
 const {ResourceManager} = require('../operations/common/resourceManager');
 const {PostRequestProcessor} = require('../utils/postRequestProcessor');
 const {ErrorReporter} = require('../utils/slack.logger');
@@ -1130,9 +1136,7 @@ class DatabaseBulkInserter extends EventEmitter {
                 }
             );
             logError(
-                `databaseBulkInserter: Error resource ${resourceType} with operation: ${
-                  JSON.stringify(bulkInsertUpdateEntry, getCircularReplacer())
-                }`,
+                `databaseBulkInserter: Error resource ${resourceType}`,
                 {
                   args: {
                     error: bulkWriteResult.error,
