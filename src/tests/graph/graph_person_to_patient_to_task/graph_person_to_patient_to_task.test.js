@@ -14,9 +14,11 @@ const graphProxyPatientDefinitionResource = require('./fixtures/graph/my_graph_p
 
 // expected
 const expectedResource = require('./fixtures/expected/expected.json');
+const expectedPersonsInDatabase = require('./fixtures/expected/expected_persons_in_database.json');
+const expectedPatientsInDatabase = require('./fixtures/expected/expected_patients_in_database.json');
 const expectedProxyPatientResource = require('./fixtures/expected/expected_proxy_patient.json');
 
-const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest} = require('../../common');
+const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest, getTestContainer} = require('../../common');
 const {describe, beforeEach, afterEach, test, expect} = require('@jest/globals');
 
 describe('Person Tests', () => {
@@ -40,6 +42,18 @@ describe('Person Tests', () => {
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveMergeResponse({created: true});
 
+            const container = getTestContainer();
+            /**
+             * @type {MongoDatabaseManager}
+             */
+            const mongoDatabaseManager = container.mongoDatabaseManager;
+            const fhirDb = await mongoDatabaseManager.getClientDbAsync();
+
+            const personCollection = fhirDb.collection('Person_4_0_0');
+            const persons = await personCollection.find({}).project({_id: 0, 'meta.lastUpdated': 0}).toArray();
+            expectedPersonsInDatabase.forEach(a => delete a.meta.lastUpdated);
+            expect(persons).toStrictEqual(expectedPersonsInDatabase);
+
             // add patients
             resp = await request
                 .post('/4_0_0/Patient/1/$merge?validate=true')
@@ -53,6 +67,11 @@ describe('Person Tests', () => {
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveMergeResponse({created: true});
+
+            const patientCollection = fhirDb.collection('Patient_4_0_0');
+            const patients = await patientCollection.find({}).project({_id: 0, 'meta.lastUpdated': 0}).toArray();
+            expectedPatientsInDatabase.forEach(a => delete a.meta.lastUpdated);
+            expect(patients).toStrictEqual(expectedPatientsInDatabase);
 
             // add tasks
             resp = await request

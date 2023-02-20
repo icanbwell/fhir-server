@@ -1,0 +1,206 @@
+[
+  {
+    "_access": {
+      "healthsystem2": 1
+    },
+    "_sourceAssigningAuthority": "healthsystem2",
+    "_sourceId": "aab16fc4c5914e38b489bcd096369623",
+    "_uuid": "b2ee7ab4-c3b1-50af-8017-dbecc28177bf",
+    "address": [
+      {
+        "city": "Austin",
+        "line": [
+          "301 W. Second St., Austin, Texas 78701"
+        ],
+        "postalCode": "78701",
+        "state": "Texas"
+      }
+    ],
+    "birthDate": "1996-01-01",
+    "gender": "male",
+    "id": "aab16fc4c5914e38b489bcd096369623",
+    "identifier": [
+      {
+        "system": "https://www.icanbwell.com",
+        "type": {
+          "coding": [
+            {
+              "code": "FHIR_id",
+              "display": "bWell FHIR id",
+              "system": "https://www.icanbwell.com"
+            }
+          ]
+        },
+        "value": "bwell-aa3549c799274219a16d5dcb403cc0e4"
+      },
+      {
+        "system": "https://www.icanbwell.com",
+        "type": {
+          "coding": [
+            {
+              "code": "user_id",
+              "display": "bWell App user_id",
+              "system": "https://www.icanbwell.com"
+            }
+          ]
+        },
+        "value": "587921"
+      },
+      {
+        "system": "https://www.icanbwell.com",
+        "type": {
+          "coding": [
+            {
+              "code": "member_id",
+              "display": "bWell App member_id",
+              "system": "https://www.icanbwell.com"
+            }
+          ]
+        },
+        "value": "QWERTY"
+      },
+      {
+        "id": "sourceId",
+        "system": "https://www.icanbwell.com/sourceId",
+        "value": "aab16fc4c5914e38b489bcd096369623"
+      },
+      {
+        "id": "uuid",
+        "system": "https://www.icanbwell.com/uuid",
+        "value": "b2ee7ab4-c3b1-50af-8017-dbecc28177bf"
+      }
+    ],
+    "meta": {
+      "lastUpdated": "2023-02-20T23:19:31.000Z",
+      "profile": [
+        "http://hl7.org/fhir/us/core/StructureDefinition/us-core-person"
+      ],
+      "security": [
+        {
+          "code": "healthsystem2",
+          "system": "https://www.icanbwell.com/access"
+        },
+        {
+          "code": "healthsystem2",
+          "system": "https://www.icanbwell.com/owner"
+        },
+        {
+          "code": "healthsystem2",
+          "system": "https://www.icanbwell.com/sourceAssigningAuthority"
+        }
+      ],
+      "versionId": "1"
+    },
+    "name": [
+      {
+        "family": "Family",
+        "given": [
+          "Given"
+        ],
+        "use": "official"
+      }
+    ],
+    "resourceType": "Patient",
+    "telecom": [
+      {
+        "system": "phone",
+        "use": "home",
+        "value": "+919999999999"
+      },
+      {
+        "system": "email",
+        "use": "home",
+        "value": "foo@bar.com"
+      }
+    ]
+  },
+  {
+    "_access": {
+      "healthsystem1": 1
+    },
+    "_sourceAssigningAuthority": "healthsystem1",
+    "_sourceId": "0318898e65044aaab3115d048d44c434",
+    "_uuid": "3a088efc-f7ac-5906-8e32-0d2ed29f7051",
+    "address": [
+      {
+        "city": "Austin",
+        "line": [
+          "801 W 5th St"
+        ],
+        "postalCode": "78703",
+        "state": "TX"
+      }
+    ],
+    "birthDate": "1991-09-10",
+    "gender": "male",
+    "id": "0318898e65044aaab3115d048d44c434",
+    "identifier": [
+      {
+        "system": "https://www.icanbwell.com",
+        "type": {
+          "coding": [
+            {
+              "code": "FHIR_id",
+              "display": "bWell FHIR id",
+              "system": "https://www.icanbwell.com"
+            }
+          ]
+        },
+        "value": "bwell-e4c2a7117b1a455bb7824f8929e80826"
+      },
+      {
+        "id": "sourceId",
+        "system": "https://www.icanbwell.com/sourceId",
+        "value": "0318898e65044aaab3115d048d44c434"
+      },
+      {
+        "id": "uuid",
+        "system": "https://www.icanbwell.com/uuid",
+        "value": "3a088efc-f7ac-5906-8e32-0d2ed29f7051"
+      }
+    ],
+    "meta": {
+      "lastUpdated": "2023-02-20T23:19:31.000Z",
+      "profile": [
+        "http://hl7.org/fhir/us/core/StructureDefinition/us-core-person"
+      ],
+      "security": [
+        {
+          "code": "healthsystem1",
+          "system": "https://www.icanbwell.com/access"
+        },
+        {
+          "code": "healthsystem1",
+          "system": "https://www.icanbwell.com/owner"
+        },
+        {
+          "code": "healthsystem1",
+          "system": "https://www.icanbwell.com/sourceAssigningAuthority"
+        }
+      ],
+      "versionId": "1"
+    },
+    "name": [
+      {
+        "family": "qbebhcwilt",
+        "given": [
+          "Sweetie"
+        ],
+        "use": "official"
+      }
+    ],
+    "resourceType": "Patient",
+    "telecom": [
+      {
+        "system": "phone",
+        "use": "home",
+        "value": "+15125550156"
+      },
+      {
+        "system": "email",
+        "use": "home",
+        "value": "bwell+86856qwbfu@mailinator.com"
+      }
+    ]
+  }
+]

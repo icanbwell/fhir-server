@@ -70,14 +70,14 @@
   "link": [
     {
       "target": {
-        "reference": "Patient/aab16fc4c5914e38b489bcd096369623",
+        "reference": "Patient/aab16fc4c5914e38b489bcd096369623|healthsystem2",
         "type": "Patient"
       },
       "assurance": "level4"
     },
     {
       "target": {
-        "reference": "Patient/0318898e65044aaab3115d048d44c434",
+        "reference": "Patient/0318898e65044aaab3115d048d44c434|healthsystem1",
         "type": "Patient"
       }
     }
