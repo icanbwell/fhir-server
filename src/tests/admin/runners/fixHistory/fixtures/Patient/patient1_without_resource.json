@@ -46,8 +46,5 @@
   "birthDate": "2017-01-01",
   "_access": {
     "medstar": 1
-  },
-  "_sourceAssigningAuthority": "medstar",
-  "_uuid": "bdc7c439-e5d2-5837-8df3-b394f02149da",
-  "_sourceId": "2354"
+  }
 }

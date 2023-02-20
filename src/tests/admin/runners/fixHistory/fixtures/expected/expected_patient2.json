@@ -6,6 +6,12 @@
     "url": "/4_0_0/Patient/b5eea5f7-54ee-4a59-8ab3-003a7b4fbed2"
   },
   "resource": {
+    "_access": {
+      "unitypoint": 1
+    },
+    "_sourceAssigningAuthority": "unitypoint",
+    "_sourceId": "b5eea5f7-54ee-4a59-8ab3-003a7b4fbed2",
+    "_uuid": "b5eea5f7-54ee-4a59-8ab3-003a7b4fbed2",
     "address": [
       {
         "city": "Schimmelshire",
@@ -19,6 +25,18 @@
     "birthDate": "1927-09-01",
     "gender": "male",
     "id": "b5eea5f7-54ee-4a59-8ab3-003a7b4fbed2",
+    "identifier": [
+      {
+        "id": "sourceId",
+        "system": "https://www.icanbwell.com/sourceId",
+        "value": "b5eea5f7-54ee-4a59-8ab3-003a7b4fbed2"
+      },
+      {
+        "id": "uuid",
+        "system": "https://www.icanbwell.com/uuid",
+        "value": "b5eea5f7-54ee-4a59-8ab3-003a7b4fbed2"
+      }
+    ],
     "meta": {
       "lastUpdated": "2023-01-19T21:57:39.000Z",
       "profile": [
@@ -32,6 +50,10 @@
         {
           "code": "unitypoint",
           "system": "https://www.icanbwell.com/owner"
+        },
+        {
+          "code": "unitypoint",
+          "system": "https://www.icanbwell.com/sourceAssigningAuthority"
         }
       ],
       "versionId": "1"

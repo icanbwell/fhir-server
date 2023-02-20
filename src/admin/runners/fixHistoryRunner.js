@@ -1,6 +1,8 @@
 const {BaseBulkOperationRunner} = require('./baseBulkOperationRunner');
 const {assertTypeEquals} = require('../../utils/assertType');
 const {PreSaveManager} = require('../../preSaveHandlers/preSave');
+const {getResource} = require('../../operations/common/getResource');
+const {VERSIONS} = require('../../middleware/fhir/utils/constants');
 
 /**
  * @classdesc runs preSave() on every record
@@ -14,6 +16,7 @@ class FixHistoryRunner extends BaseBulkOperationRunner {
      * @param {AdminLogger} adminLogger
      * @param {MongoDatabaseManager} mongoDatabaseManager
      * @param {PreSaveManager} preSaveManager
+     * @param {boolean|undefined} [skipIfResourcePresent]
      */
     constructor(
         {
@@ -23,6 +26,7 @@ class FixHistoryRunner extends BaseBulkOperationRunner {
             adminLogger,
             mongoDatabaseManager,
             preSaveManager,
+            skipIfResourcePresent
         }) {
         super({
             mongoCollectionManager,
@@ -41,6 +45,11 @@ class FixHistoryRunner extends BaseBulkOperationRunner {
 
         this.preSaveManager = preSaveManager;
         assertTypeEquals(preSaveManager, PreSaveManager);
+
+        /**
+         * @type {boolean|undefined}
+         */
+        this.skipIfResourcePresent = skipIfResourcePresent;
     }
 
     /**
@@ -50,6 +59,7 @@ class FixHistoryRunner extends BaseBulkOperationRunner {
      */
     async processRecordAsync(doc) {
         const operations = [];
+        let hasChanges = false;
         if (!doc.resource) {
             doc = {
                 _id: doc._id,
@@ -57,10 +67,23 @@ class FixHistoryRunner extends BaseBulkOperationRunner {
                 resource: doc
             };
             delete doc.resource._id;
+            hasChanges = true;
         }
-        const result = {replaceOne: {filter: {_id: doc._id}, replacement: doc}};
-
-        operations.push(result);
+        const resourceRaw = doc.resource;
+        if (!resourceRaw._uuid) {
+            const ResourceCreator = getResource(VERSIONS['4_0_0'], resourceRaw.resourceType);
+            /**
+             * @type {Resource}
+             */
+            let resource = new ResourceCreator(resourceRaw);
+            resource = await this.preSaveManager.preSaveAsync(resource);
+            doc.resource = resource.toJSONInternal();
+            hasChanges = true;
+        }
+        if (hasChanges) {
+            const result = {replaceOne: {filter: {_id: doc._id}, replacement: doc}};
+            operations.push(result);
+        }
         return operations;
     }
 
@@ -100,7 +123,7 @@ class FixHistoryRunner extends BaseBulkOperationRunner {
                  */
 
 
-                const query = {resource: null};
+                const query = this.skipIfResourcePresent ? {resource: null} : {};
                 try {
                     await this.runForQueryBatchesAsync(
                         {
