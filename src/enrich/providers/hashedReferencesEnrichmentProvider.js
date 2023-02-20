@@ -13,7 +13,35 @@ class HashReferencesEnrichmentProvider {
      */
     // eslint-disable-next-line no-unused-vars
     async enrichAsync({resources, parsedArgs}) {
-        throw Error('Not Implemented');
+        /**
+         * @type {boolean}
+         */
+        const hash_references = isTrue(parsedArgs['_hash_references']);
+        if (hash_references) {
+            for (const /** @type {Resource} */ resource of resources) {
+                // collect set of included resources
+                const resourceTypeAndIdSet = new Set();
+                if (resource) {
+                    resourceTypeAndIdSet.add(`${resource.resourceType}/${resource.id}`);
+                    if (resource.contained && resource.contained.length > 0) {
+                        for (const /** @type {Resource} */ containedResource of resource.contained) {
+                            resourceTypeAndIdSet.add(`${containedResource.resourceType}/${containedResource.id}`);
+                        }
+                    }
+                    resource.updateReferences(
+                        {
+                            fnUpdateReference: (reference) => this.updateReference(
+                                {
+                                    reference,
+                                    resourceTypeAndIdSet
+                                }
+                            )
+                        }
+                    );
+                }
+            }
+        }
+        return resources;
     }
 
     /**
@@ -56,6 +84,8 @@ class HashReferencesEnrichmentProvider {
                 }
             }
         }
+
+        return entries;
     }
 
     /**
@@ -71,7 +101,7 @@ class HashReferencesEnrichmentProvider {
                 id,
                 sourceAssigningAuthority
             } = ReferenceParser.parseReference(reference.reference);
-            if (resourceTypeAndIdSet.has(reference.reference)) {
+            if (!id.startsWith('#') && resourceTypeAndIdSet.has(reference.reference)) {
                 reference.reference = ReferenceParser.createReference(
                     {
                         resourceType,

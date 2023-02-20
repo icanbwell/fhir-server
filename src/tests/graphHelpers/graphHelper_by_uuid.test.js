@@ -94,7 +94,6 @@ describe('graphHelper Tests', () => {
                     resourceType,
                     graphDefinitionJson: graphSimpleReverseDefinition,
                     contained: false,
-                    hash_references: false,
                     parsedArgs: parsedArgs
                 }
             );
@@ -150,7 +149,6 @@ describe('graphHelper Tests', () => {
                 resourceType,
                 graphDefinitionJson: graphSimpleReverseDefinition,
                 contained: false,
-                hash_references: false,
                 args: args,
                 parsedArgs: parsedArgs
             });
@@ -219,7 +217,6 @@ describe('graphHelper Tests', () => {
                 resourceType,
                 graphDefinitionJson: graphSimpleReverseDefinition,
                 contained: false,
-                hash_references: false,
                 args: args,
                 parsedArgs: parsedArgs
             });
@@ -291,7 +288,6 @@ describe('graphHelper Tests', () => {
                 resourceType,
                 graphDefinitionJson: graphDefinition,
                 contained: false,
-                hash_references: false,
                 args: args,
                 parsedArgs: parsedArgs
             });
@@ -363,7 +359,6 @@ describe('graphHelper Tests', () => {
                 resourceType,
                 graphDefinitionJson: graphSimpleReverseDefinition,
                 contained: true,
-                hash_references: false,
                 args: args,
                 parsedArgs: parsedArgs
             });
@@ -433,7 +428,6 @@ describe('graphHelper Tests', () => {
                 resourceType,
                 graphDefinitionJson: graphDefinition,
                 contained: true,
-                hash_references: false,
                 args: args,
                 parsedArgs: parsedArgs
             });
@@ -519,7 +513,6 @@ describe('graphHelper Tests', () => {
                 resourceType,
                 graphDefinitionJson: graphSimpleForwardDefinition,
                 contained: false,
-                hash_references: false,
                 args: args,
                 parsedArgs: parsedArgs
             });
@@ -584,7 +577,7 @@ describe('graphHelper Tests', () => {
              * @type {R4ArgsParser}
              */
             const r4ArgsParser = container.r4ArgsParser;
-            const args = {'base_version': '4_0_0', 'id': uuid1};
+            const args = {'base_version': '4_0_0', 'id': uuid1, '_hash_references': 1};
             const parsedArgs = r4ArgsParser.parseArgs({resourceType, args});
             parsedArgs.headers = {'prefer': 'global_id=true'};
             const result = await getGraphHelper().processGraphAsync({
@@ -593,7 +586,6 @@ describe('graphHelper Tests', () => {
                 resourceType,
                 graphDefinitionJson: graphSimpleReverseDefinition,
                 contained: true,
-                hash_references: true,
                 args: args,
                 parsedArgs: parsedArgs
             });
@@ -609,7 +601,7 @@ describe('graphHelper Tests', () => {
                                 {
                                     id: uuid10,
                                     practitioner: {
-                                        reference: `Practitioner/${uuid1}`,
+                                        reference: `Practitioner/#${uuid1}`,
                                     },
                                     resourceType: 'PractitionerRole',
                                 },
@@ -679,7 +671,6 @@ describe('graphHelper Tests', () => {
                 resourceType,
                 graphDefinitionJson: graphDefinition,
                 contained: false,
-                hash_references: false,
                 args: args,
                 parsedArgs: parsedArgs
             });
@@ -810,7 +801,6 @@ describe('graphHelper Tests', () => {
                 resourceType,
                 graphDefinitionJson: graphDefinition,
                 contained: false,
-                hash_references: false,
                 args: args,
                 parsedArgs: parsedArgs
             });
@@ -972,7 +962,6 @@ describe('graphHelper Tests', () => {
                 resourceType,
                 graphDefinitionJson: graphDefinition,
                 contained: true,
-                hash_references: false,
                 args: args,
                 parsedArgs: parsedArgs
             });
@@ -1112,7 +1101,6 @@ describe('graphHelper Tests', () => {
                 resourceType,
                 graphDefinitionJson: graphSimpleWithExtensionDefinition,
                 contained: false,
-                hash_references: false,
                 args: args,
                 parsedArgs: parsedArgs
             });
@@ -1313,7 +1301,6 @@ describe('graphHelper Tests', () => {
                 resourceType,
                 graphDefinitionJson: graphWithExtensionDefinition,
                 contained: false,
-                hash_references: false,
                 args: args,
                 parsedArgs: parsedArgs
             });
@@ -1570,7 +1557,6 @@ describe('graphHelper Tests', () => {
                 resourceType,
                 graphDefinitionJson: graphWithExtensionDefinition,
                 contained: true,
-                hash_references: false,
                 args: args,
                 parsedArgs: parsedArgs
             });
@@ -1809,7 +1795,6 @@ describe('graphHelper Tests', () => {
                 resourceType,
                 graphDefinitionJson: graphWithExtensionDefinition,
                 contained: true,
-                hash_references: false,
                 args: args,
                 parsedArgs: parsedArgs
             });
@@ -2097,7 +2082,6 @@ describe('graphHelper Tests', () => {
                 resourceType,
                 graphDefinitionJson: graphWithExtensionDefinition,
                 contained: true,
-                hash_references: false,
                 parsedArgs: parsedArgs
             });
             expect(result).not.toBeNull();

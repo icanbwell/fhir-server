@@ -4,6 +4,8 @@
 const {RethrownError} = require('../utils/rethrownError');
 const {assertTypeEquals} = require('../utils/assertType');
 const {ParsedArgs} = require('../operations/query/parsedArgsItem');
+const Resource = require('../fhir/classes/4_0_0/resources/resource');
+const BundleEntry = require('../fhir/classes/4_0_0/backbone_elements/bundleEntry');
 
 class EnrichmentManager {
     /**
@@ -24,7 +26,6 @@ class EnrichmentManager {
      * @return {Promise<Resource[]>}
      */
     async enrichAsync({resources, parsedArgs}) {
-
         assertTypeEquals(parsedArgs, ParsedArgs);
         try {
             for (const enrichmentProvider of this.enrichmentProviders) {
@@ -33,7 +34,7 @@ class EnrichmentManager {
                         resources, parsedArgs
                     }
                 );
-
+                resources.forEach(resource => assertTypeEquals(resource, Resource));
             }
             return resources;
         } catch (e) {
@@ -61,6 +62,7 @@ class EnrichmentManager {
                     }
                 );
             }
+            entries.forEach(entry => assertTypeEquals(entry, BundleEntry));
             return entries;
         } catch (e) {
             throw new RethrownError({
