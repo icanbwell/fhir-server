@@ -199,7 +199,7 @@
                   "valueString": "medstar"
                 }
               ],
-              "reference": "Practitioner/1679033641"
+              "reference": "Practitioner/#1679033641"
             },
             "resourceType": "PractitionerRole"
           }
@@ -286,7 +286,7 @@
                 {
                   "id": "sourceId",
                   "url": "https://www.icanbwell.com/sourceId",
-                  "valueString": "#Organization/123456"
+                  "valueString": "Organization/123456"
                 },
                 {
                   "id": "uuid",
@@ -299,7 +299,7 @@
                   "valueString": "medstar"
                 }
               ],
-              "reference": "#Organization/123456"
+              "reference": "Organization/#123456"
             }
           },
           {
@@ -316,7 +316,7 @@
                 {
                   "id": "sourceId",
                   "url": "https://www.icanbwell.com/sourceId",
-                  "valueString": "#Organization/123456"
+                  "valueString": "Organization/123456"
                 },
                 {
                   "id": "uuid",
@@ -329,7 +329,7 @@
                   "valueString": "medstar"
                 }
               ],
-              "reference": "#Organization/123456"
+              "reference": "Organization/#123456"
             },
             "period": {
               "end": "2021-12-11",
