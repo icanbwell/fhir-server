@@ -5,6 +5,7 @@ const observation2Resource = require('./fixtures/Observation/observation2.json')
 // expected
 const expectedObservations1 = require('./fixtures/expected/expected_observations_1.json');
 const expectedObservations2 = require('./fixtures/expected/expected_observations_2.json');
+const expectedObservations2ByUuid = require('./fixtures/expected/expected_observations_2_by_uuid.json');
 const expectedObservation1 = require('./fixtures/expected/expected_observation_1.json');
 const expectedObservationHistoryInDatabase1 = require('./fixtures/expected/expected_observation_history_database_1.json');
 const expectedObservation2 = require('./fixtures/expected/expected_observation_2.json');
@@ -154,28 +155,28 @@ describe('Observation Tests', () => {
 
             // ACT & ASSERT
             resp = await request
-                .get('/4_0_0/Observation/123/_history')
+                .get('/4_0_0/Observation/123/_history?_debug=1')
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedObservations2);
 
             resp = await request
-                .get('/4_0_0/Observation/_history?id=123')
+                .get('/4_0_0/Observation/_history?id=123&_debug=1')
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedObservations2);
 
             resp = await request
-                .get('/4_0_0/Observation/d3adcaf2-1161-5f9c-8fbd-3148b9eb2122/_history')
+                .get('/4_0_0/Observation/d3adcaf2-1161-5f9c-8fbd-3148b9eb2122/_history?_debug=1')
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse(expectedObservations2);
+            expect(resp).toHaveResponse(expectedObservations2ByUuid);
 
             resp = await request
-                .get('/4_0_0/Observation/_history?id=d3adcaf2-1161-5f9c-8fbd-3148b9eb2122')
+                .get('/4_0_0/Observation/_history?id=d3adcaf2-1161-5f9c-8fbd-3148b9eb2122&_debug=1')
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse(expectedObservations2);
+            expect(resp).toHaveResponse(expectedObservations2ByUuid);
 
             resp = await request
                 .get('/4_0_0/Observation/123/_history/1')
@@ -187,7 +188,7 @@ describe('Observation Tests', () => {
                 .get('/4_0_0/Observation/d3adcaf2-1161-5f9c-8fbd-3148b9eb2122/_history/1')
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse(expectedObservation2);
+            expect(resp).toHaveResponse(expectedObservations2ByUuid.entry[0].resource);
         });
     });
 });
