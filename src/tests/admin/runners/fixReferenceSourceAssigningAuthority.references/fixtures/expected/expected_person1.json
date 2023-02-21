@@ -4,7 +4,7 @@
   },
   "_sourceAssigningAuthority": "bwell",
   "_sourceId": "53341b2a35bf4d1cb47de4945a22c499",
-  "_uuid": "eec2d149-36fd-5204-9c5f-3774774fe2f5",
+  "_uuid": "0aed2b07-e451-591c-8af7-512ef4e9126b",
   "address": [
     {
       "city": "San Antonio",
@@ -74,16 +74,16 @@
     {
       "id": "uuid",
       "system": "https://www.icanbwell.com/uuid",
-      "value": "eec2d149-36fd-5204-9c5f-3774774fe2f5"
+      "value": "0aed2b07-e451-591c-8af7-512ef4e9126b"
     }
   ],
   "link": [
     {
       "assurance": "level4",
       "target": {
-        "_sourceAssigningAuthority": "bwell",
+        "_sourceAssigningAuthority": "healthsystem1",
         "_sourceId": "Person/a0b8be666f4a4f60a3f6129f7ddc8aab",
-        "_uuid": "Person/29bcdbae-5ab4-5eed-bd39-7e152f3e23e6",
+        "_uuid": "7673a048-8d3d-55cd-a607-c456e1c717e5",
         "extension": [
           {
             "id": "sourceId",
@@ -93,7 +93,7 @@
           {
             "id": "uuid",
             "url": "https://www.icanbwell.com/uuid",
-            "valueString": "Person/29bcdbae-5ab4-5eed-bd39-7e152f3e23e6"
+            "valueString": "7673a048-8d3d-55cd-a607-c456e1c717e5"
           },
           {
             "id": "sourceAssigningAuthority",
@@ -101,13 +101,13 @@
             "valueString": "bwell"
           }
         ],
-        "reference": "Person/a0b8be666f4a4f60a3f6129f7ddc8aab",
+        "reference": "Person/a0b8be666f4a4f60a3f6129f7ddc8aab|healthsystem1",
         "type": "Person"
       }
     }
   ],
   "meta": {
-    "lastUpdated": {},
+    "lastUpdated": "2023-01-19T21:57:39.000Z",
     "profile": [
       "http://hl7.org/fhir/us/core/StructureDefinition/us-core-person"
     ],

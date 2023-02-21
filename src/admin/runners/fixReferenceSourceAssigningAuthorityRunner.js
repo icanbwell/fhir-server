@@ -137,6 +137,12 @@ class FixReferenceSourceAssigningAuthorityRunner extends BaseBulkOperationRunner
                 );
                 reference._sourceAssigningAuthority = doc._sourceAssigningAuthority;
                 reference._uuid = generateUUIDv5(`${id}|${reference._sourceAssigningAuthority}`);
+                if (reference.extension) {
+                    const uuidExtension = reference.extension.find(e => e.id === 'uuid');
+                    if (uuidExtension) {
+                        uuidExtension.valueString = reference._uuid;
+                    }
+                }
             }
         }
         return reference;
@@ -176,7 +182,7 @@ class FixReferenceSourceAssigningAuthorityRunner extends BaseBulkOperationRunner
             return operations;
         }
 
-        const result = {replaceOne: {filter: {_id: doc._id}, replacement: doc}};
+        const result = {replaceOne: {filter: {_id: doc._id}, replacement: updatedResourceJsonInternal}};
         operations.push(result);
 
         return operations;
