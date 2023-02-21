@@ -47,6 +47,7 @@ async function main() {
                 adminLogger: new AdminLogger(),
                 mongoDatabaseManager: c.mongoDatabaseManager,
                 preSaveManager: c.preSaveManager,
+                databaseQueryFactory: c.databaseQueryFactory
             }
         )
     );
