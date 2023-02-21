@@ -1546,28 +1546,25 @@ class GraphHelper {
                 // for testing with delay
                 // await new Promise(r => setTimeout(r, 10000));
 
-                for (const resultResourceId of idList) {
-                    const ResourceCreator = getResource(base_version, resultResourceType);
-                    const bundleEntry = new BundleEntry({
-                        id: resultResourceId,
-                        resource: new ResourceCreator({
-                            id: resultResourceId,
-                            resourceType: resultResourceType
-                        }),
-                        request: new BundleRequest(
-                            {
-                                id: requestInfo.requestId,
-                                method: 'DELETE',
-                                url: `/${base_version}/${resultResourceType}/${resultResourceId}`
-                            }
-                        )
-                    });
-                    deleteOperationBundleEntries.push(bundleEntry);
-                    if (responseStreamer) {
-                        await responseStreamer.writeBundleEntryAsync({bundleEntry});
-                    }
+                const ResourceCreator = getResource(base_version, resultResourceType);
+                const bundleEntry = new BundleEntry({
+                    id: resource.id,
+                    resource: new ResourceCreator({
+                        id: resource.id,
+                        resourceType: resultResourceType
+                    }),
+                    request: new BundleRequest(
+                        {
+                            id: requestInfo.requestId,
+                            method: 'DELETE',
+                            url: `/${base_version}/${resultResourceType}/${resource.id}`
+                        }
+                    )
+                });
+                deleteOperationBundleEntries.push(bundleEntry);
+                if (responseStreamer) {
+                    await responseStreamer.writeBundleEntryAsync({bundleEntry});
                 }
-
             }
             const deleteOperationBundle = new Bundle({
                 id: requestInfo.requestId,
