@@ -1262,13 +1262,18 @@ class GraphHelper {
                 /**
                  * @type {ResourceEntityAndContained}
                  */
-                const matchingEntity = allRelatedEntries.find(
-                    e => (
-                            e.entityUuid === topLevelBundleEntry.resource._uuid ||
-                            (this.configManager.supportLegacyIds && e.entityId === topLevelBundleEntry.resource.id)
-                        ) &&
+                let matchingEntity = allRelatedEntries.find(
+                    e => e.entityUuid === topLevelBundleEntry.resource._uuid &&
                         e.entityResourceType === topLevelBundleEntry.resource.resourceType
                 );
+                if (this.configManager.supportLegacyIds && !matchingEntity) {
+                    matchingEntity = allRelatedEntries.find(
+                        e => (
+                                this.configManager.supportLegacyIds && e.entityId === topLevelBundleEntry.resource.id
+                            ) &&
+                            e.entityResourceType === topLevelBundleEntry.resource.resourceType
+                    );
+                }
                 assertIsValid(matchingEntity,
                     'No matching entity found in graph for ' +
                     `${topLevelBundleEntry.resource.resourceType}/${topLevelBundleEntry.resource.id}`);
