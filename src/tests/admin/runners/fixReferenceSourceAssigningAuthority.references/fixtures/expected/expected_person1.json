@@ -1,0 +1,157 @@
+{
+  "_access": {
+    "bwell": 1
+  },
+  "_sourceAssigningAuthority": "bwell",
+  "_sourceId": "53341b2a35bf4d1cb47de4945a22c499",
+  "_uuid": "eec2d149-36fd-5204-9c5f-3774774fe2f5",
+  "address": [
+    {
+      "city": "San Antonio",
+      "line": [
+        "330 Savannah Dr"
+      ],
+      "postalCode": "78213-3444",
+      "state": "TX"
+    },
+    {
+      "city": "San Antonio",
+      "line": [
+        "330 Savannah Dr"
+      ],
+      "postalCode": "50320",
+      "state": "TX"
+    }
+  ],
+  "birthDate": "1950-09-22",
+  "gender": "female",
+  "id": "53341b2a35bf4d1cb47de4945a22c499",
+  "identifier": [
+    {
+      "system": "https://www.icanbwell.com",
+      "type": {
+        "coding": [
+          {
+            "code": "FHIR_id",
+            "display": "bWell FHIR id",
+            "system": "https://www.icanbwell.com"
+          }
+        ]
+      },
+      "value": "bwell-53341b2a35bf4d1cb47de4945a22c499"
+    },
+    {
+      "system": "https://www.icanbwell.com",
+      "type": {
+        "coding": [
+          {
+            "code": "user_id",
+            "display": "bWell App user_id",
+            "system": "https://www.icanbwell.com"
+          }
+        ]
+      },
+      "value": "592492"
+    },
+    {
+      "system": "https://www.icanbwell.com",
+      "type": {
+        "coding": [
+          {
+            "code": "member_id",
+            "display": "bWell App member_id",
+            "system": "https://www.icanbwell.com"
+          }
+        ]
+      },
+      "value": "SJLw5Y3"
+    },
+    {
+      "id": "sourceId",
+      "system": "https://www.icanbwell.com/sourceId",
+      "value": "53341b2a35bf4d1cb47de4945a22c499"
+    },
+    {
+      "id": "uuid",
+      "system": "https://www.icanbwell.com/uuid",
+      "value": "eec2d149-36fd-5204-9c5f-3774774fe2f5"
+    }
+  ],
+  "link": [
+    {
+      "assurance": "level4",
+      "target": {
+        "_sourceAssigningAuthority": "bwell",
+        "_sourceId": "Person/a0b8be666f4a4f60a3f6129f7ddc8aab",
+        "_uuid": "Person/29bcdbae-5ab4-5eed-bd39-7e152f3e23e6",
+        "extension": [
+          {
+            "id": "sourceId",
+            "url": "https://www.icanbwell.com/sourceId",
+            "valueString": "Person/a0b8be666f4a4f60a3f6129f7ddc8aab"
+          },
+          {
+            "id": "uuid",
+            "url": "https://www.icanbwell.com/uuid",
+            "valueString": "Person/29bcdbae-5ab4-5eed-bd39-7e152f3e23e6"
+          },
+          {
+            "id": "sourceAssigningAuthority",
+            "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+            "valueString": "bwell"
+          }
+        ],
+        "reference": "Person/a0b8be666f4a4f60a3f6129f7ddc8aab",
+        "type": "Person"
+      }
+    }
+  ],
+  "meta": {
+    "lastUpdated": {},
+    "profile": [
+      "http://hl7.org/fhir/us/core/StructureDefinition/us-core-person"
+    ],
+    "security": [
+      {
+        "code": "bwell",
+        "system": "https://www.icanbwell.com/access"
+      },
+      {
+        "code": "bwell",
+        "system": "https://www.icanbwell.com/owner"
+      },
+      {
+        "code": "bwell",
+        "system": "https://www.icanbwell.com/sourceAssigningAuthority"
+      }
+    ],
+    "versionId": "2"
+  },
+  "name": [
+    {
+      "family": "PATERKA",
+      "given": [
+        "HANNAH"
+      ],
+      "use": "official"
+    }
+  ],
+  "resourceType": "Person",
+  "telecom": [
+    {
+      "system": "phone",
+      "use": "home",
+      "value": "+12109953625"
+    },
+    {
+      "system": "email",
+      "use": "home",
+      "value": "paterkaddd@gmail.com"
+    },
+    {
+      "system": "email",
+      "use": "home",
+      "value": "paterka@mail.com"
+    }
+  ]
+}

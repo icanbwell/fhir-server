@@ -6,6 +6,7 @@ const {VERSIONS} = require('../../middleware/fhir/utils/constants');
 const {ReferenceParser} = require('../../utils/referenceParser');
 const {DatabaseQueryFactory} = require('../../dataLayer/databaseQueryFactory');
 const {generateUUIDv5} = require('../../utils/uid.util');
+const deepEqual = require('fast-deep-equal');
 
 /**
  * @classdesc finds ids in references and updates sourceAssigningAuthority with found resource
@@ -65,9 +66,11 @@ class FixReferenceSourceAssigningAuthorityRunner extends BaseBulkOperationRunner
 
     /**
      * @param {Reference} reference
+     * @param {DatabaseQueryFactory} databaseQueryFactory
      * @return {Promise<Reference>}
      */
-    async updateReferenceAsync(reference) {
+    async updateReferenceAsync(reference, databaseQueryFactory) {
+        assertTypeEquals(databaseQueryFactory, DatabaseQueryFactory);
         // if the _uuid reference works then we're good
         const {resourceType, id, sourceAssigningAuthority} = ReferenceParser.parseReference(reference.reference);
         if (sourceAssigningAuthority) {
@@ -76,31 +79,38 @@ class FixReferenceSourceAssigningAuthorityRunner extends BaseBulkOperationRunner
         /**
          * @type {string}
          */
-        const uuid = reference._uuid.split('/').slice(0, -1)[0];
+        let uuid;
+        if (reference._uuid) {
+            ({id: uuid} = ReferenceParser.parseReference(reference._uuid));
+        }
 
         /**
          * @type {DatabaseQueryManager}
          */
-        const databaseQueryManager = this.databaseQueryFactory.createQuery({
+        const databaseQueryManager = databaseQueryFactory.createQuery({
             resourceType,
             base_version: VERSIONS['4_0_0']
         });
         /**
          * @type {Resource|null}
          */
-        let doc = await databaseQueryManager.findOneAsync(
-            {
-                query: {
-                    _uuid: uuid
-                },
-                options: {
-                    projection: {
-                        _id: 0,
-                        id: 1
+        let doc;
+        if (uuid) {
+            doc = await databaseQueryManager.findOneAsync(
+                {
+                    query: {
+                        _uuid: uuid
+                    },
+                    options: {
+                        projection: {
+                            _id: 0,
+                            id: 1
+                        }
                     }
                 }
-            }
-        );
+            );
+        }
+
         if (!doc) {
             doc = await databaseQueryManager.findOneAsync(
                 {
@@ -139,24 +149,36 @@ class FixReferenceSourceAssigningAuthorityRunner extends BaseBulkOperationRunner
      */
     async processRecordAsync(doc) {
         const operations = [];
-        let hasChanges = false;
         const ResourceCreator = getResource(VERSIONS['4_0_0'], doc.resourceType);
         /**
          * @type {Resource}
          */
         let resource = new ResourceCreator(doc);
-
+        /**
+         * @type {Resource}
+         */
+        const currentResource = resource.clone();
 
         await resource.updateReferencesAsync(
             {
-                fnUpdateReferenceAsync: this.updateReferenceAsync
+                fnUpdateReferenceAsync: async (reference) => await this.updateReferenceAsync(
+                    reference,
+                    this.databaseQueryFactory
+                )
             }
         );
 
-        if (hasChanges) {
-            const result = {replaceOne: {filter: {_id: doc._id}, replacement: doc}};
-            operations.push(result);
+        // for speed, first check if the incoming resource is exactly the same
+        const updatedResourceJsonInternal = resource.toJSONInternal();
+        const currentResourceJsonInternal = currentResource.toJSONInternal();
+        if (deepEqual(updatedResourceJsonInternal, currentResourceJsonInternal) === true) {
+            // console.log('No change detected for ');
+            return operations;
         }
+
+        const result = {replaceOne: {filter: {_id: doc._id}, replacement: doc}};
+        operations.push(result);
+
         return operations;
     }
 
@@ -174,12 +196,10 @@ class FixReferenceSourceAssigningAuthorityRunner extends BaseBulkOperationRunner
                 this.collections = (await this.getAllCollectionNamesAsync(
                         {
                             useAuditDatabase: false,
-                            includeHistoryCollections: true
+                            includeHistoryCollections: false
                         }
                     )
                 );
-                // filter to only history collections
-                this.collections = this.collections.filter(c => c.includes('_History'));
                 this.collections = this.collections.sort();
             }
 
