@@ -296,11 +296,11 @@ class PatientContact extends Element {
      * @return {void}
      */
     async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) { async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) { async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.relationship) { async.each(this.relationship, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.relationship) {await async.each(this.relationship, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
             if (this.name) {await this.name.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.telecom) { async.each(this.telecom, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.telecom) {await async.each(this.telecom, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
             if (this.address) {await this.address.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.organization) {await this.organization.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.period) {await this.period.updateReferencesAsync({fnUpdateReferenceAsync});}

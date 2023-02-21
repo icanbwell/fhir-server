@@ -257,11 +257,11 @@ class CarePlanActivity extends Element {
      * @return {void}
      */
     async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) { async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) { async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.outcomeCodeableConcept) { async.each(this.outcomeCodeableConcept, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.outcomeReference) { async.each(this.outcomeReference, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.progress) { async.each(this.progress, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.outcomeCodeableConcept) {await async.each(this.outcomeCodeableConcept, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.outcomeReference) {await async.each(this.outcomeReference, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.progress) {await async.each(this.progress, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
             if (this.reference) {await this.reference.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.detail) {await this.detail.updateReferencesAsync({fnUpdateReferenceAsync});}
     }

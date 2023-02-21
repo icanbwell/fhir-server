@@ -231,11 +231,11 @@ class MedicationDispenseSubstitution extends Element {
      * @return {void}
      */
     async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) { async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) { async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
             if (this.type) {await this.type.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.reason) { async.each(this.reason, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.responsibleParty) { async.each(this.responsibleParty, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.reason) {await async.each(this.reason, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.responsibleParty) {await async.each(this.responsibleParty, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
     }
 
     /**

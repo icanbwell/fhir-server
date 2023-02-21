@@ -538,14 +538,14 @@ class MedicinalProductUndesirableEffect extends Resource {
     async updateReferencesAsync({fnUpdateReferenceAsync}) {
             if (this.meta) {await this.meta.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.text) {await this.text.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.contained) { async.each(this.contained, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.extension) { async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) { async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.subject) { async.each(this.subject, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.contained) {await async.each(this.contained, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.subject) {await async.each(this.subject, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
             if (this.symptomConditionEffect) {await this.symptomConditionEffect.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.classification) {await this.classification.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.frequencyOfOccurrence) {await this.frequencyOfOccurrence.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.population) { async.each(this.population, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.population) {await async.each(this.population, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
     }
 
     /**

@@ -225,12 +225,12 @@ class MedicationKnowledgeAdministrationGuidelines extends Element {
      * @return {void}
      */
     async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) { async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) { async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.dosage) { async.each(this.dosage, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.dosage) {await async.each(this.dosage, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
             if (this.indicationCodeableConcept) {await this.indicationCodeableConcept.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.indicationReference) {await this.indicationReference.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.patientCharacteristics) { async.each(this.patientCharacteristics, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.patientCharacteristics) {await async.each(this.patientCharacteristics, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
     }
 
     /**

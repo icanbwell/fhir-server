@@ -245,12 +245,12 @@ class MedicinalProductAuthorizationProcedure extends Element {
      * @return {void}
      */
     async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) { async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) { async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
             if (this.identifier) {await this.identifier.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.type) {await this.type.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.datePeriod) {await this.datePeriod.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.application) { async.each(this.application, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.application) {await async.each(this.application, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
     }
 
     /**

@@ -456,16 +456,16 @@ class ImmunizationRecommendationRecommendation extends Element {
      * @return {void}
      */
     async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) { async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) { async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.vaccineCode) { async.each(this.vaccineCode, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.vaccineCode) {await async.each(this.vaccineCode, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
             if (this.targetDisease) {await this.targetDisease.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.contraindicatedVaccineCode) { async.each(this.contraindicatedVaccineCode, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.contraindicatedVaccineCode) {await async.each(this.contraindicatedVaccineCode, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
             if (this.forecastStatus) {await this.forecastStatus.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.forecastReason) { async.each(this.forecastReason, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.dateCriterion) { async.each(this.dateCriterion, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.supportingImmunization) { async.each(this.supportingImmunization, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.supportingPatientInformation) { async.each(this.supportingPatientInformation, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.forecastReason) {await async.each(this.forecastReason, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.dateCriterion) {await async.each(this.dateCriterion, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.supportingImmunization) {await async.each(this.supportingImmunization, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.supportingPatientInformation) {await async.each(this.supportingPatientInformation, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
     }
 
     /**

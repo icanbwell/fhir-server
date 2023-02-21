@@ -457,8 +457,8 @@ class Bundle extends Resource {
     async updateReferencesAsync({fnUpdateReferenceAsync}) {
             if (this.meta) {await this.meta.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.identifier) {await this.identifier.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.link) { async.each(this.link, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.entry) { async.each(this.entry, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.link) {await async.each(this.link, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.entry) {await async.each(this.entry, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
             if (this.signature) {await this.signature.updateReferencesAsync({fnUpdateReferenceAsync});}
     }
 

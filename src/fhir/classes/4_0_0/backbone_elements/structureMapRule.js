@@ -268,12 +268,12 @@ class StructureMapRule extends Element {
      * @return {void}
      */
     async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) { async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) { async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.source) { async.each(this.source, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.target) { async.each(this.target, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.rule) { async.each(this.rule, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.dependent) { async.each(this.dependent, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.source) {await async.each(this.source, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.target) {await async.each(this.target, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.rule) {await async.each(this.rule, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.dependent) {await async.each(this.dependent, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
     }
 
     /**

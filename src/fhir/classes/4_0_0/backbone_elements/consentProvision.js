@@ -392,18 +392,18 @@ class ConsentProvision extends Element {
      * @return {void}
      */
     async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) { async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) { async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
             if (this.period) {await this.period.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.actor) { async.each(this.actor, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.action) { async.each(this.action, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.securityLabel) { async.each(this.securityLabel, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.purpose) { async.each(this.purpose, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.class) { async.each(this.class, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.code) { async.each(this.code, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.actor) {await async.each(this.actor, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.action) {await async.each(this.action, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.securityLabel) {await async.each(this.securityLabel, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.purpose) {await async.each(this.purpose, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.class) {await async.each(this.class, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.code) {await async.each(this.code, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
             if (this.dataPeriod) {await this.dataPeriod.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.data) { async.each(this.data, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.provision) { async.each(this.provision, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.data) {await async.each(this.data, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.provision) {await async.each(this.provision, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
     }
 
     /**

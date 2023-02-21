@@ -302,15 +302,15 @@ class PlanDefinitionGoal extends Element {
      * @return {void}
      */
     async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) { async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) { async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
             if (this.category) {await this.category.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.description) {await this.description.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.priority) {await this.priority.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.start) {await this.start.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.addresses) { async.each(this.addresses, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.documentation) { async.each(this.documentation, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.target) { async.each(this.target, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.addresses) {await async.each(this.addresses, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.documentation) {await async.each(this.documentation, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.target) {await async.each(this.target, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
     }
 
     /**

@@ -782,20 +782,20 @@ class Consent extends Resource {
     async updateReferencesAsync({fnUpdateReferenceAsync}) {
             if (this.meta) {await this.meta.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.text) {await this.text.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.contained) { async.each(this.contained, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.extension) { async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) { async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.identifier) { async.each(this.identifier, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.contained) {await async.each(this.contained, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.identifier) {await async.each(this.identifier, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
             if (this.scope) {await this.scope.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.category) { async.each(this.category, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.category) {await async.each(this.category, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
             if (this.patient) {await this.patient.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.performer) { async.each(this.performer, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.organization) { async.each(this.organization, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.performer) {await async.each(this.performer, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.organization) {await async.each(this.organization, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
             if (this.sourceAttachment) {await this.sourceAttachment.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.sourceReference) {await this.sourceReference.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.policy) { async.each(this.policy, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.policy) {await async.each(this.policy, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
             if (this.policyRule) {await this.policyRule.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.verification) { async.each(this.verification, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.verification) {await async.each(this.verification, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
             if (this.provision) {await this.provision.updateReferencesAsync({fnUpdateReferenceAsync});}
     }
 

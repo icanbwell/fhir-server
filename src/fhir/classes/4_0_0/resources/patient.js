@@ -881,20 +881,20 @@ class Patient extends Resource {
     async updateReferencesAsync({fnUpdateReferenceAsync}) {
             if (this.meta) {await this.meta.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.text) {await this.text.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.contained) { async.each(this.contained, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.extension) { async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) { async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.identifier) { async.each(this.identifier, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.name) { async.each(this.name, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.telecom) { async.each(this.telecom, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.address) { async.each(this.address, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.contained) {await async.each(this.contained, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.identifier) {await async.each(this.identifier, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.name) {await async.each(this.name, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.telecom) {await async.each(this.telecom, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.address) {await async.each(this.address, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
             if (this.maritalStatus) {await this.maritalStatus.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.photo) { async.each(this.photo, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.contact) { async.each(this.contact, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.communication) { async.each(this.communication, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.generalPractitioner) { async.each(this.generalPractitioner, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.photo) {await async.each(this.photo, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.contact) {await async.each(this.contact, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.communication) {await async.each(this.communication, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.generalPractitioner) {await async.each(this.generalPractitioner, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
             if (this.managingOrganization) {await this.managingOrganization.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.link) { async.each(this.link, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.link) {await async.each(this.link, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
     }
 
     /**

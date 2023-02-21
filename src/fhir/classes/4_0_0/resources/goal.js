@@ -858,22 +858,22 @@ class Goal extends Resource {
     async updateReferencesAsync({fnUpdateReferenceAsync}) {
             if (this.meta) {await this.meta.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.text) {await this.text.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.contained) { async.each(this.contained, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.extension) { async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) { async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.identifier) { async.each(this.identifier, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.contained) {await async.each(this.contained, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.identifier) {await async.each(this.identifier, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
             if (this.achievementStatus) {await this.achievementStatus.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.category) { async.each(this.category, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.category) {await async.each(this.category, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
             if (this.priority) {await this.priority.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.description) {await this.description.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.subject) {await this.subject.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.startCodeableConcept) {await this.startCodeableConcept.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.target) { async.each(this.target, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.target) {await async.each(this.target, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
             if (this.expressedBy) {await this.expressedBy.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.addresses) { async.each(this.addresses, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.note) { async.each(this.note, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.outcomeCode) { async.each(this.outcomeCode, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.outcomeReference) { async.each(this.outcomeReference, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.addresses) {await async.each(this.addresses, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.note) {await async.each(this.note, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.outcomeCode) {await async.each(this.outcomeCode, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.outcomeReference) {await async.each(this.outcomeReference, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
     }
 
     /**

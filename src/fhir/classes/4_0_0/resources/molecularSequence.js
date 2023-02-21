@@ -834,21 +834,21 @@ class MolecularSequence extends Resource {
     async updateReferencesAsync({fnUpdateReferenceAsync}) {
             if (this.meta) {await this.meta.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.text) {await this.text.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.contained) { async.each(this.contained, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.extension) { async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) { async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.identifier) { async.each(this.identifier, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.contained) {await async.each(this.contained, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.identifier) {await async.each(this.identifier, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
             if (this.patient) {await this.patient.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.specimen) {await this.specimen.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.device) {await this.device.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.performer) {await this.performer.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.quantity) {await this.quantity.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.referenceSeq) {await this.referenceSeq.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.variant) { async.each(this.variant, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.quality) { async.each(this.quality, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.repository) { async.each(this.repository, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.pointer) { async.each(this.pointer, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.structureVariant) { async.each(this.structureVariant, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.variant) {await async.each(this.variant, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.quality) {await async.each(this.quality, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.repository) {await async.each(this.repository, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.pointer) {await async.each(this.pointer, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.structureVariant) {await async.each(this.structureVariant, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
     }
 
     /**

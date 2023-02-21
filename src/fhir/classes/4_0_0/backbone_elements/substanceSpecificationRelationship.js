@@ -387,8 +387,8 @@ class SubstanceSpecificationRelationship extends Element {
      * @return {void}
      */
     async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) { async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) { async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
             if (this.substanceReference) {await this.substanceReference.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.substanceCodeableConcept) {await this.substanceCodeableConcept.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.relationship) {await this.relationship.updateReferencesAsync({fnUpdateReferenceAsync});}
@@ -397,7 +397,7 @@ class SubstanceSpecificationRelationship extends Element {
             if (this.amountRatio) {await this.amountRatio.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.amountRatioLowLimit) {await this.amountRatioLowLimit.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.amountType) {await this.amountType.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.source) { async.each(this.source, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.source) {await async.each(this.source, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
     }
 
     /**

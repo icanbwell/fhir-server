@@ -1018,26 +1018,26 @@ class Communication extends Resource {
     async updateReferencesAsync({fnUpdateReferenceAsync}) {
             if (this.meta) {await this.meta.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.text) {await this.text.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.contained) { async.each(this.contained, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.extension) { async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) { async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.identifier) { async.each(this.identifier, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.basedOn) { async.each(this.basedOn, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.partOf) { async.each(this.partOf, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.inResponseTo) { async.each(this.inResponseTo, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.contained) {await async.each(this.contained, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.identifier) {await async.each(this.identifier, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.basedOn) {await async.each(this.basedOn, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.partOf) {await async.each(this.partOf, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.inResponseTo) {await async.each(this.inResponseTo, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
             if (this.statusReason) {await this.statusReason.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.category) { async.each(this.category, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.medium) { async.each(this.medium, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.category) {await async.each(this.category, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.medium) {await async.each(this.medium, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
             if (this.subject) {await this.subject.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.topic) {await this.topic.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.about) { async.each(this.about, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.about) {await async.each(this.about, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
             if (this.encounter) {await this.encounter.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.recipient) { async.each(this.recipient, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.recipient) {await async.each(this.recipient, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
             if (this.sender) {await this.sender.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.reasonCode) { async.each(this.reasonCode, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.reasonReference) { async.each(this.reasonReference, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.payload) { async.each(this.payload, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.note) { async.each(this.note, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.reasonCode) {await async.each(this.reasonCode, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.reasonReference) {await async.each(this.reasonReference, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.payload) {await async.each(this.payload, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.note) {await async.each(this.note, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
     }
 
     /**

@@ -319,11 +319,11 @@ class ObservationDefinitionQualifiedInterval extends Element {
      * @return {void}
      */
     async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) { async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) { async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
             if (this.range) {await this.range.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.context) {await this.context.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.appliesTo) { async.each(this.appliesTo, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.appliesTo) {await async.each(this.appliesTo, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
             if (this.age) {await this.age.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.gestationalAge) {await this.gestationalAge.updateReferencesAsync({fnUpdateReferenceAsync});}
     }

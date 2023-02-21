@@ -369,17 +369,17 @@ class CoverageEligibilityRequestItem extends Element {
      * @return {void}
      */
     async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) { async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) { async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
             if (this.category) {await this.category.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.productOrService) {await this.productOrService.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.modifier) { async.each(this.modifier, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.modifier) {await async.each(this.modifier, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
             if (this.provider) {await this.provider.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.quantity) {await this.quantity.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.unitPrice) {await this.unitPrice.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.facility) {await this.facility.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.diagnosis) { async.each(this.diagnosis, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.detail) { async.each(this.detail, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.diagnosis) {await async.each(this.diagnosis, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.detail) {await async.each(this.detail, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
     }
 
     /**

@@ -212,10 +212,10 @@ class ProvenanceEntity extends Element {
      * @return {void}
      */
     async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) { async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) { async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
             if (this.what) {await this.what.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.agent) { async.each(this.agent, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.agent) {await async.each(this.agent, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
     }
 
     /**

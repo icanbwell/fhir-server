@@ -270,12 +270,12 @@ class MedicinalProductManufacturingBusinessOperation extends Element {
      * @return {void}
      */
     async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) { async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) { async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
             if (this.operationType) {await this.operationType.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.authorisationReferenceNumber) {await this.authorisationReferenceNumber.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.confidentialityIndicator) {await this.confidentialityIndicator.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.manufacturer) { async.each(this.manufacturer, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.manufacturer) {await async.each(this.manufacturer, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
             if (this.regulator) {await this.regulator.updateReferencesAsync({fnUpdateReferenceAsync});}
     }
 

@@ -1038,18 +1038,18 @@ class ChargeItemDefinition extends Resource {
     async updateReferencesAsync({fnUpdateReferenceAsync}) {
             if (this.meta) {await this.meta.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.text) {await this.text.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.contained) { async.each(this.contained, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.extension) { async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) { async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.identifier) { async.each(this.identifier, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.contact) { async.each(this.contact, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.useContext) { async.each(this.useContext, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.jurisdiction) { async.each(this.jurisdiction, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.contained) {await async.each(this.contained, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.identifier) {await async.each(this.identifier, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.contact) {await async.each(this.contact, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.useContext) {await async.each(this.useContext, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.jurisdiction) {await async.each(this.jurisdiction, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
             if (this.effectivePeriod) {await this.effectivePeriod.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.code) {await this.code.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.instance) { async.each(this.instance, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.applicability) { async.each(this.applicability, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.propertyGroup) { async.each(this.propertyGroup, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.instance) {await async.each(this.instance, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.applicability) {await async.each(this.applicability, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.propertyGroup) {await async.each(this.propertyGroup, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
     }
 
     /**

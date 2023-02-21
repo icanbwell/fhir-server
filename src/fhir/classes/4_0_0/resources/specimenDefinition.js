@@ -563,14 +563,14 @@ class SpecimenDefinition extends Resource {
     async updateReferencesAsync({fnUpdateReferenceAsync}) {
             if (this.meta) {await this.meta.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.text) {await this.text.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.contained) { async.each(this.contained, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.extension) { async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) { async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.contained) {await async.each(this.contained, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
             if (this.identifier) {await this.identifier.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.typeCollected) {await this.typeCollected.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.patientPreparation) { async.each(this.patientPreparation, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.collection) { async.each(this.collection, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.typeTested) { async.each(this.typeTested, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.patientPreparation) {await async.each(this.patientPreparation, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.collection) {await async.each(this.collection, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.typeTested) {await async.each(this.typeTested, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
     }
 
     /**

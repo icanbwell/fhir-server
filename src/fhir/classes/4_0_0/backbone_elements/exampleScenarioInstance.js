@@ -267,10 +267,10 @@ class ExampleScenarioInstance extends Element {
      * @return {void}
      */
     async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) { async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) { async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.version) { async.each(this.version, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.containedInstance) { async.each(this.containedInstance, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.version) {await async.each(this.version, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.containedInstance) {await async.each(this.containedInstance, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
     }
 
     /**

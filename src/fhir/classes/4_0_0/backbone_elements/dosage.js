@@ -456,15 +456,15 @@ class Dosage extends Element {
      * @return {void}
      */
     async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) { async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) { async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.additionalInstruction) { async.each(this.additionalInstruction, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.additionalInstruction) {await async.each(this.additionalInstruction, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
             if (this.timing) {await this.timing.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.asNeededCodeableConcept) {await this.asNeededCodeableConcept.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.site) {await this.site.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.route) {await this.route.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.method) {await this.method.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.doseAndRate) { async.each(this.doseAndRate, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.doseAndRate) {await async.each(this.doseAndRate, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
             if (this.maxDosePerPeriod) {await this.maxDosePerPeriod.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.maxDosePerAdministration) {await this.maxDosePerAdministration.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.maxDosePerLifetime) {await this.maxDosePerLifetime.updateReferencesAsync({fnUpdateReferenceAsync});}

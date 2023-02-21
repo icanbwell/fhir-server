@@ -334,13 +334,13 @@ class SubstanceSourceMaterialOrganism extends Element {
      * @return {void}
      */
     async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) { async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) { async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
             if (this.family) {await this.family.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.genus) {await this.genus.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.species) {await this.species.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.intraspecificType) {await this.intraspecificType.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.author) { async.each(this.author, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.author) {await async.each(this.author, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
             if (this.hybrid) {await this.hybrid.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.organismGeneral) {await this.organismGeneral.updateReferencesAsync({fnUpdateReferenceAsync});}
     }

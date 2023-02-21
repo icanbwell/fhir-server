@@ -336,8 +336,8 @@ class SubstanceProteinSubunit extends Element {
      * @return {void}
      */
     async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) { async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) { async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
             if (this.sequenceAttachment) {await this.sequenceAttachment.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.nTerminalModificationId) {await this.nTerminalModificationId.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.cTerminalModificationId) {await this.cTerminalModificationId.updateReferencesAsync({fnUpdateReferenceAsync});}

@@ -695,16 +695,16 @@ class AuditEvent extends Resource {
     async updateReferencesAsync({fnUpdateReferenceAsync}) {
             if (this.meta) {await this.meta.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.text) {await this.text.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.contained) { async.each(this.contained, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.extension) { async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) { async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.contained) {await async.each(this.contained, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
             if (this.type) {await this.type.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.subtype) { async.each(this.subtype, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.subtype) {await async.each(this.subtype, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
             if (this.period) {await this.period.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.purposeOfEvent) { async.each(this.purposeOfEvent, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.agent) { async.each(this.agent, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.purposeOfEvent) {await async.each(this.purposeOfEvent, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.agent) {await async.each(this.agent, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
             if (this.source) {await this.source.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.entity) { async.each(this.entity, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.entity) {await async.each(this.entity, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
     }
 
     /**

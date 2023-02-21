@@ -607,17 +607,17 @@ class CarePlanDetail extends Element {
      * @return {void}
      */
     async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) { async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) { async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
             if (this.code) {await this.code.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.reasonCode) { async.each(this.reasonCode, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.reasonReference) { async.each(this.reasonReference, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.goal) { async.each(this.goal, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.reasonCode) {await async.each(this.reasonCode, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.reasonReference) {await async.each(this.reasonReference, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.goal) {await async.each(this.goal, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
             if (this.statusReason) {await this.statusReason.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.scheduledTiming) {await this.scheduledTiming.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.scheduledPeriod) {await this.scheduledPeriod.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.location) {await this.location.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.performer) { async.each(this.performer, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.performer) {await async.each(this.performer, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
             if (this.productCodeableConcept) {await this.productCodeableConcept.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.productReference) {await this.productReference.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.dailyAmount) {await this.dailyAmount.updateReferencesAsync({fnUpdateReferenceAsync});}

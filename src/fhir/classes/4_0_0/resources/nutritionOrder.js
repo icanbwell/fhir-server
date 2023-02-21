@@ -871,20 +871,20 @@ class NutritionOrder extends Resource {
     async updateReferencesAsync({fnUpdateReferenceAsync}) {
             if (this.meta) {await this.meta.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.text) {await this.text.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.contained) { async.each(this.contained, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.extension) { async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) { async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.identifier) { async.each(this.identifier, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.contained) {await async.each(this.contained, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.identifier) {await async.each(this.identifier, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
             if (this.patient) {await this.patient.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.encounter) {await this.encounter.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.orderer) {await this.orderer.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.allergyIntolerance) { async.each(this.allergyIntolerance, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.foodPreferenceModifier) { async.each(this.foodPreferenceModifier, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.excludeFoodModifier) { async.each(this.excludeFoodModifier, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.allergyIntolerance) {await async.each(this.allergyIntolerance, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.foodPreferenceModifier) {await async.each(this.foodPreferenceModifier, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.excludeFoodModifier) {await async.each(this.excludeFoodModifier, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
             if (this.oralDiet) {await this.oralDiet.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.supplement) { async.each(this.supplement, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.supplement) {await async.each(this.supplement, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
             if (this.enteralFormula) {await this.enteralFormula.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.note) { async.each(this.note, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.note) {await async.each(this.note, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
     }
 
     /**

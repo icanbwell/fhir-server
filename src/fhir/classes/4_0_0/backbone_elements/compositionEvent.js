@@ -215,11 +215,11 @@ class CompositionEvent extends Element {
      * @return {void}
      */
     async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) { async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) { async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.code) { async.each(this.code, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.code) {await async.each(this.code, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
             if (this.period) {await this.period.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.detail) { async.each(this.detail, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.detail) {await async.each(this.detail, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
     }
 
     /**

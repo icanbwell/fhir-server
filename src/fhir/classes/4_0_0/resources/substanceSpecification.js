@@ -903,22 +903,22 @@ class SubstanceSpecification extends Resource {
     async updateReferencesAsync({fnUpdateReferenceAsync}) {
             if (this.meta) {await this.meta.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.text) {await this.text.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.contained) { async.each(this.contained, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.extension) { async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) { async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.contained) {await async.each(this.contained, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
             if (this.identifier) {await this.identifier.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.type) {await this.type.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.status) {await this.status.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.domain) {await this.domain.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.source) { async.each(this.source, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.moiety) { async.each(this.moiety, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.property) { async.each(this.property, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.source) {await async.each(this.source, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.moiety) {await async.each(this.moiety, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.property) {await async.each(this.property, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
             if (this.referenceInformation) {await this.referenceInformation.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.structure) {await this.structure.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.code) { async.each(this.code, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.name) { async.each(this.name, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.molecularWeight) { async.each(this.molecularWeight, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.relationship) { async.each(this.relationship, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.code) {await async.each(this.code, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.name) {await async.each(this.name, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.molecularWeight) {await async.each(this.molecularWeight, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.relationship) {await async.each(this.relationship, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
             if (this.nucleicAcid) {await this.nucleicAcid.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.polymer) {await this.polymer.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.protein) {await this.protein.updateReferencesAsync({fnUpdateReferenceAsync});}

@@ -4630,12 +4630,12 @@ class ElementDefinition extends Element {
      * @return {void}
      */
     async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) { async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) { async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.code) { async.each(this.code, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.code) {await async.each(this.code, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
             if (this.slicing) {await this.slicing.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.base) {await this.base.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.type) { async.each(this.type, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.type) {await async.each(this.type, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
             if (this.defaultValueAddress) {await this.defaultValueAddress.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.defaultValueAge) {await this.defaultValueAge.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.defaultValueAnnotation) {await this.defaultValueAnnotation.updateReferencesAsync({fnUpdateReferenceAsync});}
@@ -4729,12 +4729,12 @@ class ElementDefinition extends Element {
             if (this.patternUsageContext) {await this.patternUsageContext.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.patternDosage) {await this.patternDosage.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.patternMeta) {await this.patternMeta.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.example) { async.each(this.example, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.example) {await async.each(this.example, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
             if (this.minValueQuantity) {await this.minValueQuantity.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.maxValueQuantity) {await this.maxValueQuantity.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.constraint) { async.each(this.constraint, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.constraint) {await async.each(this.constraint, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
             if (this.binding) {await this.binding.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.mapping) { async.each(this.mapping, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.mapping) {await async.each(this.mapping, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
     }
 
     /**

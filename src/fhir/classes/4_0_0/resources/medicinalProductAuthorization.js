@@ -827,18 +827,18 @@ class MedicinalProductAuthorization extends Resource {
     async updateReferencesAsync({fnUpdateReferenceAsync}) {
             if (this.meta) {await this.meta.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.text) {await this.text.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.contained) { async.each(this.contained, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.extension) { async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) { async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.identifier) { async.each(this.identifier, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.contained) {await async.each(this.contained, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.identifier) {await async.each(this.identifier, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
             if (this.subject) {await this.subject.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.country) { async.each(this.country, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.jurisdiction) { async.each(this.jurisdiction, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.country) {await async.each(this.country, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.jurisdiction) {await async.each(this.jurisdiction, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
             if (this.status) {await this.status.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.validityPeriod) {await this.validityPeriod.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.dataExclusivityPeriod) {await this.dataExclusivityPeriod.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.legalBasis) {await this.legalBasis.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.jurisdictionalAuthorization) { async.each(this.jurisdictionalAuthorization, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.jurisdictionalAuthorization) {await async.each(this.jurisdictionalAuthorization, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
             if (this.holder) {await this.holder.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.regulator) {await this.regulator.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.procedure) {await this.procedure.updateReferencesAsync({fnUpdateReferenceAsync});}

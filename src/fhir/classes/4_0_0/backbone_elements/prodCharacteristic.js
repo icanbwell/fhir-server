@@ -407,15 +407,15 @@ class ProdCharacteristic extends Element {
      * @return {void}
      */
     async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) { async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) { async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
             if (this.height) {await this.height.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.width) {await this.width.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.depth) {await this.depth.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.weight) {await this.weight.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.nominalVolume) {await this.nominalVolume.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.externalDiameter) {await this.externalDiameter.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.image) { async.each(this.image, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.image) {await async.each(this.image, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
             if (this.scoring) {await this.scoring.updateReferencesAsync({fnUpdateReferenceAsync});}
     }
 

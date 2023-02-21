@@ -563,14 +563,14 @@ class SubstancePolymer extends Resource {
     async updateReferencesAsync({fnUpdateReferenceAsync}) {
             if (this.meta) {await this.meta.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.text) {await this.text.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.contained) { async.each(this.contained, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.extension) { async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) { async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.contained) {await async.each(this.contained, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.modifierExtension) {await async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
             if (this.class) {await this.class.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.geometry) {await this.geometry.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.copolymerConnectivity) { async.each(this.copolymerConnectivity, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.monomerSet) { async.each(this.monomerSet, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
-            if (this.repeat) { async.each(this.repeat, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.copolymerConnectivity) {await async.each(this.copolymerConnectivity, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.monomerSet) {await async.each(this.monomerSet, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.repeat) {await async.each(this.repeat, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
     }
 
     /**

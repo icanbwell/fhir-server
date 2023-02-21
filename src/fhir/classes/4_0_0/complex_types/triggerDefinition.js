@@ -284,10 +284,10 @@ class TriggerDefinition extends Element {
      * @return {void}
      */
     async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) { async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.extension) {await async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
             if (this.timingTiming) {await this.timingTiming.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.timingReference) {await this.timingReference.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.data) { async.each(this.data, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.data) {await async.each(this.data, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
             if (this.condition) {await this.condition.updateReferencesAsync({fnUpdateReferenceAsync});}
     }
 
