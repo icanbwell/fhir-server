@@ -19,6 +19,7 @@ const graphProxyPatientDefinitionResource = require('./fixtures/graph/my_graph_p
 
 // expected
 const expectedResource = require('./fixtures/expected/expected.json');
+const expectedResourceWithoutSourceAssigningAuthority = require('./fixtures/expected/expected_without_sourceAssigningAuthority.json');
 const expectedPersonsInDatabase = require('./fixtures/expected/expected_persons_in_database.json');
 const expectedPersonsInDatabaseWithoutSourceAssigningAuthority = require('./fixtures/expected/expected_persons_in_database_without_sourceAssigningAuthority.json');
 const expectedPatientsInDatabase = require('./fixtures/expected/expected_patients_in_database.json');
@@ -184,7 +185,7 @@ describe('Person Tests', () => {
                 .set(getHeaders())
                 .send(graphDefinitionResource);
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse(expectedResource);
+            expect(resp).toHaveResponse(expectedResourceWithoutSourceAssigningAuthority);
         });
         test('graph_person_to_patient_to_task works (with proxy patient)', async () => {
             const request = await createTestRequest();
