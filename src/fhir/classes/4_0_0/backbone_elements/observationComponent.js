@@ -476,8 +476,8 @@ class ObservationComponent extends Element {
      * @return {void}
      */
     async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) { async.each(this.extension, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) { async.each(this.modifierExtension, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
+            if (this.extension) { async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.modifierExtension) { async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
             if (this.code) {await this.code.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.valueQuantity) {await this.valueQuantity.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.valueCodeableConcept) {await this.valueCodeableConcept.updateReferencesAsync({fnUpdateReferenceAsync});}
@@ -486,8 +486,8 @@ class ObservationComponent extends Element {
             if (this.valueSampledData) {await this.valueSampledData.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.valuePeriod) {await this.valuePeriod.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.dataAbsentReason) {await this.dataAbsentReason.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.interpretation) { async.each(this.interpretation, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
-            if (this.referenceRange) { async.each(this.referenceRange, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
+            if (this.interpretation) { async.each(this.interpretation, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.referenceRange) { async.each(this.referenceRange, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
     }
 
     /**

@@ -229,11 +229,11 @@ class InvoiceLineItem extends Element {
      * @return {void}
      */
     async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) { async.each(this.extension, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) { async.each(this.modifierExtension, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
+            if (this.extension) { async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.modifierExtension) { async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
             if (this.chargeItemReference) {await this.chargeItemReference.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.chargeItemCodeableConcept) {await this.chargeItemCodeableConcept.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.priceComponent) { async.each(this.priceComponent, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
+            if (this.priceComponent) { async.each(this.priceComponent, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
     }
 
     /**

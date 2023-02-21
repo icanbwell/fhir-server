@@ -591,16 +591,16 @@ class MedicinalProductPharmaceutical extends Resource {
     async updateReferencesAsync({fnUpdateReferenceAsync}) {
             if (this.meta) {await this.meta.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.text) {await this.text.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.contained) { async.each(this.contained, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
-            if (this.extension) { async.each(this.extension, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) { async.each(this.modifierExtension, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
-            if (this.identifier) { async.each(this.identifier, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
+            if (this.contained) { async.each(this.contained, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.extension) { async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.modifierExtension) { async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.identifier) { async.each(this.identifier, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
             if (this.administrableDoseForm) {await this.administrableDoseForm.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.unitOfPresentation) {await this.unitOfPresentation.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.ingredient) { async.each(this.ingredient, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
-            if (this.device) { async.each(this.device, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
-            if (this.characteristics) { async.each(this.characteristics, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
-            if (this.routeOfAdministration) { async.each(this.routeOfAdministration, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
+            if (this.ingredient) { async.each(this.ingredient, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.device) { async.each(this.device, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.characteristics) { async.each(this.characteristics, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.routeOfAdministration) { async.each(this.routeOfAdministration, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
     }
 
     /**

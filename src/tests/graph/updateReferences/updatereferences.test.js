@@ -42,7 +42,7 @@ describe('UpdateReferences Tests', () => {
 
             /**
              * @param {Reference} reference
-             * @return {Reference}
+             * @return {Promise<Reference>}
              */
             async function fnUpdateReferenceAsync(reference) {
                 logInfo('', {reference});

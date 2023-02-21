@@ -244,9 +244,9 @@ class Meta extends Element {
      * @return {void}
      */
     async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) { async.each(this.extension, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
-            if (this.security) { async.each(this.security, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
-            if (this.tag) { async.each(this.tag, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
+            if (this.extension) { async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.security) { async.each(this.security, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.tag) { async.each(this.tag, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
     }
 
     /**

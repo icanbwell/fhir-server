@@ -1226,13 +1226,13 @@ class Task extends Resource {
     async updateReferencesAsync({fnUpdateReferenceAsync}) {
             if (this.meta) {await this.meta.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.text) {await this.text.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.contained) { async.each(this.contained, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
-            if (this.extension) { async.each(this.extension, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) { async.each(this.modifierExtension, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
-            if (this.identifier) { async.each(this.identifier, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
-            if (this.basedOn) { async.each(this.basedOn, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
+            if (this.contained) { async.each(this.contained, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.extension) { async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.modifierExtension) { async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.identifier) { async.each(this.identifier, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.basedOn) { async.each(this.basedOn, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
             if (this.groupIdentifier) {await this.groupIdentifier.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.partOf) { async.each(this.partOf, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
+            if (this.partOf) { async.each(this.partOf, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
             if (this.statusReason) {await this.statusReason.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.businessStatus) {await this.businessStatus.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.code) {await this.code.updateReferencesAsync({fnUpdateReferenceAsync});}
@@ -1241,17 +1241,17 @@ class Task extends Resource {
             if (this.encounter) {await this.encounter.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.executionPeriod) {await this.executionPeriod.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.requester) {await this.requester.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.performerType) { async.each(this.performerType, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
+            if (this.performerType) { async.each(this.performerType, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
             if (this.owner) {await this.owner.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.location) {await this.location.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.reasonCode) {await this.reasonCode.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.reasonReference) {await this.reasonReference.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.insurance) { async.each(this.insurance, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
-            if (this.note) { async.each(this.note, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
-            if (this.relevantHistory) { async.each(this.relevantHistory, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
+            if (this.insurance) { async.each(this.insurance, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.note) { async.each(this.note, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.relevantHistory) { async.each(this.relevantHistory, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
             if (this.restriction) {await this.restriction.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.input) { async.each(this.input, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
-            if (this.output) { async.each(this.output, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
+            if (this.input) { async.each(this.input, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.output) { async.each(this.output, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
     }
 
     /**

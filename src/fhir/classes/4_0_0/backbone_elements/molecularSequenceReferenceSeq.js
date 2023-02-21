@@ -349,8 +349,8 @@ class MolecularSequenceReferenceSeq extends Element {
      * @return {void}
      */
     async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) { async.each(this.extension, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) { async.each(this.modifierExtension, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
+            if (this.extension) { async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.modifierExtension) { async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
             if (this.chromosome) {await this.chromosome.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.referenceSeqId) {await this.referenceSeqId.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.referenceSeqPointer) {await this.referenceSeqPointer.updateReferencesAsync({fnUpdateReferenceAsync});}

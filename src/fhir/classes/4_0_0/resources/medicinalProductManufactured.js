@@ -593,16 +593,16 @@ class MedicinalProductManufactured extends Resource {
     async updateReferencesAsync({fnUpdateReferenceAsync}) {
             if (this.meta) {await this.meta.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.text) {await this.text.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.contained) { async.each(this.contained, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
-            if (this.extension) { async.each(this.extension, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) { async.each(this.modifierExtension, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
+            if (this.contained) { async.each(this.contained, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.extension) { async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.modifierExtension) { async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
             if (this.manufacturedDoseForm) {await this.manufacturedDoseForm.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.unitOfPresentation) {await this.unitOfPresentation.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.quantity) {await this.quantity.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.manufacturer) { async.each(this.manufacturer, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
-            if (this.ingredient) { async.each(this.ingredient, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
+            if (this.manufacturer) { async.each(this.manufacturer, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.ingredient) { async.each(this.ingredient, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
             if (this.physicalCharacteristics) {await this.physicalCharacteristics.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.otherCharacteristics) { async.each(this.otherCharacteristics, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
+            if (this.otherCharacteristics) { async.each(this.otherCharacteristics, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
     }
 
     /**

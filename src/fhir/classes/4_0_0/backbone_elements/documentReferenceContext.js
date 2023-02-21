@@ -304,15 +304,15 @@ class DocumentReferenceContext extends Element {
      * @return {void}
      */
     async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) { async.each(this.extension, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) { async.each(this.modifierExtension, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
-            if (this.encounter) { async.each(this.encounter, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
-            if (this.event) { async.each(this.event, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
+            if (this.extension) { async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.modifierExtension) { async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.encounter) { async.each(this.encounter, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.event) { async.each(this.event, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
             if (this.period) {await this.period.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.facilityType) {await this.facilityType.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.practiceSetting) {await this.practiceSetting.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.sourcePatientInfo) {await this.sourcePatientInfo.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.related) { async.each(this.related, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
+            if (this.related) { async.each(this.related, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
     }
 
     /**

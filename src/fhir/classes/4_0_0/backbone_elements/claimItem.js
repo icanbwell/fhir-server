@@ -691,13 +691,13 @@ class ClaimItem extends Element {
      * @return {void}
      */
     async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) { async.each(this.extension, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) { async.each(this.modifierExtension, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
+            if (this.extension) { async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.modifierExtension) { async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
             if (this.revenue) {await this.revenue.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.category) {await this.category.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.productOrService) {await this.productOrService.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.modifier) { async.each(this.modifier, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
-            if (this.programCode) { async.each(this.programCode, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
+            if (this.modifier) { async.each(this.modifier, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.programCode) { async.each(this.programCode, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
             if (this.servicedPeriod) {await this.servicedPeriod.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.locationCodeableConcept) {await this.locationCodeableConcept.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.locationAddress) {await this.locationAddress.updateReferencesAsync({fnUpdateReferenceAsync});}
@@ -705,11 +705,11 @@ class ClaimItem extends Element {
             if (this.quantity) {await this.quantity.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.unitPrice) {await this.unitPrice.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.net) {await this.net.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.udi) { async.each(this.udi, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
+            if (this.udi) { async.each(this.udi, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
             if (this.bodySite) {await this.bodySite.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.subSite) { async.each(this.subSite, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
-            if (this.encounter) { async.each(this.encounter, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
-            if (this.detail) { async.each(this.detail, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
+            if (this.subSite) { async.each(this.subSite, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.encounter) { async.each(this.encounter, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.detail) { async.each(this.detail, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
     }
 
     /**

@@ -299,7 +299,7 @@ class Parameters extends Resource {
      */
     async updateReferencesAsync({fnUpdateReferenceAsync}) {
             if (this.meta) {await this.meta.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.parameter) { async.each(this.parameter, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
+            if (this.parameter) { async.each(this.parameter, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
     }
 
     /**

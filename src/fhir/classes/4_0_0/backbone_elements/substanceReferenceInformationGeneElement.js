@@ -201,11 +201,11 @@ class SubstanceReferenceInformationGeneElement extends Element {
      * @return {void}
      */
     async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) { async.each(this.extension, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) { async.each(this.modifierExtension, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
+            if (this.extension) { async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.modifierExtension) { async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
             if (this.type) {await this.type.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.element) {await this.element.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.source) { async.each(this.source, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
+            if (this.source) { async.each(this.source, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
     }
 
     /**

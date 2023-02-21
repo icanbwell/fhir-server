@@ -246,12 +246,12 @@ class SubstancePolymerRepeatUnit extends Element {
      * @return {void}
      */
     async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) { async.each(this.extension, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) { async.each(this.modifierExtension, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
+            if (this.extension) { async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.modifierExtension) { async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
             if (this.orientationOfPolymerisation) {await this.orientationOfPolymerisation.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.amount) {await this.amount.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.degreeOfPolymerisation) { async.each(this.degreeOfPolymerisation, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
-            if (this.structuralRepresentation) { async.each(this.structuralRepresentation, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
+            if (this.degreeOfPolymerisation) { async.each(this.degreeOfPolymerisation, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.structuralRepresentation) { async.each(this.structuralRepresentation, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
     }
 
     /**

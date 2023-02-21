@@ -254,13 +254,13 @@ class ImplementationGuideDefinition extends Element {
      * @return {void}
      */
     async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) { async.each(this.extension, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) { async.each(this.modifierExtension, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
-            if (this.grouping) { async.each(this.grouping, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
-            if (this.resource) { async.each(this.resource, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
+            if (this.extension) { async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.modifierExtension) { async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.grouping) { async.each(this.grouping, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.resource) { async.each(this.resource, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
             if (this.page) {await this.page.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.parameter) { async.each(this.parameter, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
-            if (this.template) { async.each(this.template, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
+            if (this.parameter) { async.each(this.parameter, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.template) { async.each(this.template, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
     }
 
     /**

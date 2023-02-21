@@ -227,8 +227,8 @@ class SpecimenDefinitionHandling extends Element {
      * @return {void}
      */
     async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) { async.each(this.extension, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) { async.each(this.modifierExtension, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
+            if (this.extension) { async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.modifierExtension) { async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
             if (this.temperatureQualifier) {await this.temperatureQualifier.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.temperatureRange) {await this.temperatureRange.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.maxDuration) {await this.maxDuration.updateReferencesAsync({fnUpdateReferenceAsync});}

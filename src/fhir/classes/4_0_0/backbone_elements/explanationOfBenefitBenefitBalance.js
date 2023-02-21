@@ -319,13 +319,13 @@ class ExplanationOfBenefitBenefitBalance extends Element {
      * @return {void}
      */
     async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) { async.each(this.extension, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) { async.each(this.modifierExtension, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
+            if (this.extension) { async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.modifierExtension) { async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
             if (this.category) {await this.category.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.network) {await this.network.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.unit) {await this.unit.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.term) {await this.term.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.financial) { async.each(this.financial, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
+            if (this.financial) { async.each(this.financial, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
     }
 
     /**

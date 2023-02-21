@@ -238,7 +238,7 @@ class Identifier extends Element {
      * @return {void}
      */
     async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) { async.each(this.extension, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
+            if (this.extension) { async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
             if (this.type) {await this.type.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.period) {await this.period.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.assigner) {await this.assigner.updateReferencesAsync({fnUpdateReferenceAsync});}

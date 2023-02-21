@@ -698,13 +698,13 @@ class Slot extends Resource {
     async updateReferencesAsync({fnUpdateReferenceAsync}) {
             if (this.meta) {await this.meta.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.text) {await this.text.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.contained) { async.each(this.contained, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
-            if (this.extension) { async.each(this.extension, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) { async.each(this.modifierExtension, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
-            if (this.identifier) { async.each(this.identifier, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
-            if (this.serviceCategory) { async.each(this.serviceCategory, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
-            if (this.serviceType) { async.each(this.serviceType, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
-            if (this.specialty) { async.each(this.specialty, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
+            if (this.contained) { async.each(this.contained, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.extension) { async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.modifierExtension) { async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.identifier) { async.each(this.identifier, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.serviceCategory) { async.each(this.serviceCategory, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.serviceType) { async.each(this.serviceType, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.specialty) { async.each(this.specialty, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
             if (this.appointmentType) {await this.appointmentType.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.schedule) {await this.schedule.updateReferencesAsync({fnUpdateReferenceAsync});}
     }

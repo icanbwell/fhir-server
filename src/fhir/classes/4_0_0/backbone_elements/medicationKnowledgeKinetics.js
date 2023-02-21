@@ -202,10 +202,10 @@ class MedicationKnowledgeKinetics extends Element {
      * @return {void}
      */
     async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) { async.each(this.extension, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) { async.each(this.modifierExtension, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
-            if (this.areaUnderCurve) { async.each(this.areaUnderCurve, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
-            if (this.lethalDose50) { async.each(this.lethalDose50, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
+            if (this.extension) { async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.modifierExtension) { async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.areaUnderCurve) { async.each(this.areaUnderCurve, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.lethalDose50) { async.each(this.lethalDose50, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
             if (this.halfLifePeriod) {await this.halfLifePeriod.updateReferencesAsync({fnUpdateReferenceAsync});}
     }
 

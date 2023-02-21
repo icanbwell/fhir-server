@@ -747,12 +747,12 @@ class SupplyDelivery extends Resource {
     async updateReferencesAsync({fnUpdateReferenceAsync}) {
             if (this.meta) {await this.meta.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.text) {await this.text.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.contained) { async.each(this.contained, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
-            if (this.extension) { async.each(this.extension, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) { async.each(this.modifierExtension, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
-            if (this.identifier) { async.each(this.identifier, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
-            if (this.basedOn) { async.each(this.basedOn, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
-            if (this.partOf) { async.each(this.partOf, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
+            if (this.contained) { async.each(this.contained, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.extension) { async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.modifierExtension) { async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.identifier) { async.each(this.identifier, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.basedOn) { async.each(this.basedOn, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.partOf) { async.each(this.partOf, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
             if (this.patient) {await this.patient.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.type) {await this.type.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.suppliedItem) {await this.suppliedItem.updateReferencesAsync({fnUpdateReferenceAsync});}
@@ -760,7 +760,7 @@ class SupplyDelivery extends Resource {
             if (this.occurrenceTiming) {await this.occurrenceTiming.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.supplier) {await this.supplier.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.destination) {await this.destination.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.receiver) { async.each(this.receiver, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
+            if (this.receiver) { async.each(this.receiver, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
     }
 
     /**

@@ -228,8 +228,8 @@ class MedicationIngredient extends Element {
      * @return {void}
      */
     async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) { async.each(this.extension, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) { async.each(this.modifierExtension, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
+            if (this.extension) { async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.modifierExtension) { async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
             if (this.itemCodeableConcept) {await this.itemCodeableConcept.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.itemReference) {await this.itemReference.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.strength) {await this.strength.updateReferencesAsync({fnUpdateReferenceAsync});}

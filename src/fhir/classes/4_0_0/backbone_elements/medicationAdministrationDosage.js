@@ -309,8 +309,8 @@ class MedicationAdministrationDosage extends Element {
      * @return {void}
      */
     async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) { async.each(this.extension, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) { async.each(this.modifierExtension, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
+            if (this.extension) { async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.modifierExtension) { async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
             if (this.site) {await this.site.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.route) {await this.route.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.method) {await this.method.updateReferencesAsync({fnUpdateReferenceAsync});}

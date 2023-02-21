@@ -434,19 +434,19 @@ class ContractTerm extends Element {
      * @return {void}
      */
     async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) { async.each(this.extension, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) { async.each(this.modifierExtension, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
+            if (this.extension) { async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.modifierExtension) { async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
             if (this.identifier) {await this.identifier.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.applies) {await this.applies.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.topicCodeableConcept) {await this.topicCodeableConcept.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.topicReference) {await this.topicReference.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.type) {await this.type.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.subType) {await this.subType.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.securityLabel) { async.each(this.securityLabel, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
+            if (this.securityLabel) { async.each(this.securityLabel, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
             if (this.offer) {await this.offer.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.asset) { async.each(this.asset, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
-            if (this.action) { async.each(this.action, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
-            if (this.group) { async.each(this.group, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
+            if (this.asset) { async.each(this.asset, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.action) { async.each(this.action, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.group) { async.each(this.group, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
     }
 
     /**

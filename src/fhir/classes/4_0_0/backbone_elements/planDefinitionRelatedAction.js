@@ -225,8 +225,8 @@ class PlanDefinitionRelatedAction extends Element {
      * @return {void}
      */
     async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) { async.each(this.extension, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) { async.each(this.modifierExtension, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
+            if (this.extension) { async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.modifierExtension) { async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
             if (this.offsetDuration) {await this.offsetDuration.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.offsetRange) {await this.offsetRange.updateReferencesAsync({fnUpdateReferenceAsync});}
     }

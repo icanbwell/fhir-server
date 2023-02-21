@@ -751,20 +751,20 @@ class Specimen extends Resource {
     async updateReferencesAsync({fnUpdateReferenceAsync}) {
             if (this.meta) {await this.meta.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.text) {await this.text.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.contained) { async.each(this.contained, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
-            if (this.extension) { async.each(this.extension, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) { async.each(this.modifierExtension, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
-            if (this.identifier) { async.each(this.identifier, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
+            if (this.contained) { async.each(this.contained, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.extension) { async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.modifierExtension) { async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.identifier) { async.each(this.identifier, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
             if (this.accessionIdentifier) {await this.accessionIdentifier.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.type) {await this.type.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.subject) {await this.subject.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.parent) { async.each(this.parent, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
-            if (this.request) { async.each(this.request, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
+            if (this.parent) { async.each(this.parent, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.request) { async.each(this.request, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
             if (this.collection) {await this.collection.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.processing) { async.each(this.processing, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
-            if (this.container) { async.each(this.container, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
-            if (this.condition) { async.each(this.condition, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
-            if (this.note) { async.each(this.note, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
+            if (this.processing) { async.each(this.processing, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.container) { async.each(this.container, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.condition) { async.each(this.condition, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.note) { async.each(this.note, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
     }
 
     /**

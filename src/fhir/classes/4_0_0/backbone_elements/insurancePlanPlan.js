@@ -271,14 +271,14 @@ class InsurancePlanPlan extends Element {
      * @return {void}
      */
     async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) { async.each(this.extension, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) { async.each(this.modifierExtension, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
-            if (this.identifier) { async.each(this.identifier, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
+            if (this.extension) { async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.modifierExtension) { async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.identifier) { async.each(this.identifier, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
             if (this.type) {await this.type.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.coverageArea) { async.each(this.coverageArea, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
-            if (this.network) { async.each(this.network, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
-            if (this.generalCost) { async.each(this.generalCost, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
-            if (this.specificCost) { async.each(this.specificCost, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
+            if (this.coverageArea) { async.each(this.coverageArea, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.network) { async.each(this.network, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.generalCost) { async.each(this.generalCost, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.specificCost) { async.each(this.specificCost, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
     }
 
     /**

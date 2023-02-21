@@ -458,17 +458,17 @@ class CoverageEligibilityResponseItem extends Element {
      * @return {void}
      */
     async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) { async.each(this.extension, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) { async.each(this.modifierExtension, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
+            if (this.extension) { async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.modifierExtension) { async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
             if (this.category) {await this.category.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.productOrService) {await this.productOrService.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.modifier) { async.each(this.modifier, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
+            if (this.modifier) { async.each(this.modifier, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
             if (this.provider) {await this.provider.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.network) {await this.network.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.unit) {await this.unit.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.term) {await this.term.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.benefit) { async.each(this.benefit, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
-            if (this.authorizationSupporting) { async.each(this.authorizationSupporting, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
+            if (this.benefit) { async.each(this.benefit, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.authorizationSupporting) { async.each(this.authorizationSupporting, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
     }
 
     /**

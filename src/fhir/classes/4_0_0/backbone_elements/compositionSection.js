@@ -385,16 +385,16 @@ class CompositionSection extends Element {
      * @return {void}
      */
     async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) { async.each(this.extension, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) { async.each(this.modifierExtension, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
+            if (this.extension) { async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.modifierExtension) { async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
             if (this.code) {await this.code.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.author) { async.each(this.author, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
+            if (this.author) { async.each(this.author, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
             if (this.focus) {await this.focus.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.text) {await this.text.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.orderedBy) {await this.orderedBy.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.entry) { async.each(this.entry, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
+            if (this.entry) { async.each(this.entry, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
             if (this.emptyReason) {await this.emptyReason.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.section) { async.each(this.section, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
+            if (this.section) { async.each(this.section, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
     }
 
     /**

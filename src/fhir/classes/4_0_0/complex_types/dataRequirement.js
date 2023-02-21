@@ -319,12 +319,12 @@ class DataRequirement extends Element {
      * @return {void}
      */
     async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) { async.each(this.extension, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
+            if (this.extension) { async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
             if (this.subjectCodeableConcept) {await this.subjectCodeableConcept.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.subjectReference) {await this.subjectReference.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.codeFilter) { async.each(this.codeFilter, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
-            if (this.dateFilter) { async.each(this.dateFilter, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
-            if (this.sort) { async.each(this.sort, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
+            if (this.codeFilter) { async.each(this.codeFilter, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.dateFilter) { async.each(this.dateFilter, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.sort) { async.each(this.sort, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
     }
 
     /**

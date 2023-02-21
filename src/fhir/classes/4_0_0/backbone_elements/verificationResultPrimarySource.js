@@ -297,14 +297,14 @@ class VerificationResultPrimarySource extends Element {
      * @return {void}
      */
     async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) { async.each(this.extension, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) { async.each(this.modifierExtension, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
+            if (this.extension) { async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.modifierExtension) { async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
             if (this.who) {await this.who.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.type) { async.each(this.type, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
-            if (this.communicationMethod) { async.each(this.communicationMethod, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
+            if (this.type) { async.each(this.type, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.communicationMethod) { async.each(this.communicationMethod, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
             if (this.validationStatus) {await this.validationStatus.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.canPushUpdates) {await this.canPushUpdates.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.pushTypeAvailable) { async.each(this.pushTypeAvailable, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
+            if (this.pushTypeAvailable) { async.each(this.pushTypeAvailable, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
     }
 
     /**

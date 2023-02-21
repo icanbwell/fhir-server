@@ -186,10 +186,10 @@ class ChargeItemDefinitionPropertyGroup extends Element {
      * @return {void}
      */
     async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) { async.each(this.extension, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) { async.each(this.modifierExtension, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
-            if (this.applicability) { async.each(this.applicability, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
-            if (this.priceComponent) { async.each(this.priceComponent, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
+            if (this.extension) { async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.modifierExtension) { async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.applicability) { async.each(this.applicability, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.priceComponent) { async.each(this.priceComponent, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
     }
 
     /**

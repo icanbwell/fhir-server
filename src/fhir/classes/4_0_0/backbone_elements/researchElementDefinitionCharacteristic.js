@@ -609,12 +609,12 @@ class ResearchElementDefinitionCharacteristic extends Element {
      * @return {void}
      */
     async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) { async.each(this.extension, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) { async.each(this.modifierExtension, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
+            if (this.extension) { async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.modifierExtension) { async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
             if (this.definitionCodeableConcept) {await this.definitionCodeableConcept.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.definitionExpression) {await this.definitionExpression.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.definitionDataRequirement) {await this.definitionDataRequirement.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.usageContext) { async.each(this.usageContext, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
+            if (this.usageContext) { async.each(this.usageContext, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
             if (this.unitOfMeasure) {await this.unitOfMeasure.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.studyEffectivePeriod) {await this.studyEffectivePeriod.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.studyEffectiveDuration) {await this.studyEffectiveDuration.updateReferencesAsync({fnUpdateReferenceAsync});}

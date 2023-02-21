@@ -348,15 +348,15 @@ class ExplanationOfBenefitDetail1 extends Element {
      * @return {void}
      */
     async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) { async.each(this.extension, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) { async.each(this.modifierExtension, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
+            if (this.extension) { async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.modifierExtension) { async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
             if (this.productOrService) {await this.productOrService.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.modifier) { async.each(this.modifier, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
+            if (this.modifier) { async.each(this.modifier, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
             if (this.quantity) {await this.quantity.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.unitPrice) {await this.unitPrice.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.net) {await this.net.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.adjudication) { async.each(this.adjudication, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
-            if (this.subDetail) { async.each(this.subDetail, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
+            if (this.adjudication) { async.each(this.adjudication, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.subDetail) { async.each(this.subDetail, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
     }
 
     /**

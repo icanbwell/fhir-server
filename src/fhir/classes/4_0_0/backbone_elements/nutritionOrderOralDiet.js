@@ -277,13 +277,13 @@ class NutritionOrderOralDiet extends Element {
      * @return {void}
      */
     async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) { async.each(this.extension, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) { async.each(this.modifierExtension, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
-            if (this.type) { async.each(this.type, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
-            if (this.schedule) { async.each(this.schedule, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
-            if (this.nutrient) { async.each(this.nutrient, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
-            if (this.texture) { async.each(this.texture, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
-            if (this.fluidConsistencyType) { async.each(this.fluidConsistencyType, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
+            if (this.extension) { async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.modifierExtension) { async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.type) { async.each(this.type, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.schedule) { async.each(this.schedule, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.nutrient) { async.each(this.nutrient, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.texture) { async.each(this.texture, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.fluidConsistencyType) { async.each(this.fluidConsistencyType, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
     }
 
     /**

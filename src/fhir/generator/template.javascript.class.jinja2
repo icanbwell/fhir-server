@@ -395,7 +395,7 @@ class {{ fhir_entity.cleaned_name }} extends Element {
 {% for property in fhir_entity.properties %}
     {%  if property.is_resource or property.is_extension or property.cleaned_type == "ResourceContainer" or property.fhir_type == "BackboneElement" or property.is_complex or property.fhir_type == "Element" %}
         {% if property.is_list %}
-            if (this.{{ property.name }}) { async.each(this.{{ property.name -}}, async v =>  await v.updateReferences({fnUpdateReferenceAsync}));}
+            if (this.{{ property.name }}) { async.each(this.{{ property.name -}}, async v =>  await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
         {%  else %}
             if (this.{{ property.name }}) {await this.{{ property.name -}}.updateReferencesAsync({fnUpdateReferenceAsync});}
         {% endif %}

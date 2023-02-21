@@ -674,16 +674,16 @@ class Practitioner extends Resource {
     async updateReferencesAsync({fnUpdateReferenceAsync}) {
             if (this.meta) {await this.meta.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.text) {await this.text.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.contained) { async.each(this.contained, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
-            if (this.extension) { async.each(this.extension, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) { async.each(this.modifierExtension, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
-            if (this.identifier) { async.each(this.identifier, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
-            if (this.name) { async.each(this.name, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
-            if (this.telecom) { async.each(this.telecom, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
-            if (this.address) { async.each(this.address, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
-            if (this.photo) { async.each(this.photo, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
-            if (this.qualification) { async.each(this.qualification, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
-            if (this.communication) { async.each(this.communication, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
+            if (this.contained) { async.each(this.contained, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.extension) { async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.modifierExtension) { async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.identifier) { async.each(this.identifier, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.name) { async.each(this.name, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.telecom) { async.each(this.telecom, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.address) { async.each(this.address, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.photo) { async.each(this.photo, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.qualification) { async.each(this.qualification, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.communication) { async.each(this.communication, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
     }
 
     /**

@@ -341,15 +341,15 @@ class EncounterHospitalization extends Element {
      * @return {void}
      */
     async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) { async.each(this.extension, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) { async.each(this.modifierExtension, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
+            if (this.extension) { async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.modifierExtension) { async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
             if (this.preAdmissionIdentifier) {await this.preAdmissionIdentifier.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.origin) {await this.origin.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.admitSource) {await this.admitSource.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.reAdmission) {await this.reAdmission.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.dietPreference) { async.each(this.dietPreference, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
-            if (this.specialCourtesy) { async.each(this.specialCourtesy, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
-            if (this.specialArrangement) { async.each(this.specialArrangement, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
+            if (this.dietPreference) { async.each(this.dietPreference, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.specialCourtesy) { async.each(this.specialCourtesy, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.specialArrangement) { async.each(this.specialArrangement, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
             if (this.destination) {await this.destination.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.dischargeDisposition) {await this.dischargeDisposition.updateReferencesAsync({fnUpdateReferenceAsync});}
     }

@@ -285,12 +285,12 @@ class ObservationReferenceRange extends Element {
      * @return {void}
      */
     async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) { async.each(this.extension, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) { async.each(this.modifierExtension, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
+            if (this.extension) { async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.modifierExtension) { async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
             if (this.low) {await this.low.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.high) {await this.high.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.type) {await this.type.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.appliesTo) { async.each(this.appliesTo, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
+            if (this.appliesTo) { async.each(this.appliesTo, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
             if (this.age) {await this.age.updateReferencesAsync({fnUpdateReferenceAsync});}
     }
 

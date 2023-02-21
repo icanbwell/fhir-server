@@ -246,12 +246,12 @@ class MedicinalProductIngredientReferenceStrength extends Element {
      * @return {void}
      */
     async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) { async.each(this.extension, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) { async.each(this.modifierExtension, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
+            if (this.extension) { async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.modifierExtension) { async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
             if (this.substance) {await this.substance.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.strength) {await this.strength.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.strengthLowLimit) {await this.strengthLowLimit.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.country) { async.each(this.country, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
+            if (this.country) { async.each(this.country, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
     }
 
     /**

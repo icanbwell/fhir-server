@@ -479,19 +479,19 @@ class ContractAsset extends Element {
      * @return {void}
      */
     async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) { async.each(this.extension, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) { async.each(this.modifierExtension, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
+            if (this.extension) { async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.modifierExtension) { async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
             if (this.scope) {await this.scope.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.type) { async.each(this.type, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
-            if (this.typeReference) { async.each(this.typeReference, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
-            if (this.subtype) { async.each(this.subtype, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
+            if (this.type) { async.each(this.type, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.typeReference) { async.each(this.typeReference, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.subtype) { async.each(this.subtype, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
             if (this.relationship) {await this.relationship.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.context) { async.each(this.context, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
-            if (this.periodType) { async.each(this.periodType, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
-            if (this.period) { async.each(this.period, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
-            if (this.usePeriod) { async.each(this.usePeriod, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
-            if (this.answer) { async.each(this.answer, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
-            if (this.valuedItem) { async.each(this.valuedItem, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
+            if (this.context) { async.each(this.context, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.periodType) { async.each(this.periodType, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.period) { async.each(this.period, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.usePeriod) { async.each(this.usePeriod, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.answer) { async.each(this.answer, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.valuedItem) { async.each(this.valuedItem, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
     }
 
     /**

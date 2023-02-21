@@ -319,14 +319,14 @@ class FamilyMemberHistoryCondition extends Element {
      * @return {void}
      */
     async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) { async.each(this.extension, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) { async.each(this.modifierExtension, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
+            if (this.extension) { async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.modifierExtension) { async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
             if (this.code) {await this.code.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.outcome) {await this.outcome.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.onsetAge) {await this.onsetAge.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.onsetRange) {await this.onsetRange.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.onsetPeriod) {await this.onsetPeriod.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.note) { async.each(this.note, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
+            if (this.note) { async.each(this.note, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
     }
 
     /**

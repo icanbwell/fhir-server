@@ -326,13 +326,13 @@ class SubstanceNucleicAcidSubunit extends Element {
      * @return {void}
      */
     async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) { async.each(this.extension, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) { async.each(this.modifierExtension, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
+            if (this.extension) { async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.modifierExtension) { async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
             if (this.sequenceAttachment) {await this.sequenceAttachment.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.fivePrime) {await this.fivePrime.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.threePrime) {await this.threePrime.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.linkage) { async.each(this.linkage, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
-            if (this.sugar) { async.each(this.sugar, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
+            if (this.linkage) { async.each(this.linkage, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.sugar) { async.each(this.sugar, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
     }
 
     /**

@@ -593,16 +593,16 @@ class MedicinalProductContraindication extends Resource {
     async updateReferencesAsync({fnUpdateReferenceAsync}) {
             if (this.meta) {await this.meta.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.text) {await this.text.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.contained) { async.each(this.contained, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
-            if (this.extension) { async.each(this.extension, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) { async.each(this.modifierExtension, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
-            if (this.subject) { async.each(this.subject, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
+            if (this.contained) { async.each(this.contained, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.extension) { async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.modifierExtension) { async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.subject) { async.each(this.subject, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
             if (this.disease) {await this.disease.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.diseaseStatus) {await this.diseaseStatus.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.comorbidity) { async.each(this.comorbidity, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
-            if (this.therapeuticIndication) { async.each(this.therapeuticIndication, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
-            if (this.otherTherapy) { async.each(this.otherTherapy, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
-            if (this.population) { async.each(this.population, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
+            if (this.comorbidity) { async.each(this.comorbidity, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.therapeuticIndication) { async.each(this.therapeuticIndication, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.otherTherapy) { async.each(this.otherTherapy, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.population) { async.each(this.population, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
     }
 
     /**

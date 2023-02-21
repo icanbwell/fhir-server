@@ -701,17 +701,17 @@ class BiologicallyDerivedProduct extends Resource {
     async updateReferencesAsync({fnUpdateReferenceAsync}) {
             if (this.meta) {await this.meta.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.text) {await this.text.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.contained) { async.each(this.contained, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
-            if (this.extension) { async.each(this.extension, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) { async.each(this.modifierExtension, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
-            if (this.identifier) { async.each(this.identifier, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
+            if (this.contained) { async.each(this.contained, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.extension) { async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.modifierExtension) { async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.identifier) { async.each(this.identifier, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
             if (this.productCode) {await this.productCode.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.request) { async.each(this.request, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
-            if (this.parent) { async.each(this.parent, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
+            if (this.request) { async.each(this.request, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.parent) { async.each(this.parent, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
             if (this.collection) {await this.collection.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.processing) { async.each(this.processing, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
+            if (this.processing) { async.each(this.processing, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
             if (this.manipulation) {await this.manipulation.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.storage) { async.each(this.storage, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
+            if (this.storage) { async.each(this.storage, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
     }
 
     /**

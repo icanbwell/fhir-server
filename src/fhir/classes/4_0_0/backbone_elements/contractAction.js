@@ -664,22 +664,22 @@ class ContractAction extends Element {
      * @return {void}
      */
     async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) { async.each(this.extension, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) { async.each(this.modifierExtension, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
+            if (this.extension) { async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.modifierExtension) { async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
             if (this.type) {await this.type.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.subject) { async.each(this.subject, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
+            if (this.subject) { async.each(this.subject, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
             if (this.intent) {await this.intent.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.status) {await this.status.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.context) {await this.context.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.occurrencePeriod) {await this.occurrencePeriod.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.occurrenceTiming) {await this.occurrenceTiming.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.requester) { async.each(this.requester, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
-            if (this.performerType) { async.each(this.performerType, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
+            if (this.requester) { async.each(this.requester, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.performerType) { async.each(this.performerType, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
             if (this.performerRole) {await this.performerRole.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.performer) {await this.performer.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.reasonCode) { async.each(this.reasonCode, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
-            if (this.reasonReference) { async.each(this.reasonReference, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
-            if (this.note) { async.each(this.note, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
+            if (this.reasonCode) { async.each(this.reasonCode, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.reasonReference) { async.each(this.reasonReference, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.note) { async.each(this.note, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
     }
 
     /**

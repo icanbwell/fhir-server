@@ -1064,15 +1064,15 @@ class TerminologyCapabilities extends Resource {
     async updateReferencesAsync({fnUpdateReferenceAsync}) {
             if (this.meta) {await this.meta.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.text) {await this.text.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.contained) { async.each(this.contained, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
-            if (this.extension) { async.each(this.extension, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) { async.each(this.modifierExtension, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
-            if (this.contact) { async.each(this.contact, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
-            if (this.useContext) { async.each(this.useContext, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
-            if (this.jurisdiction) { async.each(this.jurisdiction, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
+            if (this.contained) { async.each(this.contained, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.extension) { async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.modifierExtension) { async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.contact) { async.each(this.contact, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.useContext) { async.each(this.useContext, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.jurisdiction) { async.each(this.jurisdiction, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
             if (this.software) {await this.software.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.implementation) {await this.implementation.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.codeSystem) { async.each(this.codeSystem, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
+            if (this.codeSystem) { async.each(this.codeSystem, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
             if (this.expansion) {await this.expansion.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.validateCode) {await this.validateCode.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.translation) {await this.translation.updateReferencesAsync({fnUpdateReferenceAsync});}

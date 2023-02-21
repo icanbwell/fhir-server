@@ -302,15 +302,15 @@ class MedicinalProductPharmaceuticalRouteOfAdministration extends Element {
      * @return {void}
      */
     async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) { async.each(this.extension, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) { async.each(this.modifierExtension, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
+            if (this.extension) { async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.modifierExtension) { async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
             if (this.code) {await this.code.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.firstDose) {await this.firstDose.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.maxSingleDose) {await this.maxSingleDose.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.maxDosePerDay) {await this.maxDosePerDay.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.maxDosePerTreatmentPeriod) {await this.maxDosePerTreatmentPeriod.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.maxTreatmentPeriod) {await this.maxTreatmentPeriod.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.targetSpecies) { async.each(this.targetSpecies, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
+            if (this.targetSpecies) { async.each(this.targetSpecies, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
     }
 
     /**

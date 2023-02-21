@@ -565,13 +565,13 @@ class MedicinalProductIngredient extends Resource {
     async updateReferencesAsync({fnUpdateReferenceAsync}) {
             if (this.meta) {await this.meta.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.text) {await this.text.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.contained) { async.each(this.contained, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
-            if (this.extension) { async.each(this.extension, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) { async.each(this.modifierExtension, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
+            if (this.contained) { async.each(this.contained, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.extension) { async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.modifierExtension) { async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
             if (this.identifier) {await this.identifier.updateReferencesAsync({fnUpdateReferenceAsync});}
             if (this.role) {await this.role.updateReferencesAsync({fnUpdateReferenceAsync});}
-            if (this.manufacturer) { async.each(this.manufacturer, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
-            if (this.specifiedSubstance) { async.each(this.specifiedSubstance, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
+            if (this.manufacturer) { async.each(this.manufacturer, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.specifiedSubstance) { async.each(this.specifiedSubstance, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
             if (this.substance) {await this.substance.updateReferencesAsync({fnUpdateReferenceAsync});}
     }
 

@@ -534,11 +534,11 @@ class CapabilityStatementResource extends Element {
      * @return {void}
      */
     async updateReferencesAsync({fnUpdateReferenceAsync}) {
-            if (this.extension) { async.each(this.extension, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
-            if (this.modifierExtension) { async.each(this.modifierExtension, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
-            if (this.interaction) { async.each(this.interaction, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
-            if (this.searchParam) { async.each(this.searchParam, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
-            if (this.operation) { async.each(this.operation, async v => await v.updateReferences({fnUpdateReferenceAsync}));}
+            if (this.extension) { async.each(this.extension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.modifierExtension) { async.each(this.modifierExtension, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.interaction) { async.each(this.interaction, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.searchParam) { async.each(this.searchParam, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
+            if (this.operation) { async.each(this.operation, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
     }
 
     /**
