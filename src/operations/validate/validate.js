@@ -128,6 +128,12 @@ class ValidateOperation {
             resource_incoming = resourceParameter.resource;
         }
 
+        const ResourceCreator = getResource(base_version, resourceType);
+        /**
+         * @type {Resource}
+         */
+        const resourceToValidate = new ResourceCreator(resource_incoming);
+
         /**
          * @type {OperationOutcome|null}
          */
@@ -137,7 +143,8 @@ class ValidateOperation {
                 resourceType,
                 resourceToValidate: resource_incoming,
                 path: path,
-                currentDate: currentDate
+                currentDate: currentDate,
+                resourceObj: resourceToValidate
             });
         if (validationOperationOutcome) {
             validationsFailedCounter.inc({action: currentOperationName, resourceType}, 1);
@@ -152,11 +159,6 @@ class ValidateOperation {
             return validationOperationOutcome;
         }
 
-        const ResourceCreator = getResource(base_version, resourceType);
-        /**
-         * @type {Resource}
-         */
-        const resourceToValidate = new ResourceCreator(resource_incoming);
         if (!this.scopesManager.doesResourceHaveAccessTags(resourceToValidate)) {
             return new OperationOutcome({
                 resourceType: 'OperationOutcome',

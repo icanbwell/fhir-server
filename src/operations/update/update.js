@@ -170,6 +170,17 @@ class UpdateOperation {
                 currentOperationName);
         }
 
+        // create a resource with incoming data
+        /**
+         * @type {function(?Object): Resource}
+         */
+        let ResourceCreator = getResource(base_version, resourceType);
+
+        /**
+         * @type {Resource}
+         */
+        let resource_incoming = new ResourceCreator(resource_incoming_json);
+
         if (env.VALIDATE_SCHEMA || parsedArgs['_validate']) {
             /**
              * @type {OperationOutcome|null}
@@ -180,7 +191,8 @@ class UpdateOperation {
                     resourceType,
                     resourceToValidate: resource_incoming_json,
                     path: path,
-                    currentDate: currentDate
+                    currentDate: currentDate,
+                    resourceObj: resource_incoming
                 });
             if (validationOperationOutcome) {
                 validationsFailedCounter.inc({action: currentOperationName, resourceType}, 1);
@@ -211,16 +223,6 @@ class UpdateOperation {
              * @type {Resource | null}
              */
             let data = await databaseQueryManager.findOneAsync({query: {id: id.toString()}});
-            // create a resource with incoming data
-            /**
-             * @type {function(?Object): Resource}
-             */
-            let ResourceCreator = getResource(base_version, resourceType);
-
-            /**
-             * @type {Resource}
-             */
-            let resource_incoming = new ResourceCreator(resource_incoming_json);
             /**
              * @type {Resource|null}
              */

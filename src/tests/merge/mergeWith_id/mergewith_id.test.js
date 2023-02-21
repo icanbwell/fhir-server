@@ -1,10 +1,12 @@
 // test file
 const person1Resource = require('./fixtures/Person/person1.json');
+const person2Resource = require('./fixtures/Person/person2.json');
 
 // expected
 const expectedPersonResources = require('./fixtures/expected/expected_Person.json');
 const expectedMissingAccessScope = require('./fixtures/expected/expectedMissingAccessScope.json');
 const expectedWrongAccessScope = require('./fixtures/expected/expectedWrongAccessScope.json');
+const expectedWrongReferenceValues = require('./fixtures/expected/expectedWrongReferenceValues.json');
 
 const {
     commonBeforeEach,
@@ -255,6 +257,50 @@ describe('Person Tests', () => {
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedPersonResources);
+        });
+        test('mergeWith_id fails with wrong reference values (create)', async () => {
+            const request = await createTestRequest();
+            // ARRANGE
+            // ACT & ASSERT
+            let resp = await request
+                .post('/4_0_0/Person/1/$merge')
+                .send(person2Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveStatusCode(200);
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedWrongReferenceValues, r => {
+                delete r.id;
+            });
+        });
+        test('mergeWith_id fails with wrong reference values (update)', async () => {
+            const request = await createTestRequest();
+            // ARRANGE
+            // add the resources to FHIR server
+            let resp = await request
+                .post('/4_0_0/Person/1/$merge')
+                .send(person1Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
+
+            const container = getTestContainer();
+            /**
+             * @type {PostRequestProcessor}
+             */
+            const postRequestProcessor = container.postRequestProcessor;
+            await postRequestProcessor.waitTillDoneAsync({requestId: getRequestId(resp)});
+
+            resp = await request
+                .post('/4_0_0/Person/1/$merge')
+                .send(person2Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveStatusCode(200);
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedWrongReferenceValues, r => {
+                delete r.id;
+            });
         });
     });
 });
