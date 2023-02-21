@@ -1916,7 +1916,7 @@ describe('graphHelper Tests', () => {
                 'meta': {
                     'tag': [
                         {
-                            'display': "db.Practitioner_4_0_0.find({'_sourceId':{'$in':['1','2']}}, {'_id':0})  | db.Practitioner_4_0_0.find({'$or':[{'practitioner._uuid':'Practitioner/18ba3527-77e0-5ae6-a872-181654110d28'},{'practitioner._uuid':'Practitioner/034ef9e0-007c-54a7-a0be-a06db20b9ea9'}]}, {}) | db.Practitioner_4_0_0.find({'_uuid':{'$in':['5a1d6b34-dbdc-5974-9816-53a13b80c839','2cab0141-cb78-5ca1-8673-8c7bcdcf524d']}}, {}) | db.Practitioner_4_0_0.find({'_uuid':{'$in':['24c117ef-4601-52ea-8812-ac66793956b5']}}, {})",
+                            'display': "db.Practitioner_4_0_0.find({'_sourceId':{'$in':['1','2']}}, {'_id':0})  | db.Practitioner_4_0_0.find({'$or':[{'practitioner._sourceId':'Practitioner/18ba3527-77e0-5ae6-a872-181654110d28'},{'practitioner._uuid':'Practitioner/18ba3527-77e0-5ae6-a872-181654110d28'},{'practitioner._sourceId':'Practitioner/034ef9e0-007c-54a7-a0be-a06db20b9ea9'},{'practitioner._uuid':'Practitioner/034ef9e0-007c-54a7-a0be-a06db20b9ea9'},{'practitioner._sourceId':'Practitioner/1'},{'practitioner._uuid':'Practitioner/1'},{'practitioner._sourceId':'Practitioner/2'},{'practitioner._uuid':'Practitioner/2'}]}, {}) | db.Practitioner_4_0_0.find({'$or':[{'_sourceId':{'$in':['100','200']}},{'_uuid':{'$in':['5a1d6b34-dbdc-5974-9816-53a13b80c839','2cab0141-cb78-5ca1-8673-8c7bcdcf524d']}}]}, {}) | db.Practitioner_4_0_0.find({'$or':[{'_sourceId':{'$in':['AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He']}},{'_uuid':{'$in':['24c117ef-4601-52ea-8812-ac66793956b5']}}]}, {})",
                             'system': 'https://www.icanbwell.com/query'
                         },
                         {
@@ -2111,7 +2111,7 @@ describe('graphHelper Tests', () => {
                     'tag': [
                         {
                             'system': 'https://www.icanbwell.com/query',
-                            'display': "db.Practitioner_4_0_0.find({'_sourceId':{'$in':['1','2']}}, {'_id':0})  | db.Practitioner_4_0_0.find({'practitioner._uuid':'Practitioner/18ba3527-77e0-5ae6-a872-181654110d28'}, {}) | db.Practitioner_4_0_0.find({'_uuid':{'$in':['5a1d6b34-dbdc-5974-9816-53a13b80c839']}}, {}) | db.Practitioner_4_0_0.find({'_uuid':{'$in':['24c117ef-4601-52ea-8812-ac66793956b5']}}, {})",
+                            'display': "db.Practitioner_4_0_0.find({'_sourceId':{'$in':['1','2']}}, {'_id':0})  | db.Practitioner_4_0_0.find({'$or':[{'practitioner._sourceId':'Practitioner/18ba3527-77e0-5ae6-a872-181654110d28'},{'practitioner._uuid':'Practitioner/18ba3527-77e0-5ae6-a872-181654110d28'},{'practitioner._sourceId':'Practitioner/1'},{'practitioner._uuid':'Practitioner/1'}]}, {}) | db.Practitioner_4_0_0.find({'$or':[{'_sourceId':{'$in':['100']}},{'_uuid':{'$in':['5a1d6b34-dbdc-5974-9816-53a13b80c839']}}]}, {}) | db.Practitioner_4_0_0.find({'$or':[{'_sourceId':{'$in':['AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He']}},{'_uuid':{'$in':['24c117ef-4601-52ea-8812-ac66793956b5']}}]}, {})",
                         },
                         {
                             'system': 'https://www.icanbwell.com/queryCollection',
