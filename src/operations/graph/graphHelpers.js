@@ -332,7 +332,8 @@ class GraphHelper {
                 if (relatedResource) {
                     // create a class to hold information about this resource
                     const relatedEntityAndContained = new ResourceEntityAndContained({
-                        entityId: relatedResource._uuid,
+                        entityId: relatedResource.id,
+                        entityUuid: relatedResource._uuid,
                         entityResourceType: relatedResource.resourceType,
                         includeInOutput: true,
                         resource: relatedResource,
@@ -362,7 +363,8 @@ class GraphHelper {
             return {query, resourceType, property, explanations};
         } catch (e) {
             throw new RethrownError({
-                message: `Error in getForwardReferencesAsync(): ${resourceType}, ` + `parents:${parentEntities.map(p => p.entityId)}, property=${property}`,
+                message: `Error in getForwardReferencesAsync(): ${resourceType}, ` +
+                    `parents:${parentEntities.map(p => p.entityId)}, property=${property}`,
                 error: e,
                 args: {
                     requestInfo,
@@ -428,8 +430,8 @@ class GraphHelper {
             }
             // create comma separated list of ids
             const parentResourceTypeAndIdList = parentEntities
-                .filter(p => p.entityId !== undefined && p.entityId !== null)
-                .map(p => `${p.resource.resourceType}/${p.entityId}`);
+                .filter(p => p.entityUuid !== undefined && p.entityUuid !== null)
+                .map(p => `${p.resource.resourceType}/${p.entityUuid}`);
             if (parentResourceTypeAndIdList.length === 0) {
                 return;
             }
@@ -527,7 +529,8 @@ class GraphHelper {
                     }
                     // create the entry
                     const resourceEntityAndContained = new ResourceEntityAndContained({
-                        entityId: relatedResourcePropertyCurrent._uuid,
+                        entityId: relatedResourcePropertyCurrent.id,
+                        entityUuid: relatedResourcePropertyCurrent._uuid,
                         entityResourceType: relatedResourcePropertyCurrent.resourceType,
                         includeInOutput: true,
                         resource: relatedResourcePropertyCurrent,
@@ -565,7 +568,11 @@ class GraphHelper {
             return {query, resourceType: relatedResourceType, reverse_filter, explanations};
         } catch (e) {
             throw new RethrownError({
-                message: 'Error in getReverseReferencesAsync(): ' + `parentResourceType: ${parentResourceType} relatedResourceType:${relatedResourceType}, ` + `parents:${parentEntities.map(p => p.entityId)}, ` + `filterProperty=${filterProperty}, filterValue=${filterValue}, ` + `reverseFilter=${reverse_filter}`,
+                message: 'Error in getReverseReferencesAsync(): ' +
+                    `parentResourceType: ${parentResourceType} relatedResourceType:${relatedResourceType}, ` +
+                    `parents:${parentEntities.map(p => p.entityId)}, ` +
+                    `filterProperty=${filterProperty}, filterValue=${filterValue}, ` +
+                    `reverseFilter=${reverse_filter}`,
                 error: e,
                 args: {
                     requestInfo,
@@ -958,7 +965,8 @@ class GraphHelper {
              * @type {ResourceEntityAndContained[]}
              */
             const resultEntities = parentEntities.map(parentEntity => new ResourceEntityAndContained({
-                entityId: parentEntity._uuid,
+                entityId: parentEntity.id,
+                entityUuid: parentEntity._uuid,
                 entityResourceType: parentEntity.resourceType,
                 includeInOutput: true,
                 resource: parentEntity,
@@ -1206,7 +1214,7 @@ class GraphHelper {
                  * @type {ResourceEntityAndContained}
                  */
                 const matchingEntity = allRelatedEntries.find(
-                    e => e.entityId === topLevelBundleEntry.resource._uuid &&
+                    e => e.entityUuid === topLevelBundleEntry.resource._uuid &&
                         e.entityResourceType === topLevelBundleEntry.resource.resourceType
                 );
                 assertIsValid(matchingEntity,
