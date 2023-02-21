@@ -15,6 +15,7 @@ const Resource = require('../resources/resource');
 {%  else %}
 const Element = require('../complex_types/element');
 {%  endif %}
+const async = require('async');
 
 
 /**
@@ -384,19 +385,19 @@ class {{ fhir_entity.cleaned_name }} extends Element {
 
     /**
      * Returns JSON representation of entity
-     * @param {function(Reference): Reference} fnUpdateReference
+     * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    updateReferences({fnUpdateReference}) {
+    async updateReferencesAsync({fnUpdateReferenceAsync}) {
 {% if fhir_entity.cleaned_name == "Reference"  %}
-        fnUpdateReference(this);
+        await fnUpdateReferenceAsync(this);
 {% else %}
 {% for property in fhir_entity.properties %}
     {%  if property.is_resource or property.is_extension or property.cleaned_type == "ResourceContainer" or property.fhir_type == "BackboneElement" or property.is_complex or property.fhir_type == "Element" %}
         {% if property.is_list %}
-            if (this.{{ property.name }}) {this.{{ property.name -}}.forEach(v =>  v.updateReferences({fnUpdateReference}));}
+            if (this.{{ property.name }}) { async.each(this.{{ property.name -}}, async v =>  await v.updateReferences({fnUpdateReferenceAsync}));}
         {%  else %}
-            if (this.{{ property.name }}) {this.{{ property.name -}}.updateReferences({fnUpdateReference});}
+            if (this.{{ property.name }}) {await this.{{ property.name -}}.updateReferencesAsync({fnUpdateReferenceAsync});}
         {% endif %}
     {% endif %}
 {% endfor %}
