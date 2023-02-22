@@ -71,8 +71,15 @@ class FixReferenceSourceAssigningAuthorityRunner extends BaseBulkOperationRunner
      */
     async updateReferenceAsync(reference, databaseQueryFactory) {
         assertTypeEquals(databaseQueryFactory, DatabaseQueryFactory);
+        if (!reference.reference) {
+            return reference;
+        }
+
         // if the _uuid reference works then we're good
         const {resourceType, id, sourceAssigningAuthority} = ReferenceParser.parseReference(reference.reference);
+        if (!resourceType) {
+            return reference;
+        }
         if (sourceAssigningAuthority) {
             return reference;
         }
