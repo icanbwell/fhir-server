@@ -209,7 +209,6 @@ const logErrorAndRequestAsync = async ({error, req}) => {
     const logData = { request, error };
     if (error.elapsedTimeInSecs) {
         logData.elapsedTimeInSecs = error.elapsedTimeInSecs;
-        delete error.elapsedTimeInSecs;
     }
     logError(error.message, logData);
 };

@@ -76,8 +76,9 @@ class MyApolloServerLoggingPlugin /*extends ApolloServerPlugin*/ {
                                     source: 'GraphQLv2',
                                     args: {
                                         endpoint: self.endpoint,
-                                        user,
-                                        req,
+                                        operationName: req.operationName,
+                                        query: req.query,
+                                        user
                                     }
                                 });
                                 if (container) {
@@ -113,8 +114,9 @@ class MyApolloServerLoggingPlugin /*extends ApolloServerPlugin*/ {
                                 source: 'GraphQLv2',
                                 args: {
                                     endpoint: self.endpoint,
-                                    user,
-                                    req,
+                                    operationName: req.operationName,
+                                    query: req.query,
+                                    user
                                 }
                             });
                             if (container) {
