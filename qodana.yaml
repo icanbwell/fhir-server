@@ -1,0 +1,5 @@
+bootstrap: apt install -y curl && apt -y update -y
+exclude:
+  - name: All
+    paths:
+      - src/fhir/generator
