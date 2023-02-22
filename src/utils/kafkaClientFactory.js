@@ -55,7 +55,7 @@ class KafkaClientFactory {
                 this.userName = username;
                 this.password = password;
             }
-            sasl.username = this.username;
+            sasl.username = this.userName;
             sasl.password = this.password;
         }
         return {
