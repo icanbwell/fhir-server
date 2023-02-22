@@ -339,15 +339,15 @@
     "@aws-sdk/util-utf8" "3.254.0"
     tslib "^2.3.1"
 
-"@aws-sdk/client-s3@^3.272.0":
-  version "3.272.0"
-  resolved "https://registry.npmjs.org/@aws-sdk/client-s3/-/client-s3-3.272.0.tgz"
-  integrity sha512-KxlVhTHfmcm3HlAP5+vY1cuQt60AaYOISp1ccYOPsww7Ly7fbDnbov0AV9bcwlLLVcfZFWQYJqH+Gvk2SpyXFQ==
+"@aws-sdk/client-s3@^3.276.0":
+  version "3.276.0"
+  resolved "https://registry.npmjs.org/@aws-sdk/client-s3/-/client-s3-3.276.0.tgz"
+  integrity sha512-9cwrYeMTx9a9MUWSxBr2i87NACEw3Vc8ALnDYZSvhps8UivdgZ1v3zN8c0v/g/3RrJJNco2HCs9je+lOPRvq3w==
   dependencies:
     "@aws-crypto/sha1-browser" "3.0.0"
     "@aws-crypto/sha256-browser" "3.0.0"
     "@aws-crypto/sha256-js" "3.0.0"
-    "@aws-sdk/client-sts" "3.272.0"
+    "@aws-sdk/client-sts" "3.276.0"
     "@aws-sdk/config-resolver" "3.272.0"
     "@aws-sdk/credential-provider-node" "3.272.0"
     "@aws-sdk/eventstream-serde-browser" "3.272.0"
@@ -396,17 +396,17 @@
     "@aws-sdk/util-utf8" "3.254.0"
     "@aws-sdk/util-waiter" "3.272.0"
     "@aws-sdk/xml-builder" "3.201.0"
-    fast-xml-parser "4.0.11"
+    fast-xml-parser "4.1.2"
     tslib "^2.3.1"
 
-"@aws-sdk/client-secrets-manager@^3.272.0":
-  version "3.272.0"
-  resolved "https://registry.npmjs.org/@aws-sdk/client-secrets-manager/-/client-secrets-manager-3.272.0.tgz"
-  integrity sha512-dKTl+vFyo7Sqy63AxRO3D2aSnwUK9yQajfWzN9Fhu7z2/iit11t5oaTPndSmAwHpFY9+YySdwqtYUGu3413rUA==
+"@aws-sdk/client-secrets-manager@^3.276.0":
+  version "3.276.0"
+  resolved "https://registry.npmjs.org/@aws-sdk/client-secrets-manager/-/client-secrets-manager-3.276.0.tgz"
+  integrity sha512-7BNOkNp9xZk3nDfA6oRo3HxDIzfA1JGDGgRMkIAYZZnK8Cjy0pWzoamYtK85QDvWYgsmHs7m3ue+Wx+VhMOZPw==
   dependencies:
     "@aws-crypto/sha256-browser" "3.0.0"
     "@aws-crypto/sha256-js" "3.0.0"
-    "@aws-sdk/client-sts" "3.272.0"
+    "@aws-sdk/client-sts" "3.276.0"
     "@aws-sdk/config-resolver" "3.272.0"
     "@aws-sdk/credential-provider-node" "3.272.0"
     "@aws-sdk/fetch-http-handler" "3.272.0"
@@ -441,14 +441,14 @@
     tslib "^2.3.1"
     uuid "^8.3.2"
 
-"@aws-sdk/client-ssm@^3.272.0":
-  version "3.272.0"
-  resolved "https://registry.npmjs.org/@aws-sdk/client-ssm/-/client-ssm-3.272.0.tgz"
-  integrity sha512-CPIv2EC8i7vskbtjrD0Onr/ezudBdTTU297HeMUfO+SbyvMTRDw68cZYD3VYcnX5GFLqn7LoPU+QjlIEQrJ/rA==
+"@aws-sdk/client-ssm@^3.277.0":
+  version "3.277.0"
+  resolved "https://registry.npmjs.org/@aws-sdk/client-ssm/-/client-ssm-3.277.0.tgz"
+  integrity sha512-nDZaoY03Pl/hijMyDJ0CIls7P5RHxNu7UpkDtyK5hvqXsEz2qmkXan0LkiPwsgg05ueGo+pOkelSb6oIfzEsqw==
   dependencies:
     "@aws-crypto/sha256-browser" "3.0.0"
     "@aws-crypto/sha256-js" "3.0.0"
-    "@aws-sdk/client-sts" "3.272.0"
+    "@aws-sdk/client-sts" "3.276.0"
     "@aws-sdk/config-resolver" "3.272.0"
     "@aws-sdk/credential-provider-node" "3.272.0"
     "@aws-sdk/fetch-http-handler" "3.272.0"
@@ -636,10 +636,10 @@
     "@aws-sdk/util-utf8" "3.254.0"
     tslib "^2.3.1"
 
-"@aws-sdk/client-sts@^3.272.0", "@aws-sdk/client-sts@3.272.0":
-  version "3.272.0"
-  resolved "https://registry.npmjs.org/@aws-sdk/client-sts/-/client-sts-3.272.0.tgz"
-  integrity sha512-kigxCxURp3WupufGaL/LABMb7UQfzAQkKcj9royizL3ItJ0vw5kW/JFrPje5IW1mfLgdPF7PI9ShOjE0fCLTqA==
+"@aws-sdk/client-sts@^3.276.0", "@aws-sdk/client-sts@3.276.0":
+  version "3.276.0"
+  resolved "https://registry.npmjs.org/@aws-sdk/client-sts/-/client-sts-3.276.0.tgz"
+  integrity sha512-J6FR4tYa/WdDdwWAKhw/mXQXKWUaZZQpMiyFEbFPQyURSWu3u17nv97NUdvVOgCth48H6Wb6a4ksssYy4K9tFQ==
   dependencies:
     "@aws-crypto/sha256-browser" "3.0.0"
     "@aws-crypto/sha256-js" "3.0.0"
@@ -675,7 +675,7 @@
     "@aws-sdk/util-user-agent-browser" "3.272.0"
     "@aws-sdk/util-user-agent-node" "3.272.0"
     "@aws-sdk/util-utf8" "3.254.0"
-    fast-xml-parser "4.0.11"
+    fast-xml-parser "4.1.2"
     tslib "^2.3.1"
 
 "@aws-sdk/client-sts@3.267.0":
@@ -4207,7 +4207,25 @@ bodec@^0.1.0:
   resolved "https://registry.npmjs.org/bodec/-/bodec-0.1.0.tgz"
   integrity sha512-Ylo+MAo5BDUq1KA3f3R/MFhh+g8cnHmo8bz3YPGhI1znrMaf77ol1sfvYJzsw3nTE+Y2GryfDxBaR+AqpAkEHQ==
 
-body-parser@^1.20.0, body-parser@^1.20.1, body-parser@1.20.1:
+body-parser@^1.20.0, body-parser@^1.20.2:
+  version "1.20.2"
+  resolved "https://registry.npmjs.org/body-parser/-/body-parser-1.20.2.tgz"
+  integrity sha512-ml9pReCu3M61kGlqoTm2umSXTlRTuGTx0bfYj+uIUKKYycG5NtSbeetV3faSU6R7ajOPw0g/J1PvK4qNy7s5bA==
+  dependencies:
+    bytes "3.1.2"
+    content-type "~1.0.5"
+    debug "2.6.9"
+    depd "2.0.0"
+    destroy "1.2.0"
+    http-errors "2.0.0"
+    iconv-lite "0.4.24"
+    on-finished "2.4.1"
+    qs "6.11.0"
+    raw-body "2.5.2"
+    type-is "~1.6.18"
+    unpipe "1.0.0"
+
+body-parser@1.20.1:
   version "1.20.1"
   resolved "https://registry.npmjs.org/body-parser/-/body-parser-1.20.1.tgz"
   integrity sha512-jWi7abTbYwajOytWCQc37VulmWiRae5RyTpaCyDcS5/lMdtwSz5lOpDE67srw/HYe35f1z3fDQw+3txg7gNtWw==
@@ -4819,7 +4837,7 @@ content-disposition@0.5.4:
   dependencies:
     safe-buffer "5.2.1"
 
-content-type@^1.0.5, content-type@~1.0.4:
+content-type@^1.0.5, content-type@~1.0.4, content-type@~1.0.5:
   version "1.0.5"
   resolved "https://registry.npmjs.org/content-type/-/content-type-1.0.5.tgz"
   integrity sha512-nTjqfcBFEipKdXCv4YDQWCfmcLZKm81ldF0pAopTvyrFGVbcR6P/VAAd5G7N+0tTr8QqiU0tFadD6FK4NtJwOA==
@@ -5963,6 +5981,13 @@ fast-xml-parser@4.0.11:
   version "4.0.11"
   resolved "https://registry.npmjs.org/fast-xml-parser/-/fast-xml-parser-4.0.11.tgz"
   integrity sha512-4aUg3aNRR/WjQAcpceODG1C3x3lFANXRo8+1biqfieHmg9pyMt7qB4lQV/Ta6sJCTbA5vfD8fnA8S54JATiFUA==
+  dependencies:
+    strnum "^1.0.5"
+
+fast-xml-parser@4.1.2:
+  version "4.1.2"
+  resolved "https://registry.npmjs.org/fast-xml-parser/-/fast-xml-parser-4.1.2.tgz"
+  integrity sha512-CDYeykkle1LiA/uqQyNwYpFbyF6Axec6YapmpUP+/RHWIoR1zKjocdvNaTsxCxZzQ6v9MLXaSYm9Qq0thv0DHg==
   dependencies:
     strnum "^1.0.5"
 
@@ -8282,10 +8307,10 @@ mongodb-connection-string-url@^2.5.4, mongodb-connection-string-url@^2.6.0:
     "@types/whatwg-url" "^8.2.1"
     whatwg-url "^11.0.0"
 
-mongodb-memory-server-core@^8.11.4, mongodb-memory-server-core@8.11.4:
-  version "8.11.4"
-  resolved "https://registry.npmjs.org/mongodb-memory-server-core/-/mongodb-memory-server-core-8.11.4.tgz"
-  integrity sha512-VWUstcegjwaGTZzaaSLmKuEtxhbNPRM87lq1oFHzYC07pzyxAfjIELcYRKef2O+XlhKlVQ9x2VqpuvTF97h7SA==
+mongodb-memory-server-core@^8.11.5, mongodb-memory-server-core@8.11.5:
+  version "8.11.5"
+  resolved "https://registry.npmjs.org/mongodb-memory-server-core/-/mongodb-memory-server-core-8.11.5.tgz"
+  integrity sha512-bhptlOruCEYrLofCbjACMoClgP1rFkhSNDzI/bbG/pUAg41UB00eaDPerYVvRf2jvOJqKF4+U9xqXiSvkbMvXw==
   dependencies:
     "@types/tmp" "^0.2.3"
     async-mutex "^0.3.2"
@@ -8304,12 +8329,12 @@ mongodb-memory-server-core@^8.11.4, mongodb-memory-server-core@8.11.4:
     uuid "^9.0.0"
     yauzl "^2.10.0"
 
-mongodb-memory-server@^8.11.4:
-  version "8.11.4"
-  resolved "https://registry.npmjs.org/mongodb-memory-server/-/mongodb-memory-server-8.11.4.tgz"
-  integrity sha512-DI6iXKsZBpMFAPxj/+35jl2s1LxVTpBc+VUpMzEe9Mvm73XIzIzPdU5Aa3asO7RfRSeR5l5wn0qpVAkvP1BScg==
+mongodb-memory-server@^8.11.5:
+  version "8.11.5"
+  resolved "https://registry.npmjs.org/mongodb-memory-server/-/mongodb-memory-server-8.11.5.tgz"
+  integrity sha512-/yiw3L2TIMpi9I6GXg379k6d+RG3k+9V9o24kK5h+NBTtYLNuWa5iEvtce/O3jqhg6yo31T5XG2e/Hm4UwBM1A==
   dependencies:
-    mongodb-memory-server-core "8.11.4"
+    mongodb-memory-server-core "8.11.5"
     tslib "^2.4.1"
 
 mongodb@^4.13.0:
@@ -8526,10 +8551,10 @@ npm-bundled@^3.0.0:
   dependencies:
     npm-normalize-package-bin "^3.0.0"
 
-npm-check-updates@^16.7.5:
-  version "16.7.5"
-  resolved "https://registry.npmjs.org/npm-check-updates/-/npm-check-updates-16.7.5.tgz"
-  integrity sha512-g+U/cxA0iTvU/syX0EjXWtV10joEKQlN5s6DCFdvpv6eXSGbSYpOjOtifiyopSekdPnjogVuIDtxNlVdJECR8w==
+npm-check-updates@^16.7.9:
+  version "16.7.9"
+  resolved "https://registry.npmjs.org/npm-check-updates/-/npm-check-updates-16.7.9.tgz"
+  integrity sha512-2/T9PB0W1uABB1N11jdnPauqNLXMhPUyC0DBeeGlUktcGl/412f40iqFsnNGCqIAag/C37SjLNiW2/yuD7Salw==
   dependencies:
     chalk "^5.2.0"
     cli-table "^0.3.11"
@@ -9413,7 +9438,17 @@ range-parser@~1.2.1:
   resolved "https://registry.npmjs.org/range-parser/-/range-parser-1.2.1.tgz"
   integrity sha512-Hrgsx+orqoygnmhFbKaHE6c296J+HTAQXoxEF6gNupROmmGJRoyzfG3ccAveqCBrwr/2yxQ5BVd/GTl5agOwSg==
 
-raw-body@^2.2.0, raw-body@2.5.1:
+raw-body@^2.2.0, raw-body@2.5.2:
+  version "2.5.2"
+  resolved "https://registry.npmjs.org/raw-body/-/raw-body-2.5.2.tgz"
+  integrity sha512-8zGqypfENjCIqGhgXToC8aB2r7YrBX+AQAfIPs/Mlk+BtPTztOvTS01NRW/3Eh60J+a48lt8qsCzirQ6loCVfA==
+  dependencies:
+    bytes "3.1.2"
+    http-errors "2.0.0"
+    iconv-lite "0.4.24"
+    unpipe "1.0.0"
+
+raw-body@2.5.1:
   version "2.5.1"
   resolved "https://registry.npmjs.org/raw-body/-/raw-body-2.5.1.tgz"
   integrity sha512-qqJBtEyVgS0ZmPGdCFPWJ3FreoqvG4MVQln/kCgF7Olq95IbOp0/BWyMwbdtn4VTvkM8Y7khCQ2Xgk/tcrCXig==
@@ -10045,10 +10080,10 @@ snappy@^7.2.2:
     "@napi-rs/snappy-win32-ia32-msvc" "7.2.2"
     "@napi-rs/snappy-win32-x64-msvc" "7.2.2"
 
-snyk@^1.1106.0:
-  version "1.1106.0"
-  resolved "https://registry.npmjs.org/snyk/-/snyk-1.1106.0.tgz"
-  integrity sha512-pVdy5UNpgA+P5Lce8cPQQHepQWaYQVlRmyizcte6uvMvIjmKx8qoJEogu1EXXhJWeBLt2qEKsE7C6Ux91SghAQ==
+snyk@^1.1108.0:
+  version "1.1108.0"
+  resolved "https://registry.npmjs.org/snyk/-/snyk-1.1108.0.tgz"
+  integrity sha512-HThKYgmcZgNG9ONuGUtJ/JuUaDzyqRHbPljJc50dtU9nEBmUc915jtPfrKKITdn6K+Ap9Rs8eVqnXWq0MGW0hA==
 
 socks-proxy-agent@^5.0.0, socks-proxy-agent@5:
   version "5.0.1"
@@ -11271,10 +11306,10 @@ yargs@^16.1.0:
     y18n "^5.0.5"
     yargs-parser "^20.2.2"
 
-yargs@^17.0.0, yargs@^17.3.1, yargs@^17.7.0:
-  version "17.7.0"
-  resolved "https://registry.npmjs.org/yargs/-/yargs-17.7.0.tgz"
-  integrity sha512-dwqOPg5trmrre9+v8SUo2q/hAwyKoVfu8OC1xPHKJGNdxAvPl4sKxL4vBnh3bQz/ZvvGAFeA5H3ou2kcOY8sQQ==
+yargs@^17.0.0, yargs@^17.3.1, yargs@^17.7.1:
+  version "17.7.1"
+  resolved "https://registry.npmjs.org/yargs/-/yargs-17.7.1.tgz"
+  integrity sha512-cwiTb08Xuv5fqF4AovYacTFNxk62th7LKJ6BL9IGUpTJrWoU7/7WdQGTP2SjKf1dUNBGzDd28p/Yfs/GI6JrLw==
   dependencies:
     cliui "^8.0.1"
     escalade "^3.1.1"
