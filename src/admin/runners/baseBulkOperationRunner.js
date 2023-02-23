@@ -1,16 +1,12 @@
-const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
-const {MongoCollectionManager} = require('../../utils/mongoCollectionManager');
+const {assertIsValid} = require('../../utils/assertType');
 const {BaseScriptRunner} = require('./baseScriptRunner');
 const readline = require('readline');
 const retry = require('async-retry');
 const {mongoQueryStringify} = require('../../utils/mongoQueryStringify');
-const {auditEventMongoConfig, mongoConfig} = require('../../config');
-const {AdminLogger} = require('../adminLogger');
 const deepcopy = require('deepcopy');
 const moment = require('moment-timezone');
 const {MongoNetworkTimeoutError} = require('mongodb');
 const {MemoryManager} = require('../../utils/memoryManager');
-const {MongoDatabaseManager} = require('../../utils/mongoDatabaseManager');
 
 
 /**
@@ -31,28 +27,14 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
             adminLogger,
             mongoDatabaseManager
         }) {
-        super();
-
-        /**
-         * @type {MongoCollectionManager}
-         */
-        this.mongoCollectionManager = mongoCollectionManager;
-        assertTypeEquals(mongoCollectionManager, MongoCollectionManager);
+        super({
+            mongoCollectionManager,
+            adminLogger,
+            mongoDatabaseManager
+        });
 
         this.batchSize = batchSize;
         assertIsValid(batchSize, `batchSize is not valid: ${batchSize}`);
-
-        /**
-         * @type {AdminLogger}
-         */
-        this.adminLogger = adminLogger;
-        assertTypeEquals(adminLogger, AdminLogger);
-
-        /**
-         * @type {MongoDatabaseManager}
-         */
-        this.mongoDatabaseManager = mongoDatabaseManager;
-        assertTypeEquals(mongoDatabaseManager, MongoDatabaseManager);
     }
 
     /**
@@ -281,6 +263,7 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                 }
 
                 let count = 0;
+                let numOperations = 0;
                 var refreshTimestamp = moment(); // take note of time at operation start
                 // const fnRefreshSessionAsync = async () => await db.admin().command({'refreshSessions': [sessionId]});
                 // const fnRefreshSessionAsync = async () => {
@@ -317,13 +300,16 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                     count += 1;
                     readline.cursorTo(process.stdout, 0);
                     process.stdout.write(`[${moment().toISOString()}] ` +
-                        `${count.toLocaleString('en-US')} of ${numberOfDocumentsToCopy.toLocaleString('en-US')}`);
+                        `${sourceCollectionName} ` +
+                        `Scanned: ${count.toLocaleString('en-US')} of ${numberOfDocumentsToCopy.toLocaleString('en-US')} ` +
+                        `Updated: ${numOperations.toLocaleString('en-US')}`);
                     /**
                      * @type {import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>[]}
                      */
                     const bulkOperations = await fnCreateBulkOperationAsync(doc);
                     for (const bulkOperation of bulkOperations) {
                         operations.push(bulkOperation);
+                        numOperations += 1;
                     }
 
                     startFromIdContainer.convertedIds += 1;
@@ -387,6 +373,10 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                     );
                 }
                 continueLoop = false; // done
+                this.adminLogger.logInfo('=== Finished ' +
+                    `${sourceCollectionName} ` +
+                    `Scanned: ${count.toLocaleString('en-US')} of ${numberOfSourceDocuments.toLocaleString('en-US')} ` +
+                    `Updated: ${numOperations.toLocaleString('en-US')} ===`);
             } catch (e) {
                 if (e instanceof MongoNetworkTimeoutError) {
                     // statements to handle TypeError exceptions
@@ -464,34 +454,6 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
     async hasNext(cursor) {
         // noinspection JSDeprecatedSymbols,JSCheckFunctionSignatures
         return await cursor.hasNext();
-    }
-
-    /**
-     * gets all collection names
-     * @param {boolean} useAuditDatabase
-     * @param {boolean|undefined} [includeHistoryCollections]
-     * @returns {Promise<string[]>}
-     */
-    async getAllCollectionNamesAsync({useAuditDatabase, includeHistoryCollections}) {
-        const config = useAuditDatabase ? auditEventMongoConfig : mongoConfig;
-        /**
-         * @type {import('mongodb').MongoClient}
-         */
-        const client = await this.mongoDatabaseManager.createClientAsync(config);
-        /**
-         * @type {import('mongodb').Db}
-         */
-        const db = client.db(config.db_name);
-        /**
-         * @type {string[]}
-         */
-        let collectionNames = await this.mongoCollectionManager.getAllCollectionNames({db: db});
-        // exclude history tables since we always search by id on those
-        if (!includeHistoryCollections) {
-            collectionNames = collectionNames.filter(c => !c.includes('_History'));
-        }
-        await this.mongoDatabaseManager.disconnectClientAsync(client);
-        return collectionNames;
     }
 }
 

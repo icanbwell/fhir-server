@@ -105,7 +105,7 @@ describe('Practitioner Graph PSS Contained Tests', () => {
             expect(resp).toHaveMergeResponse([{created: true}, {created: true}]);
 
             resp = await request
-                .post('/4_0_0/Practitioner/$graph?id=1003059437&contained=true')
+                .post('/4_0_0/Practitioner/$graph?id=1003059437&contained=true&_debug=1')
                 .send(graphDefinitionResource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction

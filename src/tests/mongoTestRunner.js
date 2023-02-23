@@ -4,19 +4,31 @@ const {MongoMemoryServer} = require('mongodb-memory-server-core');
  */
 let mongo;
 
+let myMongoUrl;
+
 async function startTestMongoServerAsync() {
     mongo = await MongoMemoryServer.create();
     await mongo.ensureInstance();
-    global.__MONGO_URI__ = mongo.getUri();
+    myMongoUrl = mongo.getUri();
+    global.__MONGO_URI__ = myMongoUrl;
 }
 
 async function stopTestMongoServerAsync() {
     await mongo.stop({doCleanup: true});
     mongo = null;
     delete global.__MONGO_URI__;
+    myMongoUrl = null;
+}
+
+async function getMongoUrlAsync() {
+    if (!myMongoUrl) {
+        await startTestMongoServerAsync();
+    }
+    return myMongoUrl;
 }
 
 module.exports = {
     startTestMongoServerAsync,
-    stopTestMongoServerAsync
+    stopTestMongoServerAsync,
+    getMongoUrlAsync
 };

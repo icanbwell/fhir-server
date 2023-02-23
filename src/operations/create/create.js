@@ -18,6 +18,9 @@ const {ResourceValidator} = require('../common/resourceValidator');
 const {isTrue} = require('../../utils/isTrue');
 const {DatabaseBulkInserter} = require('../../dataLayer/databaseBulkInserter');
 const {getCircularReplacer} = require('../../utils/getCircularReplacer');
+const {ParsedArgs} = require('../query/parsedArgsItem');
+const {SecurityTagSystem} = require('../../utils/securityTagSystem');
+const {ConfigManager} = require('../../utils/configManager');
 
 class CreateOperation {
     /**
@@ -30,6 +33,7 @@ class CreateOperation {
      * @param {ScopesValidator} scopesValidator
      * @param {ResourceValidator} resourceValidator
      * @param {DatabaseBulkInserter} databaseBulkInserter
+     * @param {ConfigManager} configManager
      */
     constructor(
         {
@@ -40,7 +44,8 @@ class CreateOperation {
             fhirLoggingManager,
             scopesValidator,
             resourceValidator,
-            databaseBulkInserter
+            databaseBulkInserter,
+            configManager
         }
     ) {
         /**
@@ -84,20 +89,27 @@ class CreateOperation {
          */
         this.databaseBulkInserter = databaseBulkInserter;
         assertTypeEquals(databaseBulkInserter, DatabaseBulkInserter);
+
+        /**
+         * @type {ConfigManager}
+         */
+        this.configManager = configManager;
+        assertTypeEquals(configManager, ConfigManager);
     }
 
     /**
      * does a FHIR Create (POST)
      * @param {FhirRequestInfo} requestInfo
-     * @param {Object} args
+     * @param {ParsedArgs} parsedArgs
      * @param {string} path
      * @param {string} resourceType
      * @returns {Resource}
      */
-    async create({requestInfo, args, path, resourceType}) {
+    // eslint-disable-next-line no-unused-vars
+    async create({requestInfo, parsedArgs, path, resourceType}) {
         assertIsValid(requestInfo !== undefined);
-        assertIsValid(args !== undefined);
         assertIsValid(resourceType !== undefined);
+        assertTypeEquals(parsedArgs, ParsedArgs);
         const currentOperationName = 'create';
         /**
          * @type {number}
@@ -108,7 +120,7 @@ class CreateOperation {
         await this.scopesValidator.verifyHasValidScopesAsync(
             {
                 requestInfo,
-                args,
+                parsedArgs,
                 resourceType,
                 startTime,
                 action: currentOperationName,
@@ -118,7 +130,15 @@ class CreateOperation {
 
         let resource_incoming = body;
 
-        let {base_version} = args;
+        if (resource_incoming && Array.isArray(resource_incoming)) {
+            throw new BadRequestError(
+                new Error(
+                    'Only single resource can be sent to create.'
+                )
+            );
+        }
+
+        let {base_version} = parsedArgs;
 
         // Per https://www.hl7.org/fhir/http.html#create, we should ignore the id passed in and generate a new one
         resource_incoming.id = generateUUID();
@@ -138,7 +158,7 @@ class CreateOperation {
             );
         }
 
-        if (env.VALIDATE_SCHEMA || args['_validate']) {
+        if (env.VALIDATE_SCHEMA || parsedArgs['_validate']) {
             /**
              * @type {OperationOutcome|null}
              */
@@ -159,7 +179,7 @@ class CreateOperation {
                 const notValidatedError = new NotValidatedError(validationOperationOutcome);
                 await this.fhirLoggingManager.logOperationFailureAsync({
                     requestInfo,
-                    args,
+                    args: parsedArgs.getRawArgs(),
                     resourceType,
                     startTime,
                     action: currentOperationName,
@@ -180,11 +200,26 @@ class CreateOperation {
              */
             const resource = new ResourceCreator(resource_incoming);
 
-            if (env.CHECK_ACCESS_TAG_ON_SAVE === '1') {
+            if (this.configManager.checkAccessTagsOnSave) {
                 if (!this.scopesManager.doesResourceHaveAccessTags(resource)) {
                     // noinspection ExceptionCaughtLocallyJS
-                    throw new BadRequestError(new Error(
-                        `${resourceType} is missing a security access tag with system: https://www.icanbwell.com/access `));
+                    throw new BadRequestError(
+                        new Error(
+                            `Resource ${resourceType}` +
+                            ' is missing a security access tag with system: ' +
+                            `${SecurityTagSystem.access}`
+                        )
+                    );
+                }
+                if (!this.scopesManager.doesResourceHaveOwnerTags(resource)) {
+                    // noinspection ExceptionCaughtLocallyJS
+                    throw new BadRequestError(
+                        new Error(
+                            `Resource ${resourceType}` +
+                            ' is missing a security access tag with system: ' +
+                            `${SecurityTagSystem.owner}`
+                        )
+                    );
                 }
             }
 
@@ -217,7 +252,7 @@ class CreateOperation {
                 await this.auditLogger.logAuditEntryAsync(
                     {
                         requestInfo, base_version, resourceType,
-                        operation: currentOperationName, args, ids: [resource['id']]
+                        operation: currentOperationName, args: parsedArgs.getRawArgs(), ids: [resource['id']]
                     }
                 );
                 await this.auditLogger.flushAsync({requestId, currentDate, method});
@@ -252,7 +287,7 @@ class CreateOperation {
             await this.fhirLoggingManager.logOperationSuccessAsync(
                 {
                     requestInfo,
-                    args,
+                    args: parsedArgs.getRawArgs(),
                     resourceType,
                     startTime,
                     action: currentOperationName,
@@ -281,7 +316,7 @@ class CreateOperation {
             }
             await this.fhirLoggingManager.logOperationFailureAsync({
                 requestInfo,
-                args,
+                args: parsedArgs.getRawArgs(),
                 resourceType,
                 startTime,
                 action: currentOperationName,

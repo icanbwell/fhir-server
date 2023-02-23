@@ -89,6 +89,12 @@
           "definition": {
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
+          "name": "remove_by_query"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
+          },
           "name": "everything"
         },
         {
@@ -156,6 +162,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "expand"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
+          },
+          "name": "remove_by_query"
         },
         {
           "definition": {
@@ -228,6 +240,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "expand"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
+          },
+          "name": "remove_by_query"
         },
         {
           "definition": {
@@ -300,6 +318,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "expand"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
+          },
+          "name": "remove_by_query"
         },
         {
           "definition": {
@@ -372,6 +396,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "expand"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
+          },
+          "name": "remove_by_query"
         },
         {
           "definition": {
@@ -444,6 +474,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "expand"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
+          },
+          "name": "remove_by_query"
         },
         {
           "definition": {
@@ -516,6 +552,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "expand"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
+          },
+          "name": "remove_by_query"
         },
         {
           "definition": {
@@ -588,6 +630,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "expand"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
+          },
+          "name": "remove_by_query"
         },
         {
           "definition": {
@@ -665,6 +713,12 @@
           "definition": {
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
+          "name": "remove_by_query"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
+          },
           "name": "everything"
         },
         {
@@ -732,6 +786,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "expand"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
+          },
+          "name": "remove_by_query"
         },
         {
           "definition": {
@@ -804,6 +864,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "expand"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
+          },
+          "name": "remove_by_query"
         },
         {
           "definition": {
@@ -876,6 +942,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "expand"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
+          },
+          "name": "remove_by_query"
         },
         {
           "definition": {
@@ -948,6 +1020,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "expand"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
+          },
+          "name": "remove_by_query"
         },
         {
           "definition": {
@@ -1020,6 +1098,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "expand"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
+          },
+          "name": "remove_by_query"
         },
         {
           "definition": {
@@ -1092,6 +1176,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "expand"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
+          },
+          "name": "remove_by_query"
         },
         {
           "definition": {
@@ -1164,6 +1254,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "expand"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
+          },
+          "name": "remove_by_query"
         },
         {
           "definition": {
@@ -1241,6 +1337,12 @@
           "definition": {
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
+          "name": "remove_by_query"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
+          },
           "name": "everything"
         },
         {
@@ -1308,6 +1410,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "expand"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
+          },
+          "name": "remove_by_query"
         },
         {
           "definition": {
@@ -1380,6 +1488,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "expand"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
+          },
+          "name": "remove_by_query"
         },
         {
           "definition": {
@@ -1452,6 +1566,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "expand"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
+          },
+          "name": "remove_by_query"
         },
         {
           "definition": {
@@ -1524,6 +1644,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "expand"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
+          },
+          "name": "remove_by_query"
         },
         {
           "definition": {
@@ -1596,6 +1722,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "expand"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
+          },
+          "name": "remove_by_query"
         },
         {
           "definition": {
@@ -1668,6 +1800,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "expand"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
+          },
+          "name": "remove_by_query"
         },
         {
           "definition": {
@@ -1740,6 +1878,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "expand"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
+          },
+          "name": "remove_by_query"
         },
         {
           "definition": {
@@ -1817,6 +1961,12 @@
           "definition": {
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
+          "name": "remove_by_query"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
+          },
           "name": "everything"
         },
         {
@@ -1884,6 +2034,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "expand"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
+          },
+          "name": "remove_by_query"
         },
         {
           "definition": {
@@ -1956,6 +2112,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "expand"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
+          },
+          "name": "remove_by_query"
         },
         {
           "definition": {
@@ -2028,6 +2190,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "expand"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
+          },
+          "name": "remove_by_query"
         },
         {
           "definition": {
@@ -2100,6 +2268,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "expand"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
+          },
+          "name": "remove_by_query"
         },
         {
           "definition": {
@@ -2172,6 +2346,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "expand"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
+          },
+          "name": "remove_by_query"
         },
         {
           "definition": {
@@ -2244,6 +2424,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "expand"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
+          },
+          "name": "remove_by_query"
         },
         {
           "definition": {
@@ -2316,6 +2502,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "expand"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
+          },
+          "name": "remove_by_query"
         },
         {
           "definition": {
@@ -2393,6 +2585,12 @@
           "definition": {
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
+          "name": "remove_by_query"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
+          },
           "name": "everything"
         },
         {
@@ -2460,6 +2658,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "expand"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
+          },
+          "name": "remove_by_query"
         },
         {
           "definition": {
@@ -2532,6 +2736,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "expand"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
+          },
+          "name": "remove_by_query"
         },
         {
           "definition": {
@@ -2604,6 +2814,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "expand"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
+          },
+          "name": "remove_by_query"
         },
         {
           "definition": {
@@ -2676,6 +2892,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "expand"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
+          },
+          "name": "remove_by_query"
         },
         {
           "definition": {
@@ -2748,6 +2970,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "expand"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
+          },
+          "name": "remove_by_query"
         },
         {
           "definition": {
@@ -2820,6 +3048,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "expand"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
+          },
+          "name": "remove_by_query"
         },
         {
           "definition": {
@@ -2892,6 +3126,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "expand"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
+          },
+          "name": "remove_by_query"
         },
         {
           "definition": {
@@ -2969,6 +3209,12 @@
           "definition": {
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
+          "name": "remove_by_query"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
+          },
           "name": "everything"
         },
         {
@@ -3036,6 +3282,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "expand"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
+          },
+          "name": "remove_by_query"
         },
         {
           "definition": {
@@ -3108,6 +3360,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "expand"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
+          },
+          "name": "remove_by_query"
         },
         {
           "definition": {
@@ -3180,6 +3438,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "expand"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
+          },
+          "name": "remove_by_query"
         },
         {
           "definition": {
@@ -3252,6 +3516,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "expand"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
+          },
+          "name": "remove_by_query"
         },
         {
           "definition": {
@@ -3324,6 +3594,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "expand"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
+          },
+          "name": "remove_by_query"
         },
         {
           "definition": {
@@ -3396,6 +3672,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "expand"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
+          },
+          "name": "remove_by_query"
         },
         {
           "definition": {
@@ -3468,6 +3750,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "expand"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
+          },
+          "name": "remove_by_query"
         },
         {
           "definition": {
@@ -3545,6 +3833,12 @@
           "definition": {
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
+          "name": "remove_by_query"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
+          },
           "name": "everything"
         },
         {
@@ -3612,6 +3906,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "expand"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
+          },
+          "name": "remove_by_query"
         },
         {
           "definition": {
@@ -3684,6 +3984,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "expand"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
+          },
+          "name": "remove_by_query"
         },
         {
           "definition": {
@@ -3761,7 +4067,7 @@
           "definition": {
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
-          "name": "everything"
+          "name": "remove_by_query"
         },
         {
           "definition": {
@@ -3785,7 +4091,13 @@
           "definition": {
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
-          "name": "merge"
+          "name": "everything"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
+          },
+          "name": "merge"
         },
         {
           "definition": {
@@ -3828,6 +4140,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "expand"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
+          },
+          "name": "remove_by_query"
         },
         {
           "definition": {
@@ -3905,6 +4223,12 @@
           "definition": {
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
+          "name": "remove_by_query"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
+          },
           "name": "everything"
         },
         {
@@ -3972,6 +4296,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "expand"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
+          },
+          "name": "remove_by_query"
         },
         {
           "definition": {
@@ -4044,6 +4374,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "expand"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
+          },
+          "name": "remove_by_query"
         },
         {
           "definition": {
@@ -4116,6 +4452,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "expand"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
+          },
+          "name": "remove_by_query"
         },
         {
           "definition": {
@@ -4188,6 +4530,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "expand"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
+          },
+          "name": "remove_by_query"
         },
         {
           "definition": {
@@ -4260,6 +4608,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "expand"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
+          },
+          "name": "remove_by_query"
         },
         {
           "definition": {
@@ -4337,6 +4691,12 @@
           "definition": {
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
+          "name": "remove_by_query"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
+          },
           "name": "everything"
         },
         {
@@ -4404,6 +4764,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "expand"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
+          },
+          "name": "remove_by_query"
         },
         {
           "definition": {
@@ -4476,6 +4842,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "expand"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
+          },
+          "name": "remove_by_query"
         },
         {
           "definition": {
@@ -4548,6 +4920,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "expand"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
+          },
+          "name": "remove_by_query"
         },
         {
           "definition": {
@@ -4620,6 +4998,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "expand"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
+          },
+          "name": "remove_by_query"
         },
         {
           "definition": {
@@ -4697,6 +5081,12 @@
           "definition": {
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
+          "name": "remove_by_query"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
+          },
           "name": "everything"
         },
         {
@@ -4764,6 +5154,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "expand"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
+          },
+          "name": "remove_by_query"
         },
         {
           "definition": {
@@ -4836,6 +5232,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "expand"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
+          },
+          "name": "remove_by_query"
         },
         {
           "definition": {
@@ -4908,6 +5310,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "expand"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
+          },
+          "name": "remove_by_query"
         },
         {
           "definition": {
@@ -4980,6 +5388,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "expand"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
+          },
+          "name": "remove_by_query"
         },
         {
           "definition": {
@@ -5057,6 +5471,12 @@
           "definition": {
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
+          "name": "remove_by_query"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
+          },
           "name": "everything"
         },
         {
@@ -5124,6 +5544,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "expand"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
+          },
+          "name": "remove_by_query"
         },
         {
           "definition": {
@@ -5196,6 +5622,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "expand"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
+          },
+          "name": "remove_by_query"
         },
         {
           "definition": {
@@ -5268,6 +5700,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "expand"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
+          },
+          "name": "remove_by_query"
         },
         {
           "definition": {
@@ -5340,6 +5778,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "expand"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
+          },
+          "name": "remove_by_query"
         },
         {
           "definition": {
@@ -5417,6 +5861,12 @@
           "definition": {
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
+          "name": "remove_by_query"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
+          },
           "name": "everything"
         },
         {
@@ -5484,6 +5934,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "expand"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
+          },
+          "name": "remove_by_query"
         },
         {
           "definition": {
@@ -5556,6 +6012,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "expand"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
+          },
+          "name": "remove_by_query"
         },
         {
           "definition": {
@@ -5628,6 +6090,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "expand"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
+          },
+          "name": "remove_by_query"
         },
         {
           "definition": {
@@ -5700,6 +6168,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "expand"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
+          },
+          "name": "remove_by_query"
         },
         {
           "definition": {
@@ -5772,6 +6246,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "expand"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
+          },
+          "name": "remove_by_query"
         },
         {
           "definition": {
@@ -5844,6 +6324,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "expand"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
+          },
+          "name": "remove_by_query"
         },
         {
           "definition": {
@@ -5916,6 +6402,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "expand"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
+          },
+          "name": "remove_by_query"
         },
         {
           "definition": {
@@ -5988,6 +6480,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "expand"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
+          },
+          "name": "remove_by_query"
         },
         {
           "definition": {
@@ -6060,6 +6558,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "expand"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
+          },
+          "name": "remove_by_query"
         },
         {
           "definition": {
@@ -6132,6 +6636,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "expand"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
+          },
+          "name": "remove_by_query"
         },
         {
           "definition": {
@@ -6204,6 +6714,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "expand"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
+          },
+          "name": "remove_by_query"
         },
         {
           "definition": {
@@ -6276,6 +6792,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "expand"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
+          },
+          "name": "remove_by_query"
         },
         {
           "definition": {
@@ -6348,6 +6870,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "expand"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
+          },
+          "name": "remove_by_query"
         },
         {
           "definition": {
@@ -6420,6 +6948,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "expand"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
+          },
+          "name": "remove_by_query"
         },
         {
           "definition": {
@@ -6492,6 +7026,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "expand"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
+          },
+          "name": "remove_by_query"
         },
         {
           "definition": {
@@ -6564,6 +7104,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "expand"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
+          },
+          "name": "remove_by_query"
         },
         {
           "definition": {
@@ -6636,6 +7182,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "expand"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
+          },
+          "name": "remove_by_query"
         },
         {
           "definition": {
@@ -6708,6 +7260,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "expand"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
+          },
+          "name": "remove_by_query"
         },
         {
           "definition": {
@@ -6780,6 +7338,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "expand"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
+          },
+          "name": "remove_by_query"
         },
         {
           "definition": {
@@ -6852,6 +7416,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "expand"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
+          },
+          "name": "remove_by_query"
         },
         {
           "definition": {
@@ -6929,6 +7499,12 @@
           "definition": {
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
+          "name": "remove_by_query"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
+          },
           "name": "everything"
         },
         {
@@ -6996,6 +7572,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "expand"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
+          },
+          "name": "remove_by_query"
         },
         {
           "definition": {
@@ -7068,6 +7650,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "expand"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
+          },
+          "name": "remove_by_query"
         },
         {
           "definition": {
@@ -7140,6 +7728,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "expand"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
+          },
+          "name": "remove_by_query"
         },
         {
           "definition": {
@@ -7212,6 +7806,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "expand"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
+          },
+          "name": "remove_by_query"
         },
         {
           "definition": {
@@ -7289,6 +7889,12 @@
           "definition": {
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
+          "name": "remove_by_query"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
+          },
           "name": "everything"
         },
         {
@@ -7356,6 +7962,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "expand"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
+          },
+          "name": "remove_by_query"
         },
         {
           "definition": {
@@ -7428,6 +8040,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "expand"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
+          },
+          "name": "remove_by_query"
         },
         {
           "definition": {
@@ -7500,6 +8118,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "expand"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
+          },
+          "name": "remove_by_query"
         },
         {
           "definition": {
@@ -7572,6 +8196,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "expand"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
+          },
+          "name": "remove_by_query"
         },
         {
           "definition": {
@@ -7649,6 +8279,12 @@
           "definition": {
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
+          "name": "remove_by_query"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
+          },
           "name": "everything"
         },
         {
@@ -7716,6 +8352,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "expand"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
+          },
+          "name": "remove_by_query"
         },
         {
           "definition": {
@@ -7788,6 +8430,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "expand"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
+          },
+          "name": "remove_by_query"
         },
         {
           "definition": {
@@ -7860,6 +8508,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "expand"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
+          },
+          "name": "remove_by_query"
         },
         {
           "definition": {
@@ -7932,6 +8586,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "expand"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
+          },
+          "name": "remove_by_query"
         },
         {
           "definition": {
@@ -8009,6 +8669,12 @@
           "definition": {
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
+          "name": "remove_by_query"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
+          },
           "name": "everything"
         },
         {
@@ -8076,6 +8742,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "expand"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
+          },
+          "name": "remove_by_query"
         },
         {
           "definition": {
@@ -8148,6 +8820,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "expand"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
+          },
+          "name": "remove_by_query"
         },
         {
           "definition": {
@@ -8220,6 +8898,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "expand"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
+          },
+          "name": "remove_by_query"
         },
         {
           "definition": {
@@ -8292,6 +8976,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "expand"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
+          },
+          "name": "remove_by_query"
         },
         {
           "definition": {
@@ -8369,6 +9059,12 @@
           "definition": {
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
+          "name": "remove_by_query"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
+          },
           "name": "everything"
         },
         {
@@ -8436,6 +9132,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "expand"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
+          },
+          "name": "remove_by_query"
         },
         {
           "definition": {
@@ -8508,6 +9210,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "expand"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
+          },
+          "name": "remove_by_query"
         },
         {
           "definition": {
@@ -8580,6 +9288,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "expand"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
+          },
+          "name": "remove_by_query"
         },
         {
           "definition": {
@@ -8652,6 +9366,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "expand"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
+          },
+          "name": "remove_by_query"
         },
         {
           "definition": {
@@ -8729,6 +9449,12 @@
           "definition": {
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
+          "name": "remove_by_query"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
+          },
           "name": "everything"
         },
         {
@@ -8796,6 +9522,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "expand"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
+          },
+          "name": "remove_by_query"
         },
         {
           "definition": {
@@ -8868,6 +9600,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "expand"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
+          },
+          "name": "remove_by_query"
         },
         {
           "definition": {
@@ -8940,6 +9678,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "expand"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
+          },
+          "name": "remove_by_query"
         },
         {
           "definition": {
@@ -9012,6 +9756,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "expand"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
+          },
+          "name": "remove_by_query"
         },
         {
           "definition": {
@@ -9089,6 +9839,12 @@
           "definition": {
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
+          "name": "remove_by_query"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
+          },
           "name": "everything"
         },
         {
@@ -9156,6 +9912,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "expand"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
+          },
+          "name": "remove_by_query"
         },
         {
           "definition": {
@@ -9228,6 +9990,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "expand"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
+          },
+          "name": "remove_by_query"
         },
         {
           "definition": {
@@ -9300,6 +10068,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "expand"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
+          },
+          "name": "remove_by_query"
         },
         {
           "definition": {
@@ -9372,6 +10146,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "expand"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
+          },
+          "name": "remove_by_query"
         }
       ],
       "resource": [

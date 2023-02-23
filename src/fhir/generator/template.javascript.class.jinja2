@@ -15,6 +15,7 @@ const Resource = require('../resources/resource');
 {%  else %}
 const Element = require('../complex_types/element');
 {%  endif %}
+const async = require('async');
 
 
 /**
@@ -63,6 +64,14 @@ class {{ fhir_entity.cleaned_name }} extends Element {
     {{- '} ' -}}
     [{{ extra_property.name }}]
 {%  endfor %}
+{% if fhir_entity.cleaned_name == "Reference"  %}
+    {% for extra_property in extra_properties_for_reference %}
+     * @param {{- ' {' -}}
+    {{ extra_property.type }}|undefined
+    {{- '} ' -}}
+    [{{ extra_property.name }}]
+    {%  endfor %}
+{%  endif %}
     */
     constructor(
         {
@@ -76,6 +85,11 @@ class {{ fhir_entity.cleaned_name }} extends Element {
 {% for extra_property in extra_properties %}
             {{ extra_property.name -}},
 {%  endfor %}
+{% if fhir_entity.cleaned_name == "Reference"  %}
+    {% for extra_property in extra_properties_for_reference %}
+            {{ extra_property.name -}},
+    {%  endfor %}
+{% endif %}
         }
     ) {
 {% if fhir_entity.cleaned_name == 'Element' %}
@@ -192,6 +206,24 @@ class {{ fhir_entity.cleaned_name }} extends Element {
         });
 {%  endfor %}
 
+{% if fhir_entity.cleaned_name == "Reference"  %}
+    {% for extra_property in extra_properties_for_reference %}
+        /**
+         * @description {{ extra_property.name }}
+         * @property {{ '{' + extra_property.type + '|undefined' +'}' }}
+         */
+        Object.defineProperty(this, '{{ extra_property.name -}}', {
+            // https://www.w3schools.com/js/js_object_es5.asp
+            enumerable: true,
+            configurable: true,
+            get: () => this.__data.{{ extra_property.name }},
+            set: valueProvided => {
+                this.__data.{{ extra_property.name }} = valueProvided;
+            }
+        });
+    {%  endfor %}
+{%  endif %}
+
         // --- Now copy properties from passed in object ----
         Object.assign(this, {
 {% for property in fhir_entity.properties %}
@@ -204,6 +236,11 @@ class {{ fhir_entity.cleaned_name }} extends Element {
 {% for extra_property in extra_properties %}
             {{ extra_property.name -}},
 {% endfor %}
+{% if fhir_entity.cleaned_name == "Reference"  %}
+    {% for extra_property in extra_properties_for_reference %}
+            {{ extra_property.name -}},
+    {% endfor %}
+{%  endif %}
         });
 
 {% if fhir_entity.is_resource %}
@@ -263,6 +300,14 @@ class {{ fhir_entity.cleaned_name }} extends Element {
     {{- '} ' -}}
     [{{ extra_property.name }}]
 {%  endfor %}
+{% if fhir_entity.cleaned_name == "Reference"  %}
+    {% for extra_property in extra_properties_for_reference %}
+     * @param {{- ' {' -}}
+    {{ extra_property.type }}|undefined
+    {{- '} ' -}}
+    [{{ extra_property.name }}]
+    {%  endfor %}
+{% endif %}
      * @returns {{- ' {' -}}{{ fhir_entity.cleaned_name }} {{- '}' }}
     */
     create(
@@ -277,6 +322,11 @@ class {{ fhir_entity.cleaned_name }} extends Element {
 {% for extra_property in extra_properties %}
             {{ extra_property.name -}},
 {% endfor %}
+{% if fhir_entity.cleaned_name == "Reference"  %}
+    {% for extra_property in extra_properties_for_reference %}
+            {{ extra_property.name -}},
+    {% endfor %}
+{% endif %}
         }
     ) {
         return new {{ fhir_entity.cleaned_name }}({
@@ -290,6 +340,11 @@ class {{ fhir_entity.cleaned_name }} extends Element {
 {% for extra_property in extra_properties %}
             {{ extra_property.name -}},
 {% endfor %}
+{% if fhir_entity.cleaned_name == "Reference"  %}
+    {% for extra_property in extra_properties_for_reference %}
+            {{ extra_property.name -}},
+    {% endfor %}
+{%  endif %}
         });
     }
 
@@ -330,19 +385,19 @@ class {{ fhir_entity.cleaned_name }} extends Element {
 
     /**
      * Returns JSON representation of entity
-     * @param {function(Reference): Reference} fnUpdateReference
+     * @param {function(Reference): Promise<Reference>} fnUpdateReferenceAsync
      * @return {void}
      */
-    updateReferences({fnUpdateReference}) {
+    async updateReferencesAsync({fnUpdateReferenceAsync}) {
 {% if fhir_entity.cleaned_name == "Reference"  %}
-        fnUpdateReference(this);
+        await fnUpdateReferenceAsync(this);
 {% else %}
 {% for property in fhir_entity.properties %}
     {%  if property.is_resource or property.is_extension or property.cleaned_type == "ResourceContainer" or property.fhir_type == "BackboneElement" or property.is_complex or property.fhir_type == "Element" %}
         {% if property.is_list %}
-            if (this.{{ property.name }}) {this.{{ property.name -}}.forEach(v =>  v.updateReferences({fnUpdateReference}));}
+            if (this.{{ property.name }}) {await async.each(this.{{ property.name -}}, async v => await v.updateReferencesAsync({fnUpdateReferenceAsync}));}
         {%  else %}
-            if (this.{{ property.name }}) {this.{{ property.name -}}.updateReferences({fnUpdateReference});}
+            if (this.{{ property.name }}) {await this.{{ property.name -}}.updateReferencesAsync({fnUpdateReferenceAsync});}
         {% endif %}
     {% endif %}
 {% endfor %}
@@ -355,13 +410,36 @@ class {{ fhir_entity.cleaned_name }} extends Element {
      */
     toJSONInternal() {
         const {removeNull} = require('../../../../utils/nullRemover');
-        const json = this.toJSON();
+        const json = {
+        {% if fhir_entity.is_resource %}
+            resourceType: this.resourceType,
+        {%  endif %}
+{% for property in fhir_entity.properties %}
+    {%  if property.is_resource or property.is_extension or property.cleaned_type == "ResourceContainer" or property.fhir_type == "BackboneElement" or property.is_complex or property.fhir_type == "Element" %}
+        {% if property.is_list %}
+            {{ property.name -}}: this.{{ property.name }} && this.{{ property.name -}}.map(v => v.toJSONInternal()),
+        {%  else %}
+            {{ property.name -}}: this.{{ property.name }} && this.{{ property.name -}}.toJSONInternal(),
+        {% endif %}
+    {%  else %}
+            {{ property.name -}}: this.{{ property.name -}},
+    {% endif %}
+{% endfor %}
+        };
+
 
 {% for extra_property in extra_properties %}
         if (this.{{ extra_property.name -}}) {
             json.{{ extra_property.name }} = this.{{ extra_property.name -}};
         }
 {%  endfor %}
+{% if fhir_entity.cleaned_name == "Reference"  %}
+    {% for extra_property in extra_properties_for_reference %}
+        if (this.{{ extra_property.name -}}) {
+            json.{{ extra_property.name }} = this.{{ extra_property.name -}};
+        }
+    {%  endfor %}
+{%  endif %}
 
         return removeNull(json);
     }

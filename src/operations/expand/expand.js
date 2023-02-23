@@ -6,7 +6,7 @@ const {ValueSetManager} = require('../../utils/valueSet.util');
 const {ScopesManager} = require('../security/scopesManager');
 const {FhirLoggingManager} = require('../common/fhirLoggingManager');
 const {ScopesValidator} = require('../security/scopesValidator');
-const deepcopy = require('deepcopy');
+const {ParsedArgs} = require('../query/parsedArgsItem');
 
 class ExpandOperation {
     /**
@@ -65,14 +65,14 @@ class ExpandOperation {
     /**
      * does a FHIR Search By Id
      * @param {FhirRequestInfo} requestInfo
-     * @param {Object} args
+     * @param {ParsedArgs} parsedArgs
      * @param {string} resourceType
      * @return {Resource}
      */
-    async expand({requestInfo, args, resourceType}) {
+    async expand({requestInfo, parsedArgs, resourceType}) {
         assertIsValid(requestInfo !== undefined);
-        assertIsValid(args !== undefined);
         assertIsValid(resourceType !== undefined);
+        assertTypeEquals(parsedArgs, ParsedArgs);
         const currentOperationName = 'expand';
         /**
          * @type {number}
@@ -83,7 +83,7 @@ class ExpandOperation {
 
         await this.scopesValidator.verifyHasValidScopesAsync({
             requestInfo,
-            args,
+            parsedArgs,
             resourceType,
             startTime,
             action: currentOperationName,
@@ -91,12 +91,8 @@ class ExpandOperation {
         });
 
         // Common search params
-        const {id} = args;
-        const {base_version} = args;
-
-        const originalArgs = deepcopy(args);
-
-        // Search Result param
+        const {id} = parsedArgs;
+        const {base_version} = parsedArgs;
 
         let query = {};
         query.id = id;
@@ -111,7 +107,7 @@ class ExpandOperation {
         } catch (e) {
             await this.fhirLoggingManager.logOperationFailureAsync({
                 requestInfo,
-                args,
+                args: parsedArgs.getRawArgs(),
                 resourceType,
                 startTime,
                 action: currentOperationName,
@@ -129,7 +125,7 @@ class ExpandOperation {
                     resource.resourceType + ' with id ' + id);
                 await this.fhirLoggingManager.logOperationFailureAsync({
                     requestInfo,
-                    args,
+                    args: parsedArgs.getRawArgs(),
                     resourceType,
                     startTime,
                     action: currentOperationName,
@@ -144,15 +140,14 @@ class ExpandOperation {
 
             // run any enrichment
             resource = (await this.enrichmentManager.enrichAsync({
-                        resources: [resource], args,
-                        originalArgs
+                        resources: [resource], parsedArgs
                     }
                 )
             )[0];
 
             await this.fhirLoggingManager.logOperationSuccessAsync(
                 {
-                    requestInfo, args, resourceType, startTime,
+                    requestInfo, args: parsedArgs.getRawArgs(), resourceType, startTime,
                     action: currentOperationName,
                     result: JSON.stringify(resource.toJSON())
                 });

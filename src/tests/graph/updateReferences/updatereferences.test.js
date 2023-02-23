@@ -42,9 +42,9 @@ describe('UpdateReferences Tests', () => {
 
             /**
              * @param {Reference} reference
-             * @return {Reference}
+             * @return {Promise<Reference>}
              */
-            function fnUpdateReference(reference) {
+            async function fnUpdateReferenceAsync(reference) {
                 logInfo('', {reference});
                 if (reference.reference && reference.reference.startsWith('Patient/')) {
                     reference.reference = 'Patient/ProxyPatient';
@@ -55,8 +55,8 @@ describe('UpdateReferences Tests', () => {
                 return reference;
             }
 
-            observation.updateReferences({
-                fnUpdateReference
+            await observation.updateReferencesAsync({
+                fnUpdateReferenceAsync
             });
 
             expect(observation.toJSON()).toStrictEqual(expectedObservationResources);
@@ -128,7 +128,7 @@ describe('UpdateReferences Tests', () => {
             expect(resp).toHaveResponse(expectedObservationWithoutProxyPatientResources);
 
             resp = await request
-                .get('/4_0_0/Observation/?_bundle=1&patient=Patient/person.m65633')
+                .get('/4_0_0/Observation/?_bundle=1&patient=Patient/person.m65633&_debug=1')
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedObservationWithProxyPatientResources);
@@ -204,7 +204,7 @@ describe('UpdateReferences Tests', () => {
             expect(resp).toHaveMergeResponse({created: true});
 
             resp = await request
-                .post('/4_0_0/Patient/$graph?id=person.m65633')
+                .post('/4_0_0/Patient/$graph?id=person.m65633&_debug=1')
                 .set(getHeaders())
                 .send(graphDefinitionResource);
 

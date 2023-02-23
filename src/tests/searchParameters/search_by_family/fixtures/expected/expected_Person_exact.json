@@ -2,89 +2,108 @@
   "entry": [
     {
       "resource": {
-        "resourceType": "Person",
+        "address": [
+          {
+            "city": "Berea",
+            "line": [
+              "123 Main St.",
+              "Suite 102"
+            ],
+            "postalCode": "50002",
+            "state": "IA"
+          }
+        ],
+        "birthDate": "1950-10-10",
+        "gender": "female",
         "id": "2",
+        "identifier": [
+          {
+            "system": "https://www.icanbwell.com",
+            "type": {
+              "coding": [
+                {
+                  "code": "FHIR_id",
+                  "display": "bWell FHIR id",
+                  "system": "https://www.icanbwell.com"
+                }
+              ]
+            },
+            "value": "bwell-00b2f5e65e344820aaa6038244c55dd2"
+          },
+          {
+            "id": "sourceId",
+            "system": "https://www.icanbwell.com/sourceId",
+            "value": "2"
+          },
+          {
+            "id": "uuid",
+            "system": "https://www.icanbwell.com/uuid",
+            "value": "27153f78-54c7-5029-889b-1026a9580ebf"
+          }
+        ],
+        "link": [
+          {
+            "assurance": "level4",
+            "target": {
+              "extension": [
+                {
+                  "id": "sourceId",
+                  "url": "https://www.icanbwell.com/sourceId",
+                  "valueString": "Patient/xxx"
+                },
+                {
+                  "id": "uuid",
+                  "url": "https://www.icanbwell.com/uuid",
+                  "valueString": "Patient/d071e171-2ff5-5a75-97ac-4b2641455ecc"
+                },
+                {
+                  "id": "sourceAssigningAuthority",
+                  "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                  "valueString": "bwell"
+                }
+              ],
+              "reference": "Patient/xxx",
+              "type": "Patient"
+            }
+          }
+        ],
         "meta": {
-          "versionId": "1",
-          "lastUpdated": "2022-06-13T13:52:25.000Z",
           "security": [
             {
-              "system": "https://www.icanbwell.com/access",
-              "code": "bwell"
+              "code": "bwell",
+              "system": "https://www.icanbwell.com/access"
             },
             {
-              "system": "https://www.icanbwell.com/owner",
-              "code": "bwell"
+              "code": "bwell",
+              "system": "https://www.icanbwell.com/owner"
             },
             {
               "code": "bwell",
               "system": "https://www.icanbwell.com/sourceAssigningAuthority"
             }
-          ]
+          ],
+          "versionId": "1"
         },
-        "identifier": [
-          {
-            "type": {
-              "coding": [
-                {
-                  "system": "https://www.icanbwell.com",
-                  "code": "FHIR_id",
-                  "display": "bWell FHIR id"
-                }
-              ]
-            },
-            "system": "https://www.icanbwell.com",
-            "value": "bwell-00b2f5e65e344820aaa6038244c55dd2"
-          },
-          {
-            "system": "https://www.icanbwell.com/sourceId",
-            "value": "2"
-          },
-          {
-            "system": "https://www.icanbwell.com/uuid"
-          }
-        ],
         "name": [
           {
-            "use": "official",
             "family": "Doe",
             "given": [
               "John"
-            ]
+            ],
+            "use": "official"
           }
         ],
+        "resourceType": "Person",
         "telecom": [
           {
             "system": "phone",
-            "value": "+14435705277",
-            "use": "home"
+            "use": "home",
+            "value": "+14435705277"
           },
           {
             "system": "email",
-            "value": "test.user@icanbwell.com",
-            "use": "home"
-          }
-        ],
-        "gender": "female",
-        "birthDate": "1950-10-10",
-        "address": [
-          {
-            "line": [
-              "123 Main St.",
-              "Suite 102"
-            ],
-            "city": "Berea",
-            "state": "IA",
-            "postalCode": "50002"
-          }
-        ],
-        "link": [
-          {
-            "target": {
-              "reference": "Patient/xxx",
-              "type": "Patient"
-            },
-            "assurance": "level4"
+            "use": "home",
+            "value": "test.user@icanbwell.com"
           }
         ]
       }

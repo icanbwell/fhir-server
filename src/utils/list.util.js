@@ -42,18 +42,26 @@ const findUniques = (listToCheck, fnKey) => {
  * @param {Resource[]} listToCheck
  * @returns {Resource[]}
  */
-const findDuplicateResources = (listToCheck) => {
+const findDuplicateResourcesByUuid = (listToCheck) => {
     // noinspection JSValidateTypes
-    return findDuplicates(listToCheck, r => `${r.resourceType}/${r.id}`);
+    return findDuplicates(listToCheck, r => `${r.resourceType}/${r._uuid}`);
 };
 
 /**
  * @param {Resource[]} listToCheck
  * @returns {Resource[]}
  */
-const findUniqueResources = (listToCheck) => {
+const findDuplicateResourcesById = (listToCheck) => {
     // noinspection JSValidateTypes
-    return findUniques(listToCheck, r => `${r.resourceType}/${r.id}`);
+    return findDuplicates(listToCheck, r => `${r.resourceType}/${r.id}`);
+};
+/**
+ * @param {Resource[]} listToCheck
+ * @returns {Resource[]}
+ */
+const findUniqueResourcesByUuid = (listToCheck) => {
+    // noinspection JSValidateTypes
+    return findUniques(listToCheck, r => `${r.resourceType}/${r._uuid}`);
 };
 
 /**
@@ -146,17 +154,17 @@ async function removeEmptyEntriesAsync(array_of_arrays) {
  * @param fnCompare
  * @returns {*[]}
  */
-function removeDuplicatesWithLambda(array, fnCompare)
-{
+function removeDuplicatesWithLambda(array, fnCompare) {
     return array.filter((value, index, self) => index === self.findIndex((t) => (fnCompare(t, value))));
 }
 
 
 module.exports = {
     findDuplicates,
-    findDuplicateResources,
+    findDuplicateResourcesByUuid,
+    findDuplicateResourcesById,
     findUniques,
-    findUniqueResources,
+    findUniqueResourcesByUuid,
     groupBy,
     groupByLambda,
     getFirstElementOrNull,

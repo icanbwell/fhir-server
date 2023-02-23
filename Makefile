@@ -1,4 +1,4 @@
-NODE_VERSION=16.19.0
+NODE_VERSION=18.14.0
 
 .PHONY:build
 build:
@@ -91,7 +91,7 @@ upgrade_packages:down
 .PHONY:tests
 tests:
 	. ${NVM_DIR}/nvm.sh && nvm use ${NODE_VERSION} && \
-	npm run test_shards
+	npm run test
 
 .PHONY:test_shards
 test_shards:
@@ -190,3 +190,8 @@ searchParameters:
 audit_fix:
 	. ${NVM_DIR}/nvm.sh && nvm use ${NODE_VERSION} && \
 	npm audit fix
+
+.PHONY:qodana
+qodana:
+	docker run --rm -it --name qodana --mount type=bind,source="${PWD}",target=/data/project -p 8080:8080 jetbrains/qodana-js:2022.3-eap --show-report
+

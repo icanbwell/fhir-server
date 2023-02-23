@@ -21,6 +21,15 @@ class KafkaClientFactory {
 
         this.configManager = configManager;
         assertTypeEquals(configManager, ConfigManager);
+
+        /**
+         * @type {string|undefined}
+         */
+        this.userName = undefined;
+        /**
+         * @type {string|undefined}
+         */
+        this.password = undefined;
     }
 
     /**
@@ -38,12 +47,16 @@ class KafkaClientFactory {
             secretAccessKey: this.configManager.kafkaAccessKeySecret || null
         } : null;
         if (this.configManager.kafkaUseSasl && this.configManager.kafkaAwsSecretName) {
-            const {
-                username,
-                password
-            } = await this.secretsManager.getSecretValueAsync({secretName: this.configManager.kafkaAwsSecretName});
-            sasl.username = username;
-            sasl.password = password;
+            if (!this.userName || !this.password) {
+                const {
+                    username,
+                    password
+                } = await this.secretsManager.getSecretValueAsync({secretName: this.configManager.kafkaAwsSecretName});
+                this.userName = username;
+                this.password = password;
+            }
+            sasl.username = this.userName;
+            sasl.password = this.password;
         }
         return {
             clientId: this.configManager.kafkaClientId,

@@ -7,6 +7,7 @@ const graphSimpleWithExtensionDefinition = require('./fixtures/graphSimpleWithEx
 const {FhirRequestInfo} = require('../../utils/fhirRequestInfo');
 const {createTestContainer} = require('../createTestContainer');
 const {describe, beforeEach, afterEach, expect, test} = require('@jest/globals');
+const {generateUUIDv5} = require('../../utils/uid.util');
 
 /**
  * Gets graph helper
@@ -19,6 +20,15 @@ function getGraphHelper() {
 
 describe('graphHelper Tests', () => {
     const base_version = '4_0_0';
+    const uuid1 = generateUUIDv5('1|medstar');
+    const uuid2 = generateUUIDv5('2|medstar');
+    const uuid20 = generateUUIDv5('20|medstar');
+    const uuid10 = generateUUIDv5('10|medstar');
+    const uuid100 = generateUUIDv5('100|medstar');
+    const uuid200 = generateUUIDv5('200|medstar');
+    const uuid2000 = generateUUIDv5('2000|medstar');
+    const uuidAetna = generateUUIDv5('AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He|medstar');
+
     beforeEach(async () => {
         await commonBeforeEach();
         await createTestRequest();
@@ -37,7 +47,13 @@ describe('graphHelper Tests', () => {
          */
         const collection = db.collection(`${resourceType}_${base_version}`);
 
-        await collection.insertOne({id: '1', resourceType: 'Practitioner'});
+        await collection.insertOne({
+                id: '1',
+                _sourceId: '1',
+                _uuid: uuid1,
+                resourceType: 'Practitioner'
+            }
+        );
         // const doc = await collection.findOne({id: '1'});
     });
 
@@ -53,23 +69,33 @@ describe('graphHelper Tests', () => {
         originalUrl: '',
         host: 'host',
         headers: {},
-        method: 'post'
+        method: 'post',
+        contentTypeFromHeader: null
     });
 
-    describe('graphHelper Tests', () => {
+    describe('graphHelper Tests with uuid', () => {
         test('graphHelper single Practitioner works', async () => {
             const resourceType = 'Practitioner';
-            const result = await getGraphHelper().processGraphAsync({
-                requestInfo,
-                base_version,
-                resourceType,
-                id: ['1'],
-                graphDefinitionJson: graphSimpleReverseDefinition,
-                contained: false,
-                hash_references: false,
-                args: {'base_version': '4_0_0'},
-                originalArgs: {}
-            });
+            /**
+             * @type {SimpleContainer}
+             */
+            const container = getTestContainer();
+            /**
+             * @type {R4ArgsParser}
+             */
+            const r4ArgsParser = container.r4ArgsParser;
+            const args = {'base_version': '4_0_0', 'id': '1'};
+            const parsedArgs = r4ArgsParser.parseArgs({resourceType, args});
+            const result = await getGraphHelper().processGraphAsync(
+                {
+                    requestInfo,
+                    base_version,
+                    resourceType,
+                    graphDefinitionJson: graphSimpleReverseDefinition,
+                    contained: false,
+                    parsedArgs: parsedArgs
+                }
+            );
             expect(result).not.toBeNull();
             delete result['timestamp'];
             expect(result.toJSON()).toStrictEqual({
@@ -102,17 +128,27 @@ describe('graphHelper Tests', () => {
             const resourceType = 'Practitioner';
             const collection = db.collection(`${resourceType}_${base_version}`);
 
-            await collection.insertOne({id: '2', resourceType: 'Practitioner'});
+            await collection.insertOne({
+                    id: '2',
+                    _sourceId: '2',
+                    _uuid: uuid2,
+                    resourceType: 'Practitioner'
+                }
+            );
+            /**
+             * @type {R4ArgsParser}
+             */
+            const r4ArgsParser = container.r4ArgsParser;
+            const args = {'base_version': '4_0_0', 'id': '1,2'};
+            const parsedArgs = r4ArgsParser.parseArgs({resourceType, args});
             const result = await getGraphHelper().processGraphAsync({
                 requestInfo,
                 base_version,
                 resourceType,
-                id: ['1', '2'],
                 graphDefinitionJson: graphSimpleReverseDefinition,
                 contained: false,
-                hash_references: false,
-                args: {'base_version': '4_0_0'},
-                originalArgs: {}
+                args: args,
+                parsedArgs: parsedArgs
             });
             expect(result).not.toBeNull();
             delete result['timestamp'];
@@ -155,21 +191,48 @@ describe('graphHelper Tests', () => {
             const collection = db.collection(`${resourceType}_${base_version}`);
             await collection.insertOne({
                 id: '10',
+                _sourceId: '10',
+                _uuid: uuid10,
                 resourceType: resourceType,
-                practitioner: {reference: 'Practitioner/1'},
+                practitioner: {
+                    reference: 'Practitioner/1',
+                    _sourceId: 'Practitioner/1',
+                    _uuid: `Practitioner/${uuid1}`
+                },
+            });
+
+            const cursor = await collection.find({
+                'practitioner._uuid': 'Practitioner/18ba3527-77e0-5ae6-a872-181654110d28'
+            });
+            const doc = await cursor.next();
+            delete doc._id;
+            expect(doc).toStrictEqual({
+                id: '10',
+                _sourceId: '10',
+                _uuid: uuid10,
+                resourceType: resourceType,
+                practitioner: {
+                    reference: 'Practitioner/1',
+                    _sourceId: 'Practitioner/1',
+                    _uuid: `Practitioner/${uuid1}`
+                },
             });
 
             resourceType = 'Practitioner';
+            /**
+             * @type {R4ArgsParser}
+             */
+            const r4ArgsParser = container.r4ArgsParser;
+            const args = {'base_version': '4_0_0', 'id': '1'};
+            const parsedArgs = r4ArgsParser.parseArgs({resourceType, args});
             const result = await getGraphHelper().processGraphAsync({
                 requestInfo,
                 base_version,
                 resourceType,
-                id: ['1'],
                 graphDefinitionJson: graphSimpleReverseDefinition,
                 contained: false,
-                hash_references: false,
-                args: {'base_version': '4_0_0'},
-                originalArgs: {}
+                args: args,
+                parsedArgs: parsedArgs
             });
             expect(result).not.toBeNull();
             delete result['timestamp'];
@@ -215,21 +278,31 @@ describe('graphHelper Tests', () => {
             const collection = db.collection(`${resourceType}_${base_version}`);
             await collection.insertOne({
                 id: '10',
+                _sourceId: '10',
+                _uuid: uuid10,
                 resourceType: resourceType,
-                practitioner: {reference: 'Practitioner/1'},
+                practitioner: {
+                    reference: 'Practitioner/1',
+                    _sourceId: 'Practitioner/1',
+                    _uuid: `Practitioner/${uuid1}`
+                },
             });
 
             resourceType = 'Practitioner';
+            /**
+             * @type {R4ArgsParser}
+             */
+            const r4ArgsParser = container.r4ArgsParser;
+            const args = {'base_version': '4_0_0', 'id': '1'};
+            const parsedArgs = r4ArgsParser.parseArgs({resourceType, args});
             const result = await getGraphHelper().processGraphAsync({
                 requestInfo,
                 base_version,
                 resourceType,
-                id: ['1'],
                 graphDefinitionJson: graphDefinition,
                 contained: false,
-                hash_references: false,
-                args: {'base_version': '4_0_0'},
-                originalArgs: {}
+                args: args,
+                parsedArgs: parsedArgs
             });
             expect(result).not.toBeNull();
             delete result['timestamp'];
@@ -275,21 +348,31 @@ describe('graphHelper Tests', () => {
             const collection = db.collection(`${resourceType}_${base_version}`);
             await collection.insertOne({
                 id: '10',
+                _sourceId: '10',
+                _uuid: uuid10,
                 resourceType: resourceType,
-                practitioner: {reference: 'Practitioner/1'},
+                practitioner: {
+                    reference: 'Practitioner/1',
+                    _sourceId: 'Practitioner/1',
+                    _uuid: `Practitioner/${uuid1}`
+                },
             });
 
             resourceType = 'Practitioner';
+            /**
+             * @type {R4ArgsParser}
+             */
+            const r4ArgsParser = container.r4ArgsParser;
+            const args = {'base_version': '4_0_0', 'id': '1'};
+            const parsedArgs = r4ArgsParser.parseArgs({resourceType, args});
             const result = await getGraphHelper().processGraphAsync({
                 requestInfo,
                 base_version,
                 resourceType,
-                id: ['1'],
                 graphDefinitionJson: graphSimpleReverseDefinition,
                 contained: true,
-                hash_references: false,
-                args: {'base_version': '4_0_0'},
-                originalArgs: {}
+                args: args,
+                parsedArgs: parsedArgs
             });
             expect(result).not.toBeNull();
             delete result['timestamp'];
@@ -333,21 +416,31 @@ describe('graphHelper Tests', () => {
             const collection = db.collection(`${resourceType}_${base_version}`);
             await collection.insertOne({
                 id: '10',
+                _sourceId: '10',
+                _uuid: uuid10,
                 resourceType: resourceType,
-                practitioner: {reference: 'Practitioner/1'},
+                practitioner: {
+                    reference: 'Practitioner/1',
+                    _sourceId: 'Practitioner/1',
+                    _uuid: `Practitioner/${uuid1}`
+                },
             });
 
             resourceType = 'Practitioner';
+            /**
+             * @type {R4ArgsParser}
+             */
+            const r4ArgsParser = container.r4ArgsParser;
+            const args = {'base_version': '4_0_0', 'id': '1'};
+            const parsedArgs = r4ArgsParser.parseArgs({resourceType, args});
             const result = await getGraphHelper().processGraphAsync({
                 requestInfo,
                 base_version,
                 resourceType,
-                id: ['1'],
                 graphDefinitionJson: graphDefinition,
                 contained: true,
-                hash_references: false,
-                args: {'base_version': '4_0_0'},
-                originalArgs: {}
+                args: args,
+                parsedArgs: parsedArgs
             });
             expect(result).not.toBeNull();
             delete result['timestamp'];
@@ -359,12 +452,13 @@ describe('graphHelper Tests', () => {
                         resource: {
                             contained: [
                                 {
+
                                     id: '10',
                                     practitioner: {
                                         reference: 'Practitioner/1',
                                     },
                                     resourceType: 'PractitionerRole',
-                                },
+                                }
                             ],
                             id: '1',
                             resourceType: 'Practitioner',
@@ -392,30 +486,44 @@ describe('graphHelper Tests', () => {
             let collection = db.collection(`${resourceType}_${base_version}`);
             await collection.insertOne({
                 id: '10',
+                _sourceId: '10',
+                _uuid: uuid10,
                 resourceType: resourceType,
                 practitioner: {
                     reference: 'Practitioner/1',
+                    _uuid: `Practitioner/${uuid1}`
                 },
                 organization: {
                     reference: 'Organization/100',
+                    _uuid: `Organization/${uuid100}`
                 },
             });
             // add an Organization
             resourceType = 'Organization';
             collection = db.collection(`${resourceType}_${base_version}`);
-            await collection.insertOne({id: '100', resourceType: resourceType});
+            await collection.insertOne({
+                    id: '100',
+                    _sourceId: '100',
+                    _uuid: uuid100,
+                    resourceType: resourceType
+                }
+            );
 
             resourceType = 'PractitionerRole';
+            /**
+             * @type {R4ArgsParser}
+             */
+            const r4ArgsParser = container.r4ArgsParser;
+            const args = {'base_version': '4_0_0', 'id': '10'};
+            const parsedArgs = r4ArgsParser.parseArgs({resourceType, args});
             const result = await getGraphHelper().processGraphAsync({
                 requestInfo,
                 base_version,
                 resourceType,
-                id: ['10'],
                 graphDefinitionJson: graphSimpleForwardDefinition,
                 contained: false,
-                hash_references: false,
-                args: {'base_version': '4_0_0'},
-                originalArgs: {}
+                args: args,
+                parsedArgs: parsedArgs
             });
             expect(result).not.toBeNull();
             delete result['timestamp'];
@@ -450,7 +558,6 @@ describe('graphHelper Tests', () => {
             });
         });
         test('graphHelper single Practitioner with 1 level nesting and contained and hash_references works', async () => {
-
             /**
              * @type {SimpleContainer}
              */
@@ -464,21 +571,31 @@ describe('graphHelper Tests', () => {
             const collection = db.collection(`${resourceType}_${base_version}`);
             await collection.insertOne({
                 id: '10',
+                _sourceId: '10',
+                _uuid: uuid10,
                 resourceType: resourceType,
-                practitioner: {reference: 'Practitioner/1'},
+                practitioner: {
+                    reference: 'Practitioner/1',
+                    _sourceId: 'Practitioner/1',
+                    _uuid: `Practitioner/${uuid1}`
+                },
             });
 
             resourceType = 'Practitioner';
+            /**
+             * @type {R4ArgsParser}
+             */
+            const r4ArgsParser = container.r4ArgsParser;
+            const args = {'base_version': '4_0_0', 'id': '1', '_hash_references': 1};
+            const parsedArgs = r4ArgsParser.parseArgs({resourceType, args});
             const result = await getGraphHelper().processGraphAsync({
                 requestInfo,
                 base_version,
                 resourceType,
-                id: ['1'],
                 graphDefinitionJson: graphSimpleReverseDefinition,
                 contained: true,
-                hash_references: true,
-                args: {'base_version': '4_0_0'},
-                originalArgs: {}
+                args: args,
+                parsedArgs: parsedArgs
             });
             expect(result).not.toBeNull();
             delete result['timestamp'];
@@ -492,7 +609,7 @@ describe('graphHelper Tests', () => {
                                 {
                                     id: '10',
                                     practitioner: {
-                                        reference: 'Practitioner/1',
+                                        reference: 'Practitioner/#1',
                                     },
                                     resourceType: 'PractitionerRole',
                                 },
@@ -523,30 +640,46 @@ describe('graphHelper Tests', () => {
             let collection = db.collection(`${resourceType}_${base_version}`);
             await collection.insertOne({
                 id: '10',
+                _sourceId: '10',
+                _uuid: uuid10,
                 resourceType: resourceType,
                 practitioner: {
                     reference: 'Practitioner/1',
+                    _sourceId: 'Practitioner/1',
+                    _uuid: `Practitioner/${uuid1}`
                 },
                 organization: {
                     reference: 'Organization/100',
+                    _sourceId: 'Organization/100',
+                    _uuid: `Organization/${uuid100}`,
                 },
             });
             // add an Organization
             resourceType = 'Organization';
             collection = db.collection(`${resourceType}_${base_version}`);
-            await collection.insertOne({id: '100', resourceType: resourceType});
+            await collection.insertOne({
+                    id: '100',
+                    _sourceId: '100',
+                    _uuid: uuid100,
+                    resourceType: resourceType
+                }
+            );
 
             resourceType = 'Practitioner';
+            /**
+             * @type {R4ArgsParser}
+             */
+            const r4ArgsParser = container.r4ArgsParser;
+            const args = {'base_version': '4_0_0', 'id': '1'};
+            const parsedArgs = r4ArgsParser.parseArgs({resourceType, args});
             const result = await getGraphHelper().processGraphAsync({
                 requestInfo,
                 base_version,
                 resourceType,
-                id: ['1'],
                 graphDefinitionJson: graphDefinition,
                 contained: false,
-                hash_references: false,
-                args: {'base_version': '4_0_0'},
-                originalArgs: {}
+                args: args,
+                parsedArgs: parsedArgs
             });
             expect(result).not.toBeNull();
             delete result['timestamp'];
@@ -601,48 +734,81 @@ describe('graphHelper Tests', () => {
             const db = await mongoDatabaseManager.getClientDbAsync();
             let resourceType = 'Practitioner';
             let collection = db.collection(`${resourceType}_${base_version}`);
-            await collection.insertOne({id: '2', resourceType: 'Practitioner'});
+            await collection.insertOne({
+                    id: '2',
+                    _sourceId: '2',
+                    _uuid: uuid2,
+                    resourceType: 'Practitioner'
+                }
+            );
 
             // add a PractitionerRole
             resourceType = 'PractitionerRole';
             collection = db.collection(`${resourceType}_${base_version}`);
             await collection.insertOne({
                 id: '10',
+                _sourceId: '10',
+                _uuid: uuid10,
                 resourceType: resourceType,
                 practitioner: {
                     reference: 'Practitioner/1',
+                    _sourceId: 'Practitioner/1',
+                    _uuid: `Practitioner/${uuid1}`
                 },
                 organization: {
                     reference: 'Organization/100',
+                    _sourceId: 'Organization/100',
+                    _uuid: `Organization/${uuid100}`,
                 },
             });
             await collection.insertOne({
                 id: '20',
+                _sourceId: '20',
+                _uuid: uuid20,
                 resourceType: resourceType,
                 practitioner: {
                     reference: 'Practitioner/2',
+                    _sourceId: 'Practitioner/2',
+                    _uuid: `Practitioner/${uuid2}`,
                 },
                 organization: {
                     reference: 'Organization/200',
+                    _sourceId: 'Organization/200',
+                    _uuid: `Organization/${uuid200}`,
                 },
             });
             // add an Organization
             resourceType = 'Organization';
             collection = db.collection(`${resourceType}_${base_version}`);
-            await collection.insertOne({id: '100', resourceType: resourceType});
-            await collection.insertOne({id: '200', resourceType: resourceType});
+            await collection.insertOne({
+                    id: '100',
+                    _sourceId: '100',
+                    _uuid: uuid100,
+                    resourceType: resourceType
+                }
+            );
+            await collection.insertOne({
+                id: '200',
+                _sourceId: '200',
+                _uuid: uuid200,
+                resourceType: resourceType
+            });
 
             resourceType = 'Practitioner';
+            /**
+             * @type {R4ArgsParser}
+             */
+            const r4ArgsParser = container.r4ArgsParser;
+            const args = {'base_version': '4_0_0', 'id': '1,2'};
+            const parsedArgs = r4ArgsParser.parseArgs({resourceType, args});
             const result = await getGraphHelper().processGraphAsync({
                 requestInfo,
                 base_version,
                 resourceType,
-                id: ['1', '2'],
                 graphDefinitionJson: graphDefinition,
                 contained: false,
-                hash_references: false,
-                args: {'base_version': '4_0_0'},
-                originalArgs: {}
+                args: args,
+                parsedArgs: parsedArgs
             });
             expect(result).not.toBeNull();
             delete result['timestamp'];
@@ -727,48 +893,82 @@ describe('graphHelper Tests', () => {
             const db = await mongoDatabaseManager.getClientDbAsync();
             let resourceType = 'Practitioner';
             let collection = db.collection(`${resourceType}_${base_version}`);
-            await collection.insertOne({id: '2', resourceType: 'Practitioner'});
+            await collection.insertOne({
+                    id: '2',
+                    _sourceId: '2',
+                    _uuid: uuid2,
+                    resourceType: 'Practitioner'
+                }
+            );
 
             // add a PractitionerRole
             resourceType = 'PractitionerRole';
             collection = db.collection(`${resourceType}_${base_version}`);
             await collection.insertOne({
                 id: '10',
+                _sourceId: '10',
+                _uuid: uuid10,
                 resourceType: resourceType,
                 practitioner: {
                     reference: 'Practitioner/1',
+                    _sourceId: 'Practitioner/1',
+                    _uuid: `Practitioner/${uuid1}`
                 },
                 organization: {
                     reference: 'Organization/100',
+                    _sourceId: 'Organization/100',
+                    _uuid: `Organization/${uuid100}`,
                 },
             });
             await collection.insertOne({
                 id: '20',
+                _sourceId: '20',
+                _uuid: uuid20,
                 resourceType: resourceType,
                 practitioner: {
                     reference: 'Practitioner/2',
+                    _sourceId: 'Practitioner/2',
+                    _uuid: `Practitioner/${uuid2}`,
                 },
                 organization: {
                     reference: 'Organization/200',
+                    _sourceId: 'Organization/200',
+                    _uuid: `Organization/${uuid200}`,
                 },
             });
             // add an Organization
             resourceType = 'Organization';
             collection = db.collection(`${resourceType}_${base_version}`);
-            await collection.insertOne({id: '100', resourceType: resourceType});
-            await collection.insertOne({id: '200', resourceType: resourceType});
+            await collection.insertOne({
+                    id: '100',
+                    _sourceId: '100',
+                    _uuid: uuid100,
+                    resourceType: resourceType
+                }
+            );
+            await collection.insertOne({
+                    id: '200',
+                    _sourceId: '200',
+                    _uuid: uuid200,
+                    resourceType: resourceType
+                }
+            );
 
             resourceType = 'Practitioner';
+            /**
+             * @type {R4ArgsParser}
+             */
+            const r4ArgsParser = container.r4ArgsParser;
+            const args = {'base_version': '4_0_0', 'id': '1,2'};
+            const parsedArgs = r4ArgsParser.parseArgs({resourceType, args});
             const result = await getGraphHelper().processGraphAsync({
                 requestInfo,
                 base_version,
                 resourceType,
-                id: ['1', '2'],
                 graphDefinitionJson: graphDefinition,
                 contained: true,
-                hash_references: false,
-                args: {'base_version': '4_0_0'},
-                originalArgs: {}
+                args: args,
+                parsedArgs: parsedArgs
             });
             expect(result).not.toBeNull();
             delete result['timestamp'];
@@ -844,12 +1044,16 @@ describe('graphHelper Tests', () => {
             let collection = db.collection(`${resourceType}_${base_version}`);
             await collection.insertOne({
                 id: '10',
+                _sourceId: '10',
+                _uuid: uuid10,
                 resourceType: resourceType,
                 practitioner: {
                     reference: 'Practitioner/1',
+                    _uuid: `Practitioner/${uuid1}`,
                 },
                 organization: {
                     reference: 'Organization/100',
+                    _uuid: `Organization/${uuid100}`,
                 },
                 extension: [
                     {
@@ -873,6 +1077,7 @@ describe('graphHelper Tests', () => {
                                 valueReference: {
                                     reference:
                                         'InsurancePlan/AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He',
+                                    _uuid: `InsurancePlan/${uuidAetna}`
                                 },
                             },
                         ],
@@ -885,20 +1090,26 @@ describe('graphHelper Tests', () => {
             collection = db.collection(`${resourceType}_${base_version}`);
             await collection.insertOne({
                 id: 'AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He',
+                _sourceId: 'AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He',
+                _uuid: uuidAetna,
                 resourceType: resourceType,
             });
 
             resourceType = 'PractitionerRole';
+            /**
+             * @type {R4ArgsParser}
+             */
+            const r4ArgsParser = container.r4ArgsParser;
+            const args = {'base_version': '4_0_0', 'id': '10'};
+            const parsedArgs = r4ArgsParser.parseArgs({resourceType, args});
             const result = await getGraphHelper().processGraphAsync({
                 requestInfo,
                 base_version,
                 resourceType,
-                id: ['10'],
                 graphDefinitionJson: graphSimpleWithExtensionDefinition,
                 contained: false,
-                hash_references: false,
-                args: {'base_version': '4_0_0'},
-                originalArgs: {}
+                args: args,
+                parsedArgs: parsedArgs
             });
             expect(result).not.toBeNull();
             delete result['timestamp'];
@@ -929,7 +1140,7 @@ describe('graphHelper Tests', () => {
                                             url: 'plan',
                                             valueReference: {
                                                 reference:
-                                                    'InsurancePlan/AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He',
+                                                    'InsurancePlan/AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He'
                                             },
                                         },
                                     ],
@@ -976,6 +1187,8 @@ describe('graphHelper Tests', () => {
             let collection = db.collection(`${resourceType}_${base_version}`);
             await collection.insertOne({
                 id: '2',
+                _sourceId: '2',
+                _uuid: uuid2,
                 resourceType: 'Practitioner',
                 extension: [
                     {
@@ -983,6 +1196,7 @@ describe('graphHelper Tests', () => {
                             url: 'plan',
                             valueReference: {
                                 reference: 'InsurancePlan/2000',
+                                _uuid: `InsurancePlan/${uuid2000}`
                             },
                         },
                     },
@@ -994,12 +1208,18 @@ describe('graphHelper Tests', () => {
             collection = db.collection(`${resourceType}_${base_version}`);
             await collection.insertOne({
                 id: '10',
+                _sourceId: '10',
+                _uuid: uuid10,
                 resourceType: resourceType,
                 practitioner: {
                     reference: 'Practitioner/1',
+                    _sourceId: 'Practitioner/1',
+                    _uuid: `Practitioner/${uuid1}`
                 },
                 organization: {
                     reference: 'Organization/100',
+                    _sourceId: 'Organization/100',
+                    _uuid: `Organization/${uuid100}`,
                 },
                 extension: [
                     {
@@ -1023,6 +1243,7 @@ describe('graphHelper Tests', () => {
                                 valueReference: {
                                     reference:
                                         'InsurancePlan/AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He',
+                                    _uuid: `InsurancePlan/${uuidAetna}`
                                 },
                             },
                         ],
@@ -1032,39 +1253,63 @@ describe('graphHelper Tests', () => {
             });
             await collection.insertOne({
                 id: '20',
+                _sourceId: '20',
+                _uuid: uuid20,
                 resourceType: resourceType,
                 practitioner: {
                     reference: 'Practitioner/2',
+                    _sourceId: 'Practitioner/2',
+                    _uuid: `Practitioner/${uuid2}`,
                 },
                 organization: {
                     reference: 'Organization/200',
+                    _sourceId: 'Organization/200',
+                    _uuid: `Organization/${uuid200}`,
                 },
             });
             // add an Organization
             resourceType = 'Organization';
             collection = db.collection(`${resourceType}_${base_version}`);
-            await collection.insertOne({id: '100', resourceType: resourceType});
-            await collection.insertOne({id: '200', resourceType: resourceType});
+            await collection.insertOne({
+                    id: '100',
+                    _sourceId: '100',
+                    _uuid: uuid100,
+                    resourceType: resourceType
+                }
+            );
+            await collection.insertOne({
+                    id: '200',
+                    _sourceId: '200',
+                    _uuid: uuid200,
+                    resourceType: resourceType
+                }
+            );
 
             // add an InsurancePlan
             resourceType = 'InsurancePlan';
             collection = db.collection(`${resourceType}_${base_version}`);
             await collection.insertOne({
                 id: 'AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He',
+                _sourceId: 'AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He',
+                _uuid: uuidAetna,
                 resourceType: resourceType,
             });
 
             resourceType = 'Practitioner';
+            /**
+             * @type {R4ArgsParser}
+             */
+            const r4ArgsParser = container.r4ArgsParser;
+            const args = {'base_version': '4_0_0', 'id': '1,2'};
+            const parsedArgs = r4ArgsParser.parseArgs({resourceType, args});
             const result = await getGraphHelper().processGraphAsync({
                 requestInfo,
                 base_version,
                 resourceType,
-                id: ['1', '2'],
                 graphDefinitionJson: graphWithExtensionDefinition,
                 contained: false,
-                hash_references: false,
-                args: {'base_version': '4_0_0'},
-                originalArgs: {}
+                args: args,
+                parsedArgs: parsedArgs
             });
             expect(result).not.toBeNull();
             delete result['timestamp'];
@@ -1122,8 +1367,7 @@ describe('graphHelper Tests', () => {
                                         {
                                             url: 'plan',
                                             valueReference: {
-                                                reference:
-                                                    'InsurancePlan/AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He',
+                                                reference: 'InsurancePlan/AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He'
                                             },
                                         },
                                     ],
@@ -1200,6 +1444,8 @@ describe('graphHelper Tests', () => {
             let collection = db.collection(`${resourceType}_${base_version}`);
             await collection.insertOne({
                 id: '2',
+                _sourceId: '2',
+                _uuid: uuid2,
                 resourceType: 'Practitioner',
                 extension: [
                     {
@@ -1218,12 +1464,18 @@ describe('graphHelper Tests', () => {
             collection = db.collection(`${resourceType}_${base_version}`);
             await collection.insertOne({
                 id: '10',
+                _sourceId: '10',
+                _uuid: uuid10,
                 resourceType: resourceType,
                 practitioner: {
                     reference: 'Practitioner/1',
+                    _sourceId: 'Practitioner/1',
+                    _uuid: `Practitioner/${uuid1}`
                 },
                 organization: {
                     reference: 'Organization/100',
+                    _sourceId: 'Organization/100',
+                    _uuid: `Organization/${uuid100}`,
                 },
                 extension: [
                     {
@@ -1247,6 +1499,7 @@ describe('graphHelper Tests', () => {
                                 valueReference: {
                                     reference:
                                         'InsurancePlan/AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He',
+                                    _uuid: `InsurancePlan/${uuidAetna}`
                                 },
                             },
                         ],
@@ -1256,38 +1509,62 @@ describe('graphHelper Tests', () => {
             });
             await collection.insertOne({
                 id: '20',
+                _sourceId: '20',
+                _uuid: uuid20,
                 resourceType: resourceType,
                 practitioner: {
                     reference: 'Practitioner/2',
+                    _sourceId: 'Practitioner/2',
+                    _uuid: `Practitioner/${uuid2}`,
                 },
                 organization: {
                     reference: 'Organization/200',
+                    _sourceId: 'Organization/200',
+                    _uuid: `Organization/${uuid200}`,
                 },
             });
             // add an Organization
             resourceType = 'Organization';
             collection = db.collection(`${resourceType}_${base_version}`);
-            await collection.insertOne({id: '100', resourceType: resourceType});
-            await collection.insertOne({id: '200', resourceType: resourceType});
+            await collection.insertOne({
+                    id: '100',
+                    _sourceId: '100',
+                    _uuid: uuid100,
+                    resourceType: resourceType
+                }
+            );
+            await collection.insertOne({
+                    id: '200',
+                    _sourceId: '200',
+                    _uuid: uuid200,
+                    resourceType: resourceType
+                }
+            );
 
             // add an InsurancePlan
             resourceType = 'InsurancePlan';
             collection = db.collection(`${resourceType}_${base_version}`);
             await collection.insertOne({
                 id: 'AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He',
+                _sourceId: 'AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He',
+                _uuid: uuidAetna,
                 resourceType: resourceType,
             });
             resourceType = 'Practitioner';
+            /**
+             * @type {R4ArgsParser}
+             */
+            const r4ArgsParser = container.r4ArgsParser;
+            const args = {'base_version': '4_0_0', 'id': '1,2'};
+            const parsedArgs = r4ArgsParser.parseArgs({resourceType, args});
             const result = await getGraphHelper().processGraphAsync({
                 requestInfo,
                 base_version,
                 resourceType,
-                id: ['1', '2'],
                 graphDefinitionJson: graphWithExtensionDefinition,
                 contained: true,
-                hash_references: false,
-                args: {'base_version': '4_0_0'},
-                originalArgs: {}
+                args: args,
+                parsedArgs: parsedArgs
             });
             expect(result).not.toBeNull();
             delete result['timestamp'];
@@ -1319,8 +1596,7 @@ describe('graphHelper Tests', () => {
                                                 {
                                                     url: 'plan',
                                                     valueReference: {
-                                                        reference:
-                                                            'InsurancePlan/AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He',
+                                                        reference: 'InsurancePlan/AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He'
                                                     },
                                                 },
                                             ],
@@ -1405,6 +1681,8 @@ describe('graphHelper Tests', () => {
             let collection = db.collection(`${resourceType}_${base_version}`);
             await collection.insertOne({
                 id: '2',
+                _sourceId: '2',
+                _uuid: uuid2,
                 resourceType: 'Practitioner',
                 extension: [
                     {
@@ -1423,12 +1701,18 @@ describe('graphHelper Tests', () => {
             collection = db.collection(`${resourceType}_${base_version}`);
             await collection.insertOne({
                 id: '10',
+                _sourceId: '10',
+                _uuid: uuid10,
                 resourceType: resourceType,
                 practitioner: {
                     reference: 'Practitioner/1',
+                    _sourceId: 'Practitioner/1',
+                    _uuid: `Practitioner/${uuid1}`
                 },
                 organization: {
                     reference: 'Organization/100',
+                    _sourceId: 'Organization/100',
+                    _uuid: `Organization/${uuid100}`,
                 },
                 extension: [
                     {
@@ -1452,6 +1736,7 @@ describe('graphHelper Tests', () => {
                                 valueReference: {
                                     reference:
                                         'InsurancePlan/AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He',
+                                    _uuid: `InsurancePlan/${uuidAetna}`
                                 },
                             },
                         ],
@@ -1461,38 +1746,62 @@ describe('graphHelper Tests', () => {
             });
             await collection.insertOne({
                 id: '20',
+                _sourceId: '20',
+                _uuid: uuid20,
                 resourceType: resourceType,
                 practitioner: {
                     reference: 'Practitioner/2',
+                    _sourceId: 'Practitioner/2',
+                    _uuid: `Practitioner/${uuid2}`,
                 },
                 organization: {
                     reference: 'Organization/200',
+                    _sourceId: 'Organization/200',
+                    _uuid: `Organization/${uuid200}`,
                 },
             });
             // add an Organization
             resourceType = 'Organization';
             collection = db.collection(`${resourceType}_${base_version}`);
-            await collection.insertOne({id: '100', resourceType: resourceType});
-            await collection.insertOne({id: '200', resourceType: resourceType});
+            await collection.insertOne({
+                    id: '100',
+                    _sourceId: '100',
+                    _uuid: uuid100,
+                    resourceType: resourceType
+                }
+            );
+            await collection.insertOne({
+                    id: '200',
+                    _sourceId: '200',
+                    _uuid: uuid200,
+                    resourceType: resourceType
+                }
+            );
 
             // add an InsurancePlan
             resourceType = 'InsurancePlan';
             collection = db.collection(`${resourceType}_${base_version}`);
             await collection.insertOne({
                 id: 'AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He',
+                _sourceId: 'AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He',
+                _uuid: uuidAetna,
                 resourceType: resourceType,
             });
             resourceType = 'Practitioner';
+            /**
+             * @type {R4ArgsParser}
+             */
+            const r4ArgsParser = container.r4ArgsParser;
+            const args = {'base_version': '4_0_0', _debug: 1, 'id': '1,2'};
+            const parsedArgs = r4ArgsParser.parseArgs({resourceType, args: args});
             const result = await getGraphHelper().processGraphAsync({
                 requestInfo,
                 base_version,
                 resourceType,
-                id: ['1', '2'],
                 graphDefinitionJson: graphWithExtensionDefinition,
                 contained: true,
-                hash_references: false,
-                args: {'base_version': '4_0_0', _debug: 1},
-                originalArgs: {_debug: 1}
+                args: args,
+                parsedArgs: parsedArgs
             });
             expect(result).not.toBeNull();
             delete result['timestamp'];
@@ -1538,8 +1847,7 @@ describe('graphHelper Tests', () => {
                                                 {
                                                     url: 'plan',
                                                     valueReference: {
-                                                        reference:
-                                                            'InsurancePlan/AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He',
+                                                        reference: 'InsurancePlan/AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He'
                                                     },
                                                 },
                                             ],
@@ -1608,7 +1916,7 @@ describe('graphHelper Tests', () => {
                 'meta': {
                     'tag': [
                         {
-                            'display': 'db.Practitioner_4_0_0.find({\'$and\':[{\'id\':{\'$in\':[\'1\',\'2\']}}]}, {\'_id\':0})  | db.Practitioner_4_0_0.find({\'$and\':[{\'practitioner.reference\':{\'$in\':[\'Practitioner/1\',\'Practitioner/2\']}}]}, {}) | db.Practitioner_4_0_0.find({\'$and\':[{\'id\':{\'$in\':[\'100\',\'200\']}}]}, {}) | db.Practitioner_4_0_0.find({\'$and\':[{\'id\':{\'$in\':[\'AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He\']}}]}, {})',
+                            'display': "db.Practitioner_4_0_0.find({'_sourceId':{'$in':['1','2']}}, {'_id':0})  | db.Practitioner_4_0_0.find({'$or':[{'practitioner._sourceId':'Practitioner/18ba3527-77e0-5ae6-a872-181654110d28'},{'practitioner._uuid':'Practitioner/18ba3527-77e0-5ae6-a872-181654110d28'},{'practitioner._sourceId':'Practitioner/034ef9e0-007c-54a7-a0be-a06db20b9ea9'},{'practitioner._uuid':'Practitioner/034ef9e0-007c-54a7-a0be-a06db20b9ea9'},{'practitioner._sourceId':'Practitioner/1'},{'practitioner._uuid':'Practitioner/1'},{'practitioner._sourceId':'Practitioner/2'},{'practitioner._uuid':'Practitioner/2'}]}, {}) | db.Practitioner_4_0_0.find({'$or':[{'_sourceId':{'$in':['100','200']}},{'_uuid':{'$in':['5a1d6b34-dbdc-5974-9816-53a13b80c839','2cab0141-cb78-5ca1-8673-8c7bcdcf524d']}}]}, {}) | db.Practitioner_4_0_0.find({'$or':[{'_sourceId':{'$in':['AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He']}},{'_uuid':{'$in':['24c117ef-4601-52ea-8812-ac66793956b5']}}]}, {})",
                             'system': 'https://www.icanbwell.com/query'
                         },
                         {
@@ -1658,6 +1966,8 @@ describe('graphHelper Tests', () => {
             let collection = db.collection(`${resourceType}_${base_version}`);
             await collection.insertOne({
                 id: '2',
+                _sourceId: '2',
+                _uuid: uuid2,
                 resourceType: 'Practitioner',
                 extension: [
                     {
@@ -1665,6 +1975,7 @@ describe('graphHelper Tests', () => {
                             url: 'plan',
                             valueReference: {
                                 reference: 'InsurancePlan/2000',
+                                _uuid: `InsurancePlan/${uuid2000}`,
                             },
                         },
                     },
@@ -1676,12 +1987,18 @@ describe('graphHelper Tests', () => {
             collection = db.collection(`${resourceType}_${base_version}`);
             await collection.insertOne({
                 id: '10',
+                _sourceId: '10',
+                _uuid: uuid10,
                 resourceType: resourceType,
                 practitioner: {
                     reference: 'Practitioner/1',
+                    _sourceId: 'Practitioner/1',
+                    _uuid: `Practitioner/${uuid1}`
                 },
                 organization: {
                     reference: 'Organization/100',
+                    _sourceId: 'Organization/100',
+                    _uuid: `Organization/${uuid100}`,
                 },
                 extension: [
                     {
@@ -1705,6 +2022,7 @@ describe('graphHelper Tests', () => {
                                 valueReference: {
                                     reference:
                                         'InsurancePlan/AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He',
+                                    _uuid: `InsurancePlan/${uuidAetna}`
                                 },
                             },
                         ],
@@ -1714,38 +2032,61 @@ describe('graphHelper Tests', () => {
             });
             await collection.insertOne({
                 id: '20',
+                _sourceId: '20',
+                _uuid: uuid20,
                 resourceType: resourceType,
                 practitioner: {
                     reference: 'Practitioner/2',
+                    _sourceId: 'Practitioner/2',
+                    _uuid: `Practitioner/${uuid2}`,
                 },
                 organization: {
                     reference: 'Organization/200',
+                    _sourceId: 'Organization/200',
+                    _uuid: `Organization/${uuid200}`,
                 },
             });
             // add an Organization
             resourceType = 'Organization';
             collection = db.collection(`${resourceType}_${base_version}`);
-            await collection.insertOne({id: '100', resourceType: resourceType});
-            await collection.insertOne({id: '200', resourceType: resourceType});
+            await collection.insertOne({
+                    id: '100',
+                    _sourceId: '100',
+                    _uuid: uuid100,
+                    resourceType: resourceType
+                }
+            );
+            await collection.insertOne({
+                    id: '200',
+                    _sourceId: '200',
+                    _uuid: uuid200,
+                    resourceType: resourceType
+                }
+            );
 
             // add an InsurancePlan
             resourceType = 'InsurancePlan';
             collection = db.collection(`${resourceType}_${base_version}`);
             await collection.insertOne({
                 id: 'AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He',
+                _sourceId: 'AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He',
+                _uuid: uuidAetna,
                 resourceType: resourceType,
             });
             resourceType = 'Practitioner';
+            /**
+             * @type {R4ArgsParser}
+             */
+            const r4ArgsParser = container.r4ArgsParser;
+            const args = {'base_version': '4_0_0', _explain: 1, 'id': '1,2'};
+            const parsedArgs = r4ArgsParser.parseArgs({resourceType, args});
             const result = await getGraphHelper().processGraphAsync({
                 requestInfo,
                 base_version,
                 resourceType,
-                id: ['1', '2'],
                 graphDefinitionJson: graphWithExtensionDefinition,
                 contained: true,
-                hash_references: false,
-                args: {'base_version': '4_0_0', _explain: 1},
-                originalArgs: {_explain: 1}
+                parsedArgs: parsedArgs
             });
             expect(result).not.toBeNull();
             delete result['timestamp'];
@@ -1770,7 +2111,7 @@ describe('graphHelper Tests', () => {
                     'tag': [
                         {
                             'system': 'https://www.icanbwell.com/query',
-                            'display': 'db.Practitioner_4_0_0.find({\'$and\':[{\'id\':{\'$in\':[\'1\',\'2\']}}]}, {\'_id\':0})  | db.Practitioner_4_0_0.find({\'$and\':[{\'practitioner.reference\':\'Practitioner/1\'}]}, {}) | db.Practitioner_4_0_0.find({\'$and\':[{\'id\':{\'$in\':[\'100\']}}]}, {}) | db.Practitioner_4_0_0.find({\'$and\':[{\'id\':{\'$in\':[\'AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He\']}}]}, {})',
+                            'display': "db.Practitioner_4_0_0.find({'_sourceId':{'$in':['1','2']}}, {'_id':0})  | db.Practitioner_4_0_0.find({'$or':[{'practitioner._sourceId':'Practitioner/18ba3527-77e0-5ae6-a872-181654110d28'},{'practitioner._uuid':'Practitioner/18ba3527-77e0-5ae6-a872-181654110d28'},{'practitioner._sourceId':'Practitioner/1'},{'practitioner._uuid':'Practitioner/1'}]}, {}) | db.Practitioner_4_0_0.find({'$or':[{'_sourceId':{'$in':['100']}},{'_uuid':{'$in':['5a1d6b34-dbdc-5974-9816-53a13b80c839']}}]}, {}) | db.Practitioner_4_0_0.find({'$or':[{'_sourceId':{'$in':['AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He']}},{'_uuid':{'$in':['24c117ef-4601-52ea-8812-ac66793956b5']}}]}, {})",
                         },
                         {
                             'system': 'https://www.icanbwell.com/queryCollection',
@@ -1839,10 +2180,10 @@ describe('graphHelper Tests', () => {
                                         }
                                     ],
                                     'practitioner': {
-                                        'reference': 'Practitioner/1'
+                                        'reference': 'Practitioner/1',
                                     },
                                     'organization': {
-                                        'reference': 'Organization/100'
+                                        'reference': 'Organization/100',
                                     }
                                 },
                                 {

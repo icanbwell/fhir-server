@@ -12,6 +12,7 @@ const {SearchManager} = require('../search/searchManager');
 const {isTrue} = require('../../utils/isTrue');
 const BundleEntry = require('../../fhir/classes/4_0_0/backbone_elements/bundleEntry');
 const {ResourceManager} = require('../common/resourceManager');
+const {ParsedArgs} = require('../query/parsedArgsItem');
 
 class HistoryOperation {
     /**
@@ -93,13 +94,14 @@ class HistoryOperation {
     /**
      * does a FHIR History
      * @param {FhirRequestInfo} requestInfo
-     * @param {Object} args
+     * @param {ParsedArgs} parsedArgs
      * @param {string} resourceType
      */
-    async history({requestInfo, args, resourceType}) {
+    async history({requestInfo, parsedArgs, resourceType}) {
         assertIsValid(requestInfo !== undefined);
-        assertIsValid(args !== undefined);
+        assertIsValid(parsedArgs !== undefined);
         assertIsValid(resourceType !== undefined);
+        assertTypeEquals(parsedArgs, ParsedArgs);
         const currentOperationName = 'history';
         /**
          * @type {number}
@@ -126,7 +128,7 @@ class HistoryOperation {
 
         await this.scopesValidator.verifyHasValidScopesAsync({
             requestInfo,
-            args,
+            parsedArgs,
             resourceType,
             startTime,
             action: currentOperationName,
@@ -134,12 +136,12 @@ class HistoryOperation {
         });
 
         // Common search params
-        let {base_version} = args;
+        let {base_version} = parsedArgs;
 
         /**
          * @type {boolean}
          */
-        const useAccessIndex = (this.configManager.useAccessIndex || isTrue(args['_useAccessIndex']));
+        const useAccessIndex = (this.configManager.useAccessIndex || isTrue(parsedArgs['_useAccessIndex']));
 
         /**
          * @type {{base_version, columns: Set, query: import('mongodb').Document}}
@@ -154,10 +156,11 @@ class HistoryOperation {
             scope,
             isUser,
             patientIdsFromJwtToken,
-            args,
             resourceType,
             useAccessIndex,
-            personIdFromJwtToken
+            personIdFromJwtToken,
+            parsedArgs,
+            useHistoryTable: true
         });
 
         // noinspection JSValidateTypes
@@ -167,7 +170,7 @@ class HistoryOperation {
         const options = {
             sort: [
                 {
-                    'meta.versionId': -1
+                    'resource.meta.versionId': -1
                 }
             ]
         };
@@ -191,7 +194,7 @@ class HistoryOperation {
             await this.fhirLoggingManager.logOperationFailureAsync(
                 {
                     requestInfo,
-                    args,
+                    args: parsedArgs.getRawArgs(),
                     resourceType,
                     startTime,
                     action: currentOperationName,
@@ -202,8 +205,8 @@ class HistoryOperation {
         /**
          * @type {import('mongodb').Document[]}
          */
-        const explanations = (args['_explain'] || args['_debug'] || env.LOGLEVEL === 'DEBUG') ? (await cursor.explainAsync()) : [];
-        if (args['_explain']) {
+        const explanations = (parsedArgs['_explain'] || parsedArgs['_debug'] || env.LOGLEVEL === 'DEBUG') ? (await cursor.explainAsync()) : [];
+        if (parsedArgs['_explain']) {
             // if explain is requested then don't return any results
             cursor.clear();
         }
@@ -228,7 +231,7 @@ class HistoryOperation {
         await this.fhirLoggingManager.logOperationSuccessAsync(
             {
                 requestInfo,
-                args,
+                args: parsedArgs.getRawArgs(),
                 resourceType,
                 startTime,
                 action: currentOperationName
@@ -275,10 +278,10 @@ class HistoryOperation {
                 entries,
                 base_version,
                 total_count: entries.length,
-                args,
-                originalQuery: {},
+                parsedArgs,
+                originalQuery: query,
                 collectionName: entries.length > 0 ? (await resourceLocator.getHistoryCollectionNameAsync(entries[0].resource)) : null,
-                originalOptions: {},
+                originalOptions: options,
                 stopTime,
                 startTime,
                 user,

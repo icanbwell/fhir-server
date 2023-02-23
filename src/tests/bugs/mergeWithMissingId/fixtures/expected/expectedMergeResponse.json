@@ -1,175 +1,258 @@
 [
   {
+    "created": true,
     "id": "MixP-xsmy1uozpk2z8h2l",
-    "created": true,
-    "updated": false,
-    "resourceType": "AuditEvent"
-  },
-  {
-    "id": "MixP-mz14v9fhxwqhk5au",
-    "created": true,
-    "updated": false,
-    "resourceType": "AuditEvent"
-  },
-  {
-    "id": "MixP-l1jkjeh1ttmn2mfz",
-    "created": true,
-    "updated": false,
-    "resourceType": "AuditEvent"
-  },
-  {
-    "id": "MixP-e97goablajrv4cvc",
-    "created": true,
-    "updated": false,
-    "resourceType": "AuditEvent"
-  },
-  {
-    "id": "MixP-64j0glx7upru05fs",
-    "created": true,
-    "updated": false,
-    "resourceType": "AuditEvent"
-  },
-  {
-    "id": "MixP-61re82t3e8y8ogs7",
-    "created": true,
-    "updated": false,
-    "resourceType": "AuditEvent"
-  },
-  {
-    "id": "MixP-ks2pfspbpp5rd7nv",
-    "created": true,
-    "updated": false,
-    "resourceType": "AuditEvent"
-  },
-  {
-    "id": "MixP-1cqlgbd4trd5cyp4",
-    "created": true,
-    "updated": false,
-    "resourceType": "AuditEvent"
-  },
-  {
-    "id": "MixP-enbuxwwx46v5e0di",
-    "created": true,
-    "updated": false,
-    "resourceType": "AuditEvent"
-  },
-  {
-    "id": "MixP-tgt5l9y16szwylrz",
-    "created": true,
-    "updated": false,
-    "resourceType": "AuditEvent"
-  },
-  {
-    "id": "MixP-t25v801n3eomsp5s",
-    "created": true,
-    "updated": false,
-    "resourceType": "AuditEvent"
-  },
-  {
-    "id": "MixP-f1uucy8l1qd2zovy",
-    "created": true,
-    "updated": false,
-    "resourceType": "AuditEvent"
-  },
-  {
-    "id": "MixP-3hu7pbqgh1skgu1z",
-    "created": true,
-    "updated": false,
-    "resourceType": "AuditEvent"
-  },
-  {
-    "id": "MixP-6qwk9uzg8t9migbn",
-    "created": true,
-    "updated": false,
-    "resourceType": "AuditEvent"
-  },
-  {
-    "id": "MixP-me6firtc84853w1h",
-    "created": true,
-    "updated": false,
-    "resourceType": "AuditEvent"
-  },
-  {
-    "id": "MixP-tcbg90ku13ctyvq1",
-    "created": true,
-    "updated": false,
-    "resourceType": "AuditEvent"
-  },
-  {
-    "id": "MixP-wb8h6z76nbsk5i6o",
-    "created": true,
-    "updated": false,
-    "resourceType": "AuditEvent"
-  },
-  {
-    "id": "MixP-79eg6mhamwgecgs8",
-    "created": true,
-    "updated": false,
-    "resourceType": "AuditEvent"
-  },
-  {
-    "id": "MixP-zywy0r7330pc7v9g",
-    "created": true,
-    "updated": false,
-    "resourceType": "AuditEvent"
-  },
-  {
-    "id": "MixP-ss3iwrrxkbpqu53c",
-    "created": true,
-    "updated": false,
-    "resourceType": "AuditEvent"
-  },
-  {
-    "id": "MixP-j1238yv3pi0ckq3w",
-    "created": true,
-    "updated": false,
-    "resourceType": "AuditEvent"
-  },
-  {
-    "id": "MixP-lwh4ijn1rr4zqusk",
-    "created": true,
-    "updated": false,
-    "resourceType": "AuditEvent"
-  },
-  {
-    "id": "MixP-68e5g2534iv0foxz",
-    "created": true,
-    "updated": false,
-    "resourceType": "AuditEvent"
-  },
-  {
-    "id": "MixP-sz3ijv6jqvwgfx4b",
-    "created": true,
-    "updated": false,
-    "resourceType": "AuditEvent"
-  },
-  {
-    "id": "MixP-10znpmyjuva9c59q",
-    "created": true,
-    "updated": false,
-    "resourceType": "AuditEvent"
-  },
-  {
-    "id": "MixP-hi7et36ukb4crh8i",
-    "created": true,
-    "updated": false,
-    "resourceType": "AuditEvent"
-  },
-  {
-    "id": "MixP-zok0dsoga3l93j5s",
-    "created": true,
-    "updated": false,
-    "resourceType": "AuditEvent"
-  },
-  {
-    "id": "MixP-j09nnezv6rzyyuqg",
-    "created": true,
-    "updated": false,
-    "resourceType": "AuditEvent"
-  },
-  {
     "resourceType": "AuditEvent",
+    "sourceAssigningAuthority": "mixpanel",
+    "updated": false,
+    "uuid": "600e7a6d-c019-5873-8f4d-966d1b6dfbdb"
+  },
+  {
+    "created": true,
+    "id": "MixP-mz14v9fhxwqhk5au",
+    "resourceType": "AuditEvent",
+    "sourceAssigningAuthority": "mixpanel",
+    "updated": false,
+    "uuid": "b96757ec-14d4-5af5-8fa8-f61e19e9aa89"
+  },
+  {
+    "created": true,
+    "id": "MixP-l1jkjeh1ttmn2mfz",
+    "resourceType": "AuditEvent",
+    "sourceAssigningAuthority": "mixpanel",
+    "updated": false,
+    "uuid": "b78d48b7-53b7-5652-aa78-56dab19709f3"
+  },
+  {
+    "created": true,
+    "id": "MixP-e97goablajrv4cvc",
+    "resourceType": "AuditEvent",
+    "sourceAssigningAuthority": "mixpanel",
+    "updated": false,
+    "uuid": "5856dd0c-a4ce-5343-b08b-95cee730ad5e"
+  },
+  {
+    "created": true,
+    "id": "MixP-64j0glx7upru05fs",
+    "resourceType": "AuditEvent",
+    "sourceAssigningAuthority": "mixpanel",
+    "updated": false,
+    "uuid": "c5d381b5-4548-5c00-aa0d-e2a93feb8eac"
+  },
+  {
+    "created": true,
+    "id": "MixP-61re82t3e8y8ogs7",
+    "resourceType": "AuditEvent",
+    "sourceAssigningAuthority": "mixpanel",
+    "updated": false,
+    "uuid": "779d7ae4-9881-52b8-84df-1b4aeb2eed14"
+  },
+  {
+    "created": true,
+    "id": "MixP-ks2pfspbpp5rd7nv",
+    "resourceType": "AuditEvent",
+    "sourceAssigningAuthority": "mixpanel",
+    "updated": false,
+    "uuid": "93ff2a46-1436-5267-ab09-6d1536cfff96"
+  },
+  {
+    "created": true,
+    "id": "MixP-1cqlgbd4trd5cyp4",
+    "resourceType": "AuditEvent",
+    "sourceAssigningAuthority": "mixpanel",
+    "updated": false,
+    "uuid": "d49779f9-9a41-579e-87aa-2af20b64a5b2"
+  },
+  {
+    "created": true,
+    "id": "MixP-enbuxwwx46v5e0di",
+    "resourceType": "AuditEvent",
+    "sourceAssigningAuthority": "mixpanel",
+    "updated": false,
+    "uuid": "f8c542b7-db36-5dd2-b289-cb1251e023e4"
+  },
+  {
+    "created": true,
+    "id": "MixP-tgt5l9y16szwylrz",
+    "resourceType": "AuditEvent",
+    "sourceAssigningAuthority": "mixpanel",
+    "updated": false,
+    "uuid": "070c5104-5038-5867-a8e6-e3fe9b6e060a"
+  },
+  {
+    "created": true,
+    "id": "MixP-t25v801n3eomsp5s",
+    "resourceType": "AuditEvent",
+    "sourceAssigningAuthority": "mixpanel",
+    "updated": false,
+    "uuid": "43fb4856-bf74-50b1-b525-4a17822783d8"
+  },
+  {
+    "created": true,
+    "id": "MixP-f1uucy8l1qd2zovy",
+    "resourceType": "AuditEvent",
+    "sourceAssigningAuthority": "mixpanel",
+    "updated": false,
+    "uuid": "bba95a03-33fe-5044-9c40-c0fd1de15765"
+  },
+  {
+    "created": true,
+    "id": "MixP-3hu7pbqgh1skgu1z",
+    "resourceType": "AuditEvent",
+    "sourceAssigningAuthority": "mixpanel",
+    "updated": false,
+    "uuid": "b5dce951-7dfa-5670-a28c-74063cce7c3a"
+  },
+  {
+    "created": true,
+    "id": "MixP-6qwk9uzg8t9migbn",
+    "resourceType": "AuditEvent",
+    "sourceAssigningAuthority": "mixpanel",
+    "updated": false,
+    "uuid": "cf141f1f-0bc8-5244-8dc0-8d5c74a184dc"
+  },
+  {
+    "created": true,
+    "id": "MixP-me6firtc84853w1h",
+    "resourceType": "AuditEvent",
+    "sourceAssigningAuthority": "mixpanel",
+    "updated": false,
+    "uuid": "9a227250-c385-531e-8d47-71664a4c46f5"
+  },
+  {
+    "created": true,
+    "id": "MixP-tcbg90ku13ctyvq1",
+    "resourceType": "AuditEvent",
+    "sourceAssigningAuthority": "mixpanel",
+    "updated": false,
+    "uuid": "04b66ddd-4264-5ad8-9c68-bd368e167a23"
+  },
+  {
+    "created": true,
+    "id": "MixP-wb8h6z76nbsk5i6o",
+    "resourceType": "AuditEvent",
+    "sourceAssigningAuthority": "mixpanel",
+    "updated": false,
+    "uuid": "02c24a84-616d-567d-b046-add2c80971a2"
+  },
+  {
+    "created": true,
+    "id": "MixP-79eg6mhamwgecgs8",
+    "resourceType": "AuditEvent",
+    "sourceAssigningAuthority": "mixpanel",
+    "updated": false,
+    "uuid": "544eea38-5110-5347-b5c7-36ab91b3a025"
+  },
+  {
+    "created": true,
+    "id": "MixP-zywy0r7330pc7v9g",
+    "resourceType": "AuditEvent",
+    "sourceAssigningAuthority": "mixpanel",
+    "updated": false,
+    "uuid": "979cf9ad-774d-5afe-97ae-d42d4ad67765"
+  },
+  {
+    "created": true,
+    "id": "MixP-ss3iwrrxkbpqu53c",
+    "resourceType": "AuditEvent",
+    "sourceAssigningAuthority": "mixpanel",
+    "updated": false,
+    "uuid": "01433cdc-af83-5b97-b61d-c56f348dc9ba"
+  },
+  {
+    "created": true,
+    "id": "MixP-j1238yv3pi0ckq3w",
+    "resourceType": "AuditEvent",
+    "sourceAssigningAuthority": "mixpanel",
+    "updated": false,
+    "uuid": "df05a844-2ae2-5a61-8643-258d80802c08"
+  },
+  {
+    "created": true,
+    "id": "MixP-lwh4ijn1rr4zqusk",
+    "resourceType": "AuditEvent",
+    "sourceAssigningAuthority": "mixpanel",
+    "updated": false,
+    "uuid": "61019d97-3631-5969-979c-ebc5839455f5"
+  },
+  {
+    "created": true,
+    "id": "MixP-68e5g2534iv0foxz",
+    "resourceType": "AuditEvent",
+    "sourceAssigningAuthority": "mixpanel",
+    "updated": false,
+    "uuid": "7e669d3b-0064-5439-97e9-53581afd54e2"
+  },
+  {
+    "created": true,
+    "id": "MixP-sz3ijv6jqvwgfx4b",
+    "resourceType": "AuditEvent",
+    "sourceAssigningAuthority": "mixpanel",
+    "updated": false,
+    "uuid": "20168e9c-c312-5674-aac1-f40bce2f2d31"
+  },
+  {
+    "created": true,
+    "id": "MixP-10znpmyjuva9c59q",
+    "resourceType": "AuditEvent",
+    "sourceAssigningAuthority": "mixpanel",
+    "updated": false,
+    "uuid": "5780ecb5-b4ca-541b-b532-9737f7c3f7e8"
+  },
+  {
+    "created": true,
+    "id": "MixP-hi7et36ukb4crh8i",
+    "resourceType": "AuditEvent",
+    "sourceAssigningAuthority": "mixpanel",
+    "updated": false,
+    "uuid": "cb0e0b09-1b8e-5e72-aa55-eb1677f12597"
+  },
+  {
+    "created": true,
+    "id": "MixP-zok0dsoga3l93j5s",
+    "resourceType": "AuditEvent",
+    "sourceAssigningAuthority": "mixpanel",
+    "updated": false,
+    "uuid": "52375643-f1b2-5f60-aba7-962f62f34ca7"
+  },
+  {
+    "created": true,
+    "id": "MixP-j09nnezv6rzyyuqg",
+    "resourceType": "AuditEvent",
+    "sourceAssigningAuthority": "mixpanel",
+    "updated": false,
+    "uuid": "c8186f16-4109-56ee-a69d-57bda44df252"
+  },
+  {
     "created": false,
+    "issue": {
+      "code": "exception",
+      "details": {
+        "text": "Error merging: {\"resourceType\":\"AuditEvent\",\"meta\":{\"source\":\"https://data.mixpanel.com/api/2.0\",\"security\":[{\"system\":\"https://www.icanbwell.com/owner\",\"code\":\"mixpanel\"},{\"system\":\"https://www.icanbwell.com/access\",\"code\":\"mixpanel\"},{\"system\":\"https://www.icanbwell.com/vendor\",\"code\":\"mixpanel\"}]},\"type\":{\"system\":\"http://dicom.nema.org/resources/ontology/DCM\",\"code\":\"110100\",\"display\":\"Application Activity\"},\"subtype\":[{\"id\":\"amp-0\",\"display\":\"SMS () - Pre-visit Form - Review Modal - Clicked Looks good\"}],\"outcome\":\"0\",\"agent\":[{\"id\":\"amp-0\",\"type\":{\"coding\":[{\"id\":\"amp-0\",\"system\":\"http://terminology.hl7.org/CodeSystem/v3-RoleClass\",\"code\":\"PAT\"}]},\"role\":[{\"id\":\"amp-0\",\"coding\":[{\"id\":\"amp-0\",\"system\":\"http://terminology.hl7.org/CodeSystem/extra-security-role-type\",\"code\":\"humanuser\"}]}],\"requestor\":false}],\"source\":{\"observer\":{\"reference\":\"Organization/Mixpanel\"},\"type\":[{\"id\":\"amp-0\",\"system\":\"http://terminology.hl7.org/CodeSystem/security-source-type\",\"code\":\"3\"}]},\"entity\":[{\"id\":\"amp-0\",\"detail\":[{\"id\":\"amp-0\",\"type\":\"browser\"}]},{\"id\":\"amp-1\",\"detail\":[{\"id\":\"amp-0\",\"type\":\"browser_version\"}]},{\"id\":\"amp-2\",\"detail\":[{\"id\":\"amp-0\",\"type\":\"city\"}]},{\"id\":\"amp-3\",\"detail\":[{\"id\":\"amp-0\",\"type\":\"mp_country_code\"}]},{\"id\":\"amp-4\",\"detail\":[{\"id\":\"amp-0\",\"type\":\"device\"}]},{\"id\":\"amp-5\",\"detail\":[{\"id\":\"amp-0\",\"type\":\"device_id\"}]},{\"id\":\"amp-6\",\"detail\":[{\"id\":\"amp-0\",\"type\":\"initial_referrer\"}]},{\"id\":\"amp-7\",\"detail\":[{\"id\":\"amp-0\",\"type\":\"initial_referring_domain\"}]},{\"id\":\"amp-8\",\"detail\":[{\"id\":\"amp-0\",\"type\":\"library_version\"}]},{\"id\":\"amp-9\",\"detail\":[{\"id\":\"amp-0\",\"type\":\"os\"}]},{\"id\":\"amp-10\",\"detail\":[{\"id\":\"amp-0\",\"type\":\"region\"}]},{\"id\":\"amp-11\",\"detail\":[{\"id\":\"amp-0\",\"type\":\"screen_height\"}]},{\"id\":\"amp-12\",\"detail\":[{\"id\":\"amp-0\",\"type\":\"screen_width\"}]},{\"id\":\"amp-13\",\"detail\":[{\"id\":\"amp-0\",\"type\":\"search_engine\"}]}]}"
+      },
+      "diagnostics": "resource is missing id",
+      "expression": [
+        "AuditEvent"
+      ],
+      "severity": "error"
+    },
+    "operationOutcome": {
+      "issue": [
+        {
+          "code": "exception",
+          "details": {
+            "text": "Error merging: {\"resourceType\":\"AuditEvent\",\"meta\":{\"source\":\"https://data.mixpanel.com/api/2.0\",\"security\":[{\"system\":\"https://www.icanbwell.com/owner\",\"code\":\"mixpanel\"},{\"system\":\"https://www.icanbwell.com/access\",\"code\":\"mixpanel\"},{\"system\":\"https://www.icanbwell.com/vendor\",\"code\":\"mixpanel\"}]},\"type\":{\"system\":\"http://dicom.nema.org/resources/ontology/DCM\",\"code\":\"110100\",\"display\":\"Application Activity\"},\"subtype\":[{\"id\":\"amp-0\",\"display\":\"SMS () - Pre-visit Form - Review Modal - Clicked Looks good\"}],\"outcome\":\"0\",\"agent\":[{\"id\":\"amp-0\",\"type\":{\"coding\":[{\"id\":\"amp-0\",\"system\":\"http://terminology.hl7.org/CodeSystem/v3-RoleClass\",\"code\":\"PAT\"}]},\"role\":[{\"id\":\"amp-0\",\"coding\":[{\"id\":\"amp-0\",\"system\":\"http://terminology.hl7.org/CodeSystem/extra-security-role-type\",\"code\":\"humanuser\"}]}],\"requestor\":false}],\"source\":{\"observer\":{\"reference\":\"Organization/Mixpanel\"},\"type\":[{\"id\":\"amp-0\",\"system\":\"http://terminology.hl7.org/CodeSystem/security-source-type\",\"code\":\"3\"}]},\"entity\":[{\"id\":\"amp-0\",\"detail\":[{\"id\":\"amp-0\",\"type\":\"browser\"}]},{\"id\":\"amp-1\",\"detail\":[{\"id\":\"amp-0\",\"type\":\"browser_version\"}]},{\"id\":\"amp-2\",\"detail\":[{\"id\":\"amp-0\",\"type\":\"city\"}]},{\"id\":\"amp-3\",\"detail\":[{\"id\":\"amp-0\",\"type\":\"mp_country_code\"}]},{\"id\":\"amp-4\",\"detail\":[{\"id\":\"amp-0\",\"type\":\"device\"}]},{\"id\":\"amp-5\",\"detail\":[{\"id\":\"amp-0\",\"type\":\"device_id\"}]},{\"id\":\"amp-6\",\"detail\":[{\"id\":\"amp-0\",\"type\":\"initial_referrer\"}]},{\"id\":\"amp-7\",\"detail\":[{\"id\":\"amp-0\",\"type\":\"initial_referring_domain\"}]},{\"id\":\"amp-8\",\"detail\":[{\"id\":\"amp-0\",\"type\":\"library_version\"}]},{\"id\":\"amp-9\",\"detail\":[{\"id\":\"amp-0\",\"type\":\"os\"}]},{\"id\":\"amp-10\",\"detail\":[{\"id\":\"amp-0\",\"type\":\"region\"}]},{\"id\":\"amp-11\",\"detail\":[{\"id\":\"amp-0\",\"type\":\"screen_height\"}]},{\"id\":\"amp-12\",\"detail\":[{\"id\":\"amp-0\",\"type\":\"screen_width\"}]},{\"id\":\"amp-13\",\"detail\":[{\"id\":\"amp-0\",\"type\":\"search_engine\"}]}]}"
+          },
+          "diagnostics": "resource is missing id",
+          "expression": [
+            "AuditEvent"
+          ],
+          "severity": "error"
+        }
+      ],
+      "resourceType": "OperationOutcome"
+    },
+    "resourceType": "AuditEvent",
     "updated": false
   }
 ]

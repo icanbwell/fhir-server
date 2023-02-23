@@ -3,11 +3,14 @@
     "id": "test1",
     "identifier": [
       {
+        "id": "sourceId",
         "system": "https://www.icanbwell.com/sourceId",
         "value": "test1"
       },
       {
-        "system": "https://www.icanbwell.com/uuid"
+        "id": "uuid",
+        "system": "https://www.icanbwell.com/uuid",
+        "value": "d2b1797c-2141-5c2f-a943-fc1c939c3e3c"
       }
     ],
     "meta": {
@@ -15,6 +18,14 @@
         {
           "code": "medstar",
           "system": "https://www.icanbwell.com/access"
+        },
+        {
+          "code": "medstar",
+          "system": "https://www.icanbwell.com/owner"
+        },
+        {
+          "code": "medstar",
+          "system": "https://www.icanbwell.com/sourceAssigningAuthority"
         }
       ],
       "source": "http://medstarhealth.org/provider",
@@ -38,11 +49,14 @@
     "id": "test2",
     "identifier": [
       {
+        "id": "sourceId",
         "system": "https://www.icanbwell.com/sourceId",
         "value": "test2"
       },
       {
-        "system": "https://www.icanbwell.com/uuid"
+        "id": "uuid",
+        "system": "https://www.icanbwell.com/uuid",
+        "value": "2a1e929e-6dad-5b29-bae2-41c065daaae1"
       }
     ],
     "meta": {
@@ -50,6 +64,14 @@
         {
           "code": "medstar",
           "system": "https://www.icanbwell.com/access"
+        },
+        {
+          "code": "medstar",
+          "system": "https://www.icanbwell.com/owner"
+        },
+        {
+          "code": "medstar",
+          "system": "https://www.icanbwell.com/sourceAssigningAuthority"
         }
       ],
       "source": "http://medstarhealth.org/provider",
@@ -73,11 +95,14 @@
     "id": "test3",
     "identifier": [
       {
+        "id": "sourceId",
         "system": "https://www.icanbwell.com/sourceId",
         "value": "test3"
       },
       {
-        "system": "https://www.icanbwell.com/uuid"
+        "id": "uuid",
+        "system": "https://www.icanbwell.com/uuid",
+        "value": "1ded69f1-116f-599a-855e-af0d66ed9bd2"
       }
     ],
     "meta": {
@@ -85,6 +110,14 @@
         {
           "code": "medstar",
           "system": "https://www.icanbwell.com/access"
+        },
+        {
+          "code": "medstar",
+          "system": "https://www.icanbwell.com/owner"
+        },
+        {
+          "code": "medstar",
+          "system": "https://www.icanbwell.com/sourceAssigningAuthority"
         }
       ],
       "source": "http://medstarhealth.org/provider",

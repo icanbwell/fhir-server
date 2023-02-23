@@ -12,6 +12,7 @@ module.exports = {
          */
         // eslint-disable-next-line no-unused-vars
         concept: async (parent, args, context, info) => {
+            // noinspection JSValidateTypes
             /**
              * @type {CodeSystem|null}
              */

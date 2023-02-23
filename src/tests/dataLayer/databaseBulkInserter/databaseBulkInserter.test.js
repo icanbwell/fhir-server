@@ -16,7 +16,10 @@ const BundleEntry = require('../../../fhir/classes/4_0_0/backbone_elements/bundl
 const BundleRequest = require('../../../fhir/classes/4_0_0/backbone_elements/bundleRequest');
 const BundleResponse = require('../../../fhir/classes/4_0_0/backbone_elements/bundleResponse');
 const OperationOutcome = require('../../../fhir/classes/4_0_0/resources/operationOutcome');
+const Coding = require('../../../fhir/classes/4_0_0/complex_types/coding');
 const OperationOutcomeIssue = require('../../../fhir/classes/4_0_0/backbone_elements/operationOutcomeIssue');
+const {generateUUIDv5} = require('../../../utils/uid.util');
+const Identifier = require('../../../fhir/classes/4_0_0/complex_types/identifier');
 
 class MockChangeEventProducer extends ChangeEventProducer {
     /**
@@ -247,11 +250,22 @@ describe('databaseBulkInserter Tests', () => {
             // add another one
             const codeSystem1 = new CodeSystem({
                 id: 'loinc-1',
+                _uuid: '6dfa2151-d5dc-5fbd-9cb0-8380b28c6428',
                 status: 'active',
                 content: 'complete',
                 meta: new Meta({
                     lastUpdated: Date(),
-                    versionId: '2'
+                    versionId: '2',
+                    security: [
+                        new Coding({
+                            'code': 'medstar',
+                            'system': 'https://www.icanbwell.com/owner'
+                        }),
+                        new Coding({
+                            'code': 'medstar',
+                            'system': 'https://www.icanbwell.com/sourceAssigningAuthority'
+                        })
+                    ]
                 }),
                 concept: [
                     new CodeSystemConcept(
@@ -293,7 +307,17 @@ describe('databaseBulkInserter Tests', () => {
                 content: 'complete',
                 meta: new Meta({
                     lastUpdated: Date(),
-                    versionId: '2'
+                    versionId: '2',
+                    security: [
+                        new Coding({
+                            'code': 'medstar',
+                            'system': 'https://www.icanbwell.com/owner'
+                        }),
+                        new Coding({
+                            'code': 'medstar',
+                            'system': 'https://www.icanbwell.com/sourceAssigningAuthority'
+                        })
+                    ]
                 }),
                 concept: [
                     new CodeSystemConcept(
@@ -334,7 +358,14 @@ describe('databaseBulkInserter Tests', () => {
                 content: 'complete',
                 meta: new Meta({
                     lastUpdated: Date(),
-                    versionId: '2'
+                    versionId: '2',
+                    source: 'http://www/icanbwell.com',
+                    security: [
+                        new Coding({
+                            'system': 'https://www.icanbwell.com/owner',
+                            'code': 'medstar'
+                        })
+                    ]
                 }),
                 concept: [
                     new CodeSystemConcept(
@@ -394,12 +425,14 @@ describe('databaseBulkInserter Tests', () => {
                 base_version,
                 method: 'POST'
             });
-            expect(mergeResults).toStrictEqual([
+            expect(mergeResults.map(m => m.toJSON())).toStrictEqual([
                 {
-                    'id': 'loinc-1',
                     'created': false,
+                    'id': 'loinc-1',
+                    'resourceType': 'CodeSystem',
+                    'sourceAssigningAuthority': 'medstar',
                     'updated': true,
-                    'resourceType': 'CodeSystem'
+                    'uuid': '6dfa2151-d5dc-5fbd-9cb0-8380b28c6428'
                 }
             ]);
             /**
@@ -417,17 +450,30 @@ describe('databaseBulkInserter Tests', () => {
                 status: 'active',
                 content: 'complete',
                 meta: new Meta({
-                    versionId: '3'
+                    versionId: '3',
+                    source: 'http://www/icanbwell.com',
+                    security: [
+                        new Coding({
+                            'system': 'https://www.icanbwell.com/owner',
+                            'code': 'medstar'
+                        }),
+                        new Coding({
+                            'code': 'medstar',
+                            'system': 'https://www.icanbwell.com/sourceAssigningAuthority'
+                        })
+                    ]
                 }),
                 identifier: [
-                    {
+                    new Identifier({
+                        'id': 'sourceId',
                         'system': 'https://www.icanbwell.com/sourceId',
                         'value': 'loinc-1'
-                    },
-                    {
+                    }),
+                    new Identifier({
+                        'id': 'uuid',
                         'system': 'https://www.icanbwell.com/uuid',
                         'value': 'b627381e-4838-46cf-b9b0-02ad7b179219'
-                    }
+                    })
                 ],
                 concept: [
                     new CodeSystemConcept(
@@ -481,7 +527,7 @@ describe('databaseBulkInserter Tests', () => {
             expect(actualCodeSystemHistoryEntries.length).toStrictEqual(1);
             const expectedCodeSystemHistoryEntry = new BundleEntry(
                 {
-                    'id': 'loinc-1',
+                    'id': generateUUIDv5('loinc-1|medstar'),
                     'request': new BundleRequest({
                         'id': '1234',
                         'method': 'POST',
@@ -489,20 +535,34 @@ describe('databaseBulkInserter Tests', () => {
                     }),
                     resource: new CodeSystem({
                         id: 'loinc-1',
+                        _uuid: '6dfa2151-d5dc-5fbd-9cb0-8380b28c6428',
                         status: 'active',
                         content: 'complete',
                         meta: new Meta({
-                            versionId: '3'
+                            versionId: '3',
+                            source: 'http://www/icanbwell.com',
+                            security: [
+                                new Coding({
+                                    'system': 'https://www.icanbwell.com/owner',
+                                    'code': 'medstar'
+                                }),
+                                new Coding({
+                                    'code': 'medstar',
+                                    'system': 'https://www.icanbwell.com/sourceAssigningAuthority'
+                                })
+                            ]
                         }),
                         'identifier': [
-                            {
+                            new Identifier({
+                                'id': 'sourceId',
                                 'system': 'https://www.icanbwell.com/sourceId',
                                 'value': 'loinc-1'
-                            },
-                            {
+                            }),
+                            new Identifier({
+                                'id': 'uuid',
                                 'system': 'https://www.icanbwell.com/uuid',
                                 'value': 'e7f9d7f5-f443-4aa6-aaa8-90bbb676f252'
-                            }
+                            })
                         ],
                         concept: [
                             new CodeSystemConcept(
@@ -609,11 +669,21 @@ describe('databaseBulkInserter Tests', () => {
 
             const codeSystemOriginal = new CodeSystem({
                 id: 'loinc-1',
+                _uuid: generateUUIDv5('loinc-1|medstar'),
                 status: 'active',
                 content: 'complete',
                 meta: new Meta({
                     lastUpdated: Date(),
-                    versionId: '1'
+                    versionId: '1',
+                    source: 'http://www/icanbwell.com',
+                    security: [
+                        new Coding(
+                            {
+                                'system': 'https://www.icanbwell.com/owner',
+                                'code': 'medstar'
+                            }
+                        )
+                    ]
                 }),
                 concept: [
                     new CodeSystemConcept(
@@ -651,11 +721,19 @@ describe('databaseBulkInserter Tests', () => {
 
             const codeSystem2 = new CodeSystem({
                 id: 'loinc-1',
+                _uuid: generateUUIDv5('loinc-1|medstar'),
                 status: 'active',
                 content: 'complete',
                 meta: new Meta({
                     lastUpdated: Date(),
-                    versionId: '2'
+                    versionId: '2',
+                    source: 'http://www/icanbwell.com',
+                    security: [
+                        new Coding({
+                            'system': 'https://www.icanbwell.com/owner',
+                            'code': 'medstar'
+                        })
+                    ]
                 }),
                 concept: [
                     new CodeSystemConcept(
@@ -684,11 +762,19 @@ describe('databaseBulkInserter Tests', () => {
             // now add in a new one while waiting
             const codeSystem1 = new CodeSystem({
                 id: 'loinc-1',
+                _uuid: generateUUIDv5('loinc-1|medstar'),
                 status: 'active',
                 content: 'complete',
                 meta: new Meta({
                     lastUpdated: Date(),
-                    versionId: '2'
+                    versionId: '2',
+                    source: 'http://www/icanbwell.com',
+                    security: [
+                        new Coding({
+                            'system': 'https://www.icanbwell.com/owner',
+                            'code': 'medstar'
+                        })
+                    ]
                 }),
                 concept: [
                     new CodeSystemConcept(
@@ -726,11 +812,19 @@ describe('databaseBulkInserter Tests', () => {
             expect(codeSystemsBeforeBulkUpdate.length).toStrictEqual(1);
             const expectedCodeSystemAfterFirstUpdate = new CodeSystem({
                 id: 'loinc-1',
+                _uuid: generateUUIDv5('loinc-1|medstar'),
                 status: 'active',
                 content: 'complete',
                 meta: new Meta({
                     lastUpdated: Date(),
-                    versionId: '2'
+                    versionId: '2',
+                    source: 'http://www/icanbwell.com',
+                    security: [
+                        new Coding({
+                            'system': 'https://www.icanbwell.com/owner',
+                            'code': 'medstar'
+                        })
+                    ]
                 }),
                 concept: [
                     new CodeSystemConcept(
@@ -776,12 +870,14 @@ describe('databaseBulkInserter Tests', () => {
                 base_version,
                 method: 'POST'
             });
-            expect(mergeResults).toStrictEqual([
+            expect(mergeResults.map(m => m.toJSON())).toStrictEqual([
                 {
                     'id': 'loinc-1',
                     'created': false,
+                    'resourceType': 'CodeSystem',
+                    'sourceAssigningAuthority': 'medstar',
                     'updated': true,
-                    'resourceType': 'CodeSystem'
+                    'uuid': '6dfa2151-d5dc-5fbd-9cb0-8380b28c6428'
                 }
             ]);
             /**
@@ -795,21 +891,35 @@ describe('databaseBulkInserter Tests', () => {
             const codeSystems = await fhirDb.collection(collectionName).find().toArray();
             expect(codeSystems.length).toStrictEqual(1);
             const expectedCodeSystem = new CodeSystem({
+                _uuid: generateUUIDv5('loinc-1|medstar'),
                 id: 'loinc-1',
                 status: 'active',
                 content: 'complete',
                 meta: new Meta({
-                    versionId: '3'
+                    versionId: '3',
+                    source: 'http://www/icanbwell.com',
+                    security: [
+                        new Coding({
+                            'system': 'https://www.icanbwell.com/owner',
+                            'code': 'medstar'
+                        }),
+                        new Coding({
+                            'code': 'medstar',
+                            'system': 'https://www.icanbwell.com/sourceAssigningAuthority'
+                        })
+                    ]
                 }),
                 'identifier': [
-                    {
+                    new Identifier({
+                        'id': 'sourceId',
                         'system': 'https://www.icanbwell.com/sourceId',
                         'value': 'loinc-1'
-                    },
-                    {
+                    }),
+                    new Identifier({
+                        'id': 'uuid',
                         'system': 'https://www.icanbwell.com/uuid',
                         'value': '30567620-6073-44c1-b77a-83cb11fc971e'
-                    }
+                    })
                 ],
                 concept: [
                     new CodeSystemConcept(
@@ -863,7 +973,7 @@ describe('databaseBulkInserter Tests', () => {
             expect(actualCodeSystemHistoryEntries.length).toStrictEqual(1);
             const expectedCodeSystemHistoryEntry = new BundleEntry(
                 {
-                    'id': 'loinc-1',
+                    'id': generateUUIDv5('loinc-1|medstar'),
                     'request': new BundleRequest({
                         'id': '1234',
                         'method': 'POST',
@@ -871,20 +981,34 @@ describe('databaseBulkInserter Tests', () => {
                     }),
                     resource: new CodeSystem({
                         id: 'loinc-1',
+                        _uuid: generateUUIDv5('loinc-1|medstar'),
                         status: 'active',
                         content: 'complete',
                         meta: new Meta({
-                            versionId: '3'
+                            versionId: '3',
+                            source: 'http://www/icanbwell.com',
+                            security: [
+                                new Coding({
+                                    'system': 'https://www.icanbwell.com/owner',
+                                    'code': 'medstar'
+                                }),
+                                new Coding({
+                                    'code': 'medstar',
+                                    'system': 'https://www.icanbwell.com/sourceAssigningAuthority'
+                                })
+                            ]
                         }),
                         'identifier': [
-                            {
+                            new Identifier({
+                                'id': 'sourceId',
                                 'system': 'https://www.icanbwell.com/sourceId',
                                 'value': 'loinc-1'
-                            },
-                            {
+                            }),
+                            new Identifier({
+                                'id': 'uuid',
                                 'system': 'https://www.icanbwell.com/uuid',
                                 'value': 'f67ac4cf-d135-46ac-b23d-a16289a61074'
-                            }
+                            })
                         ],
                         concept: [
                             new CodeSystemConcept(
@@ -941,6 +1065,13 @@ describe('databaseBulkInserter Tests', () => {
                                         'diagnostics': '{"op":"add","path":"/identifier","value":[{"system":"https://www.icanbwell.com/sourceId","value":"loinc-1"},{"system":"https://www.icanbwell.com/uuid","value":"f67ac4cf-d135-46ac-b23d-a16289a61074"}]}',
                                         'severity': 'information'
                                     }
+                                ),
+                                new OperationOutcomeIssue(
+                                    {
+                                        'code': 'informational',
+                                        'diagnostics': '{"op":"add","path":"/identifier","value":[{"id":"sourceId","system":"https://www.icanbwell.com/sourceId","value":"loinc-1"},{"id":"uuid","system":"https://www.icanbwell.com/uuid","value":"6dfa2151-d5dc-5fbd-9cb0-8380b28c6428"}]}',
+                                        'severity': 'information'
+                                    }
                                 )
                             ],
                             'resourceType': 'OperationOutcome'
@@ -995,7 +1126,14 @@ describe('databaseBulkInserter Tests', () => {
                 content: 'complete',
                 meta: new Meta({
                     lastUpdated: Date(),
-                    versionId: '1'
+                    versionId: '1',
+                    source: 'http://www/icanbwell.com',
+                    security: [
+                        new Coding({
+                            'system': 'https://www.icanbwell.com/owner',
+                            'code': 'medstar'
+                        })
+                    ]
                 }),
                 concept: [
                     new CodeSystemConcept(
@@ -1020,7 +1158,14 @@ describe('databaseBulkInserter Tests', () => {
                 content: 'complete',
                 meta: new Meta({
                     lastUpdated: Date(),
-                    versionId: '1'
+                    versionId: '1',
+                    source: 'http://www/icanbwell.com',
+                    security: [
+                        new Coding({
+                            'system': 'https://www.icanbwell.com/owner',
+                            'code': 'medstar'
+                        })
+                    ]
                 }),
                 concept: [
                     new CodeSystemConcept(
@@ -1044,7 +1189,14 @@ describe('databaseBulkInserter Tests', () => {
                 content: 'complete',
                 meta: new Meta({
                     lastUpdated: Date(),
-                    versionId: '1'
+                    versionId: '1',
+                    source: 'http://www/icanbwell.com',
+                    security: [
+                        new Coding({
+                            'system': 'https://www.icanbwell.com/owner',
+                            'code': 'medstar'
+                        })
+                    ]
                 }),
                 concept: [
                     new CodeSystemConcept(
@@ -1075,7 +1227,6 @@ describe('databaseBulkInserter Tests', () => {
 
             await databaseBulkInserter.mergeOneAsync({
                 requestId: requestId,
-                id: codeSystem2.id,
                 resourceType: 'CodeSystem',
                 doc: codeSystem2,
                 previousVersionId: null,
@@ -1093,12 +1244,14 @@ describe('databaseBulkInserter Tests', () => {
                 base_version,
                 method: 'POST'
             });
-            expect(mergeResults).toStrictEqual([
+            expect(mergeResults.map(m => m.toJSON())).toStrictEqual([
                 {
                     'created': true,
                     'id': 'loinc-1',
                     'resourceType': 'CodeSystem',
-                    'updated': false
+                    'sourceAssigningAuthority': 'medstar',
+                    'updated': false,
+                    'uuid': '6dfa2151-d5dc-5fbd-9cb0-8380b28c6428'
                 }
             ]);
             /**
@@ -1126,17 +1279,30 @@ describe('databaseBulkInserter Tests', () => {
                 status: 'active',
                 content: 'complete',
                 meta: new Meta({
-                    versionId: '1'
+                    versionId: '1',
+                    source: 'http://www/icanbwell.com',
+                    security: [
+                        new Coding({
+                            'system': 'https://www.icanbwell.com/owner',
+                            'code': 'medstar'
+                        }),
+                        new Coding({
+                            'code': 'medstar',
+                            'system': 'https://www.icanbwell.com/sourceAssigningAuthority'
+                        })
+                    ]
                 }),
                 'identifier': [
-                    {
+                    new Identifier({
+                        'id': 'sourceId',
                         'system': 'https://www.icanbwell.com/sourceId',
                         'value': 'loinc-1'
-                    },
-                    {
+                    }),
+                    new Identifier({
+                        'id': 'uuid',
                         'system': 'https://www.icanbwell.com/uuid',
                         'value': '946e32d8-2645-4d3c-8fac-5fd96ee3a29c'
-                    }
+                    })
                 ],
                 concept: [
                     new CodeSystemConcept(
@@ -1221,7 +1387,14 @@ describe('databaseBulkInserter Tests', () => {
                 content: 'complete',
                 meta: new Meta({
                     lastUpdated: Date(),
-                    versionId: '1'
+                    versionId: '1',
+                    source: 'http://www/icanbwell.com',
+                    security: [
+                        new Coding({
+                            'system': 'https://www.icanbwell.com/owner',
+                            'code': 'medstar'
+                        })
+                    ]
                 }),
                 concept: [
                     new CodeSystemConcept(
@@ -1271,12 +1444,14 @@ describe('databaseBulkInserter Tests', () => {
                 base_version,
                 method: 'POST'
             });
-            expect(mergeResults).toStrictEqual([
+            expect(mergeResults.map(m => m.toJSON())).toStrictEqual([
                 {
                     'created': true,
                     'id': 'loinc-1',
                     'resourceType': 'CodeSystem',
-                    'updated': false
+                    'sourceAssigningAuthority': 'medstar',
+                    'updated': false,
+                    'uuid': '6dfa2151-d5dc-5fbd-9cb0-8380b28c6428'
                 }
             ]);
             /**
@@ -1315,17 +1490,34 @@ describe('databaseBulkInserter Tests', () => {
                 'content': 'complete',
                 'id': 'loinc-1',
                 'meta': new Meta({
-                    'versionId': '1'
+                    'versionId': '1',
+                    source: 'http://www/icanbwell.com',
+                    security: [
+                        new Coding(
+                            {
+                                'system': 'https://www.icanbwell.com/owner',
+                                'code': 'medstar'
+                            }
+                        ),
+                        new Coding(
+                            {
+                                'code': 'medstar',
+                                'system': 'https://www.icanbwell.com/sourceAssigningAuthority'
+                            }
+                        )
+                    ]
                 }),
-                'identifier': [
-                    {
+                identifier: [
+                    new Identifier({
+                        'id': 'sourceId',
                         'system': 'https://www.icanbwell.com/sourceId',
                         'value': 'loinc-1'
-                    },
-                    {
+                    }),
+                    new Identifier({
+                        'id': 'uuid',
                         'system': 'https://www.icanbwell.com/uuid',
                         'value': 'd05fce76-7645-41f0-968a-9b42dd579a6d'
-                    }
+                    })
                 ],
                 'resourceType': 'CodeSystem',
                 'status': 'active'

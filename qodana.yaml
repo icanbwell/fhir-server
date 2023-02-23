@@ -1,0 +1,4 @@
+exclude:
+  - name: All
+    paths:
+      - src/fhir/generator

@@ -9,6 +9,8 @@ const OperationOutcomeIssue = require('../../fhir/classes/4_0_0/backbone_element
 const CodeableConcept = require('../../fhir/classes/4_0_0/complex_types/codeableConcept');
 const {ResourceValidator} = require('../common/resourceValidator');
 const moment = require('moment-timezone');
+const {ParsedArgs} = require('../query/parsedArgsItem');
+const {SecurityTagSystem} = require('../../utils/securityTagSystem');
 
 class ValidateOperation {
     /**
@@ -43,14 +45,14 @@ class ValidateOperation {
     /**
      * does a FHIR Validate
      * @param {FhirRequestInfo} requestInfo
-     * @param {Object} args
+     * @param {ParsedArgs} parsedArgs
      * @param {string} resourceType
      * @returns {Promise<Resource>}
      */
-    async validate({requestInfo, args, resourceType}) {
+    async validate({requestInfo, parsedArgs, resourceType}) {
         assertIsValid(requestInfo !== undefined);
-        assertIsValid(args !== undefined);
         assertIsValid(resourceType !== undefined);
+        assertTypeEquals(parsedArgs, ParsedArgs);
         const currentOperationName = 'validate';
 
         /**
@@ -61,7 +63,7 @@ class ValidateOperation {
         /**
          * @type {string}
          */
-        let {base_version} = args;
+        let {base_version} = parsedArgs;
 
         /**
          * @type {string}
@@ -77,7 +79,7 @@ class ValidateOperation {
         /**
          * @type {Object|null}
          */
-        let resource_incoming = args.resource ? args.resource : requestInfo.body;
+        let resource_incoming = parsedArgs.resource ? parsedArgs.resource : requestInfo.body;
 
         // check if this is a Parameters resourceType
         if (resource_incoming.resourceType === 'Parameters') {
@@ -142,7 +144,7 @@ class ValidateOperation {
             await this.fhirLoggingManager.logOperationSuccessAsync(
                 {
                     requestInfo,
-                    args,
+                    args: parsedArgs.getRawArgs(),
                     resourceType,
                     startTime,
                     action: currentOperationName
@@ -151,7 +153,11 @@ class ValidateOperation {
         }
 
         const ResourceCreator = getResource(base_version, resourceType);
-        if (!this.scopesManager.doesResourceHaveAccessTags(new ResourceCreator(resource_incoming))) {
+        /**
+         * @type {Resource}
+         */
+        const resourceToValidate = new ResourceCreator(resource_incoming);
+        if (!this.scopesManager.doesResourceHaveAccessTags(resourceToValidate)) {
             return new OperationOutcome({
                 resourceType: 'OperationOutcome',
                 issue: [
@@ -159,7 +165,28 @@ class ValidateOperation {
                         severity: 'error',
                         code: 'invalid',
                         details: new CodeableConcept({
-                            text: 'Resource is missing a security access tag with system: https://www.icanbwell.com/access'
+                            text: `Resource ${resourceToValidate.resourceType}/${resourceToValidate.id}` +
+                                ' is missing a security access tag with system: ' +
+                                `${SecurityTagSystem.access}`
+                        }),
+                        expression: [
+                            resourceType
+                        ]
+                    })
+                ]
+            });
+        }
+        if (!this.scopesManager.doesResourceHaveOwnerTags(resourceToValidate)) {
+            return new OperationOutcome({
+                resourceType: 'OperationOutcome',
+                issue: [
+                    new OperationOutcomeIssue({
+                        severity: 'error',
+                        code: 'invalid',
+                        details: new CodeableConcept({
+                            text: `Resource ${resourceToValidate.resourceType}/${resourceToValidate.id}` +
+                                ' is missing a security access tag with system: ' +
+                                `${SecurityTagSystem.owner}`
                         }),
                         expression: [
                             resourceType
@@ -171,7 +198,7 @@ class ValidateOperation {
         await this.fhirLoggingManager.logOperationSuccessAsync(
             {
                 requestInfo,
-                args,
+                args: parsedArgs.getRawArgs(),
                 resourceType,
                 startTime,
                 action: currentOperationName

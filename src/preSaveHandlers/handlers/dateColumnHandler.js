@@ -1,6 +1,9 @@
 const {PreSaveHandler} = require('./preSaveHandler');
 const {isColumnDateType} = require('../../operations/common/isColumnDateType');
 
+/**
+ * @classdesc Converts date field from string to Date()
+ */
 class DateColumnHandler extends PreSaveHandler {
     async preSaveAsync({resource}) {
         for (const [fieldName, field] of Object.entries(resource)) {

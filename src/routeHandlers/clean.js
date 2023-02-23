@@ -16,7 +16,7 @@ const {logInfo} = require('../operations/common/logging');
  */
 module.exports.handleClean = async ({fnCreateContainer, req, res}) => {
     if (!env.DISABLE_CLEAN_ENDPOINT) {
-        logInfo('Running clean');
+        logInfo('Running clean', {});
         const container = fnCreateContainer();
         /**
          * @type {MongoDatabaseManager}
@@ -42,7 +42,7 @@ module.exports.handleClean = async ({fnCreateContainer, req, res}) => {
             }
 
             for await (const collection of db.listCollections()) {
-                logInfo(collection.name);
+                logInfo(collection.name, {});
                 if (collection.name.indexOf('system.') === -1) {
                     if (
                         !specific_collection ||
