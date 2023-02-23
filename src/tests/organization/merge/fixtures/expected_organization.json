@@ -3,11 +3,14 @@
     "id": "MedStar-Medical-Group",
     "identifier": [
       {
+        "id": "sourceId",
         "system": "https://www.icanbwell.com/sourceId",
         "value": "MedStar-Medical-Group"
       },
       {
-        "system": "https://www.icanbwell.com/uuid"
+        "id": "uuid",
+        "system": "https://www.icanbwell.com/uuid",
+        "value": "95a17a9e-8304-50ca-9886-5041227066f7"
       }
     ],
     "meta": {
@@ -15,6 +18,14 @@
         {
           "code": "medstar",
           "system": "https://www.icanbwell.com/access"
+        },
+        {
+          "code": "medstar",
+          "system": "https://www.icanbwell.com/owner"
+        },
+        {
+          "code": "medstar",
+          "system": "https://www.icanbwell.com/sourceAssigningAuthority"
         }
       ],
       "source": "https://www.foo.com",
@@ -85,11 +96,14 @@
         "value": "-733797173"
       },
       {
+        "id": "sourceId",
         "system": "https://www.icanbwell.com/sourceId",
         "value": "Medstar-Org-733797173"
       },
       {
-        "system": "https://www.icanbwell.com/uuid"
+        "id": "uuid",
+        "system": "https://www.icanbwell.com/uuid",
+        "value": "8e1518b2-8f3a-5150-a4e3-94f001205c78"
       }
     ],
     "meta": {
@@ -97,6 +111,14 @@
         {
           "code": "medstar",
           "system": "https://www.icanbwell.com/access"
+        },
+        {
+          "code": "medstar",
+          "system": "https://www.icanbwell.com/owner"
+        },
+        {
+          "code": "medstar",
+          "system": "https://www.icanbwell.com/sourceAssigningAuthority"
         }
       ],
       "source": "https://www.foo.com",

@@ -54,8 +54,14 @@ def main() -> int:
         type_: str = resource["type"]
         base: str = "|".join(resource["base"])
         expression: str = resource.get("expression", None)
-        experimental: str = resource["experimental"]
         xpath: str = resource.get("xpath", None)
+        if resource["id"] in ["individual-given", "individual-family"]:
+            parameter_name = resource["id"].split("-")[-1]
+            base += "|Person"
+            expression += f" | Person.name.{parameter_name}"
+            xpath += f" | f:Person/f:name/f:{parameter_name}"
+            description += f"* [Person](person.html): A portion of the {parameter_name} name of the person\r\n"
+
         xpath_transformed: str = xpath.replace("/f:", ".").replace("f:", "") if xpath else None
         target: str = "|".join(resource["target"]) if "target" in resource else None
         print(f"{search_parameter},{base},{code},{status},{type_},{xpath},{xpath_transformed},{target},{expression}")

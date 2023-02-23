@@ -12,20 +12,27 @@ let kafkaClient;
 let timeTillKafkaReconnection;
 let producer;
 let container;
+/**
+ * @type {{sasl: {accessKeyId: (string|null), secretAccessKey: (string|null), authorizationIdentity: (string|undefined), password: (string|null), mechanism: (string|undefined), username: (string|null)}, clientId: (string|undefined), brokers: string[], ssl: boolean}}
+ */
+let config;
 
 // Does a health check for the app
 module.exports.handleHealthCheck = async (fnCreateContainer, req, res) => {
     // If events is to be logged on kafka, check kafka connection
     if (env.ENABLE_EVENTS_KAFKA === '1') {
         // Check Kafka connection at an interval of 30 seconds
-        if (timeTillKafkaReconnection === undefined || timeTillKafkaReconnection < new Date() ) {
+        if (timeTillKafkaReconnection === undefined || timeTillKafkaReconnection < new Date()) {
             // Either creates a container and stores in a variable for subsequent calls
             container = container || fnCreateContainer();
             /**
              * @type {kafkaClientFactory}
              */
             kafkaClientFactory = kafkaClientFactory || container.kafkaClientFactory;
-            kafkaClient = kafkaClient || new Kafka(await kafkaClientFactory.getKafkaClientConfigAsync());
+            if (!config) {
+                config = await kafkaClientFactory.getKafkaClientConfigAsync();
+            }
+            kafkaClient = kafkaClient || new Kafka(config);
             // Initiates a producer
             producer = producer || kafkaClient.producer();
 

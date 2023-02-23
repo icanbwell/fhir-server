@@ -46,11 +46,14 @@
         "value": "1679033641"
       },
       {
+        "id": "sourceId",
         "system": "https://www.icanbwell.com/sourceId",
         "value": "4657"
       },
       {
-        "system": "https://www.icanbwell.com/uuid"
+        "id": "uuid",
+        "system": "https://www.icanbwell.com/uuid",
+        "value": "7183994d-7865-538e-9ce8-1da1d1c489a5"
       },
       {
         "system": "medstarhealth.org",
@@ -71,6 +74,14 @@
         {
           "code": "medstar",
           "system": "https://www.icanbwell.com/access"
+        },
+        {
+          "code": "medstar",
+          "system": "https://www.icanbwell.com/owner"
+        },
+        {
+          "code": "medstar",
+          "system": "https://www.icanbwell.com/sourceAssigningAuthority"
         }
       ],
       "source": "https://www.foo.com",

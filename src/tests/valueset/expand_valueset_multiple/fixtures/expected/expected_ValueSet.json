@@ -141,11 +141,14 @@
   "id": "2.16.840.1.113762.1.4.1106.45",
   "identifier": [
     {
+      "id": "sourceId",
       "system": "https://www.icanbwell.com/sourceId",
       "value": "2.16.840.1.113762.1.4.1106.45"
     },
     {
-      "system": "https://www.icanbwell.com/uuid"
+      "id": "uuid",
+      "system": "https://www.icanbwell.com/uuid",
+      "value": "322d9829-ed72-5496-9805-a1ac03f90722"
     }
   ],
   "meta": {
@@ -153,6 +156,14 @@
       {
         "code": "medstar",
         "system": "https://www.icanbwell.com/access"
+      },
+      {
+        "code": "medstar",
+        "system": "https://www.icanbwell.com/owner"
+      },
+      {
+        "code": "medstar",
+        "system": "https://www.icanbwell.com/sourceAssigningAuthority"
       }
     ],
     "versionId": "1"

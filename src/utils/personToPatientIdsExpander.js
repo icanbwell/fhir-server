@@ -31,7 +31,7 @@ class PersonToPatientIdsExpander {
      * @param {string} base_version
      * @param {string} id
      * @param {boolean} includePatientPrefix
-     * @return {Promise<string>}
+     * @return {Promise<string|string[]>}
      */
     async getPatientProxyIdsAsync({base_version, id, includePatientPrefix}) {
         const databaseQueryManager = this.databaseQueryFactory.createQuery({
@@ -55,7 +55,7 @@ class PersonToPatientIdsExpander {
                 patientIds = patientIds.map(p => `${patientReferencePrefix}${p}`);
             }
             // 4. return a csv of those patient ids (remove duplicates)
-            return Array.from(new Set(patientIds)).join(',');
+            return Array.from(new Set(patientIds));
         }
         return id;
     }

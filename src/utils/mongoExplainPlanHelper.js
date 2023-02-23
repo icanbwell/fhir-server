@@ -100,6 +100,9 @@ class MongoExplainPlanHelper {
             result.children.push(this.parseInputStage({stepNo, step: step.inputStage}));
         }
         if ('inputStages' in step) {
+            if (!result.children) {
+                result.children = [];
+            }
             for (const inputStage of step.inputStages) {
                 result.children.push(this.parseInputStage({stepNo, step: inputStage}));
             }

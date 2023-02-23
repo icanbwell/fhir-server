@@ -1,0 +1,116 @@
+{
+  "entry": [
+    {
+      "resource": {
+        "address": [
+          {
+            "city": "Berea",
+            "line": [
+              "123 Main St.",
+              "Suite 102"
+            ],
+            "postalCode": "50002",
+            "state": "IA"
+          }
+        ],
+        "birthDate": "1950-10-10",
+        "gender": "female",
+        "id": "5",
+        "identifier": [
+          {
+            "system": "https://www.icanbwell.com",
+            "type": {
+              "coding": [
+                {
+                  "code": "FHIR_id",
+                  "display": "bWell FHIR id",
+                  "system": "https://www.icanbwell.com"
+                }
+              ]
+            },
+            "value": "bwell-xxx"
+          },
+          {
+            "id": "sourceId",
+            "system": "https://www.icanbwell.com/sourceId",
+            "value": "5"
+          },
+          {
+            "id": "uuid",
+            "system": "https://www.icanbwell.com/uuid",
+            "value": "b60cbc2a-5b28-509b-a23a-71d25ab690f8"
+          }
+        ],
+        "link": [
+          {
+            "assurance": "level4",
+            "target": {
+              "extension": [
+                {
+                  "id": "sourceId",
+                  "url": "https://www.icanbwell.com/sourceId",
+                  "valueString": "Patient/xxx"
+                },
+                {
+                  "id": "uuid",
+                  "url": "https://www.icanbwell.com/uuid",
+                  "valueString": "Patient/d071e171-2ff5-5a75-97ac-4b2641455ecc"
+                },
+                {
+                  "id": "sourceAssigningAuthority",
+                  "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                  "valueString": "bwell"
+                }
+              ],
+              "reference": "Patient/xxx",
+              "type": "Patient"
+            }
+          }
+        ],
+        "meta": {
+          "security": [
+            {
+              "code": "bwell",
+              "system": "https://www.icanbwell.com/access"
+            },
+            {
+              "code": "bwell",
+              "system": "https://www.icanbwell.com/owner"
+            },
+            {
+              "code": "bwell",
+              "system": "https://www.icanbwell.com/sourceAssigningAuthority"
+            }
+          ],
+          "versionId": "1"
+        },
+        "name": [
+          {
+            "family": "test",
+            "given": [
+              "test",
+              "test2"
+            ],
+            "use": "official"
+          }
+        ],
+        "resourceType": "Person",
+        "telecom": [
+          {
+            "system": "phone",
+            "use": "home",
+            "value": "+14435705277"
+          },
+          {
+            "system": "email",
+            "use": "home",
+            "value": "test.user@icanbwell.com"
+          }
+        ]
+      }
+    }
+  ],
+  "resourceType": "Bundle",
+  "total": 0,
+  "type": "searchset"
+}

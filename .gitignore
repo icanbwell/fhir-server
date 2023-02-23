@@ -28,5 +28,6 @@ globalConfig.json
 src/admin/scripts/.env
 src/admin/scripts/.env.prod
 src/admin/scripts/.env.staging
+src/admin/scripts/.env.dev
 .env.test
 src/fhir/generator/__pycache__

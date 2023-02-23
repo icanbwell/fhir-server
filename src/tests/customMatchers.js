@@ -5,7 +5,6 @@ const deepEqual = require('fast-deep-equal');
 const {expect} = require('@jest/globals');
 const moment = require('moment-timezone');
 const {YearMonthPartitioner} = require('../partitioners/yearMonthPartitioner');
-const {IdentifierSystem} = require('../utils/identifierSystem');
 const {ndjsonToJsonText} = require('ndjson-to-json-text');
 
 /**
@@ -47,14 +46,6 @@ function cleanMeta(resource) {
     }
     if (resource.meta) {
         delete resource.meta.lastUpdated;
-    }
-
-    if (resource.identifier && Array.isArray(resource.identifier)) {
-        resource.identifier.forEach((identifier) => {
-            if (identifier['system'] === IdentifierSystem.uuid && identifier['value']) {
-                delete identifier['value'];
-            }
-        });
     }
 
     return resource;
@@ -209,12 +200,9 @@ function checkContent({actual, expected, utils, options, expand, fnCleanResource
             });
             return (
                 // eslint-disable-next-line prefer-template
-                utils.matcherHint('toBe', undefined, undefined, options) +
-                '\n\n' +
-                (diffString && diffString.includes('- Expect') ?
-                    `Difference:\n\n${diffString}` :
-                    `Expected: ${utils.printExpected(expected)}\n` +
-                    `Received: ${utils.printReceived(actual)}`)
+                (utils.matcherHint('toBe', undefined, undefined, options) +
+                '\n\n' + (diffString && diffString.includes('- Expect') ? `Difference:\n\n${diffString}` : `Expected: ${utils.printExpected(expected)}\n` +
+                `Received: ${utils.printReceived(actual)}`))
             );
         };
     return {actual: actual, expected: expected, message, pass};

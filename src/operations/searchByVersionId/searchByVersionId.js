@@ -8,7 +8,7 @@ const {ScopesValidator} = require('../security/scopesValidator');
 const {isTrue} = require('../../utils/isTrue');
 const {ConfigManager} = require('../../utils/configManager');
 const {SearchManager} = require('../search/searchManager');
-const deepcopy = require('deepcopy');
+const {ParsedArgs} = require('../query/parsedArgsItem');
 
 class SearchByVersionIdOperation {
     /**
@@ -74,13 +74,13 @@ class SearchByVersionIdOperation {
     /**
      * does a FHIR Search By Version
      * @param {FhirRequestInfo} requestInfo
-     * @param {Object} args
+     * @param {ParsedArgs} parsedArgs
      * @param {string} resourceType
      */
-    async searchByVersionId({requestInfo, args, resourceType}) {
+    async searchByVersionId({requestInfo, parsedArgs, resourceType}) {
         assertIsValid(requestInfo !== undefined);
-        assertIsValid(args !== undefined);
         assertIsValid(resourceType !== undefined);
+        assertTypeEquals(parsedArgs, ParsedArgs);
         const currentOperationName = 'searchByVersionId';
         /**
          * @type {number}
@@ -101,16 +101,14 @@ class SearchByVersionIdOperation {
             // requestId
         } = requestInfo;
 
-        const originalArgs = deepcopy(args);
         try {
 
-            let {base_version, id, version_id} = args;
-            args['id'] = id.toString(); // add id filter to query
+            let {base_version, id, version_id} = parsedArgs;
             // check if user has permissions to access this resource
             await this.scopesValidator.verifyHasValidScopesAsync(
                 {
                     requestInfo,
-                    args,
+                    parsedArgs,
                     resourceType,
                     startTime,
                     action: currentOperationName,
@@ -122,12 +120,12 @@ class SearchByVersionIdOperation {
             /**
              * @type {boolean}
              */
-            const useAccessIndex = (this.configManager.useAccessIndex || isTrue(args['_useAccessIndex']));
+            const useAccessIndex = (this.configManager.useAccessIndex || isTrue(parsedArgs['_useAccessIndex']));
 
             /**
              * @type {{base_version, columns: Set, query: import('mongodb').Document}}
              */
-            const {
+            let {
                 /** @type {import('mongodb').Document}**/
                 query,
                 // /** @type {Set} **/
@@ -137,26 +135,25 @@ class SearchByVersionIdOperation {
                 scope,
                 isUser,
                 patientIdsFromJwtToken,
-                args: Object.assign(args, {id: id.toString()}), // add id filter to query
                 resourceType,
                 useAccessIndex,
-                personIdFromJwtToken
+                personIdFromJwtToken,
+                parsedArgs,
+                useHistoryTable: true
             });
 
             const queryForVersionId = {
-                '$or': [
-                    {
-                        'meta.versionId': version_id
-                    },
-                    {
-                        'resource.meta.versionId': version_id
-                    },
-                ]
+                'resource.meta.versionId': version_id
             };
             if (query.$and) {
                 query.$and.push(queryForVersionId);
             } else {
-                query.$and = [queryForVersionId];
+                query = {
+                    $and: [
+                        query,
+                        queryForVersionId
+                    ]
+                };
             }
             /**
              * @type {Resource|null}
@@ -185,27 +182,27 @@ class SearchByVersionIdOperation {
                 }
                 // run any enrichment
                 resource = (await this.enrichmentManager.enrichAsync({
-                            resources: [resource], args, originalArgs
+                            resources: [resource], parsedArgs
                         }
                     )
                 )[0];
                 await this.fhirLoggingManager.logOperationSuccessAsync(
                     {
                         requestInfo,
-                        args,
+                        args: parsedArgs.getRawArgs(),
                         resourceType,
                         startTime,
                         action: currentOperationName
                     });
                 return resource;
             } else {
-                throw new NotFoundError('Resource not found');
+                throw new NotFoundError(`History not found for ${resourceType}/${id} with versionId:${version_id}`);
             }
         } catch (e) {
             await this.fhirLoggingManager.logOperationFailureAsync(
                 {
                     requestInfo,
-                    args,
+                    args: parsedArgs.getRawArgs(),
                     resourceType,
                     startTime,
                     action: currentOperationName,

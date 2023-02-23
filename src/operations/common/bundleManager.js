@@ -41,7 +41,7 @@ class BundleManager {
      * @param {Resource[]} resources
      * @param {string} base_version
      * @param {number|null} [total_count]
-     * @param {Object} args
+     * @param {ParsedArgs} parsedArgs
      * @param {import('mongodb').Document|import('mongodb').Document[]} originalQuery
      * @param {string} collectionName
      * @param {string | undefined} [databaseName]
@@ -68,7 +68,7 @@ class BundleManager {
             resources,
             base_version,
             total_count,
-            args,
+            parsedArgs,
             originalQuery,
             collectionName,
             databaseName,
@@ -110,7 +110,7 @@ class BundleManager {
                 entries,
                 base_version,
                 total_count,
-                args,
+                parsedArgs,
                 originalQuery,
                 collectionName,
                 databaseName,
@@ -138,7 +138,7 @@ class BundleManager {
      * @param {BundleEntry[]} entries
      * @param {string} base_version
      * @param {number|null} [total_count]
-     * @param {Object} args
+     * @param {ParsedArgs} parsedArgs
      * @param {import('mongodb').Document|import('mongodb').Document[]} originalQuery
      * @param {string} collectionName
      * @param {string | undefined} [databaseName]
@@ -165,7 +165,7 @@ class BundleManager {
             entries,
             base_version,
             total_count,
-            args,
+            parsedArgs,
             originalQuery,
             collectionName,
             databaseName,
@@ -239,7 +239,7 @@ class BundleManager {
             bundle.id = requestId;
         }
 
-        if ((args && (args['_explain'] || args['_debug'])) || env.LOGLEVEL === 'DEBUG') {
+        if (((parsedArgs['_explain'] || parsedArgs['_debug'])) || env.LOGLEVEL === 'DEBUG') {
             /**
              * @type {[{[system]: string|undefined, [display]: string|undefined, [code]: string|undefined}]}
              */
@@ -355,7 +355,7 @@ class BundleManager {
             return entries;
         }
         return removeDuplicatesWithLambda(entries,
-            (a, b) => a.resource.resourceType === b.resource.resourceType && a.resource.id === b.resource.id
+            (a, b) => a.resource.resourceType === b.resource.resourceType && a.resource._uuid === b.resource._uuid
         );
     }
 }

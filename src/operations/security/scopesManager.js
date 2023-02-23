@@ -152,6 +152,33 @@ class ScopesManager {
     }
 
     /**
+     * Returns whether the resource has an access tag
+     * @param {Resource} resource
+     * @return {boolean}
+     */
+    doesResourceHaveOwnerTags(resource) {
+        return (
+            resource &&
+            resource.meta &&
+            resource.meta.security &&
+            resource.meta.security.some(s => s.system === SecurityTagSystem.owner)
+        );
+    }
+
+    /**
+     * Returns whether the resource has an access tag
+     * @param {Resource} resource
+     * @return {boolean}
+     */
+    doesResourceHaveMetaSource(resource) {
+        return (
+            resource &&
+            resource.meta &&
+            resource.meta.source
+        );
+    }
+
+    /**
      * Gets admin scopes from the passed in scope string
      * @param {string|undefined} scope
      * @returns {string[]}

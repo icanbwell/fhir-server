@@ -48,7 +48,10 @@ describe('Practitioner Tests', () => {
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveStatusOk();
             expectedPractitionerResources.entry[0].resource.id = id;
-            expectedPractitionerResources.entry[0].resource.identifier.filter(i => i.system === IdentifierSystem.sourceId)[0].value = id;
+            expectedPractitionerResources.entry[0].resource.identifier.filter(
+                i => i.system === IdentifierSystem.sourceId)[0].value = id;
+            expectedPractitionerResources.entry[0].resource.identifier.filter(
+                i => i.system === IdentifierSystem.uuid)[0].value = id;
             // ACT & ASSERT
             // search by token system and code and make sure we get the right Practitioner back
             resp = await request

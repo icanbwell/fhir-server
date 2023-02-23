@@ -12,6 +12,7 @@ const {SearchManager} = require('../search/searchManager');
 const {isTrue} = require('../../utils/isTrue');
 const BundleEntry = require('../../fhir/classes/4_0_0/backbone_elements/bundleEntry');
 const {ResourceManager} = require('../common/resourceManager');
+const {ParsedArgs} = require('../query/parsedArgsItem');
 
 class HistoryByIdOperation {
     /**
@@ -93,13 +94,13 @@ class HistoryByIdOperation {
     /**
      * does a FHIR History By id
      * @param {FhirRequestInfo} requestInfo
-     * @param {Object} args
+     * @param {ParsedArgs} parsedArgs
      * @param {string} resourceType
      */
-    async historyById({requestInfo, args, resourceType}) {
+    async historyById({requestInfo, parsedArgs, resourceType}) {
         assertIsValid(requestInfo !== undefined);
-        assertIsValid(args !== undefined);
         assertIsValid(resourceType !== undefined);
+        assertTypeEquals(parsedArgs, ParsedArgs);
         const currentOperationName = 'historyById';
         /**
          * @type {number}
@@ -126,18 +127,18 @@ class HistoryByIdOperation {
 
         await this.scopesValidator.verifyHasValidScopesAsync({
             requestInfo,
-            args,
+            parsedArgs,
             resourceType,
             startTime,
             action: currentOperationName,
             accessRequested: 'read'
         });
 
-        let {base_version, id} = args;
+        let {base_version, id} = parsedArgs;
         /**
          * @type {boolean}
          */
-        const useAccessIndex = (this.configManager.useAccessIndex || isTrue(args['_useAccessIndex']));
+        const useAccessIndex = (this.configManager.useAccessIndex || isTrue(parsedArgs['_useAccessIndex']));
 
         /**
          * @type {{base_version, columns: Set, query: import('mongodb').Document}}
@@ -152,10 +153,11 @@ class HistoryByIdOperation {
             scope,
             isUser,
             patientIdsFromJwtToken,
-            args: Object.assign(args, {id: id.toString()}), // add id filter to query
             resourceType,
             useAccessIndex,
-            personIdFromJwtToken
+            personIdFromJwtToken,
+            parsedArgs,
+            useHistoryTable: true
         });
 
         // noinspection JSValidateTypes
@@ -165,7 +167,7 @@ class HistoryByIdOperation {
         const options = {
             sort: [
                 {
-                    'meta.versionId': -1
+                    'resource.meta.versionId': -1
                 }
             ]
         };
@@ -190,8 +192,8 @@ class HistoryByIdOperation {
             /**
              * @type {import('mongodb').Document[]}
              */
-            const explanations = (cursor && (args['_explain'] || args['_debug'] || env.LOGLEVEL === 'DEBUG')) ? (await cursor.explainAsync()) : [];
-            if (cursor && args['_explain']) {
+            const explanations = (cursor && (parsedArgs['_explain'] || parsedArgs['_debug'] || env.LOGLEVEL === 'DEBUG')) ? (await cursor.explainAsync()) : [];
+            if (cursor && parsedArgs['_explain']) {
                 // if explain is requested then don't return any results
                 cursor.clear();
             }
@@ -230,12 +232,12 @@ class HistoryByIdOperation {
                 }
             }
             if (entries.length === 0) {
-                throw new NotFoundError('Resource not found');
+                throw new NotFoundError(`History not found for resource ${resourceType}/${id}`);
             }
             await this.fhirLoggingManager.logOperationSuccessAsync(
                 {
                     requestInfo,
-                    args,
+                    args: parsedArgs.getRawArgs(),
                     resourceType,
                     startTime,
                     action: currentOperationName
@@ -272,10 +274,10 @@ class HistoryByIdOperation {
                     entries,
                     base_version,
                     total_count: entries.length,
-                    args,
-                    originalQuery: {},
+                    parsedArgs,
+                    originalQuery: query,
                     collectionName: entries.length > 0 ? (await resourceLocator.getHistoryCollectionNameAsync(entries[0].resource)) : null,
-                    originalOptions: {},
+                    originalOptions: options,
                     stopTime,
                     startTime,
                     user,
@@ -286,7 +288,7 @@ class HistoryByIdOperation {
             await this.fhirLoggingManager.logOperationFailureAsync(
                 {
                     requestInfo,
-                    args,
+                    args: parsedArgs.getRawArgs(),
                     resourceType,
                     startTime,
                     action: currentOperationName,

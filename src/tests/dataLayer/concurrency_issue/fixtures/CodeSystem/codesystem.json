@@ -2,6 +2,7 @@
   {
     "resourceType": "CodeSystem",
     "id": "medline-loinc-labs",
+    "_uuid": "dabb6ef3-7207-5719-98df-fd520be27e48",
     "meta": {
       "source": "https://connect.medlineplus.gov/service",
       "security": [
@@ -53,6 +54,7 @@
   {
     "resourceType": "CodeSystem",
     "id": "medline-loinc-labs",
+    "_uuid": "dabb6ef3-7207-5719-98df-fd520be27e48",
     "meta": {
       "source": "https://connect.medlineplus.gov/service",
       "security": [
@@ -104,6 +106,7 @@
   {
     "resourceType": "CodeSystem",
     "id": "medline-loinc-labs",
+    "_uuid": "dabb6ef3-7207-5719-98df-fd520be27e48",
     "meta": {
       "source": "https://connect.medlineplus.gov/service",
       "security": [
@@ -155,6 +158,7 @@
   {
     "resourceType": "CodeSystem",
     "id": "medline-loinc-labs",
+    "_uuid": "dabb6ef3-7207-5719-98df-fd520be27e48",
     "meta": {
       "source": "https://connect.medlineplus.gov/service",
       "security": [
@@ -206,6 +210,7 @@
   {
     "resourceType": "CodeSystem",
     "id": "medline-loinc-labs",
+    "_uuid": "dabb6ef3-7207-5719-98df-fd520be27e48",
     "meta": {
       "source": "https://connect.medlineplus.gov/service",
       "security": [
@@ -257,6 +262,7 @@
   {
     "resourceType": "CodeSystem",
     "id": "medline-loinc-labs",
+    "_uuid": "dabb6ef3-7207-5719-98df-fd520be27e48",
     "meta": {
       "source": "https://connect.medlineplus.gov/service",
       "security": [
@@ -308,6 +314,7 @@
   {
     "resourceType": "CodeSystem",
     "id": "medline-loinc-labs",
+    "_uuid": "dabb6ef3-7207-5719-98df-fd520be27e48",
     "meta": {
       "source": "https://connect.medlineplus.gov/service",
       "security": [
@@ -359,6 +366,7 @@
   {
     "resourceType": "CodeSystem",
     "id": "medline-loinc-labs",
+    "_uuid": "dabb6ef3-7207-5719-98df-fd520be27e48",
     "meta": {
       "source": "https://connect.medlineplus.gov/service",
       "security": [
@@ -410,6 +418,7 @@
   {
     "resourceType": "CodeSystem",
     "id": "medline-loinc-labs",
+    "_uuid": "dabb6ef3-7207-5719-98df-fd520be27e48",
     "meta": {
       "source": "https://connect.medlineplus.gov/service",
       "security": [
@@ -461,6 +470,7 @@
   {
     "resourceType": "CodeSystem",
     "id": "medline-loinc-labs",
+    "_uuid": "dabb6ef3-7207-5719-98df-fd520be27e48",
     "meta": {
       "source": "https://connect.medlineplus.gov/service",
       "security": [
@@ -512,6 +522,7 @@
   {
     "resourceType": "CodeSystem",
     "id": "medline-loinc-labs",
+    "_uuid": "dabb6ef3-7207-5719-98df-fd520be27e48",
     "meta": {
       "source": "https://connect.medlineplus.gov/service",
       "security": [
@@ -563,6 +574,7 @@
   {
     "resourceType": "CodeSystem",
     "id": "medline-loinc-labs",
+    "_uuid": "dabb6ef3-7207-5719-98df-fd520be27e48",
     "meta": {
       "source": "https://connect.medlineplus.gov/service",
       "security": [
@@ -614,6 +626,7 @@
   {
     "resourceType": "CodeSystem",
     "id": "medline-loinc-labs",
+    "_uuid": "dabb6ef3-7207-5719-98df-fd520be27e48",
     "meta": {
       "source": "https://connect.medlineplus.gov/service",
       "security": [
@@ -665,6 +678,7 @@
   {
     "resourceType": "CodeSystem",
     "id": "medline-loinc-labs",
+    "_uuid": "dabb6ef3-7207-5719-98df-fd520be27e48",
     "meta": {
       "source": "https://connect.medlineplus.gov/service",
       "security": [
@@ -716,6 +730,7 @@
   {
     "resourceType": "CodeSystem",
     "id": "medline-loinc-labs",
+    "_uuid": "dabb6ef3-7207-5719-98df-fd520be27e48",
     "meta": {
       "source": "https://connect.medlineplus.gov/service",
       "security": [
@@ -767,6 +782,7 @@
   {
     "resourceType": "CodeSystem",
     "id": "medline-loinc-labs",
+    "_uuid": "dabb6ef3-7207-5719-98df-fd520be27e48",
     "meta": {
       "source": "https://connect.medlineplus.gov/service",
       "security": [
@@ -818,6 +834,7 @@
   {
     "resourceType": "CodeSystem",
     "id": "medline-loinc-labs",
+    "_uuid": "dabb6ef3-7207-5719-98df-fd520be27e48",
     "meta": {
       "source": "https://connect.medlineplus.gov/service",
       "security": [
@@ -869,6 +886,7 @@
   {
     "resourceType": "CodeSystem",
     "id": "medline-loinc-labs",
+    "_uuid": "dabb6ef3-7207-5719-98df-fd520be27e48",
     "meta": {
       "source": "https://connect.medlineplus.gov/service",
       "security": [
@@ -920,6 +938,7 @@
   {
     "resourceType": "CodeSystem",
     "id": "medline-loinc-labs",
+    "_uuid": "dabb6ef3-7207-5719-98df-fd520be27e48",
     "meta": {
       "source": "https://connect.medlineplus.gov/service",
       "security": [
@@ -971,6 +990,7 @@
   {
     "resourceType": "CodeSystem",
     "id": "medline-loinc-labs",
+    "_uuid": "dabb6ef3-7207-5719-98df-fd520be27e48",
     "meta": {
       "source": "https://connect.medlineplus.gov/service",
       "security": [
@@ -1022,6 +1042,7 @@
   {
     "resourceType": "CodeSystem",
     "id": "medline-loinc-labs",
+    "_uuid": "dabb6ef3-7207-5719-98df-fd520be27e48",
     "meta": {
       "source": "https://connect.medlineplus.gov/service",
       "security": [
@@ -1073,6 +1094,7 @@
   {
     "resourceType": "CodeSystem",
     "id": "medline-loinc-labs",
+    "_uuid": "dabb6ef3-7207-5719-98df-fd520be27e48",
     "meta": {
       "source": "https://connect.medlineplus.gov/service",
       "security": [
@@ -1124,6 +1146,7 @@
   {
     "resourceType": "CodeSystem",
     "id": "medline-loinc-labs",
+    "_uuid": "dabb6ef3-7207-5719-98df-fd520be27e48",
     "meta": {
       "source": "https://connect.medlineplus.gov/service",
       "security": [
@@ -1175,6 +1198,7 @@
   {
     "resourceType": "CodeSystem",
     "id": "medline-loinc-labs",
+    "_uuid": "dabb6ef3-7207-5719-98df-fd520be27e48",
     "meta": {
       "source": "https://connect.medlineplus.gov/service",
       "security": [
@@ -1226,6 +1250,7 @@
   {
     "resourceType": "CodeSystem",
     "id": "medline-loinc-labs",
+    "_uuid": "dabb6ef3-7207-5719-98df-fd520be27e48",
     "meta": {
       "source": "https://connect.medlineplus.gov/service",
       "security": [
@@ -1277,6 +1302,7 @@
   {
     "resourceType": "CodeSystem",
     "id": "medline-loinc-labs",
+    "_uuid": "dabb6ef3-7207-5719-98df-fd520be27e48",
     "meta": {
       "source": "https://connect.medlineplus.gov/service",
       "security": [
@@ -1328,6 +1354,7 @@
   {
     "resourceType": "CodeSystem",
     "id": "medline-loinc-labs",
+    "_uuid": "dabb6ef3-7207-5719-98df-fd520be27e48",
     "meta": {
       "source": "https://connect.medlineplus.gov/service",
       "security": [
@@ -1379,6 +1406,7 @@
   {
     "resourceType": "CodeSystem",
     "id": "medline-loinc-labs",
+    "_uuid": "dabb6ef3-7207-5719-98df-fd520be27e48",
     "meta": {
       "source": "https://connect.medlineplus.gov/service",
       "security": [
@@ -1430,6 +1458,7 @@
   {
     "resourceType": "CodeSystem",
     "id": "medline-loinc-labs",
+    "_uuid": "dabb6ef3-7207-5719-98df-fd520be27e48",
     "meta": {
       "source": "https://connect.medlineplus.gov/service",
       "security": [

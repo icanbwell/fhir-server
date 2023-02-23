@@ -19,6 +19,8 @@ const {DatabaseBulkInserter} = require('../../dataLayer/databaseBulkInserter');
 const {SecurityTagSystem} = require('../../utils/securityTagSystem');
 const {ResourceMerger} = require('../common/resourceMerger');
 const {getCircularReplacer} = require('../../utils/getCircularReplacer');
+const {ParsedArgs} = require('../query/parsedArgsItem');
+const {ConfigManager} = require('../../utils/configManager');
 
 /**
  * Update Operation
@@ -36,6 +38,7 @@ class UpdateOperation {
      * @param {ResourceValidator} resourceValidator
      * @param {DatabaseBulkInserter} databaseBulkInserter
      * @param {ResourceMerger} resourceMerger
+     * @param {ConfigManager} configManager
      */
     constructor(
         {
@@ -48,7 +51,8 @@ class UpdateOperation {
             scopesValidator,
             resourceValidator,
             databaseBulkInserter,
-            resourceMerger
+            resourceMerger,
+            configManager
         }
     ) {
         /**
@@ -102,19 +106,26 @@ class UpdateOperation {
          */
         this.resourceMerger = resourceMerger;
         assertTypeEquals(resourceMerger, ResourceMerger);
+
+        /**
+         * @type {ConfigManager}
+         */
+        this.configManager = configManager;
+        assertTypeEquals(configManager, ConfigManager);
     }
 
     /**
      * does a FHIR Update (PUT)
      * @param {FhirRequestInfo} requestInfo
-     * @param {Object} args
+     * @param {ParsedArgs} parsedArgs
      * @param {string} resourceType
      * @returns {{id: string,created: boolean, resource_version: string, resource: Resource}}
      */
-    async update({requestInfo, args, resourceType}) {
+    async update({requestInfo, parsedArgs, resourceType}) {
         assertIsValid(requestInfo !== undefined);
-        assertIsValid(args !== undefined);
         assertIsValid(resourceType !== undefined);
+        assertTypeEquals(parsedArgs, ParsedArgs);
+
         const currentOperationName = 'update';
         // Query our collection for this observation
         /**
@@ -133,7 +144,7 @@ class UpdateOperation {
         await this.scopesValidator.verifyHasValidScopesAsync(
             {
                 requestInfo,
-                args,
+                parsedArgs,
                 resourceType,
                 startTime,
                 action: currentOperationName,
@@ -148,7 +159,7 @@ class UpdateOperation {
          * @type {Object}
          */
         let resource_incoming_json = body;
-        let {base_version, id} = args;
+        let {base_version, id} = parsedArgs;
 
         if (isTrue(env.LOG_ALL_SAVES)) {
             await sendToS3('logs',
@@ -159,7 +170,18 @@ class UpdateOperation {
                 currentOperationName);
         }
 
-        if (env.VALIDATE_SCHEMA || args['_validate']) {
+        // create a resource with incoming data
+        /**
+         * @type {function(?Object): Resource}
+         */
+        let ResourceCreator = getResource(base_version, resourceType);
+
+        /**
+         * @type {Resource}
+         */
+        let resource_incoming = new ResourceCreator(resource_incoming_json);
+
+        if (env.VALIDATE_SCHEMA || parsedArgs['_validate']) {
             /**
              * @type {OperationOutcome|null}
              */
@@ -169,7 +191,8 @@ class UpdateOperation {
                     resourceType,
                     resourceToValidate: resource_incoming_json,
                     path: path,
-                    currentDate: currentDate
+                    currentDate: currentDate,
+                    resourceObj: resource_incoming
                 });
             if (validationOperationOutcome) {
                 validationsFailedCounter.inc({action: currentOperationName, resourceType}, 1);
@@ -200,16 +223,6 @@ class UpdateOperation {
              * @type {Resource | null}
              */
             let data = await databaseQueryManager.findOneAsync({query: {id: id.toString()}});
-            // create a resource with incoming data
-            /**
-             * @type {function(?Object): Resource}
-             */
-            let ResourceCreator = getResource(base_version, resourceType);
-
-            /**
-             * @type {Resource}
-             */
-            let resource_incoming = new ResourceCreator(resource_incoming_json);
             /**
              * @type {Resource|null}
              */
@@ -244,20 +257,33 @@ class UpdateOperation {
                     await this.databaseBulkInserter.replaceOneAsync(
                         {
                             requestId, resourceType, doc,
-                            id,
+                            uuid: doc._uuid,
                             patches
                         }
                     );
                 }
             } else {
                 // not found so insert
-                if (env.CHECK_ACCESS_TAG_ON_SAVE === '1') {
-                    if (!this.scopesManager.doesResourceHaveAccessTags(new ResourceCreator(resource_incoming))) {
+                if (this.configManager.checkAccessTagsOnSave) {
+                    if (!this.scopesManager.doesResourceHaveAccessTags(resource_incoming)) {
                         // noinspection ExceptionCaughtLocallyJS
                         throw new BadRequestError(
                             new Error(
-                                'Resource is missing a security access tag with system: ' +
-                                `${SecurityTagSystem.access} `));
+                                `Resource ${resource_incoming.resourceType}/${resource_incoming.id}` +
+                                ' is missing a security access tag with system: ' +
+                                `${SecurityTagSystem.access}`
+                            )
+                        );
+                    }
+                    if (!this.scopesManager.doesResourceHaveOwnerTags(resource_incoming)) {
+                        // noinspection ExceptionCaughtLocallyJS
+                        throw new BadRequestError(
+                            new Error(
+                                `Resource ${resource_incoming.resourceType}/${resource_incoming.id}` +
+                                ' is missing a security access tag with system: ' +
+                                `${SecurityTagSystem.owner}`
+                            )
+                        );
                     }
                 }
 
@@ -304,8 +330,12 @@ class UpdateOperation {
                     // log access to audit logs
                     await this.auditLogger.logAuditEntryAsync(
                         {
-                            requestInfo, base_version, resourceType,
-                            operation: currentOperationName, args, ids: [resource_incoming['id']]
+                            requestInfo,
+                            base_version,
+                            resourceType,
+                            operation: currentOperationName,
+                            args: parsedArgs.getRawArgs(),
+                            ids: [resource_incoming['id']]
                         }
                     );
                     await this.auditLogger.flushAsync({requestId, currentDate, method});
@@ -320,7 +350,7 @@ class UpdateOperation {
                 await this.fhirLoggingManager.logOperationSuccessAsync(
                     {
                         requestInfo,
-                        args,
+                        args: parsedArgs.getRawArgs(),
                         resourceType,
                         startTime,
                         action: currentOperationName,
@@ -358,7 +388,7 @@ class UpdateOperation {
             await this.fhirLoggingManager.logOperationFailureAsync(
                 {
                     requestInfo,
-                    args,
+                    args: parsedArgs.getRawArgs(),
                     resourceType,
                     startTime,
                     action: currentOperationName,

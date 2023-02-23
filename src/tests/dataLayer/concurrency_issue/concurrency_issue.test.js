@@ -26,7 +26,7 @@ describe('CodeSystem Tests', () => {
 
     describe('CodeSystem concurrency_issue Tests', () => {
         test('concurrency_issue works', async () => {
-            logInfo('start test: concurrency_issue works');
+            logInfo('start test: concurrency_issue works', {});
             const request = await createTestRequest();
             // ARRANGE
             /**
@@ -129,10 +129,10 @@ describe('CodeSystem Tests', () => {
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedCodeSystemHistoryResources);
-            logInfo('finish test: concurrency_issue works');
+            logInfo('finish test: concurrency_issue works', {});
         });
         test('concurrency_issue works with databaseUpdateManager', async () => {
-            logInfo('start test: concurrency_issue works with databaseUpdateManager');
+            logInfo('start test: concurrency_issue works with databaseUpdateManager', {});
             await createTestRequest();
             /**
              * @type {SimpleContainer}
@@ -207,10 +207,10 @@ describe('CodeSystem Tests', () => {
             expect(resource.toJSON()).toStrictEqual(expectedCodeSystemsFromDatabaseCopy);
 
             expect(resource.toJSON().meta.versionId).toStrictEqual(`${countOfUpdates}`);
-            logInfo('finish test: concurrency_issue works with databaseUpdateManager');
+            logInfo('finish test: concurrency_issue works with databaseUpdateManager', {});
         });
         test('concurrency_issue works with databaseBulkInserter', async () => {
-            logInfo('start test: concurrency_issue works with databaseBulkInserter');
+            logInfo('start test: concurrency_issue works with databaseBulkInserter', {});
             await createTestRequest();
             /**
              * @type {SimpleContainer}
@@ -314,10 +314,10 @@ describe('CodeSystem Tests', () => {
             expectedCodeSystemsFromDatabaseCopy.meta.versionId = '1';
             expectedCodeSystemsFromDatabaseCopy.identifier[1].value = resource.identifier[1].value;
             expect(resource.toJSON()).toStrictEqual(expectedCodeSystemsFromDatabaseCopy);
-            logInfo('finish test: concurrency_issue works with databaseBulkInserter');
+            logInfo('finish test: concurrency_issue works with databaseBulkInserter', {});
         });
         test('concurrency_issue works with databaseBulkInserter with insert in the middle', async () => {
-            logInfo('start test: concurrency_issue works with databaseBulkInserter with insert in the middle');
+            logInfo('start test: concurrency_issue works with databaseBulkInserter with insert in the middle', {});
             await createTestRequest();
             /**
              * @type {SimpleContainer}
@@ -431,7 +431,7 @@ describe('CodeSystem Tests', () => {
             expectedCodeSystemsFromDatabaseCopy.meta.versionId = '3';
             expectedCodeSystemsFromDatabaseCopy.identifier[1].value = resource.identifier[1].value;
             expect(resource.toJSON()).toStrictEqual(expectedCodeSystemsFromDatabaseCopy);
-            logInfo('finish test: concurrency_issue works with databaseBulkInserter with update in the middle');
+            logInfo('finish test: concurrency_issue works with databaseBulkInserter with update in the middle', {});
         });
     });
 });

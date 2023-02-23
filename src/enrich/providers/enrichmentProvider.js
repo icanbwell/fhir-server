@@ -5,24 +5,22 @@ class EnrichmentProvider {
     /**
      * enrich the specified resources
      * @param {Resource[]} resources
-     * @param {Object} args
-     * @param {Object} originalArgs
+     * @param {ParsedArgs} parsedArgs
      * @return {Promise<Resource[]>}
      */
     // eslint-disable-next-line no-unused-vars
-    async enrichAsync({resources, args, originalArgs}) {
+    async enrichAsync({resources, parsedArgs}) {
         throw Error('Not Implemented');
     }
 
     /**
      * Runs any registered enrichment providers
-     * @param {Object} args
+     * @param {ParsedArgs} parsedArgs
      * @param {BundleEntry[]} entries
-     * @param {Object} originalArgs
      * @return {Promise<BundleEntry[]>}
      */
     // eslint-disable-next-line no-unused-vars
-    async enrichBundleEntriesAsync({entries, args, originalArgs}) {
+    async enrichBundleEntriesAsync({entries, parsedArgs}) {
         throw Error('Not Implemented');
     }
 }

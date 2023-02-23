@@ -2,7 +2,8 @@
  * This file implements helper functions for AWS
  */
 
-const AWS = require('aws-sdk');
+const {S3} = require('@aws-sdk/client-s3'),
+    {STS} = require('@aws-sdk/client-sts');
 const {
     getLogger
 } = require('../winstonInit');
@@ -17,7 +18,7 @@ const AWS_BUCKET = process.env.AWS_BUCKET;
 const REGION = process.env.AWS_REGION || 'us-east-1';
 const AWS_FOLDER = process.env.AWS_FOLDER;
 
-const s3 = new AWS.S3({
+const s3 = new S3({
     region: REGION,
 });
 
@@ -50,7 +51,7 @@ module.exports = function sendToS3(prefix, resourceType, resource, currentDate, 
             };
             s3.putObject(params, function (err, data) {
                 if (err) {
-                    const sts = new AWS.STS();
+                    const sts = new STS({});
                     sts.getCallerIdentity(function (_error, role_data) {
                         logger.error('[AWS-S3] Failed to put object: ' +
                             key + ' in bucket: ' + AWS_BUCKET + ': ' + key + ' with user: ' + JSON.stringify(role_data));

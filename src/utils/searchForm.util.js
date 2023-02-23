@@ -130,16 +130,20 @@ function getPersonForm(params) {
      * @type {FieldInfo[]}
      */
     let personArray = [];
-    personArray.push({
-        label: 'Name',
-        name: 'name',
-        sortField: 'name',
-        value: params.name ? params.name : '',
-        useExactMatch: true
-    });
+    personArray.push(givenNameField(params));
+    personArray.push(familyNameField(params));
     personArray.push(emailField(params));
     personArray.push(securityTagField(params, 'owner'));
     return personArray;
+}
+
+/**
+ * @param params
+ */
+ function getNPIFieldValue(params) {
+    return params.npi ? params.npi :
+           (params.identifier && params.identifier[0]) ? params.identifier[0].replace(identifierUrl, '') :
+           '';
 }
 
 /**
@@ -157,7 +161,7 @@ function getPractitionerForm(params) {
         label: 'NPI',
         name: 'npi',
         sortField: 'identifier',
-        value: params.identifier ? params.identifier.replace(identifierUrl, '') : '',
+        value: getNPIFieldValue(params),
     });
     practitionerArray.push(securityTagField(params, 'owner'));
     return practitionerArray;

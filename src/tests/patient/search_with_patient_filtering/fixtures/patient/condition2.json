@@ -1,18 +1,24 @@
 {
-    "resourceType": "Condition",
-    "id": "other-patient-condition",
-    "meta": {
-        "versionId": "1",
-        "lastUpdated": "2021-09-24T02:33:06+00:00",
-        "profile": ["http://hl7.org/fhir/us/core/StructureDefinition/us-core-allergyintolerance"],
-        "security": [
-            {
-                "system": "https://www.icanbwell.com/access",
-                "code": "mps-api"
-            }
-        ]
-    },
-    "subject": {
-        "reference": "Patient/other-patient"
-    }
+  "resourceType": "Condition",
+  "id": "other-patient-condition",
+  "meta": {
+    "versionId": "1",
+    "lastUpdated": "2021-09-24T02:33:06+00:00",
+    "profile": [
+      "http://hl7.org/fhir/us/core/StructureDefinition/us-core-allergyintolerance"
+    ],
+    "security": [
+      {
+        "system": "https://www.icanbwell.com/access",
+        "code": "mps-api"
+      },
+      {
+        "system": "https://www.icanbwell.com/owner",
+        "code": "mps-api"
+      }
+    ]
+  },
+  "subject": {
+    "reference": "Patient/other-patient"
+  }
 }

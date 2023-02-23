@@ -4,18 +4,18 @@ const {isTrue} = require('../../../utils/isTrue');
  * Filters by missing
  * https://www.hl7.org/fhir/search.html#modifiers
  * @param {Object} args
- * @param {string} queryParameter
+ * @param {string} queryParameterValue
  * @param {SearchParameterDefinition} propertyObj
  * @param {Set} columns
  * @return {import('mongodb').Filter<import('mongodb').DefaultSchema>[]}
  */
-function filterByMissing({args, queryParameter, propertyObj, columns}) {
+function filterByMissing({queryParameterValue, propertyObj, columns}) {
     /**
      * @type {Object[]}
      */
     const and_segments = [];
     // handle check for missing values
-    const missing_flag = isTrue(args[`${queryParameter}:missing`]);
+    const missing_flag = isTrue(queryParameterValue);
     if (missing_flag === true) {
         // https://www.mongodb.com/docs/manual/tutorial/query-for-null-fields/#equality-filter
         // if we are looking for resources where this is missing

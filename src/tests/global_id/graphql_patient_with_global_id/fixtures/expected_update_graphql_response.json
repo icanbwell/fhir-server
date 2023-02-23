@@ -1,0 +1,19 @@
+{
+  "data": {
+    "updateGeneralPractitioner": {
+      "generalPractitioner": [
+        {
+          "__typename": "Practitioner",
+          "id": "f005",
+          "name": [
+            {
+              "family": "Anne"
+            }
+          ]
+        }
+      ],
+      "id": "WPS-5458231534",
+      "meta": null
+    }
+  }
+}
