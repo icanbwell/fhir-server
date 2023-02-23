@@ -27,9 +27,17 @@ describe('Practitioner Tests', () => {
     describe('Practitioner create Tests', () => {
         test('create works', async () => {
             const request = await createTestRequest();
+            // Case when meta.source doesn't exist
+            let resp = await request
+                .post('/4_0_0/Practitioner/')
+                .send(practitioner1Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveStatusCode(400);
+            practitioner1Resource.meta.source = 'medstar';
             // ARRANGE
             // add the resources to FHIR server
-            let resp = await request
+            resp = await request
                 .post('/4_0_0/Practitioner/')
                 .send(practitioner1Resource)
                 .set(getHeaders());
