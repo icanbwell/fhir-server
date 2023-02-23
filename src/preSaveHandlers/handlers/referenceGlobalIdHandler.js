@@ -46,9 +46,9 @@ class ReferenceGlobalIdHandler extends PreSaveHandler {
         const sourceAssigningAuthority = sourceAssigningAuthorityCodes[0];
         assertIsValid(sourceAssigningAuthority,
             `sourceAssigningAuthority is null for ${resource.resourceType}/${resource.id}`);
-        resource.updateReferences(
+        await resource.updateReferencesAsync(
             {
-                fnUpdateReference: (reference) => this.updateReference(
+                fnUpdateReferenceAsync: async (reference) => await this.updateReferenceAsync(
                     {
                         sourceAssigningAuthority,
                         reference
@@ -63,9 +63,9 @@ class ReferenceGlobalIdHandler extends PreSaveHandler {
      * updates references
      * @param {string} sourceAssigningAuthority
      * @param {Reference} reference
-     * @return {Reference}
+     * @return {Promise<Reference>}
      */
-    updateReference({sourceAssigningAuthority, reference}) {
+    async updateReferenceAsync({sourceAssigningAuthority, reference}) {
         assertIsValid(sourceAssigningAuthority, 'sourceAssigningAuthority is null');
         /**
          * @type {string}

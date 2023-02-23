@@ -56,11 +56,11 @@ class GlobalIdEnrichmentProvider extends EnrichmentProvider {
                         );
                         resource.contained = contained;
                     }
-                    if (resource.updateReferences) {
+                    if (resource.updateReferencesAsync) {
                         // update references
-                        resource.updateReferences(
+                        await resource.updateReferencesAsync(
                             {
-                                fnUpdateReference: (reference) => this.updateReference(
+                                fnUpdateReferenceAsync: async (reference) => await this.updateReferenceAsync(
                                     {
                                         reference
                                     }
@@ -79,9 +79,9 @@ class GlobalIdEnrichmentProvider extends EnrichmentProvider {
     /**
      * updates references
      * @param {Reference} reference
-     * @return {Reference}
+     * @return {Promise<Reference>}
      */
-    updateReference({reference}) {
+    async updateReferenceAsync({reference}) {
         if (reference.reference) {
             const {id} = ReferenceParser.parseReference(reference.reference);
             if (!isUuid(id) && reference._uuid) {

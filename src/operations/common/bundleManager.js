@@ -355,7 +355,7 @@ class BundleManager {
             return entries;
         }
         return removeDuplicatesWithLambda(entries,
-            (a, b) => a.resource.resourceType === b.resource.resourceType && a.resource.id === b.resource.id
+            (a, b) => a.resource.resourceType === b.resource.resourceType && a.resource._uuid === b.resource._uuid
         );
     }
 }

@@ -26,8 +26,8 @@ class ProxyPatientReferenceEnrichmentProvider extends EnrichmentProvider {
                 const proxyPatientIds = parsedArgsItem.queryParameterValues.map(
                     a => a.startsWith('Patient/') ? a : `Patient/${a}`);
                 for (const resource of resources) {
-                    resource.updateReferences({
-                        fnUpdateReference: (reference) => {
+                    await resource.updateReferencesAsync({
+                        fnUpdateReferenceAsync: async (reference) => {
                             if (reference.reference && proxyPatientIds.includes(reference.reference)) {
                                 reference.reference = proxyPatientPersonId.startsWith('Patient/') ?
                                     proxyPatientPersonId : `Patient/${proxyPatientPersonId}`;
@@ -106,8 +106,8 @@ class ProxyPatientReferenceEnrichmentProvider extends EnrichmentProvider {
                 const proxyPatientIds = parsedArgsItem.queryParameterValues.map(
                     a => a.startsWith('Patient/') ? a : `Patient/${a}`);
                 for (const entry of entries) {
-                    entry.resource.updateReferences({
-                        fnUpdateReference: (reference) => {
+                    await entry.resource.updateReferencesAsync({
+                        fnUpdateReferenceAsync: async (reference) => {
                             if (reference.reference && proxyPatientIds.includes(reference.reference)) {
                                 reference.reference = proxyPatientPersonId.startsWith('Patient/') ?
                                     proxyPatientPersonId : `Patient/${proxyPatientPersonId}`;

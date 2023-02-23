@@ -418,7 +418,7 @@ class SearchManager {
         // avoid double sorting since Mongo gives you different results
         if (useTwoStepSearchOptimization && !options['sort']) {
             const sortOption =
-                originalOptions[0] && originalOptions[0].sort ? originalOptions[0].sort : null;
+                originalOptions && originalOptions[0] && originalOptions[0].sort ? originalOptions[0].sort : null;
             if (sortOption !== null) {
                 cursorQuery = cursorQuery.sort({sortOption});
             }

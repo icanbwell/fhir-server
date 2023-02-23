@@ -235,6 +235,17 @@ class ConfigManager {
         }
         return isTrue(env.CHECK_ACCESS_TAG_ON_SAVE);
     }
+
+    /**
+     * whether to support legacy id support in queries
+     * @return {boolean}
+     */
+    get supportLegacyIds() {
+        if (env.SUPPORT_LEGACY_IDS === null || env.SUPPORT_LEGACY_IDS === undefined) {
+            return true;
+        }
+        return isTrue(env.SUPPORT_LEGACY_IDS);
+    }
 }
 
 module.exports = {

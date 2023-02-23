@@ -28,9 +28,9 @@ class HashReferencesEnrichmentProvider {
                             resourceTypeAndIdSet.add(`${containedResource.resourceType}/${containedResource.id}`);
                         }
                     }
-                    resource.updateReferences(
+                    await resource.updateReferencesAsync(
                         {
-                            fnUpdateReference: (reference) => this.updateReference(
+                            fnUpdateReferenceAsync: async (reference) => this.updateReferenceAsync(
                                 {
                                     reference,
                                     resourceTypeAndIdSet
@@ -71,9 +71,9 @@ class HashReferencesEnrichmentProvider {
                             resourceTypeAndIdSet.add(`${containedResource.resourceType}/${containedResource.id}`);
                         }
                     }
-                    resource.updateReferences(
+                    await resource.updateReferencesAsync(
                         {
-                            fnUpdateReference: (reference) => this.updateReference(
+                            fnUpdateReferenceAsync: async (reference) => await this.updateReferenceAsync(
                                 {
                                     reference,
                                     resourceTypeAndIdSet
@@ -92,9 +92,9 @@ class HashReferencesEnrichmentProvider {
      * updates references
      * @param {Reference} reference
      * @param {Set} resourceTypeAndIdSet
-     * @return {Reference}
+     * @return {Promise<Reference>}
      */
-    updateReference({reference, resourceTypeAndIdSet}) {
+    async updateReferenceAsync({reference, resourceTypeAndIdSet}) {
         if (reference.reference) {
             const {
                 resourceType,
