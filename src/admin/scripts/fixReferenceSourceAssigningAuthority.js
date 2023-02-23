@@ -31,6 +31,10 @@ async function main() {
         collections = ['all'];
     }
     const batchSize = parameters.batchSize || process.env.BULK_BUFFER_SIZE || 10000;
+    /**
+     * @type {Date|undefined}
+     */
+    const afterLastUpdatedDate = parameters.after ? new Date(parameters.after) : undefined;
 
     console.log(`[${currentDateTime}] ` +
         `Running script for collections: ${collections.join(',')}`);
@@ -44,6 +48,7 @@ async function main() {
                 mongoCollectionManager: c.mongoCollectionManager,
                 collections: collections,
                 batchSize,
+                afterLastUpdatedDate,
                 adminLogger: new AdminLogger(),
                 mongoDatabaseManager: c.mongoDatabaseManager,
                 preSaveManager: c.preSaveManager,
@@ -67,6 +72,7 @@ async function main() {
  * nvm use 18.14.0
  * node src/admin/scripts/fixReferenceSourceAssigningAuthority.js --collections=Practitioner_4_0_0 --batchSize=10000
  * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/fixReferenceSourceAssigningAuthority.js --collections=all --batchSize=10000
+ * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/fixReferenceSourceAssigningAuthority.js --collections=all --batchSize=10000 --after 2021-12-31
  * node src/admin/scripts/fixReferenceSourceAssigningAuthority.js --collections=Account_4_0_0 --batchSize=10000
  */
 main().catch(reason => {

@@ -7,6 +7,7 @@ const {ReferenceParser} = require('../../utils/referenceParser');
 const {DatabaseQueryFactory} = require('../../dataLayer/databaseQueryFactory');
 const {generateUUIDv5} = require('../../utils/uid.util');
 const deepEqual = require('fast-deep-equal');
+const moment = require('moment-timezone');
 
 /**
  * @classdesc finds ids in references and updates sourceAssigningAuthority with found resource
@@ -20,7 +21,7 @@ class FixReferenceSourceAssigningAuthorityRunner extends BaseBulkOperationRunner
      * @param {AdminLogger} adminLogger
      * @param {MongoDatabaseManager} mongoDatabaseManager
      * @param {PreSaveManager} preSaveManager
-     * @param {boolean|undefined} [skipIfResourcePresent]
+     * @param {date|undefined} afterLastUpdatedDate
      * @param {DatabaseQueryFactory} databaseQueryFactory
      */
     constructor(
@@ -31,7 +32,7 @@ class FixReferenceSourceAssigningAuthorityRunner extends BaseBulkOperationRunner
             adminLogger,
             mongoDatabaseManager,
             preSaveManager,
-            skipIfResourcePresent,
+            afterLastUpdatedDate,
             databaseQueryFactory
         }) {
         super({
@@ -53,9 +54,9 @@ class FixReferenceSourceAssigningAuthorityRunner extends BaseBulkOperationRunner
         assertTypeEquals(preSaveManager, PreSaveManager);
 
         /**
-         * @type {boolean|undefined}
+         * @type {date|undefined}
          */
-        this.skipIfResourcePresent = skipIfResourcePresent;
+        this.afterLastUpdatedDate = afterLastUpdatedDate;
 
         /**
          * @type {DatabaseQueryFactory}
@@ -189,7 +190,12 @@ class FixReferenceSourceAssigningAuthorityRunner extends BaseBulkOperationRunner
             return operations;
         }
 
-        const result = {replaceOne: {filter: {_id: doc._id}, replacement: updatedResourceJsonInternal}};
+        /**
+         * @type {import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>}
+         */
+        // batch up the calls to update
+        resource.meta.lastUpdated = new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ssZ'));
+        const result = {replaceOne: {filter: {_id: doc._id}, replacement: resource.toJSONInternal()}};
         operations.push(result);
 
         return operations;
@@ -229,7 +235,11 @@ class FixReferenceSourceAssigningAuthorityRunner extends BaseBulkOperationRunner
                  */
 
 
-                const query = this.skipIfResourcePresent ? {resource: null} : {};
+                const query = this.afterLastUpdatedDate ? {
+                    'meta.lastUpdated': {
+                        $gt: this.afterLastUpdatedDate,
+                    }
+                } : {};
                 try {
                     await this.runForQueryBatchesAsync(
                         {
