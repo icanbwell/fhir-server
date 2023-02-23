@@ -54,10 +54,10 @@ function validateReferences(resourceObj, path) {
         for (let prop in resourceObj) {
             if (
                 Object.prototype.hasOwnProperty.call(resourceObj, prop) &&
-                resourceObj[prop] && typeof resourceObj[prop] === 'object'
+                resourceObj[`${prop}`] && typeof resourceObj[`${prop}`] === 'object'
             ) {
                 const newPath = path ? `${path}.${prop}` : `${prop}`;
-                const objErrors = validateReferences(resourceObj[prop], newPath);
+                const objErrors = validateReferences(resourceObj[`${prop}`], newPath);
                 errors.push(...objErrors);
             }
         }
