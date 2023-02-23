@@ -1202,6 +1202,13 @@ describe('databaseBulkInserter Tests', () => {
                                         'diagnostics': '{"op":"add","path":"/identifier","value":[{"id":"sourceId","system":"https://www.icanbwell.com/sourceId","value":"loinc-1"},{"id":"uuid","system":"https://www.icanbwell.com/uuid","value":"6dfa2151-d5dc-5fbd-9cb0-8380b28c6428"}]}',
                                         'severity': 'information'
                                     }
+                                ),
+                                new OperationOutcomeIssue(
+                                    {
+                                        'code': 'informational',
+                                        'diagnostics': '{"op":"add","path":"/identifier","value":[{"id":"sourceId","system":"https://www.icanbwell.com/sourceId","value":"loinc-1"},{"id":"uuid","system":"https://www.icanbwell.com/uuid","value":"6dfa2151-d5dc-5fbd-9cb0-8380b28c6428"}]}',
+                                        'severity': 'information'
+                                    }
                                 )
                             ],
                             'resourceType': 'OperationOutcome'
