@@ -2,7 +2,13 @@
 const async = require('async');
 const sendToS3 = require('../utils/aws-s3');
 const {EventEmitter} = require('events');
-const {logVerboseAsync, logSystemErrorAsync, logTraceSystemEventAsync} = require('../operations/common/logging');
+const {
+    logVerboseAsync,
+    logSystemErrorAsync,
+    logTraceSystemEventAsync,
+    logInfo,
+    logError
+} = require('../operations/common/logging');
 const {ResourceManager} = require('../operations/common/resourceManager');
 const {PostRequestProcessor} = require('../utils/postRequestProcessor');
 const {ErrorReporter} = require('../utils/slack.logger');
@@ -340,6 +346,10 @@ class DatabaseBulkInserter extends EventEmitter {
                         doc: doc
                     }
                 });
+                logInfo('_id still present', {args: {
+                    source: 'DatabaseBulkInserter.insertOneAsync',
+                    doc: doc
+                }});
             }
         } catch (e) {
             throw new RethrownError({
@@ -819,6 +829,12 @@ class DatabaseBulkInserter extends EventEmitter {
                                 operation
                             }
                         });
+                        logInfo('_id still present', {args: {
+                            source: 'DatabaseBulkInserter.performBulkForResourceTypeAsync',
+                            doc: resource,
+                            collection: collectionName,
+                            operation
+                        }});
                     }
                     operationsByCollectionNames.get(collectionName).push(operation);
                 }
@@ -1115,6 +1131,18 @@ class DatabaseBulkInserter extends EventEmitter {
                     }
                 }
             );
+            logError(
+                `databaseBulkInserter: Error resource ${resourceType}`,
+                {
+                  args: {
+                    error: bulkWriteResult.error,
+                    source: 'databaseBulkInserter',
+                    requestId: requestId,
+                    resourceType: resourceType,
+                    operation: bulkInsertUpdateEntry
+                  }
+                }
+              );
         }
 
         // fire change events

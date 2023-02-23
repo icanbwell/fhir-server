@@ -76,18 +76,16 @@ class MyApolloServerLoggingPlugin /*extends ApolloServerPlugin*/ {
                         await async.forEach(
                             errs,
                             async (err) => {
-                                logError(
-                                    'GraphQL Request Validation Error',
-                                    {
-                                        user,
-                                        args: {
-                                            endpoint: self.endpoint,
-                                            operationName: req.operationName,
-                                            query: req.query,
-                                            error: err
-                                        }
+                                logError(`GraphQL Request Validation Error: ${err.message}`, {
+                                    error: err,
+                                    source: 'GraphQLv2',
+                                    args: {
+                                        endpoint: self.endpoint,
+                                        operationName: req.operationName,
+                                        query: req.query,
+                                        user
                                     }
-                                );
+                                });
                                 if (container) {
                                     /**
                                      * @type {ErrorReporter}
@@ -116,19 +114,16 @@ class MyApolloServerLoggingPlugin /*extends ApolloServerPlugin*/ {
                 return {
                     async executionDidEnd(err) {
                         if (err) {
-                            logError(
-                                'GraphQL Request Execution Error',
-                                {
-                                    user,
-                                    args:
-                                        {
-                                            endpoint: self.endpoint,
-                                            operationName: req.operationName,
-                                            query: req.query,
-                                            error: err
-                                        }
+                            logError(`GraphQL Request Execution Error: ${err.message}`, {
+                                error: err,
+                                source: 'GraphQLv2',
+                                args: {
+                                    endpoint: self.endpoint,
+                                    operationName: req.operationName,
+                                    query: req.query,
+                                    user
                                 }
-                            );
+                            });
                             if (container) {
                                 /**
                                  * @type {ErrorReporter}

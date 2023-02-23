@@ -3,7 +3,9 @@ const {
     format,
     transports
 } = require('winston');
-const { combine, timestamp, json } = format;
+const { json, combine, timestamp } = format;
+const { getImageVersion } = require('./utils/getImageVersion');
+
 /**
  * Features
  * - make it easy to pass in logging config
@@ -25,10 +27,13 @@ const container = new Container();
 const defaultConfig = {
     level: 'info',
     format: combine(
-        timestamp({ format: 'MMM-DD-YYYY HH:mm:ssZ' }),
+        timestamp({ format: 'YYYY-MM-DDTHH:mm:ssZ' }),
         json()
     ),
-    defaultMeta: {logger: 'default'},
+    defaultMeta: {
+        logger: 'default',
+        version: getImageVersion()
+    },
     colorize: true,
     transports: [new transports.Console()]
 };
