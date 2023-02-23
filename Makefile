@@ -190,3 +190,8 @@ searchParameters:
 audit_fix:
 	. ${NVM_DIR}/nvm.sh && nvm use ${NODE_VERSION} && \
 	npm audit fix
+
+.PHONY:qodana
+qodana:
+	docker run --rm -it --name qodana --mount type=bind,source="${PWD}",target=/data/project -p 8080:8080 jetbrains/qodana-js:2022.3-eap --show-report
+

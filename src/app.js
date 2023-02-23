@@ -153,7 +153,9 @@ function createApp({fnCreateContainer, trackMetrics}) {
         return res.render(__dirname + '/views/pages/home', home_options);
     });
 
-    app.get('/clean/:collection?', handleClean);
+    app.get('/clean/:collection?', (req, res) => handleClean(
+        {fnCreateContainer, req, res}
+    ));
 
     app.get('/stats', (req, res) => handleStats(
         {fnCreateContainer, req, res}

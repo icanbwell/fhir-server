@@ -8,6 +8,7 @@ class ResourceEntityAndContained extends EntityAndContainedBase {
     /**
      * class
      * @param {string} entityId
+     * @param {string} entityUuid
      * @param {string} entityResourceType
      * @param {boolean} includeInOutput
      * @param {Resource} resource
@@ -15,30 +16,39 @@ class ResourceEntityAndContained extends EntityAndContainedBase {
      */
     constructor(
         {
-            entityId, entityResourceType,
-            includeInOutput, resource, containedEntries
+            entityId,
+            entityUuid,
+            entityResourceType,
+            includeInOutput,
+            resource,
+            containedEntries
         }) {
         super({includeInOutput});
         /**
          * @type {string}
          */
-        assertIsValid(entityId);
         this.entityId = entityId;
+        assertIsValid(entityId);
         /**
          * @type {string}
          */
-        assertIsValid(entityResourceType);
+        this.entityUuid = entityUuid;
+        assertIsValid(entityUuid);
+        /**
+         * @type {string}
+         */
         this.entityResourceType = entityResourceType;
+        assertIsValid(entityResourceType);
         /**
          * @type {Resource}
          */
-        assertIsValid(resource);
         this.resource = resource;
+        assertIsValid(resource);
         /**
          * @type {[EntityAndContainedBase]}
          */
-        assertIsValid(containedEntries);
         this.containedEntries = containedEntries;
+        assertIsValid(containedEntries);
     }
 }
 

@@ -26,6 +26,7 @@ const {EnrichmentManager} = require('../../enrich/enrich');
 const {R4ArgsParser} = require('../query/r4ArgsParser');
 const {ParsedArgs} = require('../query/parsedArgsItem');
 const {VERSIONS} = require('../../middleware/fhir/utils/constants');
+const {ReferenceParser} = require('../../utils/referenceParser');
 
 
 /**
@@ -175,7 +176,17 @@ class GraphHelper {
      * @return {string[]}
      */
     getReferencesFromPropertyValue({propertyValue}) {
-        return Array.isArray(propertyValue) ? propertyValue.map(a => a['reference']) : [propertyValue['reference']];
+        if (this.configManager.supportLegacyIds) {
+            // concat uuids and ids so we can search both in case some reference does not have
+            // _sourceAssigningAuthority set correctly
+            return Array.isArray(propertyValue) ?
+                propertyValue.map(a => a._uuid).concat(propertyValue.map(a => a.reference)) :
+                [].concat([propertyValue._uuid]).concat([propertyValue.reference]);
+        } else {
+            return Array.isArray(propertyValue) ?
+                propertyValue.map(a => a._uuid) :
+                [].concat([propertyValue._uuid]);
+        }
     }
 
     /**
@@ -243,10 +254,19 @@ class GraphHelper {
                 .filter(r => r !== undefined && r !== null));
             // select just the ids from those reference properties
             // noinspection JSCheckFunctionSignatures
-            let relatedReferenceIds = relatedReferences
-                .filter(r => r.includes('/'))
-                .filter(r => r.split('/')[0] === resourceType) // resourceType matches the one we're looking for
-                .map(r => r.split('/')[1]);
+            let relatedReferenceIds = relatedReferences.map(reference => {
+                const {
+                    id: referenceId,
+                    resourceType: referenceResourceType,
+                    sourceAssigningAuthority: referenceSourceAssigningAuthority
+                } = ReferenceParser.parseReference(reference);
+                // if sourceAssigningAuthority is present in reference (e.g., 'Patient/123|medstar')
+                // then the uuid will be correct so no need to include.
+                // otherwise (e.g., 'Patient/123' include reference id too to handle where the reference id
+                // was not specified with sourceAssigningAuthority.
+                return referenceResourceType === resourceType && !referenceSourceAssigningAuthority ?
+                    referenceId : null;
+            }).filter(i => i !== null);
             if (relatedReferenceIds.length === 0) {
                 return; // nothing to do
             }
@@ -319,6 +339,7 @@ class GraphHelper {
                     // create a class to hold information about this resource
                     const relatedEntityAndContained = new ResourceEntityAndContained({
                         entityId: relatedResource.id,
+                        entityUuid: relatedResource._uuid,
                         entityResourceType: relatedResource.resourceType,
                         includeInOutput: true,
                         resource: relatedResource,
@@ -326,17 +347,42 @@ class GraphHelper {
                     });
 
                     // find matching parent and add to containedEntries
-                    const matchingParentEntities = parentEntities.filter(p => (this.getPropertiesForEntity({
-                        entity: p,
-                        property
-                    })
-                        .flatMap(r => this.getReferencesFromPropertyValue({propertyValue: r}))
-                        .filter(r => r !== undefined && r !== null)
-                        .includes(`${relatedResource.resourceType}/${relatedResource.id}`)));
+                    /**
+                     * @type {string}
+                     */
+                    let idToSearch = `${relatedResource.resourceType}/${relatedResource._uuid}`;
+                    /**
+                     * @type {EntityAndContainedBase[]}
+                     */
+                    let matchingParentEntities = parentEntities.filter(
+                        p =>
+                            this.getPropertiesForEntity({
+                                    entity: p,
+                                    property
+                                }
+                            )
+                                .flatMap(r => this.getReferencesFromPropertyValue({propertyValue: r}))
+                                .filter(r => r !== undefined && r !== null)
+                                .includes(idToSearch));
 
+                    if (this.configManager.supportLegacyIds && matchingParentEntities.length === 0) {
+                        idToSearch = `${relatedResource.resourceType}/${relatedResource.id}`;
+                        matchingParentEntities = parentEntities.filter(
+                            p =>
+                                this.getPropertiesForEntity({
+                                        entity: p,
+                                        property
+                                    }
+                                )
+                                    .flatMap(r => this.getReferencesFromPropertyValue({propertyValue: r}))
+                                    .filter(r => r !== undefined && r !== null)
+                                    .includes(idToSearch));
+                    }
                     if (matchingParentEntities.length === 0) {
-                        const parentEntitiesString = parentEntities.map(p => `${p.resource.resourceType}/${p.resource.id}`).toString();
-                        throw new Error(`Forward Reference: No match found for child entity ${relatedResource.resourceType}/${relatedResource.id} in parent entities ${parentEntitiesString} using property ${property}`);
+                        const parentEntitiesString = parentEntities.map(p => `${p.resource.resourceType}/${p.resource._uuid}`).toString();
+                        throw new Error('Forward Reference: No match found for child entity ' +
+                            `${relatedResource.resourceType}/${relatedResource._uuid} in parent entities ` +
+                            `${parentEntitiesString} using property ${property}`);
                     }
 
                     // add it to each one since there can be multiple resources that point to the same related resource
@@ -348,7 +394,8 @@ class GraphHelper {
             return {query, resourceType, property, explanations};
         } catch (e) {
             throw new RethrownError({
-                message: `Error in getForwardReferencesAsync(): ${resourceType}, ` + `parents:${parentEntities.map(p => p.entityId)}, property=${property}`,
+                message: `Error in getForwardReferencesAsync(): ${resourceType}, ` +
+                    `parents:${parentEntities.map(p => p.entityId)}, property=${property}`,
                 error: e,
                 args: {
                     requestInfo,
@@ -413,9 +460,20 @@ class GraphHelper {
                 throw new Error('reverse_filter must be set');
             }
             // create comma separated list of ids
-            const parentResourceTypeAndIdList = parentEntities
-                .filter(p => p.entityId !== undefined && p.entityId !== null)
-                .map(p => `${p.resource.resourceType}/${p.entityId}`);
+            /**
+             * @type {string[]}
+             */
+            let parentResourceTypeAndIdList = parentEntities
+                .filter(p => p.entityUuid !== undefined && p.entityUuid !== null)
+                .map(p => `${p.resource.resourceType}/${p.entityUuid}`);
+            if (this.configManager.supportLegacyIds) {
+                parentResourceTypeAndIdList = parentResourceTypeAndIdList.concat(
+                    parentEntities
+                        .filter(p => p.entityId !== undefined && p.entityId !== null)
+                        .map(p => `${p.resource.resourceType}/${p.entityId}`)
+                );
+            }
+
             if (parentResourceTypeAndIdList.length === 0) {
                 return;
             }
@@ -514,6 +572,7 @@ class GraphHelper {
                     // create the entry
                     const resourceEntityAndContained = new ResourceEntityAndContained({
                         entityId: relatedResourcePropertyCurrent.id,
+                        entityUuid: relatedResourcePropertyCurrent._uuid,
                         entityResourceType: relatedResourcePropertyCurrent.resourceType,
                         includeInOutput: true,
                         resource: relatedResourcePropertyCurrent,
@@ -530,11 +589,24 @@ class GraphHelper {
                     const references = properties
                         .flatMap(r => this.getReferencesFromPropertyValue({propertyValue: r}))
                         .filter(r => r !== undefined);
-                    const matchingParentEntities = parentEntities.filter(p => references.includes(`${p.resource.resourceType}/${p.resource.id}`));
+                    /**
+                     * @type {EntityAndContainedBase[]}
+                     */
+                    let matchingParentEntities = parentEntities.filter(
+                        p => references.includes(`${p.resource.resourceType}/${p.resource._uuid}`));
 
+                    if (this.configManager.supportLegacyIds && matchingParentEntities.length === 0) {
+                        matchingParentEntities = parentEntities.filter(
+                            p => references.includes(`${p.resource.resourceType}/${p.resource.id}`));
+                    }
                     if (matchingParentEntities.length === 0) {
-                        const parentEntitiesString = parentEntities.map(p => `${p.resource.resourceType}/${p.resource.id}`).toString();
-                        throw new Error(`Reverse Reference: No match found for parent entities ${parentEntitiesString} using property ${fieldForSearchParameter} in child entity ${relatedResourcePropertyCurrent.resourceType}/${relatedResourcePropertyCurrent.id}`);
+                        const parentEntitiesString = parentEntities.map(
+                            p => `${p.resource.resourceType}/${p.resource.id}`).toString();
+                        throw new Error(
+                            `Reverse Reference: No match found for parent entities ${parentEntitiesString} ` +
+                            `using property ${fieldForSearchParameter} in ` +
+                            'child entity ' +
+                            `${relatedResourcePropertyCurrent.resourceType}/${relatedResourcePropertyCurrent.id}`);
                     }
 
                     for (const matchingParentEntity of matchingParentEntities) {
@@ -545,7 +617,11 @@ class GraphHelper {
             return {query, resourceType: relatedResourceType, reverse_filter, explanations};
         } catch (e) {
             throw new RethrownError({
-                message: 'Error in getReverseReferencesAsync(): ' + `parentResourceType: ${parentResourceType} relatedResourceType:${relatedResourceType}, ` + `parents:${parentEntities.map(p => p.entityId)}, ` + `filterProperty=${filterProperty}, filterValue=${filterValue}, ` + `reverseFilter=${reverse_filter}`,
+                message: 'Error in getReverseReferencesAsync(): ' +
+                    `parentResourceType: ${parentResourceType} relatedResourceType:${relatedResourceType}, ` +
+                    `parents:${parentEntities.map(p => p.entityId)}, ` +
+                    `filterProperty=${filterProperty}, filterValue=${filterValue}, ` +
+                    `reverseFilter=${reverse_filter}`,
                 error: e,
                 args: {
                     requestInfo,
@@ -763,7 +839,7 @@ class GraphHelper {
                         accessRequested: 'read'
                     });
                     if (!parentResourceType) {
-                        const parentEntitiesString = parentEntities.map(p => `${p.resource.resourceType}/${p.resource.id}`).toString();
+                        const parentEntitiesString = parentEntities.map(p => `${p.resource.resourceType}/${p.resource._uuid}`).toString();
                         throw new Error(`processOneGraphLinkAsync: No parent resource found for reverse references for parent entities: ${parentEntitiesString} using target.params: ${target.params}`);
                     }
                     const queryItem = await this.getReverseReferencesAsync(
@@ -939,6 +1015,7 @@ class GraphHelper {
              */
             const resultEntities = parentEntities.map(parentEntity => new ResourceEntityAndContained({
                 entityId: parentEntity.id,
+                entityUuid: parentEntity._uuid,
                 entityResourceType: parentEntity.resourceType,
                 includeInOutput: true,
                 resource: parentEntity,
@@ -1185,10 +1262,18 @@ class GraphHelper {
                 /**
                  * @type {ResourceEntityAndContained}
                  */
-                const matchingEntity = allRelatedEntries.find(
-                    e => e.entityId === topLevelBundleEntry.resource.id &&
+                let matchingEntity = allRelatedEntries.find(
+                    e => e.entityUuid === topLevelBundleEntry.resource._uuid &&
                         e.entityResourceType === topLevelBundleEntry.resource.resourceType
                 );
+                if (this.configManager.supportLegacyIds && !matchingEntity) {
+                    matchingEntity = allRelatedEntries.find(
+                        e => (
+                                this.configManager.supportLegacyIds && e.entityId === topLevelBundleEntry.resource.id
+                            ) &&
+                            e.entityResourceType === topLevelBundleEntry.resource.resourceType
+                    );
+                }
                 assertIsValid(matchingEntity,
                     'No matching entity found in graph for ' +
                     `${topLevelBundleEntry.resource.resourceType}/${topLevelBundleEntry.resource.id}`);
@@ -1333,7 +1418,7 @@ class GraphHelper {
                 for (const resource of resources) {
                     await responseStreamer.writeBundleEntryAsync({
                         bundleEntry: new BundleEntry({
-                                id: resource.id,
+                                id: resource._uuid,
                                 resource
                             }
                         )
@@ -1441,7 +1526,7 @@ class GraphHelper {
                 /**
                  * @type {string[]}
                  */
-                const idList = [resource.id];
+                const idList = [resource._uuid];
                 /**
                  * @type {DatabaseQueryManager}
                  */
@@ -1459,34 +1544,32 @@ class GraphHelper {
                 });
 
                 await databaseQueryManager.deleteManyAsync({
-                        requestId: requestInfo.requestId,
-                        query: {id: {$in: idList}}
-                    });
+                    requestId: requestInfo.requestId,
+                    query: {_uuid: {$in: idList}}
+                });
 
                 // for testing with delay
                 // await new Promise(r => setTimeout(r, 10000));
 
-                for (const resultResourceId of idList) {
-                    const ResourceCreator = getResource(base_version, resultResourceType);
-                    const bundleEntry = new BundleEntry({
-                        id: resultResourceId,
-                        resource: new ResourceCreator({
-                            id: resultResourceId, resourceType: resultResourceType
-                        }),
-                        request: new BundleRequest(
-                            {
-                                id: requestInfo.requestId,
-                                method: 'DELETE',
-                                url: `/${base_version}/${resultResourceType}/${resultResourceId}`
-                            }
-                        )
-                    });
-                    deleteOperationBundleEntries.push(bundleEntry);
-                    if (responseStreamer) {
-                        await responseStreamer.writeBundleEntryAsync({bundleEntry});
-                    }
+                const ResourceCreator = getResource(base_version, resultResourceType);
+                const bundleEntry = new BundleEntry({
+                    id: resource.id,
+                    resource: new ResourceCreator({
+                        id: resource.id,
+                        resourceType: resultResourceType
+                    }),
+                    request: new BundleRequest(
+                        {
+                            id: requestInfo.requestId,
+                            method: 'DELETE',
+                            url: `/${base_version}/${resultResourceType}/${resource.id}`
+                        }
+                    )
+                });
+                deleteOperationBundleEntries.push(bundleEntry);
+                if (responseStreamer) {
+                    await responseStreamer.writeBundleEntryAsync({bundleEntry});
                 }
-
             }
             const deleteOperationBundle = new Bundle({
                 id: requestInfo.requestId,

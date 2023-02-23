@@ -263,6 +263,7 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                 }
 
                 let count = 0;
+                let numOperations = 0;
                 var refreshTimestamp = moment(); // take note of time at operation start
                 // const fnRefreshSessionAsync = async () => await db.admin().command({'refreshSessions': [sessionId]});
                 // const fnRefreshSessionAsync = async () => {
@@ -299,13 +300,16 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                     count += 1;
                     readline.cursorTo(process.stdout, 0);
                     process.stdout.write(`[${moment().toISOString()}] ` +
-                        `${count.toLocaleString('en-US')} of ${numberOfDocumentsToCopy.toLocaleString('en-US')}`);
+                        `${sourceCollectionName} ` +
+                        `Scanned: ${count.toLocaleString('en-US')} of ${numberOfDocumentsToCopy.toLocaleString('en-US')} ` +
+                        `Updated: ${numOperations.toLocaleString('en-US')}`);
                     /**
                      * @type {import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>[]}
                      */
                     const bulkOperations = await fnCreateBulkOperationAsync(doc);
                     for (const bulkOperation of bulkOperations) {
                         operations.push(bulkOperation);
+                        numOperations += 1;
                     }
 
                     startFromIdContainer.convertedIds += 1;
@@ -369,6 +373,10 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                     );
                 }
                 continueLoop = false; // done
+                this.adminLogger.logInfo('=== Finished ' +
+                    `${sourceCollectionName} ` +
+                    `Scanned: ${count.toLocaleString('en-US')} of ${numberOfSourceDocuments.toLocaleString('en-US')} ` +
+                    `Updated: ${numOperations.toLocaleString('en-US')} ===`);
             } catch (e) {
                 if (e instanceof MongoNetworkTimeoutError) {
                     // statements to handle TypeError exceptions

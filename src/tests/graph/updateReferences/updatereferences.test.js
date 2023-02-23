@@ -42,9 +42,9 @@ describe('UpdateReferences Tests', () => {
 
             /**
              * @param {Reference} reference
-             * @return {Reference}
+             * @return {Promise<Reference>}
              */
-            function fnUpdateReference(reference) {
+            async function fnUpdateReferenceAsync(reference) {
                 logInfo('', {reference});
                 if (reference.reference && reference.reference.startsWith('Patient/')) {
                     reference.reference = 'Patient/ProxyPatient';
@@ -55,8 +55,8 @@ describe('UpdateReferences Tests', () => {
                 return reference;
             }
 
-            observation.updateReferences({
-                fnUpdateReference
+            await observation.updateReferencesAsync({
+                fnUpdateReferenceAsync
             });
 
             expect(observation.toJSON()).toStrictEqual(expectedObservationResources);

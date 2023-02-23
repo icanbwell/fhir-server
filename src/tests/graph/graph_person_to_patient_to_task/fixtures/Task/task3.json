@@ -29,7 +29,7 @@
   "instantiatesCanonical": "https://fhir.dev.bwell.zone/4_0_0/ActivityDefinition/d4ded4d6-30a5-448b-9083-880581df8b00",
   "status": "cancelled",
   "for": {
-    "reference": "Patient/0318898e65044aaab3115d048d44c434",
+    "reference": "Patient/0318898e65044aaab3115d048d44c434|healthsystem1",
     "type": "Patient"
   }
 }
