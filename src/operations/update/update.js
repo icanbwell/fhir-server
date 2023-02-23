@@ -250,11 +250,11 @@ class UpdateOperation {
                     smartMerge: false
                 });
                 doc = updatedResource;
-                // Check if meta & meta.source exists in merged resource
-                if (!doc.meta || !doc.meta.source) {
-                    throw new BadRequestError(new Error('Unable to update resource. Missing either metadata or metadata source.'));
-                }
                 if (doc) { // if there is a change
+                    // Check if meta & meta.source exists in updated resource
+                    if (!doc.meta || !doc.meta.source) {
+                        throw new BadRequestError(new Error('Unable to update resource. Missing either metadata or metadata source.'));
+                    }
                     await this.databaseBulkInserter.replaceOneAsync(
                         {
                             requestId, resourceType, doc,
