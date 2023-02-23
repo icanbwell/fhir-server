@@ -1,5 +1,6 @@
 // test file
 const activitydefinition1Resource = require('./fixtures/ActivityDefinition/activitydefinition1.json');
+const activitydefinition2Resource = require('./fixtures/ActivityDefinition/activitydefinition2.json');
 
 // expected
 const expectedActivityDefinitionResources = require('./fixtures/expected/expected_ActivityDefinition.json');
@@ -27,6 +28,22 @@ describe('ActivityDefinition Tests', () => {
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedActivityDefinitionResources);
+        });
+        test('put_response reference validation works', async () => {
+            const request = await createTestRequest();
+            // ARRANGE
+            // add the resources to FHIR server
+            let resp = await request
+                .put('/4_0_0/ActivityDefinition/ab2d17e3-3996-487c-bf81-cbe31abde0be')
+                .send(activitydefinition2Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveStatusCode(400);
+            expect(
+                resp.body.issue[0].details.text
+            ).toStrictEqual(
+                'location.reference: location is an invalid reference'
+            );
         });
     });
 });

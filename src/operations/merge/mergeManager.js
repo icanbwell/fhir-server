@@ -735,7 +735,8 @@ class MergeManager {
                 resourceType: resourceObjectToValidate.resourceType,
                 resourceToValidate: resourceObjectToValidate,
                 path: path,
-                currentDate: currentDate
+                currentDate: currentDate,
+                resourceObj: resourceToMerge
             });
             if (validationOperationOutcome) {
                 // noinspection JSValidateTypes

@@ -6,6 +6,7 @@ const JSONValidator = require('@asymmetrik/fhir-json-schema-validator');
 const OperationOutcome = require('../fhir/classes/4_0_0/resources/operationOutcome');
 const OperationOutcomeIssue = require('../fhir/classes/4_0_0/backbone_elements/operationOutcomeIssue');
 const CodeableConcept = require('../fhir/classes/4_0_0/complex_types/codeableConcept');
+const {validateReferences} = require('./referenceValidator');
 
 // Create this once for the app since it is an expensive operation
 const validator = new JSONValidator();
@@ -35,9 +36,10 @@ const fhirValidator = new JSONValidator(schema, validatorConfig);
  * @param {Object} resourceBody - payload of req.body
  * @param {string} resourceName - name of resource in url
  * @param {string} path - req.path from express
+ * @param {Object} resourceObj - fhir resource object
  * @returns {OperationOutcome|null} Response<null|OperationOutcome> - either null if no errors or response to send client.
  */
-function validateResource(resourceBody, resourceName, path) {
+function validateResource(resourceBody, resourceName, path, resourceObj = null) {
     if (resourceBody.resourceType !== resourceName) {
         return new OperationOutcome({
             issue: [
@@ -54,8 +56,10 @@ function validateResource(resourceBody, resourceName, path) {
     }
 
     const errors = fhirValidator.validate(resourceBody);
+    const referenceErrors = resourceObj ? validateReferences(resourceObj) : null;
+    let issue;
     if (errors && errors.length) {
-        const issue = errors.map((elm) => {
+        issue = errors.map((elm) => {
             return new OperationOutcomeIssue({
                 severity: 'error',
                 code: 'invalid',
@@ -66,7 +70,16 @@ function validateResource(resourceBody, resourceName, path) {
                 }),
             });
         });
-
+    }
+    if (referenceErrors && referenceErrors.length) {
+        issue = issue || [];
+        issue.push(...referenceErrors.map(err => new OperationOutcomeIssue({
+            severity: 'error',
+            code: 'invalid',
+            details: new CodeableConcept({ text: err }),
+        })));
+    }
+    if (issue && issue.length) {
         return new OperationOutcome({
             issue: issue,
         });
