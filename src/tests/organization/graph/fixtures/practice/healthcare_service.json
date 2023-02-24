@@ -2,6 +2,7 @@
   "resourceType": "HealthcareService",
   "meta": {
     "versionId": "1",
+    "source": "medstar",
     "lastUpdated": "2021-01-14T23:42:00+00:00",
     "security": [
       {

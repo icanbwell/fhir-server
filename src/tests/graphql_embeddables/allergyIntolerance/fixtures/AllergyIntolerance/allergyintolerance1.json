@@ -2,6 +2,7 @@
   "resourceType": "AllergyIntolerance",
   "id": "2333dac1071f4f6cf585fd0960488be90c11fde3",
   "meta": {
+    "source": "mps",
     "security": [
       {
         "system": "https://www.icanbwell.com/access",

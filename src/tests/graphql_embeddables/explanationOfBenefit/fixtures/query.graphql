@@ -32,6 +32,7 @@ query Claims($patient: String) {
             resource {
                 id
                 meta {
+                    source
                     ...MetaTags
                     ...MetaSecurity
                 }

@@ -22,6 +22,7 @@ query Allergies($FHIR_DEFAULT_COUNT: Int, $from_date: date, $to_date: date) {
             resource {
                 id
                 meta {
+                    source
                     ...MetaTags
                     ...MetaSecurity
                 }

@@ -3,6 +3,7 @@
   "id": "aab16fc4c5914e38b489bcd096369623",
   "meta": {
     "versionId": "1",
+    "source": "healthsystem",
     "lastUpdated": "2022-06-24T12:55:11.000Z",
     "profile": [
       "http://hl7.org/fhir/us/core/StructureDefinition/us-core-person"
