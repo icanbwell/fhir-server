@@ -139,6 +139,15 @@ function getPersonForm(params) {
 
 /**
  * @param params
+ */
+ function getNPIFieldValue(params) {
+    return params.npi ? params.npi :
+           (params.identifier && params.identifier[0]) ? params.identifier[0].replace(identifierUrl, '') :
+           '';
+}
+
+/**
+ * @param params
  * @return {FieldInfo[]}
  */
 function getPractitionerForm(params) {
@@ -152,7 +161,7 @@ function getPractitionerForm(params) {
         label: 'NPI',
         name: 'npi',
         sortField: 'identifier',
-        value: params.identifier ? params.identifier.replace(identifierUrl, '') : '',
+        value: getNPIFieldValue(params),
     });
     practitionerArray.push(securityTagField(params, 'owner'));
     return practitionerArray;

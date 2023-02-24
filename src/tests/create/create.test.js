@@ -1,5 +1,6 @@
 // test file
 const practitioner1Resource = require('./fixtures/Practitioner/practitioner1.json');
+const practitioner2Resource = require('./fixtures/Practitioner/practitioner2.json');
 
 // expected
 const expectedPractitionerInitialResources = require('./fixtures/expected/expected_Practitioner_initial.json');
@@ -92,6 +93,20 @@ describe('Practitioner Tests', () => {
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedPractitionerResources);
+        });
+        test('create reference validation works', async () => {
+            const request = await createTestRequest();
+            let resp = await request
+                .post('/4_0_0/Practitioner/')
+                .send(practitioner2Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveStatusCode(400);
+            expect(
+                resp.body.issue[0].details.text
+            ).toStrictEqual(
+                'qualification.1.issuer.reference: Stanford_Medical_School is an invalid reference'
+            );
         });
     });
 });

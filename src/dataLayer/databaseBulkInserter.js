@@ -2,7 +2,13 @@
 const async = require('async');
 const sendToS3 = require('../utils/aws-s3');
 const {EventEmitter} = require('events');
-const {logVerboseAsync, logSystemErrorAsync, logTraceSystemEventAsync} = require('../operations/common/logging');
+const {
+    logVerboseAsync,
+    logSystemErrorAsync,
+    logTraceSystemEventAsync,
+    logInfo,
+    logError
+} = require('../operations/common/logging');
 const {ResourceManager} = require('../operations/common/resourceManager');
 const {PostRequestProcessor} = require('../utils/postRequestProcessor');
 const {ErrorReporter} = require('../utils/slack.logger');
@@ -340,6 +346,10 @@ class DatabaseBulkInserter extends EventEmitter {
                         doc: doc
                     }
                 });
+                logInfo('_id still present', {args: {
+                    source: 'DatabaseBulkInserter.insertOneAsync',
+                    doc: doc
+                }});
             }
         } catch (e) {
             throw new RethrownError({
@@ -819,6 +829,12 @@ class DatabaseBulkInserter extends EventEmitter {
                                 operation
                             }
                         });
+                        logInfo('_id still present', {args: {
+                            source: 'DatabaseBulkInserter.performBulkForResourceTypeAsync',
+                            doc: resource,
+                            collection: collectionName,
+                            operation
+                        }});
                     }
                     operationsByCollectionNames.get(collectionName).push(operation);
                 }
@@ -1076,6 +1092,7 @@ class DatabaseBulkInserter extends EventEmitter {
                 }
             );
         }
+        const hasBulkWriteErrors = bulkWriteResult.hasWriteErrors();
         /**
          * @type {MergeResultEntry}
          */
@@ -1083,16 +1100,19 @@ class DatabaseBulkInserter extends EventEmitter {
             'id': bulkInsertUpdateEntry.id,
             uuid: bulkInsertUpdateEntry.uuid,
             sourceAssigningAuthority: bulkInsertUpdateEntry.sourceAssigningAuthority,
-            created: bulkInsertUpdateEntry.isCreateOperation && !bulkWriteResult.error && !bulkInsertUpdateEntry.skipped,
-            updated: bulkInsertUpdateEntry.isUpdateOperation && !bulkWriteResult.error && !bulkInsertUpdateEntry.skipped,
+            created: bulkInsertUpdateEntry.isCreateOperation && !hasBulkWriteErrors && !bulkInsertUpdateEntry.skipped,
+            updated: bulkInsertUpdateEntry.isUpdateOperation && !hasBulkWriteErrors && !bulkInsertUpdateEntry.skipped,
             resourceType: resourceType,
         });
-        if (bulkWriteResult.error) {
-            const diagnostics = JSON.stringify(bulkWriteResult.error, getCircularReplacer());
+        if (hasBulkWriteErrors) {
+            const bulkWriteErrors = bulkWriteResult.getWriteErrors(),
+                bulkWriteErrorsMsg = bulkWriteErrors.map(error => error.toJSON()),
+                diagnostics = JSON.stringify(bulkWriteErrorsMsg, getCircularReplacer()),
+                bulkWriteResultError = new Error(diagnostics);
             mergeResultEntry.issue = new OperationOutcomeIssue({
                 severity: 'error',
                 code: 'exception',
-                details: new CodeableConcept({text: bulkWriteResult.error.message}),
+                details: new CodeableConcept({text: bulkWriteResultError.message}),
                 diagnostics: diagnostics,
                 expression: [
                     resourceType + '/' + bulkInsertUpdateEntry.uuid
@@ -1103,7 +1123,7 @@ class DatabaseBulkInserter extends EventEmitter {
                     source: 'databaseBulkInserter',
                     message: `databaseBulkInserter: Error resource ${resourceType} with operation:` +
                         ` ${JSON.stringify(bulkInsertUpdateEntry, getCircularReplacer())}`,
-                    error: bulkWriteResult.error,
+                    error: bulkWriteResultError,
                     args: {
                         requestId: requestId,
                         resourceType: resourceType,
@@ -1111,6 +1131,18 @@ class DatabaseBulkInserter extends EventEmitter {
                     }
                 }
             );
+            logError(
+                `databaseBulkInserter: Error resource ${resourceType}`,
+                {
+                  args: {
+                    error: bulkWriteResult.error,
+                    source: 'databaseBulkInserter',
+                    requestId: requestId,
+                    resourceType: resourceType,
+                    operation: bulkInsertUpdateEntry
+                  }
+                }
+              );
         }
 
         // fire change events

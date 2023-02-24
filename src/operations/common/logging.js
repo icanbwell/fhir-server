@@ -172,6 +172,47 @@ const logVerboseAsync = async ({source, args: args}) => {
     }
 };
 
+/**
+ * @param req
+ * @returns {string}
+ */
+const getUserName = (req) => {
+    return (!req.user || typeof req.user === 'string') ? req.user : req.user.name || req.user.id;
+};
+
+/**
+ * Gets IP address of caller
+ * @param {import('http').IncomingMessage} req
+ * @returns {string | undefined}
+ */
+const getRemoteAddress = (req) => {
+    return req.header('X-Forwarded-For') || req['x-real-ip'] || req.ip || req._remoteAddress || undefined;
+};
+
+/**
+ * Logs error and request
+ * @param {Error} error
+ * @param {import('http').IncomingMessage} req
+ */
+const logErrorAndRequestAsync = async ({error, req}) => {
+    const request = {
+        id: req.id,
+        statusCode: error.statusCode,
+        method: req.method,
+        url: req.url,
+        headers: req.headers,
+        query: req.query,
+        body: req.body || {},
+        user: getUserName(req),
+        remoteAddress: getRemoteAddress(req)
+    };
+    const logData = { request, error };
+    if (error.elapsedTimeInSecs) {
+        logData.elapsedTimeInSecs = error.elapsedTimeInSecs;
+    }
+    logError(error.message, logData);
+};
+
 module.exports = {
     logInfo,
     logDebug,
@@ -181,4 +222,5 @@ module.exports = {
     logSystemEventAsync,
     logSystemErrorAsync,
     logVerboseAsync,
+    logErrorAndRequestAsync
 };

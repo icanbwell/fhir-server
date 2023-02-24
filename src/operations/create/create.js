@@ -157,6 +157,15 @@ class CreateOperation {
             );
         }
 
+        /**
+         * @type {function({Object}): Resource}
+         */
+        let ResourceCreator = getResource(base_version, resourceType);
+        /**
+         * @type {Resource}
+         */
+        const resource = new ResourceCreator(resource_incoming);
+
         if (env.VALIDATE_SCHEMA || parsedArgs['_validate']) {
             /**
              * @type {OperationOutcome|null}
@@ -167,7 +176,8 @@ class CreateOperation {
                     resourceType,
                     resourceToValidate: resource_incoming,
                     path,
-                    currentDate
+                    currentDate,
+                    resourceObj: resource
                 });
             if (validationOperationOutcome) {
                 validationsFailedCounter.inc({action: currentOperationName, resourceType}, 1);
@@ -190,14 +200,6 @@ class CreateOperation {
 
         try {
             // Get current record
-            /**
-             * @type {function({Object}): Resource}
-             */
-            let ResourceCreator = getResource(base_version, resourceType);
-            /**
-             * @type {Resource}
-             */
-            const resource = new ResourceCreator(resource_incoming);
 
             if (this.configManager.checkAccessTagsOnSave) {
                 if (!this.scopesManager.doesResourceHaveAccessTags(resource)) {

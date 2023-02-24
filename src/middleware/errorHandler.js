@@ -8,7 +8,6 @@ const {logInfo, logError} = require('../operations/common/logging');
 
 
 process.on('uncaughtException', async (err) => {
-    logError(err, {method: 'errorHandler.uncaughtException'});
     const errorReporter = new ErrorReporter(getImageVersion());
     await errorReporter.reportErrorAsync({
             source: 'uncaughtException',
@@ -16,22 +15,20 @@ process.on('uncaughtException', async (err) => {
             error: err
         }
     );
+    logError('uncaughtException', { error: err, source: 'uncaughtException' });
     process.exit(1);
 });
 
 process.on('unhandledRejection', async (reason, promise) => {
-    logInfo('', {
-        method: 'errorHandler.unhandledRejection',
-        promise: promise,
-        reason: reason,
-        stack: reason.stack
-    });
     const errorReporter1 = new ErrorReporter(getImageVersion());
     await errorReporter1.reportErrorAsync({
         source: 'unhandledRejection',
         message: 'unhandledRejection',
         error: reason
     });
+    logError('unhandledRejection', { error: reason, source: 'unhandledRejection', args: {
+        promise: promise
+    }});
     process.exit(1);
 });
 
