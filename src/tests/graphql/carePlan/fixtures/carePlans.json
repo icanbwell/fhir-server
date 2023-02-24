@@ -4,6 +4,7 @@
     "id": "7ce5b86e-e0a1-032d-c71e-1ec032394b3c",
     "meta": {
       "versionId": "1",
+      "source": "mps",
       "lastUpdated": "2021-11-02T22:07:58+00:00",
       "profile": [
         "http://hl7.org/fhir/us/core/StructureDefinition/us-core-careplan"
@@ -108,6 +109,7 @@
     "id": "8dea4e52-5e76-35a7-0bf9-0f07b83a7e7f",
     "meta": {
       "versionId": "1",
+      "source": "mps",
       "lastUpdated": "2021-11-02T22:07:56+00:00",
       "profile": [
         "http://hl7.org/fhir/us/core/StructureDefinition/us-core-careplan"
@@ -213,6 +215,7 @@
     "id": "9f09ae91-3377-47cf-ceb8-dba09145c11c",
     "meta": {
       "versionId": "1",
+      "source": "mps",
       "lastUpdated": "2021-11-02T22:07:56+00:00",
       "profile": [
         "http://hl7.org/fhir/us/core/StructureDefinition/us-core-careplan"
@@ -318,6 +321,7 @@
     "id": "b0f52463-73a1-5a09-e7e9-a65c62663f1e",
     "meta": {
       "versionId": "1",
+      "source": "mps",
       "lastUpdated": "2021-11-02T22:07:43+00:00",
       "profile": [
         "http://hl7.org/fhir/us/core/StructureDefinition/us-core-careplan"
@@ -458,6 +462,7 @@
     "id": "b180158b-dfa3-2a5f-c305-3ca0baf28b81",
     "meta": {
       "versionId": "1",
+      "source": "mps",
       "lastUpdated": "2021-11-02T22:07:44+00:00",
       "profile": [
         "http://hl7.org/fhir/us/core/StructureDefinition/us-core-careplan"
