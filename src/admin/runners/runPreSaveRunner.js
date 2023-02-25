@@ -21,6 +21,7 @@ class RunPreSaveRunner extends BaseBulkOperationRunner {
      * @param {MongoDatabaseManager} mongoDatabaseManager
      * @param {PreSaveManager} preSaveManager
      * @param {boolean|undefined} [includeHistoryCollections]
+     * @param {string|undefined} [startFromCollection]
      */
     constructor(
         {
@@ -33,6 +34,7 @@ class RunPreSaveRunner extends BaseBulkOperationRunner {
             mongoDatabaseManager,
             preSaveManager,
             includeHistoryCollections,
+            startFromCollection
         }) {
         super({
             mongoCollectionManager,
@@ -66,6 +68,11 @@ class RunPreSaveRunner extends BaseBulkOperationRunner {
          * @type {boolean}
          */
         this.includeHistoryCollections = includeHistoryCollections;
+
+        /**
+         * @type {string|undefined}
+         */
+        this.startFromCollection = startFromCollection;
     }
 
     /**
@@ -126,6 +133,9 @@ class RunPreSaveRunner extends BaseBulkOperationRunner {
                     )
                 );
                 this.collections = this.collections.sort();
+                if (this.startFromCollection) {
+                    this.collections = this.collections.filter(c => c >= this.startFromCollection);
+                }
             }
 
             await this.init();
