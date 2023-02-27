@@ -23,6 +23,7 @@ class FixReferenceSourceAssigningAuthorityRunner extends BaseBulkOperationRunner
      * @param {PreSaveManager} preSaveManager
      * @param {date|undefined} afterLastUpdatedDate
      * @param {DatabaseQueryFactory} databaseQueryFactory
+     * @param {string|undefined} [startFromCollection]
      */
     constructor(
         {
@@ -33,7 +34,8 @@ class FixReferenceSourceAssigningAuthorityRunner extends BaseBulkOperationRunner
             mongoDatabaseManager,
             preSaveManager,
             afterLastUpdatedDate,
-            databaseQueryFactory
+            databaseQueryFactory,
+            startFromCollection
         }) {
         super({
             mongoCollectionManager,
@@ -63,6 +65,11 @@ class FixReferenceSourceAssigningAuthorityRunner extends BaseBulkOperationRunner
          */
         this.databaseQueryFactory = databaseQueryFactory;
         assertTypeEquals(databaseQueryFactory, DatabaseQueryFactory);
+
+        /**
+         * @type {string|undefined}
+         */
+        this.startFromCollection = startFromCollection;
     }
 
     /**
@@ -220,6 +227,9 @@ class FixReferenceSourceAssigningAuthorityRunner extends BaseBulkOperationRunner
                     )
                 );
                 this.collections = this.collections.sort();
+                if (this.startFromCollection) {
+                    this.collections = this.collections.filter(c => c >= this.startFromCollection);
+                }
             }
 
             await this.init();

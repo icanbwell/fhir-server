@@ -17,6 +17,7 @@ class FixHistoryRunner extends BaseBulkOperationRunner {
      * @param {MongoDatabaseManager} mongoDatabaseManager
      * @param {PreSaveManager} preSaveManager
      * @param {boolean|undefined} [skipIfResourcePresent]
+     * @param {string|undefined} [startFromCollection]
      */
     constructor(
         {
@@ -26,7 +27,8 @@ class FixHistoryRunner extends BaseBulkOperationRunner {
             adminLogger,
             mongoDatabaseManager,
             preSaveManager,
-            skipIfResourcePresent
+            skipIfResourcePresent,
+            startFromCollection
         }) {
         super({
             mongoCollectionManager,
@@ -50,6 +52,11 @@ class FixHistoryRunner extends BaseBulkOperationRunner {
          * @type {boolean|undefined}
          */
         this.skipIfResourcePresent = skipIfResourcePresent;
+
+        /**
+         * @type {string|undefined}
+         */
+        this.startFromCollection = startFromCollection;
     }
 
     /**
@@ -108,6 +115,9 @@ class FixHistoryRunner extends BaseBulkOperationRunner {
                 // filter to only history collections
                 this.collections = this.collections.filter(c => c.includes('_History'));
                 this.collections = this.collections.sort();
+                if (this.startFromCollection) {
+                    this.collections = this.collections.filter(c => c >= this.startFromCollection);
+                }
             }
 
             await this.init();
