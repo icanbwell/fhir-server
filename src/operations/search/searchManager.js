@@ -304,7 +304,7 @@ class SearchManager {
 
         // for consistency in results while paging, always sort by id
         // https://docs.mongodb.com/manual/reference/method/cursor.sort/#sort-cursor-consistent-sorting
-        const defaultSortId = env.DEFAULT_SORT_ID || 'id';
+        const defaultSortId = env.DEFAULT_SORT_ID || '_uuid';
         columns.add(defaultSortId);
         if (!('sort' in options)) {
             options['sort'] = {};
