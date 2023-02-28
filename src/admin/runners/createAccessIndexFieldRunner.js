@@ -143,7 +143,7 @@ class CreateAccessIndexRunner extends BaseBulkOperationRunner {
 
             await this.init();
 
-            this.adminLogger.log(`Starting loop for ${this.collections.join(',')}`);
+            this.adminLogger.logInfo(`Starting loop for ${this.collections.join(',')}`);
 
             // if there is an exception, continue processing from the last id
             for (const collectionName of this.collections) {
@@ -186,12 +186,12 @@ class CreateAccessIndexRunner extends BaseBulkOperationRunner {
                 } catch (e) {
                     logError(`Got error at ${this.startFromIdContainer.startFromId}`, {'error': e});
                 }
-                this.adminLogger.log(`Finished loop ${collectionName}`);
+                this.adminLogger.logInfo(`Finished loop ${collectionName}`);
             }
-            this.adminLogger.log('Finished script');
-            this.adminLogger.log('Shutting down');
+            this.adminLogger.logInfo('Finished script');
+            this.adminLogger.logInfo('Shutting down');
             await this.shutdown();
-            this.adminLogger.log('Shutdown finished');
+            this.adminLogger.logInfo('Shutdown finished');
         } catch (e) {
             logError('ERROR', {'error': e});
         }
