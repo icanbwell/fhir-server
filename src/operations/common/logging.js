@@ -99,9 +99,9 @@ const logSystemEventAsync = async ({event, message, args}) => {
         ],
     };
     const fhirSecureLogger = await fhirLogger.getSecureLoggerAsync();
-    fhirSecureLogger.log('info', logEntry);
+    fhirSecureLogger.info(logEntry);
     const fhirInSecureLogger = await fhirLogger.getInSecureLoggerAsync();
-    fhirInSecureLogger.log('info', logEntry);
+    fhirInSecureLogger.info(logEntry);
 };
 
 /**
@@ -155,9 +155,17 @@ const logSystemErrorAsync = async ({event, message, args, error}) => {
         ],
     };
     const fhirSecureLogger = await fhirLogger.getSecureLoggerAsync();
-    fhirSecureLogger.log(error ? 'error' : 'info', logEntry);
+    if (error) {
+        fhirSecureLogger.error(logEntry);
+    } else {
+        fhirSecureLogger.info(logEntry);
+    }
     const fhirInSecureLogger = await fhirLogger.getInSecureLoggerAsync();
-    fhirInSecureLogger.log(error ? 'error' : 'info', logEntry);
+    if (error) {
+        fhirInSecureLogger.error(logEntry);
+    } else {
+        fhirInSecureLogger.info(logEntry);
+    }
 };
 
 /**
@@ -206,7 +214,7 @@ const logErrorAndRequestAsync = async ({error, req}) => {
         user: getUserName(req),
         remoteAddress: getRemoteAddress(req)
     };
-    const logData = { request, error };
+    const logData = {request, error};
     if (error.elapsedTimeInSecs) {
         logData.elapsedTimeInSecs = error.elapsedTimeInSecs;
     }

@@ -220,7 +220,11 @@ class FhirLoggingManager {
         };
         const fhirInSecureLogger = await fhirLogger.getInSecureLoggerAsync();
         // write the insecure information to insecure log
-        fhirInSecureLogger.log(error ? 'error' : 'info', logEntry);
+        if (error) {
+            fhirInSecureLogger.error(logEntry);
+        } else {
+            fhirInSecureLogger.info(logEntry);
+        }
         // Now write out the secure logs
         if (requestInfo.body) {
             detail.push({
@@ -247,7 +251,11 @@ class FhirLoggingManager {
 
         const fhirSecureLogger = await fhirLogger.getSecureLoggerAsync();
         // This uses the FHIR Audit Event schema: https://hl7.org/fhir/auditevent.html
-        fhirSecureLogger.log(error ? 'error' : 'info', logEntry);
+        if (error) {
+            fhirSecureLogger.error(logEntry);
+        } else {
+            fhirSecureLogger.info(logEntry);
+        }
     }
 
 }
