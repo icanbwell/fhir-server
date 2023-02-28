@@ -103,7 +103,8 @@ const verify = (jwt_payload, done) => {
         }
         if (isUser) {
             context['isUser'] = isUser;
-            const fhirPatientId = jwt_payload['custom:bwell_fhir_id'];
+            const fhirPatientId = jwt_payload['custom:bwell_fhir_id'] || jwt_payload['custom:bwellFhirPatientId'];
+            console.log('THE FHIR PATIENT ID, ', fhirPatientId);
             if (jwt_payload['custom:bwell_fhir_ids']) {
                 const patientIdsFromJwtToken = jwt_payload['custom:bwell_fhir_ids'].split('|');
                 if (patientIdsFromJwtToken && patientIdsFromJwtToken.length > 0) {
