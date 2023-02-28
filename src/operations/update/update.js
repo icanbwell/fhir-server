@@ -4,7 +4,6 @@ const sendToS3 = require('../../utils/aws-s3');
 const {NotValidatedError, ForbiddenError, BadRequestError} = require('../../utils/httpErrors');
 const {getResource} = require('../common/getResource');
 const {isTrue} = require('../../utils/isTrue');
-const {getMeta} = require('../common/getMeta');
 const {validationsFailedCounter} = require('../../utils/prometheus.utils');
 const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
 const {ChangeEventProducer} = require('../../utils/changeEventProducer');
@@ -254,6 +253,10 @@ class UpdateOperation {
                 });
                 doc = updatedResource;
                 if (doc) { // if there is a change
+                    // Check if meta & meta.source exists in updated resource
+                    if (!doc.meta || !doc.meta.source) {
+                        throw new BadRequestError(new Error('Unable to update resource. Missing either metadata or metadata source.'));
+                    }
                     await this.databaseBulkInserter.replaceOneAsync(
                         {
                             requestId, resourceType, doc,
@@ -287,17 +290,9 @@ class UpdateOperation {
                     }
                 }
 
-                // create the metadata
-                /**
-                 * @type {function({Object}): Meta}
-                 */
-                let Meta = getMeta(base_version);
-                if (!resource_incoming.meta) {
-                    // noinspection JSPrimitiveTypeWrapperUsage
-                    resource_incoming.meta = new Meta({
-                        versionId: '1',
-                        lastUpdated: new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ssZ')),
-                    });
+                // Check if meta & meta.source exists in incoming resource
+                if (!resource_incoming.meta || !resource_incoming.meta.source) {
+                    throw new BadRequestError(new Error('Unable to update resource. Missing either metadata or metadata source.'));
                 } else {
                     resource_incoming.meta['versionId'] = '1';
                     resource_incoming.meta['lastUpdated'] = new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ssZ'));

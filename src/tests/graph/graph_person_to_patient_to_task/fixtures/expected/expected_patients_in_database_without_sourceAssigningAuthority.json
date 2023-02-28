@@ -72,6 +72,7 @@
     ],
     "meta": {
       "lastUpdated": "2023-02-20T23:19:31.000Z",
+      "source": "healthsystem",
       "profile": [
         "http://hl7.org/fhir/us/core/StructureDefinition/us-core-person"
       ],
@@ -161,6 +162,7 @@
     ],
     "meta": {
       "lastUpdated": "2023-02-20T23:19:31.000Z",
+      "source": "healthsystem",
       "profile": [
         "http://hl7.org/fhir/us/core/StructureDefinition/us-core-person"
       ],

@@ -29,9 +29,17 @@ describe('Person Tests', () => {
     describe('Person mergeWith_id Tests', () => {
         test('mergeWith_id works with access/*.* (create)', async () => {
             const request = await createTestRequest();
+            // Case when meta.source doesn't exist
+            let resp = await request
+                .post('/4_0_0/Practitioner/')
+                .send(person1Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveStatusCode(400);
+            person1Resource[0].meta.source = 'bwell';
             // ARRANGE
             // add the resources to FHIR server
-            let resp = await request
+            resp = await request
                 .post('/4_0_0/Person/1/$merge')
                 .send(person1Resource)
                 .set(getHeaders());
@@ -48,9 +56,17 @@ describe('Person Tests', () => {
         });
         test('mergeWith_id works with access/*.* (update)', async () => {
             const request = await createTestRequest();
+            // Case when meta.source doesn't exist
+            let resp = await request
+                .post('/4_0_0/Practitioner/')
+                .send(person1Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveStatusCode(400);
+            person1Resource[0].meta.source = 'bwell';
             // ARRANGE
             // add the resources to FHIR server
-            let resp = await request
+            resp = await request
                 .post('/4_0_0/Person/1/$merge')
                 .send(person1Resource)
                 .set(getHeaders());
@@ -87,9 +103,17 @@ describe('Person Tests', () => {
         });
         test('mergeWith_id works with access/*.* (update with change)', async () => {
             const request = await createTestRequest();
+            // Case when meta.source doesn't exist
+            let resp = await request
+                .post('/4_0_0/Practitioner/')
+                .send(person1Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveStatusCode(400);
+            person1Resource[0].meta.source = 'bwell';
             // ARRANGE
             // add the resources to FHIR server
-            let resp = await request
+            resp = await request
                 .post('/4_0_0/Person/1/$merge')
                 .send(person1Resource)
                 .set(getHeaders());
@@ -146,10 +170,18 @@ describe('Person Tests', () => {
         });
         test('mergeWith_id fails with missing permissions (create)', async () => {
             const request = await createTestRequest();
+            // Case when meta.source doesn't exist
+            let resp = await request
+                .post('/4_0_0/Practitioner/')
+                .send(person1Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveStatusCode(400);
+            person1Resource[0].meta.source = 'bwell';
             // ARRANGE
 
             // ACT & ASSERT
-            let resp = await request
+            resp = await request
                 .post('/4_0_0/Person/1/$merge')
                 .send(person1Resource)
                 .set(getHeaders('user/*.read user/*.write'));
@@ -162,8 +194,16 @@ describe('Person Tests', () => {
         });
         test('mergeWith_id fails with missing permissions (update)', async () => {
             const request = await createTestRequest();
-            // ARRANGE
+            // Case when meta.source doesn't exist
             let resp = await request
+                .post('/4_0_0/Practitioner/')
+                .send(person1Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveStatusCode(400);
+            person1Resource[0].meta.source = 'bwell';
+            // ARRANGE
+            resp = await request
                 .get('/4_0_0/Person/?_bundle=1')
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
@@ -206,9 +246,17 @@ describe('Person Tests', () => {
         });
         test('mergeWith_id fails with wrong access scope (create)', async () => {
             const request = await createTestRequest();
+            // Case when meta.source doesn't exist
+            let resp = await request
+                .post('/4_0_0/Practitioner/')
+                .send(person1Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveStatusCode(400);
+            person1Resource[0].meta.source = 'bwell';
             // ARRANGE
             // ACT & ASSERT
-            let resp = await request
+            resp = await request
                 .post('/4_0_0/Person/1/$merge')
                 .send(person1Resource)
                 .set(getHeaders('user/*.read user/*.write access/foo.*'));
@@ -223,9 +271,17 @@ describe('Person Tests', () => {
         });
         test('mergeWith_id fails with wrong access scope (update)', async () => {
             const request = await createTestRequest();
+            // Case when meta.source doesn't exist
+            let resp = await request
+                .post('/4_0_0/Practitioner/')
+                .send(person1Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveStatusCode(400);
+            person1Resource[0].meta.source = 'bwell';
             // ARRANGE
             // add the resources to FHIR server
-            let resp = await request
+            resp = await request
                 .post('/4_0_0/Person/1/$merge')
                 .send(person1Resource)
                 .set(getHeaders());

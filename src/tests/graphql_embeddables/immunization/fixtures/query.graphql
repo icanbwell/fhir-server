@@ -38,6 +38,7 @@ query Immunization($FHIR_DEFAULT_COUNT: Int) {
                 id
                 __typename
                 meta {
+                    source
                     ...MetaTags
                     ...MetaSecurity
                 }

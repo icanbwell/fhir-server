@@ -4,6 +4,7 @@
         "id": "aba5bcf41cf64435839cf0568c121843",
         "meta": {
             "versionId": "1",
+            "source": "bwell",
             "profile": ["http://hl7.org/fhir/us/core/StructureDefinition/us-core-person"],
             "security": [
                 {

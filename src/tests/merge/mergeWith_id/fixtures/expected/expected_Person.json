@@ -91,6 +91,7 @@
           }
         ],
         "meta": {
+          "source": "bwell",
           "profile": [
             "http://hl7.org/fhir/us/core/StructureDefinition/us-core-person"
           ],

@@ -33,6 +33,7 @@
           "system": "https://www.icanbwell.com/sourceAssigningAuthority"
         }
       ],
+      "source": "medstar",
       "versionId": "1"
     },
     "resourceType": "HealthcareService",
@@ -113,6 +114,7 @@
           "system": "https://www.icanbwell.com/sourceAssigningAuthority"
         }
       ],
+      "source": "medstar",
       "versionId": "1"
     },
     "resourceType": "HealthcareService"
@@ -225,6 +227,7 @@
           "system": "https://www.icanbwell.com/sourceAssigningAuthority"
         }
       ],
+      "source": "medstar",
       "versionId": "1"
     },
     "name": "Primary Care",
