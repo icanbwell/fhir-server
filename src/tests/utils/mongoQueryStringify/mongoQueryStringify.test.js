@@ -149,7 +149,7 @@ describe('mongoQueryStringify Tests', () => {
             );
         });
         test('mongoQueryAndOptionsStringify works for multiple queries', () => {
-            const query = [
+            const queries = [
                 {
                     $and: [
                         {
@@ -207,11 +207,13 @@ describe('mongoQueryStringify Tests', () => {
             ];
             const result = mongoQueryAndOptionsStringify(
                 {
-                    query: new QueryItem({
-                        query,
-                        collectionName: 'AuditEvent_4_0_0',
-                        resourceType: 'AuditEvent'
-                    }),
+                    query: queries.map(
+                        q => new QueryItem({
+                            query: q,
+                            collectionName: 'AuditEvent_4_0_0',
+                            resourceType: 'AuditEvent'
+                        })
+                    ),
                     options
                 });
             logInfo('', {result});
