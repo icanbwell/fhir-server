@@ -76,6 +76,7 @@ module.exports = {
                 keys: {
                     '_sourceId': 1,
                     '_sourceAssigningAuthority': 1,
+                    '_uuid': 1,
                 },
                 options: {
                     name: 'sourceId._sourceAssigningAuthority'

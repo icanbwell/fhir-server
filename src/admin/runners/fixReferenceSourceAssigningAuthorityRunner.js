@@ -119,7 +119,7 @@ class FixReferenceSourceAssigningAuthorityRunner extends BaseBulkOperationRunner
                     options: {
                         projection: {
                             _id: 0,
-                            id: 1
+                            _uuid: 1
                         }
                     }
                 }
@@ -135,9 +135,7 @@ class FixReferenceSourceAssigningAuthorityRunner extends BaseBulkOperationRunner
                     options: {
                         projection: {
                             _id: 0,
-                            id: 1,
-                            _sourceAssigningAuthority: 1,
-                            _uuid: 1
+                            _sourceAssigningAuthority: 1
                         }
                     }
                 }
