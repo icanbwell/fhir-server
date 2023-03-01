@@ -41,13 +41,16 @@ class PatientProxyQueryRewriter extends QueryRewriter {
         for (const parsedArg of parsedArgs.parsedArgItems) {
             if (resourceType === 'Patient') {
                 if (parsedArg.queryParameter === 'id' || parsedArg.queryParameter === '_id') {
-                    if (Array.isArray(parsedArg.queryParameterValue)) {
-                        if (parsedArg.queryParameterValue.some(
-                            a => a.startsWith(personProxyPrefix) || a.startsWith(patientReferencePlusPersonProxyPrefix))
+                    const queryParameterValues = parsedArg.queryParameterValues;
+                    if (queryParameterValues.length > 0) {
+                        if (queryParameterValues.some(
+                            a => a.startsWith(personProxyPrefix) ||
+                                a.startsWith(patientReferencePlusPersonProxyPrefix))
                         ) {
                             parsedArg.queryParameterValue = await async.flatMapSeries(
-                                parsedArg.queryParameterValue,
-                                async a => a.startsWith(personProxyPrefix) || a.startsWith(patientReferencePlusPersonProxyPrefix) ?
+                                queryParameterValues,
+                                async a => a.startsWith(personProxyPrefix) ||
+                                a.startsWith(patientReferencePlusPersonProxyPrefix) ?
                                     await this.personToPatientIdsExpander.getPatientProxyIdsAsync(
                                         {
                                             base_version,
@@ -56,22 +59,17 @@ class PatientProxyQueryRewriter extends QueryRewriter {
                                         }) : a
                             );
                         }
-                    } else if (typeof parsedArg.queryParameterValue === 'string' && (
-                        parsedArg.queryParameterValue.startsWith(personProxyPrefix) || parsedArg.queryParameterValue.startsWith(patientReferencePlusPersonProxyPrefix))) {
-                        parsedArg.queryParameterValue = await this.personToPatientIdsExpander.getPatientProxyIdsAsync(
-                            {
-                                base_version,
-                                id: parsedArg.queryParameterValue,
-                                includePatientPrefix: false
-                            });
                     }
                 }
             } else { // resourceType other than Patient
-                if (Array.isArray(parsedArg.queryParameterValue)) {
-                    if (parsedArg.queryParameterValue.some(a => typeof parsedArg.queryParameterValue === 'string' && a.startsWith(patientReferencePlusPersonProxyPrefix))) {
+                const queryParameterValues = parsedArg.queryParameterValues;
+                if (queryParameterValues.length > 0) {
+                    if (queryParameterValues.some(
+                        a => typeof a === 'string' &&
+                            a.startsWith(patientReferencePlusPersonProxyPrefix))) {
                         // replace with patient ids from person
                         parsedArg.queryParameterValue = await async.flatMapSeries(
-                            parsedArg.queryParameterValue,
+                            queryParameterValues,
                             async a => a.startsWith(patientReferencePlusPersonProxyPrefix) ?
                                 await this.personToPatientIdsExpander.getPatientProxyIdsAsync(
                                     {
@@ -80,12 +78,6 @@ class PatientProxyQueryRewriter extends QueryRewriter {
                                     }) : a
                         );
                     }
-                } else if (typeof parsedArg.queryParameterValue === 'string' && parsedArg.queryParameterValue.startsWith(patientReferencePlusPersonProxyPrefix)) {
-                    parsedArg.queryParameterValue = await this.personToPatientIdsExpander.getPatientProxyIdsAsync(
-                        {
-                            base_version,
-                            id: parsedArg.queryParameterValue, includePatientPrefix: true
-                        });
                 }
             }
         }

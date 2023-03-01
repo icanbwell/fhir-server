@@ -254,7 +254,7 @@ class UpdateOperation {
                 doc = updatedResource;
                 if (doc) { // if there is a change
                     // Check if meta & meta.source exists in updated resource
-                    if (!doc.meta || !doc.meta.source) {
+                    if (this.configManager.requireMetaSourceTags && (!doc.meta || !doc.meta.source)) {
                         throw new BadRequestError(new Error('Unable to update resource. Missing either metadata or metadata source.'));
                     }
                     await this.databaseBulkInserter.replaceOneAsync(
@@ -291,7 +291,7 @@ class UpdateOperation {
                 }
 
                 // Check if meta & meta.source exists in incoming resource
-                if (!resource_incoming.meta || !resource_incoming.meta.source) {
+                if (this.configManager.requireMetaSourceTags && (!resource_incoming.meta || !resource_incoming.meta.source)) {
                     throw new BadRequestError(new Error('Unable to update resource. Missing either metadata or metadata source.'));
                 } else {
                     resource_incoming.meta['versionId'] = '1';

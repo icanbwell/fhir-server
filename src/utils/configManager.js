@@ -246,6 +246,17 @@ class ConfigManager {
         }
         return isTrue(env.SUPPORT_LEGACY_IDS);
     }
+
+    /**
+     * Whether meta.source tags are required
+     * @return {boolean}
+     */
+    get requireMetaSourceTags() {
+        if (env.REQUIRE_META_SOURCE_TAGS === null || env.REQUIRE_META_SOURCE_TAGS === undefined) {
+            return true;
+        }
+        return isTrue(env.REQUIRE_META_SOURCE_TAGS);
+    }
 }
 
 module.exports = {
