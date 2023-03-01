@@ -14,9 +14,9 @@ const {
 const {describe, beforeEach, afterEach, test} = require('@jest/globals');
 const {AdminLogger} = require('../../../../admin/adminLogger');
 const {ConfigManager} = require('../../../../utils/configManager');
-const {RunPreSaveRunner} = require('../../../../admin/runners/runPreSaveRunner');
 const {IdentifierSystem} = require('../../../../utils/identifierSystem');
 const {assertTypeEquals} = require('../../../../utils/assertType');
+const {FixReferenceSourceAssigningAuthorityRunner} = require('../../../../admin/runners/fixReferenceSourceAssigningAuthorityRunner');
 
 class MockConfigManagerWithoutGlobalId extends ConfigManager {
     get enableGlobalIdSupport() {
@@ -87,7 +87,9 @@ describe('ExplanationOfBenefit Tests', () => {
             const collections = ['all'];
             const batchSize = 10000;
 
-            container.register('runPreSaveRunner', (c) => new RunPreSaveRunner(
+            container.register(
+                'fixReferenceSourceAssigningAuthorityRunner',
+                (c) => new FixReferenceSourceAssigningAuthorityRunner(
                     {
                         mongoCollectionManager: c.mongoCollectionManager,
                         collections: collections,
@@ -96,17 +98,23 @@ describe('ExplanationOfBenefit Tests', () => {
                         useAuditDatabase: false,
                         adminLogger: new AdminLogger(),
                         mongoDatabaseManager: c.mongoDatabaseManager,
-                        preSaveManager: c.preSaveManager
+                        preSaveManager: c.preSaveManager,
+                        databaseQueryFactory: c.databaseQueryFactory,
+                        resourceLocatorFactory: c.resourceLocatorFactory,
+                        preloadCollections: [
+                            'Person_4_0_0',
+                            'Patient_4_0_0'
+                        ]
                     }
                 )
             );
 
             /**
-             * @type {RunPreSaveRunner}
+             * @type {FixReferenceSourceAssigningAuthorityRunner}
              */
-            const runPreSaveRunner = container.runPreSaveRunner;
-            assertTypeEquals(runPreSaveRunner, RunPreSaveRunner);
-            await runPreSaveRunner.processAsync();
+            const fixReferenceSourceAssigningAuthorityRunner = container.fixReferenceSourceAssigningAuthorityRunner;
+            assertTypeEquals(fixReferenceSourceAssigningAuthorityRunner, FixReferenceSourceAssigningAuthorityRunner);
+            await fixReferenceSourceAssigningAuthorityRunner.processAsync();
 
             // Check patient 1
             const explanationOfBenefit1 = await collection.findOne({id: explanationOfBenefit1Resource.id});
@@ -116,7 +124,7 @@ describe('ExplanationOfBenefit Tests', () => {
             expectedExplanationOfBenefit1DatabaseAfterRun._uuid = explanationOfBenefit1._uuid;
             expect(explanationOfBenefit1.meta).toBeDefined();
             expect(explanationOfBenefit1.meta.lastUpdated).toBeDefined();
-            expect(explanationOfBenefit1.meta.lastUpdated).not.toStrictEqual(expectedExplanationOfBenefit1DatabaseAfterRun.meta.lastUpdated);
+            expect(explanationOfBenefit1.meta.lastUpdated).toStrictEqual(expectedExplanationOfBenefit1DatabaseAfterRun.meta.lastUpdated);
             expectedExplanationOfBenefit1DatabaseAfterRun.meta.lastUpdated = explanationOfBenefit1.meta.lastUpdated;
             expectedExplanationOfBenefit1DatabaseAfterRun.identifier
                 .filter(i => i.system === IdentifierSystem.uuid)[0]

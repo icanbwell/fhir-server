@@ -101,6 +101,10 @@ class FixReferenceSourceAssigningAuthorityRunner extends BaseBulkOperationRunner
          * @type {Map<string, number>}
          */
         this.cacheMisses = new Map();
+        /**
+         * @type {Map<string, string[]>}
+         */
+        this.resourcesNotFound = new Map();
     }
 
     /**
@@ -280,6 +284,14 @@ class FixReferenceSourceAssigningAuthorityRunner extends BaseBulkOperationRunner
                     }
                 }
             }
+            if (!doc) {
+                if (!this.resourcesNotFound.has(referenceCollectionName)) {
+                    this.resourcesNotFound.set(referenceCollectionName, []);
+                }
+                this.resourcesNotFound.get(referenceCollectionName).push(
+                    id
+                );
+            }
         }
         return reference;
     }
@@ -417,6 +429,10 @@ class FixReferenceSourceAssigningAuthorityRunner extends BaseBulkOperationRunner
                 console.log(`Cache misses in ${this.cacheMisses.size} collections`);
                 for (const [cacheCollectionName, cacheCount] of this.cacheMisses.entries()) {
                     console.log(`${cacheCollectionName} misses: ${cacheCount}`);
+                }
+                console.log(`Resources not found in ${this.resourcesNotFound.size} collections`);
+                for (const [cacheCollectionName, resourceIds] of this.resourcesNotFound.entries()) {
+                    console.log(`${cacheCollectionName} not found: ${resourceIds.join(',')}`);
                 }
             }
             console.log('Finished script');
