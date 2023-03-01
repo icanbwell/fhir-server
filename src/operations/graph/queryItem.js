@@ -3,7 +3,7 @@ class QueryItem {
      * cosntructor
      * @param {import('mongodb').Filter<import('mongodb').DefaultSchema>} query
      * @param {string} resourceType
-     * @param {string} collectionName
+     * @param {string|null} collectionName
      * @param {string} [property]
      * @param {string} [reverse_filter]
      * @param {import('mongodb').Document[]} [explanations]

@@ -1130,7 +1130,7 @@ class GraphHelper {
      * @param {boolean} [explain]
      * @param {boolean} [debug]
      * @param {ParsedArgs} parsedArgs
-     * @return {Promise<{entries: BundleEntry[], queries: import('mongodb').Document[], options: import('mongodb').FindOptions<import('mongodb').DefaultSchema>[], explanations: import('mongodb').Document[]}>}
+     * @return {Promise<{entries: BundleEntry[], queryItems: QueryItem[], options: import('mongodb').FindOptions<import('mongodb').DefaultSchema>[], explanations: import('mongodb').Document[]}>}
      */
     async processMultipleIdsAsync(
         {
@@ -1183,7 +1183,7 @@ class GraphHelper {
             const maxMongoTimeMS = env.MONGO_TIMEOUT ? parseInt(env.MONGO_TIMEOUT) : (30 * 1000);
 
             /**
-             * @type {import('mongodb').Document[]}
+             * @type {QueryItem[]}
              */
             const queries = [];
             /**
@@ -1199,7 +1199,14 @@ class GraphHelper {
             let cursor = await databaseQueryManager.findAsync({query, options});
             cursor = cursor.maxTimeMS({milliSecs: maxMongoTimeMS});
 
-            queries.push(query);
+            queries.push(
+                new QueryItem({
+                        query,
+                        resourceType,
+                        collectionName: cursor.getFirstCollection()
+                    }
+                )
+            );
             optionsForQueries.push(options);
             /**
              * @type {import('mongodb').Document[]}
@@ -1254,8 +1261,8 @@ class GraphHelper {
             );
 
             for (const q of queryItems) {
-                if (q.query) {
-                    queries.push(q.query);
+                if (q) {
+                    queries.push(q);
                 }
                 if (q.explanations) {
                     for (const e of q.explanations) {
@@ -1311,7 +1318,7 @@ class GraphHelper {
             );
             entries = this.bundleManager.removeDuplicateEntries({entries});
 
-            return {entries, queries, options: optionsForQueries, explanations};
+            return {entries, queryItems: queries, options: optionsForQueries, explanations};
         } catch (e) {
             throw new RethrownError({
                 message: 'Error in processMultipleIdsAsync(): ' + `resourceType: ${resourceType} , `,
@@ -1368,7 +1375,7 @@ class GraphHelper {
             const graphDefinition = new GraphDefinitionResource(graphDefinitionJson);
 
             /**
-             * @type {{entries: BundleEntry[], queries: import('mongodb').Document[], explanations: import('mongodb').Document[]}}
+             * @type {{entries: BundleEntry[], queries: QueryItem[], explanations: import('mongodb').Document[]}}
              */
             const {entries, queries, options, explanations} = await this.processMultipleIdsAsync(
                 {

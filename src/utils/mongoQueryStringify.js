@@ -98,7 +98,7 @@ const mongoQueryStringify = (query) => {
 
 
     if (restOfDataTypes(query)) {
-        const passQuotes = isString(query) ? "'" : '';
+        const passQuotes = isString(query) ? '\'' : '';
         return `${passQuotes}${query}${passQuotes}`;
     }
 
@@ -132,20 +132,18 @@ const mongoQueryStringify = (query) => {
 
 /**
  * converts a mongo query to string
- * @param {string} collectionName
- * @param {import('mongodb').Document} query
+ * @param {QueryItem} query
  * @param {import('mongodb').FindOneOptions} options
  * @returns {string|undefined}
  */
 const mongoQueryAndOptionsStringifySingleQuery = (
-    collectionName,
     query,
     options
 ) => {
     assertIsValid(!Array.isArray(query));
-    const queryText = mongoQueryStringify(query);
+    const queryText = mongoQueryStringify(query.query);
     const projection = options && options.projection ? options.projection : {};
-    let result = `db.${collectionName}.find(${queryText}, ${mongoQueryStringify(projection)})`;
+    let result = `db.${query.collectionName}.find(${queryText}, ${mongoQueryStringify(projection)})`;
     if (options && options.sort) {
         result += `.sort(${mongoQueryStringify(options.sort)})`;
     }
@@ -160,26 +158,23 @@ const mongoQueryAndOptionsStringifySingleQuery = (
 
 /**
  * converts a mongo query to string
- * @param {string} collectionName
- * @param {import('mongodb').Document | import('mongodb').Document[]} query
+ * @param {QueryItem|QueryItem[]} query
  * @param {import('mongodb').FindOneOptions | import('mongodb').FindOneOptions[]} options
  * @returns {string|undefined}
  */
 const mongoQueryAndOptionsStringify = (
-    collectionName,
-    query,
-    options
+    {query, options}
 ) => {
     if (Array.isArray(query)) {
         let result = '';
         query.forEach((queryItem, index) => {
             const optionsItem = options[`${index}`];
-            const queryText = mongoQueryAndOptionsStringifySingleQuery(collectionName, queryItem, optionsItem);
+            const queryText = mongoQueryAndOptionsStringifySingleQuery(queryItem, optionsItem);
             result += (index === 0) ? `${queryText} ` : ` | ${queryText}`;
         });
         return result;
     } else {
-        return mongoQueryAndOptionsStringifySingleQuery(collectionName, query, Array.isArray(options) ? options[0] : options);
+        return mongoQueryAndOptionsStringifySingleQuery(query, Array.isArray(options) ? options[0] : options);
     }
 };
 

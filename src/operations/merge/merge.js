@@ -25,6 +25,7 @@ const {ParsedArgs} = require('../query/parsedArgsItem');
 const {MergeResultEntry} = require('../common/mergeResultEntry');
 const {PreSaveManager} = require('../../preSaveHandlers/preSave');
 const async = require('async');
+const {QueryItem} = require('../graph/queryItem');
 
 class MergeOperation {
     /**
@@ -482,7 +483,13 @@ class MergeOperation {
                         resources: resources,
                         base_version,
                         total_count: operationOutcomes.length,
-                        originalQuery: {},
+                        originalQuery: new QueryItem(
+                            {
+                                query: null,
+                                resourceType,
+                                collectionName: null
+                            }
+                        ),
                         collectionName: firstCollectionNameForQuery,
                         originalOptions: {},
                         stopTime,

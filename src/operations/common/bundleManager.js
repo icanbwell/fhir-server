@@ -9,6 +9,7 @@ const {assertTypeEquals} = require('../../utils/assertType');
 const {ResourceManager} = require('./resourceManager');
 const {removeDuplicatesWithLambda} = require('../../utils/list.util');
 const {getCircularReplacer} = require('../../utils/getCircularReplacer');
+const {QueryItem} = require('../graph/queryItem');
 
 /**
  * This class creates a Bundle resource out of a list of resources
@@ -42,7 +43,7 @@ class BundleManager {
      * @param {string} base_version
      * @param {number|null} [total_count]
      * @param {ParsedArgs} parsedArgs
-     * @param {import('mongodb').Document|import('mongodb').Document[]} originalQuery
+     * @param {QueryItem|Query[]} originalQuery
      * @param {string} collectionName
      * @param {string | undefined} [databaseName]
      * @param {import('mongodb').FindOneOptions | import('mongodb').FindOneOptions[]} originalOptions
@@ -139,7 +140,7 @@ class BundleManager {
      * @param {string} base_version
      * @param {number|null} [total_count]
      * @param {ParsedArgs} parsedArgs
-     * @param {import('mongodb').Document|import('mongodb').Document[]} originalQuery
+     * @param {QueryItem|QueryItem[]} originalQuery
      * @param {string} collectionName
      * @param {string | undefined} [databaseName]
      * @param {import('mongodb').FindOneOptions | import('mongodb').FindOneOptions[]} originalOptions
@@ -180,6 +181,13 @@ class BundleManager {
             explanations,
             allCollectionsToSearch
         }) {
+        if (Array.isArray(originalQuery)) {
+            for (const q of originalQuery) {
+                assertTypeEquals(q, QueryItem);
+            }
+        } else {
+            assertTypeEquals(originalQuery, QueryItem);
+        }
         /**
          * array of links
          * @type {[{relation:string, url: string}]}
@@ -246,7 +254,7 @@ class BundleManager {
             const tag = [
                 {
                     system: 'https://www.icanbwell.com/query',
-                    display: mongoQueryAndOptionsStringify(collectionName, originalQuery, originalOptions),
+                    display: mongoQueryAndOptionsStringify({query: originalQuery, options: originalOptions}),
                 },
                 {
                     system: 'https://www.icanbwell.com/queryCollection',
@@ -296,8 +304,14 @@ class BundleManager {
                             {
                                 explanation: e,
                                 query: (Array.isArray(originalQuery) && originalQuery.length > index) ?
-                                    mongoQueryAndOptionsStringify(collectionName, originalQuery[`${index}`], originalOptions || {}) :
-                                    mongoQueryAndOptionsStringify(collectionName, originalQuery, originalOptions || {})
+                                    mongoQueryAndOptionsStringify({
+                                        query: originalQuery[`${index}`],
+                                        options: originalOptions || {}
+                                    }) :
+                                    mongoQueryAndOptionsStringify({
+                                        query: originalQuery,
+                                        options: originalOptions || {}
+                                    })
                             }
                         )
                     ) : [];
@@ -324,7 +338,7 @@ class BundleManager {
      * @param {string} collectionName
      * @param {string[]|undefined} [allCollectionsToSearch]
      * @return {string|undefined}
-    */
+     */
     getQueryCollection(allCollectionsToSearch, collectionName) {
         return allCollectionsToSearch ? allCollectionsToSearch.join(',') : collectionName;
     }
@@ -332,7 +346,7 @@ class BundleManager {
     /**
      * @param {import('mongodb').FindOneOptions | import('mongodb').FindOneOptions[]} originalOptions
      * @return {string|undefined}
-    */
+     */
     getQueryOptions(originalOptions) {
         return originalOptions ? mongoQueryStringify(originalOptions) : null;
     }
@@ -340,7 +354,7 @@ class BundleManager {
     /**
      * @param {Set|undefined} columns
      * @return {string|undefined}
-    */
+     */
     getQueryFields(columns) {
         return columns ? mongoQueryStringify(Array.from(columns)) : null;
     }
