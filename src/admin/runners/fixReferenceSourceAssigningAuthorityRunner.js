@@ -1,5 +1,5 @@
 const {BaseBulkOperationRunner} = require('./baseBulkOperationRunner');
-const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
+const {assertTypeEquals} = require('../../utils/assertType');
 const {PreSaveManager} = require('../../preSaveHandlers/preSave');
 const {getResource} = require('../../operations/common/getResource');
 const {VERSIONS} = require('../../middleware/fhir/utils/constants');
@@ -81,16 +81,10 @@ class FixReferenceSourceAssigningAuthorityRunner extends BaseBulkOperationRunner
         assertTypeEquals(resourceLocatorFactory, ResourceLocatorFactory);
 
         /**
-         * cache of patients
-         * @type {Map<string, {_uuid: string|null, _sourceId: string|null, _sourceAssigningAuthority: string|null}>}
+         * cache of caches
+         * @type {Map<string, Map<string, {_uuid: string|null, _sourceId: string|null, _sourceAssigningAuthority: string|null}>>}
          */
-        this.patientCache = new Map();
-
-        /**
-         * cache of patients
-         * @type {Map<string, {_uuid: string|null, _sourceId: string|null, _sourceAssigningAuthority: string|null}>}
-         */
-        this.personCache = new Map();
+        this.caches = new Map();
     }
 
     /**
@@ -149,14 +143,14 @@ class FixReferenceSourceAssigningAuthorityRunner extends BaseBulkOperationRunner
         let foundInCache = false;
         if (uuid) {
             if (cache.has(uuid)) {
+                // uuid already exists so nothing to do for this reference
                 foundInCache = true;
             }
         }
-        // now try to match on _sourceId and _sourceAssigningAuthority
         if (!foundInCache) {
             // find a match on _sourceId and _sourceAssigningAuthority
             for (const {_uuid, _sourceId, _sourceAssigningAuthority} of cache.values()) {
-                if (_sourceId === id) {
+                if (_sourceId === id) { // if source id matches then use that uuid and sourceAssigningAuthority
                     // save this uuid in reference
                     reference.reference = ReferenceParser.createReference(
                         {
@@ -443,13 +437,10 @@ class FixReferenceSourceAssigningAuthorityRunner extends BaseBulkOperationRunner
      * @return {Map<string, {_uuid: (string|null), _sourceId: (string|null), _sourceAssigningAuthority: (string|null)}>}
      */
     getCacheForResourceType({collectionName}) {
-        if (collectionName === 'Patient_4_0_0') {
-            return this.patientCache;
+        if (!this.caches.has(collectionName)) {
+            this.caches.set(collectionName, new Map());
         }
-        if (collectionName === 'Person_4_0_0') {
-            return this.personCache;
-        }
-        assertIsValid(`No cache for ${collectionName}`);
+        return this.caches.get(collectionName);
     }
 }
 
