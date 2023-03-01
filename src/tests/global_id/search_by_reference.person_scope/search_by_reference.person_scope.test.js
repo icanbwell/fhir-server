@@ -12,6 +12,7 @@ const task3Resource = require('./fixtures/Task/task3.json');
 // expected
 const expectedTaskResources = require('./fixtures/expected/expected_tasks.json');
 const expectedTask1 = require('./fixtures/expected/expected_task1.json');
+const expectedTask1Bundle = require('./fixtures/expected/expected_task1_bundle.json');
 
 const {
     commonBeforeEach,
@@ -124,6 +125,12 @@ describe('Patient Tests', () => {
                 .set(headers);
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedTask1);
+
+            resp = await request
+                .get('/4_0_0/Task/?id=Task1&_debug=1')
+                .set(headers);
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedTask1Bundle);
         });
     });
 });
