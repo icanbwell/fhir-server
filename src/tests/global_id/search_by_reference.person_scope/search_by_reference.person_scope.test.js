@@ -11,6 +11,7 @@ const task3Resource = require('./fixtures/Task/task3.json');
 
 // expected
 const expectedTaskResources = require('./fixtures/expected/expected_tasks.json');
+const expectedTask1 = require('./fixtures/expected/expected_task1.json');
 
 const {
     commonBeforeEach,
@@ -47,6 +48,7 @@ describe('Patient Tests', () => {
 
     describe('Patient search_by_reference.person_scope Tests', () => {
         test('search_by_reference.person_scope works', async () => {
+            // Verifies https://icanbwell.atlassian.net/browse/EFS-180
             const request = await createTestRequest((c) => {
                 c.register('configManager', () => new MockConfigManager());
                 return c;
@@ -112,10 +114,16 @@ describe('Patient Tests', () => {
             // ACT & ASSERT
             // search by token system and code and make sure we get the right Patient back
             resp = await request
-                .get('/4_0_0/Task/?_bundle=1&_debug=1')
+                .get('/4_0_0/Task/?_debug=1')
                 .set(headers);
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedTaskResources);
+
+            resp = await request
+                .get('/4_0_0/Task/Task1?_debug=1')
+                .set(headers);
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedTask1);
         });
     });
 });

@@ -95,6 +95,14 @@ module.exports = {
                     'AuditEvent_4_0_0'
                 ]
             },
+            {
+                keys: {
+                    '_sourceId': 1,
+                },
+                options: {
+                    name: 'sourceId'
+                }
+            },
         ],
         '*_History': [
             {
