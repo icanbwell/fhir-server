@@ -107,7 +107,11 @@ describe('Person Tests', () => {
                         mongoDatabaseManager: c.mongoDatabaseManager,
                         preSaveManager: c.preSaveManager,
                         databaseQueryFactory: c.databaseQueryFactory,
-                        resourceLocatorFactory: c.resourceLocatorFactory
+                        resourceLocatorFactory: c.resourceLocatorFactory,
+                        preloadCollections: [
+                            'Person_4_0_0',
+                            'Patient_4_0_0'
+                        ]
                     }
                 )
             );

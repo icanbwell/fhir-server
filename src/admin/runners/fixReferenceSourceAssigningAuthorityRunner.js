@@ -26,6 +26,7 @@ class FixReferenceSourceAssigningAuthorityRunner extends BaseBulkOperationRunner
      * @param {DatabaseQueryFactory} databaseQueryFactory
      * @param {string|undefined} [startFromCollection]
      * @param {ResourceLocatorFactory} resourceLocatorFactory
+     * @param {string[]} preloadCollections
      */
     constructor(
         {
@@ -38,7 +39,8 @@ class FixReferenceSourceAssigningAuthorityRunner extends BaseBulkOperationRunner
             afterLastUpdatedDate,
             databaseQueryFactory,
             startFromCollection,
-            resourceLocatorFactory
+            resourceLocatorFactory,
+            preloadCollections
         }) {
         super({
             mongoCollectionManager,
@@ -79,6 +81,11 @@ class FixReferenceSourceAssigningAuthorityRunner extends BaseBulkOperationRunner
          */
         this.resourceLocatorFactory = resourceLocatorFactory;
         assertTypeEquals(resourceLocatorFactory, ResourceLocatorFactory);
+
+        /**
+         * @type {string[]}
+         */
+        this.preloadCollections = preloadCollections;
 
         /**
          * cache of caches
@@ -325,21 +332,17 @@ class FixReferenceSourceAssigningAuthorityRunner extends BaseBulkOperationRunner
 
             const mongoConfig = await this.mongoDatabaseManager.getClientConfigAsync();
 
-            // preload person table
-            await this.preloadCollectionAsync(
-                {
-                    mongoConfig,
-                    collectionName: 'Person_4_0_0'
-                }
-            );
-
-            // preload patient table
-            await this.preloadCollectionAsync(
-                {
-                    mongoConfig,
-                    collectionName: 'Patient_4_0_0'
-                }
-            );
+            for (const preloadCollection of this.preloadCollections) {
+                console.log(`Preloading collection: ${preloadCollection}`);
+                // preload person table
+                await this.preloadCollectionAsync(
+                    {
+                        mongoConfig,
+                        collectionName: preloadCollection
+                    }
+                );
+                console.log(`Done preloading collection: ${preloadCollection}`);
+            }
 
             console.log(`Starting loop for ${this.collections.join(',')}`);
 
