@@ -241,7 +241,7 @@ class MergeManager {
         }
 
         // Check if meta & meta.source exists in resourceToMerge
-        if (!resourceToMerge.meta || !resourceToMerge.meta.source) {
+        if (this.configManager.requireMetaSourceTags && (!resourceToMerge.meta || !resourceToMerge.meta.source)) {
             throw new BadRequestError(new Error('Unable to create resource. Missing either metadata or metadata source.'));
         } else {
             resourceToMerge.meta.versionId = '1';
@@ -329,13 +329,13 @@ class MergeManager {
 
                 // check if resource was found in database or not
                 if (currentResource && currentResource.meta) {
-                    if (currentResource.meta.source || resourceToMerge?.meta?.source){
+                    if (currentResource.meta.source || resourceToMerge?.meta?.source) {
                         await this.mergeExistingAsync(
                             {
                                 resourceToMerge, currentResource, user, scope, currentDate, requestId
                             }
                         );
-                    } else {
+                    } else if (this.configManager.requireMetaSourceTags) {
                         throw new BadRequestError(new Error(
                             'Unable to create resource. Missing either metadata or metadata source.'
                         ));
@@ -713,7 +713,7 @@ class MergeManager {
 
             //----- validate schema ----
             // Check if meta & meta.source exists in resource
-            if (!resourceToMerge.meta || !resourceToMerge.meta.source) {
+            if (this.configManager.requireMetaSourceTags && (!resourceToMerge.meta || !resourceToMerge.meta.source)) {
                 throw new BadRequestError(new Error('Unable to merge resource. Missing either metadata or metadata source.'));
             }
             // The FHIR validator wants meta.lastUpdated to be string instead of data

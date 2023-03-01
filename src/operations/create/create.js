@@ -225,7 +225,7 @@ class CreateOperation {
             }
 
             // Check if meta & meta.source exists in resource
-            if (!resource.meta || !resource.meta.source) {
+            if (this.configManager.requireMetaSourceTags && (!resource.meta || !resource.meta.source)) {
                 throw new BadRequestError(new Error('Unable to create resource. Missing either metadata or metadata source.'));
             } else {
                 resource.meta['versionId'] = '1';
