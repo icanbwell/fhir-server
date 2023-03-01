@@ -98,10 +98,14 @@ module.exports = {
             {
                 keys: {
                     '_sourceId': 1,
+                    '_uuid': 1,
                 },
                 options: {
                     name: 'sourceId'
-                }
+                },
+                exclude: [
+                    'AuditEvent_4_0_0'
+                ]
             },
         ],
         '*_History': [
@@ -172,7 +176,16 @@ module.exports = {
                 options: {
                     name: 'uuid'
                 }
-            }
+            },
+            {
+                keys: {
+                    '_sourceId': 1,
+                },
+                options: {
+                    name: 'sourceId'
+                }
+            },
+
         ],
         'Coverage_4_0_0': [
             {
