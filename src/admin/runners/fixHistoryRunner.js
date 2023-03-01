@@ -3,6 +3,7 @@ const {assertTypeEquals} = require('../../utils/assertType');
 const {PreSaveManager} = require('../../preSaveHandlers/preSave');
 const {getResource} = require('../../operations/common/getResource');
 const {VERSIONS} = require('../../middleware/fhir/utils/constants');
+const deepcopy = require('deepcopy');
 
 /**
  * @classdesc runs preSave() on every record
@@ -71,7 +72,7 @@ class FixHistoryRunner extends BaseBulkOperationRunner {
             doc = {
                 _id: doc._id,
                 id: doc.id,
-                resource: doc
+                resource: deepcopy(doc)
             };
             delete doc.resource._id;
             hasChanges = true;

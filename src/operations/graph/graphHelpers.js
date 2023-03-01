@@ -27,16 +27,7 @@ const {R4ArgsParser} = require('../query/r4ArgsParser');
 const {ParsedArgs} = require('../query/parsedArgsItem');
 const {VERSIONS} = require('../../middleware/fhir/utils/constants');
 const {ReferenceParser} = require('../../utils/referenceParser');
-
-
-/**
- * @typedef QueryItem
- * @property {import('mongodb').Filter<import('mongodb').DefaultSchema>} query
- * @property {string} resourceType
- * @property {string} [property]
- * @property {string} [reverse_filter]
- * @property {import('mongodb').Document[]} [explanations]
- */
+const {QueryItem} = require('./queryItem');
 
 
 /**
@@ -391,7 +382,15 @@ class GraphHelper {
                     }
                 }
             }
-            return {query, resourceType, property, explanations};
+            return new QueryItem(
+                {
+                    query,
+                    resourceType,
+                    collectionName: cursor.getFirstCollection(),
+                    property,
+                    explanations
+                }
+            );
         } catch (e) {
             throw new RethrownError({
                 message: `Error in getForwardReferencesAsync(): ${resourceType}, ` +
@@ -614,7 +613,14 @@ class GraphHelper {
                     }
                 }
             }
-            return {query, resourceType: relatedResourceType, reverse_filter, explanations};
+            return new QueryItem({
+                    query,
+                    resourceType: relatedResourceType,
+                    collectionName: cursor.getFirstCollection(),
+                    reverse_filter,
+                    explanations
+                }
+            );
         } catch (e) {
             throw new RethrownError({
                 message: 'Error in getReverseReferencesAsync(): ' +
@@ -789,19 +795,21 @@ class GraphHelper {
                         accessRequested: 'read'
                     });
                     /**
-                     * @type {{reverse_filter?: string, query: import('mongodb').Filter<import('mongodb').DefaultSchema>, property?: string, explanations?: import('mongodb').Document[], resourceType: string}}
+                     * @type {QueryItem}
                      */
-                    const queryItem = await this.getForwardReferencesAsync({
-                        requestInfo,
-                        base_version,
-                        resourceType,
-                        parentEntities,
-                        property,
-                        filterProperty,
-                        filterValue,
-                        explain,
-                        debug,
-                    });
+                    const queryItem = await this.getForwardReferencesAsync(
+                        {
+                            requestInfo,
+                            base_version,
+                            resourceType,
+                            parentEntities,
+                            property,
+                            filterProperty,
+                            filterValue,
+                            explain,
+                            debug,
+                        }
+                    );
                     if (queryItem) {
                         queryItems.push(queryItem);
                     }
