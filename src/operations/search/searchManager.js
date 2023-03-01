@@ -205,10 +205,12 @@ class SearchManager {
                     (!allPatientIdsFromJwtToken || allPatientIdsFromJwtToken.length === 0)) {
                     query = {id: '__invalid__'}; // return nothing since no patient ids were passed
                 } else {
-                    // Add the person id to the list as a patient proxy
-                    allPatientIdsFromJwtToken.push(
-                        `person.${personIdFromJwtToken}`
-                    );
+                    if (personIdFromJwtToken) {
+                        // Add the person id to the list as a patient proxy
+                        allPatientIdsFromJwtToken.push(
+                            `person.${personIdFromJwtToken}`
+                        );
+                    }
                     query = this.securityTagManager.getQueryWithPatientFilter(
                         {
                             patientIds: allPatientIdsFromJwtToken, query, resourceType

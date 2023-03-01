@@ -87,14 +87,17 @@ class ParsedArgsItem {
                 queryParameterValue: this._queryParameterValue
             }
         );
-        return value === null ? [] : Array.isArray(value) ? value : [value];
+        return value === null || value === undefined ? [] : Array.isArray(value) ? value : [value];
     }
 
     /**
      * sets the queryParameterValue
-     * @param value
+     * @param {string|string[]} value
      */
     set queryParameterValue(value) {
+        if (value && Array.isArray(value)) {
+            value = value.join(',');
+        }
         this._queryParameterValue = value;
         this.updateReferences();
     }
