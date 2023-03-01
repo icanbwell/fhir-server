@@ -92,6 +92,15 @@ class FixReferenceSourceAssigningAuthorityRunner extends BaseBulkOperationRunner
          * @type {Map<string, Map<string, {_uuid: string|null, _sourceId: string|null, _sourceAssigningAuthority: string|null}>>}
          */
         this.caches = new Map();
+
+        /**
+         * @type {number}
+         */
+        this.cacheHits = 0;
+        /**
+         * @type {number}
+         */
+        this.cacheMisses = 0;
     }
 
     /**
@@ -152,6 +161,7 @@ class FixReferenceSourceAssigningAuthorityRunner extends BaseBulkOperationRunner
             if (cache.has(uuid)) {
                 // uuid already exists so nothing to do for this reference
                 foundInCache = true;
+                this.cacheHits += 1;
             }
         }
         if (!foundInCache) {
@@ -175,12 +185,14 @@ class FixReferenceSourceAssigningAuthorityRunner extends BaseBulkOperationRunner
                         }
                     }
                     foundInCache = true;
+                    this.cacheHits += 1;
                     break;
                 }
             }
         }
 
         if (!foundInCache) {
+            this.cacheMisses += 1;
             /**
              * @type {DatabaseQueryManager}
              */
@@ -380,6 +392,7 @@ class FixReferenceSourceAssigningAuthorityRunner extends BaseBulkOperationRunner
                     console.log(`Got error ${e}.  At ${this.startFromIdContainer.startFromId}`);
                 }
                 console.log(`Finished loop ${collectionName}`);
+                console.log(`Cache hits: ${this.cacheHits}, Cache misses: ${this.cacheMisses}`);
             }
             console.log('Finished script');
             console.log('Shutting down');
