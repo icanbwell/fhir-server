@@ -13,6 +13,7 @@ const {isTrue} = require('../../utils/isTrue');
 const BundleEntry = require('../../fhir/classes/4_0_0/backbone_elements/bundleEntry');
 const {ResourceManager} = require('../common/resourceManager');
 const {ParsedArgs} = require('../query/parsedArgsItem');
+const {QueryItem} = require('../graph/queryItem');
 
 class HistoryByIdOperation {
     /**
@@ -275,7 +276,13 @@ class HistoryByIdOperation {
                     base_version,
                     total_count: entries.length,
                     parsedArgs,
-                    originalQuery: query,
+                    originalQuery: new QueryItem(
+                        {
+                            query,
+                            resourceType,
+                            collectionName: cursor.getFirstCollection()
+                        }
+                    ),
                     collectionName: entries.length > 0 ? (await resourceLocator.getHistoryCollectionNameAsync(entries[0].resource)) : null,
                     originalOptions: options,
                     stopTime,

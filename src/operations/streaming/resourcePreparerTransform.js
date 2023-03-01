@@ -106,7 +106,7 @@ class ResourcePreparerTransform extends Transform {
             .then(
                 /** @type {Resource[]} */resources => {
                     if (isTrue(env.LOG_STREAM_STEPS)) {
-                        logInfo('ResourcePreparerTransform: _transform');
+                        logInfo('ResourcePreparerTransform: _transform', {});
                     }
                     if (resources.length > 0) {
                         for (const /** @type {Resource} */ resource of resources) {
@@ -117,7 +117,7 @@ class ResourcePreparerTransform extends Transform {
                                 )
                             ) {
                                 if (isTrue(env.LOG_STREAM_STEPS)) {
-                                    logInfo(`ResourcePreparerTransform: push ${resource['id']}`);
+                                    logInfo(`ResourcePreparerTransform: push ${resource['id']}`, {});
                                 }
                                 this.push(resource);
                                 this.resourcesProcessed.push(
@@ -136,7 +136,7 @@ class ResourcePreparerTransform extends Transform {
      */
     _flush(callback) {
         if (isTrue(env.LOG_STREAM_STEPS)) {
-            logInfo('ResourcePreparerTransform: _flush');
+            logInfo('ResourcePreparerTransform: _flush', {});
         }
         callback();
     }

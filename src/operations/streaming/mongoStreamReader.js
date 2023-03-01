@@ -18,12 +18,12 @@ async function* readMongoStreamGenerator({cursor, signal}) {
         while (await cursor.hasNext()) {
             if (signal.aborted) {
                 if (isTrue(env.LOG_STREAM_STEPS)) {
-                    logInfo('mongoStreamReader: aborted');
+                    logInfo('mongoStreamReader: aborted', {});
                 }
                 return;
             }
             if (isTrue(env.LOG_STREAM_STEPS)) {
-                logInfo('mongoStreamReader: read');
+                logInfo('mongoStreamReader: read', {});
             }
             /**
              * element

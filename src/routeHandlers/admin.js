@@ -106,7 +106,7 @@ async function handleAdmin(
     try {
         req.id = req.id || req.header(`${REQUEST_ID_HEADER}`) || generateUUID();
         const operation = req.params['op'];
-        logInfo(`op=${operation}`);
+        logInfo(`op=${operation}`, {});
 
         // set up all the standard services in the container
         /**
