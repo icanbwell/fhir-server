@@ -165,6 +165,7 @@ class SecurityTagManager {
         }
         // separate uuids from non-uuids
         const patientUuids = patientIds.filter(id => isUuid(id));
+        let patientsUuidQuery, patientsNonUuidQuery;
         if (patientUuids && patientUuids.length > 0) {
             const inQuery = {
                 '$in': resourceType === 'Patient' ? patientUuids : patientUuids.map(p => `Patient/${p}`)
@@ -181,18 +182,16 @@ class SecurityTagManager {
                      * @type {string[]}
                      */
                     const patientFilterList = patientFilterProperty;
-                    const patientsQuery = {
+                    patientsUuidQuery = {
                         '$or': patientFilterList.map(p => {
                                 return {[p.replace('.reference', '._uuid')]: inQuery};
                             }
                         )
                     };
-                    query = this.appendAndQuery(query, patientsQuery);
                 } else {
-                    const patientsQuery = {
+                    patientsUuidQuery = {
                         [patientFilterProperty.replace('.reference', '._uuid')]: inQuery
                     };
-                    query = this.appendAndQuery(query, patientsQuery);
                 }
             }
         }
@@ -213,18 +212,27 @@ class SecurityTagManager {
                      * @type {string[]}
                      */
                     const patientFilterList = patientFilterProperty;
-                    const patientsQuery = {
+                    patientsNonUuidQuery = {
                         '$or': patientFilterList.map(p => {
                                 return {[p.replace('.reference', '._sourceId')]: inQuery};
                             }
                         )
                     };
-                    query = this.appendAndQuery(query, patientsQuery);
                 } else {
-                    const patientsQuery = {[patientFilterProperty.replace('.reference', '._sourceId')]: inQuery};
-                    query = this.appendAndQuery(query, patientsQuery);
+                    patientsNonUuidQuery = {[patientFilterProperty.replace('.reference', '._sourceId')]: inQuery};
                 }
             }
+        }
+        let patientsQuery;
+        if (patientsUuidQuery && patientsNonUuidQuery){
+            patientsQuery = {
+                '$or': [patientsUuidQuery, patientsNonUuidQuery]
+            };
+        } else if (patientsUuidQuery || patientsNonUuidQuery){
+            patientsQuery = patientsUuidQuery || patientsNonUuidQuery;
+        }
+        if (patientsQuery){
+            query = this.appendAndQuery(query, patientsQuery);
         }
         return query;
     }
