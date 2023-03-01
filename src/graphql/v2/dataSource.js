@@ -1,6 +1,7 @@
 const {logWarn} = require('../../operations/common/logging');
 const async = require('async');
 const DataLoader = require('dataloader');
+const { REFERENCE_EXTENSION_DATA_MAP } = require('../../constants');
 const {groupByLambda} = require('../../utils/list.util');
 const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
 const {SimpleContainer} = require('../../utils/simpleContainer');
@@ -248,8 +249,11 @@ class FhirDataSource {
      * @return {Promise<null|Resource>}
      */
     async findResourceByReference(parent, args, context, info, reference) {
-        if (!reference || !reference.reference) {
+        if (!reference) {
             return null;
+        }
+        if (!reference.reference){
+            return this.enrichResourceWithReferenceData({}, reference);
         }
         const {
             /** @type {string} **/
@@ -260,7 +264,9 @@ class FhirDataSource {
         try {
             this.createDataLoader(args);
             // noinspection JSValidateTypes
-            return await this.dataLoader.load(ResourceWithId.getReferenceKey(resourceType, id));
+            let resource = await this.dataLoader.load(ResourceWithId.getReferenceKey(resourceType, id));
+            resource = this.enrichResourceWithReferenceData(resource, reference);
+            return resource;
         } catch (e) {
             if (e.name === 'NotFound') {
                 logWarn(
@@ -472,6 +478,33 @@ class FhirDataSource {
             parsedArgs.headers = headers;
         }
         return parsedArgs;
+    }
+
+    /**
+     * Populate resolved or unresolved Reference resource with data from reference like display and type.
+     * This is useful when no resource is resolved and the client needs display data in graphql response.
+     * @param resolvedResource
+     * @param reference
+     * @returns {{extension}|*|{}}
+     */
+    enrichResourceWithReferenceData(resolvedResource, reference) {
+        let resource = resolvedResource;
+        const dataToEnrich = ['display', 'type'];
+        const dataExtensionMap = REFERENCE_EXTENSION_DATA_MAP;
+        if (dataToEnrich.some(dataKey => !!reference[dataKey])) {
+            let extension = (resource && resource.extension) || [];
+            dataToEnrich.forEach(dataKey => {
+                if (reference[dataKey]) {
+                    const extensionData = { ...dataExtensionMap[dataKey] };
+                    extensionData[extensionData['valueKey']] = reference[dataKey];
+                    delete extensionData['valueKey'];
+                    extension.push(extensionData);
+                }
+            });
+            resource = resource || {};
+            resource.extension = extension;
+        }
+        return resource;
     }
 }
 
