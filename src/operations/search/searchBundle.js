@@ -338,7 +338,6 @@ class SearchBundleOperation {
                     base_version,
                     total_count,
                     originalQuery,
-                    collectionName,
                     originalOptions,
                     columns,
                     stopTime,

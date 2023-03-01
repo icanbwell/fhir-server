@@ -351,7 +351,6 @@ class SearchStreamingOperation {
                                         collectionName
                                     }
                                 ),
-                                collectionName,
                                 databaseName,
                                 originalOptions,
                                 columns,
@@ -433,7 +432,6 @@ class SearchStreamingOperation {
                                 base_version,
                                 total_count,
                                 originalQuery,
-                                collectionName,
                                 databaseName,
                                 originalOptions,
                                 columns,

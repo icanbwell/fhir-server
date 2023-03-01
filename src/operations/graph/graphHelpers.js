@@ -28,6 +28,7 @@ const {ParsedArgs} = require('../query/parsedArgsItem');
 const {VERSIONS} = require('../../middleware/fhir/utils/constants');
 const {ReferenceParser} = require('../../utils/referenceParser');
 const {QueryItem} = require('./queryItem');
+const {ProcessMultipleIdsAsyncResult} = require('./processMultipleIdsAsyncResult');
 
 
 /**
@@ -1130,7 +1131,7 @@ class GraphHelper {
      * @param {boolean} [explain]
      * @param {boolean} [debug]
      * @param {ParsedArgs} parsedArgs
-     * @return {Promise<{entries: BundleEntry[], queryItems: QueryItem[], options: import('mongodb').FindOptions<import('mongodb').DefaultSchema>[], explanations: import('mongodb').Document[]}>}
+     * @return {Promise<ProcessMultipleIdsAsyncResult>}
      */
     async processMultipleIdsAsync(
         {
@@ -1318,7 +1319,11 @@ class GraphHelper {
             );
             entries = this.bundleManager.removeDuplicateEntries({entries});
 
-            return {entries, queryItems: queries, options: optionsForQueries, explanations};
+            return new ProcessMultipleIdsAsyncResult(
+                {
+                    entries, queryItems: queries, options: optionsForQueries, explanations
+                }
+            );
         } catch (e) {
             throw new RethrownError({
                 message: 'Error in processMultipleIdsAsync(): ' + `resourceType: ${resourceType} , `,
@@ -1375,9 +1380,9 @@ class GraphHelper {
             const graphDefinition = new GraphDefinitionResource(graphDefinitionJson);
 
             /**
-             * @type {{entries: BundleEntry[], queries: QueryItem[], explanations: import('mongodb').Document[]}}
+             * @type {ProcessMultipleIdsAsyncResult}
              */
-            const {entries, queries, options, explanations} = await this.processMultipleIdsAsync(
+            const {entries, queryItems, options, explanations} = await this.processMultipleIdsAsync(
                 {
                     base_version,
                     requestInfo,
@@ -1402,19 +1407,6 @@ class GraphHelper {
             const accessCodes = this.scopesManager.getAccessCodesFromScopes('read', requestInfo.user, requestInfo.scope);
             uniqueEntries = uniqueEntries.filter(e => this.scopesManager.doesResourceHaveAnyAccessCodeFromThisList(accessCodes, requestInfo.user, requestInfo.scope, e.resource));
 
-            /**
-             * @type {string}
-             */
-            let collectionName;
-            if (queries && queries.length > 0) {
-                /**
-                 * @type {ResourceLocator}
-                 */
-                const resourceLocator = this.resourceLocatorFactory.createResourceLocator({resourceType, base_version});
-                collectionName = await resourceLocator.getFirstCollectionNameForQueryDebugOnlyAsync({
-                    query: queries[0]
-                });
-            }
             /**
              * @type {number}
              */
@@ -1455,8 +1447,7 @@ class GraphHelper {
                 base_version,
                 total_count: null,
                 parsedArgs,
-                originalQuery: queries,
-                collectionName,
+                originalQuery: queryItems,
                 originalOptions: options,
                 columns: new Set(),
                 stopTime,

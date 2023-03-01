@@ -242,11 +242,6 @@ class HistoryOperation {
          * @type {number}
          */
         const stopTime = Date.now();
-        /**
-         * @type {ResourceLocator}
-         */
-        const resourceLocator = this.resourceLocatorFactory.createResourceLocator(
-            {resourceType, base_version});
 
         // If doc is not BundleEntry then wrap it in a bundle entry
         const entries = resources.map(
@@ -287,7 +282,6 @@ class HistoryOperation {
                         collectionName: cursor.getFirstCollection()
                     }
                 ),
-                collectionName: entries.length > 0 ? (await resourceLocator.getHistoryCollectionNameAsync(entries[0].resource)) : null,
                 originalOptions: options,
                 stopTime,
                 startTime,

@@ -44,7 +44,6 @@ class BundleManager {
      * @param {number|null} [total_count]
      * @param {ParsedArgs} parsedArgs
      * @param {QueryItem|Query[]} originalQuery
-     * @param {string} collectionName
      * @param {string | undefined} [databaseName]
      * @param {import('mongodb').FindOneOptions | import('mongodb').FindOneOptions[]} originalOptions
      * @param {Set|undefined} [columns]
@@ -71,7 +70,6 @@ class BundleManager {
             total_count,
             parsedArgs,
             originalQuery,
-            collectionName,
             databaseName,
             originalOptions,
             columns,
@@ -113,7 +111,6 @@ class BundleManager {
                 total_count,
                 parsedArgs,
                 originalQuery,
-                collectionName,
                 databaseName,
                 originalOptions,
                 columns,
@@ -141,7 +138,6 @@ class BundleManager {
      * @param {number|null} [total_count]
      * @param {ParsedArgs} parsedArgs
      * @param {QueryItem|QueryItem[]} originalQuery
-     * @param {string} collectionName
      * @param {string | undefined} [databaseName]
      * @param {import('mongodb').FindOneOptions | import('mongodb').FindOneOptions[]} originalOptions
      * @param {Set|undefined} [columns]
@@ -168,7 +164,6 @@ class BundleManager {
             total_count,
             parsedArgs,
             originalQuery,
-            collectionName,
             databaseName,
             originalOptions,
             columns,
@@ -258,7 +253,9 @@ class BundleManager {
                 },
                 {
                     system: 'https://www.icanbwell.com/queryCollection',
-                    code: this.getQueryCollection(allCollectionsToSearch, collectionName),
+                    code: Array.isArray(originalQuery) ?
+                        originalQuery.map(q => this.getQueryCollection(allCollectionsToSearch, q.collectionName)).join('|') :
+                        this.getQueryCollection(allCollectionsToSearch, originalQuery.collectionName),
                 },
                 {
                     system: 'https://www.icanbwell.com/queryOptions',

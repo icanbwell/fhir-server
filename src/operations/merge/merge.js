@@ -463,12 +463,6 @@ class MergeOperation {
                         });
                     }
                 );
-                const resourceLocator = this.resourceLocatorFactory.createResourceLocator(
-                    {resourceType, base_version});
-                const firstCollectionNameForQuery = await resourceLocator.getFirstCollectionNameForQueryDebugOnlyAsync({
-                    query: {}
-                });
-                // noinspection JSValidateTypes
                 /**
                  * @type {Resource[]}
                  */
@@ -490,7 +484,6 @@ class MergeOperation {
                                 collectionName: null
                             }
                         ),
-                        collectionName: firstCollectionNameForQuery,
                         originalOptions: {},
                         stopTime,
                         startTime,

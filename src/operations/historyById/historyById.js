@@ -248,11 +248,6 @@ class HistoryByIdOperation {
              * @type {number}
              */
             const stopTime = Date.now();
-            /**
-             * @type {ResourceLocator}
-             */
-            const resourceLocator = this.resourceLocatorFactory.createResourceLocator(
-                {resourceType, base_version});
 
             // https://hl7.org/fhir/http.html#history
             // The return content is a Bundle with type set to history containing the specified version history,
@@ -283,7 +278,6 @@ class HistoryByIdOperation {
                             collectionName: cursor.getFirstCollection()
                         }
                     ),
-                    collectionName: entries.length > 0 ? (await resourceLocator.getHistoryCollectionNameAsync(entries[0].resource)) : null,
                     originalOptions: options,
                     stopTime,
                     startTime,
