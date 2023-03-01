@@ -94,13 +94,13 @@ class FixReferenceSourceAssigningAuthorityRunner extends BaseBulkOperationRunner
         this.caches = new Map();
 
         /**
-         * @type {number}
+         * @type {Map<string, number>}
          */
-        this.cacheHits = 0;
+        this.cacheHits = new Map();
         /**
-         * @type {number}
+         * @type {Map<string, number>}
          */
-        this.cacheMisses = 0;
+        this.cacheMisses = new Map();
     }
 
     /**
@@ -161,7 +161,11 @@ class FixReferenceSourceAssigningAuthorityRunner extends BaseBulkOperationRunner
             if (cache.has(uuid)) {
                 // uuid already exists so nothing to do for this reference
                 foundInCache = true;
-                this.cacheHits += 1;
+                if (this.cacheHits.has(referenceCollectionName)) {
+                    this.cacheHits.set(referenceCollectionName, this.cacheHits.get(referenceCollectionName) + 1);
+                } else {
+                    this.cacheHits.set(referenceCollectionName, 1);
+                }
             }
         }
         if (!foundInCache) {
@@ -185,14 +189,23 @@ class FixReferenceSourceAssigningAuthorityRunner extends BaseBulkOperationRunner
                         }
                     }
                     foundInCache = true;
-                    this.cacheHits += 1;
+                    if (this.cacheHits.has(referenceCollectionName)) {
+                        this.cacheHits.set(referenceCollectionName, this.cacheHits.get(referenceCollectionName) + 1);
+                    } else {
+                        this.cacheHits.set(referenceCollectionName, 1);
+                    }
                     break;
                 }
             }
         }
 
         if (!foundInCache) {
-            this.cacheMisses += 1;
+            if (this.cacheMisses.has(referenceCollectionName)) {
+                this.cacheMisses.set(referenceCollectionName, this.cacheMisses.get(referenceCollectionName) + 1);
+            } else {
+                this.cacheMisses.set(referenceCollectionName, 1);
+            }
+
             /**
              * @type {DatabaseQueryManager}
              */
@@ -397,7 +410,14 @@ class FixReferenceSourceAssigningAuthorityRunner extends BaseBulkOperationRunner
                     console.log(`Got error ${e}.  At ${this.startFromIdContainer.startFromId}`);
                 }
                 console.log(`Finished loop ${collectionName}`);
-                console.log(`Cache hits: ${this.cacheHits}, Cache misses: ${this.cacheMisses}`);
+                console.log(`Cache hits in ${this.cacheHits.size} collections`);
+                for (const [cacheCollectionName, cacheCount] of this.cacheHits.entries()) {
+                    console.log(`${cacheCollectionName} hits: ${cacheCount}`);
+                }
+                console.log(`Cache misses in ${this.cacheMisses.size} collections`);
+                for (const [cacheCollectionName, cacheCount] of this.cacheMisses.entries()) {
+                    console.log(`${cacheCollectionName} misses: ${cacheCount}`);
+                }
             }
             console.log('Finished script');
             console.log('Shutting down');
