@@ -20,6 +20,21 @@ const {
     getHeadersWithCustomPayload
 } = require('../../common');
 const {describe, beforeEach, afterEach, test} = require('@jest/globals');
+const {ConfigManager} = require('../../../utils/configManager');
+
+class MockConfigManager extends ConfigManager {
+    get enableGlobalIdSupport() {
+        return true;
+    }
+
+    get enableReturnBundle() {
+        return true;
+    }
+
+    get supportLegacyIds() {
+        return false;
+    }
+}
 
 describe('Patient Tests', () => {
     beforeEach(async () => {
@@ -32,7 +47,10 @@ describe('Patient Tests', () => {
 
     describe('Patient search_by_reference.person_scope Tests', () => {
         test('search_by_reference.person_scope works', async () => {
-            const request = await createTestRequest();
+            const request = await createTestRequest((c) => {
+                c.register('configManager', () => new MockConfigManager());
+                return c;
+            });
             // ARRANGE
             // add the resources to FHIR server
             let resp = await request
@@ -94,7 +112,7 @@ describe('Patient Tests', () => {
             // ACT & ASSERT
             // search by token system and code and make sure we get the right Patient back
             resp = await request
-                .get('/4_0_0/Task/?_bundle=1')
+                .get('/4_0_0/Task/?_bundle=1&_debug=1')
                 .set(headers);
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedTaskResources);
