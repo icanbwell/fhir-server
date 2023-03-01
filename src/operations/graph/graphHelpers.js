@@ -320,6 +320,7 @@ class GraphHelper {
             }
 
             cursor = cursor.maxTimeMS({milliSecs: maxMongoTimeMS});
+            const collectionName = cursor.getFirstCollection();
 
             while (await cursor.hasNext()) {
                 /**
@@ -387,7 +388,7 @@ class GraphHelper {
                 {
                     query,
                     resourceType,
-                    collectionName: cursor.getFirstCollection(),
+                    collectionName: collectionName,
                     property,
                     explanations
                 }
@@ -557,6 +558,7 @@ class GraphHelper {
                 // if explain is requested then don't return any results
                 cursor = cursor.limit(1);
             }
+            const collectionName = cursor.getFirstCollection();
 
             while (await cursor.hasNext()) {
                 /**
@@ -617,7 +619,7 @@ class GraphHelper {
             return new QueryItem({
                     query,
                     resourceType: relatedResourceType,
-                    collectionName: cursor.getFirstCollection(),
+                    collectionName: collectionName,
                     reverse_filter,
                     explanations
                 }
