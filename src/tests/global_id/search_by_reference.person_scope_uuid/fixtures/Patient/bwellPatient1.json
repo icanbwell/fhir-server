@@ -1,0 +1,26 @@
+{
+  "resourceType": "Patient",
+  "id": "dc4eed5a-0488-4fbd-b51b-e9e0cea632cd",
+  "meta": {
+    "versionId": "1",
+    "source": "mps",
+    "lastUpdated": "2023-02-15T01:06:29.000Z",
+    "profile": [
+      "http://hl7.org/fhir/us/core/StructureDefinition/us-core-patient"
+    ],
+    "security": [
+      {
+        "system": "https://www.icanbwell.com/access",
+        "code": "mps-api"
+      },
+      {
+        "system": "https://www.icanbwell.com/owner",
+        "code": "mps-api"
+      },
+      {
+        "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+        "code": "mps-api"
+      }
+    ]
+  }
+}

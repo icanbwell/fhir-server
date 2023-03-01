@@ -1,0 +1,58 @@
+{
+  "for": {
+    "extension": [
+      {
+        "id": "sourceId",
+        "url": "https://www.icanbwell.com/sourceId",
+        "valueString": "Patient/person.41db6857-b989-4617-ac8b-35d853250449"
+      },
+      {
+        "id": "uuid",
+        "url": "https://www.icanbwell.com/uuid",
+        "valueString": "Patient/person.41db6857-b989-4617-ac8b-35d853250449"
+      },
+      {
+        "id": "sourceAssigningAuthority",
+        "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+        "valueString": "mps-api"
+      }
+    ],
+    "reference": "Patient/person.41db6857-b989-4617-ac8b-35d853250449"
+  },
+  "id": "195e0039-a4b1-4053-851c-7386c580a471",
+  "identifier": [
+    {
+      "id": "sourceId",
+      "system": "https://www.icanbwell.com/sourceId",
+      "value": "195e0039-a4b1-4053-851c-7386c580a471"
+    },
+    {
+      "id": "uuid",
+      "system": "https://www.icanbwell.com/uuid",
+      "value": "195e0039-a4b1-4053-851c-7386c580a471"
+    }
+  ],
+  "meta": {
+    "profile": [
+      "http://hl7.org/fhir/us/core/StructureDefinition/us-core-patient"
+    ],
+    "security": [
+      {
+        "code": "mps-api",
+        "system": "https://www.icanbwell.com/access"
+      },
+      {
+        "code": "mps-api",
+        "system": "https://www.icanbwell.com/owner"
+      },
+      {
+        "code": "mps-api",
+        "system": "https://www.icanbwell.com/sourceAssigningAuthority"
+      }
+    ],
+    "source": "mps",
+    "versionId": "1"
+  },
+  "resourceType": "Task",
+  "status": "draft"
+}
