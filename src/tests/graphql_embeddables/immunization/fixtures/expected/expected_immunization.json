@@ -7,6 +7,7 @@
         "id": "148172d9-7015-4400-9d13-b7ddc49071f6",
         "manufacturer": null,
         "meta": {
+          "source": "healthsystem1",
           "security": [
             {
               "code": "healthsystem1",

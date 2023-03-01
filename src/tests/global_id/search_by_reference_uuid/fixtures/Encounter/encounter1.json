@@ -3,6 +3,7 @@
   "id": "0001968b-9ef1-f875-7686-1a56b879d202",
   "meta": {
     "versionId": "4",
+    "source": "mps",
     "lastUpdated": "2023-02-15T16:20:16.000Z",
     "profile": [
       "http://hl7.org/fhir/us/core/StructureDefinition/us-core-encounter"

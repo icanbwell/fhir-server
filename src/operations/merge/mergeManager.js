@@ -4,7 +4,6 @@ const {ForbiddenError, BadRequestError} = require('../../utils/httpErrors');
 const moment = require('moment-timezone');
 const env = require('var');
 const sendToS3 = require('../../utils/aws-s3');
-const {getMeta} = require('../common/getMeta');
 const {isTrue} = require('../../utils/isTrue');
 const {groupByLambda, findDuplicateResourcesByUuid, findUniqueResourcesByUuid} = require('../../utils/list.util');
 const async = require('async');
@@ -199,7 +198,6 @@ class MergeManager {
         {
             requestId,
             resourceToMerge,
-            base_version,
             user,
             scope,
         }
@@ -242,16 +240,9 @@ class MergeManager {
                 resourceToMerge.resourceType + ' with id ' + resourceToMerge.id);
         }
 
-        if (!resourceToMerge.meta) {
-            // create the metadata
-            /**
-             * @type {function({Object}): Meta}
-             */
-            let Meta = getMeta(base_version);
-            resourceToMerge.meta = new Meta({
-                versionId: '1',
-                lastUpdated: new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ssZ')),
-            });
+        // Check if meta & meta.source exists in resourceToMerge
+        if (this.configManager.requireMetaSourceTags && (!resourceToMerge.meta || !resourceToMerge.meta.source)) {
+            throw new BadRequestError(new Error('Unable to create resource. Missing either metadata or metadata source.'));
         } else {
             resourceToMerge.meta.versionId = '1';
             resourceToMerge.meta.lastUpdated = new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ssZ'));
@@ -338,15 +329,21 @@ class MergeManager {
 
                 // check if resource was found in database or not
                 if (currentResource && currentResource.meta) {
-                    await this.mergeExistingAsync(
-                        {
-                            resourceToMerge, currentResource, user, scope, currentDate, requestId
-                        }
-                    );
+                    if (currentResource.meta.source || resourceToMerge?.meta?.source) {
+                        await this.mergeExistingAsync(
+                            {
+                                resourceToMerge, currentResource, user, scope, currentDate, requestId
+                            }
+                        );
+                    } else if (this.configManager.requireMetaSourceTags) {
+                        throw new BadRequestError(new Error(
+                            'Unable to create resource. Missing either metadata or metadata source.'
+                        ));
+                    }
                 } else {
                     await this.mergeInsertAsync({
                         requestId,
-                        resourceToMerge, base_version, user, scope
+                        resourceToMerge, user, scope
                     });
                 }
             } catch (e) {
@@ -715,6 +712,10 @@ class MergeManager {
             }
 
             //----- validate schema ----
+            // Check if meta & meta.source exists in resource
+            if (this.configManager.requireMetaSourceTags && (!resourceToMerge.meta || !resourceToMerge.meta.source)) {
+                throw new BadRequestError(new Error('Unable to merge resource. Missing either metadata or metadata source.'));
+            }
             // The FHIR validator wants meta.lastUpdated to be string instead of data
             // So we copy the resource and change meta.lastUpdated to string to pass the FHIR validator
             const resourceObjectToValidate = deepcopy(resourceToMerge.toJSON());

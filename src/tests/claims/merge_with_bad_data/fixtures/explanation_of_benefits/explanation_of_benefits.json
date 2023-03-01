@@ -543,6 +543,9 @@
     {
         "resourceType": "ExplanationOfBenefit",
         "id": "WPS-Claim-429017018331",
+        "meta": {
+            "source": "https://www.wpshealth.com/medical_claims"
+        },
         "identifier": [
             {
                 "type": {

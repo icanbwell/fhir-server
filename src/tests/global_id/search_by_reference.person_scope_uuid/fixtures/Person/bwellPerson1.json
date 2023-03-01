@@ -1,0 +1,38 @@
+{
+  "resourceType": "Person",
+  "id": "41db6857-b989-4617-ac8b-35d853250449",
+  "meta": {
+    "versionId": "1",
+    "source": "mps",
+    "lastUpdated": "2023-02-15T01:06:29.000Z",
+    "profile": [
+      "http://hl7.org/fhir/us/core/StructureDefinition/us-core-patient"
+    ],
+    "security": [
+      {
+        "system": "https://www.icanbwell.com/access",
+        "code": "mps-api"
+      },
+      {
+        "system": "https://www.icanbwell.com/owner",
+        "code": "mps-api"
+      },
+      {
+        "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+        "code": "mps-api"
+      }
+    ]
+  },
+  "link": [
+    {
+      "target": {
+        "reference": "Person/1f4a7635-2a45-4059-80e0-6b07466edc21"
+      }
+    },
+    {
+      "target": {
+        "reference": "Patient/dc4eed5a-0488-4fbd-b51b-e9e0cea632cd"
+      }
+    }
+  ]
+}

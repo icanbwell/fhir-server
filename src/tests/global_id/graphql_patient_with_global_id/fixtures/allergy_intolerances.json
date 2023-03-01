@@ -4,6 +4,7 @@
     "id": "0af7ad3f-9f37-1a62-09e4-4ca127531c51",
     "meta": {
       "versionId": "1",
+      "source": "medstar",
       "lastUpdated": "2021-09-24T02:33:06+00:00",
       "profile": [
         "http://hl7.org/fhir/us/core/StructureDefinition/us-core-allergyintolerance"
@@ -60,6 +61,7 @@
     "id": "e039c680-1024-34ff-d9d8-5d87feada4d5",
     "meta": {
       "versionId": "1",
+      "source": "mps",
       "lastUpdated": "2021-09-24T02:33:25+00:00",
       "profile": [
         "http://hl7.org/fhir/us/core/StructureDefinition/us-core-allergyintolerance"

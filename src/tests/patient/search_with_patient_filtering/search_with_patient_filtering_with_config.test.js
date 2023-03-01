@@ -200,7 +200,7 @@ describe('patient Tests', () => {
             test('App clients can access all id-filtered resources', async () => {
                 const request = await createTestRequest();
                 let resp = await request
-                    .get('/4_0_0/Patient/?_bundle=1')
+                    .get('/4_0_0/Patient/?_bundle=1&_debug=1')
                     .set(getHeadersWithCustomPayload(app_client_payload));
                 // noinspection JSUnresolvedFunction
                 expect(resp).toHaveResourceCount(5);

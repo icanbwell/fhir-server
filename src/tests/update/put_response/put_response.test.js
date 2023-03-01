@@ -20,9 +20,17 @@ describe('ActivityDefinition Tests', () => {
     describe('ActivityDefinition put_response Tests', () => {
         test('put_response works', async () => {
             const request = await createTestRequest();
+            // Case when meta.source doesn't exist
+            let resp = await request
+                .post('/4_0_0/Practitioner/')
+                .send(activitydefinition1Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveStatusCode(400);
+            activitydefinition1Resource.meta.source = 'bwell';
             // ARRANGE
             // add the resources to FHIR server
-            let resp = await request
+            resp = await request
                 .put('/4_0_0/ActivityDefinition/ab2d17e3-3996-487c-bf81-cbe31abde0be')
                 .send(activitydefinition1Resource)
                 .set(getHeaders());
