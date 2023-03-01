@@ -1,6 +1,28 @@
 {
   "resourceType": "Person",
-  "_uuid": "",
-  "_sourceId": "",
-  "_sourceAssigningAuthority": "healthsy"
+  "id": "123",
+  "meta": {
+    "versionId": "2",
+    "lastUpdated": "2023-01-19T21:57:39.000Z",
+    "profile": [
+      "http://hl7.org/fhir/us/core/StructureDefinition/us-core-person"
+    ],
+    "security": [
+      {
+        "system": "https://www.icanbwell.com/access",
+        "code": "healthsystem1"
+      },
+      {
+        "system": "https://www.icanbwell.com/owner",
+        "code": "healthsystem1"
+      },
+      {
+        "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+        "code": "healthsystem1"
+      }
+    ]
+  },
+  "_uuid": "73e3235f-e3cd-586f-85a6-9872386b672c",
+  "_sourceId": "123",
+  "_sourceAssigningAuthority": "healthsystem1"
 }

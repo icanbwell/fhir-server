@@ -104,10 +104,19 @@
         "reference": "Person/a0b8be666f4a4f60a3f6129f7ddc8aab|healthsystem1",
         "type": "Person"
       }
+    },
+    {
+      "assurance": "level4",
+      "target": {
+        "_sourceAssigningAuthority": "healthsystem1",
+        "_uuid": "73e3235f-e3cd-586f-85a6-9872386b672c",
+        "reference": "Patient/123|healthsystem1",
+        "type": "Patient"
+      }
     }
   ],
   "meta": {
-    "lastUpdated": "2023-01-19T21:57:39.000Z",
+    "lastUpdated": "2023-03-01T21:43:56.000Z",
     "profile": [
       "http://hl7.org/fhir/us/core/StructureDefinition/us-core-person"
     ],

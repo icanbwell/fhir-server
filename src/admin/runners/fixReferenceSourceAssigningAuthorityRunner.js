@@ -353,7 +353,12 @@ class FixReferenceSourceAssigningAuthorityRunner extends BaseBulkOperationRunner
                         collectionName: preloadCollection
                     }
                 );
-                console.log(`Done preloading collection: ${preloadCollection}`);
+                const count = this.getCacheForResourceType(
+                    {
+                        collectionName: preloadCollection
+                    }
+                ).size;
+                console.log(`Done preloading collection: ${preloadCollection}: ${count}`);
             }
 
             console.log(`Starting loop for ${this.collections.join(',')}`);
