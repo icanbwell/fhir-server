@@ -491,12 +491,12 @@ class FhirDataSource {
         let resource = resolvedResource;
         const dataToEnrich = ['display', 'type'];
         const dataExtensionMap = REFERENCE_EXTENSION_DATA_MAP;
-        if (dataToEnrich.some(dataKey => !!reference[dataKey])) {
+        if (dataToEnrich.some(dataKey => !!reference[`${dataKey}`])) {
             let extension = (resource && resource.extension) || [];
             dataToEnrich.forEach(dataKey => {
-                if (reference[dataKey]) {
-                    const extensionData = { ...dataExtensionMap[dataKey] };
-                    extensionData[extensionData['valueKey']] = reference[dataKey];
+                if (reference[`${dataKey}`]) {
+                    const extensionData = { ...dataExtensionMap[`${dataKey}`] };
+                    extensionData[extensionData['valueKey']] = reference[`${dataKey}`];
                     delete extensionData['valueKey'];
                     extension.push(extensionData);
                 }
