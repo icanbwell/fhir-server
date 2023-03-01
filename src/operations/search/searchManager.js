@@ -188,19 +188,27 @@ class SearchManager {
                 /**
                  * @type {string[]}
                  */
-                const patientIdsLinkedToPersonId = personIdFromJwtToken ? await this.getLinkedPatientsAsync(
-                    {
-                        base_version, isUser, personIdFromJwtToken
-                    }) : [];
+                const patientIdsLinkedToPersonId = personIdFromJwtToken ?
+                    await this.getLinkedPatientsAsync(
+                        {
+                            base_version, isUser, personIdFromJwtToken
+                        }) :
+                    [];
                 /**
                  * @type {string[]|null}
                  */
-                const allPatientIdsFromJwtToken = patientIdsFromJwtToken ? patientIdsFromJwtToken.concat(
-                    patientIdsLinkedToPersonId) : patientIdsLinkedToPersonId;
+                const allPatientIdsFromJwtToken = patientIdsFromJwtToken ?
+                    patientIdsFromJwtToken.concat(patientIdsLinkedToPersonId) :
+                    patientIdsLinkedToPersonId;
+
                 if (!this.configManager.doNotRequirePersonOrPatientIdForPatientScope &&
                     (!allPatientIdsFromJwtToken || allPatientIdsFromJwtToken.length === 0)) {
                     query = {id: '__invalid__'}; // return nothing since no patient ids were passed
                 } else {
+                    // Add the person id to the list as a patient proxy
+                    allPatientIdsFromJwtToken.push(
+                        `person.${personIdFromJwtToken}`
+                    );
                     query = this.securityTagManager.getQueryWithPatientFilter(
                         {
                             patientIds: allPatientIdsFromJwtToken, query, resourceType
