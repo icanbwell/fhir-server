@@ -53,7 +53,8 @@ async function main() {
                 mongoDatabaseManager: c.mongoDatabaseManager,
                 preSaveManager: c.preSaveManager,
                 databaseQueryFactory: c.databaseQueryFactory,
-                startFromCollection: parameters.startFromCollection
+                startFromCollection: parameters.startFromCollection,
+                resourceLocatorFactory: c.resourceLocatorFactory
             }
         )
     );

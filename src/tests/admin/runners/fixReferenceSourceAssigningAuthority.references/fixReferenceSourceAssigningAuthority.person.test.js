@@ -106,7 +106,8 @@ describe('Person Tests', () => {
                         adminLogger: new AdminLogger(),
                         mongoDatabaseManager: c.mongoDatabaseManager,
                         preSaveManager: c.preSaveManager,
-                        databaseQueryFactory: c.databaseQueryFactory
+                        databaseQueryFactory: c.databaseQueryFactory,
+                        resourceLocatorFactory: c.resourceLocatorFactory
                     }
                 )
             );

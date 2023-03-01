@@ -1,5 +1,5 @@
 const {BaseBulkOperationRunner} = require('./baseBulkOperationRunner');
-const {assertTypeEquals} = require('../../utils/assertType');
+const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
 const {PreSaveManager} = require('../../preSaveHandlers/preSave');
 const {getResource} = require('../../operations/common/getResource');
 const {VERSIONS} = require('../../middleware/fhir/utils/constants');
@@ -8,6 +8,7 @@ const {DatabaseQueryFactory} = require('../../dataLayer/databaseQueryFactory');
 const {generateUUIDv5} = require('../../utils/uid.util');
 const deepEqual = require('fast-deep-equal');
 const moment = require('moment-timezone');
+const {ResourceLocatorFactory} = require('../../operations/common/resourceLocatorFactory');
 
 /**
  * @classdesc finds ids in references and updates sourceAssigningAuthority with found resource
@@ -24,6 +25,7 @@ class FixReferenceSourceAssigningAuthorityRunner extends BaseBulkOperationRunner
      * @param {date|undefined} afterLastUpdatedDate
      * @param {DatabaseQueryFactory} databaseQueryFactory
      * @param {string|undefined} [startFromCollection]
+     * @param {ResourceLocatorFactory} resourceLocatorFactory
      */
     constructor(
         {
@@ -35,7 +37,8 @@ class FixReferenceSourceAssigningAuthorityRunner extends BaseBulkOperationRunner
             preSaveManager,
             afterLastUpdatedDate,
             databaseQueryFactory,
-            startFromCollection
+            startFromCollection,
+            resourceLocatorFactory
         }) {
         super({
             mongoCollectionManager,
@@ -70,6 +73,24 @@ class FixReferenceSourceAssigningAuthorityRunner extends BaseBulkOperationRunner
          * @type {string|undefined}
          */
         this.startFromCollection = startFromCollection;
+
+        /**
+         * @type {ResourceLocatorFactory}
+         */
+        this.resourceLocatorFactory = resourceLocatorFactory;
+        assertTypeEquals(resourceLocatorFactory, ResourceLocatorFactory);
+
+        /**
+         * cache of patients
+         * @type {Map<string, {_uuid: string|null, _sourceId: string|null, _sourceAssigningAuthority: string|null}>}
+         */
+        this.patientCache = new Map();
+
+        /**
+         * cache of patients
+         * @type {Map<string, {_uuid: string|null, _sourceId: string|null, _sourceAssigningAuthority: string|null}>}
+         */
+        this.personCache = new Map();
     }
 
     /**
@@ -99,61 +120,137 @@ class FixReferenceSourceAssigningAuthorityRunner extends BaseBulkOperationRunner
             ({id: uuid} = ReferenceParser.parseReference(reference._uuid));
         }
 
+        // find collection for resource
         /**
-         * @type {DatabaseQueryManager}
+         * @type {ResourceLocator}
          */
-        const databaseQueryManager = databaseQueryFactory.createQuery({
+        const resourceLocator = this.resourceLocatorFactory.createResourceLocator({
             resourceType,
             base_version: VERSIONS['4_0_0']
         });
         /**
-         * @type {Resource|null}
+         * @type {string}
          */
-        let doc;
+        const referenceCollectionName = await resourceLocator.getFirstCollectionNameForQueryDebugOnlyAsync(
+            {
+                query: {}
+            }
+        );
+
+        // first check in cache
+        /**
+         * @type {Map<string, {_uuid: (string|null), _sourceId: (string|null), _sourceAssigningAuthority: (string|null)}>}
+         */
+        const cache = this.getCacheForResourceType(
+            {
+                collectionName: referenceCollectionName
+            }
+        );
+        let foundInCache = false;
         if (uuid) {
-            doc = await databaseQueryManager.findOneAsync(
-                {
-                    query: {
-                        _uuid: uuid
-                    },
-                    options: {
-                        projection: {
-                            _id: 0,
-                            _uuid: 1
+            if (cache.has(uuid)) {
+                foundInCache = true;
+            }
+        }
+        // now try to match on _sourceId and _sourceAssigningAuthority
+        if (!foundInCache) {
+            // find a match on _sourceId and _sourceAssigningAuthority
+            for (const {_uuid, _sourceId, _sourceAssigningAuthority} of cache.values()) {
+                if (_sourceId === id) {
+                    // save this uuid in reference
+                    reference.reference = ReferenceParser.createReference(
+                        {
+                            resourceType,
+                            id,
+                            sourceAssigningAuthority: _sourceAssigningAuthority
+                        }
+                    );
+                    reference._sourceAssigningAuthority = _sourceAssigningAuthority;
+                    reference._uuid = _uuid;
+                    if (reference.extension) {
+                        const uuidExtension = reference.extension.find(e => e.id === 'uuid');
+                        if (uuidExtension) {
+                            uuidExtension.valueString = reference._uuid;
                         }
                     }
+                    foundInCache = true;
+                    break;
                 }
-            );
+            }
         }
 
-        if (!doc) {
-            doc = await databaseQueryManager.findOneAsync(
-                {
-                    query: {
-                        id: id
-                    },
-                    options: {
-                        projection: {
-                            _id: 0,
-                            _sourceAssigningAuthority: 1
+        if (!foundInCache) {
+            /**
+             * @type {DatabaseQueryManager}
+             */
+            const databaseQueryManager = databaseQueryFactory.createQuery({
+                resourceType,
+                base_version: VERSIONS['4_0_0']
+            });
+            /**
+             * @type {Resource|null}
+             */
+            let doc;
+            if (uuid) {
+                doc = await databaseQueryManager.findOneAsync(
+                    {
+                        query: {
+                            _uuid: uuid
+                        },
+                        options: {
+                            projection: {
+                                _id: 0,
+                                _uuid: 1
+                            }
                         }
                     }
-                }
-            );
+                );
+            }
             if (doc) {
-                reference.reference = ReferenceParser.createReference(
+                // just add to cache and keep going
+                if (!cache.has(uuid)) {
+                    cache.set(uuid, {
+                        _uuid: uuid,
+                        _sourceId: null,
+                        _sourceAssigningAuthority: null
+                    });
+                }
+            } else {
+                doc = await databaseQueryManager.findOneAsync(
                     {
-                        resourceType,
-                        id,
-                        sourceAssigningAuthority: doc._sourceAssigningAuthority
+                        query: {
+                            id: id
+                        },
+                        options: {
+                            projection: {
+                                _id: 0,
+                                _sourceAssigningAuthority: 1
+                            }
+                        }
                     }
                 );
-                reference._sourceAssigningAuthority = doc._sourceAssigningAuthority;
-                reference._uuid = generateUUIDv5(`${id}|${reference._sourceAssigningAuthority}`);
-                if (reference.extension) {
-                    const uuidExtension = reference.extension.find(e => e.id === 'uuid');
-                    if (uuidExtension) {
-                        uuidExtension.valueString = reference._uuid;
+                if (doc) {
+                    reference.reference = ReferenceParser.createReference(
+                        {
+                            resourceType,
+                            id,
+                            sourceAssigningAuthority: doc._sourceAssigningAuthority
+                        }
+                    );
+                    reference._sourceAssigningAuthority = doc._sourceAssigningAuthority;
+                    reference._uuid = generateUUIDv5(`${id}|${reference._sourceAssigningAuthority}`);
+                    if (reference.extension) {
+                        const uuidExtension = reference.extension.find(e => e.id === 'uuid');
+                        if (uuidExtension) {
+                            uuidExtension.valueString = reference._uuid;
+                        }
+                    }
+                    if (!cache.has(reference._uuid)) {
+                        cache.set(reference._uuid, {
+                            _uuid: reference._uuid,
+                            _sourceId: id,
+                            _sourceAssigningAuthority: reference._sourceAssigningAuthority
+                        });
                     }
                 }
             }
@@ -232,6 +329,24 @@ class FixReferenceSourceAssigningAuthorityRunner extends BaseBulkOperationRunner
 
             await this.init();
 
+            const mongoConfig = await this.mongoDatabaseManager.getClientConfigAsync();
+
+            // preload person table
+            await this.preloadCollectionAsync(
+                {
+                    mongoConfig,
+                    collectionName: 'Person_4_0_0'
+                }
+            );
+
+            // preload patient table
+            await this.preloadCollectionAsync(
+                {
+                    mongoConfig,
+                    collectionName: 'Patient_4_0_0'
+                }
+            );
+
             console.log(`Starting loop for ${this.collections.join(',')}`);
 
             // if there is an exception, continue processing from the last id
@@ -251,7 +366,7 @@ class FixReferenceSourceAssigningAuthorityRunner extends BaseBulkOperationRunner
                 try {
                     await this.runForQueryBatchesAsync(
                         {
-                            config: await this.mongoDatabaseManager.getClientConfigAsync(),
+                            config: mongoConfig,
                             sourceCollectionName: collectionName,
                             destinationCollectionName: collectionName,
                             query,
@@ -276,6 +391,65 @@ class FixReferenceSourceAssigningAuthorityRunner extends BaseBulkOperationRunner
         } catch (e) {
             console.log(`ERROR: ${e}`);
         }
+    }
+
+    /**
+     * preloads the collection into cache
+     * @param mongoConfig
+     * @param {string} collectionName
+     * @return {Promise<void>}
+     */
+    async preloadCollectionAsync({mongoConfig, collectionName}) {
+        let {
+            sourceCollection
+        } = await this.createConnectionAsync(
+            {
+                config: mongoConfig,
+                sourceCollectionName: collectionName,
+                destinationCollectionName: collectionName
+            }
+        );
+        /**
+         * @type {import('mongodb').FindCursor<import('mongodb').WithId<import('mongodb').Document>>}
+         */
+        const cursor = sourceCollection.find({}, {
+            projection: {
+                _id: 0,
+                _uuid: 1,
+                _sourceId: 1,
+                _sourceAssigningAuthority: 1
+            }
+        });
+        while (await cursor.hasNext()) {
+            /**
+             * @type {import('mongodb').WithId<import('mongodb').Document>}
+             */
+            const doc = await cursor.next();
+            this.getCacheForResourceType({collectionName})
+                .set(
+                    doc._uuid,
+                    {
+                        _uuid: doc._uuid,
+                        _sourceId: doc._sourceId,
+                        _sourceAssigningAuthority: doc._sourceAssigningAuthority
+                    }
+                );
+        }
+    }
+
+    /**
+     * Gets cache for collection
+     * @param {string} collectionName
+     * @return {Map<string, {_uuid: (string|null), _sourceId: (string|null), _sourceAssigningAuthority: (string|null)}>}
+     */
+    getCacheForResourceType({collectionName}) {
+        if (collectionName === 'Patient_4_0_0') {
+            return this.patientCache;
+        }
+        if (collectionName === 'Person_4_0_0') {
+            return this.personCache;
+        }
+        assertIsValid(`No cache for ${collectionName}`);
     }
 }
 
