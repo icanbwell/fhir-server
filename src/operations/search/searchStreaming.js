@@ -16,6 +16,7 @@ const {BundleManager} = require('../common/bundleManager');
 const {ConfigManager} = require('../../utils/configManager');
 const {BadRequestError} = require('../../utils/httpErrors');
 const {ParsedArgs} = require('../query/parsedArgsItem');
+const {QueryItem} = require('../graph/queryItem');
 
 
 class SearchStreamingOperation {
@@ -236,7 +237,7 @@ class SearchStreamingOperation {
              */
             columns = __ret.columns;
             /**
-             * @type {import('mongodb').Document[]}
+             * @type {QueryItem|QueryItem[]}
              */
             let originalQuery = __ret.originalQuery;
             /**
@@ -343,8 +344,13 @@ class SearchStreamingOperation {
                                 resources: resources1,
                                 base_version,
                                 total_count,
-                                originalQuery,
-                                collectionName,
+                                originalQuery: new QueryItem(
+                                    {
+                                        query,
+                                        resourceType,
+                                        collectionName
+                                    }
+                                ),
                                 databaseName,
                                 originalOptions,
                                 columns,
@@ -426,7 +432,6 @@ class SearchStreamingOperation {
                                 base_version,
                                 total_count,
                                 originalQuery,
-                                collectionName,
                                 databaseName,
                                 originalOptions,
                                 columns,
@@ -461,7 +466,14 @@ class SearchStreamingOperation {
                     resourceType,
                     startTime,
                     action: currentOperationName,
-                    query: mongoQueryAndOptionsStringify(collectionName, query, options)
+                    query: mongoQueryAndOptionsStringify({
+                            query: new QueryItem({
+                                query,
+                                resourceType,
+                                collectionName
+                            }), options
+                        }
+                    )
                 });
         } catch (e) {
             /**
@@ -478,7 +490,15 @@ class SearchStreamingOperation {
                     startTime,
                     action: currentOperationName,
                     error: e,
-                    query: mongoQueryAndOptionsStringify(collectionName, query, options)
+                    query: mongoQueryAndOptionsStringify({
+                            query: new QueryItem({
+                                query,
+                                resourceType,
+                                collectionName
+                            }),
+                            options
+                        }
+                    )
                 });
             throw new MongoError(requestId, e.message, e, collectionName, query, (Date.now() - startTime), options);
         } finally {

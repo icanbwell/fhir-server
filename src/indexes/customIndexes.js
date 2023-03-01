@@ -157,6 +157,14 @@ module.exports = {
                     name: 'helix_auditEvent_recorded_who'
                 }
             },
+            {
+                keys: {
+                    '_uuid': 1,
+                },
+                options: {
+                    name: 'uuid'
+                }
+            }
         ],
         'Coverage_4_0_0': [
             {

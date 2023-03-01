@@ -31,6 +31,8 @@ const {QueryRewriterManager} = require('../../queryRewriters/queryRewriterManage
 const {PersonToPatientIdsExpander} = require('../../utils/personToPatientIdsExpander');
 const {ScopesManager} = require('../security/scopesManager');
 const {convertErrorToOperationOutcome} = require('../../utils/convertErrorToOperationOutcome');
+const {GetCursorResult} = require('./getCursorResult');
+const {QueryItem} = require('../graph/queryItem');
 
 class SearchManager {
     /**
@@ -233,22 +235,6 @@ class SearchManager {
     }
 
     /**
-     * @typedef GetCursorResult
-     * @type {object}
-     * @property {number | null} cursorBatchSize
-     * @property {DatabasePartitionedCursor|null} cursor
-     * @property {string | null} indexHint
-     * @property {boolean} useTwoStepSearchOptimization
-     * @property {Set} columns
-     * @property {number | null} total_count
-     * @property {import('mongodb').Document} query
-     * @property {import('mongodb').FindOneOptions} options
-     * @property {Resource[]} resources
-     * @property {import('mongodb').Document|import('mongodb').Document[]} originalQuery
-     * @property {import('mongodb').FindOneOptions|import('mongodb').FindOneOptions[]} originalOptions
-     */
-
-    /**
      * Create the query and gets the cursor from mongo
      * @param {string} resourceType
      * @param {string} base_version
@@ -351,19 +337,24 @@ class SearchManager {
             originalOptions = __ret.originalOptions;
             if (query === null) {
                 // no ids were found so no need to query
-                return {
-                    columns,
-                    options,
-                    query,
-                    originalQuery,
-                    originalOptions,
-                    useTwoStepSearchOptimization,
-                    resources: [],
-                    total_count: 0,
-                    indexHint: null,
-                    cursorBatchSize: 0,
-                    cursor: null
-                };
+                return new GetCursorResult({
+                        columns,
+                        options,
+                        query,
+                        originalQuery: new QueryItem({
+                            query: originalQuery,
+                            collectionName: null,
+                            resourceType: resourceType
+                        }),
+                        originalOptions,
+                        useTwoStepSearchOptimization,
+                        resources: [],
+                        total_count: 0,
+                        indexHint: null,
+                        cursorBatchSize: 0,
+                        cursor: null
+                    }
+                );
             }
         }
 
@@ -467,19 +458,26 @@ class SearchManager {
                 });
         }
 
-        return {
-            columns,
-            options,
-            query,
-            originalQuery,
-            originalOptions,
-            useTwoStepSearchOptimization,
-            resources,
-            total_count,
-            indexHint,
-            cursorBatchSize,
-            cursor
-        };
+        const collectionName = cursor.getFirstCollection();
+        return new GetCursorResult(
+            {
+                columns,
+                options,
+                query,
+                originalQuery: new QueryItem({
+                    query: originalQuery,
+                    collectionName: collectionName,
+                    resourceType: resourceType
+                }),
+                originalOptions,
+                useTwoStepSearchOptimization,
+                resources,
+                total_count,
+                indexHint,
+                cursorBatchSize,
+                cursor
+            }
+        );
     }
 
     /**

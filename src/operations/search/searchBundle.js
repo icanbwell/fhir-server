@@ -16,6 +16,7 @@ const {BundleManager} = require('../common/bundleManager');
 const {ConfigManager} = require('../../utils/configManager');
 const {BadRequestError} = require('../../utils/httpErrors');
 const {ParsedArgs} = require('../query/parsedArgsItem');
+const {QueryItem} = require('../graph/queryItem');
 
 class SearchBundleOperation {
     /**
@@ -228,7 +229,7 @@ class SearchBundleOperation {
              */
             columns = __ret.columns;
             /**
-             * @type {import('mongodb').Document[]}
+             * @type {QueryItem|QueryItem[]}
              */
             let originalQuery = __ret.originalQuery;
             /**
@@ -274,9 +275,7 @@ class SearchBundleOperation {
                     user, args: {
                         query:
                             mongoQueryAndOptionsStringify(
-                                await resourceLocator.getFirstCollectionNameForQueryDebugOnlyAsync({
-                                    query: originalQuery
-                                }), originalQuery, originalOptions)
+                                {query: originalQuery, options: originalOptions})
                     }
                 });
                 resources = await this.searchManager.readResourcesFromCursorAsync(
@@ -339,7 +338,6 @@ class SearchBundleOperation {
                     base_version,
                     total_count,
                     originalQuery,
-                    collectionName,
                     originalOptions,
                     columns,
                     stopTime,
@@ -360,7 +358,14 @@ class SearchBundleOperation {
                     resourceType,
                     startTime,
                     action: currentOperationName,
-                    query: mongoQueryAndOptionsStringify(collectionName, query, options)
+                    query: mongoQueryAndOptionsStringify(
+                        {
+                            query: new QueryItem({
+                                query,
+                                collectionName,
+                                resourceType
+                            }), options
+                        })
                 });
             return bundle;
 
@@ -379,7 +384,15 @@ class SearchBundleOperation {
                     startTime,
                     action: currentOperationName,
                     error: e,
-                    query: mongoQueryAndOptionsStringify(collectionName, query, options)
+                    query: mongoQueryAndOptionsStringify({
+                        query: new QueryItem(
+                            {
+                                query,
+                                resourceType,
+                                collectionName
+                            }
+                        ), options
+                    })
                 });
             throw new MongoError(requestId, e.message, e, collectionName, query, (Date.now() - startTime), options);
         } finally {

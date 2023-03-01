@@ -13,6 +13,7 @@ const {isTrue} = require('../../utils/isTrue');
 const BundleEntry = require('../../fhir/classes/4_0_0/backbone_elements/bundleEntry');
 const {ResourceManager} = require('../common/resourceManager');
 const {ParsedArgs} = require('../query/parsedArgsItem');
+const {QueryItem} = require('../graph/queryItem');
 
 class HistoryOperation {
     /**
@@ -210,6 +211,8 @@ class HistoryOperation {
             // if explain is requested then don't return any results
             cursor.clear();
         }
+        const collectionName = cursor.getFirstCollection();
+
         /**
          * @type {Resource[]}
          */
@@ -241,11 +244,6 @@ class HistoryOperation {
          * @type {number}
          */
         const stopTime = Date.now();
-        /**
-         * @type {ResourceLocator}
-         */
-        const resourceLocator = this.resourceLocatorFactory.createResourceLocator(
-            {resourceType, base_version});
 
         // If doc is not BundleEntry then wrap it in a bundle entry
         const entries = resources.map(
@@ -279,8 +277,13 @@ class HistoryOperation {
                 base_version,
                 total_count: entries.length,
                 parsedArgs,
-                originalQuery: query,
-                collectionName: entries.length > 0 ? (await resourceLocator.getHistoryCollectionNameAsync(entries[0].resource)) : null,
+                originalQuery: new QueryItem(
+                    {
+                        query,
+                        resourceType,
+                        collectionName: collectionName
+                    }
+                ),
                 originalOptions: options,
                 stopTime,
                 startTime,

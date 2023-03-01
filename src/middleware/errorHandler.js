@@ -44,6 +44,6 @@ process.on('exit', function (code) {
     if (code !== 0) {
         const stack = new Error().stack;
         logInfo(`PROCESS EXIT: exit code: ${code}`, {method: 'errorHandler.exit'});
-        logInfo(stack);
+        logInfo(stack, {});
     }
 });

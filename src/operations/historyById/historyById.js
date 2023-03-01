@@ -13,6 +13,7 @@ const {isTrue} = require('../../utils/isTrue');
 const BundleEntry = require('../../fhir/classes/4_0_0/backbone_elements/bundleEntry');
 const {ResourceManager} = require('../common/resourceManager');
 const {ParsedArgs} = require('../query/parsedArgsItem');
+const {QueryItem} = require('../graph/queryItem');
 
 class HistoryByIdOperation {
     /**
@@ -197,6 +198,8 @@ class HistoryByIdOperation {
                 // if explain is requested then don't return any results
                 cursor.clear();
             }
+            const collectionName = cursor.getFirstCollection();
+
             /**
              * @type {BundleEntry[]}
              */
@@ -247,11 +250,6 @@ class HistoryByIdOperation {
              * @type {number}
              */
             const stopTime = Date.now();
-            /**
-             * @type {ResourceLocator}
-             */
-            const resourceLocator = this.resourceLocatorFactory.createResourceLocator(
-                {resourceType, base_version});
 
             // https://hl7.org/fhir/http.html#history
             // The return content is a Bundle with type set to history containing the specified version history,
@@ -275,8 +273,13 @@ class HistoryByIdOperation {
                     base_version,
                     total_count: entries.length,
                     parsedArgs,
-                    originalQuery: query,
-                    collectionName: entries.length > 0 ? (await resourceLocator.getHistoryCollectionNameAsync(entries[0].resource)) : null,
+                    originalQuery: new QueryItem(
+                        {
+                            query,
+                            resourceType,
+                            collectionName: collectionName
+                        }
+                    ),
                     originalOptions: options,
                     stopTime,
                     startTime,

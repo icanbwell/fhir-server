@@ -11,7 +11,7 @@
 function checkReferenceValue(referenceObj, path) {
     const reference = referenceObj.reference;
     if (!reference) {
-        return;
+        return null;
     }
     const isContainedReference = referenceValue => referenceValue[0] === '#';
     // eslint-disable-next-line security/detect-unsafe-regex

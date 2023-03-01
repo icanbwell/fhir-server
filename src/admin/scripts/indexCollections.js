@@ -55,7 +55,7 @@ async function main() {
 
 /**
  * To run this:
- * nvm use 18.14.0
+ * nvm use 18.14.2
  * node src/admin/scripts/indexCollections --collections=Patient_4_0_0 --drop
  * node src/admin/scripts/indexCollections --collections=all --drop
  * node src/admin/scripts/indexCollections --synchronize

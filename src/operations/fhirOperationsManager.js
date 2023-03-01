@@ -312,7 +312,8 @@ class FhirOperationsManager {
             {
                 requestInfo: this.getRequestInfo(req),
                 parsedArgs,
-                resourceType
+                resourceType,
+                useAggregationPipeline: false
             });
     }
 

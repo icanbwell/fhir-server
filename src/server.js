@@ -33,7 +33,7 @@ async function createServer(fnCreateContainer) {
     // The number of milliseconds of inactivity before a socket is presumed to have timed out.
     // A value of 0 will disable the timeout behavior on incoming connections.
     server.setTimeout(10 * 60 * 1000, (/*socket*/) => {
-        logInfo('Server timeout');
+        logInfo('Server timeout', {});
     }); // 60 minutes
     // The number of milliseconds of inactivity a server needs to wait for additional incoming data, after it has
     // finished writing the last response, before a socket will be destroyed. If the server receives new data
@@ -46,7 +46,7 @@ async function createServer(fnCreateContainer) {
     server.on('connection', function (socket) {
         socket.setTimeout(10 * 60 * 1000);
         socket.once('timeout', function () {
-            logInfo('Socket timeout');
+            logInfo('Socket timeout', {});
         });
         socket.once('error', function (e) {
             logError('Socket error', {error: e});
@@ -59,7 +59,7 @@ async function createServer(fnCreateContainer) {
     });
 
     process.on('SIGTERM', async function onSigterm() {
-        logInfo('Beginning shutdown of server');
+        logInfo('Beginning shutdown of server', {});
         await logSystemEventAsync({
             event: 'SIGTERM',
             message: 'Beginning shutdown of server for SIGTERM',
@@ -67,7 +67,7 @@ async function createServer(fnCreateContainer) {
         });
         try {
             await httpTerminator.terminate();
-            logInfo('Successfully shut down server');
+            logInfo('Successfully shut down server', {});
             process.exit(0);
         } catch (error) {
             logError('Failed to shutdown server', {error: error});
@@ -77,7 +77,7 @@ async function createServer(fnCreateContainer) {
 
     // https://snyk.io/wp-content/uploads/10-best-practices-to-containerize-Node.js-web-applications-with-Docker.pdf
     process.on('SIGINT', async function onSigInt() {
-        logInfo('Beginning shutdown of server for SIGINT');
+        logInfo('Beginning shutdown of server for SIGINT', {});
         await logSystemEventAsync({
             event: 'SIGINT',
             message: 'Beginning shutdown of server for SIGINT',
@@ -85,7 +85,7 @@ async function createServer(fnCreateContainer) {
         });
         try {
             await httpTerminator.terminate();
-            logInfo('Successfully shut down server for SIGINT');
+            logInfo('Successfully shut down server for SIGINT', {});
             process.exit(0);
         } catch (error) {
             logError('Failed to shutdown server for SIGINT', {error: error});

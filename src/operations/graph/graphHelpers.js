@@ -27,16 +27,8 @@ const {R4ArgsParser} = require('../query/r4ArgsParser');
 const {ParsedArgs} = require('../query/parsedArgsItem');
 const {VERSIONS} = require('../../middleware/fhir/utils/constants');
 const {ReferenceParser} = require('../../utils/referenceParser');
-
-
-/**
- * @typedef QueryItem
- * @property {import('mongodb').Filter<import('mongodb').DefaultSchema>} query
- * @property {string} resourceType
- * @property {string} [property]
- * @property {string} [reverse_filter]
- * @property {import('mongodb').Document[]} [explanations]
- */
+const {QueryItem} = require('./queryItem');
+const {ProcessMultipleIdsAsyncResult} = require('./processMultipleIdsAsyncResult');
 
 
 /**
@@ -328,6 +320,7 @@ class GraphHelper {
             }
 
             cursor = cursor.maxTimeMS({milliSecs: maxMongoTimeMS});
+            const collectionName = cursor.getFirstCollection();
 
             while (await cursor.hasNext()) {
                 /**
@@ -391,7 +384,15 @@ class GraphHelper {
                     }
                 }
             }
-            return {query, resourceType, property, explanations};
+            return new QueryItem(
+                {
+                    query,
+                    resourceType,
+                    collectionName: collectionName,
+                    property,
+                    explanations
+                }
+            );
         } catch (e) {
             throw new RethrownError({
                 message: `Error in getForwardReferencesAsync(): ${resourceType}, ` +
@@ -557,6 +558,7 @@ class GraphHelper {
                 // if explain is requested then don't return any results
                 cursor = cursor.limit(1);
             }
+            const collectionName = cursor.getFirstCollection();
 
             while (await cursor.hasNext()) {
                 /**
@@ -614,7 +616,14 @@ class GraphHelper {
                     }
                 }
             }
-            return {query, resourceType: relatedResourceType, reverse_filter, explanations};
+            return new QueryItem({
+                    query,
+                    resourceType: relatedResourceType,
+                    collectionName: collectionName,
+                    reverse_filter,
+                    explanations
+                }
+            );
         } catch (e) {
             throw new RethrownError({
                 message: 'Error in getReverseReferencesAsync(): ' +
@@ -789,19 +798,21 @@ class GraphHelper {
                         accessRequested: 'read'
                     });
                     /**
-                     * @type {{reverse_filter?: string, query: import('mongodb').Filter<import('mongodb').DefaultSchema>, property?: string, explanations?: import('mongodb').Document[], resourceType: string}}
+                     * @type {QueryItem}
                      */
-                    const queryItem = await this.getForwardReferencesAsync({
-                        requestInfo,
-                        base_version,
-                        resourceType,
-                        parentEntities,
-                        property,
-                        filterProperty,
-                        filterValue,
-                        explain,
-                        debug,
-                    });
+                    const queryItem = await this.getForwardReferencesAsync(
+                        {
+                            requestInfo,
+                            base_version,
+                            resourceType,
+                            parentEntities,
+                            property,
+                            filterProperty,
+                            filterValue,
+                            explain,
+                            debug,
+                        }
+                    );
                     if (queryItem) {
                         queryItems.push(queryItem);
                     }
@@ -1122,7 +1133,7 @@ class GraphHelper {
      * @param {boolean} [explain]
      * @param {boolean} [debug]
      * @param {ParsedArgs} parsedArgs
-     * @return {Promise<{entries: BundleEntry[], queries: import('mongodb').Document[], options: import('mongodb').FindOptions<import('mongodb').DefaultSchema>[], explanations: import('mongodb').Document[]}>}
+     * @return {Promise<ProcessMultipleIdsAsyncResult>}
      */
     async processMultipleIdsAsync(
         {
@@ -1175,7 +1186,7 @@ class GraphHelper {
             const maxMongoTimeMS = env.MONGO_TIMEOUT ? parseInt(env.MONGO_TIMEOUT) : (30 * 1000);
 
             /**
-             * @type {import('mongodb').Document[]}
+             * @type {QueryItem[]}
              */
             const queries = [];
             /**
@@ -1191,7 +1202,15 @@ class GraphHelper {
             let cursor = await databaseQueryManager.findAsync({query, options});
             cursor = cursor.maxTimeMS({milliSecs: maxMongoTimeMS});
 
-            queries.push(query);
+            const collectionName = cursor.getFirstCollection();
+            queries.push(
+                new QueryItem({
+                        query,
+                        resourceType,
+                        collectionName: collectionName
+                    }
+                )
+            );
             optionsForQueries.push(options);
             /**
              * @type {import('mongodb').Document[]}
@@ -1246,8 +1265,8 @@ class GraphHelper {
             );
 
             for (const q of queryItems) {
-                if (q.query) {
-                    queries.push(q.query);
+                if (q) {
+                    queries.push(q);
                 }
                 if (q.explanations) {
                     for (const e of q.explanations) {
@@ -1303,7 +1322,11 @@ class GraphHelper {
             );
             entries = this.bundleManager.removeDuplicateEntries({entries});
 
-            return {entries, queries, options: optionsForQueries, explanations};
+            return new ProcessMultipleIdsAsyncResult(
+                {
+                    entries, queryItems: queries, options: optionsForQueries, explanations
+                }
+            );
         } catch (e) {
             throw new RethrownError({
                 message: 'Error in processMultipleIdsAsync(): ' + `resourceType: ${resourceType} , `,
@@ -1360,9 +1383,9 @@ class GraphHelper {
             const graphDefinition = new GraphDefinitionResource(graphDefinitionJson);
 
             /**
-             * @type {{entries: BundleEntry[], queries: import('mongodb').Document[], explanations: import('mongodb').Document[]}}
+             * @type {ProcessMultipleIdsAsyncResult}
              */
-            const {entries, queries, options, explanations} = await this.processMultipleIdsAsync(
+            const {entries, queryItems, options, explanations} = await this.processMultipleIdsAsync(
                 {
                     base_version,
                     requestInfo,
@@ -1387,19 +1410,6 @@ class GraphHelper {
             const accessCodes = this.scopesManager.getAccessCodesFromScopes('read', requestInfo.user, requestInfo.scope);
             uniqueEntries = uniqueEntries.filter(e => this.scopesManager.doesResourceHaveAnyAccessCodeFromThisList(accessCodes, requestInfo.user, requestInfo.scope, e.resource));
 
-            /**
-             * @type {string}
-             */
-            let collectionName;
-            if (queries && queries.length > 0) {
-                /**
-                 * @type {ResourceLocator}
-                 */
-                const resourceLocator = this.resourceLocatorFactory.createResourceLocator({resourceType, base_version});
-                collectionName = await resourceLocator.getFirstCollectionNameForQueryDebugOnlyAsync({
-                    query: queries[0]
-                });
-            }
             /**
              * @type {number}
              */
@@ -1440,8 +1450,7 @@ class GraphHelper {
                 base_version,
                 total_count: null,
                 parsedArgs,
-                originalQuery: queries,
-                collectionName,
+                originalQuery: queryItems,
                 originalOptions: options,
                 columns: new Set(),
                 stopTime,

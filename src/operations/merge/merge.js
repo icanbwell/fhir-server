@@ -25,6 +25,7 @@ const {ParsedArgs} = require('../query/parsedArgsItem');
 const {MergeResultEntry} = require('../common/mergeResultEntry');
 const {PreSaveManager} = require('../../preSaveHandlers/preSave');
 const async = require('async');
+const {QueryItem} = require('../graph/queryItem');
 
 class MergeOperation {
     /**
@@ -462,12 +463,6 @@ class MergeOperation {
                         });
                     }
                 );
-                const resourceLocator = this.resourceLocatorFactory.createResourceLocator(
-                    {resourceType, base_version});
-                const firstCollectionNameForQuery = await resourceLocator.getFirstCollectionNameForQueryDebugOnlyAsync({
-                    query: {}
-                });
-                // noinspection JSValidateTypes
                 /**
                  * @type {Resource[]}
                  */
@@ -482,8 +477,13 @@ class MergeOperation {
                         resources: resources,
                         base_version,
                         total_count: operationOutcomes.length,
-                        originalQuery: {},
-                        collectionName: firstCollectionNameForQuery,
+                        originalQuery: new QueryItem(
+                            {
+                                query: null,
+                                resourceType,
+                                collectionName: null
+                            }
+                        ),
                         originalOptions: {},
                         stopTime,
                         startTime,

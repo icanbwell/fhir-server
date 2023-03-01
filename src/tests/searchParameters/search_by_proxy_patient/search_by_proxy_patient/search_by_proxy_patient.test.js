@@ -21,6 +21,21 @@ const expectedObservationProxyPatientWithDirectLink = require('./fixtures/expect
 const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest} = require('../../../common');
 const {describe, beforeEach, afterEach, test} = require('@jest/globals');
 const deepcopy = require('deepcopy');
+const {ConfigManager} = require('../../../../utils/configManager');
+
+class MockConfigManager extends ConfigManager {
+    get enableGlobalIdSupport() {
+        return true;
+    }
+
+    get enableReturnBundle() {
+        return true;
+    }
+
+    get supportLegacyIds() {
+        return false;
+    }
+}
 
 describe('Patient Tests', () => {
     beforeEach(async () => {
@@ -33,7 +48,10 @@ describe('Patient Tests', () => {
 
     describe('Patient search_by_proxy_patient Tests', () => {
         test('search observations by patient for normal patients works', async () => {
-            const request = await createTestRequest();
+            const request = await createTestRequest((c) => {
+                c.register('configManager', () => new MockConfigManager());
+                return c;
+            });
             // ARRANGE
             // add the resources to FHIR server
             let resp = await request
@@ -63,7 +81,10 @@ describe('Patient Tests', () => {
             expect(resp).toHaveResponse(expectedObservationNormal);
         });
         test('search observations by patient for proxy patients works', async () => {
-            const request = await createTestRequest();
+            const request = await createTestRequest((c) => {
+                c.register('configManager', () => new MockConfigManager());
+                return c;
+            });
             // ARRANGE
             // add the resources to FHIR server
             let resp = await request
@@ -90,13 +111,16 @@ describe('Patient Tests', () => {
             // ACT & ASSERT
             // search by token system and code and make sure we get the right Patient back
             resp = await request
-                .get('/4_0_0/Observation/?_bundle=1&patient=Patient/person.m65633')
+                .get('/4_0_0/Observation/?_bundle=1&patient=Patient/person.m65633&_debug=1')
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedObservationProxyPatient1);
         });
         test('search observations by patient for proxy patients works with nested persons', async () => {
-            const request = await createTestRequest();
+            const request = await createTestRequest((c) => {
+                c.register('configManager', () => new MockConfigManager());
+                return c;
+            });
             // ARRANGE
             // add the resources to FHIR server
             let resp = await request
@@ -136,7 +160,10 @@ describe('Patient Tests', () => {
             expect(resp).toHaveResponse(expectedObservationProxyPatientNested);
         });
         test('search observations by patient for proxy patients works with nested persons (access restricted to one)', async () => {
-            const request = await createTestRequest();
+            const request = await createTestRequest((c) => {
+                c.register('configManager', () => new MockConfigManager());
+                return c;
+            });
             // ARRANGE
             // add the resources to FHIR server
             let resp = await request
@@ -185,7 +212,10 @@ describe('Patient Tests', () => {
             expect(resp).toHaveResponse(healthsystem2ObservationResources);
         });
         test('get patient for proxy patients works with nested persons (one patient)', async () => {
-            const request = await createTestRequest();
+            const request = await createTestRequest((c) => {
+                c.register('configManager', () => new MockConfigManager());
+                return c;
+            });
             // ARRANGE
             // add the resources to FHIR server
             let resp = await request
@@ -238,7 +268,10 @@ describe('Patient Tests', () => {
             expect(resp).toHaveResponse(expectedPatientResources.entry[0].resource);
         });
         test('get patient for proxy patients works with nested persons (two patients)', async () => {
-            const request = await createTestRequest();
+            const request = await createTestRequest((c) => {
+                c.register('configManager', () => new MockConfigManager());
+                return c;
+            });
             // ARRANGE
             // add the resources to FHIR server
             let resp = await request
@@ -298,7 +331,10 @@ describe('Patient Tests', () => {
             expect(resp).toHaveResponse(expectedPatientTwoPatientsResources.entry[0].resource);
         });
         test('get patient for proxy patients works with nested persons (two patients but access restricted to one)', async () => {
-            const request = await createTestRequest();
+            const request = await createTestRequest((c) => {
+                c.register('configManager', () => new MockConfigManager());
+                return c;
+            });
             // ARRANGE
             // add the resources to FHIR server
             let resp = await request
@@ -369,7 +405,10 @@ describe('Patient Tests', () => {
             expect(resp).toHaveResponse(expectedPatientTwoPatientsPatient2Resources.entry[0].resource);
         });
         test('search observations by patient for proxy patients includes proxy patient itself', async () => {
-            const request = await createTestRequest();
+            const request = await createTestRequest((c) => {
+                c.register('configManager', () => new MockConfigManager());
+                return c;
+            });
             // ARRANGE
             // add the resources to FHIR server
             let resp = await request

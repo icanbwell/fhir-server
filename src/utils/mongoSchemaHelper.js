@@ -14,7 +14,7 @@ const getSchemaOfMongoDocument = (prefix, obj, indent) => {
             }
             const keyName = prefix ? `${prefix}.${key}` : key;
             const keyType = type || typeof obj[`${key}`];
-            logInfo(`${indent} ${keyName} ${keyType}`);
+            logInfo(`${indent} ${keyName} ${keyType}`, {});
             const query = {};
             query[`${keyName}`] = keyType;
             result = Object.assign(result, query);

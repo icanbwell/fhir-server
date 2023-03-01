@@ -1,4 +1,5 @@
 const {mongoQueryAndOptionsStringify} = require('./mongoQueryStringify');
+const {QueryItem} = require('../operations/graph/queryItem');
 
 /**
  * This file implements a custom error for Mongo errors
@@ -11,7 +12,7 @@ class MongoError extends AggregateError {
      * @param {string} message
      * @param {Error} error
      * @param {string} collection
-     * @param {*} query
+     * @param {import('mongodb').Filter<import('mongodb').DefaultSchema>} query
      * @param {*} options
      * @param {number} elapsedTime
      */
@@ -20,7 +21,18 @@ class MongoError extends AggregateError {
         super(
             [error],
             message + ': ' + (error.message || '') + ': ' +
-            mongoQueryAndOptionsStringify(collection, query, options) + ' , ' +
+            mongoQueryAndOptionsStringify(
+                {
+                    query: new QueryItem(
+                        {
+                            query,
+                            collectionName: collection,
+                            resourceType: null
+                        }
+                    ),
+                    options
+                }
+            ) + ' , ' +
             ` [elapsedTime=${elapsedTimeInSecs} secs]`
         );
         this.collection = collection;
@@ -52,7 +64,7 @@ class MongoMergeError extends AggregateError {
      * @param {string} message
      * @param {Error} error
      * @param {string} resourceType
-     * @param {*} query
+     * @param {import('mongodb').Filter<import('mongodb').DefaultSchema>} query
      * @param {*} options
      * @param {number} elapsedTime
      */
@@ -61,7 +73,18 @@ class MongoMergeError extends AggregateError {
         super(
             [error],
             message + ': ' + (error.message || '') + ': ' +
-            JSON.stringify(query) + ' , ' + JSON.stringify(options) +
+            mongoQueryAndOptionsStringify(
+                {
+                    query: new QueryItem(
+                        {
+                            query,
+                            collectionName: null,
+                            resourceType
+                        }
+                    ),
+                    options
+                }
+            ) +
             ` [elapsedTime=${elapsedTimeInSecs} secs]`
         );
         this.resourceType = resourceType;
