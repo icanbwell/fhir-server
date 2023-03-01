@@ -157,7 +157,7 @@ class R4SearchQueryCreator {
      * Builds a set of columns and list of segments to apply for a particular query parameter
      * @param {string} resourceType
      * @param {string} queryParameter
-     * @param {string} queryParameterValue
+     * @param {string|string[]} queryParameterValue
      * @param {SearchParameterDefinition} propertyObj
      * @param {boolean} enableGlobalIdSupport
      * @param {ParsedArgsItem} parsedArg
