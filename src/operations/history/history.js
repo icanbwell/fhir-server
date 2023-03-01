@@ -211,6 +211,8 @@ class HistoryOperation {
             // if explain is requested then don't return any results
             cursor.clear();
         }
+        const collectionName = cursor.getFirstCollection();
+
         /**
          * @type {Resource[]}
          */
@@ -279,7 +281,7 @@ class HistoryOperation {
                     {
                         query,
                         resourceType,
-                        collectionName: cursor.getFirstCollection()
+                        collectionName: collectionName
                     }
                 ),
                 originalOptions: options,

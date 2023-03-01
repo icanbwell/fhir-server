@@ -458,6 +458,7 @@ class SearchManager {
                 });
         }
 
+        const collectionName = cursor.getFirstCollection();
         return new GetCursorResult(
             {
                 columns,
@@ -465,7 +466,7 @@ class SearchManager {
                 query,
                 originalQuery: new QueryItem({
                     query: originalQuery,
-                    collectionName: cursor.getFirstCollection(),
+                    collectionName: collectionName,
                     resourceType: resourceType
                 }),
                 originalOptions,

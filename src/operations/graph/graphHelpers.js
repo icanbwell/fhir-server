@@ -1202,11 +1202,12 @@ class GraphHelper {
             let cursor = await databaseQueryManager.findAsync({query, options});
             cursor = cursor.maxTimeMS({milliSecs: maxMongoTimeMS});
 
+            const collectionName = cursor.getFirstCollection();
             queries.push(
                 new QueryItem({
                         query,
                         resourceType,
-                        collectionName: cursor.getFirstCollection()
+                        collectionName: collectionName
                     }
                 )
             );

@@ -198,6 +198,8 @@ class HistoryByIdOperation {
                 // if explain is requested then don't return any results
                 cursor.clear();
             }
+            const collectionName = cursor.getFirstCollection();
+
             /**
              * @type {BundleEntry[]}
              */
@@ -275,7 +277,7 @@ class HistoryByIdOperation {
                         {
                             query,
                             resourceType,
-                            collectionName: cursor.getFirstCollection()
+                            collectionName: collectionName
                         }
                     ),
                     originalOptions: options,
