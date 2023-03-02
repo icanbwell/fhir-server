@@ -127,7 +127,7 @@ class ParsedArgsItem {
         if (Array.isArray(queryParameterValue)) {
             return queryParameterValue;
         }
-        if (typeof queryParameterValue === 'string' && propertyObj && propertyObj.type && propertyObj.type === 'string') {
+        if (typeof queryParameterValue === 'string' && propertyObj && propertyObj.type && propertyObj.type === 'reference') {
             const parts = queryParameterValue.split(',');
             if (parts.length > 1) {
                 return parts;
