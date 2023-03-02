@@ -72,7 +72,8 @@ class ParsedArgsItem {
     get queryParameterValue() {
         return this.parseQueryParameterValueIntoArrayIfNeeded(
             {
-                queryParameterValue: this._queryParameterValue
+                queryParameterValue: this._queryParameterValue,
+                propertyObj: this.propertyObj
             }
         );
     }
@@ -84,7 +85,8 @@ class ParsedArgsItem {
     get queryParameterValues() {
         const value = this.parseQueryParameterValueIntoArrayIfNeeded(
             {
-                queryParameterValue: this._queryParameterValue
+                queryParameterValue: this._queryParameterValue,
+                propertyObj: this.propertyObj
             }
         );
         return value === null || value === undefined ? [] : Array.isArray(value) ? value : [value];
@@ -118,14 +120,14 @@ class ParsedArgsItem {
      * @param {string|string[]|undefined|null} queryParameterValue
      * @return {string|string[]|null}
      */
-    parseQueryParameterValueIntoArrayIfNeeded({queryParameterValue}) {
+    parseQueryParameterValueIntoArrayIfNeeded({queryParameterValue, propertyObj}) {
         if (!queryParameterValue) {
             return queryParameterValue;
         }
         if (Array.isArray(queryParameterValue)) {
             return queryParameterValue;
         }
-        if (typeof queryParameterValue === 'string') {
+        if (typeof queryParameterValue === 'string' && propertyObj && propertyObj.type && propertyObj.type === 'string') {
             const parts = queryParameterValue.split(',');
             if (parts.length > 1) {
                 return parts;
