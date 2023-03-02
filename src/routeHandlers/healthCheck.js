@@ -3,6 +3,7 @@
  */
 
 const env = require('var');
+const { isTrue } = require('../utils/isTrue');
 const {Kafka} = require('kafkajs');
 const {RethrownError} = require('../utils/rethrownError');
 const {KAFKA_CONNECTION_HEALTHCHECK_INTERVAL} = require('../constants');
@@ -20,7 +21,7 @@ let config;
 // Does a health check for the app
 module.exports.handleHealthCheck = async (fnCreateContainer, req, res) => {
     // If events is to be logged on kafka, check kafka connection
-    if (env.ENABLE_EVENTS_KAFKA === '1') {
+    if (isTrue(env.ENABLE_EVENTS_KAFKA) && isTrue(env.ENABLE_KAFKA_HEALTHCHECK)) {
         // Check Kafka connection at an interval of 30 seconds
         if (timeTillKafkaReconnection === undefined || timeTillKafkaReconnection < new Date()) {
             // Either creates a container and stores in a variable for subsequent calls
