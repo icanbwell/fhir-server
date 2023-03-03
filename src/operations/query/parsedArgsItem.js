@@ -118,6 +118,7 @@ class ParsedArgsItem {
 
     /**
      * @param {string|string[]|undefined|null} queryParameterValue
+     * @param {SearchParameterDefinition} propertyObj
      * @return {string|string[]|null}
      */
     parseQueryParameterValueIntoArrayIfNeeded({queryParameterValue, propertyObj}) {
