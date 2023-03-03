@@ -1,0 +1,39 @@
+{
+  "resourceType": "AllergyIntolerance",
+  "id": "3444dac1071f4f6cf585fd0960488be90c11fde3",
+  "meta": {
+    "source": "mps",
+    "security": [
+      {
+        "system": "https://www.icanbwell.com/access",
+        "code": "mps-api"
+      },
+      {
+        "system": "https://www.icanbwell.com/owner",
+        "code": "mps-api"
+      }
+    ]
+  },
+  "code": {
+    "text": "Aspirin"
+  },
+  "patient": {
+    "reference": "Patient/ed69a49cbccc4adb8805b411a7d9fbd4"
+  },
+  "recorder": {
+    "reference": "Patient/ed69a49cbccc4adb8805b411a7d9fbd4"
+  },
+  "asserter": {
+    "reference": "Patient/ed69a49cbccc4adb8805b411a7d9fbd4"
+  },
+  "reaction": [
+    {
+      "manifestation": [
+        {
+          "text": "Rash (itching/hives)"
+        }
+      ],
+      "severity": "moderate"
+    }
+  ]
+}

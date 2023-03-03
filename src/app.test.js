@@ -49,8 +49,10 @@ describe('#app', () => {
 
     test('it should startup check kafka health and return health check status ok', async () => {
         const enableKafkaEvents = env.ENABLE_EVENTS_KAFKA;
+        const enablekafkahealthcheck = env.ENABLE_KAFKA_HEALTHCHECK;
         // Setting ENABLE_EVENTS_KAFKA to '1' which implies kafka is being used.
         env.ENABLE_EVENTS_KAFKA = '1';
+        env.ENABLE_KAFKA_HEALTHCHECK = '1';
 
         let request = await createTestRequest();
         let response = await request.get('/health');
@@ -89,5 +91,6 @@ describe('#app', () => {
         expect(mockProducerMethods.connect).toHaveBeenCalledTimes(1);
 
         env.ENABLE_EVENTS_KAFKA = enableKafkaEvents;
+        env.ENABLE_KAFKA_HEALTHCHECK = enablekafkahealthcheck;
     });
 });
