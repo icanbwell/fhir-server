@@ -105,7 +105,11 @@ class AuditEvent extends Resource {
                     return;
                 }
                 const Meta = require('../complex_types/meta.js');
-                this.__data.meta = new Meta(valueProvided);
+                if (valueProvided instanceof Meta){
+                    this.__data.meta = valueProvided;
+                } else {
+                    this.__data.meta = new Meta(valueProvided);
+                }
             }
         });
 
@@ -168,7 +172,11 @@ class AuditEvent extends Resource {
                     return;
                 }
                 const Narrative = require('../complex_types/narrative.js');
-                this.__data.text = new Narrative(valueProvided);
+                if (valueProvided instanceof Narrative){
+                    this.__data.text = valueProvided;
+                } else {
+                    this.__data.text = new Narrative(valueProvided);
+                }
             }
         });
 
@@ -192,12 +200,19 @@ class AuditEvent extends Resource {
                 const {getResource} = require('../../../../operations/common/getResource');
                 if (Array.isArray(valueProvided)) {
                     this.__data.contained = valueProvided.filter(v => v).map(v => {
+                        if (v instanceof Resource) {
+                            return v;
+                        }
                         const ResourceCreator = getResource('4_0_0', v.resourceType);
                         return new ResourceCreator(v);
                     });
                 } else {
-                const ResourceCreator = getResource('4_0_0', valueProvided.resourceType);
-                this.__data.contained = [new ResourceCreator(valueProvided)];
+                    if (valueProvided instanceof Resource) {
+                        this.__data.contained = [valueProvided];
+                    } else {
+                        const ResourceCreator = getResource('4_0_0', valueProvided.resourceType);
+                        this.__data.contained = [new ResourceCreator(valueProvided)];
+                    }
                 }
             }
         });
@@ -221,7 +236,19 @@ class AuditEvent extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.extension = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof Extension ?
+                                v : new Extension(v)
+                            );
+                } else {
+                    if (valueProvided instanceof Extension) {
+                        this.__data.extension = valueProvided;
+                    } else {
+                        this.__data.extension = [new Extension(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -252,7 +279,19 @@ class AuditEvent extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.modifierExtension = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof Extension ?
+                                v : new Extension(v)
+                            );
+                } else {
+                    if (valueProvided instanceof Extension) {
+                        this.__data.modifierExtension = valueProvided;
+                    } else {
+                        this.__data.modifierExtension = [new Extension(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -273,7 +312,11 @@ class AuditEvent extends Resource {
                     return;
                 }
                 const Coding = require('../complex_types/coding.js');
-                this.__data.type = new Coding(valueProvided);
+                if (valueProvided instanceof Coding){
+                    this.__data.type = valueProvided;
+                } else {
+                    this.__data.type = new Coding(valueProvided);
+                }
             }
         });
 
@@ -292,7 +335,19 @@ class AuditEvent extends Resource {
                     return;
                 }
                 const Coding = require('../complex_types/coding.js');
-                this.__data.subtype = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Coding(v)) : [new Coding(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.subtype = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof Coding ?
+                                v : new Coding(v)
+                            );
+                } else {
+                    if (valueProvided instanceof Coding) {
+                        this.__data.subtype = valueProvided;
+                    } else {
+                        this.__data.subtype = [new Coding(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -330,7 +385,11 @@ class AuditEvent extends Resource {
                     return;
                 }
                 const Period = require('../complex_types/period.js');
-                this.__data.period = new Period(valueProvided);
+                if (valueProvided instanceof Period){
+                    this.__data.period = valueProvided;
+                } else {
+                    this.__data.period = new Period(valueProvided);
+                }
             }
         });
 
@@ -403,7 +462,19 @@ class AuditEvent extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.purposeOfEvent = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.purposeOfEvent = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof CodeableConcept ?
+                                v : new CodeableConcept(v)
+                            );
+                } else {
+                    if (valueProvided instanceof CodeableConcept) {
+                        this.__data.purposeOfEvent = valueProvided;
+                    } else {
+                        this.__data.purposeOfEvent = [new CodeableConcept(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -422,7 +493,19 @@ class AuditEvent extends Resource {
                     return;
                 }
                 const AuditEventAgent = require('../backbone_elements/auditEventAgent.js');
-                this.__data.agent = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new AuditEventAgent(v)) : [new AuditEventAgent(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.agent = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof AuditEventAgent ?
+                                v : new AuditEventAgent(v)
+                            );
+                } else {
+                    if (valueProvided instanceof AuditEventAgent) {
+                        this.__data.agent = valueProvided;
+                    } else {
+                        this.__data.agent = [new AuditEventAgent(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -441,7 +524,11 @@ class AuditEvent extends Resource {
                     return;
                 }
                 const AuditEventSource = require('../backbone_elements/auditEventSource.js');
-                this.__data.source = new AuditEventSource(valueProvided);
+                if (valueProvided instanceof AuditEventSource){
+                    this.__data.source = valueProvided;
+                } else {
+                    this.__data.source = new AuditEventSource(valueProvided);
+                }
             }
         });
 
@@ -460,7 +547,19 @@ class AuditEvent extends Resource {
                     return;
                 }
                 const AuditEventEntity = require('../backbone_elements/auditEventEntity.js');
-                this.__data.entity = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new AuditEventEntity(v)) : [new AuditEventEntity(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.entity = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof AuditEventEntity ?
+                                v : new AuditEventEntity(v)
+                            );
+                } else {
+                    if (valueProvided instanceof AuditEventEntity) {
+                        this.__data.entity = valueProvided;
+                    } else {
+                        this.__data.entity = [new AuditEventEntity(valueProvided)];
+                    }
+                }
             }
         });
 

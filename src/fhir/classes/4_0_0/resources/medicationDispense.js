@@ -137,7 +137,11 @@ class MedicationDispense extends Resource {
                     return;
                 }
                 const Meta = require('../complex_types/meta.js');
-                this.__data.meta = new Meta(valueProvided);
+                if (valueProvided instanceof Meta){
+                    this.__data.meta = valueProvided;
+                } else {
+                    this.__data.meta = new Meta(valueProvided);
+                }
             }
         });
 
@@ -200,7 +204,11 @@ class MedicationDispense extends Resource {
                     return;
                 }
                 const Narrative = require('../complex_types/narrative.js');
-                this.__data.text = new Narrative(valueProvided);
+                if (valueProvided instanceof Narrative){
+                    this.__data.text = valueProvided;
+                } else {
+                    this.__data.text = new Narrative(valueProvided);
+                }
             }
         });
 
@@ -224,12 +232,19 @@ class MedicationDispense extends Resource {
                 const {getResource} = require('../../../../operations/common/getResource');
                 if (Array.isArray(valueProvided)) {
                     this.__data.contained = valueProvided.filter(v => v).map(v => {
+                        if (v instanceof Resource) {
+                            return v;
+                        }
                         const ResourceCreator = getResource('4_0_0', v.resourceType);
                         return new ResourceCreator(v);
                     });
                 } else {
-                const ResourceCreator = getResource('4_0_0', valueProvided.resourceType);
-                this.__data.contained = [new ResourceCreator(valueProvided)];
+                    if (valueProvided instanceof Resource) {
+                        this.__data.contained = [valueProvided];
+                    } else {
+                        const ResourceCreator = getResource('4_0_0', valueProvided.resourceType);
+                        this.__data.contained = [new ResourceCreator(valueProvided)];
+                    }
                 }
             }
         });
@@ -253,7 +268,19 @@ class MedicationDispense extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.extension = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof Extension ?
+                                v : new Extension(v)
+                            );
+                } else {
+                    if (valueProvided instanceof Extension) {
+                        this.__data.extension = valueProvided;
+                    } else {
+                        this.__data.extension = [new Extension(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -284,7 +311,19 @@ class MedicationDispense extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.modifierExtension = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof Extension ?
+                                v : new Extension(v)
+                            );
+                } else {
+                    if (valueProvided instanceof Extension) {
+                        this.__data.modifierExtension = valueProvided;
+                    } else {
+                        this.__data.modifierExtension = [new Extension(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -307,7 +346,19 @@ class MedicationDispense extends Resource {
                     return;
                 }
                 const Identifier = require('../complex_types/identifier.js');
-                this.__data.identifier = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Identifier(v)) : [new Identifier(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.identifier = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof Identifier ?
+                                v : new Identifier(v)
+                            );
+                } else {
+                    if (valueProvided instanceof Identifier) {
+                        this.__data.identifier = valueProvided;
+                    } else {
+                        this.__data.identifier = [new Identifier(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -326,7 +377,19 @@ class MedicationDispense extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.partOf = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.partOf = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof Reference ?
+                                v : new Reference(v)
+                            );
+                } else {
+                    if (valueProvided instanceof Reference) {
+                        this.__data.partOf = valueProvided;
+                    } else {
+                        this.__data.partOf = [new Reference(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -363,7 +426,11 @@ class MedicationDispense extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.statusReasonCodeableConcept = new CodeableConcept(valueProvided);
+                if (valueProvided instanceof CodeableConcept){
+                    this.__data.statusReasonCodeableConcept = valueProvided;
+                } else {
+                    this.__data.statusReasonCodeableConcept = new CodeableConcept(valueProvided);
+                }
             }
         });
 
@@ -382,7 +449,11 @@ class MedicationDispense extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.statusReasonReference = new Reference(valueProvided);
+                if (valueProvided instanceof Reference){
+                    this.__data.statusReasonReference = valueProvided;
+                } else {
+                    this.__data.statusReasonReference = new Reference(valueProvided);
+                }
             }
         });
 
@@ -402,7 +473,11 @@ class MedicationDispense extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.category = new CodeableConcept(valueProvided);
+                if (valueProvided instanceof CodeableConcept){
+                    this.__data.category = valueProvided;
+                } else {
+                    this.__data.category = new CodeableConcept(valueProvided);
+                }
             }
         });
 
@@ -421,7 +496,11 @@ class MedicationDispense extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.medicationCodeableConcept = new CodeableConcept(valueProvided);
+                if (valueProvided instanceof CodeableConcept){
+                    this.__data.medicationCodeableConcept = valueProvided;
+                } else {
+                    this.__data.medicationCodeableConcept = new CodeableConcept(valueProvided);
+                }
             }
         });
 
@@ -440,7 +519,11 @@ class MedicationDispense extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.medicationReference = new Reference(valueProvided);
+                if (valueProvided instanceof Reference){
+                    this.__data.medicationReference = valueProvided;
+                } else {
+                    this.__data.medicationReference = new Reference(valueProvided);
+                }
             }
         });
 
@@ -460,7 +543,11 @@ class MedicationDispense extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.subject = new Reference(valueProvided);
+                if (valueProvided instanceof Reference){
+                    this.__data.subject = valueProvided;
+                } else {
+                    this.__data.subject = new Reference(valueProvided);
+                }
             }
         });
 
@@ -479,7 +566,11 @@ class MedicationDispense extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.context = new Reference(valueProvided);
+                if (valueProvided instanceof Reference){
+                    this.__data.context = valueProvided;
+                } else {
+                    this.__data.context = new Reference(valueProvided);
+                }
             }
         });
 
@@ -498,7 +589,19 @@ class MedicationDispense extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.supportingInformation = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.supportingInformation = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof Reference ?
+                                v : new Reference(v)
+                            );
+                } else {
+                    if (valueProvided instanceof Reference) {
+                        this.__data.supportingInformation = valueProvided;
+                    } else {
+                        this.__data.supportingInformation = [new Reference(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -517,7 +620,19 @@ class MedicationDispense extends Resource {
                     return;
                 }
                 const MedicationDispensePerformer = require('../backbone_elements/medicationDispensePerformer.js');
-                this.__data.performer = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new MedicationDispensePerformer(v)) : [new MedicationDispensePerformer(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.performer = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof MedicationDispensePerformer ?
+                                v : new MedicationDispensePerformer(v)
+                            );
+                } else {
+                    if (valueProvided instanceof MedicationDispensePerformer) {
+                        this.__data.performer = valueProvided;
+                    } else {
+                        this.__data.performer = [new MedicationDispensePerformer(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -536,7 +651,11 @@ class MedicationDispense extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.location = new Reference(valueProvided);
+                if (valueProvided instanceof Reference){
+                    this.__data.location = valueProvided;
+                } else {
+                    this.__data.location = new Reference(valueProvided);
+                }
             }
         });
 
@@ -555,7 +674,19 @@ class MedicationDispense extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.authorizingPrescription = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.authorizingPrescription = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof Reference ?
+                                v : new Reference(v)
+                            );
+                } else {
+                    if (valueProvided instanceof Reference) {
+                        this.__data.authorizingPrescription = valueProvided;
+                    } else {
+                        this.__data.authorizingPrescription = [new Reference(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -575,7 +706,11 @@ class MedicationDispense extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.type = new CodeableConcept(valueProvided);
+                if (valueProvided instanceof CodeableConcept){
+                    this.__data.type = valueProvided;
+                } else {
+                    this.__data.type = new CodeableConcept(valueProvided);
+                }
             }
         });
 
@@ -594,7 +729,11 @@ class MedicationDispense extends Resource {
                     return;
                 }
                 const Quantity = require('../complex_types/quantity.js');
-                this.__data.quantity = new Quantity(valueProvided);
+                if (valueProvided instanceof Quantity){
+                    this.__data.quantity = valueProvided;
+                } else {
+                    this.__data.quantity = new Quantity(valueProvided);
+                }
             }
         });
 
@@ -613,7 +752,11 @@ class MedicationDispense extends Resource {
                     return;
                 }
                 const Quantity = require('../complex_types/quantity.js');
-                this.__data.daysSupply = new Quantity(valueProvided);
+                if (valueProvided instanceof Quantity){
+                    this.__data.daysSupply = valueProvided;
+                } else {
+                    this.__data.daysSupply = new Quantity(valueProvided);
+                }
             }
         });
 
@@ -670,7 +813,11 @@ class MedicationDispense extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.destination = new Reference(valueProvided);
+                if (valueProvided instanceof Reference){
+                    this.__data.destination = valueProvided;
+                } else {
+                    this.__data.destination = new Reference(valueProvided);
+                }
             }
         });
 
@@ -691,7 +838,19 @@ class MedicationDispense extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.receiver = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.receiver = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof Reference ?
+                                v : new Reference(v)
+                            );
+                } else {
+                    if (valueProvided instanceof Reference) {
+                        this.__data.receiver = valueProvided;
+                    } else {
+                        this.__data.receiver = [new Reference(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -711,7 +870,19 @@ class MedicationDispense extends Resource {
                     return;
                 }
                 const Annotation = require('../complex_types/annotation.js');
-                this.__data.note = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Annotation(v)) : [new Annotation(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.note = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof Annotation ?
+                                v : new Annotation(v)
+                            );
+                } else {
+                    if (valueProvided instanceof Annotation) {
+                        this.__data.note = valueProvided;
+                    } else {
+                        this.__data.note = [new Annotation(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -730,7 +901,19 @@ class MedicationDispense extends Resource {
                     return;
                 }
                 const Dosage = require('../backbone_elements/dosage.js');
-                this.__data.dosageInstruction = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Dosage(v)) : [new Dosage(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.dosageInstruction = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof Dosage ?
+                                v : new Dosage(v)
+                            );
+                } else {
+                    if (valueProvided instanceof Dosage) {
+                        this.__data.dosageInstruction = valueProvided;
+                    } else {
+                        this.__data.dosageInstruction = [new Dosage(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -753,7 +936,11 @@ class MedicationDispense extends Resource {
                     return;
                 }
                 const MedicationDispenseSubstitution = require('../backbone_elements/medicationDispenseSubstitution.js');
-                this.__data.substitution = new MedicationDispenseSubstitution(valueProvided);
+                if (valueProvided instanceof MedicationDispenseSubstitution){
+                    this.__data.substitution = valueProvided;
+                } else {
+                    this.__data.substitution = new MedicationDispenseSubstitution(valueProvided);
+                }
             }
         });
 
@@ -774,7 +961,19 @@ class MedicationDispense extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.detectedIssue = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.detectedIssue = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof Reference ?
+                                v : new Reference(v)
+                            );
+                } else {
+                    if (valueProvided instanceof Reference) {
+                        this.__data.detectedIssue = valueProvided;
+                    } else {
+                        this.__data.detectedIssue = [new Reference(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -794,7 +993,19 @@ class MedicationDispense extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.eventHistory = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.eventHistory = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof Reference ?
+                                v : new Reference(v)
+                            );
+                } else {
+                    if (valueProvided instanceof Reference) {
+                        this.__data.eventHistory = valueProvided;
+                    } else {
+                        this.__data.eventHistory = [new Reference(valueProvided)];
+                    }
+                }
             }
         });
 

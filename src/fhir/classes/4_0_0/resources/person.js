@@ -102,7 +102,11 @@ class Person extends Resource {
                     return;
                 }
                 const Meta = require('../complex_types/meta.js');
-                this.__data.meta = new Meta(valueProvided);
+                if (valueProvided instanceof Meta){
+                    this.__data.meta = valueProvided;
+                } else {
+                    this.__data.meta = new Meta(valueProvided);
+                }
             }
         });
 
@@ -165,7 +169,11 @@ class Person extends Resource {
                     return;
                 }
                 const Narrative = require('../complex_types/narrative.js');
-                this.__data.text = new Narrative(valueProvided);
+                if (valueProvided instanceof Narrative){
+                    this.__data.text = valueProvided;
+                } else {
+                    this.__data.text = new Narrative(valueProvided);
+                }
             }
         });
 
@@ -189,12 +197,19 @@ class Person extends Resource {
                 const {getResource} = require('../../../../operations/common/getResource');
                 if (Array.isArray(valueProvided)) {
                     this.__data.contained = valueProvided.filter(v => v).map(v => {
+                        if (v instanceof Resource) {
+                            return v;
+                        }
                         const ResourceCreator = getResource('4_0_0', v.resourceType);
                         return new ResourceCreator(v);
                     });
                 } else {
-                const ResourceCreator = getResource('4_0_0', valueProvided.resourceType);
-                this.__data.contained = [new ResourceCreator(valueProvided)];
+                    if (valueProvided instanceof Resource) {
+                        this.__data.contained = [valueProvided];
+                    } else {
+                        const ResourceCreator = getResource('4_0_0', valueProvided.resourceType);
+                        this.__data.contained = [new ResourceCreator(valueProvided)];
+                    }
                 }
             }
         });
@@ -218,7 +233,19 @@ class Person extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.extension = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof Extension ?
+                                v : new Extension(v)
+                            );
+                } else {
+                    if (valueProvided instanceof Extension) {
+                        this.__data.extension = valueProvided;
+                    } else {
+                        this.__data.extension = [new Extension(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -249,7 +276,19 @@ class Person extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.modifierExtension = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof Extension ?
+                                v : new Extension(v)
+                            );
+                } else {
+                    if (valueProvided instanceof Extension) {
+                        this.__data.modifierExtension = valueProvided;
+                    } else {
+                        this.__data.modifierExtension = [new Extension(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -268,7 +307,19 @@ class Person extends Resource {
                     return;
                 }
                 const Identifier = require('../complex_types/identifier.js');
-                this.__data.identifier = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Identifier(v)) : [new Identifier(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.identifier = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof Identifier ?
+                                v : new Identifier(v)
+                            );
+                } else {
+                    if (valueProvided instanceof Identifier) {
+                        this.__data.identifier = valueProvided;
+                    } else {
+                        this.__data.identifier = [new Identifier(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -287,7 +338,19 @@ class Person extends Resource {
                     return;
                 }
                 const HumanName = require('../complex_types/humanName.js');
-                this.__data.name = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new HumanName(v)) : [new HumanName(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.name = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof HumanName ?
+                                v : new HumanName(v)
+                            );
+                } else {
+                    if (valueProvided instanceof HumanName) {
+                        this.__data.name = valueProvided;
+                    } else {
+                        this.__data.name = [new HumanName(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -306,7 +369,19 @@ class Person extends Resource {
                     return;
                 }
                 const ContactPoint = require('../complex_types/contactPoint.js');
-                this.__data.telecom = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ContactPoint(v)) : [new ContactPoint(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.telecom = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof ContactPoint ?
+                                v : new ContactPoint(v)
+                            );
+                } else {
+                    if (valueProvided instanceof ContactPoint) {
+                        this.__data.telecom = valueProvided;
+                    } else {
+                        this.__data.telecom = [new ContactPoint(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -361,7 +436,19 @@ class Person extends Resource {
                     return;
                 }
                 const Address = require('../complex_types/address.js');
-                this.__data.address = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Address(v)) : [new Address(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.address = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof Address ?
+                                v : new Address(v)
+                            );
+                } else {
+                    if (valueProvided instanceof Address) {
+                        this.__data.address = valueProvided;
+                    } else {
+                        this.__data.address = [new Address(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -381,7 +468,11 @@ class Person extends Resource {
                     return;
                 }
                 const Attachment = require('../complex_types/attachment.js');
-                this.__data.photo = new Attachment(valueProvided);
+                if (valueProvided instanceof Attachment){
+                    this.__data.photo = valueProvided;
+                } else {
+                    this.__data.photo = new Attachment(valueProvided);
+                }
             }
         });
 
@@ -400,7 +491,11 @@ class Person extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.managingOrganization = new Reference(valueProvided);
+                if (valueProvided instanceof Reference){
+                    this.__data.managingOrganization = valueProvided;
+                } else {
+                    this.__data.managingOrganization = new Reference(valueProvided);
+                }
             }
         });
 
@@ -437,7 +532,19 @@ class Person extends Resource {
                     return;
                 }
                 const PersonLink = require('../backbone_elements/personLink.js');
-                this.__data.link = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new PersonLink(v)) : [new PersonLink(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.link = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof PersonLink ?
+                                v : new PersonLink(v)
+                            );
+                } else {
+                    if (valueProvided instanceof PersonLink) {
+                        this.__data.link = valueProvided;
+                    } else {
+                        this.__data.link = [new PersonLink(valueProvided)];
+                    }
+                }
             }
         });
 

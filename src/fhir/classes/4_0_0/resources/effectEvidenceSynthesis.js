@@ -149,7 +149,11 @@ class EffectEvidenceSynthesis extends Resource {
                     return;
                 }
                 const Meta = require('../complex_types/meta.js');
-                this.__data.meta = new Meta(valueProvided);
+                if (valueProvided instanceof Meta){
+                    this.__data.meta = valueProvided;
+                } else {
+                    this.__data.meta = new Meta(valueProvided);
+                }
             }
         });
 
@@ -212,7 +216,11 @@ class EffectEvidenceSynthesis extends Resource {
                     return;
                 }
                 const Narrative = require('../complex_types/narrative.js');
-                this.__data.text = new Narrative(valueProvided);
+                if (valueProvided instanceof Narrative){
+                    this.__data.text = valueProvided;
+                } else {
+                    this.__data.text = new Narrative(valueProvided);
+                }
             }
         });
 
@@ -236,12 +244,19 @@ class EffectEvidenceSynthesis extends Resource {
                 const {getResource} = require('../../../../operations/common/getResource');
                 if (Array.isArray(valueProvided)) {
                     this.__data.contained = valueProvided.filter(v => v).map(v => {
+                        if (v instanceof Resource) {
+                            return v;
+                        }
                         const ResourceCreator = getResource('4_0_0', v.resourceType);
                         return new ResourceCreator(v);
                     });
                 } else {
-                const ResourceCreator = getResource('4_0_0', valueProvided.resourceType);
-                this.__data.contained = [new ResourceCreator(valueProvided)];
+                    if (valueProvided instanceof Resource) {
+                        this.__data.contained = [valueProvided];
+                    } else {
+                        const ResourceCreator = getResource('4_0_0', valueProvided.resourceType);
+                        this.__data.contained = [new ResourceCreator(valueProvided)];
+                    }
                 }
             }
         });
@@ -265,7 +280,19 @@ class EffectEvidenceSynthesis extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.extension = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof Extension ?
+                                v : new Extension(v)
+                            );
+                } else {
+                    if (valueProvided instanceof Extension) {
+                        this.__data.extension = valueProvided;
+                    } else {
+                        this.__data.extension = [new Extension(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -296,7 +323,19 @@ class EffectEvidenceSynthesis extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.modifierExtension = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof Extension ?
+                                v : new Extension(v)
+                            );
+                } else {
+                    if (valueProvided instanceof Extension) {
+                        this.__data.modifierExtension = valueProvided;
+                    } else {
+                        this.__data.modifierExtension = [new Extension(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -341,7 +380,19 @@ class EffectEvidenceSynthesis extends Resource {
                     return;
                 }
                 const Identifier = require('../complex_types/identifier.js');
-                this.__data.identifier = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Identifier(v)) : [new Identifier(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.identifier = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof Identifier ?
+                                v : new Identifier(v)
+                            );
+                } else {
+                    if (valueProvided instanceof Identifier) {
+                        this.__data.identifier = valueProvided;
+                    } else {
+                        this.__data.identifier = [new Identifier(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -481,7 +532,19 @@ class EffectEvidenceSynthesis extends Resource {
                     return;
                 }
                 const ContactDetail = require('../complex_types/contactDetail.js');
-                this.__data.contact = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ContactDetail(v)) : [new ContactDetail(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.contact = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof ContactDetail ?
+                                v : new ContactDetail(v)
+                            );
+                } else {
+                    if (valueProvided instanceof ContactDetail) {
+                        this.__data.contact = valueProvided;
+                    } else {
+                        this.__data.contact = [new ContactDetail(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -519,7 +582,19 @@ class EffectEvidenceSynthesis extends Resource {
                     return;
                 }
                 const Annotation = require('../complex_types/annotation.js');
-                this.__data.note = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Annotation(v)) : [new Annotation(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.note = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof Annotation ?
+                                v : new Annotation(v)
+                            );
+                } else {
+                    if (valueProvided instanceof Annotation) {
+                        this.__data.note = valueProvided;
+                    } else {
+                        this.__data.note = [new Annotation(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -542,7 +617,19 @@ class EffectEvidenceSynthesis extends Resource {
                     return;
                 }
                 const UsageContext = require('../complex_types/usageContext.js');
-                this.__data.useContext = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new UsageContext(v)) : [new UsageContext(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.useContext = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof UsageContext ?
+                                v : new UsageContext(v)
+                            );
+                } else {
+                    if (valueProvided instanceof UsageContext) {
+                        this.__data.useContext = valueProvided;
+                    } else {
+                        this.__data.useContext = [new UsageContext(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -562,7 +649,19 @@ class EffectEvidenceSynthesis extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.jurisdiction = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.jurisdiction = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof CodeableConcept ?
+                                v : new CodeableConcept(v)
+                            );
+                } else {
+                    if (valueProvided instanceof CodeableConcept) {
+                        this.__data.jurisdiction = valueProvided;
+                    } else {
+                        this.__data.jurisdiction = [new CodeableConcept(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -640,7 +739,11 @@ class EffectEvidenceSynthesis extends Resource {
                     return;
                 }
                 const Period = require('../complex_types/period.js');
-                this.__data.effectivePeriod = new Period(valueProvided);
+                if (valueProvided instanceof Period){
+                    this.__data.effectivePeriod = valueProvided;
+                } else {
+                    this.__data.effectivePeriod = new Period(valueProvided);
+                }
             }
         });
 
@@ -661,7 +764,19 @@ class EffectEvidenceSynthesis extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.topic = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.topic = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof CodeableConcept ?
+                                v : new CodeableConcept(v)
+                            );
+                } else {
+                    if (valueProvided instanceof CodeableConcept) {
+                        this.__data.topic = valueProvided;
+                    } else {
+                        this.__data.topic = [new CodeableConcept(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -681,7 +796,19 @@ class EffectEvidenceSynthesis extends Resource {
                     return;
                 }
                 const ContactDetail = require('../complex_types/contactDetail.js');
-                this.__data.author = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ContactDetail(v)) : [new ContactDetail(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.author = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof ContactDetail ?
+                                v : new ContactDetail(v)
+                            );
+                } else {
+                    if (valueProvided instanceof ContactDetail) {
+                        this.__data.author = valueProvided;
+                    } else {
+                        this.__data.author = [new ContactDetail(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -701,7 +828,19 @@ class EffectEvidenceSynthesis extends Resource {
                     return;
                 }
                 const ContactDetail = require('../complex_types/contactDetail.js');
-                this.__data.editor = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ContactDetail(v)) : [new ContactDetail(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.editor = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof ContactDetail ?
+                                v : new ContactDetail(v)
+                            );
+                } else {
+                    if (valueProvided instanceof ContactDetail) {
+                        this.__data.editor = valueProvided;
+                    } else {
+                        this.__data.editor = [new ContactDetail(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -721,7 +860,19 @@ class EffectEvidenceSynthesis extends Resource {
                     return;
                 }
                 const ContactDetail = require('../complex_types/contactDetail.js');
-                this.__data.reviewer = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ContactDetail(v)) : [new ContactDetail(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.reviewer = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof ContactDetail ?
+                                v : new ContactDetail(v)
+                            );
+                } else {
+                    if (valueProvided instanceof ContactDetail) {
+                        this.__data.reviewer = valueProvided;
+                    } else {
+                        this.__data.reviewer = [new ContactDetail(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -741,7 +892,19 @@ class EffectEvidenceSynthesis extends Resource {
                     return;
                 }
                 const ContactDetail = require('../complex_types/contactDetail.js');
-                this.__data.endorser = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ContactDetail(v)) : [new ContactDetail(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.endorser = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof ContactDetail ?
+                                v : new ContactDetail(v)
+                            );
+                } else {
+                    if (valueProvided instanceof ContactDetail) {
+                        this.__data.endorser = valueProvided;
+                    } else {
+                        this.__data.endorser = [new ContactDetail(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -761,7 +924,19 @@ class EffectEvidenceSynthesis extends Resource {
                     return;
                 }
                 const RelatedArtifact = require('../complex_types/relatedArtifact.js');
-                this.__data.relatedArtifact = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new RelatedArtifact(v)) : [new RelatedArtifact(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.relatedArtifact = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof RelatedArtifact ?
+                                v : new RelatedArtifact(v)
+                            );
+                } else {
+                    if (valueProvided instanceof RelatedArtifact) {
+                        this.__data.relatedArtifact = valueProvided;
+                    } else {
+                        this.__data.relatedArtifact = [new RelatedArtifact(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -780,7 +955,11 @@ class EffectEvidenceSynthesis extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.synthesisType = new CodeableConcept(valueProvided);
+                if (valueProvided instanceof CodeableConcept){
+                    this.__data.synthesisType = valueProvided;
+                } else {
+                    this.__data.synthesisType = new CodeableConcept(valueProvided);
+                }
             }
         });
 
@@ -799,7 +978,11 @@ class EffectEvidenceSynthesis extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.studyType = new CodeableConcept(valueProvided);
+                if (valueProvided instanceof CodeableConcept){
+                    this.__data.studyType = valueProvided;
+                } else {
+                    this.__data.studyType = new CodeableConcept(valueProvided);
+                }
             }
         });
 
@@ -819,7 +1002,11 @@ class EffectEvidenceSynthesis extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.population = new Reference(valueProvided);
+                if (valueProvided instanceof Reference){
+                    this.__data.population = valueProvided;
+                } else {
+                    this.__data.population = new Reference(valueProvided);
+                }
             }
         });
 
@@ -839,7 +1026,11 @@ class EffectEvidenceSynthesis extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.exposure = new Reference(valueProvided);
+                if (valueProvided instanceof Reference){
+                    this.__data.exposure = valueProvided;
+                } else {
+                    this.__data.exposure = new Reference(valueProvided);
+                }
             }
         });
 
@@ -859,7 +1050,11 @@ class EffectEvidenceSynthesis extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.exposureAlternative = new Reference(valueProvided);
+                if (valueProvided instanceof Reference){
+                    this.__data.exposureAlternative = valueProvided;
+                } else {
+                    this.__data.exposureAlternative = new Reference(valueProvided);
+                }
             }
         });
 
@@ -879,7 +1074,11 @@ class EffectEvidenceSynthesis extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.outcome = new Reference(valueProvided);
+                if (valueProvided instanceof Reference){
+                    this.__data.outcome = valueProvided;
+                } else {
+                    this.__data.outcome = new Reference(valueProvided);
+                }
             }
         });
 
@@ -898,7 +1097,11 @@ class EffectEvidenceSynthesis extends Resource {
                     return;
                 }
                 const EffectEvidenceSynthesisSampleSize = require('../backbone_elements/effectEvidenceSynthesisSampleSize.js');
-                this.__data.sampleSize = new EffectEvidenceSynthesisSampleSize(valueProvided);
+                if (valueProvided instanceof EffectEvidenceSynthesisSampleSize){
+                    this.__data.sampleSize = valueProvided;
+                } else {
+                    this.__data.sampleSize = new EffectEvidenceSynthesisSampleSize(valueProvided);
+                }
             }
         });
 
@@ -918,7 +1121,19 @@ class EffectEvidenceSynthesis extends Resource {
                     return;
                 }
                 const EffectEvidenceSynthesisResultsByExposure = require('../backbone_elements/effectEvidenceSynthesisResultsByExposure.js');
-                this.__data.resultsByExposure = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new EffectEvidenceSynthesisResultsByExposure(v)) : [new EffectEvidenceSynthesisResultsByExposure(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.resultsByExposure = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof EffectEvidenceSynthesisResultsByExposure ?
+                                v : new EffectEvidenceSynthesisResultsByExposure(v)
+                            );
+                } else {
+                    if (valueProvided instanceof EffectEvidenceSynthesisResultsByExposure) {
+                        this.__data.resultsByExposure = valueProvided;
+                    } else {
+                        this.__data.resultsByExposure = [new EffectEvidenceSynthesisResultsByExposure(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -937,7 +1152,19 @@ class EffectEvidenceSynthesis extends Resource {
                     return;
                 }
                 const EffectEvidenceSynthesisEffectEstimate = require('../backbone_elements/effectEvidenceSynthesisEffectEstimate.js');
-                this.__data.effectEstimate = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new EffectEvidenceSynthesisEffectEstimate(v)) : [new EffectEvidenceSynthesisEffectEstimate(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.effectEstimate = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof EffectEvidenceSynthesisEffectEstimate ?
+                                v : new EffectEvidenceSynthesisEffectEstimate(v)
+                            );
+                } else {
+                    if (valueProvided instanceof EffectEvidenceSynthesisEffectEstimate) {
+                        this.__data.effectEstimate = valueProvided;
+                    } else {
+                        this.__data.effectEstimate = [new EffectEvidenceSynthesisEffectEstimate(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -956,7 +1183,19 @@ class EffectEvidenceSynthesis extends Resource {
                     return;
                 }
                 const EffectEvidenceSynthesisCertainty = require('../backbone_elements/effectEvidenceSynthesisCertainty.js');
-                this.__data.certainty = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new EffectEvidenceSynthesisCertainty(v)) : [new EffectEvidenceSynthesisCertainty(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.certainty = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof EffectEvidenceSynthesisCertainty ?
+                                v : new EffectEvidenceSynthesisCertainty(v)
+                            );
+                } else {
+                    if (valueProvided instanceof EffectEvidenceSynthesisCertainty) {
+                        this.__data.certainty = valueProvided;
+                    } else {
+                        this.__data.certainty = [new EffectEvidenceSynthesisCertainty(valueProvided)];
+                    }
+                }
             }
         });
 

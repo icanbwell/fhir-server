@@ -114,7 +114,11 @@ class Invoice extends Resource {
                     return;
                 }
                 const Meta = require('../complex_types/meta.js');
-                this.__data.meta = new Meta(valueProvided);
+                if (valueProvided instanceof Meta){
+                    this.__data.meta = valueProvided;
+                } else {
+                    this.__data.meta = new Meta(valueProvided);
+                }
             }
         });
 
@@ -177,7 +181,11 @@ class Invoice extends Resource {
                     return;
                 }
                 const Narrative = require('../complex_types/narrative.js');
-                this.__data.text = new Narrative(valueProvided);
+                if (valueProvided instanceof Narrative){
+                    this.__data.text = valueProvided;
+                } else {
+                    this.__data.text = new Narrative(valueProvided);
+                }
             }
         });
 
@@ -201,12 +209,19 @@ class Invoice extends Resource {
                 const {getResource} = require('../../../../operations/common/getResource');
                 if (Array.isArray(valueProvided)) {
                     this.__data.contained = valueProvided.filter(v => v).map(v => {
+                        if (v instanceof Resource) {
+                            return v;
+                        }
                         const ResourceCreator = getResource('4_0_0', v.resourceType);
                         return new ResourceCreator(v);
                     });
                 } else {
-                const ResourceCreator = getResource('4_0_0', valueProvided.resourceType);
-                this.__data.contained = [new ResourceCreator(valueProvided)];
+                    if (valueProvided instanceof Resource) {
+                        this.__data.contained = [valueProvided];
+                    } else {
+                        const ResourceCreator = getResource('4_0_0', valueProvided.resourceType);
+                        this.__data.contained = [new ResourceCreator(valueProvided)];
+                    }
                 }
             }
         });
@@ -230,7 +245,19 @@ class Invoice extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.extension = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof Extension ?
+                                v : new Extension(v)
+                            );
+                } else {
+                    if (valueProvided instanceof Extension) {
+                        this.__data.extension = valueProvided;
+                    } else {
+                        this.__data.extension = [new Extension(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -261,7 +288,19 @@ class Invoice extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.modifierExtension = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof Extension ?
+                                v : new Extension(v)
+                            );
+                } else {
+                    if (valueProvided instanceof Extension) {
+                        this.__data.modifierExtension = valueProvided;
+                    } else {
+                        this.__data.modifierExtension = [new Extension(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -281,7 +320,19 @@ class Invoice extends Resource {
                     return;
                 }
                 const Identifier = require('../complex_types/identifier.js');
-                this.__data.identifier = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Identifier(v)) : [new Identifier(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.identifier = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof Identifier ?
+                                v : new Identifier(v)
+                            );
+                } else {
+                    if (valueProvided instanceof Identifier) {
+                        this.__data.identifier = valueProvided;
+                    } else {
+                        this.__data.identifier = [new Identifier(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -338,7 +389,11 @@ class Invoice extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.type = new CodeableConcept(valueProvided);
+                if (valueProvided instanceof CodeableConcept){
+                    this.__data.type = valueProvided;
+                } else {
+                    this.__data.type = new CodeableConcept(valueProvided);
+                }
             }
         });
 
@@ -358,7 +413,11 @@ class Invoice extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.subject = new Reference(valueProvided);
+                if (valueProvided instanceof Reference){
+                    this.__data.subject = valueProvided;
+                } else {
+                    this.__data.subject = new Reference(valueProvided);
+                }
             }
         });
 
@@ -377,7 +436,11 @@ class Invoice extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.recipient = new Reference(valueProvided);
+                if (valueProvided instanceof Reference){
+                    this.__data.recipient = valueProvided;
+                } else {
+                    this.__data.recipient = new Reference(valueProvided);
+                }
             }
         });
 
@@ -414,7 +477,19 @@ class Invoice extends Resource {
                     return;
                 }
                 const InvoiceParticipant = require('../backbone_elements/invoiceParticipant.js');
-                this.__data.participant = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new InvoiceParticipant(v)) : [new InvoiceParticipant(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.participant = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof InvoiceParticipant ?
+                                v : new InvoiceParticipant(v)
+                            );
+                } else {
+                    if (valueProvided instanceof InvoiceParticipant) {
+                        this.__data.participant = valueProvided;
+                    } else {
+                        this.__data.participant = [new InvoiceParticipant(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -433,7 +508,11 @@ class Invoice extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.issuer = new Reference(valueProvided);
+                if (valueProvided instanceof Reference){
+                    this.__data.issuer = valueProvided;
+                } else {
+                    this.__data.issuer = new Reference(valueProvided);
+                }
             }
         });
 
@@ -452,7 +531,11 @@ class Invoice extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.account = new Reference(valueProvided);
+                if (valueProvided instanceof Reference){
+                    this.__data.account = valueProvided;
+                } else {
+                    this.__data.account = new Reference(valueProvided);
+                }
             }
         });
 
@@ -472,7 +555,19 @@ class Invoice extends Resource {
                     return;
                 }
                 const InvoiceLineItem = require('../backbone_elements/invoiceLineItem.js');
-                this.__data.lineItem = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new InvoiceLineItem(v)) : [new InvoiceLineItem(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.lineItem = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof InvoiceLineItem ?
+                                v : new InvoiceLineItem(v)
+                            );
+                } else {
+                    if (valueProvided instanceof InvoiceLineItem) {
+                        this.__data.lineItem = valueProvided;
+                    } else {
+                        this.__data.lineItem = [new InvoiceLineItem(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -494,7 +589,19 @@ class Invoice extends Resource {
                     return;
                 }
                 const InvoicePriceComponent = require('../backbone_elements/invoicePriceComponent.js');
-                this.__data.totalPriceComponent = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new InvoicePriceComponent(v)) : [new InvoicePriceComponent(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.totalPriceComponent = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof InvoicePriceComponent ?
+                                v : new InvoicePriceComponent(v)
+                            );
+                } else {
+                    if (valueProvided instanceof InvoicePriceComponent) {
+                        this.__data.totalPriceComponent = valueProvided;
+                    } else {
+                        this.__data.totalPriceComponent = [new InvoicePriceComponent(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -513,7 +620,11 @@ class Invoice extends Resource {
                     return;
                 }
                 const Money = require('../complex_types/money.js');
-                this.__data.totalNet = new Money(valueProvided);
+                if (valueProvided instanceof Money){
+                    this.__data.totalNet = valueProvided;
+                } else {
+                    this.__data.totalNet = new Money(valueProvided);
+                }
             }
         });
 
@@ -532,7 +643,11 @@ class Invoice extends Resource {
                     return;
                 }
                 const Money = require('../complex_types/money.js');
-                this.__data.totalGross = new Money(valueProvided);
+                if (valueProvided instanceof Money){
+                    this.__data.totalGross = valueProvided;
+                } else {
+                    this.__data.totalGross = new Money(valueProvided);
+                }
             }
         });
 
@@ -570,7 +685,19 @@ class Invoice extends Resource {
                     return;
                 }
                 const Annotation = require('../complex_types/annotation.js');
-                this.__data.note = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Annotation(v)) : [new Annotation(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.note = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof Annotation ?
+                                v : new Annotation(v)
+                            );
+                } else {
+                    if (valueProvided instanceof Annotation) {
+                        this.__data.note = valueProvided;
+                    } else {
+                        this.__data.note = [new Annotation(valueProvided)];
+                    }
+                }
             }
         });
 

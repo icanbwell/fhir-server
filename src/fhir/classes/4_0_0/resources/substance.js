@@ -95,7 +95,11 @@ class Substance extends Resource {
                     return;
                 }
                 const Meta = require('../complex_types/meta.js');
-                this.__data.meta = new Meta(valueProvided);
+                if (valueProvided instanceof Meta){
+                    this.__data.meta = valueProvided;
+                } else {
+                    this.__data.meta = new Meta(valueProvided);
+                }
             }
         });
 
@@ -158,7 +162,11 @@ class Substance extends Resource {
                     return;
                 }
                 const Narrative = require('../complex_types/narrative.js');
-                this.__data.text = new Narrative(valueProvided);
+                if (valueProvided instanceof Narrative){
+                    this.__data.text = valueProvided;
+                } else {
+                    this.__data.text = new Narrative(valueProvided);
+                }
             }
         });
 
@@ -182,12 +190,19 @@ class Substance extends Resource {
                 const {getResource} = require('../../../../operations/common/getResource');
                 if (Array.isArray(valueProvided)) {
                     this.__data.contained = valueProvided.filter(v => v).map(v => {
+                        if (v instanceof Resource) {
+                            return v;
+                        }
                         const ResourceCreator = getResource('4_0_0', v.resourceType);
                         return new ResourceCreator(v);
                     });
                 } else {
-                const ResourceCreator = getResource('4_0_0', valueProvided.resourceType);
-                this.__data.contained = [new ResourceCreator(valueProvided)];
+                    if (valueProvided instanceof Resource) {
+                        this.__data.contained = [valueProvided];
+                    } else {
+                        const ResourceCreator = getResource('4_0_0', valueProvided.resourceType);
+                        this.__data.contained = [new ResourceCreator(valueProvided)];
+                    }
                 }
             }
         });
@@ -211,7 +226,19 @@ class Substance extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.extension = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof Extension ?
+                                v : new Extension(v)
+                            );
+                } else {
+                    if (valueProvided instanceof Extension) {
+                        this.__data.extension = valueProvided;
+                    } else {
+                        this.__data.extension = [new Extension(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -242,7 +269,19 @@ class Substance extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.modifierExtension = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof Extension ?
+                                v : new Extension(v)
+                            );
+                } else {
+                    if (valueProvided instanceof Extension) {
+                        this.__data.modifierExtension = valueProvided;
+                    } else {
+                        this.__data.modifierExtension = [new Extension(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -261,7 +300,19 @@ class Substance extends Resource {
                     return;
                 }
                 const Identifier = require('../complex_types/identifier.js');
-                this.__data.identifier = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Identifier(v)) : [new Identifier(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.identifier = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof Identifier ?
+                                v : new Identifier(v)
+                            );
+                } else {
+                    if (valueProvided instanceof Identifier) {
+                        this.__data.identifier = valueProvided;
+                    } else {
+                        this.__data.identifier = [new Identifier(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -299,7 +350,19 @@ class Substance extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.category = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.category = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof CodeableConcept ?
+                                v : new CodeableConcept(v)
+                            );
+                } else {
+                    if (valueProvided instanceof CodeableConcept) {
+                        this.__data.category = valueProvided;
+                    } else {
+                        this.__data.category = [new CodeableConcept(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -318,7 +381,11 @@ class Substance extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.code = new CodeableConcept(valueProvided);
+                if (valueProvided instanceof CodeableConcept){
+                    this.__data.code = valueProvided;
+                } else {
+                    this.__data.code = new CodeableConcept(valueProvided);
+                }
             }
         });
 
@@ -357,7 +424,19 @@ class Substance extends Resource {
                     return;
                 }
                 const SubstanceInstance = require('../backbone_elements/substanceInstance.js');
-                this.__data.instance = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new SubstanceInstance(v)) : [new SubstanceInstance(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.instance = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof SubstanceInstance ?
+                                v : new SubstanceInstance(v)
+                            );
+                } else {
+                    if (valueProvided instanceof SubstanceInstance) {
+                        this.__data.instance = valueProvided;
+                    } else {
+                        this.__data.instance = [new SubstanceInstance(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -376,7 +455,19 @@ class Substance extends Resource {
                     return;
                 }
                 const SubstanceIngredient = require('../backbone_elements/substanceIngredient.js');
-                this.__data.ingredient = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new SubstanceIngredient(v)) : [new SubstanceIngredient(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.ingredient = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof SubstanceIngredient ?
+                                v : new SubstanceIngredient(v)
+                            );
+                } else {
+                    if (valueProvided instanceof SubstanceIngredient) {
+                        this.__data.ingredient = valueProvided;
+                    } else {
+                        this.__data.ingredient = [new SubstanceIngredient(valueProvided)];
+                    }
+                }
             }
         });
 

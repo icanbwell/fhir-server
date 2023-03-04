@@ -128,7 +128,11 @@ class DeviceDefinition extends Resource {
                     return;
                 }
                 const Meta = require('../complex_types/meta.js');
-                this.__data.meta = new Meta(valueProvided);
+                if (valueProvided instanceof Meta){
+                    this.__data.meta = valueProvided;
+                } else {
+                    this.__data.meta = new Meta(valueProvided);
+                }
             }
         });
 
@@ -191,7 +195,11 @@ class DeviceDefinition extends Resource {
                     return;
                 }
                 const Narrative = require('../complex_types/narrative.js');
-                this.__data.text = new Narrative(valueProvided);
+                if (valueProvided instanceof Narrative){
+                    this.__data.text = valueProvided;
+                } else {
+                    this.__data.text = new Narrative(valueProvided);
+                }
             }
         });
 
@@ -215,12 +223,19 @@ class DeviceDefinition extends Resource {
                 const {getResource} = require('../../../../operations/common/getResource');
                 if (Array.isArray(valueProvided)) {
                     this.__data.contained = valueProvided.filter(v => v).map(v => {
+                        if (v instanceof Resource) {
+                            return v;
+                        }
                         const ResourceCreator = getResource('4_0_0', v.resourceType);
                         return new ResourceCreator(v);
                     });
                 } else {
-                const ResourceCreator = getResource('4_0_0', valueProvided.resourceType);
-                this.__data.contained = [new ResourceCreator(valueProvided)];
+                    if (valueProvided instanceof Resource) {
+                        this.__data.contained = [valueProvided];
+                    } else {
+                        const ResourceCreator = getResource('4_0_0', valueProvided.resourceType);
+                        this.__data.contained = [new ResourceCreator(valueProvided)];
+                    }
                 }
             }
         });
@@ -244,7 +259,19 @@ class DeviceDefinition extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.extension = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof Extension ?
+                                v : new Extension(v)
+                            );
+                } else {
+                    if (valueProvided instanceof Extension) {
+                        this.__data.extension = valueProvided;
+                    } else {
+                        this.__data.extension = [new Extension(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -275,7 +302,19 @@ class DeviceDefinition extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.modifierExtension = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof Extension ?
+                                v : new Extension(v)
+                            );
+                } else {
+                    if (valueProvided instanceof Extension) {
+                        this.__data.modifierExtension = valueProvided;
+                    } else {
+                        this.__data.modifierExtension = [new Extension(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -295,7 +334,19 @@ class DeviceDefinition extends Resource {
                     return;
                 }
                 const Identifier = require('../complex_types/identifier.js');
-                this.__data.identifier = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Identifier(v)) : [new Identifier(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.identifier = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof Identifier ?
+                                v : new Identifier(v)
+                            );
+                } else {
+                    if (valueProvided instanceof Identifier) {
+                        this.__data.identifier = valueProvided;
+                    } else {
+                        this.__data.identifier = [new Identifier(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -317,7 +368,19 @@ class DeviceDefinition extends Resource {
                     return;
                 }
                 const DeviceDefinitionUdiDeviceIdentifier = require('../backbone_elements/deviceDefinitionUdiDeviceIdentifier.js');
-                this.__data.udiDeviceIdentifier = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new DeviceDefinitionUdiDeviceIdentifier(v)) : [new DeviceDefinitionUdiDeviceIdentifier(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.udiDeviceIdentifier = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof DeviceDefinitionUdiDeviceIdentifier ?
+                                v : new DeviceDefinitionUdiDeviceIdentifier(v)
+                            );
+                } else {
+                    if (valueProvided instanceof DeviceDefinitionUdiDeviceIdentifier) {
+                        this.__data.udiDeviceIdentifier = valueProvided;
+                    } else {
+                        this.__data.udiDeviceIdentifier = [new DeviceDefinitionUdiDeviceIdentifier(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -354,7 +417,11 @@ class DeviceDefinition extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.manufacturerReference = new Reference(valueProvided);
+                if (valueProvided instanceof Reference){
+                    this.__data.manufacturerReference = valueProvided;
+                } else {
+                    this.__data.manufacturerReference = new Reference(valueProvided);
+                }
             }
         });
 
@@ -373,7 +440,19 @@ class DeviceDefinition extends Resource {
                     return;
                 }
                 const DeviceDefinitionDeviceName = require('../backbone_elements/deviceDefinitionDeviceName.js');
-                this.__data.deviceName = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new DeviceDefinitionDeviceName(v)) : [new DeviceDefinitionDeviceName(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.deviceName = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof DeviceDefinitionDeviceName ?
+                                v : new DeviceDefinitionDeviceName(v)
+                            );
+                } else {
+                    if (valueProvided instanceof DeviceDefinitionDeviceName) {
+                        this.__data.deviceName = valueProvided;
+                    } else {
+                        this.__data.deviceName = [new DeviceDefinitionDeviceName(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -410,7 +489,11 @@ class DeviceDefinition extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.type = new CodeableConcept(valueProvided);
+                if (valueProvided instanceof CodeableConcept){
+                    this.__data.type = valueProvided;
+                } else {
+                    this.__data.type = new CodeableConcept(valueProvided);
+                }
             }
         });
 
@@ -430,7 +513,19 @@ class DeviceDefinition extends Resource {
                     return;
                 }
                 const DeviceDefinitionSpecialization = require('../backbone_elements/deviceDefinitionSpecialization.js');
-                this.__data.specialization = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new DeviceDefinitionSpecialization(v)) : [new DeviceDefinitionSpecialization(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.specialization = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof DeviceDefinitionSpecialization ?
+                                v : new DeviceDefinitionSpecialization(v)
+                            );
+                } else {
+                    if (valueProvided instanceof DeviceDefinitionSpecialization) {
+                        this.__data.specialization = valueProvided;
+                    } else {
+                        this.__data.specialization = [new DeviceDefinitionSpecialization(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -467,7 +562,19 @@ class DeviceDefinition extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.safety = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.safety = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof CodeableConcept ?
+                                v : new CodeableConcept(v)
+                            );
+                } else {
+                    if (valueProvided instanceof CodeableConcept) {
+                        this.__data.safety = valueProvided;
+                    } else {
+                        this.__data.safety = [new CodeableConcept(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -486,7 +593,19 @@ class DeviceDefinition extends Resource {
                     return;
                 }
                 const ProductShelfLife = require('../backbone_elements/productShelfLife.js');
-                this.__data.shelfLifeStorage = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ProductShelfLife(v)) : [new ProductShelfLife(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.shelfLifeStorage = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof ProductShelfLife ?
+                                v : new ProductShelfLife(v)
+                            );
+                } else {
+                    if (valueProvided instanceof ProductShelfLife) {
+                        this.__data.shelfLifeStorage = valueProvided;
+                    } else {
+                        this.__data.shelfLifeStorage = [new ProductShelfLife(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -505,7 +624,11 @@ class DeviceDefinition extends Resource {
                     return;
                 }
                 const ProdCharacteristic = require('../backbone_elements/prodCharacteristic.js');
-                this.__data.physicalCharacteristics = new ProdCharacteristic(valueProvided);
+                if (valueProvided instanceof ProdCharacteristic){
+                    this.__data.physicalCharacteristics = valueProvided;
+                } else {
+                    this.__data.physicalCharacteristics = new ProdCharacteristic(valueProvided);
+                }
             }
         });
 
@@ -525,7 +648,19 @@ class DeviceDefinition extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.languageCode = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.languageCode = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof CodeableConcept ?
+                                v : new CodeableConcept(v)
+                            );
+                } else {
+                    if (valueProvided instanceof CodeableConcept) {
+                        this.__data.languageCode = valueProvided;
+                    } else {
+                        this.__data.languageCode = [new CodeableConcept(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -544,7 +679,19 @@ class DeviceDefinition extends Resource {
                     return;
                 }
                 const DeviceDefinitionCapability = require('../backbone_elements/deviceDefinitionCapability.js');
-                this.__data.capability = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new DeviceDefinitionCapability(v)) : [new DeviceDefinitionCapability(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.capability = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof DeviceDefinitionCapability ?
+                                v : new DeviceDefinitionCapability(v)
+                            );
+                } else {
+                    if (valueProvided instanceof DeviceDefinitionCapability) {
+                        this.__data.capability = valueProvided;
+                    } else {
+                        this.__data.capability = [new DeviceDefinitionCapability(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -564,7 +711,19 @@ class DeviceDefinition extends Resource {
                     return;
                 }
                 const DeviceDefinitionProperty = require('../backbone_elements/deviceDefinitionProperty.js');
-                this.__data.property = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new DeviceDefinitionProperty(v)) : [new DeviceDefinitionProperty(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.property = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof DeviceDefinitionProperty ?
+                                v : new DeviceDefinitionProperty(v)
+                            );
+                } else {
+                    if (valueProvided instanceof DeviceDefinitionProperty) {
+                        this.__data.property = valueProvided;
+                    } else {
+                        this.__data.property = [new DeviceDefinitionProperty(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -584,7 +743,11 @@ class DeviceDefinition extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.owner = new Reference(valueProvided);
+                if (valueProvided instanceof Reference){
+                    this.__data.owner = valueProvided;
+                } else {
+                    this.__data.owner = new Reference(valueProvided);
+                }
             }
         });
 
@@ -604,7 +767,19 @@ class DeviceDefinition extends Resource {
                     return;
                 }
                 const ContactPoint = require('../complex_types/contactPoint.js');
-                this.__data.contact = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ContactPoint(v)) : [new ContactPoint(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.contact = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof ContactPoint ?
+                                v : new ContactPoint(v)
+                            );
+                } else {
+                    if (valueProvided instanceof ContactPoint) {
+                        this.__data.contact = valueProvided;
+                    } else {
+                        this.__data.contact = [new ContactPoint(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -660,7 +835,19 @@ class DeviceDefinition extends Resource {
                     return;
                 }
                 const Annotation = require('../complex_types/annotation.js');
-                this.__data.note = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Annotation(v)) : [new Annotation(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.note = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof Annotation ?
+                                v : new Annotation(v)
+                            );
+                } else {
+                    if (valueProvided instanceof Annotation) {
+                        this.__data.note = valueProvided;
+                    } else {
+                        this.__data.note = [new Annotation(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -681,7 +868,11 @@ class DeviceDefinition extends Resource {
                     return;
                 }
                 const Quantity = require('../complex_types/quantity.js');
-                this.__data.quantity = new Quantity(valueProvided);
+                if (valueProvided instanceof Quantity){
+                    this.__data.quantity = valueProvided;
+                } else {
+                    this.__data.quantity = new Quantity(valueProvided);
+                }
             }
         });
 
@@ -700,7 +891,11 @@ class DeviceDefinition extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.parentDevice = new Reference(valueProvided);
+                if (valueProvided instanceof Reference){
+                    this.__data.parentDevice = valueProvided;
+                } else {
+                    this.__data.parentDevice = new Reference(valueProvided);
+                }
             }
         });
 
@@ -719,7 +914,19 @@ class DeviceDefinition extends Resource {
                     return;
                 }
                 const DeviceDefinitionMaterial = require('../backbone_elements/deviceDefinitionMaterial.js');
-                this.__data.material = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new DeviceDefinitionMaterial(v)) : [new DeviceDefinitionMaterial(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.material = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof DeviceDefinitionMaterial ?
+                                v : new DeviceDefinitionMaterial(v)
+                            );
+                } else {
+                    if (valueProvided instanceof DeviceDefinitionMaterial) {
+                        this.__data.material = valueProvided;
+                    } else {
+                        this.__data.material = [new DeviceDefinitionMaterial(valueProvided)];
+                    }
+                }
             }
         });
 

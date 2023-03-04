@@ -152,7 +152,11 @@ class Contract extends Resource {
                     return;
                 }
                 const Meta = require('../complex_types/meta.js');
-                this.__data.meta = new Meta(valueProvided);
+                if (valueProvided instanceof Meta){
+                    this.__data.meta = valueProvided;
+                } else {
+                    this.__data.meta = new Meta(valueProvided);
+                }
             }
         });
 
@@ -215,7 +219,11 @@ class Contract extends Resource {
                     return;
                 }
                 const Narrative = require('../complex_types/narrative.js');
-                this.__data.text = new Narrative(valueProvided);
+                if (valueProvided instanceof Narrative){
+                    this.__data.text = valueProvided;
+                } else {
+                    this.__data.text = new Narrative(valueProvided);
+                }
             }
         });
 
@@ -239,12 +247,19 @@ class Contract extends Resource {
                 const {getResource} = require('../../../../operations/common/getResource');
                 if (Array.isArray(valueProvided)) {
                     this.__data.contained = valueProvided.filter(v => v).map(v => {
+                        if (v instanceof Resource) {
+                            return v;
+                        }
                         const ResourceCreator = getResource('4_0_0', v.resourceType);
                         return new ResourceCreator(v);
                     });
                 } else {
-                const ResourceCreator = getResource('4_0_0', valueProvided.resourceType);
-                this.__data.contained = [new ResourceCreator(valueProvided)];
+                    if (valueProvided instanceof Resource) {
+                        this.__data.contained = [valueProvided];
+                    } else {
+                        const ResourceCreator = getResource('4_0_0', valueProvided.resourceType);
+                        this.__data.contained = [new ResourceCreator(valueProvided)];
+                    }
                 }
             }
         });
@@ -268,7 +283,19 @@ class Contract extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.extension = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof Extension ?
+                                v : new Extension(v)
+                            );
+                } else {
+                    if (valueProvided instanceof Extension) {
+                        this.__data.extension = valueProvided;
+                    } else {
+                        this.__data.extension = [new Extension(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -299,7 +326,19 @@ class Contract extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.modifierExtension = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof Extension ?
+                                v : new Extension(v)
+                            );
+                } else {
+                    if (valueProvided instanceof Extension) {
+                        this.__data.modifierExtension = valueProvided;
+                    } else {
+                        this.__data.modifierExtension = [new Extension(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -319,7 +358,19 @@ class Contract extends Resource {
                     return;
                 }
                 const Identifier = require('../complex_types/identifier.js');
-                this.__data.identifier = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Identifier(v)) : [new Identifier(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.identifier = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof Identifier ?
+                                v : new Identifier(v)
+                            );
+                } else {
+                    if (valueProvided instanceof Identifier) {
+                        this.__data.identifier = valueProvided;
+                    } else {
+                        this.__data.identifier = [new Identifier(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -398,7 +449,11 @@ class Contract extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.legalState = new CodeableConcept(valueProvided);
+                if (valueProvided instanceof CodeableConcept){
+                    this.__data.legalState = valueProvided;
+                } else {
+                    this.__data.legalState = new CodeableConcept(valueProvided);
+                }
             }
         });
 
@@ -418,7 +473,11 @@ class Contract extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.instantiatesCanonical = new Reference(valueProvided);
+                if (valueProvided instanceof Reference){
+                    this.__data.instantiatesCanonical = valueProvided;
+                } else {
+                    this.__data.instantiatesCanonical = new Reference(valueProvided);
+                }
             }
         });
 
@@ -457,7 +516,11 @@ class Contract extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.contentDerivative = new CodeableConcept(valueProvided);
+                if (valueProvided instanceof CodeableConcept){
+                    this.__data.contentDerivative = valueProvided;
+                } else {
+                    this.__data.contentDerivative = new CodeableConcept(valueProvided);
+                }
             }
         });
 
@@ -494,7 +557,11 @@ class Contract extends Resource {
                     return;
                 }
                 const Period = require('../complex_types/period.js');
-                this.__data.applies = new Period(valueProvided);
+                if (valueProvided instanceof Period){
+                    this.__data.applies = valueProvided;
+                } else {
+                    this.__data.applies = new Period(valueProvided);
+                }
             }
         });
 
@@ -514,7 +581,11 @@ class Contract extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.expirationType = new CodeableConcept(valueProvided);
+                if (valueProvided instanceof CodeableConcept){
+                    this.__data.expirationType = valueProvided;
+                } else {
+                    this.__data.expirationType = new CodeableConcept(valueProvided);
+                }
             }
         });
 
@@ -533,7 +604,19 @@ class Contract extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.subject = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.subject = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof Reference ?
+                                v : new Reference(v)
+                            );
+                } else {
+                    if (valueProvided instanceof Reference) {
+                        this.__data.subject = valueProvided;
+                    } else {
+                        this.__data.subject = [new Reference(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -555,7 +638,19 @@ class Contract extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.authority = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.authority = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof Reference ?
+                                v : new Reference(v)
+                            );
+                } else {
+                    if (valueProvided instanceof Reference) {
+                        this.__data.authority = valueProvided;
+                    } else {
+                        this.__data.authority = [new Reference(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -577,7 +672,19 @@ class Contract extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.domain = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.domain = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof Reference ?
+                                v : new Reference(v)
+                            );
+                } else {
+                    if (valueProvided instanceof Reference) {
+                        this.__data.domain = valueProvided;
+                    } else {
+                        this.__data.domain = [new Reference(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -596,7 +703,19 @@ class Contract extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.site = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.site = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof Reference ?
+                                v : new Reference(v)
+                            );
+                } else {
+                    if (valueProvided instanceof Reference) {
+                        this.__data.site = valueProvided;
+                    } else {
+                        this.__data.site = [new Reference(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -697,7 +816,11 @@ class Contract extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.author = new Reference(valueProvided);
+                if (valueProvided instanceof Reference){
+                    this.__data.author = valueProvided;
+                } else {
+                    this.__data.author = new Reference(valueProvided);
+                }
             }
         });
 
@@ -717,7 +840,11 @@ class Contract extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.scope = new CodeableConcept(valueProvided);
+                if (valueProvided instanceof CodeableConcept){
+                    this.__data.scope = valueProvided;
+                } else {
+                    this.__data.scope = new CodeableConcept(valueProvided);
+                }
             }
         });
 
@@ -736,7 +863,11 @@ class Contract extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.topicCodeableConcept = new CodeableConcept(valueProvided);
+                if (valueProvided instanceof CodeableConcept){
+                    this.__data.topicCodeableConcept = valueProvided;
+                } else {
+                    this.__data.topicCodeableConcept = new CodeableConcept(valueProvided);
+                }
             }
         });
 
@@ -755,7 +886,11 @@ class Contract extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.topicReference = new Reference(valueProvided);
+                if (valueProvided instanceof Reference){
+                    this.__data.topicReference = valueProvided;
+                } else {
+                    this.__data.topicReference = new Reference(valueProvided);
+                }
             }
         });
 
@@ -778,7 +913,11 @@ class Contract extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.type = new CodeableConcept(valueProvided);
+                if (valueProvided instanceof CodeableConcept){
+                    this.__data.type = valueProvided;
+                } else {
+                    this.__data.type = new CodeableConcept(valueProvided);
+                }
             }
         });
 
@@ -799,7 +938,19 @@ class Contract extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.subType = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.subType = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof CodeableConcept ?
+                                v : new CodeableConcept(v)
+                            );
+                } else {
+                    if (valueProvided instanceof CodeableConcept) {
+                        this.__data.subType = valueProvided;
+                    } else {
+                        this.__data.subType = [new CodeableConcept(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -820,7 +971,11 @@ class Contract extends Resource {
                     return;
                 }
                 const ContractContentDefinition = require('../backbone_elements/contractContentDefinition.js');
-                this.__data.contentDefinition = new ContractContentDefinition(valueProvided);
+                if (valueProvided instanceof ContractContentDefinition){
+                    this.__data.contentDefinition = valueProvided;
+                } else {
+                    this.__data.contentDefinition = new ContractContentDefinition(valueProvided);
+                }
             }
         });
 
@@ -840,7 +995,19 @@ class Contract extends Resource {
                     return;
                 }
                 const ContractTerm = require('../backbone_elements/contractTerm.js');
-                this.__data.term = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ContractTerm(v)) : [new ContractTerm(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.term = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof ContractTerm ?
+                                v : new ContractTerm(v)
+                            );
+                } else {
+                    if (valueProvided instanceof ContractTerm) {
+                        this.__data.term = valueProvided;
+                    } else {
+                        this.__data.term = [new ContractTerm(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -860,7 +1027,19 @@ class Contract extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.supportingInfo = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.supportingInfo = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof Reference ?
+                                v : new Reference(v)
+                            );
+                } else {
+                    if (valueProvided instanceof Reference) {
+                        this.__data.supportingInfo = valueProvided;
+                    } else {
+                        this.__data.supportingInfo = [new Reference(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -883,7 +1062,19 @@ class Contract extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.relevantHistory = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.relevantHistory = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof Reference ?
+                                v : new Reference(v)
+                            );
+                } else {
+                    if (valueProvided instanceof Reference) {
+                        this.__data.relevantHistory = valueProvided;
+                    } else {
+                        this.__data.relevantHistory = [new Reference(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -905,7 +1096,19 @@ class Contract extends Resource {
                     return;
                 }
                 const ContractSigner = require('../backbone_elements/contractSigner.js');
-                this.__data.signer = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ContractSigner(v)) : [new ContractSigner(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.signer = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof ContractSigner ?
+                                v : new ContractSigner(v)
+                            );
+                } else {
+                    if (valueProvided instanceof ContractSigner) {
+                        this.__data.signer = valueProvided;
+                    } else {
+                        this.__data.signer = [new ContractSigner(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -929,7 +1132,19 @@ class Contract extends Resource {
                     return;
                 }
                 const ContractFriendly = require('../backbone_elements/contractFriendly.js');
-                this.__data.friendly = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ContractFriendly(v)) : [new ContractFriendly(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.friendly = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof ContractFriendly ?
+                                v : new ContractFriendly(v)
+                            );
+                } else {
+                    if (valueProvided instanceof ContractFriendly) {
+                        this.__data.friendly = valueProvided;
+                    } else {
+                        this.__data.friendly = [new ContractFriendly(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -948,7 +1163,19 @@ class Contract extends Resource {
                     return;
                 }
                 const ContractLegal = require('../backbone_elements/contractLegal.js');
-                this.__data.legal = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ContractLegal(v)) : [new ContractLegal(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.legal = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof ContractLegal ?
+                                v : new ContractLegal(v)
+                            );
+                } else {
+                    if (valueProvided instanceof ContractLegal) {
+                        this.__data.legal = valueProvided;
+                    } else {
+                        this.__data.legal = [new ContractLegal(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -967,7 +1194,19 @@ class Contract extends Resource {
                     return;
                 }
                 const ContractRule = require('../backbone_elements/contractRule.js');
-                this.__data.rule = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ContractRule(v)) : [new ContractRule(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.rule = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof ContractRule ?
+                                v : new ContractRule(v)
+                            );
+                } else {
+                    if (valueProvided instanceof ContractRule) {
+                        this.__data.rule = valueProvided;
+                    } else {
+                        this.__data.rule = [new ContractRule(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -986,7 +1225,11 @@ class Contract extends Resource {
                     return;
                 }
                 const Attachment = require('../complex_types/attachment.js');
-                this.__data.legallyBindingAttachment = new Attachment(valueProvided);
+                if (valueProvided instanceof Attachment){
+                    this.__data.legallyBindingAttachment = valueProvided;
+                } else {
+                    this.__data.legallyBindingAttachment = new Attachment(valueProvided);
+                }
             }
         });
 
@@ -1005,7 +1248,11 @@ class Contract extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.legallyBindingReference = new Reference(valueProvided);
+                if (valueProvided instanceof Reference){
+                    this.__data.legallyBindingReference = valueProvided;
+                } else {
+                    this.__data.legallyBindingReference = new Reference(valueProvided);
+                }
             }
         });
 

@@ -77,7 +77,11 @@ class Parameters extends Resource {
                     return;
                 }
                 const Meta = require('../complex_types/meta.js');
-                this.__data.meta = new Meta(valueProvided);
+                if (valueProvided instanceof Meta){
+                    this.__data.meta = valueProvided;
+                } else {
+                    this.__data.meta = new Meta(valueProvided);
+                }
             }
         });
 
@@ -135,7 +139,19 @@ class Parameters extends Resource {
                     return;
                 }
                 const ParametersParameter = require('../backbone_elements/parametersParameter.js');
-                this.__data.parameter = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ParametersParameter(v)) : [new ParametersParameter(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.parameter = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof ParametersParameter ?
+                                v : new ParametersParameter(v)
+                            );
+                } else {
+                    if (valueProvided instanceof ParametersParameter) {
+                        this.__data.parameter = valueProvided;
+                    } else {
+                        this.__data.parameter = [new ParametersParameter(valueProvided)];
+                    }
+                }
             }
         });
 

@@ -107,7 +107,11 @@ class SupplyDelivery extends Resource {
                     return;
                 }
                 const Meta = require('../complex_types/meta.js');
-                this.__data.meta = new Meta(valueProvided);
+                if (valueProvided instanceof Meta){
+                    this.__data.meta = valueProvided;
+                } else {
+                    this.__data.meta = new Meta(valueProvided);
+                }
             }
         });
 
@@ -170,7 +174,11 @@ class SupplyDelivery extends Resource {
                     return;
                 }
                 const Narrative = require('../complex_types/narrative.js');
-                this.__data.text = new Narrative(valueProvided);
+                if (valueProvided instanceof Narrative){
+                    this.__data.text = valueProvided;
+                } else {
+                    this.__data.text = new Narrative(valueProvided);
+                }
             }
         });
 
@@ -194,12 +202,19 @@ class SupplyDelivery extends Resource {
                 const {getResource} = require('../../../../operations/common/getResource');
                 if (Array.isArray(valueProvided)) {
                     this.__data.contained = valueProvided.filter(v => v).map(v => {
+                        if (v instanceof Resource) {
+                            return v;
+                        }
                         const ResourceCreator = getResource('4_0_0', v.resourceType);
                         return new ResourceCreator(v);
                     });
                 } else {
-                const ResourceCreator = getResource('4_0_0', valueProvided.resourceType);
-                this.__data.contained = [new ResourceCreator(valueProvided)];
+                    if (valueProvided instanceof Resource) {
+                        this.__data.contained = [valueProvided];
+                    } else {
+                        const ResourceCreator = getResource('4_0_0', valueProvided.resourceType);
+                        this.__data.contained = [new ResourceCreator(valueProvided)];
+                    }
                 }
             }
         });
@@ -223,7 +238,19 @@ class SupplyDelivery extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.extension = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof Extension ?
+                                v : new Extension(v)
+                            );
+                } else {
+                    if (valueProvided instanceof Extension) {
+                        this.__data.extension = valueProvided;
+                    } else {
+                        this.__data.extension = [new Extension(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -254,7 +281,19 @@ class SupplyDelivery extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.modifierExtension = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof Extension ?
+                                v : new Extension(v)
+                            );
+                } else {
+                    if (valueProvided instanceof Extension) {
+                        this.__data.modifierExtension = valueProvided;
+                    } else {
+                        this.__data.modifierExtension = [new Extension(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -274,7 +313,19 @@ class SupplyDelivery extends Resource {
                     return;
                 }
                 const Identifier = require('../complex_types/identifier.js');
-                this.__data.identifier = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Identifier(v)) : [new Identifier(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.identifier = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof Identifier ?
+                                v : new Identifier(v)
+                            );
+                } else {
+                    if (valueProvided instanceof Identifier) {
+                        this.__data.identifier = valueProvided;
+                    } else {
+                        this.__data.identifier = [new Identifier(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -293,7 +344,19 @@ class SupplyDelivery extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.basedOn = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.basedOn = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof Reference ?
+                                v : new Reference(v)
+                            );
+                } else {
+                    if (valueProvided instanceof Reference) {
+                        this.__data.basedOn = valueProvided;
+                    } else {
+                        this.__data.basedOn = [new Reference(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -312,7 +375,19 @@ class SupplyDelivery extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.partOf = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.partOf = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof Reference ?
+                                v : new Reference(v)
+                            );
+                } else {
+                    if (valueProvided instanceof Reference) {
+                        this.__data.partOf = valueProvided;
+                    } else {
+                        this.__data.partOf = [new Reference(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -349,7 +424,11 @@ class SupplyDelivery extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.patient = new Reference(valueProvided);
+                if (valueProvided instanceof Reference){
+                    this.__data.patient = valueProvided;
+                } else {
+                    this.__data.patient = new Reference(valueProvided);
+                }
             }
         });
 
@@ -369,7 +448,11 @@ class SupplyDelivery extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.type = new CodeableConcept(valueProvided);
+                if (valueProvided instanceof CodeableConcept){
+                    this.__data.type = valueProvided;
+                } else {
+                    this.__data.type = new CodeableConcept(valueProvided);
+                }
             }
         });
 
@@ -388,7 +471,11 @@ class SupplyDelivery extends Resource {
                     return;
                 }
                 const SupplyDeliverySuppliedItem = require('../backbone_elements/supplyDeliverySuppliedItem.js');
-                this.__data.suppliedItem = new SupplyDeliverySuppliedItem(valueProvided);
+                if (valueProvided instanceof SupplyDeliverySuppliedItem){
+                    this.__data.suppliedItem = valueProvided;
+                } else {
+                    this.__data.suppliedItem = new SupplyDeliverySuppliedItem(valueProvided);
+                }
             }
         });
 
@@ -425,7 +512,11 @@ class SupplyDelivery extends Resource {
                     return;
                 }
                 const Period = require('../complex_types/period.js');
-                this.__data.occurrencePeriod = new Period(valueProvided);
+                if (valueProvided instanceof Period){
+                    this.__data.occurrencePeriod = valueProvided;
+                } else {
+                    this.__data.occurrencePeriod = new Period(valueProvided);
+                }
             }
         });
 
@@ -444,7 +535,11 @@ class SupplyDelivery extends Resource {
                     return;
                 }
                 const Timing = require('../backbone_elements/timing.js');
-                this.__data.occurrenceTiming = new Timing(valueProvided);
+                if (valueProvided instanceof Timing){
+                    this.__data.occurrenceTiming = valueProvided;
+                } else {
+                    this.__data.occurrenceTiming = new Timing(valueProvided);
+                }
             }
         });
 
@@ -463,7 +558,11 @@ class SupplyDelivery extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.supplier = new Reference(valueProvided);
+                if (valueProvided instanceof Reference){
+                    this.__data.supplier = valueProvided;
+                } else {
+                    this.__data.supplier = new Reference(valueProvided);
+                }
             }
         });
 
@@ -483,7 +582,11 @@ class SupplyDelivery extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.destination = new Reference(valueProvided);
+                if (valueProvided instanceof Reference){
+                    this.__data.destination = valueProvided;
+                } else {
+                    this.__data.destination = new Reference(valueProvided);
+                }
             }
         });
 
@@ -502,7 +605,19 @@ class SupplyDelivery extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.receiver = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.receiver = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof Reference ?
+                                v : new Reference(v)
+                            );
+                } else {
+                    if (valueProvided instanceof Reference) {
+                        this.__data.receiver = valueProvided;
+                    } else {
+                        this.__data.receiver = [new Reference(valueProvided)];
+                    }
+                }
             }
         });
 

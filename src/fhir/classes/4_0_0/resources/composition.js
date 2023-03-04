@@ -119,7 +119,11 @@ class Composition extends Resource {
                     return;
                 }
                 const Meta = require('../complex_types/meta.js');
-                this.__data.meta = new Meta(valueProvided);
+                if (valueProvided instanceof Meta){
+                    this.__data.meta = valueProvided;
+                } else {
+                    this.__data.meta = new Meta(valueProvided);
+                }
             }
         });
 
@@ -182,7 +186,11 @@ class Composition extends Resource {
                     return;
                 }
                 const Narrative = require('../complex_types/narrative.js');
-                this.__data.text = new Narrative(valueProvided);
+                if (valueProvided instanceof Narrative){
+                    this.__data.text = valueProvided;
+                } else {
+                    this.__data.text = new Narrative(valueProvided);
+                }
             }
         });
 
@@ -206,12 +214,19 @@ class Composition extends Resource {
                 const {getResource} = require('../../../../operations/common/getResource');
                 if (Array.isArray(valueProvided)) {
                     this.__data.contained = valueProvided.filter(v => v).map(v => {
+                        if (v instanceof Resource) {
+                            return v;
+                        }
                         const ResourceCreator = getResource('4_0_0', v.resourceType);
                         return new ResourceCreator(v);
                     });
                 } else {
-                const ResourceCreator = getResource('4_0_0', valueProvided.resourceType);
-                this.__data.contained = [new ResourceCreator(valueProvided)];
+                    if (valueProvided instanceof Resource) {
+                        this.__data.contained = [valueProvided];
+                    } else {
+                        const ResourceCreator = getResource('4_0_0', valueProvided.resourceType);
+                        this.__data.contained = [new ResourceCreator(valueProvided)];
+                    }
                 }
             }
         });
@@ -235,7 +250,19 @@ class Composition extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.extension = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof Extension ?
+                                v : new Extension(v)
+                            );
+                } else {
+                    if (valueProvided instanceof Extension) {
+                        this.__data.extension = valueProvided;
+                    } else {
+                        this.__data.extension = [new Extension(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -266,7 +293,19 @@ class Composition extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.modifierExtension = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof Extension ?
+                                v : new Extension(v)
+                            );
+                } else {
+                    if (valueProvided instanceof Extension) {
+                        this.__data.modifierExtension = valueProvided;
+                    } else {
+                        this.__data.modifierExtension = [new Extension(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -286,7 +325,11 @@ class Composition extends Resource {
                     return;
                 }
                 const Identifier = require('../complex_types/identifier.js');
-                this.__data.identifier = new Identifier(valueProvided);
+                if (valueProvided instanceof Identifier){
+                    this.__data.identifier = valueProvided;
+                } else {
+                    this.__data.identifier = new Identifier(valueProvided);
+                }
             }
         });
 
@@ -326,7 +369,11 @@ class Composition extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.type = new CodeableConcept(valueProvided);
+                if (valueProvided instanceof CodeableConcept){
+                    this.__data.type = valueProvided;
+                } else {
+                    this.__data.type = new CodeableConcept(valueProvided);
+                }
             }
         });
 
@@ -347,7 +394,19 @@ class Composition extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.category = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.category = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof CodeableConcept ?
+                                v : new CodeableConcept(v)
+                            );
+                } else {
+                    if (valueProvided instanceof CodeableConcept) {
+                        this.__data.category = valueProvided;
+                    } else {
+                        this.__data.category = [new CodeableConcept(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -369,7 +428,11 @@ class Composition extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.subject = new Reference(valueProvided);
+                if (valueProvided instanceof Reference){
+                    this.__data.subject = valueProvided;
+                } else {
+                    this.__data.subject = new Reference(valueProvided);
+                }
             }
         });
 
@@ -389,7 +452,11 @@ class Composition extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.encounter = new Reference(valueProvided);
+                if (valueProvided instanceof Reference){
+                    this.__data.encounter = valueProvided;
+                } else {
+                    this.__data.encounter = new Reference(valueProvided);
+                }
             }
         });
 
@@ -428,7 +495,19 @@ class Composition extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.author = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.author = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof Reference ?
+                                v : new Reference(v)
+                            );
+                } else {
+                    if (valueProvided instanceof Reference) {
+                        this.__data.author = valueProvided;
+                    } else {
+                        this.__data.author = [new Reference(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -483,7 +562,19 @@ class Composition extends Resource {
                     return;
                 }
                 const CompositionAttester = require('../backbone_elements/compositionAttester.js');
-                this.__data.attester = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CompositionAttester(v)) : [new CompositionAttester(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.attester = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof CompositionAttester ?
+                                v : new CompositionAttester(v)
+                            );
+                } else {
+                    if (valueProvided instanceof CompositionAttester) {
+                        this.__data.attester = valueProvided;
+                    } else {
+                        this.__data.attester = [new CompositionAttester(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -503,7 +594,11 @@ class Composition extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.custodian = new Reference(valueProvided);
+                if (valueProvided instanceof Reference){
+                    this.__data.custodian = valueProvided;
+                } else {
+                    this.__data.custodian = new Reference(valueProvided);
+                }
             }
         });
 
@@ -523,7 +618,19 @@ class Composition extends Resource {
                     return;
                 }
                 const CompositionRelatesTo = require('../backbone_elements/compositionRelatesTo.js');
-                this.__data.relatesTo = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CompositionRelatesTo(v)) : [new CompositionRelatesTo(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.relatesTo = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof CompositionRelatesTo ?
+                                v : new CompositionRelatesTo(v)
+                            );
+                } else {
+                    if (valueProvided instanceof CompositionRelatesTo) {
+                        this.__data.relatesTo = valueProvided;
+                    } else {
+                        this.__data.relatesTo = [new CompositionRelatesTo(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -543,7 +650,19 @@ class Composition extends Resource {
                     return;
                 }
                 const CompositionEvent = require('../backbone_elements/compositionEvent.js');
-                this.__data.event = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CompositionEvent(v)) : [new CompositionEvent(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.event = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof CompositionEvent ?
+                                v : new CompositionEvent(v)
+                            );
+                } else {
+                    if (valueProvided instanceof CompositionEvent) {
+                        this.__data.event = valueProvided;
+                    } else {
+                        this.__data.event = [new CompositionEvent(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -562,7 +681,19 @@ class Composition extends Resource {
                     return;
                 }
                 const CompositionSection = require('../backbone_elements/compositionSection.js');
-                this.__data.section = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CompositionSection(v)) : [new CompositionSection(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.section = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof CompositionSection ?
+                                v : new CompositionSection(v)
+                            );
+                } else {
+                    if (valueProvided instanceof CompositionSection) {
+                        this.__data.section = valueProvided;
+                    } else {
+                        this.__data.section = [new CompositionSection(valueProvided)];
+                    }
+                }
             }
         });
 

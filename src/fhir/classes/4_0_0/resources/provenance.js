@@ -111,7 +111,11 @@ class Provenance extends Resource {
                     return;
                 }
                 const Meta = require('../complex_types/meta.js');
-                this.__data.meta = new Meta(valueProvided);
+                if (valueProvided instanceof Meta){
+                    this.__data.meta = valueProvided;
+                } else {
+                    this.__data.meta = new Meta(valueProvided);
+                }
             }
         });
 
@@ -174,7 +178,11 @@ class Provenance extends Resource {
                     return;
                 }
                 const Narrative = require('../complex_types/narrative.js');
-                this.__data.text = new Narrative(valueProvided);
+                if (valueProvided instanceof Narrative){
+                    this.__data.text = valueProvided;
+                } else {
+                    this.__data.text = new Narrative(valueProvided);
+                }
             }
         });
 
@@ -198,12 +206,19 @@ class Provenance extends Resource {
                 const {getResource} = require('../../../../operations/common/getResource');
                 if (Array.isArray(valueProvided)) {
                     this.__data.contained = valueProvided.filter(v => v).map(v => {
+                        if (v instanceof Resource) {
+                            return v;
+                        }
                         const ResourceCreator = getResource('4_0_0', v.resourceType);
                         return new ResourceCreator(v);
                     });
                 } else {
-                const ResourceCreator = getResource('4_0_0', valueProvided.resourceType);
-                this.__data.contained = [new ResourceCreator(valueProvided)];
+                    if (valueProvided instanceof Resource) {
+                        this.__data.contained = [valueProvided];
+                    } else {
+                        const ResourceCreator = getResource('4_0_0', valueProvided.resourceType);
+                        this.__data.contained = [new ResourceCreator(valueProvided)];
+                    }
                 }
             }
         });
@@ -227,7 +242,19 @@ class Provenance extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.extension = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof Extension ?
+                                v : new Extension(v)
+                            );
+                } else {
+                    if (valueProvided instanceof Extension) {
+                        this.__data.extension = valueProvided;
+                    } else {
+                        this.__data.extension = [new Extension(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -258,7 +285,19 @@ class Provenance extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.modifierExtension = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof Extension ?
+                                v : new Extension(v)
+                            );
+                } else {
+                    if (valueProvided instanceof Extension) {
+                        this.__data.modifierExtension = valueProvided;
+                    } else {
+                        this.__data.modifierExtension = [new Extension(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -279,7 +318,19 @@ class Provenance extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.target = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.target = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof Reference ?
+                                v : new Reference(v)
+                            );
+                } else {
+                    if (valueProvided instanceof Reference) {
+                        this.__data.target = valueProvided;
+                    } else {
+                        this.__data.target = [new Reference(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -298,7 +349,11 @@ class Provenance extends Resource {
                     return;
                 }
                 const Period = require('../complex_types/period.js');
-                this.__data.occurredPeriod = new Period(valueProvided);
+                if (valueProvided instanceof Period){
+                    this.__data.occurredPeriod = valueProvided;
+                } else {
+                    this.__data.occurredPeriod = new Period(valueProvided);
+                }
             }
         });
 
@@ -373,7 +428,11 @@ class Provenance extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.location = new Reference(valueProvided);
+                if (valueProvided instanceof Reference){
+                    this.__data.location = valueProvided;
+                } else {
+                    this.__data.location = new Reference(valueProvided);
+                }
             }
         });
 
@@ -392,7 +451,19 @@ class Provenance extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.reason = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.reason = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof CodeableConcept ?
+                                v : new CodeableConcept(v)
+                            );
+                } else {
+                    if (valueProvided instanceof CodeableConcept) {
+                        this.__data.reason = valueProvided;
+                    } else {
+                        this.__data.reason = [new CodeableConcept(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -413,7 +484,11 @@ class Provenance extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.activity = new CodeableConcept(valueProvided);
+                if (valueProvided instanceof CodeableConcept){
+                    this.__data.activity = valueProvided;
+                } else {
+                    this.__data.activity = new CodeableConcept(valueProvided);
+                }
             }
         });
 
@@ -433,7 +508,19 @@ class Provenance extends Resource {
                     return;
                 }
                 const ProvenanceAgent = require('../backbone_elements/provenanceAgent.js');
-                this.__data.agent = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ProvenanceAgent(v)) : [new ProvenanceAgent(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.agent = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof ProvenanceAgent ?
+                                v : new ProvenanceAgent(v)
+                            );
+                } else {
+                    if (valueProvided instanceof ProvenanceAgent) {
+                        this.__data.agent = valueProvided;
+                    } else {
+                        this.__data.agent = [new ProvenanceAgent(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -452,7 +539,19 @@ class Provenance extends Resource {
                     return;
                 }
                 const ProvenanceEntity = require('../backbone_elements/provenanceEntity.js');
-                this.__data.entity = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ProvenanceEntity(v)) : [new ProvenanceEntity(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.entity = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof ProvenanceEntity ?
+                                v : new ProvenanceEntity(v)
+                            );
+                } else {
+                    if (valueProvided instanceof ProvenanceEntity) {
+                        this.__data.entity = valueProvided;
+                    } else {
+                        this.__data.entity = [new ProvenanceEntity(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -472,7 +571,19 @@ class Provenance extends Resource {
                     return;
                 }
                 const Signature = require('../complex_types/signature.js');
-                this.__data.signature = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Signature(v)) : [new Signature(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.signature = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof Signature ?
+                                v : new Signature(v)
+                            );
+                } else {
+                    if (valueProvided instanceof Signature) {
+                        this.__data.signature = valueProvided;
+                    } else {
+                        this.__data.signature = [new Signature(valueProvided)];
+                    }
+                }
             }
         });
 

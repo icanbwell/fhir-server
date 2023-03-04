@@ -102,7 +102,11 @@ class DeviceMetric extends Resource {
                     return;
                 }
                 const Meta = require('../complex_types/meta.js');
-                this.__data.meta = new Meta(valueProvided);
+                if (valueProvided instanceof Meta){
+                    this.__data.meta = valueProvided;
+                } else {
+                    this.__data.meta = new Meta(valueProvided);
+                }
             }
         });
 
@@ -165,7 +169,11 @@ class DeviceMetric extends Resource {
                     return;
                 }
                 const Narrative = require('../complex_types/narrative.js');
-                this.__data.text = new Narrative(valueProvided);
+                if (valueProvided instanceof Narrative){
+                    this.__data.text = valueProvided;
+                } else {
+                    this.__data.text = new Narrative(valueProvided);
+                }
             }
         });
 
@@ -189,12 +197,19 @@ class DeviceMetric extends Resource {
                 const {getResource} = require('../../../../operations/common/getResource');
                 if (Array.isArray(valueProvided)) {
                     this.__data.contained = valueProvided.filter(v => v).map(v => {
+                        if (v instanceof Resource) {
+                            return v;
+                        }
                         const ResourceCreator = getResource('4_0_0', v.resourceType);
                         return new ResourceCreator(v);
                     });
                 } else {
-                const ResourceCreator = getResource('4_0_0', valueProvided.resourceType);
-                this.__data.contained = [new ResourceCreator(valueProvided)];
+                    if (valueProvided instanceof Resource) {
+                        this.__data.contained = [valueProvided];
+                    } else {
+                        const ResourceCreator = getResource('4_0_0', valueProvided.resourceType);
+                        this.__data.contained = [new ResourceCreator(valueProvided)];
+                    }
                 }
             }
         });
@@ -218,7 +233,19 @@ class DeviceMetric extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.extension = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof Extension ?
+                                v : new Extension(v)
+                            );
+                } else {
+                    if (valueProvided instanceof Extension) {
+                        this.__data.extension = valueProvided;
+                    } else {
+                        this.__data.extension = [new Extension(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -249,7 +276,19 @@ class DeviceMetric extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.modifierExtension = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof Extension ?
+                                v : new Extension(v)
+                            );
+                } else {
+                    if (valueProvided instanceof Extension) {
+                        this.__data.modifierExtension = valueProvided;
+                    } else {
+                        this.__data.modifierExtension = [new Extension(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -270,7 +309,19 @@ class DeviceMetric extends Resource {
                     return;
                 }
                 const Identifier = require('../complex_types/identifier.js');
-                this.__data.identifier = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Identifier(v)) : [new Identifier(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.identifier = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof Identifier ?
+                                v : new Identifier(v)
+                            );
+                } else {
+                    if (valueProvided instanceof Identifier) {
+                        this.__data.identifier = valueProvided;
+                    } else {
+                        this.__data.identifier = [new Identifier(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -289,7 +340,11 @@ class DeviceMetric extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.type = new CodeableConcept(valueProvided);
+                if (valueProvided instanceof CodeableConcept){
+                    this.__data.type = valueProvided;
+                } else {
+                    this.__data.type = new CodeableConcept(valueProvided);
+                }
             }
         });
 
@@ -309,7 +364,11 @@ class DeviceMetric extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.unit = new CodeableConcept(valueProvided);
+                if (valueProvided instanceof CodeableConcept){
+                    this.__data.unit = valueProvided;
+                } else {
+                    this.__data.unit = new CodeableConcept(valueProvided);
+                }
             }
         });
 
@@ -330,7 +389,11 @@ class DeviceMetric extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.source = new Reference(valueProvided);
+                if (valueProvided instanceof Reference){
+                    this.__data.source = valueProvided;
+                } else {
+                    this.__data.source = new Reference(valueProvided);
+                }
             }
         });
 
@@ -354,7 +417,11 @@ class DeviceMetric extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.parent = new Reference(valueProvided);
+                if (valueProvided instanceof Reference){
+                    this.__data.parent = valueProvided;
+                } else {
+                    this.__data.parent = new Reference(valueProvided);
+                }
             }
         });
 
@@ -440,7 +507,11 @@ class DeviceMetric extends Resource {
                     return;
                 }
                 const Timing = require('../backbone_elements/timing.js');
-                this.__data.measurementPeriod = new Timing(valueProvided);
+                if (valueProvided instanceof Timing){
+                    this.__data.measurementPeriod = valueProvided;
+                } else {
+                    this.__data.measurementPeriod = new Timing(valueProvided);
+                }
             }
         });
 
@@ -460,7 +531,19 @@ class DeviceMetric extends Resource {
                     return;
                 }
                 const DeviceMetricCalibration = require('../backbone_elements/deviceMetricCalibration.js');
-                this.__data.calibration = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new DeviceMetricCalibration(v)) : [new DeviceMetricCalibration(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.calibration = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof DeviceMetricCalibration ?
+                                v : new DeviceMetricCalibration(v)
+                            );
+                } else {
+                    if (valueProvided instanceof DeviceMetricCalibration) {
+                        this.__data.calibration = valueProvided;
+                    } else {
+                        this.__data.calibration = [new DeviceMetricCalibration(valueProvided)];
+                    }
+                }
             }
         });
 

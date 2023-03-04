@@ -125,7 +125,11 @@ class ImagingStudy extends Resource {
                     return;
                 }
                 const Meta = require('../complex_types/meta.js');
-                this.__data.meta = new Meta(valueProvided);
+                if (valueProvided instanceof Meta){
+                    this.__data.meta = valueProvided;
+                } else {
+                    this.__data.meta = new Meta(valueProvided);
+                }
             }
         });
 
@@ -188,7 +192,11 @@ class ImagingStudy extends Resource {
                     return;
                 }
                 const Narrative = require('../complex_types/narrative.js');
-                this.__data.text = new Narrative(valueProvided);
+                if (valueProvided instanceof Narrative){
+                    this.__data.text = valueProvided;
+                } else {
+                    this.__data.text = new Narrative(valueProvided);
+                }
             }
         });
 
@@ -212,12 +220,19 @@ class ImagingStudy extends Resource {
                 const {getResource} = require('../../../../operations/common/getResource');
                 if (Array.isArray(valueProvided)) {
                     this.__data.contained = valueProvided.filter(v => v).map(v => {
+                        if (v instanceof Resource) {
+                            return v;
+                        }
                         const ResourceCreator = getResource('4_0_0', v.resourceType);
                         return new ResourceCreator(v);
                     });
                 } else {
-                const ResourceCreator = getResource('4_0_0', valueProvided.resourceType);
-                this.__data.contained = [new ResourceCreator(valueProvided)];
+                    if (valueProvided instanceof Resource) {
+                        this.__data.contained = [valueProvided];
+                    } else {
+                        const ResourceCreator = getResource('4_0_0', valueProvided.resourceType);
+                        this.__data.contained = [new ResourceCreator(valueProvided)];
+                    }
                 }
             }
         });
@@ -241,7 +256,19 @@ class ImagingStudy extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.extension = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof Extension ?
+                                v : new Extension(v)
+                            );
+                } else {
+                    if (valueProvided instanceof Extension) {
+                        this.__data.extension = valueProvided;
+                    } else {
+                        this.__data.extension = [new Extension(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -272,7 +299,19 @@ class ImagingStudy extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.modifierExtension = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof Extension ?
+                                v : new Extension(v)
+                            );
+                } else {
+                    if (valueProvided instanceof Extension) {
+                        this.__data.modifierExtension = valueProvided;
+                    } else {
+                        this.__data.modifierExtension = [new Extension(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -292,7 +331,19 @@ class ImagingStudy extends Resource {
                     return;
                 }
                 const Identifier = require('../complex_types/identifier.js');
-                this.__data.identifier = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Identifier(v)) : [new Identifier(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.identifier = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof Identifier ?
+                                v : new Identifier(v)
+                            );
+                } else {
+                    if (valueProvided instanceof Identifier) {
+                        this.__data.identifier = valueProvided;
+                    } else {
+                        this.__data.identifier = [new Identifier(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -331,7 +382,19 @@ class ImagingStudy extends Resource {
                     return;
                 }
                 const Coding = require('../complex_types/coding.js');
-                this.__data.modality = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Coding(v)) : [new Coding(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.modality = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof Coding ?
+                                v : new Coding(v)
+                            );
+                } else {
+                    if (valueProvided instanceof Coding) {
+                        this.__data.modality = valueProvided;
+                    } else {
+                        this.__data.modality = [new Coding(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -350,7 +413,11 @@ class ImagingStudy extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.subject = new Reference(valueProvided);
+                if (valueProvided instanceof Reference){
+                    this.__data.subject = valueProvided;
+                } else {
+                    this.__data.subject = new Reference(valueProvided);
+                }
             }
         });
 
@@ -370,7 +437,11 @@ class ImagingStudy extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.encounter = new Reference(valueProvided);
+                if (valueProvided instanceof Reference){
+                    this.__data.encounter = valueProvided;
+                } else {
+                    this.__data.encounter = new Reference(valueProvided);
+                }
             }
         });
 
@@ -408,7 +479,19 @@ class ImagingStudy extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.basedOn = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.basedOn = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof Reference ?
+                                v : new Reference(v)
+                            );
+                } else {
+                    if (valueProvided instanceof Reference) {
+                        this.__data.basedOn = valueProvided;
+                    } else {
+                        this.__data.basedOn = [new Reference(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -427,7 +510,11 @@ class ImagingStudy extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.referrer = new Reference(valueProvided);
+                if (valueProvided instanceof Reference){
+                    this.__data.referrer = valueProvided;
+                } else {
+                    this.__data.referrer = new Reference(valueProvided);
+                }
             }
         });
 
@@ -446,7 +533,19 @@ class ImagingStudy extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.interpreter = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.interpreter = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof Reference ?
+                                v : new Reference(v)
+                            );
+                } else {
+                    if (valueProvided instanceof Reference) {
+                        this.__data.interpreter = valueProvided;
+                    } else {
+                        this.__data.interpreter = [new Reference(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -468,7 +567,19 @@ class ImagingStudy extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.endpoint = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.endpoint = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof Reference ?
+                                v : new Reference(v)
+                            );
+                } else {
+                    if (valueProvided instanceof Reference) {
+                        this.__data.endpoint = valueProvided;
+                    } else {
+                        this.__data.endpoint = [new Reference(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -529,7 +640,11 @@ class ImagingStudy extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.procedureReference = new Reference(valueProvided);
+                if (valueProvided instanceof Reference){
+                    this.__data.procedureReference = valueProvided;
+                } else {
+                    this.__data.procedureReference = new Reference(valueProvided);
+                }
             }
         });
 
@@ -548,7 +663,19 @@ class ImagingStudy extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.procedureCode = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.procedureCode = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof CodeableConcept ?
+                                v : new CodeableConcept(v)
+                            );
+                } else {
+                    if (valueProvided instanceof CodeableConcept) {
+                        this.__data.procedureCode = valueProvided;
+                    } else {
+                        this.__data.procedureCode = [new CodeableConcept(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -567,7 +694,11 @@ class ImagingStudy extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.location = new Reference(valueProvided);
+                if (valueProvided instanceof Reference){
+                    this.__data.location = valueProvided;
+                } else {
+                    this.__data.location = new Reference(valueProvided);
+                }
             }
         });
 
@@ -587,7 +718,19 @@ class ImagingStudy extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.reasonCode = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.reasonCode = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof CodeableConcept ?
+                                v : new CodeableConcept(v)
+                            );
+                } else {
+                    if (valueProvided instanceof CodeableConcept) {
+                        this.__data.reasonCode = valueProvided;
+                    } else {
+                        this.__data.reasonCode = [new CodeableConcept(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -606,7 +749,19 @@ class ImagingStudy extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.reasonReference = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.reasonReference = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof Reference ?
+                                v : new Reference(v)
+                            );
+                } else {
+                    if (valueProvided instanceof Reference) {
+                        this.__data.reasonReference = valueProvided;
+                    } else {
+                        this.__data.reasonReference = [new Reference(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -628,7 +783,19 @@ class ImagingStudy extends Resource {
                     return;
                 }
                 const Annotation = require('../complex_types/annotation.js');
-                this.__data.note = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Annotation(v)) : [new Annotation(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.note = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof Annotation ?
+                                v : new Annotation(v)
+                            );
+                } else {
+                    if (valueProvided instanceof Annotation) {
+                        this.__data.note = valueProvided;
+                    } else {
+                        this.__data.note = [new Annotation(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -666,7 +833,19 @@ class ImagingStudy extends Resource {
                     return;
                 }
                 const ImagingStudySeries = require('../backbone_elements/imagingStudySeries.js');
-                this.__data.series = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ImagingStudySeries(v)) : [new ImagingStudySeries(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.series = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof ImagingStudySeries ?
+                                v : new ImagingStudySeries(v)
+                            );
+                } else {
+                    if (valueProvided instanceof ImagingStudySeries) {
+                        this.__data.series = valueProvided;
+                    } else {
+                        this.__data.series = [new ImagingStudySeries(valueProvided)];
+                    }
+                }
             }
         });
 

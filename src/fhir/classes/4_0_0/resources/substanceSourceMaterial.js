@@ -120,7 +120,11 @@ class SubstanceSourceMaterial extends Resource {
                     return;
                 }
                 const Meta = require('../complex_types/meta.js');
-                this.__data.meta = new Meta(valueProvided);
+                if (valueProvided instanceof Meta){
+                    this.__data.meta = valueProvided;
+                } else {
+                    this.__data.meta = new Meta(valueProvided);
+                }
             }
         });
 
@@ -183,7 +187,11 @@ class SubstanceSourceMaterial extends Resource {
                     return;
                 }
                 const Narrative = require('../complex_types/narrative.js');
-                this.__data.text = new Narrative(valueProvided);
+                if (valueProvided instanceof Narrative){
+                    this.__data.text = valueProvided;
+                } else {
+                    this.__data.text = new Narrative(valueProvided);
+                }
             }
         });
 
@@ -207,12 +215,19 @@ class SubstanceSourceMaterial extends Resource {
                 const {getResource} = require('../../../../operations/common/getResource');
                 if (Array.isArray(valueProvided)) {
                     this.__data.contained = valueProvided.filter(v => v).map(v => {
+                        if (v instanceof Resource) {
+                            return v;
+                        }
                         const ResourceCreator = getResource('4_0_0', v.resourceType);
                         return new ResourceCreator(v);
                     });
                 } else {
-                const ResourceCreator = getResource('4_0_0', valueProvided.resourceType);
-                this.__data.contained = [new ResourceCreator(valueProvided)];
+                    if (valueProvided instanceof Resource) {
+                        this.__data.contained = [valueProvided];
+                    } else {
+                        const ResourceCreator = getResource('4_0_0', valueProvided.resourceType);
+                        this.__data.contained = [new ResourceCreator(valueProvided)];
+                    }
                 }
             }
         });
@@ -236,7 +251,19 @@ class SubstanceSourceMaterial extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.extension = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof Extension ?
+                                v : new Extension(v)
+                            );
+                } else {
+                    if (valueProvided instanceof Extension) {
+                        this.__data.extension = valueProvided;
+                    } else {
+                        this.__data.extension = [new Extension(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -267,7 +294,19 @@ class SubstanceSourceMaterial extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.modifierExtension = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof Extension ?
+                                v : new Extension(v)
+                            );
+                } else {
+                    if (valueProvided instanceof Extension) {
+                        this.__data.modifierExtension = valueProvided;
+                    } else {
+                        this.__data.modifierExtension = [new Extension(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -287,7 +326,11 @@ class SubstanceSourceMaterial extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.sourceMaterialClass = new CodeableConcept(valueProvided);
+                if (valueProvided instanceof CodeableConcept){
+                    this.__data.sourceMaterialClass = valueProvided;
+                } else {
+                    this.__data.sourceMaterialClass = new CodeableConcept(valueProvided);
+                }
             }
         });
 
@@ -308,7 +351,11 @@ class SubstanceSourceMaterial extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.sourceMaterialType = new CodeableConcept(valueProvided);
+                if (valueProvided instanceof CodeableConcept){
+                    this.__data.sourceMaterialType = valueProvided;
+                } else {
+                    this.__data.sourceMaterialType = new CodeableConcept(valueProvided);
+                }
             }
         });
 
@@ -327,7 +374,11 @@ class SubstanceSourceMaterial extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.sourceMaterialState = new CodeableConcept(valueProvided);
+                if (valueProvided instanceof CodeableConcept){
+                    this.__data.sourceMaterialState = valueProvided;
+                } else {
+                    this.__data.sourceMaterialState = new CodeableConcept(valueProvided);
+                }
             }
         });
 
@@ -347,7 +398,11 @@ class SubstanceSourceMaterial extends Resource {
                     return;
                 }
                 const Identifier = require('../complex_types/identifier.js');
-                this.__data.organismId = new Identifier(valueProvided);
+                if (valueProvided instanceof Identifier){
+                    this.__data.organismId = valueProvided;
+                } else {
+                    this.__data.organismId = new Identifier(valueProvided);
+                }
             }
         });
 
@@ -386,7 +441,19 @@ class SubstanceSourceMaterial extends Resource {
                     return;
                 }
                 const Identifier = require('../complex_types/identifier.js');
-                this.__data.parentSubstanceId = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Identifier(v)) : [new Identifier(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.parentSubstanceId = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof Identifier ?
+                                v : new Identifier(v)
+                            );
+                } else {
+                    if (valueProvided instanceof Identifier) {
+                        this.__data.parentSubstanceId = valueProvided;
+                    } else {
+                        this.__data.parentSubstanceId = [new Identifier(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -427,7 +494,19 @@ class SubstanceSourceMaterial extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.countryOfOrigin = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.countryOfOrigin = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof CodeableConcept ?
+                                v : new CodeableConcept(v)
+                            );
+                } else {
+                    if (valueProvided instanceof CodeableConcept) {
+                        this.__data.countryOfOrigin = valueProvided;
+                    } else {
+                        this.__data.countryOfOrigin = [new CodeableConcept(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -467,7 +546,11 @@ class SubstanceSourceMaterial extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.developmentStage = new CodeableConcept(valueProvided);
+                if (valueProvided instanceof CodeableConcept){
+                    this.__data.developmentStage = valueProvided;
+                } else {
+                    this.__data.developmentStage = new CodeableConcept(valueProvided);
+                }
             }
         });
 
@@ -493,7 +576,19 @@ class SubstanceSourceMaterial extends Resource {
                     return;
                 }
                 const SubstanceSourceMaterialFractionDescription = require('../backbone_elements/substanceSourceMaterialFractionDescription.js');
-                this.__data.fractionDescription = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new SubstanceSourceMaterialFractionDescription(v)) : [new SubstanceSourceMaterialFractionDescription(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.fractionDescription = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof SubstanceSourceMaterialFractionDescription ?
+                                v : new SubstanceSourceMaterialFractionDescription(v)
+                            );
+                } else {
+                    if (valueProvided instanceof SubstanceSourceMaterialFractionDescription) {
+                        this.__data.fractionDescription = valueProvided;
+                    } else {
+                        this.__data.fractionDescription = [new SubstanceSourceMaterialFractionDescription(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -515,7 +610,11 @@ class SubstanceSourceMaterial extends Resource {
                     return;
                 }
                 const SubstanceSourceMaterialOrganism = require('../backbone_elements/substanceSourceMaterialOrganism.js');
-                this.__data.organism = new SubstanceSourceMaterialOrganism(valueProvided);
+                if (valueProvided instanceof SubstanceSourceMaterialOrganism){
+                    this.__data.organism = valueProvided;
+                } else {
+                    this.__data.organism = new SubstanceSourceMaterialOrganism(valueProvided);
+                }
             }
         });
 
@@ -534,7 +633,19 @@ class SubstanceSourceMaterial extends Resource {
                     return;
                 }
                 const SubstanceSourceMaterialPartDescription = require('../backbone_elements/substanceSourceMaterialPartDescription.js');
-                this.__data.partDescription = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new SubstanceSourceMaterialPartDescription(v)) : [new SubstanceSourceMaterialPartDescription(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.partDescription = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof SubstanceSourceMaterialPartDescription ?
+                                v : new SubstanceSourceMaterialPartDescription(v)
+                            );
+                } else {
+                    if (valueProvided instanceof SubstanceSourceMaterialPartDescription) {
+                        this.__data.partDescription = valueProvided;
+                    } else {
+                        this.__data.partDescription = [new SubstanceSourceMaterialPartDescription(valueProvided)];
+                    }
+                }
             }
         });
 

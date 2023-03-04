@@ -130,7 +130,11 @@ class TestScript extends Resource {
                     return;
                 }
                 const Meta = require('../complex_types/meta.js');
-                this.__data.meta = new Meta(valueProvided);
+                if (valueProvided instanceof Meta){
+                    this.__data.meta = valueProvided;
+                } else {
+                    this.__data.meta = new Meta(valueProvided);
+                }
             }
         });
 
@@ -193,7 +197,11 @@ class TestScript extends Resource {
                     return;
                 }
                 const Narrative = require('../complex_types/narrative.js');
-                this.__data.text = new Narrative(valueProvided);
+                if (valueProvided instanceof Narrative){
+                    this.__data.text = valueProvided;
+                } else {
+                    this.__data.text = new Narrative(valueProvided);
+                }
             }
         });
 
@@ -217,12 +225,19 @@ class TestScript extends Resource {
                 const {getResource} = require('../../../../operations/common/getResource');
                 if (Array.isArray(valueProvided)) {
                     this.__data.contained = valueProvided.filter(v => v).map(v => {
+                        if (v instanceof Resource) {
+                            return v;
+                        }
                         const ResourceCreator = getResource('4_0_0', v.resourceType);
                         return new ResourceCreator(v);
                     });
                 } else {
-                const ResourceCreator = getResource('4_0_0', valueProvided.resourceType);
-                this.__data.contained = [new ResourceCreator(valueProvided)];
+                    if (valueProvided instanceof Resource) {
+                        this.__data.contained = [valueProvided];
+                    } else {
+                        const ResourceCreator = getResource('4_0_0', valueProvided.resourceType);
+                        this.__data.contained = [new ResourceCreator(valueProvided)];
+                    }
                 }
             }
         });
@@ -246,7 +261,19 @@ class TestScript extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.extension = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof Extension ?
+                                v : new Extension(v)
+                            );
+                } else {
+                    if (valueProvided instanceof Extension) {
+                        this.__data.extension = valueProvided;
+                    } else {
+                        this.__data.extension = [new Extension(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -277,7 +304,19 @@ class TestScript extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.modifierExtension = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof Extension ?
+                                v : new Extension(v)
+                            );
+                } else {
+                    if (valueProvided instanceof Extension) {
+                        this.__data.modifierExtension = valueProvided;
+                    } else {
+                        this.__data.modifierExtension = [new Extension(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -321,7 +360,11 @@ class TestScript extends Resource {
                     return;
                 }
                 const Identifier = require('../complex_types/identifier.js');
-                this.__data.identifier = new Identifier(valueProvided);
+                if (valueProvided instanceof Identifier){
+                    this.__data.identifier = valueProvided;
+                } else {
+                    this.__data.identifier = new Identifier(valueProvided);
+                }
             }
         });
 
@@ -480,7 +523,19 @@ class TestScript extends Resource {
                     return;
                 }
                 const ContactDetail = require('../complex_types/contactDetail.js');
-                this.__data.contact = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ContactDetail(v)) : [new ContactDetail(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.contact = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof ContactDetail ?
+                                v : new ContactDetail(v)
+                            );
+                } else {
+                    if (valueProvided instanceof ContactDetail) {
+                        this.__data.contact = valueProvided;
+                    } else {
+                        this.__data.contact = [new ContactDetail(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -522,7 +577,19 @@ class TestScript extends Resource {
                     return;
                 }
                 const UsageContext = require('../complex_types/usageContext.js');
-                this.__data.useContext = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new UsageContext(v)) : [new UsageContext(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.useContext = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof UsageContext ?
+                                v : new UsageContext(v)
+                            );
+                } else {
+                    if (valueProvided instanceof UsageContext) {
+                        this.__data.useContext = valueProvided;
+                    } else {
+                        this.__data.useContext = [new UsageContext(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -541,7 +608,19 @@ class TestScript extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.jurisdiction = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.jurisdiction = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof CodeableConcept ?
+                                v : new CodeableConcept(v)
+                            );
+                } else {
+                    if (valueProvided instanceof CodeableConcept) {
+                        this.__data.jurisdiction = valueProvided;
+                    } else {
+                        this.__data.jurisdiction = [new CodeableConcept(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -600,7 +679,19 @@ class TestScript extends Resource {
                     return;
                 }
                 const TestScriptOrigin = require('../backbone_elements/testScriptOrigin.js');
-                this.__data.origin = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new TestScriptOrigin(v)) : [new TestScriptOrigin(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.origin = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof TestScriptOrigin ?
+                                v : new TestScriptOrigin(v)
+                            );
+                } else {
+                    if (valueProvided instanceof TestScriptOrigin) {
+                        this.__data.origin = valueProvided;
+                    } else {
+                        this.__data.origin = [new TestScriptOrigin(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -620,7 +711,19 @@ class TestScript extends Resource {
                     return;
                 }
                 const TestScriptDestination = require('../backbone_elements/testScriptDestination.js');
-                this.__data.destination = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new TestScriptDestination(v)) : [new TestScriptDestination(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.destination = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof TestScriptDestination ?
+                                v : new TestScriptDestination(v)
+                            );
+                } else {
+                    if (valueProvided instanceof TestScriptDestination) {
+                        this.__data.destination = valueProvided;
+                    } else {
+                        this.__data.destination = [new TestScriptDestination(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -640,7 +743,11 @@ class TestScript extends Resource {
                     return;
                 }
                 const TestScriptMetadata = require('../backbone_elements/testScriptMetadata.js');
-                this.__data.metadata = new TestScriptMetadata(valueProvided);
+                if (valueProvided instanceof TestScriptMetadata){
+                    this.__data.metadata = valueProvided;
+                } else {
+                    this.__data.metadata = new TestScriptMetadata(valueProvided);
+                }
             }
         });
 
@@ -660,7 +767,19 @@ class TestScript extends Resource {
                     return;
                 }
                 const TestScriptFixture = require('../backbone_elements/testScriptFixture.js');
-                this.__data.fixture = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new TestScriptFixture(v)) : [new TestScriptFixture(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.fixture = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof TestScriptFixture ?
+                                v : new TestScriptFixture(v)
+                            );
+                } else {
+                    if (valueProvided instanceof TestScriptFixture) {
+                        this.__data.fixture = valueProvided;
+                    } else {
+                        this.__data.fixture = [new TestScriptFixture(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -679,7 +798,19 @@ class TestScript extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.profile = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.profile = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof Reference ?
+                                v : new Reference(v)
+                            );
+                } else {
+                    if (valueProvided instanceof Reference) {
+                        this.__data.profile = valueProvided;
+                    } else {
+                        this.__data.profile = [new Reference(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -699,7 +830,19 @@ class TestScript extends Resource {
                     return;
                 }
                 const TestScriptVariable = require('../backbone_elements/testScriptVariable.js');
-                this.__data.variable = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new TestScriptVariable(v)) : [new TestScriptVariable(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.variable = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof TestScriptVariable ?
+                                v : new TestScriptVariable(v)
+                            );
+                } else {
+                    if (valueProvided instanceof TestScriptVariable) {
+                        this.__data.variable = valueProvided;
+                    } else {
+                        this.__data.variable = [new TestScriptVariable(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -718,7 +861,11 @@ class TestScript extends Resource {
                     return;
                 }
                 const TestScriptSetup = require('../backbone_elements/testScriptSetup.js');
-                this.__data.setup = new TestScriptSetup(valueProvided);
+                if (valueProvided instanceof TestScriptSetup){
+                    this.__data.setup = valueProvided;
+                } else {
+                    this.__data.setup = new TestScriptSetup(valueProvided);
+                }
             }
         });
 
@@ -737,7 +884,19 @@ class TestScript extends Resource {
                     return;
                 }
                 const TestScriptTest = require('../backbone_elements/testScriptTest.js');
-                this.__data.test = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new TestScriptTest(v)) : [new TestScriptTest(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.test = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof TestScriptTest ?
+                                v : new TestScriptTest(v)
+                            );
+                } else {
+                    if (valueProvided instanceof TestScriptTest) {
+                        this.__data.test = valueProvided;
+                    } else {
+                        this.__data.test = [new TestScriptTest(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -757,7 +916,11 @@ class TestScript extends Resource {
                     return;
                 }
                 const TestScriptTeardown = require('../backbone_elements/testScriptTeardown.js');
-                this.__data.teardown = new TestScriptTeardown(valueProvided);
+                if (valueProvided instanceof TestScriptTeardown){
+                    this.__data.teardown = valueProvided;
+                } else {
+                    this.__data.teardown = new TestScriptTeardown(valueProvided);
+                }
             }
         });
 

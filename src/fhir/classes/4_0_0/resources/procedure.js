@@ -147,7 +147,11 @@ class Procedure extends Resource {
                     return;
                 }
                 const Meta = require('../complex_types/meta.js');
-                this.__data.meta = new Meta(valueProvided);
+                if (valueProvided instanceof Meta){
+                    this.__data.meta = valueProvided;
+                } else {
+                    this.__data.meta = new Meta(valueProvided);
+                }
             }
         });
 
@@ -210,7 +214,11 @@ class Procedure extends Resource {
                     return;
                 }
                 const Narrative = require('../complex_types/narrative.js');
-                this.__data.text = new Narrative(valueProvided);
+                if (valueProvided instanceof Narrative){
+                    this.__data.text = valueProvided;
+                } else {
+                    this.__data.text = new Narrative(valueProvided);
+                }
             }
         });
 
@@ -234,12 +242,19 @@ class Procedure extends Resource {
                 const {getResource} = require('../../../../operations/common/getResource');
                 if (Array.isArray(valueProvided)) {
                     this.__data.contained = valueProvided.filter(v => v).map(v => {
+                        if (v instanceof Resource) {
+                            return v;
+                        }
                         const ResourceCreator = getResource('4_0_0', v.resourceType);
                         return new ResourceCreator(v);
                     });
                 } else {
-                const ResourceCreator = getResource('4_0_0', valueProvided.resourceType);
-                this.__data.contained = [new ResourceCreator(valueProvided)];
+                    if (valueProvided instanceof Resource) {
+                        this.__data.contained = [valueProvided];
+                    } else {
+                        const ResourceCreator = getResource('4_0_0', valueProvided.resourceType);
+                        this.__data.contained = [new ResourceCreator(valueProvided)];
+                    }
                 }
             }
         });
@@ -263,7 +278,19 @@ class Procedure extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.extension = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof Extension ?
+                                v : new Extension(v)
+                            );
+                } else {
+                    if (valueProvided instanceof Extension) {
+                        this.__data.extension = valueProvided;
+                    } else {
+                        this.__data.extension = [new Extension(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -294,7 +321,19 @@ class Procedure extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.modifierExtension = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof Extension ?
+                                v : new Extension(v)
+                            );
+                } else {
+                    if (valueProvided instanceof Extension) {
+                        this.__data.modifierExtension = valueProvided;
+                    } else {
+                        this.__data.modifierExtension = [new Extension(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -315,7 +354,19 @@ class Procedure extends Resource {
                     return;
                 }
                 const Identifier = require('../complex_types/identifier.js');
-                this.__data.identifier = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Identifier(v)) : [new Identifier(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.identifier = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof Identifier ?
+                                v : new Identifier(v)
+                            );
+                } else {
+                    if (valueProvided instanceof Identifier) {
+                        this.__data.identifier = valueProvided;
+                    } else {
+                        this.__data.identifier = [new Identifier(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -373,7 +424,19 @@ class Procedure extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.basedOn = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.basedOn = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof Reference ?
+                                v : new Reference(v)
+                            );
+                } else {
+                    if (valueProvided instanceof Reference) {
+                        this.__data.basedOn = valueProvided;
+                    } else {
+                        this.__data.basedOn = [new Reference(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -392,7 +455,19 @@ class Procedure extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.partOf = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.partOf = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof Reference ?
+                                v : new Reference(v)
+                            );
+                } else {
+                    if (valueProvided instanceof Reference) {
+                        this.__data.partOf = valueProvided;
+                    } else {
+                        this.__data.partOf = [new Reference(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -430,7 +505,11 @@ class Procedure extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.statusReason = new CodeableConcept(valueProvided);
+                if (valueProvided instanceof CodeableConcept){
+                    this.__data.statusReason = valueProvided;
+                } else {
+                    this.__data.statusReason = new CodeableConcept(valueProvided);
+                }
             }
         });
 
@@ -450,7 +529,11 @@ class Procedure extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.category = new CodeableConcept(valueProvided);
+                if (valueProvided instanceof CodeableConcept){
+                    this.__data.category = valueProvided;
+                } else {
+                    this.__data.category = new CodeableConcept(valueProvided);
+                }
             }
         });
 
@@ -470,7 +553,11 @@ class Procedure extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.code = new CodeableConcept(valueProvided);
+                if (valueProvided instanceof CodeableConcept){
+                    this.__data.code = valueProvided;
+                } else {
+                    this.__data.code = new CodeableConcept(valueProvided);
+                }
             }
         });
 
@@ -489,7 +576,11 @@ class Procedure extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.subject = new Reference(valueProvided);
+                if (valueProvided instanceof Reference){
+                    this.__data.subject = valueProvided;
+                } else {
+                    this.__data.subject = new Reference(valueProvided);
+                }
             }
         });
 
@@ -509,7 +600,11 @@ class Procedure extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.encounter = new Reference(valueProvided);
+                if (valueProvided instanceof Reference){
+                    this.__data.encounter = valueProvided;
+                } else {
+                    this.__data.encounter = new Reference(valueProvided);
+                }
             }
         });
 
@@ -546,7 +641,11 @@ class Procedure extends Resource {
                     return;
                 }
                 const Period = require('../complex_types/period.js');
-                this.__data.performedPeriod = new Period(valueProvided);
+                if (valueProvided instanceof Period){
+                    this.__data.performedPeriod = valueProvided;
+                } else {
+                    this.__data.performedPeriod = new Period(valueProvided);
+                }
             }
         });
 
@@ -583,7 +682,11 @@ class Procedure extends Resource {
                     return;
                 }
                 const Quantity = require('../complex_types/quantity.js');
-                this.__data.performedAge = new Quantity(valueProvided);
+                if (valueProvided instanceof Quantity){
+                    this.__data.performedAge = valueProvided;
+                } else {
+                    this.__data.performedAge = new Quantity(valueProvided);
+                }
             }
         });
 
@@ -602,7 +705,11 @@ class Procedure extends Resource {
                     return;
                 }
                 const Range = require('../complex_types/range.js');
-                this.__data.performedRange = new Range(valueProvided);
+                if (valueProvided instanceof Range){
+                    this.__data.performedRange = valueProvided;
+                } else {
+                    this.__data.performedRange = new Range(valueProvided);
+                }
             }
         });
 
@@ -621,7 +728,11 @@ class Procedure extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.recorder = new Reference(valueProvided);
+                if (valueProvided instanceof Reference){
+                    this.__data.recorder = valueProvided;
+                } else {
+                    this.__data.recorder = new Reference(valueProvided);
+                }
             }
         });
 
@@ -640,7 +751,11 @@ class Procedure extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.asserter = new Reference(valueProvided);
+                if (valueProvided instanceof Reference){
+                    this.__data.asserter = valueProvided;
+                } else {
+                    this.__data.asserter = new Reference(valueProvided);
+                }
             }
         });
 
@@ -659,7 +774,19 @@ class Procedure extends Resource {
                     return;
                 }
                 const ProcedurePerformer = require('../backbone_elements/procedurePerformer.js');
-                this.__data.performer = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ProcedurePerformer(v)) : [new ProcedurePerformer(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.performer = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof ProcedurePerformer ?
+                                v : new ProcedurePerformer(v)
+                            );
+                } else {
+                    if (valueProvided instanceof ProcedurePerformer) {
+                        this.__data.performer = valueProvided;
+                    } else {
+                        this.__data.performer = [new ProcedurePerformer(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -679,7 +806,11 @@ class Procedure extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.location = new Reference(valueProvided);
+                if (valueProvided instanceof Reference){
+                    this.__data.location = valueProvided;
+                } else {
+                    this.__data.location = new Reference(valueProvided);
+                }
             }
         });
 
@@ -699,7 +830,19 @@ class Procedure extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.reasonCode = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.reasonCode = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof CodeableConcept ?
+                                v : new CodeableConcept(v)
+                            );
+                } else {
+                    if (valueProvided instanceof CodeableConcept) {
+                        this.__data.reasonCode = valueProvided;
+                    } else {
+                        this.__data.reasonCode = [new CodeableConcept(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -718,7 +861,19 @@ class Procedure extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.reasonReference = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.reasonReference = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof Reference ?
+                                v : new Reference(v)
+                            );
+                } else {
+                    if (valueProvided instanceof Reference) {
+                        this.__data.reasonReference = valueProvided;
+                    } else {
+                        this.__data.reasonReference = [new Reference(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -738,7 +893,19 @@ class Procedure extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.bodySite = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.bodySite = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof CodeableConcept ?
+                                v : new CodeableConcept(v)
+                            );
+                } else {
+                    if (valueProvided instanceof CodeableConcept) {
+                        this.__data.bodySite = valueProvided;
+                    } else {
+                        this.__data.bodySite = [new CodeableConcept(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -758,7 +925,11 @@ class Procedure extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.outcome = new CodeableConcept(valueProvided);
+                if (valueProvided instanceof CodeableConcept){
+                    this.__data.outcome = valueProvided;
+                } else {
+                    this.__data.outcome = new CodeableConcept(valueProvided);
+                }
             }
         });
 
@@ -777,7 +948,19 @@ class Procedure extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.report = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.report = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof Reference ?
+                                v : new Reference(v)
+                            );
+                } else {
+                    if (valueProvided instanceof Reference) {
+                        this.__data.report = valueProvided;
+                    } else {
+                        this.__data.report = [new Reference(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -799,7 +982,19 @@ class Procedure extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.complication = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.complication = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof CodeableConcept ?
+                                v : new CodeableConcept(v)
+                            );
+                } else {
+                    if (valueProvided instanceof CodeableConcept) {
+                        this.__data.complication = valueProvided;
+                    } else {
+                        this.__data.complication = [new CodeableConcept(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -819,7 +1014,19 @@ class Procedure extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.complicationDetail = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.complicationDetail = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof Reference ?
+                                v : new Reference(v)
+                            );
+                } else {
+                    if (valueProvided instanceof Reference) {
+                        this.__data.complicationDetail = valueProvided;
+                    } else {
+                        this.__data.complicationDetail = [new Reference(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -840,7 +1047,19 @@ class Procedure extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.followUp = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.followUp = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof CodeableConcept ?
+                                v : new CodeableConcept(v)
+                            );
+                } else {
+                    if (valueProvided instanceof CodeableConcept) {
+                        this.__data.followUp = valueProvided;
+                    } else {
+                        this.__data.followUp = [new CodeableConcept(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -859,7 +1078,19 @@ class Procedure extends Resource {
                     return;
                 }
                 const Annotation = require('../complex_types/annotation.js');
-                this.__data.note = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Annotation(v)) : [new Annotation(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.note = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof Annotation ?
+                                v : new Annotation(v)
+                            );
+                } else {
+                    if (valueProvided instanceof Annotation) {
+                        this.__data.note = valueProvided;
+                    } else {
+                        this.__data.note = [new Annotation(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -880,7 +1111,19 @@ class Procedure extends Resource {
                     return;
                 }
                 const ProcedureFocalDevice = require('../backbone_elements/procedureFocalDevice.js');
-                this.__data.focalDevice = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ProcedureFocalDevice(v)) : [new ProcedureFocalDevice(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.focalDevice = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof ProcedureFocalDevice ?
+                                v : new ProcedureFocalDevice(v)
+                            );
+                } else {
+                    if (valueProvided instanceof ProcedureFocalDevice) {
+                        this.__data.focalDevice = valueProvided;
+                    } else {
+                        this.__data.focalDevice = [new ProcedureFocalDevice(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -900,7 +1143,19 @@ class Procedure extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.usedReference = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.usedReference = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof Reference ?
+                                v : new Reference(v)
+                            );
+                } else {
+                    if (valueProvided instanceof Reference) {
+                        this.__data.usedReference = valueProvided;
+                    } else {
+                        this.__data.usedReference = [new Reference(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -919,7 +1174,19 @@ class Procedure extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.usedCode = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.usedCode = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof CodeableConcept ?
+                                v : new CodeableConcept(v)
+                            );
+                } else {
+                    if (valueProvided instanceof CodeableConcept) {
+                        this.__data.usedCode = valueProvided;
+                    } else {
+                        this.__data.usedCode = [new CodeableConcept(valueProvided)];
+                    }
+                }
             }
         });
 

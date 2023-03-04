@@ -169,7 +169,11 @@ class ExplanationOfBenefit extends Resource {
                     return;
                 }
                 const Meta = require('../complex_types/meta.js');
-                this.__data.meta = new Meta(valueProvided);
+                if (valueProvided instanceof Meta){
+                    this.__data.meta = valueProvided;
+                } else {
+                    this.__data.meta = new Meta(valueProvided);
+                }
             }
         });
 
@@ -232,7 +236,11 @@ class ExplanationOfBenefit extends Resource {
                     return;
                 }
                 const Narrative = require('../complex_types/narrative.js');
-                this.__data.text = new Narrative(valueProvided);
+                if (valueProvided instanceof Narrative){
+                    this.__data.text = valueProvided;
+                } else {
+                    this.__data.text = new Narrative(valueProvided);
+                }
             }
         });
 
@@ -256,12 +264,19 @@ class ExplanationOfBenefit extends Resource {
                 const {getResource} = require('../../../../operations/common/getResource');
                 if (Array.isArray(valueProvided)) {
                     this.__data.contained = valueProvided.filter(v => v).map(v => {
+                        if (v instanceof Resource) {
+                            return v;
+                        }
                         const ResourceCreator = getResource('4_0_0', v.resourceType);
                         return new ResourceCreator(v);
                     });
                 } else {
-                const ResourceCreator = getResource('4_0_0', valueProvided.resourceType);
-                this.__data.contained = [new ResourceCreator(valueProvided)];
+                    if (valueProvided instanceof Resource) {
+                        this.__data.contained = [valueProvided];
+                    } else {
+                        const ResourceCreator = getResource('4_0_0', valueProvided.resourceType);
+                        this.__data.contained = [new ResourceCreator(valueProvided)];
+                    }
                 }
             }
         });
@@ -285,7 +300,19 @@ class ExplanationOfBenefit extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.extension = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof Extension ?
+                                v : new Extension(v)
+                            );
+                } else {
+                    if (valueProvided instanceof Extension) {
+                        this.__data.extension = valueProvided;
+                    } else {
+                        this.__data.extension = [new Extension(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -316,7 +343,19 @@ class ExplanationOfBenefit extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.modifierExtension = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof Extension ?
+                                v : new Extension(v)
+                            );
+                } else {
+                    if (valueProvided instanceof Extension) {
+                        this.__data.modifierExtension = valueProvided;
+                    } else {
+                        this.__data.modifierExtension = [new Extension(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -335,7 +374,19 @@ class ExplanationOfBenefit extends Resource {
                     return;
                 }
                 const Identifier = require('../complex_types/identifier.js');
-                this.__data.identifier = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Identifier(v)) : [new Identifier(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.identifier = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof Identifier ?
+                                v : new Identifier(v)
+                            );
+                } else {
+                    if (valueProvided instanceof Identifier) {
+                        this.__data.identifier = valueProvided;
+                    } else {
+                        this.__data.identifier = [new Identifier(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -373,7 +424,11 @@ class ExplanationOfBenefit extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.type = new CodeableConcept(valueProvided);
+                if (valueProvided instanceof CodeableConcept){
+                    this.__data.type = valueProvided;
+                } else {
+                    this.__data.type = new CodeableConcept(valueProvided);
+                }
             }
         });
 
@@ -393,7 +448,11 @@ class ExplanationOfBenefit extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.subType = new CodeableConcept(valueProvided);
+                if (valueProvided instanceof CodeableConcept){
+                    this.__data.subType = valueProvided;
+                } else {
+                    this.__data.subType = new CodeableConcept(valueProvided);
+                }
             }
         });
 
@@ -436,7 +495,11 @@ class ExplanationOfBenefit extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.patient = new Reference(valueProvided);
+                if (valueProvided instanceof Reference){
+                    this.__data.patient = valueProvided;
+                } else {
+                    this.__data.patient = new Reference(valueProvided);
+                }
             }
         });
 
@@ -455,7 +518,11 @@ class ExplanationOfBenefit extends Resource {
                     return;
                 }
                 const Period = require('../complex_types/period.js');
-                this.__data.billablePeriod = new Period(valueProvided);
+                if (valueProvided instanceof Period){
+                    this.__data.billablePeriod = valueProvided;
+                } else {
+                    this.__data.billablePeriod = new Period(valueProvided);
+                }
             }
         });
 
@@ -492,7 +559,11 @@ class ExplanationOfBenefit extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.enterer = new Reference(valueProvided);
+                if (valueProvided instanceof Reference){
+                    this.__data.enterer = valueProvided;
+                } else {
+                    this.__data.enterer = new Reference(valueProvided);
+                }
             }
         });
 
@@ -511,7 +582,11 @@ class ExplanationOfBenefit extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.insurer = new Reference(valueProvided);
+                if (valueProvided instanceof Reference){
+                    this.__data.insurer = valueProvided;
+                } else {
+                    this.__data.insurer = new Reference(valueProvided);
+                }
             }
         });
 
@@ -531,7 +606,11 @@ class ExplanationOfBenefit extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.provider = new Reference(valueProvided);
+                if (valueProvided instanceof Reference){
+                    this.__data.provider = valueProvided;
+                } else {
+                    this.__data.provider = new Reference(valueProvided);
+                }
             }
         });
 
@@ -551,7 +630,11 @@ class ExplanationOfBenefit extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.priority = new CodeableConcept(valueProvided);
+                if (valueProvided instanceof CodeableConcept){
+                    this.__data.priority = valueProvided;
+                } else {
+                    this.__data.priority = new CodeableConcept(valueProvided);
+                }
             }
         });
 
@@ -571,7 +654,11 @@ class ExplanationOfBenefit extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.fundsReserveRequested = new CodeableConcept(valueProvided);
+                if (valueProvided instanceof CodeableConcept){
+                    this.__data.fundsReserveRequested = valueProvided;
+                } else {
+                    this.__data.fundsReserveRequested = new CodeableConcept(valueProvided);
+                }
             }
         });
 
@@ -591,7 +678,11 @@ class ExplanationOfBenefit extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.fundsReserve = new CodeableConcept(valueProvided);
+                if (valueProvided instanceof CodeableConcept){
+                    this.__data.fundsReserve = valueProvided;
+                } else {
+                    this.__data.fundsReserve = new CodeableConcept(valueProvided);
+                }
             }
         });
 
@@ -611,7 +702,19 @@ class ExplanationOfBenefit extends Resource {
                     return;
                 }
                 const ExplanationOfBenefitRelated = require('../backbone_elements/explanationOfBenefitRelated.js');
-                this.__data.related = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ExplanationOfBenefitRelated(v)) : [new ExplanationOfBenefitRelated(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.related = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof ExplanationOfBenefitRelated ?
+                                v : new ExplanationOfBenefitRelated(v)
+                            );
+                } else {
+                    if (valueProvided instanceof ExplanationOfBenefitRelated) {
+                        this.__data.related = valueProvided;
+                    } else {
+                        this.__data.related = [new ExplanationOfBenefitRelated(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -630,7 +733,11 @@ class ExplanationOfBenefit extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.prescription = new Reference(valueProvided);
+                if (valueProvided instanceof Reference){
+                    this.__data.prescription = valueProvided;
+                } else {
+                    this.__data.prescription = new Reference(valueProvided);
+                }
             }
         });
 
@@ -650,7 +757,11 @@ class ExplanationOfBenefit extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.originalPrescription = new Reference(valueProvided);
+                if (valueProvided instanceof Reference){
+                    this.__data.originalPrescription = valueProvided;
+                } else {
+                    this.__data.originalPrescription = new Reference(valueProvided);
+                }
             }
         });
 
@@ -670,7 +781,11 @@ class ExplanationOfBenefit extends Resource {
                     return;
                 }
                 const ExplanationOfBenefitPayee = require('../backbone_elements/explanationOfBenefitPayee.js');
-                this.__data.payee = new ExplanationOfBenefitPayee(valueProvided);
+                if (valueProvided instanceof ExplanationOfBenefitPayee){
+                    this.__data.payee = valueProvided;
+                } else {
+                    this.__data.payee = new ExplanationOfBenefitPayee(valueProvided);
+                }
             }
         });
 
@@ -689,7 +804,11 @@ class ExplanationOfBenefit extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.referral = new Reference(valueProvided);
+                if (valueProvided instanceof Reference){
+                    this.__data.referral = valueProvided;
+                } else {
+                    this.__data.referral = new Reference(valueProvided);
+                }
             }
         });
 
@@ -708,7 +827,11 @@ class ExplanationOfBenefit extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.facility = new Reference(valueProvided);
+                if (valueProvided instanceof Reference){
+                    this.__data.facility = valueProvided;
+                } else {
+                    this.__data.facility = new Reference(valueProvided);
+                }
             }
         });
 
@@ -728,7 +851,11 @@ class ExplanationOfBenefit extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.claim = new Reference(valueProvided);
+                if (valueProvided instanceof Reference){
+                    this.__data.claim = valueProvided;
+                } else {
+                    this.__data.claim = new Reference(valueProvided);
+                }
             }
         });
 
@@ -748,7 +875,11 @@ class ExplanationOfBenefit extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.claimResponse = new Reference(valueProvided);
+                if (valueProvided instanceof Reference){
+                    this.__data.claimResponse = valueProvided;
+                } else {
+                    this.__data.claimResponse = new Reference(valueProvided);
+                }
             }
         });
 
@@ -823,7 +954,19 @@ class ExplanationOfBenefit extends Resource {
                     return;
                 }
                 const Period = require('../complex_types/period.js');
-                this.__data.preAuthRefPeriod = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Period(v)) : [new Period(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.preAuthRefPeriod = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof Period ?
+                                v : new Period(v)
+                            );
+                } else {
+                    if (valueProvided instanceof Period) {
+                        this.__data.preAuthRefPeriod = valueProvided;
+                    } else {
+                        this.__data.preAuthRefPeriod = [new Period(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -842,7 +985,19 @@ class ExplanationOfBenefit extends Resource {
                     return;
                 }
                 const ExplanationOfBenefitCareTeam = require('../backbone_elements/explanationOfBenefitCareTeam.js');
-                this.__data.careTeam = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ExplanationOfBenefitCareTeam(v)) : [new ExplanationOfBenefitCareTeam(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.careTeam = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof ExplanationOfBenefitCareTeam ?
+                                v : new ExplanationOfBenefitCareTeam(v)
+                            );
+                } else {
+                    if (valueProvided instanceof ExplanationOfBenefitCareTeam) {
+                        this.__data.careTeam = valueProvided;
+                    } else {
+                        this.__data.careTeam = [new ExplanationOfBenefitCareTeam(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -862,7 +1017,19 @@ class ExplanationOfBenefit extends Resource {
                     return;
                 }
                 const ExplanationOfBenefitSupportingInfo = require('../backbone_elements/explanationOfBenefitSupportingInfo.js');
-                this.__data.supportingInfo = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ExplanationOfBenefitSupportingInfo(v)) : [new ExplanationOfBenefitSupportingInfo(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.supportingInfo = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof ExplanationOfBenefitSupportingInfo ?
+                                v : new ExplanationOfBenefitSupportingInfo(v)
+                            );
+                } else {
+                    if (valueProvided instanceof ExplanationOfBenefitSupportingInfo) {
+                        this.__data.supportingInfo = valueProvided;
+                    } else {
+                        this.__data.supportingInfo = [new ExplanationOfBenefitSupportingInfo(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -881,7 +1048,19 @@ class ExplanationOfBenefit extends Resource {
                     return;
                 }
                 const ExplanationOfBenefitDiagnosis = require('../backbone_elements/explanationOfBenefitDiagnosis.js');
-                this.__data.diagnosis = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ExplanationOfBenefitDiagnosis(v)) : [new ExplanationOfBenefitDiagnosis(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.diagnosis = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof ExplanationOfBenefitDiagnosis ?
+                                v : new ExplanationOfBenefitDiagnosis(v)
+                            );
+                } else {
+                    if (valueProvided instanceof ExplanationOfBenefitDiagnosis) {
+                        this.__data.diagnosis = valueProvided;
+                    } else {
+                        this.__data.diagnosis = [new ExplanationOfBenefitDiagnosis(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -901,7 +1080,19 @@ class ExplanationOfBenefit extends Resource {
                     return;
                 }
                 const ExplanationOfBenefitProcedure = require('../backbone_elements/explanationOfBenefitProcedure.js');
-                this.__data.procedure = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ExplanationOfBenefitProcedure(v)) : [new ExplanationOfBenefitProcedure(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.procedure = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof ExplanationOfBenefitProcedure ?
+                                v : new ExplanationOfBenefitProcedure(v)
+                            );
+                } else {
+                    if (valueProvided instanceof ExplanationOfBenefitProcedure) {
+                        this.__data.procedure = valueProvided;
+                    } else {
+                        this.__data.procedure = [new ExplanationOfBenefitProcedure(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -940,7 +1131,19 @@ class ExplanationOfBenefit extends Resource {
                     return;
                 }
                 const ExplanationOfBenefitInsurance = require('../backbone_elements/explanationOfBenefitInsurance.js');
-                this.__data.insurance = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ExplanationOfBenefitInsurance(v)) : [new ExplanationOfBenefitInsurance(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.insurance = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof ExplanationOfBenefitInsurance ?
+                                v : new ExplanationOfBenefitInsurance(v)
+                            );
+                } else {
+                    if (valueProvided instanceof ExplanationOfBenefitInsurance) {
+                        this.__data.insurance = valueProvided;
+                    } else {
+                        this.__data.insurance = [new ExplanationOfBenefitInsurance(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -960,7 +1163,11 @@ class ExplanationOfBenefit extends Resource {
                     return;
                 }
                 const ExplanationOfBenefitAccident = require('../backbone_elements/explanationOfBenefitAccident.js');
-                this.__data.accident = new ExplanationOfBenefitAccident(valueProvided);
+                if (valueProvided instanceof ExplanationOfBenefitAccident){
+                    this.__data.accident = valueProvided;
+                } else {
+                    this.__data.accident = new ExplanationOfBenefitAccident(valueProvided);
+                }
             }
         });
 
@@ -980,7 +1187,19 @@ class ExplanationOfBenefit extends Resource {
                     return;
                 }
                 const ExplanationOfBenefitItem = require('../backbone_elements/explanationOfBenefitItem.js');
-                this.__data.item = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ExplanationOfBenefitItem(v)) : [new ExplanationOfBenefitItem(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.item = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof ExplanationOfBenefitItem ?
+                                v : new ExplanationOfBenefitItem(v)
+                            );
+                } else {
+                    if (valueProvided instanceof ExplanationOfBenefitItem) {
+                        this.__data.item = valueProvided;
+                    } else {
+                        this.__data.item = [new ExplanationOfBenefitItem(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -999,7 +1218,19 @@ class ExplanationOfBenefit extends Resource {
                     return;
                 }
                 const ExplanationOfBenefitAddItem = require('../backbone_elements/explanationOfBenefitAddItem.js');
-                this.__data.addItem = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ExplanationOfBenefitAddItem(v)) : [new ExplanationOfBenefitAddItem(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.addItem = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof ExplanationOfBenefitAddItem ?
+                                v : new ExplanationOfBenefitAddItem(v)
+                            );
+                } else {
+                    if (valueProvided instanceof ExplanationOfBenefitAddItem) {
+                        this.__data.addItem = valueProvided;
+                    } else {
+                        this.__data.addItem = [new ExplanationOfBenefitAddItem(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -1019,7 +1250,19 @@ class ExplanationOfBenefit extends Resource {
                     return;
                 }
                 const ExplanationOfBenefitAdjudication = require('../backbone_elements/explanationOfBenefitAdjudication.js');
-                this.__data.adjudication = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ExplanationOfBenefitAdjudication(v)) : [new ExplanationOfBenefitAdjudication(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.adjudication = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof ExplanationOfBenefitAdjudication ?
+                                v : new ExplanationOfBenefitAdjudication(v)
+                            );
+                } else {
+                    if (valueProvided instanceof ExplanationOfBenefitAdjudication) {
+                        this.__data.adjudication = valueProvided;
+                    } else {
+                        this.__data.adjudication = [new ExplanationOfBenefitAdjudication(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -1038,7 +1281,19 @@ class ExplanationOfBenefit extends Resource {
                     return;
                 }
                 const ExplanationOfBenefitTotal = require('../backbone_elements/explanationOfBenefitTotal.js');
-                this.__data.total = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ExplanationOfBenefitTotal(v)) : [new ExplanationOfBenefitTotal(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.total = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof ExplanationOfBenefitTotal ?
+                                v : new ExplanationOfBenefitTotal(v)
+                            );
+                } else {
+                    if (valueProvided instanceof ExplanationOfBenefitTotal) {
+                        this.__data.total = valueProvided;
+                    } else {
+                        this.__data.total = [new ExplanationOfBenefitTotal(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -1057,7 +1312,11 @@ class ExplanationOfBenefit extends Resource {
                     return;
                 }
                 const ExplanationOfBenefitPayment = require('../backbone_elements/explanationOfBenefitPayment.js');
-                this.__data.payment = new ExplanationOfBenefitPayment(valueProvided);
+                if (valueProvided instanceof ExplanationOfBenefitPayment){
+                    this.__data.payment = valueProvided;
+                } else {
+                    this.__data.payment = new ExplanationOfBenefitPayment(valueProvided);
+                }
             }
         });
 
@@ -1076,7 +1335,11 @@ class ExplanationOfBenefit extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.formCode = new CodeableConcept(valueProvided);
+                if (valueProvided instanceof CodeableConcept){
+                    this.__data.formCode = valueProvided;
+                } else {
+                    this.__data.formCode = new CodeableConcept(valueProvided);
+                }
             }
         });
 
@@ -1096,7 +1359,11 @@ class ExplanationOfBenefit extends Resource {
                     return;
                 }
                 const Attachment = require('../complex_types/attachment.js');
-                this.__data.form = new Attachment(valueProvided);
+                if (valueProvided instanceof Attachment){
+                    this.__data.form = valueProvided;
+                } else {
+                    this.__data.form = new Attachment(valueProvided);
+                }
             }
         });
 
@@ -1116,7 +1383,19 @@ class ExplanationOfBenefit extends Resource {
                     return;
                 }
                 const ExplanationOfBenefitProcessNote = require('../backbone_elements/explanationOfBenefitProcessNote.js');
-                this.__data.processNote = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ExplanationOfBenefitProcessNote(v)) : [new ExplanationOfBenefitProcessNote(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.processNote = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof ExplanationOfBenefitProcessNote ?
+                                v : new ExplanationOfBenefitProcessNote(v)
+                            );
+                } else {
+                    if (valueProvided instanceof ExplanationOfBenefitProcessNote) {
+                        this.__data.processNote = valueProvided;
+                    } else {
+                        this.__data.processNote = [new ExplanationOfBenefitProcessNote(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -1135,7 +1414,11 @@ class ExplanationOfBenefit extends Resource {
                     return;
                 }
                 const Period = require('../complex_types/period.js');
-                this.__data.benefitPeriod = new Period(valueProvided);
+                if (valueProvided instanceof Period){
+                    this.__data.benefitPeriod = valueProvided;
+                } else {
+                    this.__data.benefitPeriod = new Period(valueProvided);
+                }
             }
         });
 
@@ -1154,7 +1437,19 @@ class ExplanationOfBenefit extends Resource {
                     return;
                 }
                 const ExplanationOfBenefitBenefitBalance = require('../backbone_elements/explanationOfBenefitBenefitBalance.js');
-                this.__data.benefitBalance = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ExplanationOfBenefitBenefitBalance(v)) : [new ExplanationOfBenefitBenefitBalance(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.benefitBalance = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof ExplanationOfBenefitBenefitBalance ?
+                                v : new ExplanationOfBenefitBenefitBalance(v)
+                            );
+                } else {
+                    if (valueProvided instanceof ExplanationOfBenefitBenefitBalance) {
+                        this.__data.benefitBalance = valueProvided;
+                    } else {
+                        this.__data.benefitBalance = [new ExplanationOfBenefitBenefitBalance(valueProvided)];
+                    }
+                }
             }
         });
 

@@ -120,7 +120,11 @@ class SubstanceSpecification extends Resource {
                     return;
                 }
                 const Meta = require('../complex_types/meta.js');
-                this.__data.meta = new Meta(valueProvided);
+                if (valueProvided instanceof Meta){
+                    this.__data.meta = valueProvided;
+                } else {
+                    this.__data.meta = new Meta(valueProvided);
+                }
             }
         });
 
@@ -183,7 +187,11 @@ class SubstanceSpecification extends Resource {
                     return;
                 }
                 const Narrative = require('../complex_types/narrative.js');
-                this.__data.text = new Narrative(valueProvided);
+                if (valueProvided instanceof Narrative){
+                    this.__data.text = valueProvided;
+                } else {
+                    this.__data.text = new Narrative(valueProvided);
+                }
             }
         });
 
@@ -207,12 +215,19 @@ class SubstanceSpecification extends Resource {
                 const {getResource} = require('../../../../operations/common/getResource');
                 if (Array.isArray(valueProvided)) {
                     this.__data.contained = valueProvided.filter(v => v).map(v => {
+                        if (v instanceof Resource) {
+                            return v;
+                        }
                         const ResourceCreator = getResource('4_0_0', v.resourceType);
                         return new ResourceCreator(v);
                     });
                 } else {
-                const ResourceCreator = getResource('4_0_0', valueProvided.resourceType);
-                this.__data.contained = [new ResourceCreator(valueProvided)];
+                    if (valueProvided instanceof Resource) {
+                        this.__data.contained = [valueProvided];
+                    } else {
+                        const ResourceCreator = getResource('4_0_0', valueProvided.resourceType);
+                        this.__data.contained = [new ResourceCreator(valueProvided)];
+                    }
                 }
             }
         });
@@ -236,7 +251,19 @@ class SubstanceSpecification extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.extension = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof Extension ?
+                                v : new Extension(v)
+                            );
+                } else {
+                    if (valueProvided instanceof Extension) {
+                        this.__data.extension = valueProvided;
+                    } else {
+                        this.__data.extension = [new Extension(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -267,7 +294,19 @@ class SubstanceSpecification extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.modifierExtension = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof Extension ?
+                                v : new Extension(v)
+                            );
+                } else {
+                    if (valueProvided instanceof Extension) {
+                        this.__data.modifierExtension = valueProvided;
+                    } else {
+                        this.__data.modifierExtension = [new Extension(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -286,7 +325,11 @@ class SubstanceSpecification extends Resource {
                     return;
                 }
                 const Identifier = require('../complex_types/identifier.js');
-                this.__data.identifier = new Identifier(valueProvided);
+                if (valueProvided instanceof Identifier){
+                    this.__data.identifier = valueProvided;
+                } else {
+                    this.__data.identifier = new Identifier(valueProvided);
+                }
             }
         });
 
@@ -305,7 +348,11 @@ class SubstanceSpecification extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.type = new CodeableConcept(valueProvided);
+                if (valueProvided instanceof CodeableConcept){
+                    this.__data.type = valueProvided;
+                } else {
+                    this.__data.type = new CodeableConcept(valueProvided);
+                }
             }
         });
 
@@ -324,7 +371,11 @@ class SubstanceSpecification extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.status = new CodeableConcept(valueProvided);
+                if (valueProvided instanceof CodeableConcept){
+                    this.__data.status = valueProvided;
+                } else {
+                    this.__data.status = new CodeableConcept(valueProvided);
+                }
             }
         });
 
@@ -343,7 +394,11 @@ class SubstanceSpecification extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.domain = new CodeableConcept(valueProvided);
+                if (valueProvided instanceof CodeableConcept){
+                    this.__data.domain = valueProvided;
+                } else {
+                    this.__data.domain = new CodeableConcept(valueProvided);
+                }
             }
         });
 
@@ -380,7 +435,19 @@ class SubstanceSpecification extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.source = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.source = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof Reference ?
+                                v : new Reference(v)
+                            );
+                } else {
+                    if (valueProvided instanceof Reference) {
+                        this.__data.source = valueProvided;
+                    } else {
+                        this.__data.source = [new Reference(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -417,7 +484,19 @@ class SubstanceSpecification extends Resource {
                     return;
                 }
                 const SubstanceSpecificationMoiety = require('../backbone_elements/substanceSpecificationMoiety.js');
-                this.__data.moiety = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new SubstanceSpecificationMoiety(v)) : [new SubstanceSpecificationMoiety(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.moiety = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof SubstanceSpecificationMoiety ?
+                                v : new SubstanceSpecificationMoiety(v)
+                            );
+                } else {
+                    if (valueProvided instanceof SubstanceSpecificationMoiety) {
+                        this.__data.moiety = valueProvided;
+                    } else {
+                        this.__data.moiety = [new SubstanceSpecificationMoiety(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -437,7 +516,19 @@ class SubstanceSpecification extends Resource {
                     return;
                 }
                 const SubstanceSpecificationProperty = require('../backbone_elements/substanceSpecificationProperty.js');
-                this.__data.property = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new SubstanceSpecificationProperty(v)) : [new SubstanceSpecificationProperty(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.property = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof SubstanceSpecificationProperty ?
+                                v : new SubstanceSpecificationProperty(v)
+                            );
+                } else {
+                    if (valueProvided instanceof SubstanceSpecificationProperty) {
+                        this.__data.property = valueProvided;
+                    } else {
+                        this.__data.property = [new SubstanceSpecificationProperty(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -456,7 +547,11 @@ class SubstanceSpecification extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.referenceInformation = new Reference(valueProvided);
+                if (valueProvided instanceof Reference){
+                    this.__data.referenceInformation = valueProvided;
+                } else {
+                    this.__data.referenceInformation = new Reference(valueProvided);
+                }
             }
         });
 
@@ -475,7 +570,11 @@ class SubstanceSpecification extends Resource {
                     return;
                 }
                 const SubstanceSpecificationStructure = require('../backbone_elements/substanceSpecificationStructure.js');
-                this.__data.structure = new SubstanceSpecificationStructure(valueProvided);
+                if (valueProvided instanceof SubstanceSpecificationStructure){
+                    this.__data.structure = valueProvided;
+                } else {
+                    this.__data.structure = new SubstanceSpecificationStructure(valueProvided);
+                }
             }
         });
 
@@ -494,7 +593,19 @@ class SubstanceSpecification extends Resource {
                     return;
                 }
                 const SubstanceSpecificationCode = require('../backbone_elements/substanceSpecificationCode.js');
-                this.__data.code = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new SubstanceSpecificationCode(v)) : [new SubstanceSpecificationCode(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.code = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof SubstanceSpecificationCode ?
+                                v : new SubstanceSpecificationCode(v)
+                            );
+                } else {
+                    if (valueProvided instanceof SubstanceSpecificationCode) {
+                        this.__data.code = valueProvided;
+                    } else {
+                        this.__data.code = [new SubstanceSpecificationCode(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -513,7 +624,19 @@ class SubstanceSpecification extends Resource {
                     return;
                 }
                 const SubstanceSpecificationName = require('../backbone_elements/substanceSpecificationName.js');
-                this.__data.name = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new SubstanceSpecificationName(v)) : [new SubstanceSpecificationName(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.name = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof SubstanceSpecificationName ?
+                                v : new SubstanceSpecificationName(v)
+                            );
+                } else {
+                    if (valueProvided instanceof SubstanceSpecificationName) {
+                        this.__data.name = valueProvided;
+                    } else {
+                        this.__data.name = [new SubstanceSpecificationName(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -533,7 +656,19 @@ class SubstanceSpecification extends Resource {
                     return;
                 }
                 const SubstanceSpecificationMolecularWeight = require('../backbone_elements/substanceSpecificationMolecularWeight.js');
-                this.__data.molecularWeight = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new SubstanceSpecificationMolecularWeight(v)) : [new SubstanceSpecificationMolecularWeight(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.molecularWeight = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof SubstanceSpecificationMolecularWeight ?
+                                v : new SubstanceSpecificationMolecularWeight(v)
+                            );
+                } else {
+                    if (valueProvided instanceof SubstanceSpecificationMolecularWeight) {
+                        this.__data.molecularWeight = valueProvided;
+                    } else {
+                        this.__data.molecularWeight = [new SubstanceSpecificationMolecularWeight(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -552,7 +687,19 @@ class SubstanceSpecification extends Resource {
                     return;
                 }
                 const SubstanceSpecificationRelationship = require('../backbone_elements/substanceSpecificationRelationship.js');
-                this.__data.relationship = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new SubstanceSpecificationRelationship(v)) : [new SubstanceSpecificationRelationship(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.relationship = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof SubstanceSpecificationRelationship ?
+                                v : new SubstanceSpecificationRelationship(v)
+                            );
+                } else {
+                    if (valueProvided instanceof SubstanceSpecificationRelationship) {
+                        this.__data.relationship = valueProvided;
+                    } else {
+                        this.__data.relationship = [new SubstanceSpecificationRelationship(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -571,7 +718,11 @@ class SubstanceSpecification extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.nucleicAcid = new Reference(valueProvided);
+                if (valueProvided instanceof Reference){
+                    this.__data.nucleicAcid = valueProvided;
+                } else {
+                    this.__data.nucleicAcid = new Reference(valueProvided);
+                }
             }
         });
 
@@ -590,7 +741,11 @@ class SubstanceSpecification extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.polymer = new Reference(valueProvided);
+                if (valueProvided instanceof Reference){
+                    this.__data.polymer = valueProvided;
+                } else {
+                    this.__data.polymer = new Reference(valueProvided);
+                }
             }
         });
 
@@ -609,7 +764,11 @@ class SubstanceSpecification extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.protein = new Reference(valueProvided);
+                if (valueProvided instanceof Reference){
+                    this.__data.protein = valueProvided;
+                } else {
+                    this.__data.protein = new Reference(valueProvided);
+                }
             }
         });
 
@@ -628,7 +787,11 @@ class SubstanceSpecification extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.sourceMaterial = new Reference(valueProvided);
+                if (valueProvided instanceof Reference){
+                    this.__data.sourceMaterial = valueProvided;
+                } else {
+                    this.__data.sourceMaterial = new Reference(valueProvided);
+                }
             }
         });
 

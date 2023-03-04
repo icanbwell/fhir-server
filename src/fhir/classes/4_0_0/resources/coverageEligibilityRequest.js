@@ -115,7 +115,11 @@ class CoverageEligibilityRequest extends Resource {
                     return;
                 }
                 const Meta = require('../complex_types/meta.js');
-                this.__data.meta = new Meta(valueProvided);
+                if (valueProvided instanceof Meta){
+                    this.__data.meta = valueProvided;
+                } else {
+                    this.__data.meta = new Meta(valueProvided);
+                }
             }
         });
 
@@ -178,7 +182,11 @@ class CoverageEligibilityRequest extends Resource {
                     return;
                 }
                 const Narrative = require('../complex_types/narrative.js');
-                this.__data.text = new Narrative(valueProvided);
+                if (valueProvided instanceof Narrative){
+                    this.__data.text = valueProvided;
+                } else {
+                    this.__data.text = new Narrative(valueProvided);
+                }
             }
         });
 
@@ -202,12 +210,19 @@ class CoverageEligibilityRequest extends Resource {
                 const {getResource} = require('../../../../operations/common/getResource');
                 if (Array.isArray(valueProvided)) {
                     this.__data.contained = valueProvided.filter(v => v).map(v => {
+                        if (v instanceof Resource) {
+                            return v;
+                        }
                         const ResourceCreator = getResource('4_0_0', v.resourceType);
                         return new ResourceCreator(v);
                     });
                 } else {
-                const ResourceCreator = getResource('4_0_0', valueProvided.resourceType);
-                this.__data.contained = [new ResourceCreator(valueProvided)];
+                    if (valueProvided instanceof Resource) {
+                        this.__data.contained = [valueProvided];
+                    } else {
+                        const ResourceCreator = getResource('4_0_0', valueProvided.resourceType);
+                        this.__data.contained = [new ResourceCreator(valueProvided)];
+                    }
                 }
             }
         });
@@ -231,7 +246,19 @@ class CoverageEligibilityRequest extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.extension = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof Extension ?
+                                v : new Extension(v)
+                            );
+                } else {
+                    if (valueProvided instanceof Extension) {
+                        this.__data.extension = valueProvided;
+                    } else {
+                        this.__data.extension = [new Extension(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -262,7 +289,19 @@ class CoverageEligibilityRequest extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.modifierExtension = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof Extension ?
+                                v : new Extension(v)
+                            );
+                } else {
+                    if (valueProvided instanceof Extension) {
+                        this.__data.modifierExtension = valueProvided;
+                    } else {
+                        this.__data.modifierExtension = [new Extension(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -281,7 +320,19 @@ class CoverageEligibilityRequest extends Resource {
                     return;
                 }
                 const Identifier = require('../complex_types/identifier.js');
-                this.__data.identifier = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Identifier(v)) : [new Identifier(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.identifier = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof Identifier ?
+                                v : new Identifier(v)
+                            );
+                } else {
+                    if (valueProvided instanceof Identifier) {
+                        this.__data.identifier = valueProvided;
+                    } else {
+                        this.__data.identifier = [new Identifier(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -318,7 +369,11 @@ class CoverageEligibilityRequest extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.priority = new CodeableConcept(valueProvided);
+                if (valueProvided instanceof CodeableConcept){
+                    this.__data.priority = valueProvided;
+                } else {
+                    this.__data.priority = new CodeableConcept(valueProvided);
+                }
             }
         });
 
@@ -360,7 +415,11 @@ class CoverageEligibilityRequest extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.patient = new Reference(valueProvided);
+                if (valueProvided instanceof Reference){
+                    this.__data.patient = valueProvided;
+                } else {
+                    this.__data.patient = new Reference(valueProvided);
+                }
             }
         });
 
@@ -397,7 +456,11 @@ class CoverageEligibilityRequest extends Resource {
                     return;
                 }
                 const Period = require('../complex_types/period.js');
-                this.__data.servicedPeriod = new Period(valueProvided);
+                if (valueProvided instanceof Period){
+                    this.__data.servicedPeriod = valueProvided;
+                } else {
+                    this.__data.servicedPeriod = new Period(valueProvided);
+                }
             }
         });
 
@@ -434,7 +497,11 @@ class CoverageEligibilityRequest extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.enterer = new Reference(valueProvided);
+                if (valueProvided instanceof Reference){
+                    this.__data.enterer = valueProvided;
+                } else {
+                    this.__data.enterer = new Reference(valueProvided);
+                }
             }
         });
 
@@ -453,7 +520,11 @@ class CoverageEligibilityRequest extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.provider = new Reference(valueProvided);
+                if (valueProvided instanceof Reference){
+                    this.__data.provider = valueProvided;
+                } else {
+                    this.__data.provider = new Reference(valueProvided);
+                }
             }
         });
 
@@ -473,7 +544,11 @@ class CoverageEligibilityRequest extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.insurer = new Reference(valueProvided);
+                if (valueProvided instanceof Reference){
+                    this.__data.insurer = valueProvided;
+                } else {
+                    this.__data.insurer = new Reference(valueProvided);
+                }
             }
         });
 
@@ -492,7 +567,11 @@ class CoverageEligibilityRequest extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.facility = new Reference(valueProvided);
+                if (valueProvided instanceof Reference){
+                    this.__data.facility = valueProvided;
+                } else {
+                    this.__data.facility = new Reference(valueProvided);
+                }
             }
         });
 
@@ -512,7 +591,19 @@ class CoverageEligibilityRequest extends Resource {
                     return;
                 }
                 const CoverageEligibilityRequestSupportingInfo = require('../backbone_elements/coverageEligibilityRequestSupportingInfo.js');
-                this.__data.supportingInfo = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CoverageEligibilityRequestSupportingInfo(v)) : [new CoverageEligibilityRequestSupportingInfo(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.supportingInfo = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof CoverageEligibilityRequestSupportingInfo ?
+                                v : new CoverageEligibilityRequestSupportingInfo(v)
+                            );
+                } else {
+                    if (valueProvided instanceof CoverageEligibilityRequestSupportingInfo) {
+                        this.__data.supportingInfo = valueProvided;
+                    } else {
+                        this.__data.supportingInfo = [new CoverageEligibilityRequestSupportingInfo(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -532,7 +623,19 @@ class CoverageEligibilityRequest extends Resource {
                     return;
                 }
                 const CoverageEligibilityRequestInsurance = require('../backbone_elements/coverageEligibilityRequestInsurance.js');
-                this.__data.insurance = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CoverageEligibilityRequestInsurance(v)) : [new CoverageEligibilityRequestInsurance(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.insurance = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof CoverageEligibilityRequestInsurance ?
+                                v : new CoverageEligibilityRequestInsurance(v)
+                            );
+                } else {
+                    if (valueProvided instanceof CoverageEligibilityRequestInsurance) {
+                        this.__data.insurance = valueProvided;
+                    } else {
+                        this.__data.insurance = [new CoverageEligibilityRequestInsurance(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -552,7 +655,19 @@ class CoverageEligibilityRequest extends Resource {
                     return;
                 }
                 const CoverageEligibilityRequestItem = require('../backbone_elements/coverageEligibilityRequestItem.js');
-                this.__data.item = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CoverageEligibilityRequestItem(v)) : [new CoverageEligibilityRequestItem(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.item = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof CoverageEligibilityRequestItem ?
+                                v : new CoverageEligibilityRequestItem(v)
+                            );
+                } else {
+                    if (valueProvided instanceof CoverageEligibilityRequestItem) {
+                        this.__data.item = valueProvided;
+                    } else {
+                        this.__data.item = [new CoverageEligibilityRequestItem(valueProvided)];
+                    }
+                }
             }
         });
 

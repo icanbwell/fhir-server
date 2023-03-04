@@ -110,7 +110,11 @@ class VerificationResult extends Resource {
                     return;
                 }
                 const Meta = require('../complex_types/meta.js');
-                this.__data.meta = new Meta(valueProvided);
+                if (valueProvided instanceof Meta){
+                    this.__data.meta = valueProvided;
+                } else {
+                    this.__data.meta = new Meta(valueProvided);
+                }
             }
         });
 
@@ -173,7 +177,11 @@ class VerificationResult extends Resource {
                     return;
                 }
                 const Narrative = require('../complex_types/narrative.js');
-                this.__data.text = new Narrative(valueProvided);
+                if (valueProvided instanceof Narrative){
+                    this.__data.text = valueProvided;
+                } else {
+                    this.__data.text = new Narrative(valueProvided);
+                }
             }
         });
 
@@ -197,12 +205,19 @@ class VerificationResult extends Resource {
                 const {getResource} = require('../../../../operations/common/getResource');
                 if (Array.isArray(valueProvided)) {
                     this.__data.contained = valueProvided.filter(v => v).map(v => {
+                        if (v instanceof Resource) {
+                            return v;
+                        }
                         const ResourceCreator = getResource('4_0_0', v.resourceType);
                         return new ResourceCreator(v);
                     });
                 } else {
-                const ResourceCreator = getResource('4_0_0', valueProvided.resourceType);
-                this.__data.contained = [new ResourceCreator(valueProvided)];
+                    if (valueProvided instanceof Resource) {
+                        this.__data.contained = [valueProvided];
+                    } else {
+                        const ResourceCreator = getResource('4_0_0', valueProvided.resourceType);
+                        this.__data.contained = [new ResourceCreator(valueProvided)];
+                    }
                 }
             }
         });
@@ -226,7 +241,19 @@ class VerificationResult extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.extension = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof Extension ?
+                                v : new Extension(v)
+                            );
+                } else {
+                    if (valueProvided instanceof Extension) {
+                        this.__data.extension = valueProvided;
+                    } else {
+                        this.__data.extension = [new Extension(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -257,7 +284,19 @@ class VerificationResult extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.modifierExtension = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof Extension ?
+                                v : new Extension(v)
+                            );
+                } else {
+                    if (valueProvided instanceof Extension) {
+                        this.__data.modifierExtension = valueProvided;
+                    } else {
+                        this.__data.modifierExtension = [new Extension(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -276,7 +315,19 @@ class VerificationResult extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.target = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.target = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof Reference ?
+                                v : new Reference(v)
+                            );
+                } else {
+                    if (valueProvided instanceof Reference) {
+                        this.__data.target = valueProvided;
+                    } else {
+                        this.__data.target = [new Reference(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -314,7 +365,11 @@ class VerificationResult extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.need = new CodeableConcept(valueProvided);
+                if (valueProvided instanceof CodeableConcept){
+                    this.__data.need = valueProvided;
+                } else {
+                    this.__data.need = new CodeableConcept(valueProvided);
+                }
             }
         });
 
@@ -371,7 +426,11 @@ class VerificationResult extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.validationType = new CodeableConcept(valueProvided);
+                if (valueProvided instanceof CodeableConcept){
+                    this.__data.validationType = valueProvided;
+                } else {
+                    this.__data.validationType = new CodeableConcept(valueProvided);
+                }
             }
         });
 
@@ -391,7 +450,19 @@ class VerificationResult extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.validationProcess = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.validationProcess = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof CodeableConcept ?
+                                v : new CodeableConcept(v)
+                            );
+                } else {
+                    if (valueProvided instanceof CodeableConcept) {
+                        this.__data.validationProcess = valueProvided;
+                    } else {
+                        this.__data.validationProcess = [new CodeableConcept(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -410,7 +481,11 @@ class VerificationResult extends Resource {
                     return;
                 }
                 const Timing = require('../backbone_elements/timing.js');
-                this.__data.frequency = new Timing(valueProvided);
+                if (valueProvided instanceof Timing){
+                    this.__data.frequency = valueProvided;
+                } else {
+                    this.__data.frequency = new Timing(valueProvided);
+                }
             }
         });
 
@@ -465,7 +540,11 @@ class VerificationResult extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.failureAction = new CodeableConcept(valueProvided);
+                if (valueProvided instanceof CodeableConcept){
+                    this.__data.failureAction = valueProvided;
+                } else {
+                    this.__data.failureAction = new CodeableConcept(valueProvided);
+                }
             }
         });
 
@@ -484,7 +563,19 @@ class VerificationResult extends Resource {
                     return;
                 }
                 const VerificationResultPrimarySource = require('../backbone_elements/verificationResultPrimarySource.js');
-                this.__data.primarySource = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new VerificationResultPrimarySource(v)) : [new VerificationResultPrimarySource(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.primarySource = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof VerificationResultPrimarySource ?
+                                v : new VerificationResultPrimarySource(v)
+                            );
+                } else {
+                    if (valueProvided instanceof VerificationResultPrimarySource) {
+                        this.__data.primarySource = valueProvided;
+                    } else {
+                        this.__data.primarySource = [new VerificationResultPrimarySource(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -503,7 +594,11 @@ class VerificationResult extends Resource {
                     return;
                 }
                 const VerificationResultAttestation = require('../backbone_elements/verificationResultAttestation.js');
-                this.__data.attestation = new VerificationResultAttestation(valueProvided);
+                if (valueProvided instanceof VerificationResultAttestation){
+                    this.__data.attestation = valueProvided;
+                } else {
+                    this.__data.attestation = new VerificationResultAttestation(valueProvided);
+                }
             }
         });
 
@@ -522,7 +617,19 @@ class VerificationResult extends Resource {
                     return;
                 }
                 const VerificationResultValidator = require('../backbone_elements/verificationResultValidator.js');
-                this.__data.validator = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new VerificationResultValidator(v)) : [new VerificationResultValidator(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.validator = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof VerificationResultValidator ?
+                                v : new VerificationResultValidator(v)
+                            );
+                } else {
+                    if (valueProvided instanceof VerificationResultValidator) {
+                        this.__data.validator = valueProvided;
+                    } else {
+                        this.__data.validator = [new VerificationResultValidator(valueProvided)];
+                    }
+                }
             }
         });
 

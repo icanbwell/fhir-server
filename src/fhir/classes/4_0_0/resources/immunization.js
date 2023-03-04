@@ -140,7 +140,11 @@ class Immunization extends Resource {
                     return;
                 }
                 const Meta = require('../complex_types/meta.js');
-                this.__data.meta = new Meta(valueProvided);
+                if (valueProvided instanceof Meta){
+                    this.__data.meta = valueProvided;
+                } else {
+                    this.__data.meta = new Meta(valueProvided);
+                }
             }
         });
 
@@ -203,7 +207,11 @@ class Immunization extends Resource {
                     return;
                 }
                 const Narrative = require('../complex_types/narrative.js');
-                this.__data.text = new Narrative(valueProvided);
+                if (valueProvided instanceof Narrative){
+                    this.__data.text = valueProvided;
+                } else {
+                    this.__data.text = new Narrative(valueProvided);
+                }
             }
         });
 
@@ -227,12 +235,19 @@ class Immunization extends Resource {
                 const {getResource} = require('../../../../operations/common/getResource');
                 if (Array.isArray(valueProvided)) {
                     this.__data.contained = valueProvided.filter(v => v).map(v => {
+                        if (v instanceof Resource) {
+                            return v;
+                        }
                         const ResourceCreator = getResource('4_0_0', v.resourceType);
                         return new ResourceCreator(v);
                     });
                 } else {
-                const ResourceCreator = getResource('4_0_0', valueProvided.resourceType);
-                this.__data.contained = [new ResourceCreator(valueProvided)];
+                    if (valueProvided instanceof Resource) {
+                        this.__data.contained = [valueProvided];
+                    } else {
+                        const ResourceCreator = getResource('4_0_0', valueProvided.resourceType);
+                        this.__data.contained = [new ResourceCreator(valueProvided)];
+                    }
                 }
             }
         });
@@ -256,7 +271,19 @@ class Immunization extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.extension = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof Extension ?
+                                v : new Extension(v)
+                            );
+                } else {
+                    if (valueProvided instanceof Extension) {
+                        this.__data.extension = valueProvided;
+                    } else {
+                        this.__data.extension = [new Extension(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -287,7 +314,19 @@ class Immunization extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.modifierExtension = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof Extension ?
+                                v : new Extension(v)
+                            );
+                } else {
+                    if (valueProvided instanceof Extension) {
+                        this.__data.modifierExtension = valueProvided;
+                    } else {
+                        this.__data.modifierExtension = [new Extension(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -306,7 +345,19 @@ class Immunization extends Resource {
                     return;
                 }
                 const Identifier = require('../complex_types/identifier.js');
-                this.__data.identifier = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Identifier(v)) : [new Identifier(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.identifier = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof Identifier ?
+                                v : new Identifier(v)
+                            );
+                } else {
+                    if (valueProvided instanceof Identifier) {
+                        this.__data.identifier = valueProvided;
+                    } else {
+                        this.__data.identifier = [new Identifier(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -343,7 +394,11 @@ class Immunization extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.statusReason = new CodeableConcept(valueProvided);
+                if (valueProvided instanceof CodeableConcept){
+                    this.__data.statusReason = valueProvided;
+                } else {
+                    this.__data.statusReason = new CodeableConcept(valueProvided);
+                }
             }
         });
 
@@ -362,7 +417,11 @@ class Immunization extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.vaccineCode = new CodeableConcept(valueProvided);
+                if (valueProvided instanceof CodeableConcept){
+                    this.__data.vaccineCode = valueProvided;
+                } else {
+                    this.__data.vaccineCode = new CodeableConcept(valueProvided);
+                }
             }
         });
 
@@ -381,7 +440,11 @@ class Immunization extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.patient = new Reference(valueProvided);
+                if (valueProvided instanceof Reference){
+                    this.__data.patient = valueProvided;
+                } else {
+                    this.__data.patient = new Reference(valueProvided);
+                }
             }
         });
 
@@ -401,7 +464,11 @@ class Immunization extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.encounter = new Reference(valueProvided);
+                if (valueProvided instanceof Reference){
+                    this.__data.encounter = valueProvided;
+                } else {
+                    this.__data.encounter = new Reference(valueProvided);
+                }
             }
         });
 
@@ -496,7 +563,11 @@ class Immunization extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.reportOrigin = new CodeableConcept(valueProvided);
+                if (valueProvided instanceof CodeableConcept){
+                    this.__data.reportOrigin = valueProvided;
+                } else {
+                    this.__data.reportOrigin = new CodeableConcept(valueProvided);
+                }
             }
         });
 
@@ -515,7 +586,11 @@ class Immunization extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.location = new Reference(valueProvided);
+                if (valueProvided instanceof Reference){
+                    this.__data.location = valueProvided;
+                } else {
+                    this.__data.location = new Reference(valueProvided);
+                }
             }
         });
 
@@ -534,7 +609,11 @@ class Immunization extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.manufacturer = new Reference(valueProvided);
+                if (valueProvided instanceof Reference){
+                    this.__data.manufacturer = valueProvided;
+                } else {
+                    this.__data.manufacturer = new Reference(valueProvided);
+                }
             }
         });
 
@@ -589,7 +668,11 @@ class Immunization extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.site = new CodeableConcept(valueProvided);
+                if (valueProvided instanceof CodeableConcept){
+                    this.__data.site = valueProvided;
+                } else {
+                    this.__data.site = new CodeableConcept(valueProvided);
+                }
             }
         });
 
@@ -608,7 +691,11 @@ class Immunization extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.route = new CodeableConcept(valueProvided);
+                if (valueProvided instanceof CodeableConcept){
+                    this.__data.route = valueProvided;
+                } else {
+                    this.__data.route = new CodeableConcept(valueProvided);
+                }
             }
         });
 
@@ -627,7 +714,11 @@ class Immunization extends Resource {
                     return;
                 }
                 const Quantity = require('../complex_types/quantity.js');
-                this.__data.doseQuantity = new Quantity(valueProvided);
+                if (valueProvided instanceof Quantity){
+                    this.__data.doseQuantity = valueProvided;
+                } else {
+                    this.__data.doseQuantity = new Quantity(valueProvided);
+                }
             }
         });
 
@@ -646,7 +737,19 @@ class Immunization extends Resource {
                     return;
                 }
                 const ImmunizationPerformer = require('../backbone_elements/immunizationPerformer.js');
-                this.__data.performer = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ImmunizationPerformer(v)) : [new ImmunizationPerformer(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.performer = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof ImmunizationPerformer ?
+                                v : new ImmunizationPerformer(v)
+                            );
+                } else {
+                    if (valueProvided instanceof ImmunizationPerformer) {
+                        this.__data.performer = valueProvided;
+                    } else {
+                        this.__data.performer = [new ImmunizationPerformer(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -666,7 +769,19 @@ class Immunization extends Resource {
                     return;
                 }
                 const Annotation = require('../complex_types/annotation.js');
-                this.__data.note = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Annotation(v)) : [new Annotation(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.note = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof Annotation ?
+                                v : new Annotation(v)
+                            );
+                } else {
+                    if (valueProvided instanceof Annotation) {
+                        this.__data.note = valueProvided;
+                    } else {
+                        this.__data.note = [new Annotation(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -685,7 +800,19 @@ class Immunization extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.reasonCode = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.reasonCode = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof CodeableConcept ?
+                                v : new CodeableConcept(v)
+                            );
+                } else {
+                    if (valueProvided instanceof CodeableConcept) {
+                        this.__data.reasonCode = valueProvided;
+                    } else {
+                        this.__data.reasonCode = [new CodeableConcept(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -705,7 +832,19 @@ class Immunization extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.reasonReference = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.reasonReference = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof Reference ?
+                                v : new Reference(v)
+                            );
+                } else {
+                    if (valueProvided instanceof Reference) {
+                        this.__data.reasonReference = valueProvided;
+                    } else {
+                        this.__data.reasonReference = [new Reference(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -743,7 +882,19 @@ class Immunization extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.subpotentReason = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.subpotentReason = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof CodeableConcept ?
+                                v : new CodeableConcept(v)
+                            );
+                } else {
+                    if (valueProvided instanceof CodeableConcept) {
+                        this.__data.subpotentReason = valueProvided;
+                    } else {
+                        this.__data.subpotentReason = [new CodeableConcept(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -763,7 +914,19 @@ class Immunization extends Resource {
                     return;
                 }
                 const ImmunizationEducation = require('../backbone_elements/immunizationEducation.js');
-                this.__data.education = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ImmunizationEducation(v)) : [new ImmunizationEducation(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.education = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof ImmunizationEducation ?
+                                v : new ImmunizationEducation(v)
+                            );
+                } else {
+                    if (valueProvided instanceof ImmunizationEducation) {
+                        this.__data.education = valueProvided;
+                    } else {
+                        this.__data.education = [new ImmunizationEducation(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -782,7 +945,19 @@ class Immunization extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.programEligibility = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.programEligibility = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof CodeableConcept ?
+                                v : new CodeableConcept(v)
+                            );
+                } else {
+                    if (valueProvided instanceof CodeableConcept) {
+                        this.__data.programEligibility = valueProvided;
+                    } else {
+                        this.__data.programEligibility = [new CodeableConcept(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -804,7 +979,11 @@ class Immunization extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.fundingSource = new CodeableConcept(valueProvided);
+                if (valueProvided instanceof CodeableConcept){
+                    this.__data.fundingSource = valueProvided;
+                } else {
+                    this.__data.fundingSource = new CodeableConcept(valueProvided);
+                }
             }
         });
 
@@ -824,7 +1003,19 @@ class Immunization extends Resource {
                     return;
                 }
                 const ImmunizationReaction = require('../backbone_elements/immunizationReaction.js');
-                this.__data.reaction = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ImmunizationReaction(v)) : [new ImmunizationReaction(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.reaction = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof ImmunizationReaction ?
+                                v : new ImmunizationReaction(v)
+                            );
+                } else {
+                    if (valueProvided instanceof ImmunizationReaction) {
+                        this.__data.reaction = valueProvided;
+                    } else {
+                        this.__data.reaction = [new ImmunizationReaction(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -844,7 +1035,19 @@ class Immunization extends Resource {
                     return;
                 }
                 const ImmunizationProtocolApplied = require('../backbone_elements/immunizationProtocolApplied.js');
-                this.__data.protocolApplied = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ImmunizationProtocolApplied(v)) : [new ImmunizationProtocolApplied(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.protocolApplied = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof ImmunizationProtocolApplied ?
+                                v : new ImmunizationProtocolApplied(v)
+                            );
+                } else {
+                    if (valueProvided instanceof ImmunizationProtocolApplied) {
+                        this.__data.protocolApplied = valueProvided;
+                    } else {
+                        this.__data.protocolApplied = [new ImmunizationProtocolApplied(valueProvided)];
+                    }
+                }
             }
         });
 

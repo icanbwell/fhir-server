@@ -99,7 +99,11 @@ class MedicinalProductPackaged extends Resource {
                     return;
                 }
                 const Meta = require('../complex_types/meta.js');
-                this.__data.meta = new Meta(valueProvided);
+                if (valueProvided instanceof Meta){
+                    this.__data.meta = valueProvided;
+                } else {
+                    this.__data.meta = new Meta(valueProvided);
+                }
             }
         });
 
@@ -162,7 +166,11 @@ class MedicinalProductPackaged extends Resource {
                     return;
                 }
                 const Narrative = require('../complex_types/narrative.js');
-                this.__data.text = new Narrative(valueProvided);
+                if (valueProvided instanceof Narrative){
+                    this.__data.text = valueProvided;
+                } else {
+                    this.__data.text = new Narrative(valueProvided);
+                }
             }
         });
 
@@ -186,12 +194,19 @@ class MedicinalProductPackaged extends Resource {
                 const {getResource} = require('../../../../operations/common/getResource');
                 if (Array.isArray(valueProvided)) {
                     this.__data.contained = valueProvided.filter(v => v).map(v => {
+                        if (v instanceof Resource) {
+                            return v;
+                        }
                         const ResourceCreator = getResource('4_0_0', v.resourceType);
                         return new ResourceCreator(v);
                     });
                 } else {
-                const ResourceCreator = getResource('4_0_0', valueProvided.resourceType);
-                this.__data.contained = [new ResourceCreator(valueProvided)];
+                    if (valueProvided instanceof Resource) {
+                        this.__data.contained = [valueProvided];
+                    } else {
+                        const ResourceCreator = getResource('4_0_0', valueProvided.resourceType);
+                        this.__data.contained = [new ResourceCreator(valueProvided)];
+                    }
                 }
             }
         });
@@ -215,7 +230,19 @@ class MedicinalProductPackaged extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.extension = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof Extension ?
+                                v : new Extension(v)
+                            );
+                } else {
+                    if (valueProvided instanceof Extension) {
+                        this.__data.extension = valueProvided;
+                    } else {
+                        this.__data.extension = [new Extension(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -246,7 +273,19 @@ class MedicinalProductPackaged extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.modifierExtension = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof Extension ?
+                                v : new Extension(v)
+                            );
+                } else {
+                    if (valueProvided instanceof Extension) {
+                        this.__data.modifierExtension = valueProvided;
+                    } else {
+                        this.__data.modifierExtension = [new Extension(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -265,7 +304,19 @@ class MedicinalProductPackaged extends Resource {
                     return;
                 }
                 const Identifier = require('../complex_types/identifier.js');
-                this.__data.identifier = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Identifier(v)) : [new Identifier(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.identifier = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof Identifier ?
+                                v : new Identifier(v)
+                            );
+                } else {
+                    if (valueProvided instanceof Identifier) {
+                        this.__data.identifier = valueProvided;
+                    } else {
+                        this.__data.identifier = [new Identifier(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -284,7 +335,19 @@ class MedicinalProductPackaged extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.subject = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.subject = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof Reference ?
+                                v : new Reference(v)
+                            );
+                } else {
+                    if (valueProvided instanceof Reference) {
+                        this.__data.subject = valueProvided;
+                    } else {
+                        this.__data.subject = [new Reference(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -322,7 +385,11 @@ class MedicinalProductPackaged extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.legalStatusOfSupply = new CodeableConcept(valueProvided);
+                if (valueProvided instanceof CodeableConcept){
+                    this.__data.legalStatusOfSupply = valueProvided;
+                } else {
+                    this.__data.legalStatusOfSupply = new CodeableConcept(valueProvided);
+                }
             }
         });
 
@@ -341,7 +408,19 @@ class MedicinalProductPackaged extends Resource {
                     return;
                 }
                 const MarketingStatus = require('../backbone_elements/marketingStatus.js');
-                this.__data.marketingStatus = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new MarketingStatus(v)) : [new MarketingStatus(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.marketingStatus = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof MarketingStatus ?
+                                v : new MarketingStatus(v)
+                            );
+                } else {
+                    if (valueProvided instanceof MarketingStatus) {
+                        this.__data.marketingStatus = valueProvided;
+                    } else {
+                        this.__data.marketingStatus = [new MarketingStatus(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -360,7 +439,11 @@ class MedicinalProductPackaged extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.marketingAuthorization = new Reference(valueProvided);
+                if (valueProvided instanceof Reference){
+                    this.__data.marketingAuthorization = valueProvided;
+                } else {
+                    this.__data.marketingAuthorization = new Reference(valueProvided);
+                }
             }
         });
 
@@ -379,7 +462,19 @@ class MedicinalProductPackaged extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.manufacturer = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.manufacturer = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof Reference ?
+                                v : new Reference(v)
+                            );
+                } else {
+                    if (valueProvided instanceof Reference) {
+                        this.__data.manufacturer = valueProvided;
+                    } else {
+                        this.__data.manufacturer = [new Reference(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -398,7 +493,19 @@ class MedicinalProductPackaged extends Resource {
                     return;
                 }
                 const MedicinalProductPackagedBatchIdentifier = require('../backbone_elements/medicinalProductPackagedBatchIdentifier.js');
-                this.__data.batchIdentifier = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new MedicinalProductPackagedBatchIdentifier(v)) : [new MedicinalProductPackagedBatchIdentifier(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.batchIdentifier = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof MedicinalProductPackagedBatchIdentifier ?
+                                v : new MedicinalProductPackagedBatchIdentifier(v)
+                            );
+                } else {
+                    if (valueProvided instanceof MedicinalProductPackagedBatchIdentifier) {
+                        this.__data.batchIdentifier = valueProvided;
+                    } else {
+                        this.__data.batchIdentifier = [new MedicinalProductPackagedBatchIdentifier(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -418,7 +525,19 @@ class MedicinalProductPackaged extends Resource {
                     return;
                 }
                 const MedicinalProductPackagedPackageItem = require('../backbone_elements/medicinalProductPackagedPackageItem.js');
-                this.__data.packageItem = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new MedicinalProductPackagedPackageItem(v)) : [new MedicinalProductPackagedPackageItem(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.packageItem = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof MedicinalProductPackagedPackageItem ?
+                                v : new MedicinalProductPackagedPackageItem(v)
+                            );
+                } else {
+                    if (valueProvided instanceof MedicinalProductPackagedPackageItem) {
+                        this.__data.packageItem = valueProvided;
+                    } else {
+                        this.__data.packageItem = [new MedicinalProductPackagedPackageItem(valueProvided)];
+                    }
+                }
             }
         });
 

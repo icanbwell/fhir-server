@@ -1070,7 +1070,7 @@ class GraphHelper {
             throw new RethrownError({
                 message: 'Error in processGraphLinksAsync(): ' +
                     `parentResourceType: ${parentResourceType} , ` +
-                    `parents:${parentEntities.map(p => p.entityId)}, `,
+                    `parents:${parentEntities.map(p => p.id)}, `,
                 error: e,
                 args: {
                     requestInfo,
@@ -1321,7 +1321,7 @@ class GraphHelper {
                     /**
                      * @type {BundleEntry[]}
                      */
-                    let recursiveEntries = entity.containedEntries.flatMap(
+                    const recursiveEntries = entity.containedEntries.flatMap(
                         e => this.getRecursiveContainedEntities(
                             e
                         )
@@ -1339,14 +1339,22 @@ class GraphHelper {
                             }
                         );
                         topLevelResource.contained = containedResources;
-                    } else {
-                        recursiveEntries = await this.enrichmentManager.enrichBundleEntriesAsync(
+                        // enrich again now that we've changed the resource
+                        bundleEntriesForTopLevelResource = await this.enrichmentManager.enrichBundleEntriesAsync(
                             {
-                                entries: recursiveEntries,
+                                entries: bundleEntriesForTopLevelResource,
                                 parsedArgs
                             }
                         );
+                    } else {
                         bundleEntriesForTopLevelResource = bundleEntriesForTopLevelResource.concat(recursiveEntries);
+                        // enrich again now that we've added new entries to bundle
+                        bundleEntriesForTopLevelResource = await this.enrichmentManager.enrichBundleEntriesAsync(
+                            {
+                                entries: bundleEntriesForTopLevelResource,
+                                parsedArgs
+                            }
+                        );
                     }
 
                     /**

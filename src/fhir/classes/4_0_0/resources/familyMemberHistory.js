@@ -134,7 +134,11 @@ class FamilyMemberHistory extends Resource {
                     return;
                 }
                 const Meta = require('../complex_types/meta.js');
-                this.__data.meta = new Meta(valueProvided);
+                if (valueProvided instanceof Meta){
+                    this.__data.meta = valueProvided;
+                } else {
+                    this.__data.meta = new Meta(valueProvided);
+                }
             }
         });
 
@@ -197,7 +201,11 @@ class FamilyMemberHistory extends Resource {
                     return;
                 }
                 const Narrative = require('../complex_types/narrative.js');
-                this.__data.text = new Narrative(valueProvided);
+                if (valueProvided instanceof Narrative){
+                    this.__data.text = valueProvided;
+                } else {
+                    this.__data.text = new Narrative(valueProvided);
+                }
             }
         });
 
@@ -221,12 +229,19 @@ class FamilyMemberHistory extends Resource {
                 const {getResource} = require('../../../../operations/common/getResource');
                 if (Array.isArray(valueProvided)) {
                     this.__data.contained = valueProvided.filter(v => v).map(v => {
+                        if (v instanceof Resource) {
+                            return v;
+                        }
                         const ResourceCreator = getResource('4_0_0', v.resourceType);
                         return new ResourceCreator(v);
                     });
                 } else {
-                const ResourceCreator = getResource('4_0_0', valueProvided.resourceType);
-                this.__data.contained = [new ResourceCreator(valueProvided)];
+                    if (valueProvided instanceof Resource) {
+                        this.__data.contained = [valueProvided];
+                    } else {
+                        const ResourceCreator = getResource('4_0_0', valueProvided.resourceType);
+                        this.__data.contained = [new ResourceCreator(valueProvided)];
+                    }
                 }
             }
         });
@@ -250,7 +265,19 @@ class FamilyMemberHistory extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.extension = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof Extension ?
+                                v : new Extension(v)
+                            );
+                } else {
+                    if (valueProvided instanceof Extension) {
+                        this.__data.extension = valueProvided;
+                    } else {
+                        this.__data.extension = [new Extension(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -281,7 +308,19 @@ class FamilyMemberHistory extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.modifierExtension = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof Extension ?
+                                v : new Extension(v)
+                            );
+                } else {
+                    if (valueProvided instanceof Extension) {
+                        this.__data.modifierExtension = valueProvided;
+                    } else {
+                        this.__data.modifierExtension = [new Extension(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -302,7 +341,19 @@ class FamilyMemberHistory extends Resource {
                     return;
                 }
                 const Identifier = require('../complex_types/identifier.js');
-                this.__data.identifier = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Identifier(v)) : [new Identifier(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.identifier = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof Identifier ?
+                                v : new Identifier(v)
+                            );
+                } else {
+                    if (valueProvided instanceof Identifier) {
+                        this.__data.identifier = valueProvided;
+                    } else {
+                        this.__data.identifier = [new Identifier(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -379,7 +430,11 @@ class FamilyMemberHistory extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.dataAbsentReason = new CodeableConcept(valueProvided);
+                if (valueProvided instanceof CodeableConcept){
+                    this.__data.dataAbsentReason = valueProvided;
+                } else {
+                    this.__data.dataAbsentReason = new CodeableConcept(valueProvided);
+                }
             }
         });
 
@@ -398,7 +453,11 @@ class FamilyMemberHistory extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.patient = new Reference(valueProvided);
+                if (valueProvided instanceof Reference){
+                    this.__data.patient = valueProvided;
+                } else {
+                    this.__data.patient = new Reference(valueProvided);
+                }
             }
         });
 
@@ -456,7 +515,11 @@ class FamilyMemberHistory extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.relationship = new CodeableConcept(valueProvided);
+                if (valueProvided instanceof CodeableConcept){
+                    this.__data.relationship = valueProvided;
+                } else {
+                    this.__data.relationship = new CodeableConcept(valueProvided);
+                }
             }
         });
 
@@ -475,7 +538,11 @@ class FamilyMemberHistory extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.sex = new CodeableConcept(valueProvided);
+                if (valueProvided instanceof CodeableConcept){
+                    this.__data.sex = valueProvided;
+                } else {
+                    this.__data.sex = new CodeableConcept(valueProvided);
+                }
             }
         });
 
@@ -494,7 +561,11 @@ class FamilyMemberHistory extends Resource {
                     return;
                 }
                 const Period = require('../complex_types/period.js');
-                this.__data.bornPeriod = new Period(valueProvided);
+                if (valueProvided instanceof Period){
+                    this.__data.bornPeriod = valueProvided;
+                } else {
+                    this.__data.bornPeriod = new Period(valueProvided);
+                }
             }
         });
 
@@ -549,7 +620,11 @@ class FamilyMemberHistory extends Resource {
                     return;
                 }
                 const Quantity = require('../complex_types/quantity.js');
-                this.__data.ageAge = new Quantity(valueProvided);
+                if (valueProvided instanceof Quantity){
+                    this.__data.ageAge = valueProvided;
+                } else {
+                    this.__data.ageAge = new Quantity(valueProvided);
+                }
             }
         });
 
@@ -568,7 +643,11 @@ class FamilyMemberHistory extends Resource {
                     return;
                 }
                 const Range = require('../complex_types/range.js');
-                this.__data.ageRange = new Range(valueProvided);
+                if (valueProvided instanceof Range){
+                    this.__data.ageRange = valueProvided;
+                } else {
+                    this.__data.ageRange = new Range(valueProvided);
+                }
             }
         });
 
@@ -641,7 +720,11 @@ class FamilyMemberHistory extends Resource {
                     return;
                 }
                 const Quantity = require('../complex_types/quantity.js');
-                this.__data.deceasedAge = new Quantity(valueProvided);
+                if (valueProvided instanceof Quantity){
+                    this.__data.deceasedAge = valueProvided;
+                } else {
+                    this.__data.deceasedAge = new Quantity(valueProvided);
+                }
             }
         });
 
@@ -660,7 +743,11 @@ class FamilyMemberHistory extends Resource {
                     return;
                 }
                 const Range = require('../complex_types/range.js');
-                this.__data.deceasedRange = new Range(valueProvided);
+                if (valueProvided instanceof Range){
+                    this.__data.deceasedRange = valueProvided;
+                } else {
+                    this.__data.deceasedRange = new Range(valueProvided);
+                }
             }
         });
 
@@ -715,7 +802,19 @@ class FamilyMemberHistory extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.reasonCode = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.reasonCode = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof CodeableConcept ?
+                                v : new CodeableConcept(v)
+                            );
+                } else {
+                    if (valueProvided instanceof CodeableConcept) {
+                        this.__data.reasonCode = valueProvided;
+                    } else {
+                        this.__data.reasonCode = [new CodeableConcept(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -735,7 +834,19 @@ class FamilyMemberHistory extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.reasonReference = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.reasonReference = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof Reference ?
+                                v : new Reference(v)
+                            );
+                } else {
+                    if (valueProvided instanceof Reference) {
+                        this.__data.reasonReference = valueProvided;
+                    } else {
+                        this.__data.reasonReference = [new Reference(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -756,7 +867,19 @@ class FamilyMemberHistory extends Resource {
                     return;
                 }
                 const Annotation = require('../complex_types/annotation.js');
-                this.__data.note = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Annotation(v)) : [new Annotation(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.note = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof Annotation ?
+                                v : new Annotation(v)
+                            );
+                } else {
+                    if (valueProvided instanceof Annotation) {
+                        this.__data.note = valueProvided;
+                    } else {
+                        this.__data.note = [new Annotation(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -778,7 +901,19 @@ class FamilyMemberHistory extends Resource {
                     return;
                 }
                 const FamilyMemberHistoryCondition = require('../backbone_elements/familyMemberHistoryCondition.js');
-                this.__data.condition = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new FamilyMemberHistoryCondition(v)) : [new FamilyMemberHistoryCondition(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.condition = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof FamilyMemberHistoryCondition ?
+                                v : new FamilyMemberHistoryCondition(v)
+                            );
+                } else {
+                    if (valueProvided instanceof FamilyMemberHistoryCondition) {
+                        this.__data.condition = valueProvided;
+                    } else {
+                        this.__data.condition = [new FamilyMemberHistoryCondition(valueProvided)];
+                    }
+                }
             }
         });
 

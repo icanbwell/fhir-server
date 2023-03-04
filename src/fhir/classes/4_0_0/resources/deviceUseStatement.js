@@ -112,7 +112,11 @@ class DeviceUseStatement extends Resource {
                     return;
                 }
                 const Meta = require('../complex_types/meta.js');
-                this.__data.meta = new Meta(valueProvided);
+                if (valueProvided instanceof Meta){
+                    this.__data.meta = valueProvided;
+                } else {
+                    this.__data.meta = new Meta(valueProvided);
+                }
             }
         });
 
@@ -175,7 +179,11 @@ class DeviceUseStatement extends Resource {
                     return;
                 }
                 const Narrative = require('../complex_types/narrative.js');
-                this.__data.text = new Narrative(valueProvided);
+                if (valueProvided instanceof Narrative){
+                    this.__data.text = valueProvided;
+                } else {
+                    this.__data.text = new Narrative(valueProvided);
+                }
             }
         });
 
@@ -199,12 +207,19 @@ class DeviceUseStatement extends Resource {
                 const {getResource} = require('../../../../operations/common/getResource');
                 if (Array.isArray(valueProvided)) {
                     this.__data.contained = valueProvided.filter(v => v).map(v => {
+                        if (v instanceof Resource) {
+                            return v;
+                        }
                         const ResourceCreator = getResource('4_0_0', v.resourceType);
                         return new ResourceCreator(v);
                     });
                 } else {
-                const ResourceCreator = getResource('4_0_0', valueProvided.resourceType);
-                this.__data.contained = [new ResourceCreator(valueProvided)];
+                    if (valueProvided instanceof Resource) {
+                        this.__data.contained = [valueProvided];
+                    } else {
+                        const ResourceCreator = getResource('4_0_0', valueProvided.resourceType);
+                        this.__data.contained = [new ResourceCreator(valueProvided)];
+                    }
                 }
             }
         });
@@ -228,7 +243,19 @@ class DeviceUseStatement extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.extension = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof Extension ?
+                                v : new Extension(v)
+                            );
+                } else {
+                    if (valueProvided instanceof Extension) {
+                        this.__data.extension = valueProvided;
+                    } else {
+                        this.__data.extension = [new Extension(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -259,7 +286,19 @@ class DeviceUseStatement extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.modifierExtension = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof Extension ?
+                                v : new Extension(v)
+                            );
+                } else {
+                    if (valueProvided instanceof Extension) {
+                        this.__data.modifierExtension = valueProvided;
+                    } else {
+                        this.__data.modifierExtension = [new Extension(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -278,7 +317,19 @@ class DeviceUseStatement extends Resource {
                     return;
                 }
                 const Identifier = require('../complex_types/identifier.js');
-                this.__data.identifier = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Identifier(v)) : [new Identifier(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.identifier = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof Identifier ?
+                                v : new Identifier(v)
+                            );
+                } else {
+                    if (valueProvided instanceof Identifier) {
+                        this.__data.identifier = valueProvided;
+                    } else {
+                        this.__data.identifier = [new Identifier(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -298,7 +349,19 @@ class DeviceUseStatement extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.basedOn = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.basedOn = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof Reference ?
+                                v : new Reference(v)
+                            );
+                } else {
+                    if (valueProvided instanceof Reference) {
+                        this.__data.basedOn = valueProvided;
+                    } else {
+                        this.__data.basedOn = [new Reference(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -337,7 +400,11 @@ class DeviceUseStatement extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.subject = new Reference(valueProvided);
+                if (valueProvided instanceof Reference){
+                    this.__data.subject = valueProvided;
+                } else {
+                    this.__data.subject = new Reference(valueProvided);
+                }
             }
         });
 
@@ -357,7 +424,19 @@ class DeviceUseStatement extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.derivedFrom = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.derivedFrom = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof Reference ?
+                                v : new Reference(v)
+                            );
+                } else {
+                    if (valueProvided instanceof Reference) {
+                        this.__data.derivedFrom = valueProvided;
+                    } else {
+                        this.__data.derivedFrom = [new Reference(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -376,7 +455,11 @@ class DeviceUseStatement extends Resource {
                     return;
                 }
                 const Timing = require('../backbone_elements/timing.js');
-                this.__data.timingTiming = new Timing(valueProvided);
+                if (valueProvided instanceof Timing){
+                    this.__data.timingTiming = valueProvided;
+                } else {
+                    this.__data.timingTiming = new Timing(valueProvided);
+                }
             }
         });
 
@@ -395,7 +478,11 @@ class DeviceUseStatement extends Resource {
                     return;
                 }
                 const Period = require('../complex_types/period.js');
-                this.__data.timingPeriod = new Period(valueProvided);
+                if (valueProvided instanceof Period){
+                    this.__data.timingPeriod = valueProvided;
+                } else {
+                    this.__data.timingPeriod = new Period(valueProvided);
+                }
             }
         });
 
@@ -450,7 +537,11 @@ class DeviceUseStatement extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.source = new Reference(valueProvided);
+                if (valueProvided instanceof Reference){
+                    this.__data.source = valueProvided;
+                } else {
+                    this.__data.source = new Reference(valueProvided);
+                }
             }
         });
 
@@ -469,7 +560,11 @@ class DeviceUseStatement extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.device = new Reference(valueProvided);
+                if (valueProvided instanceof Reference){
+                    this.__data.device = valueProvided;
+                } else {
+                    this.__data.device = new Reference(valueProvided);
+                }
             }
         });
 
@@ -488,7 +583,19 @@ class DeviceUseStatement extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.reasonCode = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.reasonCode = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof CodeableConcept ?
+                                v : new CodeableConcept(v)
+                            );
+                } else {
+                    if (valueProvided instanceof CodeableConcept) {
+                        this.__data.reasonCode = valueProvided;
+                    } else {
+                        this.__data.reasonCode = [new CodeableConcept(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -507,7 +614,19 @@ class DeviceUseStatement extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.reasonReference = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.reasonReference = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof Reference ?
+                                v : new Reference(v)
+                            );
+                } else {
+                    if (valueProvided instanceof Reference) {
+                        this.__data.reasonReference = valueProvided;
+                    } else {
+                        this.__data.reasonReference = [new Reference(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -527,7 +646,11 @@ class DeviceUseStatement extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.bodySite = new CodeableConcept(valueProvided);
+                if (valueProvided instanceof CodeableConcept){
+                    this.__data.bodySite = valueProvided;
+                } else {
+                    this.__data.bodySite = new CodeableConcept(valueProvided);
+                }
             }
         });
 
@@ -549,7 +672,19 @@ class DeviceUseStatement extends Resource {
                     return;
                 }
                 const Annotation = require('../complex_types/annotation.js');
-                this.__data.note = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Annotation(v)) : [new Annotation(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.note = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof Annotation ?
+                                v : new Annotation(v)
+                            );
+                } else {
+                    if (valueProvided instanceof Annotation) {
+                        this.__data.note = valueProvided;
+                    } else {
+                        this.__data.note = [new Annotation(valueProvided)];
+                    }
+                }
             }
         });
 

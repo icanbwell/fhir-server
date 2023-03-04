@@ -87,7 +87,11 @@ class Bundle extends Resource {
                     return;
                 }
                 const Meta = require('../complex_types/meta.js');
-                this.__data.meta = new Meta(valueProvided);
+                if (valueProvided instanceof Meta){
+                    this.__data.meta = valueProvided;
+                } else {
+                    this.__data.meta = new Meta(valueProvided);
+                }
             }
         });
 
@@ -146,7 +150,11 @@ class Bundle extends Resource {
                     return;
                 }
                 const Identifier = require('../complex_types/identifier.js');
-                this.__data.identifier = new Identifier(valueProvided);
+                if (valueProvided instanceof Identifier){
+                    this.__data.identifier = valueProvided;
+                } else {
+                    this.__data.identifier = new Identifier(valueProvided);
+                }
             }
         });
 
@@ -223,7 +231,19 @@ class Bundle extends Resource {
                     return;
                 }
                 const BundleLink = require('../backbone_elements/bundleLink.js');
-                this.__data.link = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new BundleLink(v)) : [new BundleLink(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.link = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof BundleLink ?
+                                v : new BundleLink(v)
+                            );
+                } else {
+                    if (valueProvided instanceof BundleLink) {
+                        this.__data.link = valueProvided;
+                    } else {
+                        this.__data.link = [new BundleLink(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -243,7 +263,19 @@ class Bundle extends Resource {
                     return;
                 }
                 const BundleEntry = require('../backbone_elements/bundleEntry.js');
-                this.__data.entry = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new BundleEntry(v)) : [new BundleEntry(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.entry = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof BundleEntry ?
+                                v : new BundleEntry(v)
+                            );
+                } else {
+                    if (valueProvided instanceof BundleEntry) {
+                        this.__data.entry = valueProvided;
+                    } else {
+                        this.__data.entry = [new BundleEntry(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -262,7 +294,11 @@ class Bundle extends Resource {
                     return;
                 }
                 const Signature = require('../complex_types/signature.js');
-                this.__data.signature = new Signature(valueProvided);
+                if (valueProvided instanceof Signature){
+                    this.__data.signature = valueProvided;
+                } else {
+                    this.__data.signature = new Signature(valueProvided);
+                }
             }
         });
 

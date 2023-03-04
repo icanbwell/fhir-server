@@ -111,7 +111,11 @@ class Consent extends Resource {
                     return;
                 }
                 const Meta = require('../complex_types/meta.js');
-                this.__data.meta = new Meta(valueProvided);
+                if (valueProvided instanceof Meta){
+                    this.__data.meta = valueProvided;
+                } else {
+                    this.__data.meta = new Meta(valueProvided);
+                }
             }
         });
 
@@ -174,7 +178,11 @@ class Consent extends Resource {
                     return;
                 }
                 const Narrative = require('../complex_types/narrative.js');
-                this.__data.text = new Narrative(valueProvided);
+                if (valueProvided instanceof Narrative){
+                    this.__data.text = valueProvided;
+                } else {
+                    this.__data.text = new Narrative(valueProvided);
+                }
             }
         });
 
@@ -198,12 +206,19 @@ class Consent extends Resource {
                 const {getResource} = require('../../../../operations/common/getResource');
                 if (Array.isArray(valueProvided)) {
                     this.__data.contained = valueProvided.filter(v => v).map(v => {
+                        if (v instanceof Resource) {
+                            return v;
+                        }
                         const ResourceCreator = getResource('4_0_0', v.resourceType);
                         return new ResourceCreator(v);
                     });
                 } else {
-                const ResourceCreator = getResource('4_0_0', valueProvided.resourceType);
-                this.__data.contained = [new ResourceCreator(valueProvided)];
+                    if (valueProvided instanceof Resource) {
+                        this.__data.contained = [valueProvided];
+                    } else {
+                        const ResourceCreator = getResource('4_0_0', valueProvided.resourceType);
+                        this.__data.contained = [new ResourceCreator(valueProvided)];
+                    }
                 }
             }
         });
@@ -227,7 +242,19 @@ class Consent extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.extension = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof Extension ?
+                                v : new Extension(v)
+                            );
+                } else {
+                    if (valueProvided instanceof Extension) {
+                        this.__data.extension = valueProvided;
+                    } else {
+                        this.__data.extension = [new Extension(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -258,7 +285,19 @@ class Consent extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.modifierExtension = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof Extension ?
+                                v : new Extension(v)
+                            );
+                } else {
+                    if (valueProvided instanceof Extension) {
+                        this.__data.modifierExtension = valueProvided;
+                    } else {
+                        this.__data.modifierExtension = [new Extension(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -277,7 +316,19 @@ class Consent extends Resource {
                     return;
                 }
                 const Identifier = require('../complex_types/identifier.js');
-                this.__data.identifier = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Identifier(v)) : [new Identifier(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.identifier = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof Identifier ?
+                                v : new Identifier(v)
+                            );
+                } else {
+                    if (valueProvided instanceof Identifier) {
+                        this.__data.identifier = valueProvided;
+                    } else {
+                        this.__data.identifier = [new Identifier(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -315,7 +366,11 @@ class Consent extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.scope = new CodeableConcept(valueProvided);
+                if (valueProvided instanceof CodeableConcept){
+                    this.__data.scope = valueProvided;
+                } else {
+                    this.__data.scope = new CodeableConcept(valueProvided);
+                }
             }
         });
 
@@ -335,7 +390,19 @@ class Consent extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.category = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.category = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof CodeableConcept ?
+                                v : new CodeableConcept(v)
+                            );
+                } else {
+                    if (valueProvided instanceof CodeableConcept) {
+                        this.__data.category = valueProvided;
+                    } else {
+                        this.__data.category = [new CodeableConcept(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -354,7 +421,11 @@ class Consent extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.patient = new Reference(valueProvided);
+                if (valueProvided instanceof Reference){
+                    this.__data.patient = valueProvided;
+                } else {
+                    this.__data.patient = new Reference(valueProvided);
+                }
             }
         });
 
@@ -394,7 +465,19 @@ class Consent extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.performer = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.performer = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof Reference ?
+                                v : new Reference(v)
+                            );
+                } else {
+                    if (valueProvided instanceof Reference) {
+                        this.__data.performer = valueProvided;
+                    } else {
+                        this.__data.performer = [new Reference(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -414,7 +497,19 @@ class Consent extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.organization = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.organization = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof Reference ?
+                                v : new Reference(v)
+                            );
+                } else {
+                    if (valueProvided instanceof Reference) {
+                        this.__data.organization = valueProvided;
+                    } else {
+                        this.__data.organization = [new Reference(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -433,7 +528,11 @@ class Consent extends Resource {
                     return;
                 }
                 const Attachment = require('../complex_types/attachment.js');
-                this.__data.sourceAttachment = new Attachment(valueProvided);
+                if (valueProvided instanceof Attachment){
+                    this.__data.sourceAttachment = valueProvided;
+                } else {
+                    this.__data.sourceAttachment = new Attachment(valueProvided);
+                }
             }
         });
 
@@ -452,7 +551,11 @@ class Consent extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.sourceReference = new Reference(valueProvided);
+                if (valueProvided instanceof Reference){
+                    this.__data.sourceReference = valueProvided;
+                } else {
+                    this.__data.sourceReference = new Reference(valueProvided);
+                }
             }
         });
 
@@ -473,7 +576,19 @@ class Consent extends Resource {
                     return;
                 }
                 const ConsentPolicy = require('../backbone_elements/consentPolicy.js');
-                this.__data.policy = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ConsentPolicy(v)) : [new ConsentPolicy(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.policy = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof ConsentPolicy ?
+                                v : new ConsentPolicy(v)
+                            );
+                } else {
+                    if (valueProvided instanceof ConsentPolicy) {
+                        this.__data.policy = valueProvided;
+                    } else {
+                        this.__data.policy = [new ConsentPolicy(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -492,7 +607,11 @@ class Consent extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.policyRule = new CodeableConcept(valueProvided);
+                if (valueProvided instanceof CodeableConcept){
+                    this.__data.policyRule = valueProvided;
+                } else {
+                    this.__data.policyRule = new CodeableConcept(valueProvided);
+                }
             }
         });
 
@@ -512,7 +631,19 @@ class Consent extends Resource {
                     return;
                 }
                 const ConsentVerification = require('../backbone_elements/consentVerification.js');
-                this.__data.verification = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ConsentVerification(v)) : [new ConsentVerification(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.verification = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof ConsentVerification ?
+                                v : new ConsentVerification(v)
+                            );
+                } else {
+                    if (valueProvided instanceof ConsentVerification) {
+                        this.__data.verification = valueProvided;
+                    } else {
+                        this.__data.verification = [new ConsentVerification(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -532,7 +663,11 @@ class Consent extends Resource {
                     return;
                 }
                 const ConsentProvision = require('../backbone_elements/consentProvision.js');
-                this.__data.provision = new ConsentProvision(valueProvided);
+                if (valueProvided instanceof ConsentProvision){
+                    this.__data.provision = valueProvided;
+                } else {
+                    this.__data.provision = new ConsentProvision(valueProvided);
+                }
             }
         });
 

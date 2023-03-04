@@ -136,7 +136,11 @@ class ClaimResponse extends Resource {
                     return;
                 }
                 const Meta = require('../complex_types/meta.js');
-                this.__data.meta = new Meta(valueProvided);
+                if (valueProvided instanceof Meta){
+                    this.__data.meta = valueProvided;
+                } else {
+                    this.__data.meta = new Meta(valueProvided);
+                }
             }
         });
 
@@ -199,7 +203,11 @@ class ClaimResponse extends Resource {
                     return;
                 }
                 const Narrative = require('../complex_types/narrative.js');
-                this.__data.text = new Narrative(valueProvided);
+                if (valueProvided instanceof Narrative){
+                    this.__data.text = valueProvided;
+                } else {
+                    this.__data.text = new Narrative(valueProvided);
+                }
             }
         });
 
@@ -223,12 +231,19 @@ class ClaimResponse extends Resource {
                 const {getResource} = require('../../../../operations/common/getResource');
                 if (Array.isArray(valueProvided)) {
                     this.__data.contained = valueProvided.filter(v => v).map(v => {
+                        if (v instanceof Resource) {
+                            return v;
+                        }
                         const ResourceCreator = getResource('4_0_0', v.resourceType);
                         return new ResourceCreator(v);
                     });
                 } else {
-                const ResourceCreator = getResource('4_0_0', valueProvided.resourceType);
-                this.__data.contained = [new ResourceCreator(valueProvided)];
+                    if (valueProvided instanceof Resource) {
+                        this.__data.contained = [valueProvided];
+                    } else {
+                        const ResourceCreator = getResource('4_0_0', valueProvided.resourceType);
+                        this.__data.contained = [new ResourceCreator(valueProvided)];
+                    }
                 }
             }
         });
@@ -252,7 +267,19 @@ class ClaimResponse extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.extension = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof Extension ?
+                                v : new Extension(v)
+                            );
+                } else {
+                    if (valueProvided instanceof Extension) {
+                        this.__data.extension = valueProvided;
+                    } else {
+                        this.__data.extension = [new Extension(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -283,7 +310,19 @@ class ClaimResponse extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.modifierExtension = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof Extension ?
+                                v : new Extension(v)
+                            );
+                } else {
+                    if (valueProvided instanceof Extension) {
+                        this.__data.modifierExtension = valueProvided;
+                    } else {
+                        this.__data.modifierExtension = [new Extension(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -302,7 +341,19 @@ class ClaimResponse extends Resource {
                     return;
                 }
                 const Identifier = require('../complex_types/identifier.js');
-                this.__data.identifier = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Identifier(v)) : [new Identifier(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.identifier = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof Identifier ?
+                                v : new Identifier(v)
+                            );
+                } else {
+                    if (valueProvided instanceof Identifier) {
+                        this.__data.identifier = valueProvided;
+                    } else {
+                        this.__data.identifier = [new Identifier(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -340,7 +391,11 @@ class ClaimResponse extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.type = new CodeableConcept(valueProvided);
+                if (valueProvided instanceof CodeableConcept){
+                    this.__data.type = valueProvided;
+                } else {
+                    this.__data.type = new CodeableConcept(valueProvided);
+                }
             }
         });
 
@@ -360,7 +415,11 @@ class ClaimResponse extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.subType = new CodeableConcept(valueProvided);
+                if (valueProvided instanceof CodeableConcept){
+                    this.__data.subType = valueProvided;
+                } else {
+                    this.__data.subType = new CodeableConcept(valueProvided);
+                }
             }
         });
 
@@ -403,7 +462,11 @@ class ClaimResponse extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.patient = new Reference(valueProvided);
+                if (valueProvided instanceof Reference){
+                    this.__data.patient = valueProvided;
+                } else {
+                    this.__data.patient = new Reference(valueProvided);
+                }
             }
         });
 
@@ -440,7 +503,11 @@ class ClaimResponse extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.insurer = new Reference(valueProvided);
+                if (valueProvided instanceof Reference){
+                    this.__data.insurer = valueProvided;
+                } else {
+                    this.__data.insurer = new Reference(valueProvided);
+                }
             }
         });
 
@@ -460,7 +527,11 @@ class ClaimResponse extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.requestor = new Reference(valueProvided);
+                if (valueProvided instanceof Reference){
+                    this.__data.requestor = valueProvided;
+                } else {
+                    this.__data.requestor = new Reference(valueProvided);
+                }
             }
         });
 
@@ -479,7 +550,11 @@ class ClaimResponse extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.request = new Reference(valueProvided);
+                if (valueProvided instanceof Reference){
+                    this.__data.request = valueProvided;
+                } else {
+                    this.__data.request = new Reference(valueProvided);
+                }
             }
         });
 
@@ -553,7 +628,11 @@ class ClaimResponse extends Resource {
                     return;
                 }
                 const Period = require('../complex_types/period.js');
-                this.__data.preAuthPeriod = new Period(valueProvided);
+                if (valueProvided instanceof Period){
+                    this.__data.preAuthPeriod = valueProvided;
+                } else {
+                    this.__data.preAuthPeriod = new Period(valueProvided);
+                }
             }
         });
 
@@ -572,7 +651,11 @@ class ClaimResponse extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.payeeType = new CodeableConcept(valueProvided);
+                if (valueProvided instanceof CodeableConcept){
+                    this.__data.payeeType = valueProvided;
+                } else {
+                    this.__data.payeeType = new CodeableConcept(valueProvided);
+                }
             }
         });
 
@@ -592,7 +675,19 @@ class ClaimResponse extends Resource {
                     return;
                 }
                 const ClaimResponseItem = require('../backbone_elements/claimResponseItem.js');
-                this.__data.item = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ClaimResponseItem(v)) : [new ClaimResponseItem(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.item = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof ClaimResponseItem ?
+                                v : new ClaimResponseItem(v)
+                            );
+                } else {
+                    if (valueProvided instanceof ClaimResponseItem) {
+                        this.__data.item = valueProvided;
+                    } else {
+                        this.__data.item = [new ClaimResponseItem(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -611,7 +706,19 @@ class ClaimResponse extends Resource {
                     return;
                 }
                 const ClaimResponseAddItem = require('../backbone_elements/claimResponseAddItem.js');
-                this.__data.addItem = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ClaimResponseAddItem(v)) : [new ClaimResponseAddItem(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.addItem = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof ClaimResponseAddItem ?
+                                v : new ClaimResponseAddItem(v)
+                            );
+                } else {
+                    if (valueProvided instanceof ClaimResponseAddItem) {
+                        this.__data.addItem = valueProvided;
+                    } else {
+                        this.__data.addItem = [new ClaimResponseAddItem(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -631,7 +738,19 @@ class ClaimResponse extends Resource {
                     return;
                 }
                 const ClaimResponseAdjudication = require('../backbone_elements/claimResponseAdjudication.js');
-                this.__data.adjudication = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ClaimResponseAdjudication(v)) : [new ClaimResponseAdjudication(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.adjudication = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof ClaimResponseAdjudication ?
+                                v : new ClaimResponseAdjudication(v)
+                            );
+                } else {
+                    if (valueProvided instanceof ClaimResponseAdjudication) {
+                        this.__data.adjudication = valueProvided;
+                    } else {
+                        this.__data.adjudication = [new ClaimResponseAdjudication(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -650,7 +769,19 @@ class ClaimResponse extends Resource {
                     return;
                 }
                 const ClaimResponseTotal = require('../backbone_elements/claimResponseTotal.js');
-                this.__data.total = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ClaimResponseTotal(v)) : [new ClaimResponseTotal(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.total = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof ClaimResponseTotal ?
+                                v : new ClaimResponseTotal(v)
+                            );
+                } else {
+                    if (valueProvided instanceof ClaimResponseTotal) {
+                        this.__data.total = valueProvided;
+                    } else {
+                        this.__data.total = [new ClaimResponseTotal(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -669,7 +800,11 @@ class ClaimResponse extends Resource {
                     return;
                 }
                 const ClaimResponsePayment = require('../backbone_elements/claimResponsePayment.js');
-                this.__data.payment = new ClaimResponsePayment(valueProvided);
+                if (valueProvided instanceof ClaimResponsePayment){
+                    this.__data.payment = valueProvided;
+                } else {
+                    this.__data.payment = new ClaimResponsePayment(valueProvided);
+                }
             }
         });
 
@@ -689,7 +824,11 @@ class ClaimResponse extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.fundsReserve = new CodeableConcept(valueProvided);
+                if (valueProvided instanceof CodeableConcept){
+                    this.__data.fundsReserve = valueProvided;
+                } else {
+                    this.__data.fundsReserve = new CodeableConcept(valueProvided);
+                }
             }
         });
 
@@ -708,7 +847,11 @@ class ClaimResponse extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.formCode = new CodeableConcept(valueProvided);
+                if (valueProvided instanceof CodeableConcept){
+                    this.__data.formCode = valueProvided;
+                } else {
+                    this.__data.formCode = new CodeableConcept(valueProvided);
+                }
             }
         });
 
@@ -728,7 +871,11 @@ class ClaimResponse extends Resource {
                     return;
                 }
                 const Attachment = require('../complex_types/attachment.js');
-                this.__data.form = new Attachment(valueProvided);
+                if (valueProvided instanceof Attachment){
+                    this.__data.form = valueProvided;
+                } else {
+                    this.__data.form = new Attachment(valueProvided);
+                }
             }
         });
 
@@ -748,7 +895,19 @@ class ClaimResponse extends Resource {
                     return;
                 }
                 const ClaimResponseProcessNote = require('../backbone_elements/claimResponseProcessNote.js');
-                this.__data.processNote = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ClaimResponseProcessNote(v)) : [new ClaimResponseProcessNote(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.processNote = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof ClaimResponseProcessNote ?
+                                v : new ClaimResponseProcessNote(v)
+                            );
+                } else {
+                    if (valueProvided instanceof ClaimResponseProcessNote) {
+                        this.__data.processNote = valueProvided;
+                    } else {
+                        this.__data.processNote = [new ClaimResponseProcessNote(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -767,7 +926,19 @@ class ClaimResponse extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.communicationRequest = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.communicationRequest = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof Reference ?
+                                v : new Reference(v)
+                            );
+                } else {
+                    if (valueProvided instanceof Reference) {
+                        this.__data.communicationRequest = valueProvided;
+                    } else {
+                        this.__data.communicationRequest = [new Reference(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -787,7 +958,19 @@ class ClaimResponse extends Resource {
                     return;
                 }
                 const ClaimResponseInsurance = require('../backbone_elements/claimResponseInsurance.js');
-                this.__data.insurance = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ClaimResponseInsurance(v)) : [new ClaimResponseInsurance(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.insurance = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof ClaimResponseInsurance ?
+                                v : new ClaimResponseInsurance(v)
+                            );
+                } else {
+                    if (valueProvided instanceof ClaimResponseInsurance) {
+                        this.__data.insurance = valueProvided;
+                    } else {
+                        this.__data.insurance = [new ClaimResponseInsurance(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -806,7 +989,19 @@ class ClaimResponse extends Resource {
                     return;
                 }
                 const ClaimResponseError = require('../backbone_elements/claimResponseError.js');
-                this.__data.error = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ClaimResponseError(v)) : [new ClaimResponseError(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.error = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof ClaimResponseError ?
+                                v : new ClaimResponseError(v)
+                            );
+                } else {
+                    if (valueProvided instanceof ClaimResponseError) {
+                        this.__data.error = valueProvided;
+                    } else {
+                        this.__data.error = [new ClaimResponseError(valueProvided)];
+                    }
+                }
             }
         });
 

@@ -81,7 +81,11 @@ class Binary extends Resource {
                     return;
                 }
                 const Meta = require('../complex_types/meta.js');
-                this.__data.meta = new Meta(valueProvided);
+                if (valueProvided instanceof Meta){
+                    this.__data.meta = valueProvided;
+                } else {
+                    this.__data.meta = new Meta(valueProvided);
+                }
             }
         });
 
@@ -166,7 +170,11 @@ class Binary extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.securityContext = new Reference(valueProvided);
+                if (valueProvided instanceof Reference){
+                    this.__data.securityContext = valueProvided;
+                } else {
+                    this.__data.securityContext = new Reference(valueProvided);
+                }
             }
         });
 

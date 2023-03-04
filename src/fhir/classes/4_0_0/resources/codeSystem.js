@@ -135,7 +135,11 @@ class CodeSystem extends Resource {
                     return;
                 }
                 const Meta = require('../complex_types/meta.js');
-                this.__data.meta = new Meta(valueProvided);
+                if (valueProvided instanceof Meta){
+                    this.__data.meta = valueProvided;
+                } else {
+                    this.__data.meta = new Meta(valueProvided);
+                }
             }
         });
 
@@ -198,7 +202,11 @@ class CodeSystem extends Resource {
                     return;
                 }
                 const Narrative = require('../complex_types/narrative.js');
-                this.__data.text = new Narrative(valueProvided);
+                if (valueProvided instanceof Narrative){
+                    this.__data.text = valueProvided;
+                } else {
+                    this.__data.text = new Narrative(valueProvided);
+                }
             }
         });
 
@@ -222,12 +230,19 @@ class CodeSystem extends Resource {
                 const {getResource} = require('../../../../operations/common/getResource');
                 if (Array.isArray(valueProvided)) {
                     this.__data.contained = valueProvided.filter(v => v).map(v => {
+                        if (v instanceof Resource) {
+                            return v;
+                        }
                         const ResourceCreator = getResource('4_0_0', v.resourceType);
                         return new ResourceCreator(v);
                     });
                 } else {
-                const ResourceCreator = getResource('4_0_0', valueProvided.resourceType);
-                this.__data.contained = [new ResourceCreator(valueProvided)];
+                    if (valueProvided instanceof Resource) {
+                        this.__data.contained = [valueProvided];
+                    } else {
+                        const ResourceCreator = getResource('4_0_0', valueProvided.resourceType);
+                        this.__data.contained = [new ResourceCreator(valueProvided)];
+                    }
                 }
             }
         });
@@ -251,7 +266,19 @@ class CodeSystem extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.extension = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof Extension ?
+                                v : new Extension(v)
+                            );
+                } else {
+                    if (valueProvided instanceof Extension) {
+                        this.__data.extension = valueProvided;
+                    } else {
+                        this.__data.extension = [new Extension(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -282,7 +309,19 @@ class CodeSystem extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.modifierExtension = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof Extension ?
+                                v : new Extension(v)
+                            );
+                } else {
+                    if (valueProvided instanceof Extension) {
+                        this.__data.modifierExtension = valueProvided;
+                    } else {
+                        this.__data.modifierExtension = [new Extension(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -327,7 +366,19 @@ class CodeSystem extends Resource {
                     return;
                 }
                 const Identifier = require('../complex_types/identifier.js');
-                this.__data.identifier = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Identifier(v)) : [new Identifier(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.identifier = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof Identifier ?
+                                v : new Identifier(v)
+                            );
+                } else {
+                    if (valueProvided instanceof Identifier) {
+                        this.__data.identifier = valueProvided;
+                    } else {
+                        this.__data.identifier = [new Identifier(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -487,7 +538,19 @@ class CodeSystem extends Resource {
                     return;
                 }
                 const ContactDetail = require('../complex_types/contactDetail.js');
-                this.__data.contact = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ContactDetail(v)) : [new ContactDetail(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.contact = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof ContactDetail ?
+                                v : new ContactDetail(v)
+                            );
+                } else {
+                    if (valueProvided instanceof ContactDetail) {
+                        this.__data.contact = valueProvided;
+                    } else {
+                        this.__data.contact = [new ContactDetail(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -529,7 +592,19 @@ class CodeSystem extends Resource {
                     return;
                 }
                 const UsageContext = require('../complex_types/usageContext.js');
-                this.__data.useContext = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new UsageContext(v)) : [new UsageContext(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.useContext = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof UsageContext ?
+                                v : new UsageContext(v)
+                            );
+                } else {
+                    if (valueProvided instanceof UsageContext) {
+                        this.__data.useContext = valueProvided;
+                    } else {
+                        this.__data.useContext = [new UsageContext(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -548,7 +623,19 @@ class CodeSystem extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.jurisdiction = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.jurisdiction = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof CodeableConcept ?
+                                v : new CodeableConcept(v)
+                            );
+                } else {
+                    if (valueProvided instanceof CodeableConcept) {
+                        this.__data.jurisdiction = valueProvided;
+                    } else {
+                        this.__data.jurisdiction = [new CodeableConcept(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -758,7 +845,19 @@ class CodeSystem extends Resource {
                     return;
                 }
                 const CodeSystemFilter = require('../backbone_elements/codeSystemFilter.js');
-                this.__data.filter = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeSystemFilter(v)) : [new CodeSystemFilter(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.filter = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof CodeSystemFilter ?
+                                v : new CodeSystemFilter(v)
+                            );
+                } else {
+                    if (valueProvided instanceof CodeSystemFilter) {
+                        this.__data.filter = valueProvided;
+                    } else {
+                        this.__data.filter = [new CodeSystemFilter(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -778,7 +877,19 @@ class CodeSystem extends Resource {
                     return;
                 }
                 const CodeSystemProperty = require('../backbone_elements/codeSystemProperty.js');
-                this.__data.property = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeSystemProperty(v)) : [new CodeSystemProperty(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.property = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof CodeSystemProperty ?
+                                v : new CodeSystemProperty(v)
+                            );
+                } else {
+                    if (valueProvided instanceof CodeSystemProperty) {
+                        this.__data.property = valueProvided;
+                    } else {
+                        this.__data.property = [new CodeSystemProperty(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -799,7 +910,19 @@ class CodeSystem extends Resource {
                     return;
                 }
                 const CodeSystemConcept = require('../backbone_elements/codeSystemConcept.js');
-                this.__data.concept = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeSystemConcept(v)) : [new CodeSystemConcept(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.concept = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof CodeSystemConcept ?
+                                v : new CodeSystemConcept(v)
+                            );
+                } else {
+                    if (valueProvided instanceof CodeSystemConcept) {
+                        this.__data.concept = valueProvided;
+                    } else {
+                        this.__data.concept = [new CodeSystemConcept(valueProvided)];
+                    }
+                }
             }
         });
 

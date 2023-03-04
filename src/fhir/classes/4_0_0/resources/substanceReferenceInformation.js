@@ -91,7 +91,11 @@ class SubstanceReferenceInformation extends Resource {
                     return;
                 }
                 const Meta = require('../complex_types/meta.js');
-                this.__data.meta = new Meta(valueProvided);
+                if (valueProvided instanceof Meta){
+                    this.__data.meta = valueProvided;
+                } else {
+                    this.__data.meta = new Meta(valueProvided);
+                }
             }
         });
 
@@ -154,7 +158,11 @@ class SubstanceReferenceInformation extends Resource {
                     return;
                 }
                 const Narrative = require('../complex_types/narrative.js');
-                this.__data.text = new Narrative(valueProvided);
+                if (valueProvided instanceof Narrative){
+                    this.__data.text = valueProvided;
+                } else {
+                    this.__data.text = new Narrative(valueProvided);
+                }
             }
         });
 
@@ -178,12 +186,19 @@ class SubstanceReferenceInformation extends Resource {
                 const {getResource} = require('../../../../operations/common/getResource');
                 if (Array.isArray(valueProvided)) {
                     this.__data.contained = valueProvided.filter(v => v).map(v => {
+                        if (v instanceof Resource) {
+                            return v;
+                        }
                         const ResourceCreator = getResource('4_0_0', v.resourceType);
                         return new ResourceCreator(v);
                     });
                 } else {
-                const ResourceCreator = getResource('4_0_0', valueProvided.resourceType);
-                this.__data.contained = [new ResourceCreator(valueProvided)];
+                    if (valueProvided instanceof Resource) {
+                        this.__data.contained = [valueProvided];
+                    } else {
+                        const ResourceCreator = getResource('4_0_0', valueProvided.resourceType);
+                        this.__data.contained = [new ResourceCreator(valueProvided)];
+                    }
                 }
             }
         });
@@ -207,7 +222,19 @@ class SubstanceReferenceInformation extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.extension = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof Extension ?
+                                v : new Extension(v)
+                            );
+                } else {
+                    if (valueProvided instanceof Extension) {
+                        this.__data.extension = valueProvided;
+                    } else {
+                        this.__data.extension = [new Extension(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -238,7 +265,19 @@ class SubstanceReferenceInformation extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.modifierExtension = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof Extension ?
+                                v : new Extension(v)
+                            );
+                } else {
+                    if (valueProvided instanceof Extension) {
+                        this.__data.modifierExtension = valueProvided;
+                    } else {
+                        this.__data.modifierExtension = [new Extension(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -275,7 +314,19 @@ class SubstanceReferenceInformation extends Resource {
                     return;
                 }
                 const SubstanceReferenceInformationGene = require('../backbone_elements/substanceReferenceInformationGene.js');
-                this.__data.gene = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new SubstanceReferenceInformationGene(v)) : [new SubstanceReferenceInformationGene(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.gene = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof SubstanceReferenceInformationGene ?
+                                v : new SubstanceReferenceInformationGene(v)
+                            );
+                } else {
+                    if (valueProvided instanceof SubstanceReferenceInformationGene) {
+                        this.__data.gene = valueProvided;
+                    } else {
+                        this.__data.gene = [new SubstanceReferenceInformationGene(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -294,7 +345,19 @@ class SubstanceReferenceInformation extends Resource {
                     return;
                 }
                 const SubstanceReferenceInformationGeneElement = require('../backbone_elements/substanceReferenceInformationGeneElement.js');
-                this.__data.geneElement = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new SubstanceReferenceInformationGeneElement(v)) : [new SubstanceReferenceInformationGeneElement(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.geneElement = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof SubstanceReferenceInformationGeneElement ?
+                                v : new SubstanceReferenceInformationGeneElement(v)
+                            );
+                } else {
+                    if (valueProvided instanceof SubstanceReferenceInformationGeneElement) {
+                        this.__data.geneElement = valueProvided;
+                    } else {
+                        this.__data.geneElement = [new SubstanceReferenceInformationGeneElement(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -313,7 +376,19 @@ class SubstanceReferenceInformation extends Resource {
                     return;
                 }
                 const SubstanceReferenceInformationClassification = require('../backbone_elements/substanceReferenceInformationClassification.js');
-                this.__data.classification = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new SubstanceReferenceInformationClassification(v)) : [new SubstanceReferenceInformationClassification(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.classification = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof SubstanceReferenceInformationClassification ?
+                                v : new SubstanceReferenceInformationClassification(v)
+                            );
+                } else {
+                    if (valueProvided instanceof SubstanceReferenceInformationClassification) {
+                        this.__data.classification = valueProvided;
+                    } else {
+                        this.__data.classification = [new SubstanceReferenceInformationClassification(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -332,7 +407,19 @@ class SubstanceReferenceInformation extends Resource {
                     return;
                 }
                 const SubstanceReferenceInformationTarget = require('../backbone_elements/substanceReferenceInformationTarget.js');
-                this.__data.target = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new SubstanceReferenceInformationTarget(v)) : [new SubstanceReferenceInformationTarget(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.target = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof SubstanceReferenceInformationTarget ?
+                                v : new SubstanceReferenceInformationTarget(v)
+                            );
+                } else {
+                    if (valueProvided instanceof SubstanceReferenceInformationTarget) {
+                        this.__data.target = valueProvided;
+                    } else {
+                        this.__data.target = [new SubstanceReferenceInformationTarget(valueProvided)];
+                    }
+                }
             }
         });
 

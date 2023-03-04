@@ -96,7 +96,11 @@ class MedicinalProductContraindication extends Resource {
                     return;
                 }
                 const Meta = require('../complex_types/meta.js');
-                this.__data.meta = new Meta(valueProvided);
+                if (valueProvided instanceof Meta){
+                    this.__data.meta = valueProvided;
+                } else {
+                    this.__data.meta = new Meta(valueProvided);
+                }
             }
         });
 
@@ -159,7 +163,11 @@ class MedicinalProductContraindication extends Resource {
                     return;
                 }
                 const Narrative = require('../complex_types/narrative.js');
-                this.__data.text = new Narrative(valueProvided);
+                if (valueProvided instanceof Narrative){
+                    this.__data.text = valueProvided;
+                } else {
+                    this.__data.text = new Narrative(valueProvided);
+                }
             }
         });
 
@@ -183,12 +191,19 @@ class MedicinalProductContraindication extends Resource {
                 const {getResource} = require('../../../../operations/common/getResource');
                 if (Array.isArray(valueProvided)) {
                     this.__data.contained = valueProvided.filter(v => v).map(v => {
+                        if (v instanceof Resource) {
+                            return v;
+                        }
                         const ResourceCreator = getResource('4_0_0', v.resourceType);
                         return new ResourceCreator(v);
                     });
                 } else {
-                const ResourceCreator = getResource('4_0_0', valueProvided.resourceType);
-                this.__data.contained = [new ResourceCreator(valueProvided)];
+                    if (valueProvided instanceof Resource) {
+                        this.__data.contained = [valueProvided];
+                    } else {
+                        const ResourceCreator = getResource('4_0_0', valueProvided.resourceType);
+                        this.__data.contained = [new ResourceCreator(valueProvided)];
+                    }
                 }
             }
         });
@@ -212,7 +227,19 @@ class MedicinalProductContraindication extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.extension = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof Extension ?
+                                v : new Extension(v)
+                            );
+                } else {
+                    if (valueProvided instanceof Extension) {
+                        this.__data.extension = valueProvided;
+                    } else {
+                        this.__data.extension = [new Extension(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -243,7 +270,19 @@ class MedicinalProductContraindication extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.modifierExtension = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof Extension ?
+                                v : new Extension(v)
+                            );
+                } else {
+                    if (valueProvided instanceof Extension) {
+                        this.__data.modifierExtension = valueProvided;
+                    } else {
+                        this.__data.modifierExtension = [new Extension(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -262,7 +301,19 @@ class MedicinalProductContraindication extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.subject = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.subject = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof Reference ?
+                                v : new Reference(v)
+                            );
+                } else {
+                    if (valueProvided instanceof Reference) {
+                        this.__data.subject = valueProvided;
+                    } else {
+                        this.__data.subject = [new Reference(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -281,7 +332,11 @@ class MedicinalProductContraindication extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.disease = new CodeableConcept(valueProvided);
+                if (valueProvided instanceof CodeableConcept){
+                    this.__data.disease = valueProvided;
+                } else {
+                    this.__data.disease = new CodeableConcept(valueProvided);
+                }
             }
         });
 
@@ -300,7 +355,11 @@ class MedicinalProductContraindication extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.diseaseStatus = new CodeableConcept(valueProvided);
+                if (valueProvided instanceof CodeableConcept){
+                    this.__data.diseaseStatus = valueProvided;
+                } else {
+                    this.__data.diseaseStatus = new CodeableConcept(valueProvided);
+                }
             }
         });
 
@@ -319,7 +378,19 @@ class MedicinalProductContraindication extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.comorbidity = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.comorbidity = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof CodeableConcept ?
+                                v : new CodeableConcept(v)
+                            );
+                } else {
+                    if (valueProvided instanceof CodeableConcept) {
+                        this.__data.comorbidity = valueProvided;
+                    } else {
+                        this.__data.comorbidity = [new CodeableConcept(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -339,7 +410,19 @@ class MedicinalProductContraindication extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.therapeuticIndication = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.therapeuticIndication = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof Reference ?
+                                v : new Reference(v)
+                            );
+                } else {
+                    if (valueProvided instanceof Reference) {
+                        this.__data.therapeuticIndication = valueProvided;
+                    } else {
+                        this.__data.therapeuticIndication = [new Reference(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -359,7 +442,19 @@ class MedicinalProductContraindication extends Resource {
                     return;
                 }
                 const MedicinalProductContraindicationOtherTherapy = require('../backbone_elements/medicinalProductContraindicationOtherTherapy.js');
-                this.__data.otherTherapy = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new MedicinalProductContraindicationOtherTherapy(v)) : [new MedicinalProductContraindicationOtherTherapy(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.otherTherapy = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof MedicinalProductContraindicationOtherTherapy ?
+                                v : new MedicinalProductContraindicationOtherTherapy(v)
+                            );
+                } else {
+                    if (valueProvided instanceof MedicinalProductContraindicationOtherTherapy) {
+                        this.__data.otherTherapy = valueProvided;
+                    } else {
+                        this.__data.otherTherapy = [new MedicinalProductContraindicationOtherTherapy(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -378,7 +473,19 @@ class MedicinalProductContraindication extends Resource {
                     return;
                 }
                 const Population = require('../backbone_elements/population.js');
-                this.__data.population = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Population(v)) : [new Population(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.population = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof Population ?
+                                v : new Population(v)
+                            );
+                } else {
+                    if (valueProvided instanceof Population) {
+                        this.__data.population = valueProvided;
+                    } else {
+                        this.__data.population = [new Population(valueProvided)];
+                    }
+                }
             }
         });
 

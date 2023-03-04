@@ -127,7 +127,11 @@ class Questionnaire extends Resource {
                     return;
                 }
                 const Meta = require('../complex_types/meta.js');
-                this.__data.meta = new Meta(valueProvided);
+                if (valueProvided instanceof Meta){
+                    this.__data.meta = valueProvided;
+                } else {
+                    this.__data.meta = new Meta(valueProvided);
+                }
             }
         });
 
@@ -190,7 +194,11 @@ class Questionnaire extends Resource {
                     return;
                 }
                 const Narrative = require('../complex_types/narrative.js');
-                this.__data.text = new Narrative(valueProvided);
+                if (valueProvided instanceof Narrative){
+                    this.__data.text = valueProvided;
+                } else {
+                    this.__data.text = new Narrative(valueProvided);
+                }
             }
         });
 
@@ -214,12 +222,19 @@ class Questionnaire extends Resource {
                 const {getResource} = require('../../../../operations/common/getResource');
                 if (Array.isArray(valueProvided)) {
                     this.__data.contained = valueProvided.filter(v => v).map(v => {
+                        if (v instanceof Resource) {
+                            return v;
+                        }
                         const ResourceCreator = getResource('4_0_0', v.resourceType);
                         return new ResourceCreator(v);
                     });
                 } else {
-                const ResourceCreator = getResource('4_0_0', valueProvided.resourceType);
-                this.__data.contained = [new ResourceCreator(valueProvided)];
+                    if (valueProvided instanceof Resource) {
+                        this.__data.contained = [valueProvided];
+                    } else {
+                        const ResourceCreator = getResource('4_0_0', valueProvided.resourceType);
+                        this.__data.contained = [new ResourceCreator(valueProvided)];
+                    }
                 }
             }
         });
@@ -243,7 +258,19 @@ class Questionnaire extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.extension = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof Extension ?
+                                v : new Extension(v)
+                            );
+                } else {
+                    if (valueProvided instanceof Extension) {
+                        this.__data.extension = valueProvided;
+                    } else {
+                        this.__data.extension = [new Extension(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -274,7 +301,19 @@ class Questionnaire extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.modifierExtension = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof Extension ?
+                                v : new Extension(v)
+                            );
+                } else {
+                    if (valueProvided instanceof Extension) {
+                        this.__data.modifierExtension = valueProvided;
+                    } else {
+                        this.__data.modifierExtension = [new Extension(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -319,7 +358,19 @@ class Questionnaire extends Resource {
                     return;
                 }
                 const Identifier = require('../complex_types/identifier.js');
-                this.__data.identifier = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Identifier(v)) : [new Identifier(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.identifier = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof Identifier ?
+                                v : new Identifier(v)
+                            );
+                } else {
+                    if (valueProvided instanceof Identifier) {
+                        this.__data.identifier = valueProvided;
+                    } else {
+                        this.__data.identifier = [new Identifier(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -515,7 +566,19 @@ class Questionnaire extends Resource {
                     return;
                 }
                 const ContactDetail = require('../complex_types/contactDetail.js');
-                this.__data.contact = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ContactDetail(v)) : [new ContactDetail(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.contact = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof ContactDetail ?
+                                v : new ContactDetail(v)
+                            );
+                } else {
+                    if (valueProvided instanceof ContactDetail) {
+                        this.__data.contact = valueProvided;
+                    } else {
+                        this.__data.contact = [new ContactDetail(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -557,7 +620,19 @@ class Questionnaire extends Resource {
                     return;
                 }
                 const UsageContext = require('../complex_types/usageContext.js');
-                this.__data.useContext = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new UsageContext(v)) : [new UsageContext(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.useContext = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof UsageContext ?
+                                v : new UsageContext(v)
+                            );
+                } else {
+                    if (valueProvided instanceof UsageContext) {
+                        this.__data.useContext = valueProvided;
+                    } else {
+                        this.__data.useContext = [new UsageContext(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -577,7 +652,19 @@ class Questionnaire extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.jurisdiction = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.jurisdiction = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof CodeableConcept ?
+                                v : new CodeableConcept(v)
+                            );
+                } else {
+                    if (valueProvided instanceof CodeableConcept) {
+                        this.__data.jurisdiction = valueProvided;
+                    } else {
+                        this.__data.jurisdiction = [new CodeableConcept(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -674,7 +761,11 @@ class Questionnaire extends Resource {
                     return;
                 }
                 const Period = require('../complex_types/period.js');
-                this.__data.effectivePeriod = new Period(valueProvided);
+                if (valueProvided instanceof Period){
+                    this.__data.effectivePeriod = valueProvided;
+                } else {
+                    this.__data.effectivePeriod = new Period(valueProvided);
+                }
             }
         });
 
@@ -694,7 +785,19 @@ class Questionnaire extends Resource {
                     return;
                 }
                 const Coding = require('../complex_types/coding.js');
-                this.__data.code = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Coding(v)) : [new Coding(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.code = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof Coding ?
+                                v : new Coding(v)
+                            );
+                } else {
+                    if (valueProvided instanceof Coding) {
+                        this.__data.code = valueProvided;
+                    } else {
+                        this.__data.code = [new Coding(valueProvided)];
+                    }
+                }
             }
         });
 
@@ -714,7 +817,19 @@ class Questionnaire extends Resource {
                     return;
                 }
                 const QuestionnaireItem = require('../backbone_elements/questionnaireItem.js');
-                this.__data.item = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new QuestionnaireItem(v)) : [new QuestionnaireItem(valueProvided)];
+                if (Array.isArray(valueProvided)) {
+                    this.__data.item = valueProvided
+                            .filter(v => v)
+                            .map(v => v instanceof QuestionnaireItem ?
+                                v : new QuestionnaireItem(v)
+                            );
+                } else {
+                    if (valueProvided instanceof QuestionnaireItem) {
+                        this.__data.item = valueProvided;
+                    } else {
+                        this.__data.item = [new QuestionnaireItem(valueProvided)];
+                    }
+                }
             }
         });
 
