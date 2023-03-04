@@ -96,28 +96,15 @@ class GlobalIdEnrichmentProvider extends EnrichmentProvider {
      * @param {BundleEntry[]} entries
      * @return {Promise<BundleEntry[]>}
      */
-    // eslint-disable-next-line no-unused-vars
     async enrichBundleEntriesAsync({entries, parsedArgs}) {
-        /**
-         * @type {string}
-         */
-        const preferHeader = parsedArgs.headers &&
-            (parsedArgs.headers['prefer'] || parsedArgs.headers['Prefer']);
-        if (preferHeader) {
-            const parts = preferHeader.split('=');
-            if (parts[0] === 'global_id' && parts.slice(-1)[0] === 'true') {
-                for (const entry of entries) {
-                    /**
-                     * @type {Resource}
-                     */
-                    const resource = entry.resource;
-                    if (resource.id && !isUuid(resource.id)) {
-                        const uuid = resource._uuid;
-                        if (uuid) {
-                            resource.id = uuid;
-                        }
+        for (const entry of entries) {
+            if (entry.resource) {
+                entry.resource = (await this.enrichAsync(
+                    {
+                        resources: [entry.resource],
+                        parsedArgs
                     }
-                }
+                ))[0];
             }
         }
         return entries;
