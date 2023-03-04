@@ -13,6 +13,7 @@ const graphDefinitionResource = require('./fixtures/graph/my_graph.json');
 
 // expected
 const expectedResource = require('./fixtures/expected/expected.json');
+const expectedMultipleResource = require('./fixtures/expected/expected_multiple.json');
 const expectedHashReferencesResource = require('./fixtures/expected/expected_hash_references.json');
 
 const {
@@ -70,7 +71,7 @@ describe('Practitioner Graph PSS Contained Tests', () => {
                 .expect(200);
 
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse([{created: true}, {created: true}]);
+            expect(resp).toHaveMergeResponse([{created: true}, {created: true}, {created: true}]);
 
             resp = await request
                 .post('/4_0_0/PractitionerRole/1/$merge')
@@ -121,6 +122,16 @@ describe('Practitioner Graph PSS Contained Tests', () => {
 
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedHashReferencesResource);
+
+            // try with multiple resources
+            resp = await request
+                .post('/4_0_0/Practitioner/$graph?id=1003059437,1003059438&contained=true&_debug=1')
+                .send(graphDefinitionResource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedMultipleResource);
+
+
         });
     });
 });
