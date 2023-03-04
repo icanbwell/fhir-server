@@ -1128,9 +1128,17 @@ class GraphHelper {
          */
         let result = [];
         if (entityAndContained.includeInOutput) { // only include entities the caller has requested
-            result = result.concat([new BundleEntry({
-                fullUrl: entityAndContained.fullUrl, resource: entityAndContained.resource
-            })]);
+            result = result.concat(
+                [
+                    new BundleEntry(
+                        {
+                            id: entityAndContained.resource.id,
+                            fullUrl: entityAndContained.fullUrl,
+                            resource: entityAndContained.resource
+                        }
+                    )
+                ]
+            );
         }
 
         // now recurse
@@ -1254,6 +1262,7 @@ class GraphHelper {
                      * @type {BundleEntry}
                      */
                     let current_entity = new BundleEntry({
+                        id: startResource.id,
                         resource: startResource
                     });
                     entries = entries.concat([current_entity]);
@@ -1261,6 +1270,9 @@ class GraphHelper {
                 }
             }
 
+            /**
+             * @type {Resource[]}
+             */
             const parentResources = topLevelBundleEntries.map(e => e.resource);
 
             /**
@@ -1307,6 +1319,7 @@ class GraphHelper {
                  * @type {BundleEntry}
                  */
                 const bundleEntry = new BundleEntry({
+                    id: topLevelResource.id,
                     resource: topLevelResource
                 });
                 bundleEntriesForTopLevelResource.push(bundleEntry);
