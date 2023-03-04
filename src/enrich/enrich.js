@@ -2,7 +2,7 @@
  * Implements enrich function that finds any registered enrichment providers for that resource and runs them
  */
 const {RethrownError} = require('../utils/rethrownError');
-const {assertTypeEquals} = require('../utils/assertType');
+const {assertTypeEquals, assertIsValid} = require('../utils/assertType');
 const {ParsedArgs} = require('../operations/query/parsedArgsItem');
 const Resource = require('../fhir/classes/4_0_0/resources/resource');
 const BundleEntry = require('../fhir/classes/4_0_0/backbone_elements/bundleEntry');
@@ -55,7 +55,9 @@ class EnrichmentManager {
      */
     async enrichBundleEntriesAsync({entries, parsedArgs}) {
         try {
-            for (const enrichmentProvider of this.enrichmentProviders) {
+            assertIsValid(entries !== null && entries !== undefined, 'entries is null');
+            assertIsValid(Array.isArray(entries), 'entries is not an array');
+            for (const /** @type {EnrichmentProvider} */ enrichmentProvider of this.enrichmentProviders) {
                 entries = await enrichmentProvider.enrichBundleEntriesAsync(
                     {
                         entries, parsedArgs

@@ -1148,6 +1148,7 @@ class GraphHelper {
      * @param {boolean} [explain]
      * @param {boolean} [debug]
      * @param {ParsedArgs} parsedArgs
+     * @param {BaseResponseStreamer|undefined} [responseStreamer]
      * @return {Promise<ProcessMultipleIdsAsyncResult>}
      */
     async processMultipleIdsAsync(
@@ -1159,7 +1160,8 @@ class GraphHelper {
             contained,
             explain,
             debug,
-            parsedArgs
+            parsedArgs,
+            responseStreamer
         }
     ) {
         assertTypeEquals(parsedArgs, ParsedArgs);
@@ -1296,12 +1298,23 @@ class GraphHelper {
                  */
                 const topLevelResource = entity.resource;
                 /**
+                 * @type {BundleEntry[]}
+                 */
+                let bundleEntriesForTopLevelResource = [];
+                /**
                  * @type {BundleEntry}
                  */
                 const bundleEntry = new BundleEntry({
                     resource: topLevelResource
                 });
-                entries.push(bundleEntry);
+                bundleEntriesForTopLevelResource.push(bundleEntry);
+                bundleEntriesForTopLevelResource = await this.enrichmentManager.enrichBundleEntriesAsync(
+                    {
+                        entries: bundleEntriesForTopLevelResource,
+                        parsedArgs
+                    }
+                );
+
                 if (entity.containedEntries.length > 0) {
                     /**
                      * @type {BundleEntry[]}
@@ -1313,20 +1326,54 @@ class GraphHelper {
                     );
 
                     if (contained) {
-                        topLevelResource.contained = recursiveEntries.map(e => e.resource);
+                        /**
+                         * @type {Resource[]}
+                         */
+                        let containedResources = recursiveEntries.map(e => e.resource);
+                        containedResources = await this.enrichmentManager.enrichAsync(
+                            {
+                                resources: containedResources,
+                                parsedArgs
+                            }
+                        );
+                        topLevelResource.contained = containedResources;
                     } else {
-                        entries = entries.concat(recursiveEntries);
+                        bundleEntriesForTopLevelResource = bundleEntriesForTopLevelResource.concat(recursiveEntries);
+                        bundleEntriesForTopLevelResource = await this.enrichmentManager.enrichBundleEntriesAsync(
+                            {
+                                entries: bundleEntriesForTopLevelResource,
+                                parsedArgs
+                            }
+                        );
+                    }
+
+                    /**
+                     * @type {string[]}
+                     */
+                    const accessCodes = this.scopesManager.getAccessCodesFromScopes('read', requestInfo.user, requestInfo.scope);
+                    bundleEntriesForTopLevelResource = bundleEntriesForTopLevelResource.filter(
+                        e => this.scopesManager.doesResourceHaveAnyAccessCodeFromThisList(
+                            accessCodes, requestInfo.user, requestInfo.scope, e.resource
+                        )
+                    );
+
+                    if (responseStreamer) {
+                        for (const bundleEntry1 of bundleEntriesForTopLevelResource) {
+                            await responseStreamer.writeBundleEntryAsync(
+                                {
+                                    bundleEntry: bundleEntry1
+                                }
+                            );
+                        }
                     }
                 }
             }
 
-            entries = await this.enrichmentManager.enrichBundleEntriesAsync(
-                {
-                    entries,
-                    parsedArgs
-                }
-            );
-            entries = this.bundleManager.removeDuplicateEntries({entries});
+            if (responseStreamer) {
+                entries = [];
+            } else {
+                entries = this.bundleManager.removeDuplicateEntries({entries});
+            }
 
             return new ProcessMultipleIdsAsyncResult(
                 {
@@ -1401,47 +1448,20 @@ class GraphHelper {
                     contained,
                     explain: parsedArgs['_explain'] ? true : false,
                     debug: parsedArgs['_debug'] ? true : false,
-                    parsedArgs
+                    parsedArgs,
+                    responseStreamer
                 }
             );
-
-            // remove duplicate resources
-            /**
-             * @type {BundleEntry[]}
-             */
-            let uniqueEntries = this.bundleManager.removeDuplicateEntries({entries});
-
-            /**
-             * @type {string[]}
-             */
-            const accessCodes = this.scopesManager.getAccessCodesFromScopes('read', requestInfo.user, requestInfo.scope);
-            uniqueEntries = uniqueEntries.filter(e => this.scopesManager.doesResourceHaveAnyAccessCodeFromThisList(accessCodes, requestInfo.user, requestInfo.scope, e.resource));
 
             /**
              * @type {number}
              */
             const stopTime = Date.now();
+
             /**
              * @type {Resource[]}
              */
-            const resources = uniqueEntries.map(bundleEntry => bundleEntry.resource);
-
-            await this.enrichmentManager.enrichAsync({
-                    resources: resources, parsedArgs
-                }
-            );
-
-            if (responseStreamer) {
-                for (const resource of resources) {
-                    await responseStreamer.writeBundleEntryAsync({
-                        bundleEntry: new BundleEntry({
-                                id: resource._uuid,
-                                resource
-                            }
-                        )
-                    });
-                }
-            }
+            const resources = entries.map(bundleEntry => bundleEntry.resource);
 
             /**
              * @type {Bundle}

@@ -193,13 +193,17 @@ class ConfigManager {
         return isTrue(env.LOG_ALL_MERGES);
     }
 
+    /**
+     * whether to handle concurrency
+     * @return {boolean}
+     */
     get handleConcurrency() {
         return !isTrue(env.SKIP_HANDLE_CONCURRENCY);
     }
 
     /**
      * number to times to retry an update
-     * @returns {*|number}
+     * @returns {number}
      */
     get replaceRetries() {
         return env.REPLACE_RETRIES || 10;
@@ -256,6 +260,15 @@ class ConfigManager {
             return true;
         }
         return isTrue(env.REQUIRE_META_SOURCE_TAGS);
+    }
+
+    /**
+     * Specifies the number of ids to process in parallel in $graph.  If number of ids passed
+     * is greater than this number than we fall back to processing in serial to save memory
+     * @return {number}
+     */
+    get maximumIdsToProcessInParallelInGraph(){
+        return env.MAXIMUM_IDS_TO_PROCESS_IN_PARALLEL_IN_GRAPH || 10;
     }
 }
 
