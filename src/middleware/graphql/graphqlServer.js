@@ -118,7 +118,14 @@ const graphql = async (fnCreateContainer) => {
             req,
             res,
             fhirRequestInfo,
-            dataApi: new FhirDataSource({container, requestInfo: fhirRequestInfo}),
+            dataApi: new FhirDataSource(
+                {
+                    requestInfo: fhirRequestInfo,
+                    searchBundleOperation: container.searchBundleOperation,
+                    r4ArgsParser: container.r4ArgsParser,
+                    queryRewriterManager: container.queryRewriterManager
+                }
+            ),
             container: container
         };
 

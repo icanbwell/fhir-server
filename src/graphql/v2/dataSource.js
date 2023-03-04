@@ -3,7 +3,6 @@ const async = require('async');
 const DataLoader = require('dataloader');
 const {groupByLambda} = require('../../utils/list.util');
 const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
-const {SimpleContainer} = require('../../utils/simpleContainer');
 const {R4ArgsParser} = require('../../operations/query/r4ArgsParser');
 const {QueryRewriterManager} = require('../../queryRewriters/queryRewriterManager');
 const {ResourceWithId} = require('./resourceWithId');
@@ -13,21 +12,25 @@ const {ResourceWithId} = require('./resourceWithId');
  */
 class FhirDataSource {
     /**
-     * @param {SimpleContainer} container
      * @param {FhirRequestInfo} requestInfo
+     * @param {SearchBundleOperation} searchBundleOperation
+     * @param {R4ArgsParser} r4ArgsParser
+     * @param {QueryRewriterManager} queryRewriterManager
      */
-    constructor({container, requestInfo}) {
-        assertTypeEquals(container, SimpleContainer);
+    constructor(
+        {
+            requestInfo,
+            searchBundleOperation,
+            r4ArgsParser,
+            queryRewriterManager
+        }
+    ) {
         assertIsValid(requestInfo !== undefined);
-        /**
-         * @type {SimpleContainer}
-         */
-        this.container = container;
 
         /**
          * @type {SearchBundleOperation}
          */
-        this.searchBundleOperation = container.searchBundleOperation;
+        this.searchBundleOperation = searchBundleOperation;
         /**
          * @type {FhirRequestInfo}
          */
@@ -44,13 +47,13 @@ class FhirDataSource {
         /**
          * @type {R4ArgsParser}
          */
-        this.r4ArgsParser = container.r4ArgsParser;
+        this.r4ArgsParser = r4ArgsParser;
         assertTypeEquals(this.r4ArgsParser, R4ArgsParser);
 
         /**
          * @type {QueryRewriterManager}
          */
-        this.queryRewriterManager = container.queryRewriterManager;
+        this.queryRewriterManager = queryRewriterManager;
         assertTypeEquals(this.queryRewriterManager, QueryRewriterManager);
     }
 
