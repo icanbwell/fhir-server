@@ -6,57 +6,7 @@ const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
 const {SimpleContainer} = require('../../utils/simpleContainer');
 const {R4ArgsParser} = require('../../operations/query/r4ArgsParser');
 const {QueryRewriterManager} = require('../../queryRewriters/queryRewriterManager');
-
-/**
- * This class stores the tuple of resourceType and id to uniquely identify a resource
- */
-class ResourceWithId {
-    /**
-     * returns key for resourceType and id combination
-     * @param {string} resourceType
-     * @param {string} id
-     * @return {string}
-     */
-    static getReferenceKey(resourceType, id) {
-        return `${resourceType}/${id}`;
-    }
-
-    /**
-     * gets resourceType and id from reference
-     * @param {string} reference
-     * @return {null|{id: string, resourceType: string}}
-     */
-    static getResourceTypeAndIdFromReference(reference) {
-        /**
-         * @type {string[]}
-         */
-        const references = reference.split('/');
-        if (references.length !== 2) {
-            return null;
-        }
-        return {resourceType: references[0], id: references[1]};
-    }
-
-    /**
-     * gets resourceType reference
-     * @param {string} reference
-     * @return {null|string}
-     */
-    static getResourceTypeFromReference(reference) {
-        const reference1 = this.getResourceTypeAndIdFromReference(reference);
-        return reference1.resourceType;
-    }
-
-    /**
-     * gets resourceType id
-     * @param {string} reference
-     * @return {null|string}
-     */
-    static getIdFromReference(reference) {
-        const reference1 = this.getResourceTypeAndIdFromReference(reference);
-        return reference1.id;
-    }
-}
+const {ResourceWithId} = require('./resourceWithId');
 
 /**
  * This class implements the DataSource pattern, so it is called by our GraphQL resolvers to load the data
@@ -157,6 +107,7 @@ class FhirDataSource {
      * @return {Promise<(Resource|null)[]>}>}
      */
     async getResourcesInBatch({keys, requestInfo, args}) {
+        console.log(`getResourcesInBatch start: ${keys.join(',')}`);
         // separate by resourceType
         /**
          * Each field in the object is the key
@@ -193,26 +144,31 @@ class FhirDataSource {
                         _bundle: '1',
                         ...args,
                     };
-                    return this.unBundle(
-                        await this.searchBundleOperation.searchBundle(
-                            {
-                                requestInfo,
-                                resourceType,
-                                parsedArgs: await this.getParsedArgsAsync(
-                                    {
-                                        args: args1,
-                                        resourceType,
-                                        headers: requestInfo.headers
-                                    }
-                                )
-                            }
-                        )
+                    console.log(`getResourcesInBatch ask: ${resourceType} ${idsOfReference.join(',')}`);
+
+                    const bundle = await this.searchBundleOperation.searchBundle(
+                        {
+                            requestInfo,
+                            resourceType,
+                            parsedArgs: await this.getParsedArgsAsync(
+                                {
+                                    args: args1,
+                                    resourceType,
+                                    headers: requestInfo.headers
+                                }
+                            ),
+                            useAggregationPipeline: false
+                        }
                     );
+                    console.log(`getResourcesInBatch got:  ${resourceType} ${idsOfReference.join(',')}`);
+
+                    return this.unBundle(bundle);
                 }
             ),
             keys
         );
 
+        console.log(`getResourcesInBatch end: ${keys.join(',')}`);
         return results;
     }
 
@@ -327,7 +283,8 @@ class FhirDataSource {
                             resourceType,
                             headers: context.fhirRequestInfo ? context.fhirRequestInfo.headers : undefined
                         }
-                    )
+                    ),
+                    useAggregationPipeline: false
                 }
             )
         );
