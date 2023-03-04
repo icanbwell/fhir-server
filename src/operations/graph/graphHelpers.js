@@ -1016,8 +1016,8 @@ class GraphHelper {
      * @param {FhirRequestInfo} requestInfo
      * @param {string} base_version
      * @param {string} parentResourceType
-     * @param {[Resource]} parentEntities
-     * @param {[{path:string, params: string,target:[{type: string}]}]} linkItems
+     * @param {Resource[]} parentEntities
+     * @param {{path:string, params: string,target:{type: string}[]}[]} linkItems
      * @param {boolean} [explain]
      * @param {boolean} [debug]
      * @param {ParsedArgs} parsedArgs
@@ -1088,7 +1088,7 @@ class GraphHelper {
     /**
      * prepends # character in references
      * @param {Resource} parent_entity
-     * @param {[reference:string]} linkReferences
+     * @param {reference:string[]} linkReferences
      * @return {Promise<Resource>}
      */
     async convertToHashedReferencesAsync({parent_entity, linkReferences}) {
@@ -1264,7 +1264,7 @@ class GraphHelper {
             const parentEntities = topLevelBundleEntries.map(e => e.resource);
 
             /**
-             * @type {[{path:string, params: string,target:[{type: string}]}]}
+             * @type {{path:string, params: string,target:{type: string}[]}[]}
              */
             const linkItems = graphDefinition.link;
             /**
