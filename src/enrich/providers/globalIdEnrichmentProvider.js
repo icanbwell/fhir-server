@@ -2,7 +2,6 @@ const {EnrichmentProvider} = require('./enrichmentProvider');
 const {assertTypeEquals} = require('../../utils/assertType');
 const {DatabaseQueryFactory} = require('../../dataLayer/databaseQueryFactory');
 const {isUuid} = require('../../utils/uid.util');
-const {isTrue} = require('../../utils/isTrue');
 const {ReferenceParser} = require('../../utils/referenceParser');
 
 /**
@@ -99,16 +98,24 @@ class GlobalIdEnrichmentProvider extends EnrichmentProvider {
      */
     // eslint-disable-next-line no-unused-vars
     async enrichBundleEntriesAsync({entries, parsedArgs}) {
-        if (parsedArgs['prefer:global_id'] && isTrue(parsedArgs['prefer:global_id'])) {
-            for (const entry of entries) {
-                /**
-                 * @type {Resource}
-                 */
-                const resource = entry.resource;
-                if (resource.id && !isUuid(resource.id)) {
-                    const uuid = resource._uuid;
-                    if (uuid) {
-                        resource.id = uuid;
+        /**
+         * @type {string}
+         */
+        const preferHeader = parsedArgs.headers &&
+            (parsedArgs.headers['prefer'] || parsedArgs.headers['Prefer']);
+        if (preferHeader) {
+            const parts = preferHeader.split('=');
+            if (parts[0] === 'global_id' && parts.slice(-1)[0] === 'true') {
+                for (const entry of entries) {
+                    /**
+                     * @type {Resource}
+                     */
+                    const resource = entry.resource;
+                    if (resource.id && !isUuid(resource.id)) {
+                        const uuid = resource._uuid;
+                        if (uuid) {
+                            resource.id = uuid;
+                        }
                     }
                 }
             }
