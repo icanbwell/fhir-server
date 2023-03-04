@@ -201,7 +201,7 @@ class {{ fhir_entity.cleaned_name }} extends Element {
                 }
             {%  else %}
                 if (valueProvided instanceof Resource) {
-                    this.__data.{{ property.name }} = [valueProvided];
+                    this.__data.{{ property.name }} = valueProvided;
                 } else {
                     const ResourceCreator = getResource('4_0_0', valueProvided.resourceType);
                     this.__data.{{ property.name }} = new ResourceCreator(valueProvided);

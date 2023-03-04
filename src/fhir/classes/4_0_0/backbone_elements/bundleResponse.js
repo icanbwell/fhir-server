@@ -228,7 +228,7 @@ class BundleResponse extends Element {
                 const ResourceContainer = require('../simple_types/resourceContainer.js');
                 const {getResource} = require('../../../../operations/common/getResource');
                 if (valueProvided instanceof Resource) {
-                    this.__data.outcome = [valueProvided];
+                    this.__data.outcome = valueProvided;
                 } else {
                     const ResourceCreator = getResource('4_0_0', valueProvided.resourceType);
                     this.__data.outcome = new ResourceCreator(valueProvided);

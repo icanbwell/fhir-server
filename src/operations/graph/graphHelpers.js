@@ -1016,7 +1016,7 @@ class GraphHelper {
      * @param {FhirRequestInfo} requestInfo
      * @param {string} base_version
      * @param {string} parentResourceType
-     * @param {Resource[]} parentEntities
+     * @param {Resource[]} parentResources
      * @param {{path:string, params: string,target:{type: string}[]}[]} linkItems
      * @param {boolean} [explain]
      * @param {boolean} [debug]
@@ -1028,7 +1028,7 @@ class GraphHelper {
             requestInfo,
             base_version,
             parentResourceType,
-            parentEntities,
+            parentResources,
             linkItems,
             explain,
             debug,
@@ -1039,12 +1039,12 @@ class GraphHelper {
             /**
              * @type {ResourceEntityAndContained[]}
              */
-            const resultEntities = parentEntities.map(parentEntity => new ResourceEntityAndContained({
-                entityId: parentEntity.id,
-                entityUuid: parentEntity._uuid,
-                entityResourceType: parentEntity.resourceType,
+            const resultEntities = parentResources.map(parentResource => new ResourceEntityAndContained({
+                entityId: parentResource.id,
+                entityUuid: parentResource._uuid,
+                entityResourceType: parentResource.resourceType,
                 includeInOutput: true,
-                resource: parentEntity,
+                resource: parentResource,
                 containedEntries: []
             }));
             /**
@@ -1070,13 +1070,13 @@ class GraphHelper {
             throw new RethrownError({
                 message: 'Error in processGraphLinksAsync(): ' +
                     `parentResourceType: ${parentResourceType} , ` +
-                    `parents:${parentEntities.map(p => p.id)}, `,
+                    `parents:${parentResources.map(p => p.id)}, `,
                 error: e,
                 args: {
                     requestInfo,
                     base_version,
                     parentResourceType,
-                    parentEntities,
+                    parentEntities: parentResources,
                     linkItems,
                     explain,
                     debug
@@ -1261,7 +1261,7 @@ class GraphHelper {
                 }
             }
 
-            const parentEntities = topLevelBundleEntries.map(e => e.resource);
+            const parentResources = topLevelBundleEntries.map(e => e.resource);
 
             /**
              * @type {{path:string, params: string,target:{type: string}[]}[]}
@@ -1275,7 +1275,7 @@ class GraphHelper {
                     requestInfo,
                     base_version,
                     parentResourceType: resourceType,
-                    parentEntities: parentEntities,
+                    parentResources,
                     linkItems,
                     explain,
                     debug,

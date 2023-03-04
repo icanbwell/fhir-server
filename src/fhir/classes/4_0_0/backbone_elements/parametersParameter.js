@@ -1321,7 +1321,7 @@ class ParametersParameter extends Element {
                 const ResourceContainer = require('../simple_types/resourceContainer.js');
                 const {getResource} = require('../../../../operations/common/getResource');
                 if (valueProvided instanceof Resource) {
-                    this.__data.resource = [valueProvided];
+                    this.__data.resource = valueProvided;
                 } else {
                     const ResourceCreator = getResource('4_0_0', valueProvided.resourceType);
                     this.__data.resource = new ResourceCreator(valueProvided);
