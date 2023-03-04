@@ -20,7 +20,7 @@ module.exports = {
             {
                 keys: {
                     'meta.lastUpdated': -1,
-                    'id': 1
+                    '_sourceId': 1
                 },
                 options: {
                     name: 'reverse_meta.lastUpdated_1'
@@ -29,7 +29,7 @@ module.exports = {
             {
                 keys: {
                     'meta.source': 1,
-                    'id': 1
+                    '_sourceId': 1
                 },
                 options: {
                     name: 'meta.source_1'
@@ -39,7 +39,7 @@ module.exports = {
                 keys: {
                     'meta.security.system': 1,
                     'meta.security.code': 1,
-                    'id': 1
+                    '_sourceId': 1
                 },
                 options: {
                     name: 'security.system_code_1'
@@ -51,7 +51,7 @@ module.exports = {
             {
                 keys: {
                     '_access.medstar': 1,
-                    'id': 1
+                    '_sourceId': 1
                 },
                 options: {
                     name: 'security._access_medstar'
@@ -63,7 +63,7 @@ module.exports = {
             {
                 keys: {
                     '_access.Thedacare': 1,
-                    'id': 1
+                    '_sourceId': 1
                 },
                 options: {
                     name: 'security._access_Thedacare'
@@ -133,7 +133,7 @@ module.exports = {
             {
                 keys: {
                     '_access.medstar': 1,
-                    'id': 1,
+                    '_sourceId': 1,
                     'meta.lastUpdated': 1,
                 },
                 options: {
@@ -143,7 +143,7 @@ module.exports = {
             {
                 keys: {
                     '_access.medstar': 1,
-                    'id': 1,
+                    '_sourceId': 1,
                     'recorded': 1,
                 },
                 options: {
@@ -153,7 +153,7 @@ module.exports = {
             {
                 keys: {
                     'entity.what._sourceId': 1,
-                    'id': 1,
+                    '_sourceId': 1,
                     'recorded': 1
                 },
                 options: {
@@ -163,7 +163,7 @@ module.exports = {
             {
                 keys: {
                     'agent.who._sourceId': 1,
-                    'id': 1,
+                    '_sourceId': 1,
                     'recorded': 1
                 },
                 options: {
@@ -192,7 +192,7 @@ module.exports = {
             {
                 keys: {
                     'beneficiary._sourceId': 1,
-                    'id': 1,
+                    '_sourceId': 1,
                 },
                 options: {
                     name: 'helix_coverage_1'
@@ -201,7 +201,7 @@ module.exports = {
             {
                 keys: {
                     'beneficiary._uuid': 1,
-                    'id': 1,
+                    '_sourceId': 1,
                 },
                 options: {
                     name: 'helix_coverage_uuid'
@@ -212,7 +212,7 @@ module.exports = {
             {
                 keys: {
                     'subject._sourceId': 1,
-                    'id': 1,
+                    '_sourceId': 1,
                 },
                 options: {
                     name: 'helix_encounter_1'
@@ -221,7 +221,7 @@ module.exports = {
             {
                 keys: {
                     'subject._uuid': 1,
-                    'id': 1,
+                    '_sourceId': 1,
                 },
                 options: {
                     name: 'helix_encounter_uuid'
@@ -232,7 +232,7 @@ module.exports = {
             {
                 keys: {
                     'patient._sourceId': 1,
-                    'id': 1,
+                    '_sourceId': 1,
                 },
                 options: {
                     name: 'patient.reference_1'
@@ -241,7 +241,7 @@ module.exports = {
             {
                 keys: {
                     'patient._uuid': 1,
-                    'id': 1,
+                    '_sourceId': 1,
                 },
                 options: {
                     name: 'patient.reference_uuid'
@@ -252,7 +252,7 @@ module.exports = {
             {
                 keys: {
                     'managingOrganization._sourceId': 1,
-                    'id': 1,
+                    '_sourceId': 1,
                 },
                 options: {
                     name: 'managingOrganization.reference_1'
@@ -261,7 +261,7 @@ module.exports = {
             {
                 keys: {
                     'managingOrganization._uuid': 1,
-                    'id': 1,
+                    '_sourceId': 1,
                 },
                 options: {
                     name: 'managingOrganization.reference_uuid'
@@ -272,7 +272,7 @@ module.exports = {
             {
                 keys: {
                     'subject._sourceId': 1,
-                    'id': 1,
+                    '_sourceId': 1,
                 },
                 options: {
                     name: 'helix_medication_request_1'
@@ -281,7 +281,7 @@ module.exports = {
             {
                 keys: {
                     'subject._uuid': 1,
-                    'id': 1,
+                    '_sourceId': 1,
                 },
                 options: {
                     name: 'helix_medication_request_uuid'
@@ -292,7 +292,7 @@ module.exports = {
             {
                 keys: {
                     'subject._sourceId': 1,
-                    'id': 1,
+                    '_sourceId': 1,
                 },
                 options: {
                     name: 'helix_medication_dispense_1'
@@ -301,7 +301,7 @@ module.exports = {
             {
                 keys: {
                     'subject._uuid': 1,
-                    'id': 1,
+                    '_sourceId': 1,
                 },
                 options: {
                     name: 'helix_medication_dispense_uuid'
@@ -312,7 +312,7 @@ module.exports = {
             {
                 keys: {
                     'effectiveDateTime': -1,
-                    'id': 1,
+                    '_sourceId': 1,
                     'subject._sourceId': 1
                 },
                 options: {
@@ -323,7 +323,7 @@ module.exports = {
                 keys: {
                     'subject._sourceId': 1,
                     'effectiveDateTime': -1,
-                    'id': 1,
+                    '_sourceId': 1,
                 },
                 options: {
                     name: 'reverse_helix_observation_effective_2'
@@ -332,7 +332,7 @@ module.exports = {
             {
                 keys: {
                     'effectiveDateTime': -1,
-                    'id': 1,
+                    '_sourceId': 1,
                     'subject._uuid': 1
                 },
                 options: {
@@ -343,7 +343,7 @@ module.exports = {
                 keys: {
                     'subject._uuid': 1,
                     'effectiveDateTime': -1,
-                    'id': 1,
+                    '_sourceId': 1,
                 },
                 options: {
                     name: 'reverse_helix_observation_effective_uuid_2'
@@ -354,7 +354,7 @@ module.exports = {
             {
                 keys: {
                     'participatingOrganization._sourceId': 1,
-                    'id': 1
+                    '_sourceId': 1
                 },
                 options: {
                     name: 'helix_organization_reference_1'
@@ -363,7 +363,7 @@ module.exports = {
             {
                 keys: {
                     'participatingOrganization._uuid': 1,
-                    'id': 1
+                    '_sourceId': 1
                 },
                 options: {
                     name: 'helix_organization_reference_uuid'
@@ -375,7 +375,7 @@ module.exports = {
                 keys: {
                     'identifier.value': 1,
                     'identifier.system': 1,
-                    'id': 1
+                    '_sourceId': 1
                 },
                 options: {
                     name: 'identifier.value_1'
@@ -393,7 +393,7 @@ module.exports = {
             {
                 keys: {
                     'name.given': 1,
-                    'id': 1
+                    '_sourceId': 1
                 },
                 options: {
                     name: 'name.given_1'
@@ -405,7 +405,7 @@ module.exports = {
                 keys: {
                     'telecom.system': 1,
                     'telecom.code': 1,
-                    'id': 1
+                    '_sourceId': 1
                 },
                 options: {
                     name: 'telecom.system_code_1'
@@ -415,7 +415,7 @@ module.exports = {
                 keys: {
                     'identifier.value': 1,
                     'identifier.system': 1,
-                    'id': 1
+                    '_sourceId': 1
                 },
                 options: {
                     name: 'identifier.value_1'
@@ -425,7 +425,7 @@ module.exports = {
                 keys: {
                     'name.family': 1,
                     'name.given': 1,
-                    'id': 1
+                    '_sourceId': 1
                 },
                 options: {
                     name: 'name.family_1'
@@ -435,7 +435,7 @@ module.exports = {
                 keys: {
                     '_access.bwell': 1,
                     'name.text': 1,
-                    'id': 1
+                    '_sourceId': 1
                 },
                 options: {
                     name: 'bwell_name.text_1'
@@ -445,7 +445,7 @@ module.exports = {
                 keys: {
                     '_access.bwell': 1,
                     'name.family': 1,
-                    'id': 1
+                    '_sourceId': 1
                 },
                 options: {
                     name: 'bwell_name.family_1'
@@ -455,7 +455,7 @@ module.exports = {
                 keys: {
                     '_access.bwell': 1,
                     'name.suffix': 1,
-                    'id': 1
+                    '_sourceId': 1
                 },
                 options: {
                     name: 'bwell_name.suffix_1'
@@ -465,7 +465,7 @@ module.exports = {
                 keys: {
                     '_access.bwell': 1,
                     'name.given': 1,
-                    'id': 1
+                    '_sourceId': 1
                 },
                 options: {
                     name: 'bwell_name.given_1'
@@ -475,7 +475,7 @@ module.exports = {
                 keys: {
                     '_access.bwell': 1,
                     'name.prefix': 1,
-                    'id': 1
+                    '_sourceId': 1
                 },
                 options: {
                     name: 'bwell_name.prefix_1'
@@ -486,7 +486,7 @@ module.exports = {
             {
                 keys: {
                     'practitioner._sourceId': 1,
-                    'id': 1
+                    '_sourceId': 1
                 },
                 options: {
                     name: 'practitioner.reference_1'
@@ -495,7 +495,7 @@ module.exports = {
             {
                 keys: {
                     'practitioner._uuid': 1,
-                    'id': 1
+                    '_sourceId': 1
                 },
                 options: {
                     name: 'practitioner.reference_uuid'
@@ -504,7 +504,7 @@ module.exports = {
             {
                 keys: {
                     'organization._sourceId': 1,
-                    'id': 1
+                    '_sourceId': 1
                 },
                 options: {
                     name: 'organization.reference_1'
@@ -513,7 +513,7 @@ module.exports = {
             {
                 keys: {
                     'organization._uuid': 1,
-                    'id': 1
+                    '_sourceId': 1
                 },
                 options: {
                     name: 'organization.reference_uuid'
@@ -522,7 +522,7 @@ module.exports = {
             {
                 keys: {
                     'location._sourceId': 1,
-                    'id': 1
+                    '_sourceId': 1
                 },
                 options: {
                     name: 'location.reference_1'
@@ -531,7 +531,7 @@ module.exports = {
             {
                 keys: {
                     'location._uuid': 1,
-                    'id': 1
+                    '_sourceId': 1
                 },
                 options: {
                     name: 'location.reference_uuid'
@@ -542,7 +542,7 @@ module.exports = {
             {
                 keys: {
                     'actor._sourceId': 1,
-                    'id': 1
+                    '_sourceId': 1
                 },
                 options: {
                     name: 'actor.reference_1'
@@ -551,7 +551,7 @@ module.exports = {
             {
                 keys: {
                     'actor._uuid': 1,
-                    'id': 1
+                    '_sourceId': 1
                 },
                 options: {
                     name: 'actor.reference_uuid'
@@ -563,7 +563,7 @@ module.exports = {
                 keys: {
                     'for._sourceId': 1,
                     'status': 1,
-                    'id': 1,
+                    '_sourceId': 1,
                 },
                 options: {
                     name: 'for_reference_status_1'
@@ -573,7 +573,7 @@ module.exports = {
                 keys: {
                     'for._uuid': 1,
                     'status': 1,
-                    'id': 1,
+                    '_sourceId': 1,
                 },
                 options: {
                     name: 'for_reference_status_uuid'
