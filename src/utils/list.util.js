@@ -158,6 +158,26 @@ function removeDuplicatesWithLambda(array, fnCompare) {
     return array.filter((value, index, self) => index === self.findIndex((t) => (fnCompare(t, value))));
 }
 
+/**
+ * slices a list into chunks
+ * @param {*[]} arr
+ * @param {number} chunkSize
+ * @return {*[][]}
+ */
+function sliceIntoChunks(arr, chunkSize) {
+    /**
+     * @type {*[][]}
+     */
+    const res = [];
+    for (let i = 0; i < arr.length; i += chunkSize) {
+        /**
+         * @type {*[]}
+         */
+        const chunk = arr.slice(i, i + chunkSize);
+        res.push(chunk);
+    }
+    return res;
+}
 
 module.exports = {
     findDuplicates,
@@ -171,5 +191,6 @@ module.exports = {
     getFirstResourceOrNull,
     getFirstBundleEntryOrNull,
     removeEmptyEntriesAsync,
-    removeDuplicatesWithLambda
+    removeDuplicatesWithLambda,
+    sliceIntoChunks
 };

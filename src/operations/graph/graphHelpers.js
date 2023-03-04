@@ -31,6 +31,7 @@ const {ProcessMultipleIdsAsyncResult} = require('./processMultipleIdsAsyncResult
 const {FhirResourceCreator} = require('../../fhir/fhirResourceCreator');
 const GraphDefinition = require('../../fhir/classes/4_0_0/resources/graphDefinition');
 const ResourceContainer = require('../../fhir/classes/4_0_0/simple_types/resourceContainer');
+const {sliceIntoChunks} = require('../../utils/list.util');
 
 
 /**
@@ -1460,26 +1461,63 @@ class GraphHelper {
             const graphDefinition = FhirResourceCreator.create(graphDefinitionJson, GraphDefinition);
             assertTypeEquals(graphDefinition, GraphDefinition);
 
-            // see if the count of ids is greater than batch size
-            // const ids = parsedArgs.get('id').queryParameterValues;
-            // const countOfIds = ids.length;
-            /**
-             * @type {ProcessMultipleIdsAsyncResult}
-             */
-            const {entries, queryItems, options, explanations} = await this.processMultipleIdsAsync(
-                {
-                    base_version,
-                    requestInfo,
-                    resourceType,
-                    graphDefinition,
-                    contained,
-                    explain: parsedArgs['_explain'] ? true : false,
-                    debug: parsedArgs['_debug'] ? true : false,
-                    parsedArgs,
-                    responseStreamer
-                }
-            );
 
+            // see if the count of ids is greater than batch size
+            /**
+             * @type {ParsedArgsItem}
+             */
+            const idParsedArg = parsedArgs.get('id') || parsedArgs.get('_id');
+            /**
+             * @type {string[]}
+             */
+            const ids = idParsedArg.queryParameterValues;
+            /**
+             * @type {string[][]}
+             */
+            const idChunks = sliceIntoChunks(ids, this.configManager.graphBatchSize);
+
+            /**
+             * @type {BundleEntry[]}
+             */
+            let entries = [];
+            /**
+             * @type {QueryItem[]}
+             */
+            let queryItems = [];
+            /**
+             * @type {import('mongodb').FindOptions<import('mongodb').DefaultSchema>[][]}
+             */
+            let options = [];
+            /**
+             * @type {import('mongodb').Document[]}
+             */
+            let explanations = [];
+
+            for (const /** @type {string[]} */ idChunk of idChunks) {
+                const parsedArgsForChunk = parsedArgs.clone();
+                parsedArgsForChunk.id = idChunk;
+                /**
+                 * @type {ProcessMultipleIdsAsyncResult}
+                 */
+                const {entries: entries1, queryItems: queryItems1, options: options1, explanations: explanations1}
+                    = await this.processMultipleIdsAsync(
+                    {
+                        base_version,
+                        requestInfo,
+                        resourceType,
+                        graphDefinition,
+                        contained,
+                        explain: parsedArgs['_explain'] ? true : false,
+                        debug: parsedArgs['_debug'] ? true : false,
+                        parsedArgs: parsedArgsForChunk,
+                        responseStreamer
+                    }
+                );
+                entries = entries.concat(entries1);
+                queryItems = queryItems.concat(queryItems1);
+                options = options.concat(options1);
+                explanations = explanations.concat(explanations1);
+            }
             /**
              * @type {number}
              */
