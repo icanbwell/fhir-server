@@ -1261,6 +1261,8 @@ class GraphHelper {
                 }
             }
 
+            const parentEntities = topLevelBundleEntries.map(e => e.resource);
+
             /**
              * @type {[{path:string, params: string,target:[{type: string}]}]}
              */
@@ -1273,7 +1275,7 @@ class GraphHelper {
                     requestInfo,
                     base_version,
                     parentResourceType: resourceType,
-                    parentEntities: topLevelBundleEntries.map(e => e.resource),
+                    parentEntities: parentEntities,
                     linkItems,
                     explain,
                     debug,
@@ -1319,7 +1321,7 @@ class GraphHelper {
                     /**
                      * @type {BundleEntry[]}
                      */
-                    const recursiveEntries = entity.containedEntries.flatMap(
+                    let recursiveEntries = entity.containedEntries.flatMap(
                         e => this.getRecursiveContainedEntities(
                             e
                         )
@@ -1338,13 +1340,13 @@ class GraphHelper {
                         );
                         topLevelResource.contained = containedResources;
                     } else {
-                        bundleEntriesForTopLevelResource = bundleEntriesForTopLevelResource.concat(recursiveEntries);
-                        bundleEntriesForTopLevelResource = await this.enrichmentManager.enrichBundleEntriesAsync(
+                        recursiveEntries = await this.enrichmentManager.enrichBundleEntriesAsync(
                             {
-                                entries: bundleEntriesForTopLevelResource,
+                                entries: recursiveEntries,
                                 parsedArgs
                             }
                         );
+                        bundleEntriesForTopLevelResource = bundleEntriesForTopLevelResource.concat(recursiveEntries);
                     }
 
                     /**
@@ -1365,6 +1367,8 @@ class GraphHelper {
                                 }
                             );
                         }
+                    } else {
+                        entries = entries.concat(bundleEntriesForTopLevelResource);
                     }
                 }
             }
