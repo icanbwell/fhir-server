@@ -267,8 +267,8 @@ class ConfigManager {
      * is greater than this number than we fall back to processing in serial to save memory
      * @return {number}
      */
-    get maximumIdsToProcessInParallelInGraph(){
-        return env.MAXIMUM_IDS_TO_PROCESS_IN_PARALLEL_IN_GRAPH || 10;
+    get graphBatchSize(){
+        return env.GRAPH_BATCH_SIZE || 10;
     }
 }
 

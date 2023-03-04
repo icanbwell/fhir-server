@@ -1459,6 +1459,10 @@ class GraphHelper {
              */
             const graphDefinition = FhirResourceCreator.create(graphDefinitionJson, GraphDefinition);
             assertTypeEquals(graphDefinition, GraphDefinition);
+
+            // see if the count of ids is greater than batch size
+            // const ids = parsedArgs.get('id').queryParameterValues;
+            // const countOfIds = ids.length;
             /**
              * @type {ProcessMultipleIdsAsyncResult}
              */
