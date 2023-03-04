@@ -769,7 +769,7 @@ class GraphHelper {
             /**
              * @type {QueryItem[]}
              */
-            const queryItems = [];
+            let queryItems = [];
             /**
              * @type {EntityAndContainedBase[]}
              */
@@ -898,15 +898,13 @@ class GraphHelper {
                  */
                 const childLinks = target.link;
                 if (childLinks) {
+                    // now recurse and process the next link in GraphDefinition
                     /**
-                     * @type {{path:string, params: string,target:[{type: string}]}}
+                     * @type {QueryItem[]}
                      */
-                    for (const childLink of childLinks) {
-                        // now recurse and process the next link in GraphDefinition
-                        /**
-                         * @type {QueryItem[]}
-                         */
-                        const recursiveQueries = await this.processOneGraphLinkAsync(
+                    const recursiveQueries = await async.flatMap(
+                        childLinks,
+                        async childLink => await this.processOneGraphLinkAsync(
                             {
                                 requestInfo,
                                 base_version,
@@ -917,11 +915,9 @@ class GraphHelper {
                                 debug,
                                 parsedArgs
                             }
-                        );
-                        for (const recursiveQuery of recursiveQueries) {
-                            queryItems.push(recursiveQuery);
-                        }
-                    }
+                        )
+                    );
+                    queryItems = queryItems.concat(recursiveQueries);
                 }
             }
             return {queryItems, childEntries};
