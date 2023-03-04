@@ -330,6 +330,9 @@ class GraphHelper {
 
                 if (relatedResource) {
                     // create a class to hold information about this resource
+                    /**
+                     * @type {ResourceEntityAndContained}
+                     */
                     const relatedEntityAndContained = new ResourceEntityAndContained({
                         entityId: relatedResource.id,
                         entityUuid: relatedResource._uuid,
@@ -372,6 +375,9 @@ class GraphHelper {
                                     .includes(idToSearch));
                     }
                     if (matchingParentEntities.length === 0) {
+                        /**
+                         * @type {string}
+                         */
                         const parentEntitiesString = parentEntities.map(p => `${p.resource.resourceType}/${p.resource._uuid}`).toString();
                         throw new Error('Forward Reference: No match found for child entity ' +
                             `${relatedResource.resourceType}/${relatedResource._uuid} in parent entities ` +
@@ -379,7 +385,7 @@ class GraphHelper {
                     }
 
                     // add it to each one since there can be multiple resources that point to the same related resource
-                    for (const matchingParentEntity of matchingParentEntities) {
+                    for (const /** @type {EntityAndContainedBase} */ matchingParentEntity of matchingParentEntities) {
                         matchingParentEntity.containedEntries = matchingParentEntity.containedEntries.concat(relatedEntityAndContained);
                     }
                 }
@@ -1010,16 +1016,18 @@ class GraphHelper {
      * @param {ParsedArgs} parsedArgs
      * @return {Promise<{entities: ResourceEntityAndContained[], queryItems: QueryItem[]}>}
      */
-    async processGraphLinksAsync({
-                                     requestInfo,
-                                     base_version,
-                                     parentResourceType,
-                                     parentEntities,
-                                     linkItems,
-                                     explain,
-                                     debug,
-                                     parsedArgs
-                                 }) {
+    async processGraphLinksAsync(
+        {
+            requestInfo,
+            base_version,
+            parentResourceType,
+            parentEntities,
+            linkItems,
+            explain,
+            debug,
+            parsedArgs
+        }
+    ) {
         try {
             /**
              * @type {ResourceEntityAndContained[]}
