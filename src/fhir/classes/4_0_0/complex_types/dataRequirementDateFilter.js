@@ -75,19 +75,8 @@ class DataRequirementDateFilter extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.extension = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Extension ?
-                                v : new Extension(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Extension) {
-                        this.__data.extension = valueProvided;
-                    } else {
-                        this.__data.extension = [new Extension(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -169,11 +158,8 @@ class DataRequirementDateFilter extends Element {
                     return;
                 }
                 const Period = require('../complex_types/period.js');
-                if (valueProvided instanceof Period){
-                    this.__data.valuePeriod = valueProvided;
-                } else {
-                    this.__data.valuePeriod = new Period(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.valuePeriod = FhirResourceCreator.create(valueProvided, Period);
             }
         });
 
@@ -192,11 +178,8 @@ class DataRequirementDateFilter extends Element {
                     return;
                 }
                 const Quantity = require('../complex_types/quantity.js');
-                if (valueProvided instanceof Quantity){
-                    this.__data.valueDuration = valueProvided;
-                } else {
-                    this.__data.valueDuration = new Quantity(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.valueDuration = FhirResourceCreator.create(valueProvided, Quantity);
             }
         });
 

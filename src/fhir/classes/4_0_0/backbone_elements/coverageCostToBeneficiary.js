@@ -73,19 +73,8 @@ class CoverageCostToBeneficiary extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.extension = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Extension ?
-                                v : new Extension(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Extension) {
-                        this.__data.extension = valueProvided;
-                    } else {
-                        this.__data.extension = [new Extension(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -116,19 +105,8 @@ class CoverageCostToBeneficiary extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.modifierExtension = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Extension ?
-                                v : new Extension(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Extension) {
-                        this.__data.modifierExtension = valueProvided;
-                    } else {
-                        this.__data.modifierExtension = [new Extension(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -147,11 +125,8 @@ class CoverageCostToBeneficiary extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                if (valueProvided instanceof CodeableConcept){
-                    this.__data.type = valueProvided;
-                } else {
-                    this.__data.type = new CodeableConcept(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.type = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
 
@@ -170,11 +145,8 @@ class CoverageCostToBeneficiary extends Element {
                     return;
                 }
                 const Quantity = require('../complex_types/quantity.js');
-                if (valueProvided instanceof Quantity){
-                    this.__data.valueQuantity = valueProvided;
-                } else {
-                    this.__data.valueQuantity = new Quantity(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.valueQuantity = FhirResourceCreator.create(valueProvided, Quantity);
             }
         });
 
@@ -193,11 +165,8 @@ class CoverageCostToBeneficiary extends Element {
                     return;
                 }
                 const Money = require('../complex_types/money.js');
-                if (valueProvided instanceof Money){
-                    this.__data.valueMoney = valueProvided;
-                } else {
-                    this.__data.valueMoney = new Money(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.valueMoney = FhirResourceCreator.create(valueProvided, Money);
             }
         });
 
@@ -217,19 +186,8 @@ class CoverageCostToBeneficiary extends Element {
                     return;
                 }
                 const CoverageException = require('../backbone_elements/coverageException.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.exception = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof CoverageException ?
-                                v : new CoverageException(v)
-                            );
-                } else {
-                    if (valueProvided instanceof CoverageException) {
-                        this.__data.exception = valueProvided;
-                    } else {
-                        this.__data.exception = [new CoverageException(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.exception = FhirResourceCreator.createArray(valueProvided, CoverageException);
             }
         });
 

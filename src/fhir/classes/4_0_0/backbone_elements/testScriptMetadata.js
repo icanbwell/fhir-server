@@ -69,19 +69,8 @@ class TestScriptMetadata extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.extension = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Extension ?
-                                v : new Extension(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Extension) {
-                        this.__data.extension = valueProvided;
-                    } else {
-                        this.__data.extension = [new Extension(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -112,19 +101,8 @@ class TestScriptMetadata extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.modifierExtension = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Extension ?
-                                v : new Extension(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Extension) {
-                        this.__data.modifierExtension = valueProvided;
-                    } else {
-                        this.__data.modifierExtension = [new Extension(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -143,19 +121,8 @@ class TestScriptMetadata extends Element {
                     return;
                 }
                 const TestScriptLink = require('../backbone_elements/testScriptLink.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.link = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof TestScriptLink ?
-                                v : new TestScriptLink(v)
-                            );
-                } else {
-                    if (valueProvided instanceof TestScriptLink) {
-                        this.__data.link = valueProvided;
-                    } else {
-                        this.__data.link = [new TestScriptLink(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.link = FhirResourceCreator.createArray(valueProvided, TestScriptLink);
             }
         });
 
@@ -175,19 +142,8 @@ class TestScriptMetadata extends Element {
                     return;
                 }
                 const TestScriptCapability = require('../backbone_elements/testScriptCapability.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.capability = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof TestScriptCapability ?
-                                v : new TestScriptCapability(v)
-                            );
-                } else {
-                    if (valueProvided instanceof TestScriptCapability) {
-                        this.__data.capability = valueProvided;
-                    } else {
-                        this.__data.capability = [new TestScriptCapability(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.capability = FhirResourceCreator.createArray(valueProvided, TestScriptCapability);
             }
         });
 

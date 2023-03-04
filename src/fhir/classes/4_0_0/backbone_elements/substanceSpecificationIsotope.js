@@ -75,19 +75,8 @@ class SubstanceSpecificationIsotope extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.extension = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Extension ?
-                                v : new Extension(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Extension) {
-                        this.__data.extension = valueProvided;
-                    } else {
-                        this.__data.extension = [new Extension(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -118,19 +107,8 @@ class SubstanceSpecificationIsotope extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.modifierExtension = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Extension ?
-                                v : new Extension(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Extension) {
-                        this.__data.modifierExtension = valueProvided;
-                    } else {
-                        this.__data.modifierExtension = [new Extension(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -149,11 +127,8 @@ class SubstanceSpecificationIsotope extends Element {
                     return;
                 }
                 const Identifier = require('../complex_types/identifier.js');
-                if (valueProvided instanceof Identifier){
-                    this.__data.identifier = valueProvided;
-                } else {
-                    this.__data.identifier = new Identifier(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.identifier = FhirResourceCreator.create(valueProvided, Identifier);
             }
         });
 
@@ -172,11 +147,8 @@ class SubstanceSpecificationIsotope extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                if (valueProvided instanceof CodeableConcept){
-                    this.__data.name = valueProvided;
-                } else {
-                    this.__data.name = new CodeableConcept(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.name = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
 
@@ -195,11 +167,8 @@ class SubstanceSpecificationIsotope extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                if (valueProvided instanceof CodeableConcept){
-                    this.__data.substitution = valueProvided;
-                } else {
-                    this.__data.substitution = new CodeableConcept(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.substitution = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
 
@@ -218,11 +187,8 @@ class SubstanceSpecificationIsotope extends Element {
                     return;
                 }
                 const Quantity = require('../complex_types/quantity.js');
-                if (valueProvided instanceof Quantity){
-                    this.__data.halfLife = valueProvided;
-                } else {
-                    this.__data.halfLife = new Quantity(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.halfLife = FhirResourceCreator.create(valueProvided, Quantity);
             }
         });
 
@@ -242,11 +208,8 @@ class SubstanceSpecificationIsotope extends Element {
                     return;
                 }
                 const SubstanceSpecificationMolecularWeight = require('../backbone_elements/substanceSpecificationMolecularWeight.js');
-                if (valueProvided instanceof SubstanceSpecificationMolecularWeight){
-                    this.__data.molecularWeight = valueProvided;
-                } else {
-                    this.__data.molecularWeight = new SubstanceSpecificationMolecularWeight(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.molecularWeight = FhirResourceCreator.create(valueProvided, SubstanceSpecificationMolecularWeight);
             }
         });
 

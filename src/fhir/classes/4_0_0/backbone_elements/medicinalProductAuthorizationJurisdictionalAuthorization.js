@@ -74,19 +74,8 @@ class MedicinalProductAuthorizationJurisdictionalAuthorization extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.extension = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Extension ?
-                                v : new Extension(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Extension) {
-                        this.__data.extension = valueProvided;
-                    } else {
-                        this.__data.extension = [new Extension(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -117,19 +106,8 @@ class MedicinalProductAuthorizationJurisdictionalAuthorization extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.modifierExtension = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Extension ?
-                                v : new Extension(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Extension) {
-                        this.__data.modifierExtension = valueProvided;
-                    } else {
-                        this.__data.modifierExtension = [new Extension(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -148,19 +126,8 @@ class MedicinalProductAuthorizationJurisdictionalAuthorization extends Element {
                     return;
                 }
                 const Identifier = require('../complex_types/identifier.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.identifier = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Identifier ?
-                                v : new Identifier(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Identifier) {
-                        this.__data.identifier = valueProvided;
-                    } else {
-                        this.__data.identifier = [new Identifier(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.identifier = FhirResourceCreator.createArray(valueProvided, Identifier);
             }
         });
 
@@ -179,11 +146,8 @@ class MedicinalProductAuthorizationJurisdictionalAuthorization extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                if (valueProvided instanceof CodeableConcept){
-                    this.__data.country = valueProvided;
-                } else {
-                    this.__data.country = new CodeableConcept(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.country = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
 
@@ -202,19 +166,8 @@ class MedicinalProductAuthorizationJurisdictionalAuthorization extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.jurisdiction = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof CodeableConcept ?
-                                v : new CodeableConcept(v)
-                            );
-                } else {
-                    if (valueProvided instanceof CodeableConcept) {
-                        this.__data.jurisdiction = valueProvided;
-                    } else {
-                        this.__data.jurisdiction = [new CodeableConcept(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.jurisdiction = FhirResourceCreator.createArray(valueProvided, CodeableConcept);
             }
         });
 
@@ -233,11 +186,8 @@ class MedicinalProductAuthorizationJurisdictionalAuthorization extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                if (valueProvided instanceof CodeableConcept){
-                    this.__data.legalStatusOfSupply = valueProvided;
-                } else {
-                    this.__data.legalStatusOfSupply = new CodeableConcept(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.legalStatusOfSupply = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
 
@@ -256,11 +206,8 @@ class MedicinalProductAuthorizationJurisdictionalAuthorization extends Element {
                     return;
                 }
                 const Period = require('../complex_types/period.js');
-                if (valueProvided instanceof Period){
-                    this.__data.validityPeriod = valueProvided;
-                } else {
-                    this.__data.validityPeriod = new Period(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.validityPeriod = FhirResourceCreator.create(valueProvided, Period);
             }
         });
 

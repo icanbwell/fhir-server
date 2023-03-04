@@ -88,19 +88,8 @@ class ConsentProvision extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.extension = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Extension ?
-                                v : new Extension(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Extension) {
-                        this.__data.extension = valueProvided;
-                    } else {
-                        this.__data.extension = [new Extension(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -131,19 +120,8 @@ class ConsentProvision extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.modifierExtension = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Extension ?
-                                v : new Extension(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Extension) {
-                        this.__data.modifierExtension = valueProvided;
-                    } else {
-                        this.__data.modifierExtension = [new Extension(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -181,11 +159,8 @@ class ConsentProvision extends Element {
                     return;
                 }
                 const Period = require('../complex_types/period.js');
-                if (valueProvided instanceof Period){
-                    this.__data.period = valueProvided;
-                } else {
-                    this.__data.period = new Period(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.period = FhirResourceCreator.create(valueProvided, Period);
             }
         });
 
@@ -205,19 +180,8 @@ class ConsentProvision extends Element {
                     return;
                 }
                 const ConsentActor = require('../backbone_elements/consentActor.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.actor = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof ConsentActor ?
-                                v : new ConsentActor(v)
-                            );
-                } else {
-                    if (valueProvided instanceof ConsentActor) {
-                        this.__data.actor = valueProvided;
-                    } else {
-                        this.__data.actor = [new ConsentActor(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.actor = FhirResourceCreator.createArray(valueProvided, ConsentActor);
             }
         });
 
@@ -236,19 +200,8 @@ class ConsentProvision extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.action = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof CodeableConcept ?
-                                v : new CodeableConcept(v)
-                            );
-                } else {
-                    if (valueProvided instanceof CodeableConcept) {
-                        this.__data.action = valueProvided;
-                    } else {
-                        this.__data.action = [new CodeableConcept(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.action = FhirResourceCreator.createArray(valueProvided, CodeableConcept);
             }
         });
 
@@ -268,19 +221,8 @@ class ConsentProvision extends Element {
                     return;
                 }
                 const Coding = require('../complex_types/coding.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.securityLabel = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Coding ?
-                                v : new Coding(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Coding) {
-                        this.__data.securityLabel = valueProvided;
-                    } else {
-                        this.__data.securityLabel = [new Coding(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.securityLabel = FhirResourceCreator.createArray(valueProvided, Coding);
             }
         });
 
@@ -300,19 +242,8 @@ class ConsentProvision extends Element {
                     return;
                 }
                 const Coding = require('../complex_types/coding.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.purpose = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Coding ?
-                                v : new Coding(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Coding) {
-                        this.__data.purpose = valueProvided;
-                    } else {
-                        this.__data.purpose = [new Coding(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.purpose = FhirResourceCreator.createArray(valueProvided, Coding);
             }
         });
 
@@ -333,19 +264,8 @@ class ConsentProvision extends Element {
                     return;
                 }
                 const Coding = require('../complex_types/coding.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.class = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Coding ?
-                                v : new Coding(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Coding) {
-                        this.__data.class = valueProvided;
-                    } else {
-                        this.__data.class = [new Coding(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.class = FhirResourceCreator.createArray(valueProvided, Coding);
             }
         });
 
@@ -364,19 +284,8 @@ class ConsentProvision extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.code = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof CodeableConcept ?
-                                v : new CodeableConcept(v)
-                            );
-                } else {
-                    if (valueProvided instanceof CodeableConcept) {
-                        this.__data.code = valueProvided;
-                    } else {
-                        this.__data.code = [new CodeableConcept(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.code = FhirResourceCreator.createArray(valueProvided, CodeableConcept);
             }
         });
 
@@ -396,11 +305,8 @@ class ConsentProvision extends Element {
                     return;
                 }
                 const Period = require('../complex_types/period.js');
-                if (valueProvided instanceof Period){
-                    this.__data.dataPeriod = valueProvided;
-                } else {
-                    this.__data.dataPeriod = new Period(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.dataPeriod = FhirResourceCreator.create(valueProvided, Period);
             }
         });
 
@@ -419,19 +325,8 @@ class ConsentProvision extends Element {
                     return;
                 }
                 const ConsentData = require('../backbone_elements/consentData.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.data = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof ConsentData ?
-                                v : new ConsentData(v)
-                            );
-                } else {
-                    if (valueProvided instanceof ConsentData) {
-                        this.__data.data = valueProvided;
-                    } else {
-                        this.__data.data = [new ConsentData(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.data = FhirResourceCreator.createArray(valueProvided, ConsentData);
             }
         });
 
@@ -449,19 +344,8 @@ class ConsentProvision extends Element {
                     this.__data.provision = undefined;
                     return;
                 }
-                if (Array.isArray(valueProvided)) {
-                    this.__data.provision = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof ConsentProvision ?
-                                v : new ConsentProvision(v)
-                            );
-                } else {
-                    if (valueProvided instanceof ConsentProvision) {
-                        this.__data.provision = valueProvided;
-                    } else {
-                        this.__data.provision = [new ConsentProvision(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.provision = FhirResourceCreator.createArray(valueProvided, ConsentProvision);
             }
         });
 

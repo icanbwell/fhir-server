@@ -73,19 +73,8 @@ class NutritionOrderAdministration extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.extension = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Extension ?
-                                v : new Extension(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Extension) {
-                        this.__data.extension = valueProvided;
-                    } else {
-                        this.__data.extension = [new Extension(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -116,19 +105,8 @@ class NutritionOrderAdministration extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.modifierExtension = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Extension ?
-                                v : new Extension(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Extension) {
-                        this.__data.modifierExtension = valueProvided;
-                    } else {
-                        this.__data.modifierExtension = [new Extension(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -148,11 +126,8 @@ class NutritionOrderAdministration extends Element {
                     return;
                 }
                 const Timing = require('../backbone_elements/timing.js');
-                if (valueProvided instanceof Timing){
-                    this.__data.schedule = valueProvided;
-                } else {
-                    this.__data.schedule = new Timing(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.schedule = FhirResourceCreator.create(valueProvided, Timing);
             }
         });
 
@@ -172,11 +147,8 @@ class NutritionOrderAdministration extends Element {
                     return;
                 }
                 const Quantity = require('../complex_types/quantity.js');
-                if (valueProvided instanceof Quantity){
-                    this.__data.quantity = valueProvided;
-                } else {
-                    this.__data.quantity = new Quantity(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.quantity = FhirResourceCreator.create(valueProvided, Quantity);
             }
         });
 
@@ -195,11 +167,8 @@ class NutritionOrderAdministration extends Element {
                     return;
                 }
                 const Quantity = require('../complex_types/quantity.js');
-                if (valueProvided instanceof Quantity){
-                    this.__data.rateQuantity = valueProvided;
-                } else {
-                    this.__data.rateQuantity = new Quantity(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.rateQuantity = FhirResourceCreator.create(valueProvided, Quantity);
             }
         });
 
@@ -218,11 +187,8 @@ class NutritionOrderAdministration extends Element {
                     return;
                 }
                 const Ratio = require('../complex_types/ratio.js');
-                if (valueProvided instanceof Ratio){
-                    this.__data.rateRatio = valueProvided;
-                } else {
-                    this.__data.rateRatio = new Ratio(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.rateRatio = FhirResourceCreator.create(valueProvided, Ratio);
             }
         });
 

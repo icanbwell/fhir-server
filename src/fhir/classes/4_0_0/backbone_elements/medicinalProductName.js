@@ -71,19 +71,8 @@ class MedicinalProductName extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.extension = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Extension ?
-                                v : new Extension(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Extension) {
-                        this.__data.extension = valueProvided;
-                    } else {
-                        this.__data.extension = [new Extension(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -114,19 +103,8 @@ class MedicinalProductName extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.modifierExtension = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Extension ?
-                                v : new Extension(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Extension) {
-                        this.__data.modifierExtension = valueProvided;
-                    } else {
-                        this.__data.modifierExtension = [new Extension(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -163,19 +141,8 @@ class MedicinalProductName extends Element {
                     return;
                 }
                 const MedicinalProductNamePart = require('../backbone_elements/medicinalProductNamePart.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.namePart = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof MedicinalProductNamePart ?
-                                v : new MedicinalProductNamePart(v)
-                            );
-                } else {
-                    if (valueProvided instanceof MedicinalProductNamePart) {
-                        this.__data.namePart = valueProvided;
-                    } else {
-                        this.__data.namePart = [new MedicinalProductNamePart(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.namePart = FhirResourceCreator.createArray(valueProvided, MedicinalProductNamePart);
             }
         });
 
@@ -194,19 +161,8 @@ class MedicinalProductName extends Element {
                     return;
                 }
                 const MedicinalProductCountryLanguage = require('../backbone_elements/medicinalProductCountryLanguage.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.countryLanguage = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof MedicinalProductCountryLanguage ?
-                                v : new MedicinalProductCountryLanguage(v)
-                            );
-                } else {
-                    if (valueProvided instanceof MedicinalProductCountryLanguage) {
-                        this.__data.countryLanguage = valueProvided;
-                    } else {
-                        this.__data.countryLanguage = [new MedicinalProductCountryLanguage(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.countryLanguage = FhirResourceCreator.createArray(valueProvided, MedicinalProductCountryLanguage);
             }
         });
 

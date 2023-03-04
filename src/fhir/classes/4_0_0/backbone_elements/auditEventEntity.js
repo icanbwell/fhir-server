@@ -84,19 +84,8 @@ class AuditEventEntity extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.extension = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Extension ?
-                                v : new Extension(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Extension) {
-                        this.__data.extension = valueProvided;
-                    } else {
-                        this.__data.extension = [new Extension(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -127,19 +116,8 @@ class AuditEventEntity extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.modifierExtension = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Extension ?
-                                v : new Extension(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Extension) {
-                        this.__data.modifierExtension = valueProvided;
-                    } else {
-                        this.__data.modifierExtension = [new Extension(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -159,11 +137,8 @@ class AuditEventEntity extends Element {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                if (valueProvided instanceof Reference){
-                    this.__data.what = valueProvided;
-                } else {
-                    this.__data.what = new Reference(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.what = FhirResourceCreator.create(valueProvided, Reference);
             }
         });
 
@@ -182,11 +157,8 @@ class AuditEventEntity extends Element {
                     return;
                 }
                 const Coding = require('../complex_types/coding.js');
-                if (valueProvided instanceof Coding){
-                    this.__data.type = valueProvided;
-                } else {
-                    this.__data.type = new Coding(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.type = FhirResourceCreator.create(valueProvided, Coding);
             }
         });
 
@@ -205,11 +177,8 @@ class AuditEventEntity extends Element {
                     return;
                 }
                 const Coding = require('../complex_types/coding.js');
-                if (valueProvided instanceof Coding){
-                    this.__data.role = valueProvided;
-                } else {
-                    this.__data.role = new Coding(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.role = FhirResourceCreator.create(valueProvided, Coding);
             }
         });
 
@@ -228,11 +197,8 @@ class AuditEventEntity extends Element {
                     return;
                 }
                 const Coding = require('../complex_types/coding.js');
-                if (valueProvided instanceof Coding){
-                    this.__data.lifecycle = valueProvided;
-                } else {
-                    this.__data.lifecycle = new Coding(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.lifecycle = FhirResourceCreator.create(valueProvided, Coding);
             }
         });
 
@@ -251,19 +217,8 @@ class AuditEventEntity extends Element {
                     return;
                 }
                 const Coding = require('../complex_types/coding.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.securityLabel = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Coding ?
-                                v : new Coding(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Coding) {
-                        this.__data.securityLabel = valueProvided;
-                    } else {
-                        this.__data.securityLabel = [new Coding(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.securityLabel = FhirResourceCreator.createArray(valueProvided, Coding);
             }
         });
 
@@ -336,19 +291,8 @@ class AuditEventEntity extends Element {
                     return;
                 }
                 const AuditEventDetail = require('../backbone_elements/auditEventDetail.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.detail = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof AuditEventDetail ?
-                                v : new AuditEventDetail(v)
-                            );
-                } else {
-                    if (valueProvided instanceof AuditEventDetail) {
-                        this.__data.detail = valueProvided;
-                    } else {
-                        this.__data.detail = [new AuditEventDetail(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.detail = FhirResourceCreator.createArray(valueProvided, AuditEventDetail);
             }
         });
 

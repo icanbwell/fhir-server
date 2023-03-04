@@ -185,19 +185,8 @@ class StructureMapSource extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.extension = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Extension ?
-                                v : new Extension(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Extension) {
-                        this.__data.extension = valueProvided;
-                    } else {
-                        this.__data.extension = [new Extension(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -228,19 +217,8 @@ class StructureMapSource extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.modifierExtension = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Extension ?
-                                v : new Extension(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Extension) {
-                        this.__data.modifierExtension = valueProvided;
-                    } else {
-                        this.__data.modifierExtension = [new Extension(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -677,11 +655,8 @@ class StructureMapSource extends Element {
                     return;
                 }
                 const Address = require('../complex_types/address.js');
-                if (valueProvided instanceof Address){
-                    this.__data.defaultValueAddress = valueProvided;
-                } else {
-                    this.__data.defaultValueAddress = new Address(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.defaultValueAddress = FhirResourceCreator.create(valueProvided, Address);
             }
         });
 
@@ -700,11 +675,8 @@ class StructureMapSource extends Element {
                     return;
                 }
                 const Quantity = require('../complex_types/quantity.js');
-                if (valueProvided instanceof Quantity){
-                    this.__data.defaultValueAge = valueProvided;
-                } else {
-                    this.__data.defaultValueAge = new Quantity(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.defaultValueAge = FhirResourceCreator.create(valueProvided, Quantity);
             }
         });
 
@@ -723,11 +695,8 @@ class StructureMapSource extends Element {
                     return;
                 }
                 const Annotation = require('../complex_types/annotation.js');
-                if (valueProvided instanceof Annotation){
-                    this.__data.defaultValueAnnotation = valueProvided;
-                } else {
-                    this.__data.defaultValueAnnotation = new Annotation(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.defaultValueAnnotation = FhirResourceCreator.create(valueProvided, Annotation);
             }
         });
 
@@ -746,11 +715,8 @@ class StructureMapSource extends Element {
                     return;
                 }
                 const Attachment = require('../complex_types/attachment.js');
-                if (valueProvided instanceof Attachment){
-                    this.__data.defaultValueAttachment = valueProvided;
-                } else {
-                    this.__data.defaultValueAttachment = new Attachment(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.defaultValueAttachment = FhirResourceCreator.create(valueProvided, Attachment);
             }
         });
 
@@ -769,11 +735,8 @@ class StructureMapSource extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                if (valueProvided instanceof CodeableConcept){
-                    this.__data.defaultValueCodeableConcept = valueProvided;
-                } else {
-                    this.__data.defaultValueCodeableConcept = new CodeableConcept(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.defaultValueCodeableConcept = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
 
@@ -792,11 +755,8 @@ class StructureMapSource extends Element {
                     return;
                 }
                 const Coding = require('../complex_types/coding.js');
-                if (valueProvided instanceof Coding){
-                    this.__data.defaultValueCoding = valueProvided;
-                } else {
-                    this.__data.defaultValueCoding = new Coding(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.defaultValueCoding = FhirResourceCreator.create(valueProvided, Coding);
             }
         });
 
@@ -815,11 +775,8 @@ class StructureMapSource extends Element {
                     return;
                 }
                 const ContactPoint = require('../complex_types/contactPoint.js');
-                if (valueProvided instanceof ContactPoint){
-                    this.__data.defaultValueContactPoint = valueProvided;
-                } else {
-                    this.__data.defaultValueContactPoint = new ContactPoint(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.defaultValueContactPoint = FhirResourceCreator.create(valueProvided, ContactPoint);
             }
         });
 
@@ -838,11 +795,8 @@ class StructureMapSource extends Element {
                     return;
                 }
                 const Quantity = require('../complex_types/quantity.js');
-                if (valueProvided instanceof Quantity){
-                    this.__data.defaultValueCount = valueProvided;
-                } else {
-                    this.__data.defaultValueCount = new Quantity(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.defaultValueCount = FhirResourceCreator.create(valueProvided, Quantity);
             }
         });
 
@@ -861,11 +815,8 @@ class StructureMapSource extends Element {
                     return;
                 }
                 const Quantity = require('../complex_types/quantity.js');
-                if (valueProvided instanceof Quantity){
-                    this.__data.defaultValueDistance = valueProvided;
-                } else {
-                    this.__data.defaultValueDistance = new Quantity(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.defaultValueDistance = FhirResourceCreator.create(valueProvided, Quantity);
             }
         });
 
@@ -884,11 +835,8 @@ class StructureMapSource extends Element {
                     return;
                 }
                 const Quantity = require('../complex_types/quantity.js');
-                if (valueProvided instanceof Quantity){
-                    this.__data.defaultValueDuration = valueProvided;
-                } else {
-                    this.__data.defaultValueDuration = new Quantity(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.defaultValueDuration = FhirResourceCreator.create(valueProvided, Quantity);
             }
         });
 
@@ -907,11 +855,8 @@ class StructureMapSource extends Element {
                     return;
                 }
                 const HumanName = require('../complex_types/humanName.js');
-                if (valueProvided instanceof HumanName){
-                    this.__data.defaultValueHumanName = valueProvided;
-                } else {
-                    this.__data.defaultValueHumanName = new HumanName(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.defaultValueHumanName = FhirResourceCreator.create(valueProvided, HumanName);
             }
         });
 
@@ -930,11 +875,8 @@ class StructureMapSource extends Element {
                     return;
                 }
                 const Identifier = require('../complex_types/identifier.js');
-                if (valueProvided instanceof Identifier){
-                    this.__data.defaultValueIdentifier = valueProvided;
-                } else {
-                    this.__data.defaultValueIdentifier = new Identifier(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.defaultValueIdentifier = FhirResourceCreator.create(valueProvided, Identifier);
             }
         });
 
@@ -953,11 +895,8 @@ class StructureMapSource extends Element {
                     return;
                 }
                 const Money = require('../complex_types/money.js');
-                if (valueProvided instanceof Money){
-                    this.__data.defaultValueMoney = valueProvided;
-                } else {
-                    this.__data.defaultValueMoney = new Money(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.defaultValueMoney = FhirResourceCreator.create(valueProvided, Money);
             }
         });
 
@@ -976,11 +915,8 @@ class StructureMapSource extends Element {
                     return;
                 }
                 const Period = require('../complex_types/period.js');
-                if (valueProvided instanceof Period){
-                    this.__data.defaultValuePeriod = valueProvided;
-                } else {
-                    this.__data.defaultValuePeriod = new Period(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.defaultValuePeriod = FhirResourceCreator.create(valueProvided, Period);
             }
         });
 
@@ -999,11 +935,8 @@ class StructureMapSource extends Element {
                     return;
                 }
                 const Quantity = require('../complex_types/quantity.js');
-                if (valueProvided instanceof Quantity){
-                    this.__data.defaultValueQuantity = valueProvided;
-                } else {
-                    this.__data.defaultValueQuantity = new Quantity(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.defaultValueQuantity = FhirResourceCreator.create(valueProvided, Quantity);
             }
         });
 
@@ -1022,11 +955,8 @@ class StructureMapSource extends Element {
                     return;
                 }
                 const Range = require('../complex_types/range.js');
-                if (valueProvided instanceof Range){
-                    this.__data.defaultValueRange = valueProvided;
-                } else {
-                    this.__data.defaultValueRange = new Range(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.defaultValueRange = FhirResourceCreator.create(valueProvided, Range);
             }
         });
 
@@ -1045,11 +975,8 @@ class StructureMapSource extends Element {
                     return;
                 }
                 const Ratio = require('../complex_types/ratio.js');
-                if (valueProvided instanceof Ratio){
-                    this.__data.defaultValueRatio = valueProvided;
-                } else {
-                    this.__data.defaultValueRatio = new Ratio(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.defaultValueRatio = FhirResourceCreator.create(valueProvided, Ratio);
             }
         });
 
@@ -1068,11 +995,8 @@ class StructureMapSource extends Element {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                if (valueProvided instanceof Reference){
-                    this.__data.defaultValueReference = valueProvided;
-                } else {
-                    this.__data.defaultValueReference = new Reference(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.defaultValueReference = FhirResourceCreator.create(valueProvided, Reference);
             }
         });
 
@@ -1091,11 +1015,8 @@ class StructureMapSource extends Element {
                     return;
                 }
                 const SampledData = require('../complex_types/sampledData.js');
-                if (valueProvided instanceof SampledData){
-                    this.__data.defaultValueSampledData = valueProvided;
-                } else {
-                    this.__data.defaultValueSampledData = new SampledData(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.defaultValueSampledData = FhirResourceCreator.create(valueProvided, SampledData);
             }
         });
 
@@ -1114,11 +1035,8 @@ class StructureMapSource extends Element {
                     return;
                 }
                 const Signature = require('../complex_types/signature.js');
-                if (valueProvided instanceof Signature){
-                    this.__data.defaultValueSignature = valueProvided;
-                } else {
-                    this.__data.defaultValueSignature = new Signature(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.defaultValueSignature = FhirResourceCreator.create(valueProvided, Signature);
             }
         });
 
@@ -1137,11 +1055,8 @@ class StructureMapSource extends Element {
                     return;
                 }
                 const Timing = require('../backbone_elements/timing.js');
-                if (valueProvided instanceof Timing){
-                    this.__data.defaultValueTiming = valueProvided;
-                } else {
-                    this.__data.defaultValueTiming = new Timing(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.defaultValueTiming = FhirResourceCreator.create(valueProvided, Timing);
             }
         });
 
@@ -1160,11 +1075,8 @@ class StructureMapSource extends Element {
                     return;
                 }
                 const ContactDetail = require('../complex_types/contactDetail.js');
-                if (valueProvided instanceof ContactDetail){
-                    this.__data.defaultValueContactDetail = valueProvided;
-                } else {
-                    this.__data.defaultValueContactDetail = new ContactDetail(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.defaultValueContactDetail = FhirResourceCreator.create(valueProvided, ContactDetail);
             }
         });
 
@@ -1183,11 +1095,8 @@ class StructureMapSource extends Element {
                     return;
                 }
                 const Contributor = require('../complex_types/contributor.js');
-                if (valueProvided instanceof Contributor){
-                    this.__data.defaultValueContributor = valueProvided;
-                } else {
-                    this.__data.defaultValueContributor = new Contributor(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.defaultValueContributor = FhirResourceCreator.create(valueProvided, Contributor);
             }
         });
 
@@ -1206,11 +1115,8 @@ class StructureMapSource extends Element {
                     return;
                 }
                 const DataRequirement = require('../complex_types/dataRequirement.js');
-                if (valueProvided instanceof DataRequirement){
-                    this.__data.defaultValueDataRequirement = valueProvided;
-                } else {
-                    this.__data.defaultValueDataRequirement = new DataRequirement(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.defaultValueDataRequirement = FhirResourceCreator.create(valueProvided, DataRequirement);
             }
         });
 
@@ -1229,11 +1135,8 @@ class StructureMapSource extends Element {
                     return;
                 }
                 const Expression = require('../complex_types/expression.js');
-                if (valueProvided instanceof Expression){
-                    this.__data.defaultValueExpression = valueProvided;
-                } else {
-                    this.__data.defaultValueExpression = new Expression(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.defaultValueExpression = FhirResourceCreator.create(valueProvided, Expression);
             }
         });
 
@@ -1252,11 +1155,8 @@ class StructureMapSource extends Element {
                     return;
                 }
                 const ParameterDefinition = require('../complex_types/parameterDefinition.js');
-                if (valueProvided instanceof ParameterDefinition){
-                    this.__data.defaultValueParameterDefinition = valueProvided;
-                } else {
-                    this.__data.defaultValueParameterDefinition = new ParameterDefinition(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.defaultValueParameterDefinition = FhirResourceCreator.create(valueProvided, ParameterDefinition);
             }
         });
 
@@ -1275,11 +1175,8 @@ class StructureMapSource extends Element {
                     return;
                 }
                 const RelatedArtifact = require('../complex_types/relatedArtifact.js');
-                if (valueProvided instanceof RelatedArtifact){
-                    this.__data.defaultValueRelatedArtifact = valueProvided;
-                } else {
-                    this.__data.defaultValueRelatedArtifact = new RelatedArtifact(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.defaultValueRelatedArtifact = FhirResourceCreator.create(valueProvided, RelatedArtifact);
             }
         });
 
@@ -1298,11 +1195,8 @@ class StructureMapSource extends Element {
                     return;
                 }
                 const TriggerDefinition = require('../complex_types/triggerDefinition.js');
-                if (valueProvided instanceof TriggerDefinition){
-                    this.__data.defaultValueTriggerDefinition = valueProvided;
-                } else {
-                    this.__data.defaultValueTriggerDefinition = new TriggerDefinition(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.defaultValueTriggerDefinition = FhirResourceCreator.create(valueProvided, TriggerDefinition);
             }
         });
 
@@ -1321,11 +1215,8 @@ class StructureMapSource extends Element {
                     return;
                 }
                 const UsageContext = require('../complex_types/usageContext.js');
-                if (valueProvided instanceof UsageContext){
-                    this.__data.defaultValueUsageContext = valueProvided;
-                } else {
-                    this.__data.defaultValueUsageContext = new UsageContext(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.defaultValueUsageContext = FhirResourceCreator.create(valueProvided, UsageContext);
             }
         });
 
@@ -1344,11 +1235,8 @@ class StructureMapSource extends Element {
                     return;
                 }
                 const Dosage = require('../backbone_elements/dosage.js');
-                if (valueProvided instanceof Dosage){
-                    this.__data.defaultValueDosage = valueProvided;
-                } else {
-                    this.__data.defaultValueDosage = new Dosage(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.defaultValueDosage = FhirResourceCreator.create(valueProvided, Dosage);
             }
         });
 
@@ -1367,11 +1255,8 @@ class StructureMapSource extends Element {
                     return;
                 }
                 const Meta = require('../complex_types/meta.js');
-                if (valueProvided instanceof Meta){
-                    this.__data.defaultValueMeta = valueProvided;
-                } else {
-                    this.__data.defaultValueMeta = new Meta(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.defaultValueMeta = FhirResourceCreator.create(valueProvided, Meta);
             }
         });
 

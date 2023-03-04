@@ -72,19 +72,8 @@ class SubstancePolymerRepeat extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.extension = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Extension ?
-                                v : new Extension(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Extension) {
-                        this.__data.extension = valueProvided;
-                    } else {
-                        this.__data.extension = [new Extension(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -115,19 +104,8 @@ class SubstancePolymerRepeat extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.modifierExtension = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Extension ?
-                                v : new Extension(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Extension) {
-                        this.__data.modifierExtension = valueProvided;
-                    } else {
-                        this.__data.modifierExtension = [new Extension(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -182,11 +160,8 @@ class SubstancePolymerRepeat extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                if (valueProvided instanceof CodeableConcept){
-                    this.__data.repeatUnitAmountType = valueProvided;
-                } else {
-                    this.__data.repeatUnitAmountType = new CodeableConcept(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.repeatUnitAmountType = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
 
@@ -205,19 +180,8 @@ class SubstancePolymerRepeat extends Element {
                     return;
                 }
                 const SubstancePolymerRepeatUnit = require('../backbone_elements/substancePolymerRepeatUnit.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.repeatUnit = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof SubstancePolymerRepeatUnit ?
-                                v : new SubstancePolymerRepeatUnit(v)
-                            );
-                } else {
-                    if (valueProvided instanceof SubstancePolymerRepeatUnit) {
-                        this.__data.repeatUnit = valueProvided;
-                    } else {
-                        this.__data.repeatUnit = [new SubstancePolymerRepeatUnit(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.repeatUnit = FhirResourceCreator.createArray(valueProvided, SubstancePolymerRepeatUnit);
             }
         });
 

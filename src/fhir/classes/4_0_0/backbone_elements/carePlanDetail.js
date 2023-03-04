@@ -106,19 +106,8 @@ class CarePlanDetail extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.extension = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Extension ?
-                                v : new Extension(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Extension) {
-                        this.__data.extension = valueProvided;
-                    } else {
-                        this.__data.extension = [new Extension(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -149,19 +138,8 @@ class CarePlanDetail extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.modifierExtension = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Extension ?
-                                v : new Extension(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Extension) {
-                        this.__data.modifierExtension = valueProvided;
-                    } else {
-                        this.__data.modifierExtension = [new Extension(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -242,11 +220,8 @@ class CarePlanDetail extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                if (valueProvided instanceof CodeableConcept){
-                    this.__data.code = valueProvided;
-                } else {
-                    this.__data.code = new CodeableConcept(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.code = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
 
@@ -266,19 +241,8 @@ class CarePlanDetail extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.reasonCode = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof CodeableConcept ?
-                                v : new CodeableConcept(v)
-                            );
-                } else {
-                    if (valueProvided instanceof CodeableConcept) {
-                        this.__data.reasonCode = valueProvided;
-                    } else {
-                        this.__data.reasonCode = [new CodeableConcept(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.reasonCode = FhirResourceCreator.createArray(valueProvided, CodeableConcept);
             }
         });
 
@@ -299,19 +263,8 @@ class CarePlanDetail extends Element {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.reasonReference = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Reference ?
-                                v : new Reference(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Reference) {
-                        this.__data.reasonReference = valueProvided;
-                    } else {
-                        this.__data.reasonReference = [new Reference(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.reasonReference = FhirResourceCreator.createArray(valueProvided, Reference);
             }
         });
 
@@ -331,19 +284,8 @@ class CarePlanDetail extends Element {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.goal = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Reference ?
-                                v : new Reference(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Reference) {
-                        this.__data.goal = valueProvided;
-                    } else {
-                        this.__data.goal = [new Reference(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.goal = FhirResourceCreator.createArray(valueProvided, Reference);
             }
         });
 
@@ -381,11 +323,8 @@ class CarePlanDetail extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                if (valueProvided instanceof CodeableConcept){
-                    this.__data.statusReason = valueProvided;
-                } else {
-                    this.__data.statusReason = new CodeableConcept(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.statusReason = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
 
@@ -424,11 +363,8 @@ class CarePlanDetail extends Element {
                     return;
                 }
                 const Timing = require('../backbone_elements/timing.js');
-                if (valueProvided instanceof Timing){
-                    this.__data.scheduledTiming = valueProvided;
-                } else {
-                    this.__data.scheduledTiming = new Timing(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.scheduledTiming = FhirResourceCreator.create(valueProvided, Timing);
             }
         });
 
@@ -447,11 +383,8 @@ class CarePlanDetail extends Element {
                     return;
                 }
                 const Period = require('../complex_types/period.js');
-                if (valueProvided instanceof Period){
-                    this.__data.scheduledPeriod = valueProvided;
-                } else {
-                    this.__data.scheduledPeriod = new Period(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.scheduledPeriod = FhirResourceCreator.create(valueProvided, Period);
             }
         });
 
@@ -489,11 +422,8 @@ class CarePlanDetail extends Element {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                if (valueProvided instanceof Reference){
-                    this.__data.location = valueProvided;
-                } else {
-                    this.__data.location = new Reference(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.location = FhirResourceCreator.create(valueProvided, Reference);
             }
         });
 
@@ -512,19 +442,8 @@ class CarePlanDetail extends Element {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.performer = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Reference ?
-                                v : new Reference(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Reference) {
-                        this.__data.performer = valueProvided;
-                    } else {
-                        this.__data.performer = [new Reference(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.performer = FhirResourceCreator.createArray(valueProvided, Reference);
             }
         });
 
@@ -543,11 +462,8 @@ class CarePlanDetail extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                if (valueProvided instanceof CodeableConcept){
-                    this.__data.productCodeableConcept = valueProvided;
-                } else {
-                    this.__data.productCodeableConcept = new CodeableConcept(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.productCodeableConcept = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
 
@@ -566,11 +482,8 @@ class CarePlanDetail extends Element {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                if (valueProvided instanceof Reference){
-                    this.__data.productReference = valueProvided;
-                } else {
-                    this.__data.productReference = new Reference(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.productReference = FhirResourceCreator.create(valueProvided, Reference);
             }
         });
 
@@ -589,11 +502,8 @@ class CarePlanDetail extends Element {
                     return;
                 }
                 const Quantity = require('../complex_types/quantity.js');
-                if (valueProvided instanceof Quantity){
-                    this.__data.dailyAmount = valueProvided;
-                } else {
-                    this.__data.dailyAmount = new Quantity(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.dailyAmount = FhirResourceCreator.create(valueProvided, Quantity);
             }
         });
 
@@ -613,11 +523,8 @@ class CarePlanDetail extends Element {
                     return;
                 }
                 const Quantity = require('../complex_types/quantity.js');
-                if (valueProvided instanceof Quantity){
-                    this.__data.quantity = valueProvided;
-                } else {
-                    this.__data.quantity = new Quantity(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.quantity = FhirResourceCreator.create(valueProvided, Quantity);
             }
         });
 

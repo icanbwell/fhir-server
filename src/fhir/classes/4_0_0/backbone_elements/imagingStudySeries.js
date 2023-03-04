@@ -92,19 +92,8 @@ class ImagingStudySeries extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.extension = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Extension ?
-                                v : new Extension(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Extension) {
-                        this.__data.extension = valueProvided;
-                    } else {
-                        this.__data.extension = [new Extension(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -135,19 +124,8 @@ class ImagingStudySeries extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.modifierExtension = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Extension ?
-                                v : new Extension(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Extension) {
-                        this.__data.modifierExtension = valueProvided;
-                    } else {
-                        this.__data.modifierExtension = [new Extension(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -202,11 +180,8 @@ class ImagingStudySeries extends Element {
                     return;
                 }
                 const Coding = require('../complex_types/coding.js');
-                if (valueProvided instanceof Coding){
-                    this.__data.modality = valueProvided;
-                } else {
-                    this.__data.modality = new Coding(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.modality = FhirResourceCreator.create(valueProvided, Coding);
             }
         });
 
@@ -267,19 +242,8 @@ class ImagingStudySeries extends Element {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.endpoint = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Reference ?
-                                v : new Reference(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Reference) {
-                        this.__data.endpoint = valueProvided;
-                    } else {
-                        this.__data.endpoint = [new Reference(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.endpoint = FhirResourceCreator.createArray(valueProvided, Reference);
             }
         });
 
@@ -302,11 +266,8 @@ class ImagingStudySeries extends Element {
                     return;
                 }
                 const Coding = require('../complex_types/coding.js');
-                if (valueProvided instanceof Coding){
-                    this.__data.bodySite = valueProvided;
-                } else {
-                    this.__data.bodySite = new Coding(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.bodySite = FhirResourceCreator.create(valueProvided, Coding);
             }
         });
 
@@ -328,11 +289,8 @@ class ImagingStudySeries extends Element {
                     return;
                 }
                 const Coding = require('../complex_types/coding.js');
-                if (valueProvided instanceof Coding){
-                    this.__data.laterality = valueProvided;
-                } else {
-                    this.__data.laterality = new Coding(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.laterality = FhirResourceCreator.create(valueProvided, Coding);
             }
         });
 
@@ -351,19 +309,8 @@ class ImagingStudySeries extends Element {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.specimen = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Reference ?
-                                v : new Reference(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Reference) {
-                        this.__data.specimen = valueProvided;
-                    } else {
-                        this.__data.specimen = [new Reference(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.specimen = FhirResourceCreator.createArray(valueProvided, Reference);
             }
         });
 
@@ -400,19 +347,8 @@ class ImagingStudySeries extends Element {
                     return;
                 }
                 const ImagingStudyPerformer = require('../backbone_elements/imagingStudyPerformer.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.performer = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof ImagingStudyPerformer ?
-                                v : new ImagingStudyPerformer(v)
-                            );
-                } else {
-                    if (valueProvided instanceof ImagingStudyPerformer) {
-                        this.__data.performer = valueProvided;
-                    } else {
-                        this.__data.performer = [new ImagingStudyPerformer(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.performer = FhirResourceCreator.createArray(valueProvided, ImagingStudyPerformer);
             }
         });
 
@@ -431,19 +367,8 @@ class ImagingStudySeries extends Element {
                     return;
                 }
                 const ImagingStudyInstance = require('../backbone_elements/imagingStudyInstance.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.instance = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof ImagingStudyInstance ?
-                                v : new ImagingStudyInstance(v)
-                            );
-                } else {
-                    if (valueProvided instanceof ImagingStudyInstance) {
-                        this.__data.instance = valueProvided;
-                    } else {
-                        this.__data.instance = [new ImagingStudyInstance(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.instance = FhirResourceCreator.createArray(valueProvided, ImagingStudyInstance);
             }
         });
 

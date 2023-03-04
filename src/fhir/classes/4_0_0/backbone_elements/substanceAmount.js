@@ -83,19 +83,8 @@ class SubstanceAmount extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.extension = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Extension ?
-                                v : new Extension(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Extension) {
-                        this.__data.extension = valueProvided;
-                    } else {
-                        this.__data.extension = [new Extension(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -126,19 +115,8 @@ class SubstanceAmount extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.modifierExtension = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Extension ?
-                                v : new Extension(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Extension) {
-                        this.__data.modifierExtension = valueProvided;
-                    } else {
-                        this.__data.modifierExtension = [new Extension(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -157,11 +135,8 @@ class SubstanceAmount extends Element {
                     return;
                 }
                 const Quantity = require('../complex_types/quantity.js');
-                if (valueProvided instanceof Quantity){
-                    this.__data.amountQuantity = valueProvided;
-                } else {
-                    this.__data.amountQuantity = new Quantity(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.amountQuantity = FhirResourceCreator.create(valueProvided, Quantity);
             }
         });
 
@@ -180,11 +155,8 @@ class SubstanceAmount extends Element {
                     return;
                 }
                 const Range = require('../complex_types/range.js');
-                if (valueProvided instanceof Range){
-                    this.__data.amountRange = valueProvided;
-                } else {
-                    this.__data.amountRange = new Range(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.amountRange = FhirResourceCreator.create(valueProvided, Range);
             }
         });
 
@@ -227,11 +199,8 @@ class SubstanceAmount extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                if (valueProvided instanceof CodeableConcept){
-                    this.__data.amountType = valueProvided;
-                } else {
-                    this.__data.amountType = new CodeableConcept(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.amountType = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
 
@@ -268,11 +237,8 @@ class SubstanceAmount extends Element {
                     return;
                 }
                 const SubstanceAmountReferenceRange = require('../backbone_elements/substanceAmountReferenceRange.js');
-                if (valueProvided instanceof SubstanceAmountReferenceRange){
-                    this.__data.referenceRange = valueProvided;
-                } else {
-                    this.__data.referenceRange = new SubstanceAmountReferenceRange(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.referenceRange = FhirResourceCreator.create(valueProvided, SubstanceAmountReferenceRange);
             }
         });
 

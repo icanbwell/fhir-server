@@ -72,19 +72,8 @@ class RiskEvidenceSynthesisCertaintySubcomponent extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.extension = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Extension ?
-                                v : new Extension(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Extension) {
-                        this.__data.extension = valueProvided;
-                    } else {
-                        this.__data.extension = [new Extension(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -115,19 +104,8 @@ class RiskEvidenceSynthesisCertaintySubcomponent extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.modifierExtension = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Extension ?
-                                v : new Extension(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Extension) {
-                        this.__data.modifierExtension = valueProvided;
-                    } else {
-                        this.__data.modifierExtension = [new Extension(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -146,11 +124,8 @@ class RiskEvidenceSynthesisCertaintySubcomponent extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                if (valueProvided instanceof CodeableConcept){
-                    this.__data.type = valueProvided;
-                } else {
-                    this.__data.type = new CodeableConcept(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.type = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
 
@@ -169,19 +144,8 @@ class RiskEvidenceSynthesisCertaintySubcomponent extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.rating = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof CodeableConcept ?
-                                v : new CodeableConcept(v)
-                            );
-                } else {
-                    if (valueProvided instanceof CodeableConcept) {
-                        this.__data.rating = valueProvided;
-                    } else {
-                        this.__data.rating = [new CodeableConcept(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.rating = FhirResourceCreator.createArray(valueProvided, CodeableConcept);
             }
         });
 
@@ -200,19 +164,8 @@ class RiskEvidenceSynthesisCertaintySubcomponent extends Element {
                     return;
                 }
                 const Annotation = require('../complex_types/annotation.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.note = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Annotation ?
-                                v : new Annotation(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Annotation) {
-                        this.__data.note = valueProvided;
-                    } else {
-                        this.__data.note = [new Annotation(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.note = FhirResourceCreator.createArray(valueProvided, Annotation);
             }
         });
 

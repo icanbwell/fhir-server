@@ -95,19 +95,8 @@ class EvidenceVariableCharacteristic extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.extension = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Extension ?
-                                v : new Extension(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Extension) {
-                        this.__data.extension = valueProvided;
-                    } else {
-                        this.__data.extension = [new Extension(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -138,19 +127,8 @@ class EvidenceVariableCharacteristic extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.modifierExtension = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Extension ?
-                                v : new Extension(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Extension) {
-                        this.__data.modifierExtension = valueProvided;
-                    } else {
-                        this.__data.modifierExtension = [new Extension(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -188,11 +166,8 @@ class EvidenceVariableCharacteristic extends Element {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                if (valueProvided instanceof Reference){
-                    this.__data.definitionReference = valueProvided;
-                } else {
-                    this.__data.definitionReference = new Reference(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.definitionReference = FhirResourceCreator.create(valueProvided, Reference);
             }
         });
 
@@ -229,11 +204,8 @@ class EvidenceVariableCharacteristic extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                if (valueProvided instanceof CodeableConcept){
-                    this.__data.definitionCodeableConcept = valueProvided;
-                } else {
-                    this.__data.definitionCodeableConcept = new CodeableConcept(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.definitionCodeableConcept = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
 
@@ -252,11 +224,8 @@ class EvidenceVariableCharacteristic extends Element {
                     return;
                 }
                 const Expression = require('../complex_types/expression.js');
-                if (valueProvided instanceof Expression){
-                    this.__data.definitionExpression = valueProvided;
-                } else {
-                    this.__data.definitionExpression = new Expression(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.definitionExpression = FhirResourceCreator.create(valueProvided, Expression);
             }
         });
 
@@ -275,11 +244,8 @@ class EvidenceVariableCharacteristic extends Element {
                     return;
                 }
                 const DataRequirement = require('../complex_types/dataRequirement.js');
-                if (valueProvided instanceof DataRequirement){
-                    this.__data.definitionDataRequirement = valueProvided;
-                } else {
-                    this.__data.definitionDataRequirement = new DataRequirement(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.definitionDataRequirement = FhirResourceCreator.create(valueProvided, DataRequirement);
             }
         });
 
@@ -298,11 +264,8 @@ class EvidenceVariableCharacteristic extends Element {
                     return;
                 }
                 const TriggerDefinition = require('../complex_types/triggerDefinition.js');
-                if (valueProvided instanceof TriggerDefinition){
-                    this.__data.definitionTriggerDefinition = valueProvided;
-                } else {
-                    this.__data.definitionTriggerDefinition = new TriggerDefinition(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.definitionTriggerDefinition = FhirResourceCreator.create(valueProvided, TriggerDefinition);
             }
         });
 
@@ -322,19 +285,8 @@ class EvidenceVariableCharacteristic extends Element {
                     return;
                 }
                 const UsageContext = require('../complex_types/usageContext.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.usageContext = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof UsageContext ?
-                                v : new UsageContext(v)
-                            );
-                } else {
-                    if (valueProvided instanceof UsageContext) {
-                        this.__data.usageContext = valueProvided;
-                    } else {
-                        this.__data.usageContext = [new UsageContext(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.usageContext = FhirResourceCreator.createArray(valueProvided, UsageContext);
             }
         });
 
@@ -389,11 +341,8 @@ class EvidenceVariableCharacteristic extends Element {
                     return;
                 }
                 const Period = require('../complex_types/period.js');
-                if (valueProvided instanceof Period){
-                    this.__data.participantEffectivePeriod = valueProvided;
-                } else {
-                    this.__data.participantEffectivePeriod = new Period(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.participantEffectivePeriod = FhirResourceCreator.create(valueProvided, Period);
             }
         });
 
@@ -412,11 +361,8 @@ class EvidenceVariableCharacteristic extends Element {
                     return;
                 }
                 const Quantity = require('../complex_types/quantity.js');
-                if (valueProvided instanceof Quantity){
-                    this.__data.participantEffectiveDuration = valueProvided;
-                } else {
-                    this.__data.participantEffectiveDuration = new Quantity(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.participantEffectiveDuration = FhirResourceCreator.create(valueProvided, Quantity);
             }
         });
 
@@ -435,11 +381,8 @@ class EvidenceVariableCharacteristic extends Element {
                     return;
                 }
                 const Timing = require('../backbone_elements/timing.js');
-                if (valueProvided instanceof Timing){
-                    this.__data.participantEffectiveTiming = valueProvided;
-                } else {
-                    this.__data.participantEffectiveTiming = new Timing(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.participantEffectiveTiming = FhirResourceCreator.create(valueProvided, Timing);
             }
         });
 
@@ -458,11 +401,8 @@ class EvidenceVariableCharacteristic extends Element {
                     return;
                 }
                 const Quantity = require('../complex_types/quantity.js');
-                if (valueProvided instanceof Quantity){
-                    this.__data.timeFromStart = valueProvided;
-                } else {
-                    this.__data.timeFromStart = new Quantity(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.timeFromStart = FhirResourceCreator.create(valueProvided, Quantity);
             }
         });
 

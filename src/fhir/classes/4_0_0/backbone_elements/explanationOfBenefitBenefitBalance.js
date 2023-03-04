@@ -82,19 +82,8 @@ class ExplanationOfBenefitBenefitBalance extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.extension = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Extension ?
-                                v : new Extension(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Extension) {
-                        this.__data.extension = valueProvided;
-                    } else {
-                        this.__data.extension = [new Extension(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -125,19 +114,8 @@ class ExplanationOfBenefitBenefitBalance extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.modifierExtension = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Extension ?
-                                v : new Extension(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Extension) {
-                        this.__data.modifierExtension = valueProvided;
-                    } else {
-                        this.__data.modifierExtension = [new Extension(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -157,11 +135,8 @@ class ExplanationOfBenefitBenefitBalance extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                if (valueProvided instanceof CodeableConcept){
-                    this.__data.category = valueProvided;
-                } else {
-                    this.__data.category = new CodeableConcept(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.category = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
 
@@ -236,11 +211,8 @@ class ExplanationOfBenefitBenefitBalance extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                if (valueProvided instanceof CodeableConcept){
-                    this.__data.network = valueProvided;
-                } else {
-                    this.__data.network = new CodeableConcept(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.network = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
 
@@ -259,11 +231,8 @@ class ExplanationOfBenefitBenefitBalance extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                if (valueProvided instanceof CodeableConcept){
-                    this.__data.unit = valueProvided;
-                } else {
-                    this.__data.unit = new CodeableConcept(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.unit = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
 
@@ -283,11 +252,8 @@ class ExplanationOfBenefitBenefitBalance extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                if (valueProvided instanceof CodeableConcept){
-                    this.__data.term = valueProvided;
-                } else {
-                    this.__data.term = new CodeableConcept(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.term = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
 
@@ -306,19 +272,8 @@ class ExplanationOfBenefitBenefitBalance extends Element {
                     return;
                 }
                 const ExplanationOfBenefitFinancial = require('../backbone_elements/explanationOfBenefitFinancial.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.financial = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof ExplanationOfBenefitFinancial ?
-                                v : new ExplanationOfBenefitFinancial(v)
-                            );
-                } else {
-                    if (valueProvided instanceof ExplanationOfBenefitFinancial) {
-                        this.__data.financial = valueProvided;
-                    } else {
-                        this.__data.financial = [new ExplanationOfBenefitFinancial(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.financial = FhirResourceCreator.createArray(valueProvided, ExplanationOfBenefitFinancial);
             }
         });
 

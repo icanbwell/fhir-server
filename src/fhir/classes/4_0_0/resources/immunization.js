@@ -140,11 +140,8 @@ class Immunization extends Resource {
                     return;
                 }
                 const Meta = require('../complex_types/meta.js');
-                if (valueProvided instanceof Meta){
-                    this.__data.meta = valueProvided;
-                } else {
-                    this.__data.meta = new Meta(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.meta = FhirResourceCreator.create(valueProvided, Meta);
             }
         });
 
@@ -207,11 +204,8 @@ class Immunization extends Resource {
                     return;
                 }
                 const Narrative = require('../complex_types/narrative.js');
-                if (valueProvided instanceof Narrative){
-                    this.__data.text = valueProvided;
-                } else {
-                    this.__data.text = new Narrative(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.text = FhirResourceCreator.create(valueProvided, Narrative);
             }
         });
 
@@ -232,23 +226,8 @@ class Immunization extends Resource {
                     return;
                 }
                 const ResourceContainer = require('../simple_types/resourceContainer.js');
-                const {getResource} = require('../../../../operations/common/getResource');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.contained = valueProvided.filter(v => v).map(v => {
-                        if (v instanceof Resource) {
-                            return v;
-                        }
-                        const ResourceCreator = getResource('4_0_0', v.resourceType);
-                        return new ResourceCreator(v);
-                    });
-                } else {
-                    if (valueProvided instanceof Resource) {
-                        this.__data.contained = [valueProvided];
-                    } else {
-                        const ResourceCreator = getResource('4_0_0', valueProvided.resourceType);
-                        this.__data.contained = [new ResourceCreator(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.contained = FhirResourceCreator.createArray(valueProvided);
             }
         });
 
@@ -271,19 +250,8 @@ class Immunization extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.extension = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Extension ?
-                                v : new Extension(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Extension) {
-                        this.__data.extension = valueProvided;
-                    } else {
-                        this.__data.extension = [new Extension(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -314,19 +282,8 @@ class Immunization extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.modifierExtension = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Extension ?
-                                v : new Extension(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Extension) {
-                        this.__data.modifierExtension = valueProvided;
-                    } else {
-                        this.__data.modifierExtension = [new Extension(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -345,19 +302,8 @@ class Immunization extends Resource {
                     return;
                 }
                 const Identifier = require('../complex_types/identifier.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.identifier = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Identifier ?
-                                v : new Identifier(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Identifier) {
-                        this.__data.identifier = valueProvided;
-                    } else {
-                        this.__data.identifier = [new Identifier(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.identifier = FhirResourceCreator.createArray(valueProvided, Identifier);
             }
         });
 
@@ -394,11 +340,8 @@ class Immunization extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                if (valueProvided instanceof CodeableConcept){
-                    this.__data.statusReason = valueProvided;
-                } else {
-                    this.__data.statusReason = new CodeableConcept(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.statusReason = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
 
@@ -417,11 +360,8 @@ class Immunization extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                if (valueProvided instanceof CodeableConcept){
-                    this.__data.vaccineCode = valueProvided;
-                } else {
-                    this.__data.vaccineCode = new CodeableConcept(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.vaccineCode = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
 
@@ -440,11 +380,8 @@ class Immunization extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                if (valueProvided instanceof Reference){
-                    this.__data.patient = valueProvided;
-                } else {
-                    this.__data.patient = new Reference(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.patient = FhirResourceCreator.create(valueProvided, Reference);
             }
         });
 
@@ -464,11 +401,8 @@ class Immunization extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                if (valueProvided instanceof Reference){
-                    this.__data.encounter = valueProvided;
-                } else {
-                    this.__data.encounter = new Reference(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.encounter = FhirResourceCreator.create(valueProvided, Reference);
             }
         });
 
@@ -563,11 +497,8 @@ class Immunization extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                if (valueProvided instanceof CodeableConcept){
-                    this.__data.reportOrigin = valueProvided;
-                } else {
-                    this.__data.reportOrigin = new CodeableConcept(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.reportOrigin = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
 
@@ -586,11 +517,8 @@ class Immunization extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                if (valueProvided instanceof Reference){
-                    this.__data.location = valueProvided;
-                } else {
-                    this.__data.location = new Reference(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.location = FhirResourceCreator.create(valueProvided, Reference);
             }
         });
 
@@ -609,11 +537,8 @@ class Immunization extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                if (valueProvided instanceof Reference){
-                    this.__data.manufacturer = valueProvided;
-                } else {
-                    this.__data.manufacturer = new Reference(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.manufacturer = FhirResourceCreator.create(valueProvided, Reference);
             }
         });
 
@@ -668,11 +593,8 @@ class Immunization extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                if (valueProvided instanceof CodeableConcept){
-                    this.__data.site = valueProvided;
-                } else {
-                    this.__data.site = new CodeableConcept(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.site = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
 
@@ -691,11 +613,8 @@ class Immunization extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                if (valueProvided instanceof CodeableConcept){
-                    this.__data.route = valueProvided;
-                } else {
-                    this.__data.route = new CodeableConcept(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.route = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
 
@@ -714,11 +633,8 @@ class Immunization extends Resource {
                     return;
                 }
                 const Quantity = require('../complex_types/quantity.js');
-                if (valueProvided instanceof Quantity){
-                    this.__data.doseQuantity = valueProvided;
-                } else {
-                    this.__data.doseQuantity = new Quantity(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.doseQuantity = FhirResourceCreator.create(valueProvided, Quantity);
             }
         });
 
@@ -737,19 +653,8 @@ class Immunization extends Resource {
                     return;
                 }
                 const ImmunizationPerformer = require('../backbone_elements/immunizationPerformer.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.performer = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof ImmunizationPerformer ?
-                                v : new ImmunizationPerformer(v)
-                            );
-                } else {
-                    if (valueProvided instanceof ImmunizationPerformer) {
-                        this.__data.performer = valueProvided;
-                    } else {
-                        this.__data.performer = [new ImmunizationPerformer(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.performer = FhirResourceCreator.createArray(valueProvided, ImmunizationPerformer);
             }
         });
 
@@ -769,19 +674,8 @@ class Immunization extends Resource {
                     return;
                 }
                 const Annotation = require('../complex_types/annotation.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.note = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Annotation ?
-                                v : new Annotation(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Annotation) {
-                        this.__data.note = valueProvided;
-                    } else {
-                        this.__data.note = [new Annotation(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.note = FhirResourceCreator.createArray(valueProvided, Annotation);
             }
         });
 
@@ -800,19 +694,8 @@ class Immunization extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.reasonCode = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof CodeableConcept ?
-                                v : new CodeableConcept(v)
-                            );
-                } else {
-                    if (valueProvided instanceof CodeableConcept) {
-                        this.__data.reasonCode = valueProvided;
-                    } else {
-                        this.__data.reasonCode = [new CodeableConcept(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.reasonCode = FhirResourceCreator.createArray(valueProvided, CodeableConcept);
             }
         });
 
@@ -832,19 +715,8 @@ class Immunization extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.reasonReference = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Reference ?
-                                v : new Reference(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Reference) {
-                        this.__data.reasonReference = valueProvided;
-                    } else {
-                        this.__data.reasonReference = [new Reference(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.reasonReference = FhirResourceCreator.createArray(valueProvided, Reference);
             }
         });
 
@@ -882,19 +754,8 @@ class Immunization extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.subpotentReason = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof CodeableConcept ?
-                                v : new CodeableConcept(v)
-                            );
-                } else {
-                    if (valueProvided instanceof CodeableConcept) {
-                        this.__data.subpotentReason = valueProvided;
-                    } else {
-                        this.__data.subpotentReason = [new CodeableConcept(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.subpotentReason = FhirResourceCreator.createArray(valueProvided, CodeableConcept);
             }
         });
 
@@ -914,19 +775,8 @@ class Immunization extends Resource {
                     return;
                 }
                 const ImmunizationEducation = require('../backbone_elements/immunizationEducation.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.education = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof ImmunizationEducation ?
-                                v : new ImmunizationEducation(v)
-                            );
-                } else {
-                    if (valueProvided instanceof ImmunizationEducation) {
-                        this.__data.education = valueProvided;
-                    } else {
-                        this.__data.education = [new ImmunizationEducation(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.education = FhirResourceCreator.createArray(valueProvided, ImmunizationEducation);
             }
         });
 
@@ -945,19 +795,8 @@ class Immunization extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.programEligibility = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof CodeableConcept ?
-                                v : new CodeableConcept(v)
-                            );
-                } else {
-                    if (valueProvided instanceof CodeableConcept) {
-                        this.__data.programEligibility = valueProvided;
-                    } else {
-                        this.__data.programEligibility = [new CodeableConcept(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.programEligibility = FhirResourceCreator.createArray(valueProvided, CodeableConcept);
             }
         });
 
@@ -979,11 +818,8 @@ class Immunization extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                if (valueProvided instanceof CodeableConcept){
-                    this.__data.fundingSource = valueProvided;
-                } else {
-                    this.__data.fundingSource = new CodeableConcept(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.fundingSource = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
 
@@ -1003,19 +839,8 @@ class Immunization extends Resource {
                     return;
                 }
                 const ImmunizationReaction = require('../backbone_elements/immunizationReaction.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.reaction = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof ImmunizationReaction ?
-                                v : new ImmunizationReaction(v)
-                            );
-                } else {
-                    if (valueProvided instanceof ImmunizationReaction) {
-                        this.__data.reaction = valueProvided;
-                    } else {
-                        this.__data.reaction = [new ImmunizationReaction(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.reaction = FhirResourceCreator.createArray(valueProvided, ImmunizationReaction);
             }
         });
 
@@ -1035,19 +860,8 @@ class Immunization extends Resource {
                     return;
                 }
                 const ImmunizationProtocolApplied = require('../backbone_elements/immunizationProtocolApplied.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.protocolApplied = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof ImmunizationProtocolApplied ?
-                                v : new ImmunizationProtocolApplied(v)
-                            );
-                } else {
-                    if (valueProvided instanceof ImmunizationProtocolApplied) {
-                        this.__data.protocolApplied = valueProvided;
-                    } else {
-                        this.__data.protocolApplied = [new ImmunizationProtocolApplied(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.protocolApplied = FhirResourceCreator.createArray(valueProvided, ImmunizationProtocolApplied);
             }
         });
 

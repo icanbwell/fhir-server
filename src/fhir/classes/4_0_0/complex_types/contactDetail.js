@@ -68,19 +68,8 @@ class ContactDetail extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.extension = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Extension ?
-                                v : new Extension(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Extension) {
-                        this.__data.extension = valueProvided;
-                    } else {
-                        this.__data.extension = [new Extension(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -118,19 +107,8 @@ class ContactDetail extends Element {
                     return;
                 }
                 const ContactPoint = require('../complex_types/contactPoint.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.telecom = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof ContactPoint ?
-                                v : new ContactPoint(v)
-                            );
-                } else {
-                    if (valueProvided instanceof ContactPoint) {
-                        this.__data.telecom = valueProvided;
-                    } else {
-                        this.__data.telecom = [new ContactPoint(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.telecom = FhirResourceCreator.createArray(valueProvided, ContactPoint);
             }
         });
 

@@ -105,11 +105,8 @@ class AuditEvent extends Resource {
                     return;
                 }
                 const Meta = require('../complex_types/meta.js');
-                if (valueProvided instanceof Meta){
-                    this.__data.meta = valueProvided;
-                } else {
-                    this.__data.meta = new Meta(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.meta = FhirResourceCreator.create(valueProvided, Meta);
             }
         });
 
@@ -172,11 +169,8 @@ class AuditEvent extends Resource {
                     return;
                 }
                 const Narrative = require('../complex_types/narrative.js');
-                if (valueProvided instanceof Narrative){
-                    this.__data.text = valueProvided;
-                } else {
-                    this.__data.text = new Narrative(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.text = FhirResourceCreator.create(valueProvided, Narrative);
             }
         });
 
@@ -197,23 +191,8 @@ class AuditEvent extends Resource {
                     return;
                 }
                 const ResourceContainer = require('../simple_types/resourceContainer.js');
-                const {getResource} = require('../../../../operations/common/getResource');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.contained = valueProvided.filter(v => v).map(v => {
-                        if (v instanceof Resource) {
-                            return v;
-                        }
-                        const ResourceCreator = getResource('4_0_0', v.resourceType);
-                        return new ResourceCreator(v);
-                    });
-                } else {
-                    if (valueProvided instanceof Resource) {
-                        this.__data.contained = [valueProvided];
-                    } else {
-                        const ResourceCreator = getResource('4_0_0', valueProvided.resourceType);
-                        this.__data.contained = [new ResourceCreator(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.contained = FhirResourceCreator.createArray(valueProvided);
             }
         });
 
@@ -236,19 +215,8 @@ class AuditEvent extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.extension = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Extension ?
-                                v : new Extension(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Extension) {
-                        this.__data.extension = valueProvided;
-                    } else {
-                        this.__data.extension = [new Extension(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -279,19 +247,8 @@ class AuditEvent extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.modifierExtension = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Extension ?
-                                v : new Extension(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Extension) {
-                        this.__data.modifierExtension = valueProvided;
-                    } else {
-                        this.__data.modifierExtension = [new Extension(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -312,11 +269,8 @@ class AuditEvent extends Resource {
                     return;
                 }
                 const Coding = require('../complex_types/coding.js');
-                if (valueProvided instanceof Coding){
-                    this.__data.type = valueProvided;
-                } else {
-                    this.__data.type = new Coding(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.type = FhirResourceCreator.create(valueProvided, Coding);
             }
         });
 
@@ -335,19 +289,8 @@ class AuditEvent extends Resource {
                     return;
                 }
                 const Coding = require('../complex_types/coding.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.subtype = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Coding ?
-                                v : new Coding(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Coding) {
-                        this.__data.subtype = valueProvided;
-                    } else {
-                        this.__data.subtype = [new Coding(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.subtype = FhirResourceCreator.createArray(valueProvided, Coding);
             }
         });
 
@@ -385,11 +328,8 @@ class AuditEvent extends Resource {
                     return;
                 }
                 const Period = require('../complex_types/period.js');
-                if (valueProvided instanceof Period){
-                    this.__data.period = valueProvided;
-                } else {
-                    this.__data.period = new Period(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.period = FhirResourceCreator.create(valueProvided, Period);
             }
         });
 
@@ -462,19 +402,8 @@ class AuditEvent extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.purposeOfEvent = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof CodeableConcept ?
-                                v : new CodeableConcept(v)
-                            );
-                } else {
-                    if (valueProvided instanceof CodeableConcept) {
-                        this.__data.purposeOfEvent = valueProvided;
-                    } else {
-                        this.__data.purposeOfEvent = [new CodeableConcept(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.purposeOfEvent = FhirResourceCreator.createArray(valueProvided, CodeableConcept);
             }
         });
 
@@ -493,19 +422,8 @@ class AuditEvent extends Resource {
                     return;
                 }
                 const AuditEventAgent = require('../backbone_elements/auditEventAgent.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.agent = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof AuditEventAgent ?
-                                v : new AuditEventAgent(v)
-                            );
-                } else {
-                    if (valueProvided instanceof AuditEventAgent) {
-                        this.__data.agent = valueProvided;
-                    } else {
-                        this.__data.agent = [new AuditEventAgent(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.agent = FhirResourceCreator.createArray(valueProvided, AuditEventAgent);
             }
         });
 
@@ -524,11 +442,8 @@ class AuditEvent extends Resource {
                     return;
                 }
                 const AuditEventSource = require('../backbone_elements/auditEventSource.js');
-                if (valueProvided instanceof AuditEventSource){
-                    this.__data.source = valueProvided;
-                } else {
-                    this.__data.source = new AuditEventSource(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.source = FhirResourceCreator.create(valueProvided, AuditEventSource);
             }
         });
 
@@ -547,19 +462,8 @@ class AuditEvent extends Resource {
                     return;
                 }
                 const AuditEventEntity = require('../backbone_elements/auditEventEntity.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.entity = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof AuditEventEntity ?
-                                v : new AuditEventEntity(v)
-                            );
-                } else {
-                    if (valueProvided instanceof AuditEventEntity) {
-                        this.__data.entity = valueProvided;
-                    } else {
-                        this.__data.entity = [new AuditEventEntity(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.entity = FhirResourceCreator.createArray(valueProvided, AuditEventEntity);
             }
         });
 

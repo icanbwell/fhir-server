@@ -81,19 +81,8 @@ class FamilyMemberHistoryCondition extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.extension = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Extension ?
-                                v : new Extension(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Extension) {
-                        this.__data.extension = valueProvided;
-                    } else {
-                        this.__data.extension = [new Extension(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -124,19 +113,8 @@ class FamilyMemberHistoryCondition extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.modifierExtension = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Extension ?
-                                v : new Extension(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Extension) {
-                        this.__data.modifierExtension = valueProvided;
-                    } else {
-                        this.__data.modifierExtension = [new Extension(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -157,11 +135,8 @@ class FamilyMemberHistoryCondition extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                if (valueProvided instanceof CodeableConcept){
-                    this.__data.code = valueProvided;
-                } else {
-                    this.__data.code = new CodeableConcept(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.code = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
 
@@ -181,11 +156,8 @@ class FamilyMemberHistoryCondition extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                if (valueProvided instanceof CodeableConcept){
-                    this.__data.outcome = valueProvided;
-                } else {
-                    this.__data.outcome = new CodeableConcept(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.outcome = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
 
@@ -223,11 +195,8 @@ class FamilyMemberHistoryCondition extends Element {
                     return;
                 }
                 const Quantity = require('../complex_types/quantity.js');
-                if (valueProvided instanceof Quantity){
-                    this.__data.onsetAge = valueProvided;
-                } else {
-                    this.__data.onsetAge = new Quantity(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.onsetAge = FhirResourceCreator.create(valueProvided, Quantity);
             }
         });
 
@@ -246,11 +215,8 @@ class FamilyMemberHistoryCondition extends Element {
                     return;
                 }
                 const Range = require('../complex_types/range.js');
-                if (valueProvided instanceof Range){
-                    this.__data.onsetRange = valueProvided;
-                } else {
-                    this.__data.onsetRange = new Range(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.onsetRange = FhirResourceCreator.create(valueProvided, Range);
             }
         });
 
@@ -269,11 +235,8 @@ class FamilyMemberHistoryCondition extends Element {
                     return;
                 }
                 const Period = require('../complex_types/period.js');
-                if (valueProvided instanceof Period){
-                    this.__data.onsetPeriod = valueProvided;
-                } else {
-                    this.__data.onsetPeriod = new Period(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.onsetPeriod = FhirResourceCreator.create(valueProvided, Period);
             }
         });
 
@@ -310,19 +273,8 @@ class FamilyMemberHistoryCondition extends Element {
                     return;
                 }
                 const Annotation = require('../complex_types/annotation.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.note = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Annotation ?
-                                v : new Annotation(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Annotation) {
-                        this.__data.note = valueProvided;
-                    } else {
-                        this.__data.note = [new Annotation(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.note = FhirResourceCreator.createArray(valueProvided, Annotation);
             }
         });
 

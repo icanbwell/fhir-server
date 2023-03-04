@@ -77,19 +77,8 @@ class NutritionOrderOralDiet extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.extension = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Extension ?
-                                v : new Extension(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Extension) {
-                        this.__data.extension = valueProvided;
-                    } else {
-                        this.__data.extension = [new Extension(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -120,19 +109,8 @@ class NutritionOrderOralDiet extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.modifierExtension = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Extension ?
-                                v : new Extension(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Extension) {
-                        this.__data.modifierExtension = valueProvided;
-                    } else {
-                        this.__data.modifierExtension = [new Extension(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -152,19 +130,8 @@ class NutritionOrderOralDiet extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.type = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof CodeableConcept ?
-                                v : new CodeableConcept(v)
-                            );
-                } else {
-                    if (valueProvided instanceof CodeableConcept) {
-                        this.__data.type = valueProvided;
-                    } else {
-                        this.__data.type = [new CodeableConcept(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.type = FhirResourceCreator.createArray(valueProvided, CodeableConcept);
             }
         });
 
@@ -185,19 +152,8 @@ class NutritionOrderOralDiet extends Element {
                     return;
                 }
                 const Timing = require('../backbone_elements/timing.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.schedule = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Timing ?
-                                v : new Timing(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Timing) {
-                        this.__data.schedule = valueProvided;
-                    } else {
-                        this.__data.schedule = [new Timing(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.schedule = FhirResourceCreator.createArray(valueProvided, Timing);
             }
         });
 
@@ -217,19 +173,8 @@ class NutritionOrderOralDiet extends Element {
                     return;
                 }
                 const NutritionOrderNutrient = require('../backbone_elements/nutritionOrderNutrient.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.nutrient = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof NutritionOrderNutrient ?
-                                v : new NutritionOrderNutrient(v)
-                            );
-                } else {
-                    if (valueProvided instanceof NutritionOrderNutrient) {
-                        this.__data.nutrient = valueProvided;
-                    } else {
-                        this.__data.nutrient = [new NutritionOrderNutrient(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.nutrient = FhirResourceCreator.createArray(valueProvided, NutritionOrderNutrient);
             }
         });
 
@@ -249,19 +194,8 @@ class NutritionOrderOralDiet extends Element {
                     return;
                 }
                 const NutritionOrderTexture = require('../backbone_elements/nutritionOrderTexture.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.texture = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof NutritionOrderTexture ?
-                                v : new NutritionOrderTexture(v)
-                            );
-                } else {
-                    if (valueProvided instanceof NutritionOrderTexture) {
-                        this.__data.texture = valueProvided;
-                    } else {
-                        this.__data.texture = [new NutritionOrderTexture(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.texture = FhirResourceCreator.createArray(valueProvided, NutritionOrderTexture);
             }
         });
 
@@ -281,19 +215,8 @@ class NutritionOrderOralDiet extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.fluidConsistencyType = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof CodeableConcept ?
-                                v : new CodeableConcept(v)
-                            );
-                } else {
-                    if (valueProvided instanceof CodeableConcept) {
-                        this.__data.fluidConsistencyType = valueProvided;
-                    } else {
-                        this.__data.fluidConsistencyType = [new CodeableConcept(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.fluidConsistencyType = FhirResourceCreator.createArray(valueProvided, CodeableConcept);
             }
         });
 

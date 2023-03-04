@@ -93,19 +93,8 @@ class CoverageEligibilityResponseItem extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.extension = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Extension ?
-                                v : new Extension(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Extension) {
-                        this.__data.extension = valueProvided;
-                    } else {
-                        this.__data.extension = [new Extension(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -136,19 +125,8 @@ class CoverageEligibilityResponseItem extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.modifierExtension = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Extension ?
-                                v : new Extension(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Extension) {
-                        this.__data.modifierExtension = valueProvided;
-                    } else {
-                        this.__data.modifierExtension = [new Extension(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -168,11 +146,8 @@ class CoverageEligibilityResponseItem extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                if (valueProvided instanceof CodeableConcept){
-                    this.__data.category = valueProvided;
-                } else {
-                    this.__data.category = new CodeableConcept(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.category = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
 
@@ -191,11 +166,8 @@ class CoverageEligibilityResponseItem extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                if (valueProvided instanceof CodeableConcept){
-                    this.__data.productOrService = valueProvided;
-                } else {
-                    this.__data.productOrService = new CodeableConcept(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.productOrService = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
 
@@ -215,19 +187,8 @@ class CoverageEligibilityResponseItem extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.modifier = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof CodeableConcept ?
-                                v : new CodeableConcept(v)
-                            );
-                } else {
-                    if (valueProvided instanceof CodeableConcept) {
-                        this.__data.modifier = valueProvided;
-                    } else {
-                        this.__data.modifier = [new CodeableConcept(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.modifier = FhirResourceCreator.createArray(valueProvided, CodeableConcept);
             }
         });
 
@@ -246,11 +207,8 @@ class CoverageEligibilityResponseItem extends Element {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                if (valueProvided instanceof Reference){
-                    this.__data.provider = valueProvided;
-                } else {
-                    this.__data.provider = new Reference(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.provider = FhirResourceCreator.create(valueProvided, Reference);
             }
         });
 
@@ -325,11 +283,8 @@ class CoverageEligibilityResponseItem extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                if (valueProvided instanceof CodeableConcept){
-                    this.__data.network = valueProvided;
-                } else {
-                    this.__data.network = new CodeableConcept(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.network = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
 
@@ -348,11 +303,8 @@ class CoverageEligibilityResponseItem extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                if (valueProvided instanceof CodeableConcept){
-                    this.__data.unit = valueProvided;
-                } else {
-                    this.__data.unit = new CodeableConcept(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.unit = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
 
@@ -372,11 +324,8 @@ class CoverageEligibilityResponseItem extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                if (valueProvided instanceof CodeableConcept){
-                    this.__data.term = valueProvided;
-                } else {
-                    this.__data.term = new CodeableConcept(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.term = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
 
@@ -395,19 +344,8 @@ class CoverageEligibilityResponseItem extends Element {
                     return;
                 }
                 const CoverageEligibilityResponseBenefit = require('../backbone_elements/coverageEligibilityResponseBenefit.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.benefit = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof CoverageEligibilityResponseBenefit ?
-                                v : new CoverageEligibilityResponseBenefit(v)
-                            );
-                } else {
-                    if (valueProvided instanceof CoverageEligibilityResponseBenefit) {
-                        this.__data.benefit = valueProvided;
-                    } else {
-                        this.__data.benefit = [new CoverageEligibilityResponseBenefit(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.benefit = FhirResourceCreator.createArray(valueProvided, CoverageEligibilityResponseBenefit);
             }
         });
 
@@ -446,19 +384,8 @@ class CoverageEligibilityResponseItem extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.authorizationSupporting = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof CodeableConcept ?
-                                v : new CodeableConcept(v)
-                            );
-                } else {
-                    if (valueProvided instanceof CodeableConcept) {
-                        this.__data.authorizationSupporting = valueProvided;
-                    } else {
-                        this.__data.authorizationSupporting = [new CodeableConcept(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.authorizationSupporting = FhirResourceCreator.createArray(valueProvided, CodeableConcept);
             }
         });
 

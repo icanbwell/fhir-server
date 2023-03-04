@@ -81,19 +81,8 @@ class RiskAssessmentPrediction extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.extension = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Extension ?
-                                v : new Extension(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Extension) {
-                        this.__data.extension = valueProvided;
-                    } else {
-                        this.__data.extension = [new Extension(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -124,19 +113,8 @@ class RiskAssessmentPrediction extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.modifierExtension = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Extension ?
-                                v : new Extension(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Extension) {
-                        this.__data.modifierExtension = valueProvided;
-                    } else {
-                        this.__data.modifierExtension = [new Extension(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -156,11 +134,8 @@ class RiskAssessmentPrediction extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                if (valueProvided instanceof CodeableConcept){
-                    this.__data.outcome = valueProvided;
-                } else {
-                    this.__data.outcome = new CodeableConcept(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.outcome = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
 
@@ -197,11 +172,8 @@ class RiskAssessmentPrediction extends Element {
                     return;
                 }
                 const Range = require('../complex_types/range.js');
-                if (valueProvided instanceof Range){
-                    this.__data.probabilityRange = valueProvided;
-                } else {
-                    this.__data.probabilityRange = new Range(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.probabilityRange = FhirResourceCreator.create(valueProvided, Range);
             }
         });
 
@@ -221,11 +193,8 @@ class RiskAssessmentPrediction extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                if (valueProvided instanceof CodeableConcept){
-                    this.__data.qualitativeRisk = valueProvided;
-                } else {
-                    this.__data.qualitativeRisk = new CodeableConcept(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.qualitativeRisk = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
 
@@ -265,11 +234,8 @@ class RiskAssessmentPrediction extends Element {
                     return;
                 }
                 const Period = require('../complex_types/period.js');
-                if (valueProvided instanceof Period){
-                    this.__data.whenPeriod = valueProvided;
-                } else {
-                    this.__data.whenPeriod = new Period(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.whenPeriod = FhirResourceCreator.create(valueProvided, Period);
             }
         });
 
@@ -288,11 +254,8 @@ class RiskAssessmentPrediction extends Element {
                     return;
                 }
                 const Range = require('../complex_types/range.js');
-                if (valueProvided instanceof Range){
-                    this.__data.whenRange = valueProvided;
-                } else {
-                    this.__data.whenRange = new Range(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.whenRange = FhirResourceCreator.create(valueProvided, Range);
             }
         });
 

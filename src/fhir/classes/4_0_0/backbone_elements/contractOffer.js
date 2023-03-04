@@ -85,19 +85,8 @@ class ContractOffer extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.extension = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Extension ?
-                                v : new Extension(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Extension) {
-                        this.__data.extension = valueProvided;
-                    } else {
-                        this.__data.extension = [new Extension(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -128,19 +117,8 @@ class ContractOffer extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.modifierExtension = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Extension ?
-                                v : new Extension(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Extension) {
-                        this.__data.modifierExtension = valueProvided;
-                    } else {
-                        this.__data.modifierExtension = [new Extension(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -159,19 +137,8 @@ class ContractOffer extends Element {
                     return;
                 }
                 const Identifier = require('../complex_types/identifier.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.identifier = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Identifier ?
-                                v : new Identifier(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Identifier) {
-                        this.__data.identifier = valueProvided;
-                    } else {
-                        this.__data.identifier = [new Identifier(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.identifier = FhirResourceCreator.createArray(valueProvided, Identifier);
             }
         });
 
@@ -190,19 +157,8 @@ class ContractOffer extends Element {
                     return;
                 }
                 const ContractParty = require('../backbone_elements/contractParty.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.party = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof ContractParty ?
-                                v : new ContractParty(v)
-                            );
-                } else {
-                    if (valueProvided instanceof ContractParty) {
-                        this.__data.party = valueProvided;
-                    } else {
-                        this.__data.party = [new ContractParty(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.party = FhirResourceCreator.createArray(valueProvided, ContractParty);
             }
         });
 
@@ -223,11 +179,8 @@ class ContractOffer extends Element {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                if (valueProvided instanceof Reference){
-                    this.__data.topic = valueProvided;
-                } else {
-                    this.__data.topic = new Reference(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.topic = FhirResourceCreator.create(valueProvided, Reference);
             }
         });
 
@@ -247,11 +200,8 @@ class ContractOffer extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                if (valueProvided instanceof CodeableConcept){
-                    this.__data.type = valueProvided;
-                } else {
-                    this.__data.type = new CodeableConcept(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.type = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
 
@@ -271,11 +221,8 @@ class ContractOffer extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                if (valueProvided instanceof CodeableConcept){
-                    this.__data.decision = valueProvided;
-                } else {
-                    this.__data.decision = new CodeableConcept(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.decision = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
 
@@ -294,19 +241,8 @@ class ContractOffer extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.decisionMode = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof CodeableConcept ?
-                                v : new CodeableConcept(v)
-                            );
-                } else {
-                    if (valueProvided instanceof CodeableConcept) {
-                        this.__data.decisionMode = valueProvided;
-                    } else {
-                        this.__data.decisionMode = [new CodeableConcept(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.decisionMode = FhirResourceCreator.createArray(valueProvided, CodeableConcept);
             }
         });
 
@@ -325,19 +261,8 @@ class ContractOffer extends Element {
                     return;
                 }
                 const ContractAnswer = require('../backbone_elements/contractAnswer.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.answer = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof ContractAnswer ?
-                                v : new ContractAnswer(v)
-                            );
-                } else {
-                    if (valueProvided instanceof ContractAnswer) {
-                        this.__data.answer = valueProvided;
-                    } else {
-                        this.__data.answer = [new ContractAnswer(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.answer = FhirResourceCreator.createArray(valueProvided, ContractAnswer);
             }
         });
 

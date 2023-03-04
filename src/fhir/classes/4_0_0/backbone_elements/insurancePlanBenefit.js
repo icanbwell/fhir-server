@@ -70,19 +70,8 @@ class InsurancePlanBenefit extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.extension = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Extension ?
-                                v : new Extension(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Extension) {
-                        this.__data.extension = valueProvided;
-                    } else {
-                        this.__data.extension = [new Extension(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -113,19 +102,8 @@ class InsurancePlanBenefit extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.modifierExtension = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Extension ?
-                                v : new Extension(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Extension) {
-                        this.__data.modifierExtension = valueProvided;
-                    } else {
-                        this.__data.modifierExtension = [new Extension(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -144,11 +122,8 @@ class InsurancePlanBenefit extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                if (valueProvided instanceof CodeableConcept){
-                    this.__data.type = valueProvided;
-                } else {
-                    this.__data.type = new CodeableConcept(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.type = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
 
@@ -185,19 +160,8 @@ class InsurancePlanBenefit extends Element {
                     return;
                 }
                 const InsurancePlanLimit = require('../backbone_elements/insurancePlanLimit.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.limit = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof InsurancePlanLimit ?
-                                v : new InsurancePlanLimit(v)
-                            );
-                } else {
-                    if (valueProvided instanceof InsurancePlanLimit) {
-                        this.__data.limit = valueProvided;
-                    } else {
-                        this.__data.limit = [new InsurancePlanLimit(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.limit = FhirResourceCreator.createArray(valueProvided, InsurancePlanLimit);
             }
         });
 

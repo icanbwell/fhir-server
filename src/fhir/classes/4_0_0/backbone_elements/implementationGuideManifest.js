@@ -77,19 +77,8 @@ class ImplementationGuideManifest extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.extension = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Extension ?
-                                v : new Extension(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Extension) {
-                        this.__data.extension = valueProvided;
-                    } else {
-                        this.__data.extension = [new Extension(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -120,19 +109,8 @@ class ImplementationGuideManifest extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.modifierExtension = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Extension ?
-                                v : new Extension(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Extension) {
-                        this.__data.modifierExtension = valueProvided;
-                    } else {
-                        this.__data.modifierExtension = [new Extension(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -173,19 +151,8 @@ class ImplementationGuideManifest extends Element {
                     return;
                 }
                 const ImplementationGuideResource1 = require('../backbone_elements/implementationGuideResource1.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.resource = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof ImplementationGuideResource1 ?
-                                v : new ImplementationGuideResource1(v)
-                            );
-                } else {
-                    if (valueProvided instanceof ImplementationGuideResource1) {
-                        this.__data.resource = valueProvided;
-                    } else {
-                        this.__data.resource = [new ImplementationGuideResource1(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.resource = FhirResourceCreator.createArray(valueProvided, ImplementationGuideResource1);
             }
         });
 
@@ -204,19 +171,8 @@ class ImplementationGuideManifest extends Element {
                     return;
                 }
                 const ImplementationGuidePage1 = require('../backbone_elements/implementationGuidePage1.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.page = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof ImplementationGuidePage1 ?
-                                v : new ImplementationGuidePage1(v)
-                            );
-                } else {
-                    if (valueProvided instanceof ImplementationGuidePage1) {
-                        this.__data.page = valueProvided;
-                    } else {
-                        this.__data.page = [new ImplementationGuidePage1(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.page = FhirResourceCreator.createArray(valueProvided, ImplementationGuidePage1);
             }
         });
 

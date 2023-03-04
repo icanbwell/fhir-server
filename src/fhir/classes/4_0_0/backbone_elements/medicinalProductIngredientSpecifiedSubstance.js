@@ -72,19 +72,8 @@ class MedicinalProductIngredientSpecifiedSubstance extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.extension = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Extension ?
-                                v : new Extension(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Extension) {
-                        this.__data.extension = valueProvided;
-                    } else {
-                        this.__data.extension = [new Extension(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -115,19 +104,8 @@ class MedicinalProductIngredientSpecifiedSubstance extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.modifierExtension = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Extension ?
-                                v : new Extension(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Extension) {
-                        this.__data.modifierExtension = valueProvided;
-                    } else {
-                        this.__data.modifierExtension = [new Extension(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -146,11 +124,8 @@ class MedicinalProductIngredientSpecifiedSubstance extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                if (valueProvided instanceof CodeableConcept){
-                    this.__data.code = valueProvided;
-                } else {
-                    this.__data.code = new CodeableConcept(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.code = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
 
@@ -169,11 +144,8 @@ class MedicinalProductIngredientSpecifiedSubstance extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                if (valueProvided instanceof CodeableConcept){
-                    this.__data.group = valueProvided;
-                } else {
-                    this.__data.group = new CodeableConcept(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.group = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
 
@@ -192,11 +164,8 @@ class MedicinalProductIngredientSpecifiedSubstance extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                if (valueProvided instanceof CodeableConcept){
-                    this.__data.confidentiality = valueProvided;
-                } else {
-                    this.__data.confidentiality = new CodeableConcept(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.confidentiality = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
 
@@ -216,19 +185,8 @@ class MedicinalProductIngredientSpecifiedSubstance extends Element {
                     return;
                 }
                 const MedicinalProductIngredientStrength = require('../backbone_elements/medicinalProductIngredientStrength.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.strength = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof MedicinalProductIngredientStrength ?
-                                v : new MedicinalProductIngredientStrength(v)
-                            );
-                } else {
-                    if (valueProvided instanceof MedicinalProductIngredientStrength) {
-                        this.__data.strength = valueProvided;
-                    } else {
-                        this.__data.strength = [new MedicinalProductIngredientStrength(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.strength = FhirResourceCreator.createArray(valueProvided, MedicinalProductIngredientStrength);
             }
         });
 

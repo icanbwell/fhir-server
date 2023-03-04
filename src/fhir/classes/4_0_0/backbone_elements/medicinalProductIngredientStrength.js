@@ -78,19 +78,8 @@ class MedicinalProductIngredientStrength extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.extension = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Extension ?
-                                v : new Extension(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Extension) {
-                        this.__data.extension = valueProvided;
-                    } else {
-                        this.__data.extension = [new Extension(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -121,19 +110,8 @@ class MedicinalProductIngredientStrength extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.modifierExtension = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Extension ?
-                                v : new Extension(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Extension) {
-                        this.__data.modifierExtension = valueProvided;
-                    } else {
-                        this.__data.modifierExtension = [new Extension(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -153,11 +131,8 @@ class MedicinalProductIngredientStrength extends Element {
                     return;
                 }
                 const Ratio = require('../complex_types/ratio.js');
-                if (valueProvided instanceof Ratio){
-                    this.__data.presentation = valueProvided;
-                } else {
-                    this.__data.presentation = new Ratio(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.presentation = FhirResourceCreator.create(valueProvided, Ratio);
             }
         });
 
@@ -178,11 +153,8 @@ class MedicinalProductIngredientStrength extends Element {
                     return;
                 }
                 const Ratio = require('../complex_types/ratio.js');
-                if (valueProvided instanceof Ratio){
-                    this.__data.presentationLowLimit = valueProvided;
-                } else {
-                    this.__data.presentationLowLimit = new Ratio(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.presentationLowLimit = FhirResourceCreator.create(valueProvided, Ratio);
             }
         });
 
@@ -201,11 +173,8 @@ class MedicinalProductIngredientStrength extends Element {
                     return;
                 }
                 const Ratio = require('../complex_types/ratio.js');
-                if (valueProvided instanceof Ratio){
-                    this.__data.concentration = valueProvided;
-                } else {
-                    this.__data.concentration = new Ratio(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.concentration = FhirResourceCreator.create(valueProvided, Ratio);
             }
         });
 
@@ -225,11 +194,8 @@ class MedicinalProductIngredientStrength extends Element {
                     return;
                 }
                 const Ratio = require('../complex_types/ratio.js');
-                if (valueProvided instanceof Ratio){
-                    this.__data.concentrationLowLimit = valueProvided;
-                } else {
-                    this.__data.concentrationLowLimit = new Ratio(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.concentrationLowLimit = FhirResourceCreator.create(valueProvided, Ratio);
             }
         });
 
@@ -266,19 +232,8 @@ class MedicinalProductIngredientStrength extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.country = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof CodeableConcept ?
-                                v : new CodeableConcept(v)
-                            );
-                } else {
-                    if (valueProvided instanceof CodeableConcept) {
-                        this.__data.country = valueProvided;
-                    } else {
-                        this.__data.country = [new CodeableConcept(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.country = FhirResourceCreator.createArray(valueProvided, CodeableConcept);
             }
         });
 
@@ -297,19 +252,8 @@ class MedicinalProductIngredientStrength extends Element {
                     return;
                 }
                 const MedicinalProductIngredientReferenceStrength = require('../backbone_elements/medicinalProductIngredientReferenceStrength.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.referenceStrength = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof MedicinalProductIngredientReferenceStrength ?
-                                v : new MedicinalProductIngredientReferenceStrength(v)
-                            );
-                } else {
-                    if (valueProvided instanceof MedicinalProductIngredientReferenceStrength) {
-                        this.__data.referenceStrength = valueProvided;
-                    } else {
-                        this.__data.referenceStrength = [new MedicinalProductIngredientReferenceStrength(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.referenceStrength = FhirResourceCreator.createArray(valueProvided, MedicinalProductIngredientReferenceStrength);
             }
         });
 

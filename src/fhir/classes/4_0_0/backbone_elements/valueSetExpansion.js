@@ -79,19 +79,8 @@ class ValueSetExpansion extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.extension = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Extension ?
-                                v : new Extension(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Extension) {
-                        this.__data.extension = valueProvided;
-                    } else {
-                        this.__data.extension = [new Extension(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -122,19 +111,8 @@ class ValueSetExpansion extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.modifierExtension = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Extension ?
-                                v : new Extension(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Extension) {
-                        this.__data.modifierExtension = valueProvided;
-                    } else {
-                        this.__data.modifierExtension = [new Extension(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -236,19 +214,8 @@ class ValueSetExpansion extends Element {
                     return;
                 }
                 const ValueSetParameter = require('../backbone_elements/valueSetParameter.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.parameter = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof ValueSetParameter ?
-                                v : new ValueSetParameter(v)
-                            );
-                } else {
-                    if (valueProvided instanceof ValueSetParameter) {
-                        this.__data.parameter = valueProvided;
-                    } else {
-                        this.__data.parameter = [new ValueSetParameter(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.parameter = FhirResourceCreator.createArray(valueProvided, ValueSetParameter);
             }
         });
 
@@ -267,19 +234,8 @@ class ValueSetExpansion extends Element {
                     return;
                 }
                 const ValueSetContains = require('../backbone_elements/valueSetContains.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.contains = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof ValueSetContains ?
-                                v : new ValueSetContains(v)
-                            );
-                } else {
-                    if (valueProvided instanceof ValueSetContains) {
-                        this.__data.contains = valueProvided;
-                    } else {
-                        this.__data.contains = [new ValueSetContains(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.contains = FhirResourceCreator.createArray(valueProvided, ValueSetContains);
             }
         });
 

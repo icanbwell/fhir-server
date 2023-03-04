@@ -107,11 +107,8 @@ class EpisodeOfCare extends Resource {
                     return;
                 }
                 const Meta = require('../complex_types/meta.js');
-                if (valueProvided instanceof Meta){
-                    this.__data.meta = valueProvided;
-                } else {
-                    this.__data.meta = new Meta(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.meta = FhirResourceCreator.create(valueProvided, Meta);
             }
         });
 
@@ -174,11 +171,8 @@ class EpisodeOfCare extends Resource {
                     return;
                 }
                 const Narrative = require('../complex_types/narrative.js');
-                if (valueProvided instanceof Narrative){
-                    this.__data.text = valueProvided;
-                } else {
-                    this.__data.text = new Narrative(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.text = FhirResourceCreator.create(valueProvided, Narrative);
             }
         });
 
@@ -199,23 +193,8 @@ class EpisodeOfCare extends Resource {
                     return;
                 }
                 const ResourceContainer = require('../simple_types/resourceContainer.js');
-                const {getResource} = require('../../../../operations/common/getResource');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.contained = valueProvided.filter(v => v).map(v => {
-                        if (v instanceof Resource) {
-                            return v;
-                        }
-                        const ResourceCreator = getResource('4_0_0', v.resourceType);
-                        return new ResourceCreator(v);
-                    });
-                } else {
-                    if (valueProvided instanceof Resource) {
-                        this.__data.contained = [valueProvided];
-                    } else {
-                        const ResourceCreator = getResource('4_0_0', valueProvided.resourceType);
-                        this.__data.contained = [new ResourceCreator(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.contained = FhirResourceCreator.createArray(valueProvided);
             }
         });
 
@@ -238,19 +217,8 @@ class EpisodeOfCare extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.extension = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Extension ?
-                                v : new Extension(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Extension) {
-                        this.__data.extension = valueProvided;
-                    } else {
-                        this.__data.extension = [new Extension(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -281,19 +249,8 @@ class EpisodeOfCare extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.modifierExtension = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Extension ?
-                                v : new Extension(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Extension) {
-                        this.__data.modifierExtension = valueProvided;
-                    } else {
-                        this.__data.modifierExtension = [new Extension(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -314,19 +271,8 @@ class EpisodeOfCare extends Resource {
                     return;
                 }
                 const Identifier = require('../complex_types/identifier.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.identifier = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Identifier ?
-                                v : new Identifier(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Identifier) {
-                        this.__data.identifier = valueProvided;
-                    } else {
-                        this.__data.identifier = [new Identifier(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.identifier = FhirResourceCreator.createArray(valueProvided, Identifier);
             }
         });
 
@@ -364,19 +310,8 @@ class EpisodeOfCare extends Resource {
                     return;
                 }
                 const EpisodeOfCareStatusHistory = require('../backbone_elements/episodeOfCareStatusHistory.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.statusHistory = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof EpisodeOfCareStatusHistory ?
-                                v : new EpisodeOfCareStatusHistory(v)
-                            );
-                } else {
-                    if (valueProvided instanceof EpisodeOfCareStatusHistory) {
-                        this.__data.statusHistory = valueProvided;
-                    } else {
-                        this.__data.statusHistory = [new EpisodeOfCareStatusHistory(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.statusHistory = FhirResourceCreator.createArray(valueProvided, EpisodeOfCareStatusHistory);
             }
         });
 
@@ -396,19 +331,8 @@ class EpisodeOfCare extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.type = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof CodeableConcept ?
-                                v : new CodeableConcept(v)
-                            );
-                } else {
-                    if (valueProvided instanceof CodeableConcept) {
-                        this.__data.type = valueProvided;
-                    } else {
-                        this.__data.type = [new CodeableConcept(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.type = FhirResourceCreator.createArray(valueProvided, CodeableConcept);
             }
         });
 
@@ -427,19 +351,8 @@ class EpisodeOfCare extends Resource {
                     return;
                 }
                 const EpisodeOfCareDiagnosis = require('../backbone_elements/episodeOfCareDiagnosis.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.diagnosis = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof EpisodeOfCareDiagnosis ?
-                                v : new EpisodeOfCareDiagnosis(v)
-                            );
-                } else {
-                    if (valueProvided instanceof EpisodeOfCareDiagnosis) {
-                        this.__data.diagnosis = valueProvided;
-                    } else {
-                        this.__data.diagnosis = [new EpisodeOfCareDiagnosis(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.diagnosis = FhirResourceCreator.createArray(valueProvided, EpisodeOfCareDiagnosis);
             }
         });
 
@@ -458,11 +371,8 @@ class EpisodeOfCare extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                if (valueProvided instanceof Reference){
-                    this.__data.patient = valueProvided;
-                } else {
-                    this.__data.patient = new Reference(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.patient = FhirResourceCreator.create(valueProvided, Reference);
             }
         });
 
@@ -482,11 +392,8 @@ class EpisodeOfCare extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                if (valueProvided instanceof Reference){
-                    this.__data.managingOrganization = valueProvided;
-                } else {
-                    this.__data.managingOrganization = new Reference(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.managingOrganization = FhirResourceCreator.create(valueProvided, Reference);
             }
         });
 
@@ -506,11 +413,8 @@ class EpisodeOfCare extends Resource {
                     return;
                 }
                 const Period = require('../complex_types/period.js');
-                if (valueProvided instanceof Period){
-                    this.__data.period = valueProvided;
-                } else {
-                    this.__data.period = new Period(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.period = FhirResourceCreator.create(valueProvided, Period);
             }
         });
 
@@ -530,19 +434,8 @@ class EpisodeOfCare extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.referralRequest = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Reference ?
-                                v : new Reference(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Reference) {
-                        this.__data.referralRequest = valueProvided;
-                    } else {
-                        this.__data.referralRequest = [new Reference(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.referralRequest = FhirResourceCreator.createArray(valueProvided, Reference);
             }
         });
 
@@ -561,11 +454,8 @@ class EpisodeOfCare extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                if (valueProvided instanceof Reference){
-                    this.__data.careManager = valueProvided;
-                } else {
-                    this.__data.careManager = new Reference(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.careManager = FhirResourceCreator.create(valueProvided, Reference);
             }
         });
 
@@ -585,19 +475,8 @@ class EpisodeOfCare extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.team = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Reference ?
-                                v : new Reference(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Reference) {
-                        this.__data.team = valueProvided;
-                    } else {
-                        this.__data.team = [new Reference(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.team = FhirResourceCreator.createArray(valueProvided, Reference);
             }
         });
 
@@ -616,19 +495,8 @@ class EpisodeOfCare extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.account = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Reference ?
-                                v : new Reference(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Reference) {
-                        this.__data.account = valueProvided;
-                    } else {
-                        this.__data.account = [new Reference(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.account = FhirResourceCreator.createArray(valueProvided, Reference);
             }
         });
 

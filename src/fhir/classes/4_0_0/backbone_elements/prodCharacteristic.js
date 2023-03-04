@@ -89,19 +89,8 @@ class ProdCharacteristic extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.extension = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Extension ?
-                                v : new Extension(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Extension) {
-                        this.__data.extension = valueProvided;
-                    } else {
-                        this.__data.extension = [new Extension(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -132,19 +121,8 @@ class ProdCharacteristic extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.modifierExtension = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Extension ?
-                                v : new Extension(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Extension) {
-                        this.__data.modifierExtension = valueProvided;
-                    } else {
-                        this.__data.modifierExtension = [new Extension(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -166,11 +144,8 @@ class ProdCharacteristic extends Element {
                     return;
                 }
                 const Quantity = require('../complex_types/quantity.js');
-                if (valueProvided instanceof Quantity){
-                    this.__data.height = valueProvided;
-                } else {
-                    this.__data.height = new Quantity(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.height = FhirResourceCreator.create(valueProvided, Quantity);
             }
         });
 
@@ -192,11 +167,8 @@ class ProdCharacteristic extends Element {
                     return;
                 }
                 const Quantity = require('../complex_types/quantity.js');
-                if (valueProvided instanceof Quantity){
-                    this.__data.width = valueProvided;
-                } else {
-                    this.__data.width = new Quantity(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.width = FhirResourceCreator.create(valueProvided, Quantity);
             }
         });
 
@@ -218,11 +190,8 @@ class ProdCharacteristic extends Element {
                     return;
                 }
                 const Quantity = require('../complex_types/quantity.js');
-                if (valueProvided instanceof Quantity){
-                    this.__data.depth = valueProvided;
-                } else {
-                    this.__data.depth = new Quantity(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.depth = FhirResourceCreator.create(valueProvided, Quantity);
             }
         });
 
@@ -244,11 +213,8 @@ class ProdCharacteristic extends Element {
                     return;
                 }
                 const Quantity = require('../complex_types/quantity.js');
-                if (valueProvided instanceof Quantity){
-                    this.__data.weight = valueProvided;
-                } else {
-                    this.__data.weight = new Quantity(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.weight = FhirResourceCreator.create(valueProvided, Quantity);
             }
         });
 
@@ -270,11 +236,8 @@ class ProdCharacteristic extends Element {
                     return;
                 }
                 const Quantity = require('../complex_types/quantity.js');
-                if (valueProvided instanceof Quantity){
-                    this.__data.nominalVolume = valueProvided;
-                } else {
-                    this.__data.nominalVolume = new Quantity(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.nominalVolume = FhirResourceCreator.create(valueProvided, Quantity);
             }
         });
 
@@ -296,11 +259,8 @@ class ProdCharacteristic extends Element {
                     return;
                 }
                 const Quantity = require('../complex_types/quantity.js');
-                if (valueProvided instanceof Quantity){
-                    this.__data.externalDiameter = valueProvided;
-                } else {
-                    this.__data.externalDiameter = new Quantity(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.externalDiameter = FhirResourceCreator.create(valueProvided, Quantity);
             }
         });
 
@@ -376,19 +336,8 @@ class ProdCharacteristic extends Element {
                     return;
                 }
                 const Attachment = require('../complex_types/attachment.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.image = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Attachment ?
-                                v : new Attachment(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Attachment) {
-                        this.__data.image = valueProvided;
-                    } else {
-                        this.__data.image = [new Attachment(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.image = FhirResourceCreator.createArray(valueProvided, Attachment);
             }
         });
 
@@ -408,11 +357,8 @@ class ProdCharacteristic extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                if (valueProvided instanceof CodeableConcept){
-                    this.__data.scoring = valueProvided;
-                } else {
-                    this.__data.scoring = new CodeableConcept(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.scoring = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
 

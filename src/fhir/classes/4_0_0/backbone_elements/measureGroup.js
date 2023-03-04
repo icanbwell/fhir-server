@@ -72,19 +72,8 @@ class MeasureGroup extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.extension = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Extension ?
-                                v : new Extension(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Extension) {
-                        this.__data.extension = valueProvided;
-                    } else {
-                        this.__data.extension = [new Extension(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -115,19 +104,8 @@ class MeasureGroup extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.modifierExtension = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Extension ?
-                                v : new Extension(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Extension) {
-                        this.__data.modifierExtension = valueProvided;
-                    } else {
-                        this.__data.modifierExtension = [new Extension(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -148,11 +126,8 @@ class MeasureGroup extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                if (valueProvided instanceof CodeableConcept){
-                    this.__data.code = valueProvided;
-                } else {
-                    this.__data.code = new CodeableConcept(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.code = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
 
@@ -189,19 +164,8 @@ class MeasureGroup extends Element {
                     return;
                 }
                 const MeasurePopulation = require('../backbone_elements/measurePopulation.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.population = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof MeasurePopulation ?
-                                v : new MeasurePopulation(v)
-                            );
-                } else {
-                    if (valueProvided instanceof MeasurePopulation) {
-                        this.__data.population = valueProvided;
-                    } else {
-                        this.__data.population = [new MeasurePopulation(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.population = FhirResourceCreator.createArray(valueProvided, MeasurePopulation);
             }
         });
 
@@ -222,19 +186,8 @@ class MeasureGroup extends Element {
                     return;
                 }
                 const MeasureStratifier = require('../backbone_elements/measureStratifier.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.stratifier = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof MeasureStratifier ?
-                                v : new MeasureStratifier(v)
-                            );
-                } else {
-                    if (valueProvided instanceof MeasureStratifier) {
-                        this.__data.stratifier = valueProvided;
-                    } else {
-                        this.__data.stratifier = [new MeasureStratifier(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.stratifier = FhirResourceCreator.createArray(valueProvided, MeasureStratifier);
             }
         });
 

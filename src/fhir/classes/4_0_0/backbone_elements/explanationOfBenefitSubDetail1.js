@@ -82,19 +82,8 @@ class ExplanationOfBenefitSubDetail1 extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.extension = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Extension ?
-                                v : new Extension(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Extension) {
-                        this.__data.extension = valueProvided;
-                    } else {
-                        this.__data.extension = [new Extension(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -125,19 +114,8 @@ class ExplanationOfBenefitSubDetail1 extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.modifierExtension = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Extension ?
-                                v : new Extension(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Extension) {
-                        this.__data.modifierExtension = valueProvided;
-                    } else {
-                        this.__data.modifierExtension = [new Extension(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -158,11 +136,8 @@ class ExplanationOfBenefitSubDetail1 extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                if (valueProvided instanceof CodeableConcept){
-                    this.__data.productOrService = valueProvided;
-                } else {
-                    this.__data.productOrService = new CodeableConcept(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.productOrService = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
 
@@ -182,19 +157,8 @@ class ExplanationOfBenefitSubDetail1 extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.modifier = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof CodeableConcept ?
-                                v : new CodeableConcept(v)
-                            );
-                } else {
-                    if (valueProvided instanceof CodeableConcept) {
-                        this.__data.modifier = valueProvided;
-                    } else {
-                        this.__data.modifier = [new CodeableConcept(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.modifier = FhirResourceCreator.createArray(valueProvided, CodeableConcept);
             }
         });
 
@@ -213,11 +177,8 @@ class ExplanationOfBenefitSubDetail1 extends Element {
                     return;
                 }
                 const Quantity = require('../complex_types/quantity.js');
-                if (valueProvided instanceof Quantity){
-                    this.__data.quantity = valueProvided;
-                } else {
-                    this.__data.quantity = new Quantity(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.quantity = FhirResourceCreator.create(valueProvided, Quantity);
             }
         });
 
@@ -237,11 +198,8 @@ class ExplanationOfBenefitSubDetail1 extends Element {
                     return;
                 }
                 const Money = require('../complex_types/money.js');
-                if (valueProvided instanceof Money){
-                    this.__data.unitPrice = valueProvided;
-                } else {
-                    this.__data.unitPrice = new Money(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.unitPrice = FhirResourceCreator.create(valueProvided, Money);
             }
         });
 
@@ -282,11 +240,8 @@ class ExplanationOfBenefitSubDetail1 extends Element {
                     return;
                 }
                 const Money = require('../complex_types/money.js');
-                if (valueProvided instanceof Money){
-                    this.__data.net = valueProvided;
-                } else {
-                    this.__data.net = new Money(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.net = FhirResourceCreator.create(valueProvided, Money);
             }
         });
 
@@ -324,19 +279,8 @@ class ExplanationOfBenefitSubDetail1 extends Element {
                     return;
                 }
                 const ExplanationOfBenefitAdjudication = require('../backbone_elements/explanationOfBenefitAdjudication.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.adjudication = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof ExplanationOfBenefitAdjudication ?
-                                v : new ExplanationOfBenefitAdjudication(v)
-                            );
-                } else {
-                    if (valueProvided instanceof ExplanationOfBenefitAdjudication) {
-                        this.__data.adjudication = valueProvided;
-                    } else {
-                        this.__data.adjudication = [new ExplanationOfBenefitAdjudication(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.adjudication = FhirResourceCreator.createArray(valueProvided, ExplanationOfBenefitAdjudication);
             }
         });
 

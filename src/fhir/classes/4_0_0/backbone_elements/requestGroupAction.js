@@ -113,19 +113,8 @@ class RequestGroupAction extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.extension = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Extension ?
-                                v : new Extension(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Extension) {
-                        this.__data.extension = valueProvided;
-                    } else {
-                        this.__data.extension = [new Extension(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -156,19 +145,8 @@ class RequestGroupAction extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.modifierExtension = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Extension ?
-                                v : new Extension(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Extension) {
-                        this.__data.modifierExtension = valueProvided;
-                    } else {
-                        this.__data.modifierExtension = [new Extension(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -282,19 +260,8 @@ class RequestGroupAction extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.code = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof CodeableConcept ?
-                                v : new CodeableConcept(v)
-                            );
-                } else {
-                    if (valueProvided instanceof CodeableConcept) {
-                        this.__data.code = valueProvided;
-                    } else {
-                        this.__data.code = [new CodeableConcept(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.code = FhirResourceCreator.createArray(valueProvided, CodeableConcept);
             }
         });
 
@@ -315,19 +282,8 @@ class RequestGroupAction extends Element {
                     return;
                 }
                 const RelatedArtifact = require('../complex_types/relatedArtifact.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.documentation = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof RelatedArtifact ?
-                                v : new RelatedArtifact(v)
-                            );
-                } else {
-                    if (valueProvided instanceof RelatedArtifact) {
-                        this.__data.documentation = valueProvided;
-                    } else {
-                        this.__data.documentation = [new RelatedArtifact(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.documentation = FhirResourceCreator.createArray(valueProvided, RelatedArtifact);
             }
         });
 
@@ -347,19 +303,8 @@ class RequestGroupAction extends Element {
                     return;
                 }
                 const RequestGroupCondition = require('../backbone_elements/requestGroupCondition.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.condition = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof RequestGroupCondition ?
-                                v : new RequestGroupCondition(v)
-                            );
-                } else {
-                    if (valueProvided instanceof RequestGroupCondition) {
-                        this.__data.condition = valueProvided;
-                    } else {
-                        this.__data.condition = [new RequestGroupCondition(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.condition = FhirResourceCreator.createArray(valueProvided, RequestGroupCondition);
             }
         });
 
@@ -379,19 +324,8 @@ class RequestGroupAction extends Element {
                     return;
                 }
                 const RequestGroupRelatedAction = require('../backbone_elements/requestGroupRelatedAction.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.relatedAction = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof RequestGroupRelatedAction ?
-                                v : new RequestGroupRelatedAction(v)
-                            );
-                } else {
-                    if (valueProvided instanceof RequestGroupRelatedAction) {
-                        this.__data.relatedAction = valueProvided;
-                    } else {
-                        this.__data.relatedAction = [new RequestGroupRelatedAction(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.relatedAction = FhirResourceCreator.createArray(valueProvided, RequestGroupRelatedAction);
             }
         });
 
@@ -428,11 +362,8 @@ class RequestGroupAction extends Element {
                     return;
                 }
                 const Quantity = require('../complex_types/quantity.js');
-                if (valueProvided instanceof Quantity){
-                    this.__data.timingAge = valueProvided;
-                } else {
-                    this.__data.timingAge = new Quantity(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.timingAge = FhirResourceCreator.create(valueProvided, Quantity);
             }
         });
 
@@ -451,11 +382,8 @@ class RequestGroupAction extends Element {
                     return;
                 }
                 const Period = require('../complex_types/period.js');
-                if (valueProvided instanceof Period){
-                    this.__data.timingPeriod = valueProvided;
-                } else {
-                    this.__data.timingPeriod = new Period(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.timingPeriod = FhirResourceCreator.create(valueProvided, Period);
             }
         });
 
@@ -474,11 +402,8 @@ class RequestGroupAction extends Element {
                     return;
                 }
                 const Quantity = require('../complex_types/quantity.js');
-                if (valueProvided instanceof Quantity){
-                    this.__data.timingDuration = valueProvided;
-                } else {
-                    this.__data.timingDuration = new Quantity(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.timingDuration = FhirResourceCreator.create(valueProvided, Quantity);
             }
         });
 
@@ -497,11 +422,8 @@ class RequestGroupAction extends Element {
                     return;
                 }
                 const Range = require('../complex_types/range.js');
-                if (valueProvided instanceof Range){
-                    this.__data.timingRange = valueProvided;
-                } else {
-                    this.__data.timingRange = new Range(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.timingRange = FhirResourceCreator.create(valueProvided, Range);
             }
         });
 
@@ -520,11 +442,8 @@ class RequestGroupAction extends Element {
                     return;
                 }
                 const Timing = require('../backbone_elements/timing.js');
-                if (valueProvided instanceof Timing){
-                    this.__data.timingTiming = valueProvided;
-                } else {
-                    this.__data.timingTiming = new Timing(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.timingTiming = FhirResourceCreator.create(valueProvided, Timing);
             }
         });
 
@@ -543,19 +462,8 @@ class RequestGroupAction extends Element {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.participant = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Reference ?
-                                v : new Reference(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Reference) {
-                        this.__data.participant = valueProvided;
-                    } else {
-                        this.__data.participant = [new Reference(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.participant = FhirResourceCreator.createArray(valueProvided, Reference);
             }
         });
 
@@ -574,11 +482,8 @@ class RequestGroupAction extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                if (valueProvided instanceof CodeableConcept){
-                    this.__data.type = valueProvided;
-                } else {
-                    this.__data.type = new CodeableConcept(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.type = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
 
@@ -687,11 +592,8 @@ class RequestGroupAction extends Element {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                if (valueProvided instanceof Reference){
-                    this.__data.resource = valueProvided;
-                } else {
-                    this.__data.resource = new Reference(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.resource = FhirResourceCreator.create(valueProvided, Reference);
             }
         });
 
@@ -709,19 +611,8 @@ class RequestGroupAction extends Element {
                     this.__data.action = undefined;
                     return;
                 }
-                if (Array.isArray(valueProvided)) {
-                    this.__data.action = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof RequestGroupAction ?
-                                v : new RequestGroupAction(v)
-                            );
-                } else {
-                    if (valueProvided instanceof RequestGroupAction) {
-                        this.__data.action = valueProvided;
-                    } else {
-                        this.__data.action = [new RequestGroupAction(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.action = FhirResourceCreator.createArray(valueProvided, RequestGroupAction);
             }
         });
 

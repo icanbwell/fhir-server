@@ -80,19 +80,8 @@ class SpecimenDefinitionTypeTested extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.extension = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Extension ?
-                                v : new Extension(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Extension) {
-                        this.__data.extension = valueProvided;
-                    } else {
-                        this.__data.extension = [new Extension(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -123,19 +112,8 @@ class SpecimenDefinitionTypeTested extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.modifierExtension = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Extension ?
-                                v : new Extension(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Extension) {
-                        this.__data.modifierExtension = valueProvided;
-                    } else {
-                        this.__data.modifierExtension = [new Extension(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -172,11 +150,8 @@ class SpecimenDefinitionTypeTested extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                if (valueProvided instanceof CodeableConcept){
-                    this.__data.type = valueProvided;
-                } else {
-                    this.__data.type = new CodeableConcept(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.type = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
 
@@ -213,11 +188,8 @@ class SpecimenDefinitionTypeTested extends Element {
                     return;
                 }
                 const SpecimenDefinitionContainer = require('../backbone_elements/specimenDefinitionContainer.js');
-                if (valueProvided instanceof SpecimenDefinitionContainer){
-                    this.__data.container = valueProvided;
-                } else {
-                    this.__data.container = new SpecimenDefinitionContainer(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.container = FhirResourceCreator.create(valueProvided, SpecimenDefinitionContainer);
             }
         });
 
@@ -256,11 +228,8 @@ class SpecimenDefinitionTypeTested extends Element {
                     return;
                 }
                 const Quantity = require('../complex_types/quantity.js');
-                if (valueProvided instanceof Quantity){
-                    this.__data.retentionTime = valueProvided;
-                } else {
-                    this.__data.retentionTime = new Quantity(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.retentionTime = FhirResourceCreator.create(valueProvided, Quantity);
             }
         });
 
@@ -279,19 +248,8 @@ class SpecimenDefinitionTypeTested extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.rejectionCriterion = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof CodeableConcept ?
-                                v : new CodeableConcept(v)
-                            );
-                } else {
-                    if (valueProvided instanceof CodeableConcept) {
-                        this.__data.rejectionCriterion = valueProvided;
-                    } else {
-                        this.__data.rejectionCriterion = [new CodeableConcept(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.rejectionCriterion = FhirResourceCreator.createArray(valueProvided, CodeableConcept);
             }
         });
 
@@ -311,19 +269,8 @@ class SpecimenDefinitionTypeTested extends Element {
                     return;
                 }
                 const SpecimenDefinitionHandling = require('../backbone_elements/specimenDefinitionHandling.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.handling = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof SpecimenDefinitionHandling ?
-                                v : new SpecimenDefinitionHandling(v)
-                            );
-                } else {
-                    if (valueProvided instanceof SpecimenDefinitionHandling) {
-                        this.__data.handling = valueProvided;
-                    } else {
-                        this.__data.handling = [new SpecimenDefinitionHandling(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.handling = FhirResourceCreator.createArray(valueProvided, SpecimenDefinitionHandling);
             }
         });
 

@@ -83,19 +83,8 @@ class DataRequirement extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.extension = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Extension ?
-                                v : new Extension(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Extension) {
-                        this.__data.extension = valueProvided;
-                    } else {
-                        this.__data.extension = [new Extension(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -152,11 +141,8 @@ class DataRequirement extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                if (valueProvided instanceof CodeableConcept){
-                    this.__data.subjectCodeableConcept = valueProvided;
-                } else {
-                    this.__data.subjectCodeableConcept = new CodeableConcept(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.subjectCodeableConcept = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
 
@@ -175,11 +161,8 @@ class DataRequirement extends Element {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                if (valueProvided instanceof Reference){
-                    this.__data.subjectReference = valueProvided;
-                } else {
-                    this.__data.subjectReference = new Reference(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.subjectReference = FhirResourceCreator.create(valueProvided, Reference);
             }
         });
 
@@ -227,19 +210,8 @@ class DataRequirement extends Element {
                     return;
                 }
                 const DataRequirementCodeFilter = require('../complex_types/dataRequirementCodeFilter.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.codeFilter = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof DataRequirementCodeFilter ?
-                                v : new DataRequirementCodeFilter(v)
-                            );
-                } else {
-                    if (valueProvided instanceof DataRequirementCodeFilter) {
-                        this.__data.codeFilter = valueProvided;
-                    } else {
-                        this.__data.codeFilter = [new DataRequirementCodeFilter(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.codeFilter = FhirResourceCreator.createArray(valueProvided, DataRequirementCodeFilter);
             }
         });
 
@@ -260,19 +232,8 @@ class DataRequirement extends Element {
                     return;
                 }
                 const DataRequirementDateFilter = require('../complex_types/dataRequirementDateFilter.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.dateFilter = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof DataRequirementDateFilter ?
-                                v : new DataRequirementDateFilter(v)
-                            );
-                } else {
-                    if (valueProvided instanceof DataRequirementDateFilter) {
-                        this.__data.dateFilter = valueProvided;
-                    } else {
-                        this.__data.dateFilter = [new DataRequirementDateFilter(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.dateFilter = FhirResourceCreator.createArray(valueProvided, DataRequirementDateFilter);
             }
         });
 
@@ -310,19 +271,8 @@ class DataRequirement extends Element {
                     return;
                 }
                 const DataRequirementSort = require('../complex_types/dataRequirementSort.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.sort = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof DataRequirementSort ?
-                                v : new DataRequirementSort(v)
-                            );
-                } else {
-                    if (valueProvided instanceof DataRequirementSort) {
-                        this.__data.sort = valueProvided;
-                    } else {
-                        this.__data.sort = [new DataRequirementSort(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.sort = FhirResourceCreator.createArray(valueProvided, DataRequirementSort);
             }
         });
 

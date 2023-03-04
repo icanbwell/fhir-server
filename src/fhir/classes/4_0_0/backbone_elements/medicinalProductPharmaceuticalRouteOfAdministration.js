@@ -78,19 +78,8 @@ class MedicinalProductPharmaceuticalRouteOfAdministration extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.extension = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Extension ?
-                                v : new Extension(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Extension) {
-                        this.__data.extension = valueProvided;
-                    } else {
-                        this.__data.extension = [new Extension(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -121,19 +110,8 @@ class MedicinalProductPharmaceuticalRouteOfAdministration extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.modifierExtension = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Extension ?
-                                v : new Extension(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Extension) {
-                        this.__data.modifierExtension = valueProvided;
-                    } else {
-                        this.__data.modifierExtension = [new Extension(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -152,11 +130,8 @@ class MedicinalProductPharmaceuticalRouteOfAdministration extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                if (valueProvided instanceof CodeableConcept){
-                    this.__data.code = valueProvided;
-                } else {
-                    this.__data.code = new CodeableConcept(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.code = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
 
@@ -177,11 +152,8 @@ class MedicinalProductPharmaceuticalRouteOfAdministration extends Element {
                     return;
                 }
                 const Quantity = require('../complex_types/quantity.js');
-                if (valueProvided instanceof Quantity){
-                    this.__data.firstDose = valueProvided;
-                } else {
-                    this.__data.firstDose = new Quantity(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.firstDose = FhirResourceCreator.create(valueProvided, Quantity);
             }
         });
 
@@ -202,11 +174,8 @@ class MedicinalProductPharmaceuticalRouteOfAdministration extends Element {
                     return;
                 }
                 const Quantity = require('../complex_types/quantity.js');
-                if (valueProvided instanceof Quantity){
-                    this.__data.maxSingleDose = valueProvided;
-                } else {
-                    this.__data.maxSingleDose = new Quantity(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.maxSingleDose = FhirResourceCreator.create(valueProvided, Quantity);
             }
         });
 
@@ -227,11 +196,8 @@ class MedicinalProductPharmaceuticalRouteOfAdministration extends Element {
                     return;
                 }
                 const Quantity = require('../complex_types/quantity.js');
-                if (valueProvided instanceof Quantity){
-                    this.__data.maxDosePerDay = valueProvided;
-                } else {
-                    this.__data.maxDosePerDay = new Quantity(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.maxDosePerDay = FhirResourceCreator.create(valueProvided, Quantity);
             }
         });
 
@@ -251,11 +217,8 @@ class MedicinalProductPharmaceuticalRouteOfAdministration extends Element {
                     return;
                 }
                 const Ratio = require('../complex_types/ratio.js');
-                if (valueProvided instanceof Ratio){
-                    this.__data.maxDosePerTreatmentPeriod = valueProvided;
-                } else {
-                    this.__data.maxDosePerTreatmentPeriod = new Ratio(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.maxDosePerTreatmentPeriod = FhirResourceCreator.create(valueProvided, Ratio);
             }
         });
 
@@ -276,11 +239,8 @@ class MedicinalProductPharmaceuticalRouteOfAdministration extends Element {
                     return;
                 }
                 const Quantity = require('../complex_types/quantity.js');
-                if (valueProvided instanceof Quantity){
-                    this.__data.maxTreatmentPeriod = valueProvided;
-                } else {
-                    this.__data.maxTreatmentPeriod = new Quantity(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.maxTreatmentPeriod = FhirResourceCreator.create(valueProvided, Quantity);
             }
         });
 
@@ -299,19 +259,8 @@ class MedicinalProductPharmaceuticalRouteOfAdministration extends Element {
                     return;
                 }
                 const MedicinalProductPharmaceuticalTargetSpecies = require('../backbone_elements/medicinalProductPharmaceuticalTargetSpecies.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.targetSpecies = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof MedicinalProductPharmaceuticalTargetSpecies ?
-                                v : new MedicinalProductPharmaceuticalTargetSpecies(v)
-                            );
-                } else {
-                    if (valueProvided instanceof MedicinalProductPharmaceuticalTargetSpecies) {
-                        this.__data.targetSpecies = valueProvided;
-                    } else {
-                        this.__data.targetSpecies = [new MedicinalProductPharmaceuticalTargetSpecies(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.targetSpecies = FhirResourceCreator.createArray(valueProvided, MedicinalProductPharmaceuticalTargetSpecies);
             }
         });
 

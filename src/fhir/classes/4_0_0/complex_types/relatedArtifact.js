@@ -79,19 +79,8 @@ class RelatedArtifact extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.extension = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Extension ?
-                                v : new Extension(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Extension) {
-                        this.__data.extension = valueProvided;
-                    } else {
-                        this.__data.extension = [new Extension(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -204,11 +193,8 @@ class RelatedArtifact extends Element {
                     return;
                 }
                 const Attachment = require('../complex_types/attachment.js');
-                if (valueProvided instanceof Attachment){
-                    this.__data.document = valueProvided;
-                } else {
-                    this.__data.document = new Attachment(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.document = FhirResourceCreator.create(valueProvided, Attachment);
             }
         });
 

@@ -1457,7 +1457,7 @@ class GraphHelper {
             /**
              * @type {Resource}
              */
-            const graphDefinition = FhirResourceCreator.create(graphDefinitionJson);
+            const graphDefinition = FhirResourceCreator.create(graphDefinitionJson, GraphDefinition);
             assertTypeEquals(graphDefinition, GraphDefinition);
             /**
              * @type {ProcessMultipleIdsAsyncResult}

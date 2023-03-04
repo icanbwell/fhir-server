@@ -75,19 +75,8 @@ class ValueSetCompose extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.extension = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Extension ?
-                                v : new Extension(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Extension) {
-                        this.__data.extension = valueProvided;
-                    } else {
-                        this.__data.extension = [new Extension(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -118,19 +107,8 @@ class ValueSetCompose extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.modifierExtension = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Extension ?
-                                v : new Extension(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Extension) {
-                        this.__data.modifierExtension = valueProvided;
-                    } else {
-                        this.__data.modifierExtension = [new Extension(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -192,19 +170,8 @@ class ValueSetCompose extends Element {
                     return;
                 }
                 const ValueSetInclude = require('../backbone_elements/valueSetInclude.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.include = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof ValueSetInclude ?
-                                v : new ValueSetInclude(v)
-                            );
-                } else {
-                    if (valueProvided instanceof ValueSetInclude) {
-                        this.__data.include = valueProvided;
-                    } else {
-                        this.__data.include = [new ValueSetInclude(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.include = FhirResourceCreator.createArray(valueProvided, ValueSetInclude);
             }
         });
 
@@ -224,19 +191,8 @@ class ValueSetCompose extends Element {
                     return;
                 }
                 const ValueSetInclude = require('../backbone_elements/valueSetInclude.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.exclude = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof ValueSetInclude ?
-                                v : new ValueSetInclude(v)
-                            );
-                } else {
-                    if (valueProvided instanceof ValueSetInclude) {
-                        this.__data.exclude = valueProvided;
-                    } else {
-                        this.__data.exclude = [new ValueSetInclude(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.exclude = FhirResourceCreator.createArray(valueProvided, ValueSetInclude);
             }
         });
 

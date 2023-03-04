@@ -77,19 +77,8 @@ class ImplementationGuideDefinition extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.extension = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Extension ?
-                                v : new Extension(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Extension) {
-                        this.__data.extension = valueProvided;
-                    } else {
-                        this.__data.extension = [new Extension(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -120,19 +109,8 @@ class ImplementationGuideDefinition extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.modifierExtension = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Extension ?
-                                v : new Extension(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Extension) {
-                        this.__data.modifierExtension = valueProvided;
-                    } else {
-                        this.__data.modifierExtension = [new Extension(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -151,19 +129,8 @@ class ImplementationGuideDefinition extends Element {
                     return;
                 }
                 const ImplementationGuideGrouping = require('../backbone_elements/implementationGuideGrouping.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.grouping = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof ImplementationGuideGrouping ?
-                                v : new ImplementationGuideGrouping(v)
-                            );
-                } else {
-                    if (valueProvided instanceof ImplementationGuideGrouping) {
-                        this.__data.grouping = valueProvided;
-                    } else {
-                        this.__data.grouping = [new ImplementationGuideGrouping(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.grouping = FhirResourceCreator.createArray(valueProvided, ImplementationGuideGrouping);
             }
         });
 
@@ -185,19 +152,8 @@ class ImplementationGuideDefinition extends Element {
                     return;
                 }
                 const ImplementationGuideResource = require('../backbone_elements/implementationGuideResource.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.resource = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof ImplementationGuideResource ?
-                                v : new ImplementationGuideResource(v)
-                            );
-                } else {
-                    if (valueProvided instanceof ImplementationGuideResource) {
-                        this.__data.resource = valueProvided;
-                    } else {
-                        this.__data.resource = [new ImplementationGuideResource(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.resource = FhirResourceCreator.createArray(valueProvided, ImplementationGuideResource);
             }
         });
 
@@ -217,11 +173,8 @@ class ImplementationGuideDefinition extends Element {
                     return;
                 }
                 const ImplementationGuidePage = require('../backbone_elements/implementationGuidePage.js');
-                if (valueProvided instanceof ImplementationGuidePage){
-                    this.__data.page = valueProvided;
-                } else {
-                    this.__data.page = new ImplementationGuidePage(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.page = FhirResourceCreator.create(valueProvided, ImplementationGuidePage);
             }
         });
 
@@ -240,19 +193,8 @@ class ImplementationGuideDefinition extends Element {
                     return;
                 }
                 const ImplementationGuideParameter = require('../backbone_elements/implementationGuideParameter.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.parameter = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof ImplementationGuideParameter ?
-                                v : new ImplementationGuideParameter(v)
-                            );
-                } else {
-                    if (valueProvided instanceof ImplementationGuideParameter) {
-                        this.__data.parameter = valueProvided;
-                    } else {
-                        this.__data.parameter = [new ImplementationGuideParameter(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.parameter = FhirResourceCreator.createArray(valueProvided, ImplementationGuideParameter);
             }
         });
 
@@ -271,19 +213,8 @@ class ImplementationGuideDefinition extends Element {
                     return;
                 }
                 const ImplementationGuideTemplate = require('../backbone_elements/implementationGuideTemplate.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.template = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof ImplementationGuideTemplate ?
-                                v : new ImplementationGuideTemplate(v)
-                            );
-                } else {
-                    if (valueProvided instanceof ImplementationGuideTemplate) {
-                        this.__data.template = valueProvided;
-                    } else {
-                        this.__data.template = [new ImplementationGuideTemplate(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.template = FhirResourceCreator.createArray(valueProvided, ImplementationGuideTemplate);
             }
         });
 

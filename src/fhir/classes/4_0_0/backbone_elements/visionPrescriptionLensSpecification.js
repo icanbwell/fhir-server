@@ -93,19 +93,8 @@ class VisionPrescriptionLensSpecification extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.extension = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Extension ?
-                                v : new Extension(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Extension) {
-                        this.__data.extension = valueProvided;
-                    } else {
-                        this.__data.extension = [new Extension(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -136,19 +125,8 @@ class VisionPrescriptionLensSpecification extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.modifierExtension = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Extension ?
-                                v : new Extension(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Extension) {
-                        this.__data.modifierExtension = valueProvided;
-                    } else {
-                        this.__data.modifierExtension = [new Extension(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -168,11 +146,8 @@ class VisionPrescriptionLensSpecification extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                if (valueProvided instanceof CodeableConcept){
-                    this.__data.product = valueProvided;
-                } else {
-                    this.__data.product = new CodeableConcept(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.product = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
 
@@ -263,19 +238,8 @@ class VisionPrescriptionLensSpecification extends Element {
                     return;
                 }
                 const VisionPrescriptionPrism = require('../backbone_elements/visionPrescriptionPrism.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.prism = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof VisionPrescriptionPrism ?
-                                v : new VisionPrescriptionPrism(v)
-                            );
-                } else {
-                    if (valueProvided instanceof VisionPrescriptionPrism) {
-                        this.__data.prism = valueProvided;
-                    } else {
-                        this.__data.prism = [new VisionPrescriptionPrism(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.prism = FhirResourceCreator.createArray(valueProvided, VisionPrescriptionPrism);
             }
         });
 
@@ -366,11 +330,8 @@ class VisionPrescriptionLensSpecification extends Element {
                     return;
                 }
                 const Quantity = require('../complex_types/quantity.js');
-                if (valueProvided instanceof Quantity){
-                    this.__data.duration = valueProvided;
-                } else {
-                    this.__data.duration = new Quantity(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.duration = FhirResourceCreator.create(valueProvided, Quantity);
             }
         });
 
@@ -425,19 +386,8 @@ class VisionPrescriptionLensSpecification extends Element {
                     return;
                 }
                 const Annotation = require('../complex_types/annotation.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.note = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Annotation ?
-                                v : new Annotation(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Annotation) {
-                        this.__data.note = valueProvided;
-                    } else {
-                        this.__data.note = [new Annotation(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.note = FhirResourceCreator.createArray(valueProvided, Annotation);
             }
         });
 

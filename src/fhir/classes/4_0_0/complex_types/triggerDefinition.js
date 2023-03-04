@@ -81,19 +81,8 @@ class TriggerDefinition extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.extension = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Extension ?
-                                v : new Extension(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Extension) {
-                        this.__data.extension = valueProvided;
-                    } else {
-                        this.__data.extension = [new Extension(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -150,11 +139,8 @@ class TriggerDefinition extends Element {
                     return;
                 }
                 const Timing = require('../backbone_elements/timing.js');
-                if (valueProvided instanceof Timing){
-                    this.__data.timingTiming = valueProvided;
-                } else {
-                    this.__data.timingTiming = new Timing(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.timingTiming = FhirResourceCreator.create(valueProvided, Timing);
             }
         });
 
@@ -173,11 +159,8 @@ class TriggerDefinition extends Element {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                if (valueProvided instanceof Reference){
-                    this.__data.timingReference = valueProvided;
-                } else {
-                    this.__data.timingReference = new Reference(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.timingReference = FhirResourceCreator.create(valueProvided, Reference);
             }
         });
 
@@ -233,19 +216,8 @@ class TriggerDefinition extends Element {
                     return;
                 }
                 const DataRequirement = require('../complex_types/dataRequirement.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.data = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof DataRequirement ?
-                                v : new DataRequirement(v)
-                            );
-                } else {
-                    if (valueProvided instanceof DataRequirement) {
-                        this.__data.data = valueProvided;
-                    } else {
-                        this.__data.data = [new DataRequirement(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.data = FhirResourceCreator.createArray(valueProvided, DataRequirement);
             }
         });
 
@@ -265,11 +237,8 @@ class TriggerDefinition extends Element {
                     return;
                 }
                 const Expression = require('../complex_types/expression.js');
-                if (valueProvided instanceof Expression){
-                    this.__data.condition = valueProvided;
-                } else {
-                    this.__data.condition = new Expression(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.condition = FhirResourceCreator.create(valueProvided, Expression);
             }
         });
 

@@ -75,19 +75,8 @@ class CapabilityStatementMessaging extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.extension = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Extension ?
-                                v : new Extension(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Extension) {
-                        this.__data.extension = valueProvided;
-                    } else {
-                        this.__data.extension = [new Extension(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -118,19 +107,8 @@ class CapabilityStatementMessaging extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.modifierExtension = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Extension ?
-                                v : new Extension(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Extension) {
-                        this.__data.modifierExtension = valueProvided;
-                    } else {
-                        this.__data.modifierExtension = [new Extension(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -150,19 +128,8 @@ class CapabilityStatementMessaging extends Element {
                     return;
                 }
                 const CapabilityStatementEndpoint = require('../backbone_elements/capabilityStatementEndpoint.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.endpoint = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof CapabilityStatementEndpoint ?
-                                v : new CapabilityStatementEndpoint(v)
-                            );
-                } else {
-                    if (valueProvided instanceof CapabilityStatementEndpoint) {
-                        this.__data.endpoint = valueProvided;
-                    } else {
-                        this.__data.endpoint = [new CapabilityStatementEndpoint(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.endpoint = FhirResourceCreator.createArray(valueProvided, CapabilityStatementEndpoint);
             }
         });
 
@@ -221,19 +188,8 @@ class CapabilityStatementMessaging extends Element {
                     return;
                 }
                 const CapabilityStatementSupportedMessage = require('../backbone_elements/capabilityStatementSupportedMessage.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.supportedMessage = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof CapabilityStatementSupportedMessage ?
-                                v : new CapabilityStatementSupportedMessage(v)
-                            );
-                } else {
-                    if (valueProvided instanceof CapabilityStatementSupportedMessage) {
-                        this.__data.supportedMessage = valueProvided;
-                    } else {
-                        this.__data.supportedMessage = [new CapabilityStatementSupportedMessage(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.supportedMessage = FhirResourceCreator.createArray(valueProvided, CapabilityStatementSupportedMessage);
             }
         });
 

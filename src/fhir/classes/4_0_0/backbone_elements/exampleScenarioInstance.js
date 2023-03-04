@@ -76,19 +76,8 @@ class ExampleScenarioInstance extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.extension = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Extension ?
-                                v : new Extension(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Extension) {
-                        this.__data.extension = valueProvided;
-                    } else {
-                        this.__data.extension = [new Extension(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -119,19 +108,8 @@ class ExampleScenarioInstance extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.modifierExtension = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Extension ?
-                                v : new Extension(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Extension) {
-                        this.__data.modifierExtension = valueProvided;
-                    } else {
-                        this.__data.modifierExtension = [new Extension(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -222,19 +200,8 @@ class ExampleScenarioInstance extends Element {
                     return;
                 }
                 const ExampleScenarioVersion = require('../backbone_elements/exampleScenarioVersion.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.version = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof ExampleScenarioVersion ?
-                                v : new ExampleScenarioVersion(v)
-                            );
-                } else {
-                    if (valueProvided instanceof ExampleScenarioVersion) {
-                        this.__data.version = valueProvided;
-                    } else {
-                        this.__data.version = [new ExampleScenarioVersion(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.version = FhirResourceCreator.createArray(valueProvided, ExampleScenarioVersion);
             }
         });
 
@@ -254,19 +221,8 @@ class ExampleScenarioInstance extends Element {
                     return;
                 }
                 const ExampleScenarioContainedInstance = require('../backbone_elements/exampleScenarioContainedInstance.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.containedInstance = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof ExampleScenarioContainedInstance ?
-                                v : new ExampleScenarioContainedInstance(v)
-                            );
-                } else {
-                    if (valueProvided instanceof ExampleScenarioContainedInstance) {
-                        this.__data.containedInstance = valueProvided;
-                    } else {
-                        this.__data.containedInstance = [new ExampleScenarioContainedInstance(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.containedInstance = FhirResourceCreator.createArray(valueProvided, ExampleScenarioContainedInstance);
             }
         });
 

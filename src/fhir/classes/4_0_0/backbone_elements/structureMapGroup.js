@@ -77,19 +77,8 @@ class StructureMapGroup extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.extension = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Extension ?
-                                v : new Extension(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Extension) {
-                        this.__data.extension = valueProvided;
-                    } else {
-                        this.__data.extension = [new Extension(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -120,19 +109,8 @@ class StructureMapGroup extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.modifierExtension = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Extension ?
-                                v : new Extension(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Extension) {
-                        this.__data.modifierExtension = valueProvided;
-                    } else {
-                        this.__data.modifierExtension = [new Extension(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -226,19 +204,8 @@ class StructureMapGroup extends Element {
                     return;
                 }
                 const StructureMapInput = require('../backbone_elements/structureMapInput.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.input = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof StructureMapInput ?
-                                v : new StructureMapInput(v)
-                            );
-                } else {
-                    if (valueProvided instanceof StructureMapInput) {
-                        this.__data.input = valueProvided;
-                    } else {
-                        this.__data.input = [new StructureMapInput(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.input = FhirResourceCreator.createArray(valueProvided, StructureMapInput);
             }
         });
 
@@ -257,19 +224,8 @@ class StructureMapGroup extends Element {
                     return;
                 }
                 const StructureMapRule = require('../backbone_elements/structureMapRule.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.rule = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof StructureMapRule ?
-                                v : new StructureMapRule(v)
-                            );
-                } else {
-                    if (valueProvided instanceof StructureMapRule) {
-                        this.__data.rule = valueProvided;
-                    } else {
-                        this.__data.rule = [new StructureMapRule(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.rule = FhirResourceCreator.createArray(valueProvided, StructureMapRule);
             }
         });
 

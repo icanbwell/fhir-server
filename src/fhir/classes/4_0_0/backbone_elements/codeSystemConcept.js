@@ -78,19 +78,8 @@ class CodeSystemConcept extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.extension = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Extension ?
-                                v : new Extension(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Extension) {
-                        this.__data.extension = valueProvided;
-                    } else {
-                        this.__data.extension = [new Extension(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -121,19 +110,8 @@ class CodeSystemConcept extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.modifierExtension = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Extension ?
-                                v : new Extension(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Extension) {
-                        this.__data.modifierExtension = valueProvided;
-                    } else {
-                        this.__data.modifierExtension = [new Extension(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -212,19 +190,8 @@ class CodeSystemConcept extends Element {
                     return;
                 }
                 const CodeSystemDesignation = require('../backbone_elements/codeSystemDesignation.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.designation = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof CodeSystemDesignation ?
-                                v : new CodeSystemDesignation(v)
-                            );
-                } else {
-                    if (valueProvided instanceof CodeSystemDesignation) {
-                        this.__data.designation = valueProvided;
-                    } else {
-                        this.__data.designation = [new CodeSystemDesignation(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.designation = FhirResourceCreator.createArray(valueProvided, CodeSystemDesignation);
             }
         });
 
@@ -243,19 +210,8 @@ class CodeSystemConcept extends Element {
                     return;
                 }
                 const CodeSystemProperty1 = require('../backbone_elements/codeSystemProperty1.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.property = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof CodeSystemProperty1 ?
-                                v : new CodeSystemProperty1(v)
-                            );
-                } else {
-                    if (valueProvided instanceof CodeSystemProperty1) {
-                        this.__data.property = valueProvided;
-                    } else {
-                        this.__data.property = [new CodeSystemProperty1(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.property = FhirResourceCreator.createArray(valueProvided, CodeSystemProperty1);
             }
         });
 
@@ -275,19 +231,8 @@ class CodeSystemConcept extends Element {
                     this.__data.concept = undefined;
                     return;
                 }
-                if (Array.isArray(valueProvided)) {
-                    this.__data.concept = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof CodeSystemConcept ?
-                                v : new CodeSystemConcept(v)
-                            );
-                } else {
-                    if (valueProvided instanceof CodeSystemConcept) {
-                        this.__data.concept = valueProvided;
-                    } else {
-                        this.__data.concept = [new CodeSystemConcept(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.concept = FhirResourceCreator.createArray(valueProvided, CodeSystemConcept);
             }
         });
 

@@ -72,19 +72,8 @@ class TerminologyCapabilitiesCodeSystem extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.extension = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Extension ?
-                                v : new Extension(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Extension) {
-                        this.__data.extension = valueProvided;
-                    } else {
-                        this.__data.extension = [new Extension(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -115,19 +104,8 @@ class TerminologyCapabilitiesCodeSystem extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.modifierExtension = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Extension ?
-                                v : new Extension(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Extension) {
-                        this.__data.modifierExtension = valueProvided;
-                    } else {
-                        this.__data.modifierExtension = [new Extension(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -164,19 +142,8 @@ class TerminologyCapabilitiesCodeSystem extends Element {
                     return;
                 }
                 const TerminologyCapabilitiesVersion = require('../backbone_elements/terminologyCapabilitiesVersion.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.version = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof TerminologyCapabilitiesVersion ?
-                                v : new TerminologyCapabilitiesVersion(v)
-                            );
-                } else {
-                    if (valueProvided instanceof TerminologyCapabilitiesVersion) {
-                        this.__data.version = valueProvided;
-                    } else {
-                        this.__data.version = [new TerminologyCapabilitiesVersion(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.version = FhirResourceCreator.createArray(valueProvided, TerminologyCapabilitiesVersion);
             }
         });
 

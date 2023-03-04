@@ -71,19 +71,8 @@ class ChargeItemDefinitionPropertyGroup extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.extension = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Extension ?
-                                v : new Extension(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Extension) {
-                        this.__data.extension = valueProvided;
-                    } else {
-                        this.__data.extension = [new Extension(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -114,19 +103,8 @@ class ChargeItemDefinitionPropertyGroup extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.modifierExtension = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Extension ?
-                                v : new Extension(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Extension) {
-                        this.__data.modifierExtension = valueProvided;
-                    } else {
-                        this.__data.modifierExtension = [new Extension(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -145,19 +123,8 @@ class ChargeItemDefinitionPropertyGroup extends Element {
                     return;
                 }
                 const ChargeItemDefinitionApplicability = require('../backbone_elements/chargeItemDefinitionApplicability.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.applicability = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof ChargeItemDefinitionApplicability ?
-                                v : new ChargeItemDefinitionApplicability(v)
-                            );
-                } else {
-                    if (valueProvided instanceof ChargeItemDefinitionApplicability) {
-                        this.__data.applicability = valueProvided;
-                    } else {
-                        this.__data.applicability = [new ChargeItemDefinitionApplicability(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.applicability = FhirResourceCreator.createArray(valueProvided, ChargeItemDefinitionApplicability);
             }
         });
 
@@ -181,19 +148,8 @@ class ChargeItemDefinitionPropertyGroup extends Element {
                     return;
                 }
                 const ChargeItemDefinitionPriceComponent = require('../backbone_elements/chargeItemDefinitionPriceComponent.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.priceComponent = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof ChargeItemDefinitionPriceComponent ?
-                                v : new ChargeItemDefinitionPriceComponent(v)
-                            );
-                } else {
-                    if (valueProvided instanceof ChargeItemDefinitionPriceComponent) {
-                        this.__data.priceComponent = valueProvided;
-                    } else {
-                        this.__data.priceComponent = [new ChargeItemDefinitionPriceComponent(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.priceComponent = FhirResourceCreator.createArray(valueProvided, ChargeItemDefinitionPriceComponent);
             }
         });
 

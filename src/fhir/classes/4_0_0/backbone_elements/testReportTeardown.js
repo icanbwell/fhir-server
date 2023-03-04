@@ -66,19 +66,8 @@ class TestReportTeardown extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.extension = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Extension ?
-                                v : new Extension(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Extension) {
-                        this.__data.extension = valueProvided;
-                    } else {
-                        this.__data.extension = [new Extension(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -109,19 +98,8 @@ class TestReportTeardown extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.modifierExtension = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Extension ?
-                                v : new Extension(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Extension) {
-                        this.__data.modifierExtension = valueProvided;
-                    } else {
-                        this.__data.modifierExtension = [new Extension(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -140,19 +118,8 @@ class TestReportTeardown extends Element {
                     return;
                 }
                 const TestReportAction2 = require('../backbone_elements/testReportAction2.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.action = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof TestReportAction2 ?
-                                v : new TestReportAction2(v)
-                            );
-                } else {
-                    if (valueProvided instanceof TestReportAction2) {
-                        this.__data.action = valueProvided;
-                    } else {
-                        this.__data.action = [new TestReportAction2(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.action = FhirResourceCreator.createArray(valueProvided, TestReportAction2);
             }
         });
 

@@ -68,19 +68,8 @@ class StructureDefinitionDifferential extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.extension = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Extension ?
-                                v : new Extension(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Extension) {
-                        this.__data.extension = valueProvided;
-                    } else {
-                        this.__data.extension = [new Extension(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -111,19 +100,8 @@ class StructureDefinitionDifferential extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.modifierExtension = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Extension ?
-                                v : new Extension(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Extension) {
-                        this.__data.modifierExtension = valueProvided;
-                    } else {
-                        this.__data.modifierExtension = [new Extension(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -142,19 +120,8 @@ class StructureDefinitionDifferential extends Element {
                     return;
                 }
                 const ElementDefinition = require('../backbone_elements/elementDefinition.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.element = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof ElementDefinition ?
-                                v : new ElementDefinition(v)
-                            );
-                } else {
-                    if (valueProvided instanceof ElementDefinition) {
-                        this.__data.element = valueProvided;
-                    } else {
-                        this.__data.element = [new ElementDefinition(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.element = FhirResourceCreator.createArray(valueProvided, ElementDefinition);
             }
         });
 

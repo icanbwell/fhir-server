@@ -83,19 +83,8 @@ class SubstanceNucleicAcidSubunit extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.extension = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Extension ?
-                                v : new Extension(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Extension) {
-                        this.__data.extension = valueProvided;
-                    } else {
-                        this.__data.extension = [new Extension(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -126,19 +115,8 @@ class SubstanceNucleicAcidSubunit extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.modifierExtension = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Extension ?
-                                v : new Extension(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Extension) {
-                        this.__data.modifierExtension = valueProvided;
-                    } else {
-                        this.__data.modifierExtension = [new Extension(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -215,11 +193,8 @@ class SubstanceNucleicAcidSubunit extends Element {
                     return;
                 }
                 const Attachment = require('../complex_types/attachment.js');
-                if (valueProvided instanceof Attachment){
-                    this.__data.sequenceAttachment = valueProvided;
-                } else {
-                    this.__data.sequenceAttachment = new Attachment(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.sequenceAttachment = FhirResourceCreator.create(valueProvided, Attachment);
             }
         });
 
@@ -241,11 +216,8 @@ class SubstanceNucleicAcidSubunit extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                if (valueProvided instanceof CodeableConcept){
-                    this.__data.fivePrime = valueProvided;
-                } else {
-                    this.__data.fivePrime = new CodeableConcept(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.fivePrime = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
 
@@ -267,11 +239,8 @@ class SubstanceNucleicAcidSubunit extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                if (valueProvided instanceof CodeableConcept){
-                    this.__data.threePrime = valueProvided;
-                } else {
-                    this.__data.threePrime = new CodeableConcept(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.threePrime = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
 
@@ -290,19 +259,8 @@ class SubstanceNucleicAcidSubunit extends Element {
                     return;
                 }
                 const SubstanceNucleicAcidLinkage = require('../backbone_elements/substanceNucleicAcidLinkage.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.linkage = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof SubstanceNucleicAcidLinkage ?
-                                v : new SubstanceNucleicAcidLinkage(v)
-                            );
-                } else {
-                    if (valueProvided instanceof SubstanceNucleicAcidLinkage) {
-                        this.__data.linkage = valueProvided;
-                    } else {
-                        this.__data.linkage = [new SubstanceNucleicAcidLinkage(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.linkage = FhirResourceCreator.createArray(valueProvided, SubstanceNucleicAcidLinkage);
             }
         });
 
@@ -321,19 +279,8 @@ class SubstanceNucleicAcidSubunit extends Element {
                     return;
                 }
                 const SubstanceNucleicAcidSugar = require('../backbone_elements/substanceNucleicAcidSugar.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.sugar = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof SubstanceNucleicAcidSugar ?
-                                v : new SubstanceNucleicAcidSugar(v)
-                            );
-                } else {
-                    if (valueProvided instanceof SubstanceNucleicAcidSugar) {
-                        this.__data.sugar = valueProvided;
-                    } else {
-                        this.__data.sugar = [new SubstanceNucleicAcidSugar(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.sugar = FhirResourceCreator.createArray(valueProvided, SubstanceNucleicAcidSugar);
             }
         });
 

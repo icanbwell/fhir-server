@@ -76,19 +76,8 @@ class GraphDefinitionTarget extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.extension = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Extension ?
-                                v : new Extension(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Extension) {
-                        this.__data.extension = valueProvided;
-                    } else {
-                        this.__data.extension = [new Extension(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -119,19 +108,8 @@ class GraphDefinitionTarget extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.modifierExtension = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Extension ?
-                                v : new Extension(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Extension) {
-                        this.__data.modifierExtension = valueProvided;
-                    } else {
-                        this.__data.modifierExtension = [new Extension(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -204,19 +182,8 @@ class GraphDefinitionTarget extends Element {
                     return;
                 }
                 const GraphDefinitionCompartment = require('../backbone_elements/graphDefinitionCompartment.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.compartment = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof GraphDefinitionCompartment ?
-                                v : new GraphDefinitionCompartment(v)
-                            );
-                } else {
-                    if (valueProvided instanceof GraphDefinitionCompartment) {
-                        this.__data.compartment = valueProvided;
-                    } else {
-                        this.__data.compartment = [new GraphDefinitionCompartment(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.compartment = FhirResourceCreator.createArray(valueProvided, GraphDefinitionCompartment);
             }
         });
 
@@ -235,19 +202,8 @@ class GraphDefinitionTarget extends Element {
                     return;
                 }
                 const GraphDefinitionLink = require('../backbone_elements/graphDefinitionLink.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.link = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof GraphDefinitionLink ?
-                                v : new GraphDefinitionLink(v)
-                            );
-                } else {
-                    if (valueProvided instanceof GraphDefinitionLink) {
-                        this.__data.link = valueProvided;
-                    } else {
-                        this.__data.link = [new GraphDefinitionLink(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.link = FhirResourceCreator.createArray(valueProvided, GraphDefinitionLink);
             }
         });
 

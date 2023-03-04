@@ -110,11 +110,8 @@ class VerificationResult extends Resource {
                     return;
                 }
                 const Meta = require('../complex_types/meta.js');
-                if (valueProvided instanceof Meta){
-                    this.__data.meta = valueProvided;
-                } else {
-                    this.__data.meta = new Meta(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.meta = FhirResourceCreator.create(valueProvided, Meta);
             }
         });
 
@@ -177,11 +174,8 @@ class VerificationResult extends Resource {
                     return;
                 }
                 const Narrative = require('../complex_types/narrative.js');
-                if (valueProvided instanceof Narrative){
-                    this.__data.text = valueProvided;
-                } else {
-                    this.__data.text = new Narrative(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.text = FhirResourceCreator.create(valueProvided, Narrative);
             }
         });
 
@@ -202,23 +196,8 @@ class VerificationResult extends Resource {
                     return;
                 }
                 const ResourceContainer = require('../simple_types/resourceContainer.js');
-                const {getResource} = require('../../../../operations/common/getResource');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.contained = valueProvided.filter(v => v).map(v => {
-                        if (v instanceof Resource) {
-                            return v;
-                        }
-                        const ResourceCreator = getResource('4_0_0', v.resourceType);
-                        return new ResourceCreator(v);
-                    });
-                } else {
-                    if (valueProvided instanceof Resource) {
-                        this.__data.contained = [valueProvided];
-                    } else {
-                        const ResourceCreator = getResource('4_0_0', valueProvided.resourceType);
-                        this.__data.contained = [new ResourceCreator(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.contained = FhirResourceCreator.createArray(valueProvided);
             }
         });
 
@@ -241,19 +220,8 @@ class VerificationResult extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.extension = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Extension ?
-                                v : new Extension(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Extension) {
-                        this.__data.extension = valueProvided;
-                    } else {
-                        this.__data.extension = [new Extension(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -284,19 +252,8 @@ class VerificationResult extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.modifierExtension = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Extension ?
-                                v : new Extension(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Extension) {
-                        this.__data.modifierExtension = valueProvided;
-                    } else {
-                        this.__data.modifierExtension = [new Extension(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -315,19 +272,8 @@ class VerificationResult extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.target = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Reference ?
-                                v : new Reference(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Reference) {
-                        this.__data.target = valueProvided;
-                    } else {
-                        this.__data.target = [new Reference(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.target = FhirResourceCreator.createArray(valueProvided, Reference);
             }
         });
 
@@ -365,11 +311,8 @@ class VerificationResult extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                if (valueProvided instanceof CodeableConcept){
-                    this.__data.need = valueProvided;
-                } else {
-                    this.__data.need = new CodeableConcept(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.need = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
 
@@ -426,11 +369,8 @@ class VerificationResult extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                if (valueProvided instanceof CodeableConcept){
-                    this.__data.validationType = valueProvided;
-                } else {
-                    this.__data.validationType = new CodeableConcept(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.validationType = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
 
@@ -450,19 +390,8 @@ class VerificationResult extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.validationProcess = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof CodeableConcept ?
-                                v : new CodeableConcept(v)
-                            );
-                } else {
-                    if (valueProvided instanceof CodeableConcept) {
-                        this.__data.validationProcess = valueProvided;
-                    } else {
-                        this.__data.validationProcess = [new CodeableConcept(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.validationProcess = FhirResourceCreator.createArray(valueProvided, CodeableConcept);
             }
         });
 
@@ -481,11 +410,8 @@ class VerificationResult extends Resource {
                     return;
                 }
                 const Timing = require('../backbone_elements/timing.js');
-                if (valueProvided instanceof Timing){
-                    this.__data.frequency = valueProvided;
-                } else {
-                    this.__data.frequency = new Timing(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.frequency = FhirResourceCreator.create(valueProvided, Timing);
             }
         });
 
@@ -540,11 +466,8 @@ class VerificationResult extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                if (valueProvided instanceof CodeableConcept){
-                    this.__data.failureAction = valueProvided;
-                } else {
-                    this.__data.failureAction = new CodeableConcept(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.failureAction = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
 
@@ -563,19 +486,8 @@ class VerificationResult extends Resource {
                     return;
                 }
                 const VerificationResultPrimarySource = require('../backbone_elements/verificationResultPrimarySource.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.primarySource = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof VerificationResultPrimarySource ?
-                                v : new VerificationResultPrimarySource(v)
-                            );
-                } else {
-                    if (valueProvided instanceof VerificationResultPrimarySource) {
-                        this.__data.primarySource = valueProvided;
-                    } else {
-                        this.__data.primarySource = [new VerificationResultPrimarySource(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.primarySource = FhirResourceCreator.createArray(valueProvided, VerificationResultPrimarySource);
             }
         });
 
@@ -594,11 +506,8 @@ class VerificationResult extends Resource {
                     return;
                 }
                 const VerificationResultAttestation = require('../backbone_elements/verificationResultAttestation.js');
-                if (valueProvided instanceof VerificationResultAttestation){
-                    this.__data.attestation = valueProvided;
-                } else {
-                    this.__data.attestation = new VerificationResultAttestation(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.attestation = FhirResourceCreator.create(valueProvided, VerificationResultAttestation);
             }
         });
 
@@ -617,19 +526,8 @@ class VerificationResult extends Resource {
                     return;
                 }
                 const VerificationResultValidator = require('../backbone_elements/verificationResultValidator.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.validator = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof VerificationResultValidator ?
-                                v : new VerificationResultValidator(v)
-                            );
-                } else {
-                    if (valueProvided instanceof VerificationResultValidator) {
-                        this.__data.validator = valueProvided;
-                    } else {
-                        this.__data.validator = [new VerificationResultValidator(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.validator = FhirResourceCreator.createArray(valueProvided, VerificationResultValidator);
             }
         });
 

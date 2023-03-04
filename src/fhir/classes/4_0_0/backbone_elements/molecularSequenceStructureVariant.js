@@ -74,19 +74,8 @@ class MolecularSequenceStructureVariant extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.extension = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Extension ?
-                                v : new Extension(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Extension) {
-                        this.__data.extension = valueProvided;
-                    } else {
-                        this.__data.extension = [new Extension(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -117,19 +106,8 @@ class MolecularSequenceStructureVariant extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.modifierExtension = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Extension ?
-                                v : new Extension(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Extension) {
-                        this.__data.modifierExtension = valueProvided;
-                    } else {
-                        this.__data.modifierExtension = [new Extension(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -148,11 +126,8 @@ class MolecularSequenceStructureVariant extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                if (valueProvided instanceof CodeableConcept){
-                    this.__data.variantType = valueProvided;
-                } else {
-                    this.__data.variantType = new CodeableConcept(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.variantType = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
 
@@ -208,11 +183,8 @@ class MolecularSequenceStructureVariant extends Element {
                     return;
                 }
                 const MolecularSequenceOuter = require('../backbone_elements/molecularSequenceOuter.js');
-                if (valueProvided instanceof MolecularSequenceOuter){
-                    this.__data.outer = valueProvided;
-                } else {
-                    this.__data.outer = new MolecularSequenceOuter(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.outer = FhirResourceCreator.create(valueProvided, MolecularSequenceOuter);
             }
         });
 
@@ -231,11 +203,8 @@ class MolecularSequenceStructureVariant extends Element {
                     return;
                 }
                 const MolecularSequenceInner = require('../backbone_elements/molecularSequenceInner.js');
-                if (valueProvided instanceof MolecularSequenceInner){
-                    this.__data.inner = valueProvided;
-                } else {
-                    this.__data.inner = new MolecularSequenceInner(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.inner = FhirResourceCreator.create(valueProvided, MolecularSequenceInner);
             }
         });
 

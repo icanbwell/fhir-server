@@ -75,19 +75,8 @@ class ElementDefinitionSlicing extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.extension = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Extension ?
-                                v : new Extension(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Extension) {
-                        this.__data.extension = valueProvided;
-                    } else {
-                        this.__data.extension = [new Extension(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -118,19 +107,8 @@ class ElementDefinitionSlicing extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.modifierExtension = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Extension ?
-                                v : new Extension(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Extension) {
-                        this.__data.modifierExtension = valueProvided;
-                    } else {
-                        this.__data.modifierExtension = [new Extension(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -153,19 +131,8 @@ class ElementDefinitionSlicing extends Element {
                     return;
                 }
                 const ElementDefinitionDiscriminator = require('../backbone_elements/elementDefinitionDiscriminator.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.discriminator = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof ElementDefinitionDiscriminator ?
-                                v : new ElementDefinitionDiscriminator(v)
-                            );
-                } else {
-                    if (valueProvided instanceof ElementDefinitionDiscriminator) {
-                        this.__data.discriminator = valueProvided;
-                    } else {
-                        this.__data.discriminator = [new ElementDefinitionDiscriminator(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.discriminator = FhirResourceCreator.createArray(valueProvided, ElementDefinitionDiscriminator);
             }
         });
 

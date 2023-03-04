@@ -75,19 +75,8 @@ class OrganizationContact extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.extension = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Extension ?
-                                v : new Extension(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Extension) {
-                        this.__data.extension = valueProvided;
-                    } else {
-                        this.__data.extension = [new Extension(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -118,19 +107,8 @@ class OrganizationContact extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.modifierExtension = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Extension ?
-                                v : new Extension(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Extension) {
-                        this.__data.modifierExtension = valueProvided;
-                    } else {
-                        this.__data.modifierExtension = [new Extension(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -149,11 +127,8 @@ class OrganizationContact extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                if (valueProvided instanceof CodeableConcept){
-                    this.__data.purpose = valueProvided;
-                } else {
-                    this.__data.purpose = new CodeableConcept(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.purpose = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
 
@@ -172,11 +147,8 @@ class OrganizationContact extends Element {
                     return;
                 }
                 const HumanName = require('../complex_types/humanName.js');
-                if (valueProvided instanceof HumanName){
-                    this.__data.name = valueProvided;
-                } else {
-                    this.__data.name = new HumanName(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.name = FhirResourceCreator.create(valueProvided, HumanName);
             }
         });
 
@@ -196,19 +168,8 @@ class OrganizationContact extends Element {
                     return;
                 }
                 const ContactPoint = require('../complex_types/contactPoint.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.telecom = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof ContactPoint ?
-                                v : new ContactPoint(v)
-                            );
-                } else {
-                    if (valueProvided instanceof ContactPoint) {
-                        this.__data.telecom = valueProvided;
-                    } else {
-                        this.__data.telecom = [new ContactPoint(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.telecom = FhirResourceCreator.createArray(valueProvided, ContactPoint);
             }
         });
 
@@ -227,11 +188,8 @@ class OrganizationContact extends Element {
                     return;
                 }
                 const Address = require('../complex_types/address.js');
-                if (valueProvided instanceof Address){
-                    this.__data.address = valueProvided;
-                } else {
-                    this.__data.address = new Address(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.address = FhirResourceCreator.create(valueProvided, Address);
             }
         });
 

@@ -76,19 +76,8 @@ class QuestionnaireResponseItem extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.extension = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Extension ?
-                                v : new Extension(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Extension) {
-                        this.__data.extension = valueProvided;
-                    } else {
-                        this.__data.extension = [new Extension(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -119,19 +108,8 @@ class QuestionnaireResponseItem extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.modifierExtension = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Extension ?
-                                v : new Extension(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Extension) {
-                        this.__data.modifierExtension = valueProvided;
-                    } else {
-                        this.__data.modifierExtension = [new Extension(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -207,19 +185,8 @@ class QuestionnaireResponseItem extends Element {
                     return;
                 }
                 const QuestionnaireResponseAnswer = require('../backbone_elements/questionnaireResponseAnswer.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.answer = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof QuestionnaireResponseAnswer ?
-                                v : new QuestionnaireResponseAnswer(v)
-                            );
-                } else {
-                    if (valueProvided instanceof QuestionnaireResponseAnswer) {
-                        this.__data.answer = valueProvided;
-                    } else {
-                        this.__data.answer = [new QuestionnaireResponseAnswer(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.answer = FhirResourceCreator.createArray(valueProvided, QuestionnaireResponseAnswer);
             }
         });
 
@@ -237,19 +204,8 @@ class QuestionnaireResponseItem extends Element {
                     this.__data.item = undefined;
                     return;
                 }
-                if (Array.isArray(valueProvided)) {
-                    this.__data.item = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof QuestionnaireResponseItem ?
-                                v : new QuestionnaireResponseItem(v)
-                            );
-                } else {
-                    if (valueProvided instanceof QuestionnaireResponseItem) {
-                        this.__data.item = valueProvided;
-                    } else {
-                        this.__data.item = [new QuestionnaireResponseItem(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.item = FhirResourceCreator.createArray(valueProvided, QuestionnaireResponseItem);
             }
         });
 

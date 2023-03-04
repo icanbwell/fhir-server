@@ -78,19 +78,8 @@ class ConceptMapGroup extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.extension = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Extension ?
-                                v : new Extension(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Extension) {
-                        this.__data.extension = valueProvided;
-                    } else {
-                        this.__data.extension = [new Extension(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -121,19 +110,8 @@ class ConceptMapGroup extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.modifierExtension = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Extension ?
-                                v : new Extension(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Extension) {
-                        this.__data.modifierExtension = valueProvided;
-                    } else {
-                        this.__data.modifierExtension = [new Extension(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -229,19 +207,8 @@ class ConceptMapGroup extends Element {
                     return;
                 }
                 const ConceptMapElement = require('../backbone_elements/conceptMapElement.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.element = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof ConceptMapElement ?
-                                v : new ConceptMapElement(v)
-                            );
-                } else {
-                    if (valueProvided instanceof ConceptMapElement) {
-                        this.__data.element = valueProvided;
-                    } else {
-                        this.__data.element = [new ConceptMapElement(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.element = FhirResourceCreator.createArray(valueProvided, ConceptMapElement);
             }
         });
 
@@ -262,11 +229,8 @@ class ConceptMapGroup extends Element {
                     return;
                 }
                 const ConceptMapUnmapped = require('../backbone_elements/conceptMapUnmapped.js');
-                if (valueProvided instanceof ConceptMapUnmapped){
-                    this.__data.unmapped = valueProvided;
-                } else {
-                    this.__data.unmapped = new ConceptMapUnmapped(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.unmapped = FhirResourceCreator.create(valueProvided, ConceptMapUnmapped);
             }
         });
 

@@ -76,19 +76,8 @@ class BundleEntry extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.extension = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Extension ?
-                                v : new Extension(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Extension) {
-                        this.__data.extension = valueProvided;
-                    } else {
-                        this.__data.extension = [new Extension(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -119,19 +108,8 @@ class BundleEntry extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.modifierExtension = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Extension ?
-                                v : new Extension(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Extension) {
-                        this.__data.modifierExtension = valueProvided;
-                    } else {
-                        this.__data.modifierExtension = [new Extension(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -150,19 +128,8 @@ class BundleEntry extends Element {
                     return;
                 }
                 const BundleLink = require('../backbone_elements/bundleLink.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.link = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof BundleLink ?
-                                v : new BundleLink(v)
-                            );
-                } else {
-                    if (valueProvided instanceof BundleLink) {
-                        this.__data.link = valueProvided;
-                    } else {
-                        this.__data.link = [new BundleLink(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.link = FhirResourceCreator.createArray(valueProvided, BundleLink);
             }
         });
 
@@ -207,13 +174,8 @@ class BundleEntry extends Element {
                     return;
                 }
                 const ResourceContainer = require('../simple_types/resourceContainer.js');
-                const {getResource} = require('../../../../operations/common/getResource');
-                if (valueProvided instanceof Resource) {
-                    this.__data.resource = valueProvided;
-                } else {
-                    const ResourceCreator = getResource('4_0_0', valueProvided.resourceType);
-                    this.__data.resource = new ResourceCreator(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.resource = FhirResourceCreator.create(valueProvided);
             }
         });
 
@@ -232,11 +194,8 @@ class BundleEntry extends Element {
                     return;
                 }
                 const BundleSearch = require('../backbone_elements/bundleSearch.js');
-                if (valueProvided instanceof BundleSearch){
-                    this.__data.search = valueProvided;
-                } else {
-                    this.__data.search = new BundleSearch(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.search = FhirResourceCreator.create(valueProvided, BundleSearch);
             }
         });
 
@@ -257,11 +216,8 @@ class BundleEntry extends Element {
                     return;
                 }
                 const BundleRequest = require('../backbone_elements/bundleRequest.js');
-                if (valueProvided instanceof BundleRequest){
-                    this.__data.request = valueProvided;
-                } else {
-                    this.__data.request = new BundleRequest(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.request = FhirResourceCreator.create(valueProvided, BundleRequest);
             }
         });
 
@@ -282,11 +238,8 @@ class BundleEntry extends Element {
                     return;
                 }
                 const BundleResponse = require('../backbone_elements/bundleResponse.js');
-                if (valueProvided instanceof BundleResponse){
-                    this.__data.response = valueProvided;
-                } else {
-                    this.__data.response = new BundleResponse(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.response = FhirResourceCreator.create(valueProvided, BundleResponse);
             }
         });
 

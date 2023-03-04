@@ -91,11 +91,8 @@ class SubstanceReferenceInformation extends Resource {
                     return;
                 }
                 const Meta = require('../complex_types/meta.js');
-                if (valueProvided instanceof Meta){
-                    this.__data.meta = valueProvided;
-                } else {
-                    this.__data.meta = new Meta(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.meta = FhirResourceCreator.create(valueProvided, Meta);
             }
         });
 
@@ -158,11 +155,8 @@ class SubstanceReferenceInformation extends Resource {
                     return;
                 }
                 const Narrative = require('../complex_types/narrative.js');
-                if (valueProvided instanceof Narrative){
-                    this.__data.text = valueProvided;
-                } else {
-                    this.__data.text = new Narrative(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.text = FhirResourceCreator.create(valueProvided, Narrative);
             }
         });
 
@@ -183,23 +177,8 @@ class SubstanceReferenceInformation extends Resource {
                     return;
                 }
                 const ResourceContainer = require('../simple_types/resourceContainer.js');
-                const {getResource} = require('../../../../operations/common/getResource');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.contained = valueProvided.filter(v => v).map(v => {
-                        if (v instanceof Resource) {
-                            return v;
-                        }
-                        const ResourceCreator = getResource('4_0_0', v.resourceType);
-                        return new ResourceCreator(v);
-                    });
-                } else {
-                    if (valueProvided instanceof Resource) {
-                        this.__data.contained = [valueProvided];
-                    } else {
-                        const ResourceCreator = getResource('4_0_0', valueProvided.resourceType);
-                        this.__data.contained = [new ResourceCreator(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.contained = FhirResourceCreator.createArray(valueProvided);
             }
         });
 
@@ -222,19 +201,8 @@ class SubstanceReferenceInformation extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.extension = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Extension ?
-                                v : new Extension(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Extension) {
-                        this.__data.extension = valueProvided;
-                    } else {
-                        this.__data.extension = [new Extension(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -265,19 +233,8 @@ class SubstanceReferenceInformation extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.modifierExtension = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Extension ?
-                                v : new Extension(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Extension) {
-                        this.__data.modifierExtension = valueProvided;
-                    } else {
-                        this.__data.modifierExtension = [new Extension(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -314,19 +271,8 @@ class SubstanceReferenceInformation extends Resource {
                     return;
                 }
                 const SubstanceReferenceInformationGene = require('../backbone_elements/substanceReferenceInformationGene.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.gene = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof SubstanceReferenceInformationGene ?
-                                v : new SubstanceReferenceInformationGene(v)
-                            );
-                } else {
-                    if (valueProvided instanceof SubstanceReferenceInformationGene) {
-                        this.__data.gene = valueProvided;
-                    } else {
-                        this.__data.gene = [new SubstanceReferenceInformationGene(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.gene = FhirResourceCreator.createArray(valueProvided, SubstanceReferenceInformationGene);
             }
         });
 
@@ -345,19 +291,8 @@ class SubstanceReferenceInformation extends Resource {
                     return;
                 }
                 const SubstanceReferenceInformationGeneElement = require('../backbone_elements/substanceReferenceInformationGeneElement.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.geneElement = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof SubstanceReferenceInformationGeneElement ?
-                                v : new SubstanceReferenceInformationGeneElement(v)
-                            );
-                } else {
-                    if (valueProvided instanceof SubstanceReferenceInformationGeneElement) {
-                        this.__data.geneElement = valueProvided;
-                    } else {
-                        this.__data.geneElement = [new SubstanceReferenceInformationGeneElement(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.geneElement = FhirResourceCreator.createArray(valueProvided, SubstanceReferenceInformationGeneElement);
             }
         });
 
@@ -376,19 +311,8 @@ class SubstanceReferenceInformation extends Resource {
                     return;
                 }
                 const SubstanceReferenceInformationClassification = require('../backbone_elements/substanceReferenceInformationClassification.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.classification = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof SubstanceReferenceInformationClassification ?
-                                v : new SubstanceReferenceInformationClassification(v)
-                            );
-                } else {
-                    if (valueProvided instanceof SubstanceReferenceInformationClassification) {
-                        this.__data.classification = valueProvided;
-                    } else {
-                        this.__data.classification = [new SubstanceReferenceInformationClassification(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.classification = FhirResourceCreator.createArray(valueProvided, SubstanceReferenceInformationClassification);
             }
         });
 
@@ -407,19 +331,8 @@ class SubstanceReferenceInformation extends Resource {
                     return;
                 }
                 const SubstanceReferenceInformationTarget = require('../backbone_elements/substanceReferenceInformationTarget.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.target = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof SubstanceReferenceInformationTarget ?
-                                v : new SubstanceReferenceInformationTarget(v)
-                            );
-                } else {
-                    if (valueProvided instanceof SubstanceReferenceInformationTarget) {
-                        this.__data.target = valueProvided;
-                    } else {
-                        this.__data.target = [new SubstanceReferenceInformationTarget(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.target = FhirResourceCreator.createArray(valueProvided, SubstanceReferenceInformationTarget);
             }
         });
 

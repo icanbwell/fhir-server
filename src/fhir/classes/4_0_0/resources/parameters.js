@@ -77,11 +77,8 @@ class Parameters extends Resource {
                     return;
                 }
                 const Meta = require('../complex_types/meta.js');
-                if (valueProvided instanceof Meta){
-                    this.__data.meta = valueProvided;
-                } else {
-                    this.__data.meta = new Meta(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.meta = FhirResourceCreator.create(valueProvided, Meta);
             }
         });
 
@@ -139,19 +136,8 @@ class Parameters extends Resource {
                     return;
                 }
                 const ParametersParameter = require('../backbone_elements/parametersParameter.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.parameter = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof ParametersParameter ?
-                                v : new ParametersParameter(v)
-                            );
-                } else {
-                    if (valueProvided instanceof ParametersParameter) {
-                        this.__data.parameter = valueProvided;
-                    } else {
-                        this.__data.parameter = [new ParametersParameter(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.parameter = FhirResourceCreator.createArray(valueProvided, ParametersParameter);
             }
         });
 

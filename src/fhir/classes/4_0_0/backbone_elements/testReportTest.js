@@ -70,19 +70,8 @@ class TestReportTest extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.extension = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Extension ?
-                                v : new Extension(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Extension) {
-                        this.__data.extension = valueProvided;
-                    } else {
-                        this.__data.extension = [new Extension(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -113,19 +102,8 @@ class TestReportTest extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.modifierExtension = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Extension ?
-                                v : new Extension(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Extension) {
-                        this.__data.modifierExtension = valueProvided;
-                    } else {
-                        this.__data.modifierExtension = [new Extension(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -181,19 +159,8 @@ class TestReportTest extends Element {
                     return;
                 }
                 const TestReportAction1 = require('../backbone_elements/testReportAction1.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.action = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof TestReportAction1 ?
-                                v : new TestReportAction1(v)
-                            );
-                } else {
-                    if (valueProvided instanceof TestReportAction1) {
-                        this.__data.action = valueProvided;
-                    } else {
-                        this.__data.action = [new TestReportAction1(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.action = FhirResourceCreator.createArray(valueProvided, TestReportAction1);
             }
         });
 

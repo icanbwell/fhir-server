@@ -159,53 +159,18 @@ class {{ fhir_entity.cleaned_name }} extends Element {
 {#                this.__data.{{ property.name }} = value;#}
     {% endif %}
     {%  if property.is_resource or property.is_extension or property.fhir_type == "BackboneElement" or property.is_complex or property.fhir_type == "Element" %}
-            {% if property.is_list %}
-                if (Array.isArray(valueProvided)) {
-                    this.__data.{{ property.name }} = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof {{ property.cleaned_type | replace(".","") }} ?
-                                v : new {{ property.cleaned_type | replace(".","") }}(v)
-                            );
-                } else {
-                    if (valueProvided instanceof {{ property.cleaned_type | replace(".","") }}) {
-                        this.__data.{{ property.name }} = valueProvided;
-                    } else {
-                        this.__data.{{ property.name }} = [new {{ property.cleaned_type | replace(".","") }}(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+        {% if property.is_list %}
+                this.__data.{{ property.name }} = FhirResourceCreator.createArray(valueProvided, {{ property.cleaned_type | replace(".","") }});
             {%  else %}
-                if (valueProvided instanceof {{ property.cleaned_type | replace(".","") }}){
-                    this.__data.{{ property.name }} = valueProvided;
-                } else {
-                    this.__data.{{ property.name }} = new {{ property.cleaned_type | replace(".","") }}(valueProvided);
-                }
+                this.__data.{{ property.name }} = FhirResourceCreator.create(valueProvided, {{ property.cleaned_type | replace(".","") }});
             {% endif %}
     {%  elif property.cleaned_type == "ResourceContainer" %}
-                const {getResource} = require('../../../../operations/common/getResource');
-            {% if property.is_list %}
-                if (Array.isArray(valueProvided)) {
-                    this.__data.{{ property.name }} = valueProvided.filter(v => v).map(v => {
-                        if (v instanceof Resource) {
-                            return v;
-                        }
-                        const ResourceCreator = getResource('4_0_0', v.resourceType);
-                        return new ResourceCreator(v);
-                    });
-                } else {
-                    if (valueProvided instanceof Resource) {
-                        this.__data.{{ property.name }} = [valueProvided];
-                    } else {
-                        const ResourceCreator = getResource('4_0_0', valueProvided.resourceType);
-                        this.__data.{{ property.name }} = [new ResourceCreator(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+        {% if property.is_list %}
+                this.__data.{{ property.name }} = FhirResourceCreator.createArray(valueProvided);
             {%  else %}
-                if (valueProvided instanceof Resource) {
-                    this.__data.{{ property.name }} = valueProvided;
-                } else {
-                    const ResourceCreator = getResource('4_0_0', valueProvided.resourceType);
-                    this.__data.{{ property.name }} = new ResourceCreator(valueProvided);
-                }
+                this.__data.{{ property.name }} = FhirResourceCreator.create(valueProvided);
             {% endif %}
     {%  else %}
             {% if property.is_list %}

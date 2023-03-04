@@ -95,19 +95,8 @@ class ObservationComponent extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.extension = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Extension ?
-                                v : new Extension(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Extension) {
-                        this.__data.extension = valueProvided;
-                    } else {
-                        this.__data.extension = [new Extension(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -138,19 +127,8 @@ class ObservationComponent extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.modifierExtension = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Extension ?
-                                v : new Extension(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Extension) {
-                        this.__data.modifierExtension = valueProvided;
-                    } else {
-                        this.__data.modifierExtension = [new Extension(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -169,11 +147,8 @@ class ObservationComponent extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                if (valueProvided instanceof CodeableConcept){
-                    this.__data.code = valueProvided;
-                } else {
-                    this.__data.code = new CodeableConcept(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.code = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
 
@@ -192,11 +167,8 @@ class ObservationComponent extends Element {
                     return;
                 }
                 const Quantity = require('../complex_types/quantity.js');
-                if (valueProvided instanceof Quantity){
-                    this.__data.valueQuantity = valueProvided;
-                } else {
-                    this.__data.valueQuantity = new Quantity(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.valueQuantity = FhirResourceCreator.create(valueProvided, Quantity);
             }
         });
 
@@ -215,11 +187,8 @@ class ObservationComponent extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                if (valueProvided instanceof CodeableConcept){
-                    this.__data.valueCodeableConcept = valueProvided;
-                } else {
-                    this.__data.valueCodeableConcept = new CodeableConcept(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.valueCodeableConcept = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
 
@@ -292,11 +261,8 @@ class ObservationComponent extends Element {
                     return;
                 }
                 const Range = require('../complex_types/range.js');
-                if (valueProvided instanceof Range){
-                    this.__data.valueRange = valueProvided;
-                } else {
-                    this.__data.valueRange = new Range(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.valueRange = FhirResourceCreator.create(valueProvided, Range);
             }
         });
 
@@ -315,11 +281,8 @@ class ObservationComponent extends Element {
                     return;
                 }
                 const Ratio = require('../complex_types/ratio.js');
-                if (valueProvided instanceof Ratio){
-                    this.__data.valueRatio = valueProvided;
-                } else {
-                    this.__data.valueRatio = new Ratio(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.valueRatio = FhirResourceCreator.create(valueProvided, Ratio);
             }
         });
 
@@ -338,11 +301,8 @@ class ObservationComponent extends Element {
                     return;
                 }
                 const SampledData = require('../complex_types/sampledData.js');
-                if (valueProvided instanceof SampledData){
-                    this.__data.valueSampledData = valueProvided;
-                } else {
-                    this.__data.valueSampledData = new SampledData(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.valueSampledData = FhirResourceCreator.create(valueProvided, SampledData);
             }
         });
 
@@ -397,11 +357,8 @@ class ObservationComponent extends Element {
                     return;
                 }
                 const Period = require('../complex_types/period.js');
-                if (valueProvided instanceof Period){
-                    this.__data.valuePeriod = valueProvided;
-                } else {
-                    this.__data.valuePeriod = new Period(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.valuePeriod = FhirResourceCreator.create(valueProvided, Period);
             }
         });
 
@@ -421,11 +378,8 @@ class ObservationComponent extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                if (valueProvided instanceof CodeableConcept){
-                    this.__data.dataAbsentReason = valueProvided;
-                } else {
-                    this.__data.dataAbsentReason = new CodeableConcept(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.dataAbsentReason = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
 
@@ -445,19 +399,8 @@ class ObservationComponent extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.interpretation = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof CodeableConcept ?
-                                v : new CodeableConcept(v)
-                            );
-                } else {
-                    if (valueProvided instanceof CodeableConcept) {
-                        this.__data.interpretation = valueProvided;
-                    } else {
-                        this.__data.interpretation = [new CodeableConcept(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.interpretation = FhirResourceCreator.createArray(valueProvided, CodeableConcept);
             }
         });
 
@@ -477,19 +420,8 @@ class ObservationComponent extends Element {
                     return;
                 }
                 const ObservationReferenceRange = require('../backbone_elements/observationReferenceRange.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.referenceRange = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof ObservationReferenceRange ?
-                                v : new ObservationReferenceRange(v)
-                            );
-                } else {
-                    if (valueProvided instanceof ObservationReferenceRange) {
-                        this.__data.referenceRange = valueProvided;
-                    } else {
-                        this.__data.referenceRange = [new ObservationReferenceRange(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.referenceRange = FhirResourceCreator.createArray(valueProvided, ObservationReferenceRange);
             }
         });
 

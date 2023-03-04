@@ -68,19 +68,8 @@ class InsurancePlanSpecificCost extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.extension = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Extension ?
-                                v : new Extension(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Extension) {
-                        this.__data.extension = valueProvided;
-                    } else {
-                        this.__data.extension = [new Extension(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -111,19 +100,8 @@ class InsurancePlanSpecificCost extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.modifierExtension = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Extension ?
-                                v : new Extension(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Extension) {
-                        this.__data.modifierExtension = valueProvided;
-                    } else {
-                        this.__data.modifierExtension = [new Extension(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -143,11 +121,8 @@ class InsurancePlanSpecificCost extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                if (valueProvided instanceof CodeableConcept){
-                    this.__data.category = valueProvided;
-                } else {
-                    this.__data.category = new CodeableConcept(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.category = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
 
@@ -166,19 +141,8 @@ class InsurancePlanSpecificCost extends Element {
                     return;
                 }
                 const InsurancePlanBenefit1 = require('../backbone_elements/insurancePlanBenefit1.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.benefit = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof InsurancePlanBenefit1 ?
-                                v : new InsurancePlanBenefit1(v)
-                            );
-                } else {
-                    if (valueProvided instanceof InsurancePlanBenefit1) {
-                        this.__data.benefit = valueProvided;
-                    } else {
-                        this.__data.benefit = [new InsurancePlanBenefit1(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.benefit = FhirResourceCreator.createArray(valueProvided, InsurancePlanBenefit1);
             }
         });
 

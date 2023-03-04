@@ -74,19 +74,8 @@ class MeasureReportGroup extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.extension = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Extension ?
-                                v : new Extension(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Extension) {
-                        this.__data.extension = valueProvided;
-                    } else {
-                        this.__data.extension = [new Extension(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -117,19 +106,8 @@ class MeasureReportGroup extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.modifierExtension = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Extension ?
-                                v : new Extension(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Extension) {
-                        this.__data.modifierExtension = valueProvided;
-                    } else {
-                        this.__data.modifierExtension = [new Extension(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -148,11 +126,8 @@ class MeasureReportGroup extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                if (valueProvided instanceof CodeableConcept){
-                    this.__data.code = valueProvided;
-                } else {
-                    this.__data.code = new CodeableConcept(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.code = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
 
@@ -172,19 +147,8 @@ class MeasureReportGroup extends Element {
                     return;
                 }
                 const MeasureReportPopulation = require('../backbone_elements/measureReportPopulation.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.population = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof MeasureReportPopulation ?
-                                v : new MeasureReportPopulation(v)
-                            );
-                } else {
-                    if (valueProvided instanceof MeasureReportPopulation) {
-                        this.__data.population = valueProvided;
-                    } else {
-                        this.__data.population = [new MeasureReportPopulation(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.population = FhirResourceCreator.createArray(valueProvided, MeasureReportPopulation);
             }
         });
 
@@ -205,11 +169,8 @@ class MeasureReportGroup extends Element {
                     return;
                 }
                 const Quantity = require('../complex_types/quantity.js');
-                if (valueProvided instanceof Quantity){
-                    this.__data.measureScore = valueProvided;
-                } else {
-                    this.__data.measureScore = new Quantity(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.measureScore = FhirResourceCreator.create(valueProvided, Quantity);
             }
         });
 
@@ -229,19 +190,8 @@ class MeasureReportGroup extends Element {
                     return;
                 }
                 const MeasureReportStratifier = require('../backbone_elements/measureReportStratifier.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.stratifier = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof MeasureReportStratifier ?
-                                v : new MeasureReportStratifier(v)
-                            );
-                } else {
-                    if (valueProvided instanceof MeasureReportStratifier) {
-                        this.__data.stratifier = valueProvided;
-                    } else {
-                        this.__data.stratifier = [new MeasureReportStratifier(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.stratifier = FhirResourceCreator.createArray(valueProvided, MeasureReportStratifier);
             }
         });
 

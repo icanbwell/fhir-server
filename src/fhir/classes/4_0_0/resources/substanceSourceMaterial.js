@@ -120,11 +120,8 @@ class SubstanceSourceMaterial extends Resource {
                     return;
                 }
                 const Meta = require('../complex_types/meta.js');
-                if (valueProvided instanceof Meta){
-                    this.__data.meta = valueProvided;
-                } else {
-                    this.__data.meta = new Meta(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.meta = FhirResourceCreator.create(valueProvided, Meta);
             }
         });
 
@@ -187,11 +184,8 @@ class SubstanceSourceMaterial extends Resource {
                     return;
                 }
                 const Narrative = require('../complex_types/narrative.js');
-                if (valueProvided instanceof Narrative){
-                    this.__data.text = valueProvided;
-                } else {
-                    this.__data.text = new Narrative(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.text = FhirResourceCreator.create(valueProvided, Narrative);
             }
         });
 
@@ -212,23 +206,8 @@ class SubstanceSourceMaterial extends Resource {
                     return;
                 }
                 const ResourceContainer = require('../simple_types/resourceContainer.js');
-                const {getResource} = require('../../../../operations/common/getResource');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.contained = valueProvided.filter(v => v).map(v => {
-                        if (v instanceof Resource) {
-                            return v;
-                        }
-                        const ResourceCreator = getResource('4_0_0', v.resourceType);
-                        return new ResourceCreator(v);
-                    });
-                } else {
-                    if (valueProvided instanceof Resource) {
-                        this.__data.contained = [valueProvided];
-                    } else {
-                        const ResourceCreator = getResource('4_0_0', valueProvided.resourceType);
-                        this.__data.contained = [new ResourceCreator(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.contained = FhirResourceCreator.createArray(valueProvided);
             }
         });
 
@@ -251,19 +230,8 @@ class SubstanceSourceMaterial extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.extension = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Extension ?
-                                v : new Extension(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Extension) {
-                        this.__data.extension = valueProvided;
-                    } else {
-                        this.__data.extension = [new Extension(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -294,19 +262,8 @@ class SubstanceSourceMaterial extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.modifierExtension = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Extension ?
-                                v : new Extension(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Extension) {
-                        this.__data.modifierExtension = valueProvided;
-                    } else {
-                        this.__data.modifierExtension = [new Extension(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -326,11 +283,8 @@ class SubstanceSourceMaterial extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                if (valueProvided instanceof CodeableConcept){
-                    this.__data.sourceMaterialClass = valueProvided;
-                } else {
-                    this.__data.sourceMaterialClass = new CodeableConcept(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.sourceMaterialClass = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
 
@@ -351,11 +305,8 @@ class SubstanceSourceMaterial extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                if (valueProvided instanceof CodeableConcept){
-                    this.__data.sourceMaterialType = valueProvided;
-                } else {
-                    this.__data.sourceMaterialType = new CodeableConcept(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.sourceMaterialType = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
 
@@ -374,11 +325,8 @@ class SubstanceSourceMaterial extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                if (valueProvided instanceof CodeableConcept){
-                    this.__data.sourceMaterialState = valueProvided;
-                } else {
-                    this.__data.sourceMaterialState = new CodeableConcept(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.sourceMaterialState = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
 
@@ -398,11 +346,8 @@ class SubstanceSourceMaterial extends Resource {
                     return;
                 }
                 const Identifier = require('../complex_types/identifier.js');
-                if (valueProvided instanceof Identifier){
-                    this.__data.organismId = valueProvided;
-                } else {
-                    this.__data.organismId = new Identifier(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.organismId = FhirResourceCreator.create(valueProvided, Identifier);
             }
         });
 
@@ -441,19 +386,8 @@ class SubstanceSourceMaterial extends Resource {
                     return;
                 }
                 const Identifier = require('../complex_types/identifier.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.parentSubstanceId = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Identifier ?
-                                v : new Identifier(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Identifier) {
-                        this.__data.parentSubstanceId = valueProvided;
-                    } else {
-                        this.__data.parentSubstanceId = [new Identifier(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.parentSubstanceId = FhirResourceCreator.createArray(valueProvided, Identifier);
             }
         });
 
@@ -494,19 +428,8 @@ class SubstanceSourceMaterial extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.countryOfOrigin = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof CodeableConcept ?
-                                v : new CodeableConcept(v)
-                            );
-                } else {
-                    if (valueProvided instanceof CodeableConcept) {
-                        this.__data.countryOfOrigin = valueProvided;
-                    } else {
-                        this.__data.countryOfOrigin = [new CodeableConcept(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.countryOfOrigin = FhirResourceCreator.createArray(valueProvided, CodeableConcept);
             }
         });
 
@@ -546,11 +469,8 @@ class SubstanceSourceMaterial extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                if (valueProvided instanceof CodeableConcept){
-                    this.__data.developmentStage = valueProvided;
-                } else {
-                    this.__data.developmentStage = new CodeableConcept(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.developmentStage = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
 
@@ -576,19 +496,8 @@ class SubstanceSourceMaterial extends Resource {
                     return;
                 }
                 const SubstanceSourceMaterialFractionDescription = require('../backbone_elements/substanceSourceMaterialFractionDescription.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.fractionDescription = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof SubstanceSourceMaterialFractionDescription ?
-                                v : new SubstanceSourceMaterialFractionDescription(v)
-                            );
-                } else {
-                    if (valueProvided instanceof SubstanceSourceMaterialFractionDescription) {
-                        this.__data.fractionDescription = valueProvided;
-                    } else {
-                        this.__data.fractionDescription = [new SubstanceSourceMaterialFractionDescription(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.fractionDescription = FhirResourceCreator.createArray(valueProvided, SubstanceSourceMaterialFractionDescription);
             }
         });
 
@@ -610,11 +519,8 @@ class SubstanceSourceMaterial extends Resource {
                     return;
                 }
                 const SubstanceSourceMaterialOrganism = require('../backbone_elements/substanceSourceMaterialOrganism.js');
-                if (valueProvided instanceof SubstanceSourceMaterialOrganism){
-                    this.__data.organism = valueProvided;
-                } else {
-                    this.__data.organism = new SubstanceSourceMaterialOrganism(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.organism = FhirResourceCreator.create(valueProvided, SubstanceSourceMaterialOrganism);
             }
         });
 
@@ -633,19 +539,8 @@ class SubstanceSourceMaterial extends Resource {
                     return;
                 }
                 const SubstanceSourceMaterialPartDescription = require('../backbone_elements/substanceSourceMaterialPartDescription.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.partDescription = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof SubstanceSourceMaterialPartDescription ?
-                                v : new SubstanceSourceMaterialPartDescription(v)
-                            );
-                } else {
-                    if (valueProvided instanceof SubstanceSourceMaterialPartDescription) {
-                        this.__data.partDescription = valueProvided;
-                    } else {
-                        this.__data.partDescription = [new SubstanceSourceMaterialPartDescription(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.partDescription = FhirResourceCreator.createArray(valueProvided, SubstanceSourceMaterialPartDescription);
             }
         });
 

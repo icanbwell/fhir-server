@@ -68,19 +68,8 @@ class TestReportAction1 extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.extension = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Extension ?
-                                v : new Extension(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Extension) {
-                        this.__data.extension = valueProvided;
-                    } else {
-                        this.__data.extension = [new Extension(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -111,19 +100,8 @@ class TestReportAction1 extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.modifierExtension = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Extension ?
-                                v : new Extension(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Extension) {
-                        this.__data.modifierExtension = valueProvided;
-                    } else {
-                        this.__data.modifierExtension = [new Extension(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -142,11 +120,8 @@ class TestReportAction1 extends Element {
                     return;
                 }
                 const TestReportOperation = require('../backbone_elements/testReportOperation.js');
-                if (valueProvided instanceof TestReportOperation){
-                    this.__data.operation = valueProvided;
-                } else {
-                    this.__data.operation = new TestReportOperation(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.operation = FhirResourceCreator.create(valueProvided, TestReportOperation);
             }
         });
 
@@ -165,11 +140,8 @@ class TestReportAction1 extends Element {
                     return;
                 }
                 const TestReportAssert = require('../backbone_elements/testReportAssert.js');
-                if (valueProvided instanceof TestReportAssert){
-                    this.__data.assert = valueProvided;
-                } else {
-                    this.__data.assert = new TestReportAssert(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.assert = FhirResourceCreator.create(valueProvided, TestReportAssert);
             }
         });
 

@@ -111,11 +111,8 @@ class Provenance extends Resource {
                     return;
                 }
                 const Meta = require('../complex_types/meta.js');
-                if (valueProvided instanceof Meta){
-                    this.__data.meta = valueProvided;
-                } else {
-                    this.__data.meta = new Meta(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.meta = FhirResourceCreator.create(valueProvided, Meta);
             }
         });
 
@@ -178,11 +175,8 @@ class Provenance extends Resource {
                     return;
                 }
                 const Narrative = require('../complex_types/narrative.js');
-                if (valueProvided instanceof Narrative){
-                    this.__data.text = valueProvided;
-                } else {
-                    this.__data.text = new Narrative(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.text = FhirResourceCreator.create(valueProvided, Narrative);
             }
         });
 
@@ -203,23 +197,8 @@ class Provenance extends Resource {
                     return;
                 }
                 const ResourceContainer = require('../simple_types/resourceContainer.js');
-                const {getResource} = require('../../../../operations/common/getResource');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.contained = valueProvided.filter(v => v).map(v => {
-                        if (v instanceof Resource) {
-                            return v;
-                        }
-                        const ResourceCreator = getResource('4_0_0', v.resourceType);
-                        return new ResourceCreator(v);
-                    });
-                } else {
-                    if (valueProvided instanceof Resource) {
-                        this.__data.contained = [valueProvided];
-                    } else {
-                        const ResourceCreator = getResource('4_0_0', valueProvided.resourceType);
-                        this.__data.contained = [new ResourceCreator(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.contained = FhirResourceCreator.createArray(valueProvided);
             }
         });
 
@@ -242,19 +221,8 @@ class Provenance extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.extension = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Extension ?
-                                v : new Extension(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Extension) {
-                        this.__data.extension = valueProvided;
-                    } else {
-                        this.__data.extension = [new Extension(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -285,19 +253,8 @@ class Provenance extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.modifierExtension = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Extension ?
-                                v : new Extension(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Extension) {
-                        this.__data.modifierExtension = valueProvided;
-                    } else {
-                        this.__data.modifierExtension = [new Extension(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -318,19 +275,8 @@ class Provenance extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.target = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Reference ?
-                                v : new Reference(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Reference) {
-                        this.__data.target = valueProvided;
-                    } else {
-                        this.__data.target = [new Reference(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.target = FhirResourceCreator.createArray(valueProvided, Reference);
             }
         });
 
@@ -349,11 +295,8 @@ class Provenance extends Resource {
                     return;
                 }
                 const Period = require('../complex_types/period.js');
-                if (valueProvided instanceof Period){
-                    this.__data.occurredPeriod = valueProvided;
-                } else {
-                    this.__data.occurredPeriod = new Period(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.occurredPeriod = FhirResourceCreator.create(valueProvided, Period);
             }
         });
 
@@ -428,11 +371,8 @@ class Provenance extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                if (valueProvided instanceof Reference){
-                    this.__data.location = valueProvided;
-                } else {
-                    this.__data.location = new Reference(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.location = FhirResourceCreator.create(valueProvided, Reference);
             }
         });
 
@@ -451,19 +391,8 @@ class Provenance extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.reason = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof CodeableConcept ?
-                                v : new CodeableConcept(v)
-                            );
-                } else {
-                    if (valueProvided instanceof CodeableConcept) {
-                        this.__data.reason = valueProvided;
-                    } else {
-                        this.__data.reason = [new CodeableConcept(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.reason = FhirResourceCreator.createArray(valueProvided, CodeableConcept);
             }
         });
 
@@ -484,11 +413,8 @@ class Provenance extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                if (valueProvided instanceof CodeableConcept){
-                    this.__data.activity = valueProvided;
-                } else {
-                    this.__data.activity = new CodeableConcept(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.activity = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
 
@@ -508,19 +434,8 @@ class Provenance extends Resource {
                     return;
                 }
                 const ProvenanceAgent = require('../backbone_elements/provenanceAgent.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.agent = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof ProvenanceAgent ?
-                                v : new ProvenanceAgent(v)
-                            );
-                } else {
-                    if (valueProvided instanceof ProvenanceAgent) {
-                        this.__data.agent = valueProvided;
-                    } else {
-                        this.__data.agent = [new ProvenanceAgent(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.agent = FhirResourceCreator.createArray(valueProvided, ProvenanceAgent);
             }
         });
 
@@ -539,19 +454,8 @@ class Provenance extends Resource {
                     return;
                 }
                 const ProvenanceEntity = require('../backbone_elements/provenanceEntity.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.entity = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof ProvenanceEntity ?
-                                v : new ProvenanceEntity(v)
-                            );
-                } else {
-                    if (valueProvided instanceof ProvenanceEntity) {
-                        this.__data.entity = valueProvided;
-                    } else {
-                        this.__data.entity = [new ProvenanceEntity(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.entity = FhirResourceCreator.createArray(valueProvided, ProvenanceEntity);
             }
         });
 
@@ -571,19 +475,8 @@ class Provenance extends Resource {
                     return;
                 }
                 const Signature = require('../complex_types/signature.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.signature = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Signature ?
-                                v : new Signature(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Signature) {
-                        this.__data.signature = valueProvided;
-                    } else {
-                        this.__data.signature = [new Signature(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.signature = FhirResourceCreator.createArray(valueProvided, Signature);
             }
         });
 

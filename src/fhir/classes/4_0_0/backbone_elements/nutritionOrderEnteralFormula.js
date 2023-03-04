@@ -83,19 +83,8 @@ class NutritionOrderEnteralFormula extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.extension = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Extension ?
-                                v : new Extension(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Extension) {
-                        this.__data.extension = valueProvided;
-                    } else {
-                        this.__data.extension = [new Extension(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -126,19 +115,8 @@ class NutritionOrderEnteralFormula extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.modifierExtension = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Extension ?
-                                v : new Extension(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Extension) {
-                        this.__data.modifierExtension = valueProvided;
-                    } else {
-                        this.__data.modifierExtension = [new Extension(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -158,11 +136,8 @@ class NutritionOrderEnteralFormula extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                if (valueProvided instanceof CodeableConcept){
-                    this.__data.baseFormulaType = valueProvided;
-                } else {
-                    this.__data.baseFormulaType = new CodeableConcept(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.baseFormulaType = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
 
@@ -201,11 +176,8 @@ class NutritionOrderEnteralFormula extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                if (valueProvided instanceof CodeableConcept){
-                    this.__data.additiveType = valueProvided;
-                } else {
-                    this.__data.additiveType = new CodeableConcept(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.additiveType = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
 
@@ -246,11 +218,8 @@ class NutritionOrderEnteralFormula extends Element {
                     return;
                 }
                 const Quantity = require('../complex_types/quantity.js');
-                if (valueProvided instanceof Quantity){
-                    this.__data.caloricDensity = valueProvided;
-                } else {
-                    this.__data.caloricDensity = new Quantity(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.caloricDensity = FhirResourceCreator.create(valueProvided, Quantity);
             }
         });
 
@@ -271,11 +240,8 @@ class NutritionOrderEnteralFormula extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                if (valueProvided instanceof CodeableConcept){
-                    this.__data.routeofAdministration = valueProvided;
-                } else {
-                    this.__data.routeofAdministration = new CodeableConcept(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.routeofAdministration = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
 
@@ -297,19 +263,8 @@ class NutritionOrderEnteralFormula extends Element {
                     return;
                 }
                 const NutritionOrderAdministration = require('../backbone_elements/nutritionOrderAdministration.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.administration = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof NutritionOrderAdministration ?
-                                v : new NutritionOrderAdministration(v)
-                            );
-                } else {
-                    if (valueProvided instanceof NutritionOrderAdministration) {
-                        this.__data.administration = valueProvided;
-                    } else {
-                        this.__data.administration = [new NutritionOrderAdministration(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.administration = FhirResourceCreator.createArray(valueProvided, NutritionOrderAdministration);
             }
         });
 
@@ -329,11 +284,8 @@ class NutritionOrderEnteralFormula extends Element {
                     return;
                 }
                 const Quantity = require('../complex_types/quantity.js');
-                if (valueProvided instanceof Quantity){
-                    this.__data.maxVolumeToDeliver = valueProvided;
-                } else {
-                    this.__data.maxVolumeToDeliver = new Quantity(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.maxVolumeToDeliver = FhirResourceCreator.create(valueProvided, Quantity);
             }
         });
 

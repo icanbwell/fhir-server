@@ -87,19 +87,8 @@ class OperationDefinitionParameter extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.extension = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Extension ?
-                                v : new Extension(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Extension) {
-                        this.__data.extension = valueProvided;
-                    } else {
-                        this.__data.extension = [new Extension(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -130,19 +119,8 @@ class OperationDefinitionParameter extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.modifierExtension = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Extension ?
-                                v : new Extension(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Extension) {
-                        this.__data.modifierExtension = valueProvided;
-                    } else {
-                        this.__data.modifierExtension = [new Extension(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -316,11 +294,8 @@ class OperationDefinitionParameter extends Element {
                     return;
                 }
                 const OperationDefinitionBinding = require('../backbone_elements/operationDefinitionBinding.js');
-                if (valueProvided instanceof OperationDefinitionBinding){
-                    this.__data.binding = valueProvided;
-                } else {
-                    this.__data.binding = new OperationDefinitionBinding(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.binding = FhirResourceCreator.create(valueProvided, OperationDefinitionBinding);
             }
         });
 
@@ -340,19 +315,8 @@ class OperationDefinitionParameter extends Element {
                     return;
                 }
                 const OperationDefinitionReferencedFrom = require('../backbone_elements/operationDefinitionReferencedFrom.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.referencedFrom = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof OperationDefinitionReferencedFrom ?
-                                v : new OperationDefinitionReferencedFrom(v)
-                            );
-                } else {
-                    if (valueProvided instanceof OperationDefinitionReferencedFrom) {
-                        this.__data.referencedFrom = valueProvided;
-                    } else {
-                        this.__data.referencedFrom = [new OperationDefinitionReferencedFrom(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.referencedFrom = FhirResourceCreator.createArray(valueProvided, OperationDefinitionReferencedFrom);
             }
         });
 
@@ -370,19 +334,8 @@ class OperationDefinitionParameter extends Element {
                     this.__data.part = undefined;
                     return;
                 }
-                if (Array.isArray(valueProvided)) {
-                    this.__data.part = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof OperationDefinitionParameter ?
-                                v : new OperationDefinitionParameter(v)
-                            );
-                } else {
-                    if (valueProvided instanceof OperationDefinitionParameter) {
-                        this.__data.part = valueProvided;
-                    } else {
-                        this.__data.part = [new OperationDefinitionParameter(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.part = FhirResourceCreator.createArray(valueProvided, OperationDefinitionParameter);
             }
         });
 

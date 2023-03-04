@@ -93,19 +93,8 @@ class ImmunizationRecommendationRecommendation extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.extension = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Extension ?
-                                v : new Extension(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Extension) {
-                        this.__data.extension = valueProvided;
-                    } else {
-                        this.__data.extension = [new Extension(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -136,19 +125,8 @@ class ImmunizationRecommendationRecommendation extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.modifierExtension = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Extension ?
-                                v : new Extension(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Extension) {
-                        this.__data.modifierExtension = valueProvided;
-                    } else {
-                        this.__data.modifierExtension = [new Extension(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -167,19 +145,8 @@ class ImmunizationRecommendationRecommendation extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.vaccineCode = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof CodeableConcept ?
-                                v : new CodeableConcept(v)
-                            );
-                } else {
-                    if (valueProvided instanceof CodeableConcept) {
-                        this.__data.vaccineCode = valueProvided;
-                    } else {
-                        this.__data.vaccineCode = [new CodeableConcept(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.vaccineCode = FhirResourceCreator.createArray(valueProvided, CodeableConcept);
             }
         });
 
@@ -198,11 +165,8 @@ class ImmunizationRecommendationRecommendation extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                if (valueProvided instanceof CodeableConcept){
-                    this.__data.targetDisease = valueProvided;
-                } else {
-                    this.__data.targetDisease = new CodeableConcept(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.targetDisease = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
 
@@ -221,19 +185,8 @@ class ImmunizationRecommendationRecommendation extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.contraindicatedVaccineCode = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof CodeableConcept ?
-                                v : new CodeableConcept(v)
-                            );
-                } else {
-                    if (valueProvided instanceof CodeableConcept) {
-                        this.__data.contraindicatedVaccineCode = valueProvided;
-                    } else {
-                        this.__data.contraindicatedVaccineCode = [new CodeableConcept(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.contraindicatedVaccineCode = FhirResourceCreator.createArray(valueProvided, CodeableConcept);
             }
         });
 
@@ -253,11 +206,8 @@ class ImmunizationRecommendationRecommendation extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                if (valueProvided instanceof CodeableConcept){
-                    this.__data.forecastStatus = valueProvided;
-                } else {
-                    this.__data.forecastStatus = new CodeableConcept(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.forecastStatus = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
 
@@ -276,19 +226,8 @@ class ImmunizationRecommendationRecommendation extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.forecastReason = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof CodeableConcept ?
-                                v : new CodeableConcept(v)
-                            );
-                } else {
-                    if (valueProvided instanceof CodeableConcept) {
-                        this.__data.forecastReason = valueProvided;
-                    } else {
-                        this.__data.forecastReason = [new CodeableConcept(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.forecastReason = FhirResourceCreator.createArray(valueProvided, CodeableConcept);
             }
         });
 
@@ -308,19 +247,8 @@ class ImmunizationRecommendationRecommendation extends Element {
                     return;
                 }
                 const ImmunizationRecommendationDateCriterion = require('../backbone_elements/immunizationRecommendationDateCriterion.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.dateCriterion = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof ImmunizationRecommendationDateCriterion ?
-                                v : new ImmunizationRecommendationDateCriterion(v)
-                            );
-                } else {
-                    if (valueProvided instanceof ImmunizationRecommendationDateCriterion) {
-                        this.__data.dateCriterion = valueProvided;
-                    } else {
-                        this.__data.dateCriterion = [new ImmunizationRecommendationDateCriterion(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.dateCriterion = FhirResourceCreator.createArray(valueProvided, ImmunizationRecommendationDateCriterion);
             }
         });
 
@@ -450,19 +378,8 @@ class ImmunizationRecommendationRecommendation extends Element {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.supportingImmunization = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Reference ?
-                                v : new Reference(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Reference) {
-                        this.__data.supportingImmunization = valueProvided;
-                    } else {
-                        this.__data.supportingImmunization = [new Reference(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.supportingImmunization = FhirResourceCreator.createArray(valueProvided, Reference);
             }
         });
 
@@ -483,19 +400,8 @@ class ImmunizationRecommendationRecommendation extends Element {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.supportingPatientInformation = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Reference ?
-                                v : new Reference(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Reference) {
-                        this.__data.supportingPatientInformation = valueProvided;
-                    } else {
-                        this.__data.supportingPatientInformation = [new Reference(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.supportingPatientInformation = FhirResourceCreator.createArray(valueProvided, Reference);
             }
         });
 

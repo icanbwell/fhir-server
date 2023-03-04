@@ -107,19 +107,8 @@ class ResearchElementDefinitionCharacteristic extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.extension = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Extension ?
-                                v : new Extension(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Extension) {
-                        this.__data.extension = valueProvided;
-                    } else {
-                        this.__data.extension = [new Extension(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -150,19 +139,8 @@ class ResearchElementDefinitionCharacteristic extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.modifierExtension = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Extension ?
-                                v : new Extension(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Extension) {
-                        this.__data.modifierExtension = valueProvided;
-                    } else {
-                        this.__data.modifierExtension = [new Extension(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -181,11 +159,8 @@ class ResearchElementDefinitionCharacteristic extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                if (valueProvided instanceof CodeableConcept){
-                    this.__data.definitionCodeableConcept = valueProvided;
-                } else {
-                    this.__data.definitionCodeableConcept = new CodeableConcept(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.definitionCodeableConcept = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
 
@@ -222,11 +197,8 @@ class ResearchElementDefinitionCharacteristic extends Element {
                     return;
                 }
                 const Expression = require('../complex_types/expression.js');
-                if (valueProvided instanceof Expression){
-                    this.__data.definitionExpression = valueProvided;
-                } else {
-                    this.__data.definitionExpression = new Expression(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.definitionExpression = FhirResourceCreator.create(valueProvided, Expression);
             }
         });
 
@@ -245,11 +217,8 @@ class ResearchElementDefinitionCharacteristic extends Element {
                     return;
                 }
                 const DataRequirement = require('../complex_types/dataRequirement.js');
-                if (valueProvided instanceof DataRequirement){
-                    this.__data.definitionDataRequirement = valueProvided;
-                } else {
-                    this.__data.definitionDataRequirement = new DataRequirement(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.definitionDataRequirement = FhirResourceCreator.create(valueProvided, DataRequirement);
             }
         });
 
@@ -269,19 +238,8 @@ class ResearchElementDefinitionCharacteristic extends Element {
                     return;
                 }
                 const UsageContext = require('../complex_types/usageContext.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.usageContext = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof UsageContext ?
-                                v : new UsageContext(v)
-                            );
-                } else {
-                    if (valueProvided instanceof UsageContext) {
-                        this.__data.usageContext = valueProvided;
-                    } else {
-                        this.__data.usageContext = [new UsageContext(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.usageContext = FhirResourceCreator.createArray(valueProvided, UsageContext);
             }
         });
 
@@ -318,11 +276,8 @@ class ResearchElementDefinitionCharacteristic extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                if (valueProvided instanceof CodeableConcept){
-                    this.__data.unitOfMeasure = valueProvided;
-                } else {
-                    this.__data.unitOfMeasure = new CodeableConcept(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.unitOfMeasure = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
 
@@ -377,11 +332,8 @@ class ResearchElementDefinitionCharacteristic extends Element {
                     return;
                 }
                 const Period = require('../complex_types/period.js');
-                if (valueProvided instanceof Period){
-                    this.__data.studyEffectivePeriod = valueProvided;
-                } else {
-                    this.__data.studyEffectivePeriod = new Period(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.studyEffectivePeriod = FhirResourceCreator.create(valueProvided, Period);
             }
         });
 
@@ -400,11 +352,8 @@ class ResearchElementDefinitionCharacteristic extends Element {
                     return;
                 }
                 const Quantity = require('../complex_types/quantity.js');
-                if (valueProvided instanceof Quantity){
-                    this.__data.studyEffectiveDuration = valueProvided;
-                } else {
-                    this.__data.studyEffectiveDuration = new Quantity(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.studyEffectiveDuration = FhirResourceCreator.create(valueProvided, Quantity);
             }
         });
 
@@ -423,11 +372,8 @@ class ResearchElementDefinitionCharacteristic extends Element {
                     return;
                 }
                 const Timing = require('../backbone_elements/timing.js');
-                if (valueProvided instanceof Timing){
-                    this.__data.studyEffectiveTiming = valueProvided;
-                } else {
-                    this.__data.studyEffectiveTiming = new Timing(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.studyEffectiveTiming = FhirResourceCreator.create(valueProvided, Timing);
             }
         });
 
@@ -446,11 +392,8 @@ class ResearchElementDefinitionCharacteristic extends Element {
                     return;
                 }
                 const Quantity = require('../complex_types/quantity.js');
-                if (valueProvided instanceof Quantity){
-                    this.__data.studyEffectiveTimeFromStart = valueProvided;
-                } else {
-                    this.__data.studyEffectiveTimeFromStart = new Quantity(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.studyEffectiveTimeFromStart = FhirResourceCreator.create(valueProvided, Quantity);
             }
         });
 
@@ -523,11 +466,8 @@ class ResearchElementDefinitionCharacteristic extends Element {
                     return;
                 }
                 const Period = require('../complex_types/period.js');
-                if (valueProvided instanceof Period){
-                    this.__data.participantEffectivePeriod = valueProvided;
-                } else {
-                    this.__data.participantEffectivePeriod = new Period(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.participantEffectivePeriod = FhirResourceCreator.create(valueProvided, Period);
             }
         });
 
@@ -546,11 +486,8 @@ class ResearchElementDefinitionCharacteristic extends Element {
                     return;
                 }
                 const Quantity = require('../complex_types/quantity.js');
-                if (valueProvided instanceof Quantity){
-                    this.__data.participantEffectiveDuration = valueProvided;
-                } else {
-                    this.__data.participantEffectiveDuration = new Quantity(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.participantEffectiveDuration = FhirResourceCreator.create(valueProvided, Quantity);
             }
         });
 
@@ -569,11 +506,8 @@ class ResearchElementDefinitionCharacteristic extends Element {
                     return;
                 }
                 const Timing = require('../backbone_elements/timing.js');
-                if (valueProvided instanceof Timing){
-                    this.__data.participantEffectiveTiming = valueProvided;
-                } else {
-                    this.__data.participantEffectiveTiming = new Timing(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.participantEffectiveTiming = FhirResourceCreator.create(valueProvided, Timing);
             }
         });
 
@@ -592,11 +526,8 @@ class ResearchElementDefinitionCharacteristic extends Element {
                     return;
                 }
                 const Quantity = require('../complex_types/quantity.js');
-                if (valueProvided instanceof Quantity){
-                    this.__data.participantEffectiveTimeFromStart = valueProvided;
-                } else {
-                    this.__data.participantEffectiveTimeFromStart = new Quantity(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.participantEffectiveTimeFromStart = FhirResourceCreator.create(valueProvided, Quantity);
             }
         });
 

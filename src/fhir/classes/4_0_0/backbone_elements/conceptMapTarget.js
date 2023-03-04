@@ -78,19 +78,8 @@ class ConceptMapTarget extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.extension = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Extension ?
-                                v : new Extension(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Extension) {
-                        this.__data.extension = valueProvided;
-                    } else {
-                        this.__data.extension = [new Extension(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -121,19 +110,8 @@ class ConceptMapTarget extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.modifierExtension = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Extension ?
-                                v : new Extension(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Extension) {
-                        this.__data.modifierExtension = valueProvided;
-                    } else {
-                        this.__data.modifierExtension = [new Extension(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -230,19 +208,8 @@ class ConceptMapTarget extends Element {
                     return;
                 }
                 const ConceptMapDependsOn = require('../backbone_elements/conceptMapDependsOn.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.dependsOn = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof ConceptMapDependsOn ?
-                                v : new ConceptMapDependsOn(v)
-                            );
-                } else {
-                    if (valueProvided instanceof ConceptMapDependsOn) {
-                        this.__data.dependsOn = valueProvided;
-                    } else {
-                        this.__data.dependsOn = [new ConceptMapDependsOn(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.dependsOn = FhirResourceCreator.createArray(valueProvided, ConceptMapDependsOn);
             }
         });
 
@@ -265,19 +232,8 @@ class ConceptMapTarget extends Element {
                     return;
                 }
                 const ConceptMapDependsOn = require('../backbone_elements/conceptMapDependsOn.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.product = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof ConceptMapDependsOn ?
-                                v : new ConceptMapDependsOn(v)
-                            );
-                } else {
-                    if (valueProvided instanceof ConceptMapDependsOn) {
-                        this.__data.product = valueProvided;
-                    } else {
-                        this.__data.product = [new ConceptMapDependsOn(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.product = FhirResourceCreator.createArray(valueProvided, ConceptMapDependsOn);
             }
         });
 

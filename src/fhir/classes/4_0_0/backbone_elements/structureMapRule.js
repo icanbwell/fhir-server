@@ -77,19 +77,8 @@ class StructureMapRule extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.extension = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Extension ?
-                                v : new Extension(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Extension) {
-                        this.__data.extension = valueProvided;
-                    } else {
-                        this.__data.extension = [new Extension(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -120,19 +109,8 @@ class StructureMapRule extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.modifierExtension = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Extension ?
-                                v : new Extension(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Extension) {
-                        this.__data.modifierExtension = valueProvided;
-                    } else {
-                        this.__data.modifierExtension = [new Extension(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -169,19 +147,8 @@ class StructureMapRule extends Element {
                     return;
                 }
                 const StructureMapSource = require('../backbone_elements/structureMapSource.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.source = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof StructureMapSource ?
-                                v : new StructureMapSource(v)
-                            );
-                } else {
-                    if (valueProvided instanceof StructureMapSource) {
-                        this.__data.source = valueProvided;
-                    } else {
-                        this.__data.source = [new StructureMapSource(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.source = FhirResourceCreator.createArray(valueProvided, StructureMapSource);
             }
         });
 
@@ -200,19 +167,8 @@ class StructureMapRule extends Element {
                     return;
                 }
                 const StructureMapTarget = require('../backbone_elements/structureMapTarget.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.target = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof StructureMapTarget ?
-                                v : new StructureMapTarget(v)
-                            );
-                } else {
-                    if (valueProvided instanceof StructureMapTarget) {
-                        this.__data.target = valueProvided;
-                    } else {
-                        this.__data.target = [new StructureMapTarget(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.target = FhirResourceCreator.createArray(valueProvided, StructureMapTarget);
             }
         });
 
@@ -230,19 +186,8 @@ class StructureMapRule extends Element {
                     this.__data.rule = undefined;
                     return;
                 }
-                if (Array.isArray(valueProvided)) {
-                    this.__data.rule = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof StructureMapRule ?
-                                v : new StructureMapRule(v)
-                            );
-                } else {
-                    if (valueProvided instanceof StructureMapRule) {
-                        this.__data.rule = valueProvided;
-                    } else {
-                        this.__data.rule = [new StructureMapRule(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.rule = FhirResourceCreator.createArray(valueProvided, StructureMapRule);
             }
         });
 
@@ -261,19 +206,8 @@ class StructureMapRule extends Element {
                     return;
                 }
                 const StructureMapDependent = require('../backbone_elements/structureMapDependent.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.dependent = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof StructureMapDependent ?
-                                v : new StructureMapDependent(v)
-                            );
-                } else {
-                    if (valueProvided instanceof StructureMapDependent) {
-                        this.__data.dependent = valueProvided;
-                    } else {
-                        this.__data.dependent = [new StructureMapDependent(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.dependent = FhirResourceCreator.createArray(valueProvided, StructureMapDependent);
             }
         });
 

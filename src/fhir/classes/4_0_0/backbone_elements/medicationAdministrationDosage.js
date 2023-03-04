@@ -82,19 +82,8 @@ class MedicationAdministrationDosage extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.extension = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Extension ?
-                                v : new Extension(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Extension) {
-                        this.__data.extension = valueProvided;
-                    } else {
-                        this.__data.extension = [new Extension(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -125,19 +114,8 @@ class MedicationAdministrationDosage extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.modifierExtension = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Extension ?
-                                v : new Extension(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Extension) {
-                        this.__data.modifierExtension = valueProvided;
-                    } else {
-                        this.__data.modifierExtension = [new Extension(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -180,11 +158,8 @@ class MedicationAdministrationDosage extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                if (valueProvided instanceof CodeableConcept){
-                    this.__data.site = valueProvided;
-                } else {
-                    this.__data.site = new CodeableConcept(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.site = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
 
@@ -205,11 +180,8 @@ class MedicationAdministrationDosage extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                if (valueProvided instanceof CodeableConcept){
-                    this.__data.route = valueProvided;
-                } else {
-                    this.__data.route = new CodeableConcept(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.route = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
 
@@ -231,11 +203,8 @@ class MedicationAdministrationDosage extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                if (valueProvided instanceof CodeableConcept){
-                    this.__data.method = valueProvided;
-                } else {
-                    this.__data.method = new CodeableConcept(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.method = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
 
@@ -256,11 +225,8 @@ class MedicationAdministrationDosage extends Element {
                     return;
                 }
                 const Quantity = require('../complex_types/quantity.js');
-                if (valueProvided instanceof Quantity){
-                    this.__data.dose = valueProvided;
-                } else {
-                    this.__data.dose = new Quantity(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.dose = FhirResourceCreator.create(valueProvided, Quantity);
             }
         });
 
@@ -279,11 +245,8 @@ class MedicationAdministrationDosage extends Element {
                     return;
                 }
                 const Ratio = require('../complex_types/ratio.js');
-                if (valueProvided instanceof Ratio){
-                    this.__data.rateRatio = valueProvided;
-                } else {
-                    this.__data.rateRatio = new Ratio(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.rateRatio = FhirResourceCreator.create(valueProvided, Ratio);
             }
         });
 
@@ -302,11 +265,8 @@ class MedicationAdministrationDosage extends Element {
                     return;
                 }
                 const Quantity = require('../complex_types/quantity.js');
-                if (valueProvided instanceof Quantity){
-                    this.__data.rateQuantity = valueProvided;
-                } else {
-                    this.__data.rateQuantity = new Quantity(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.rateQuantity = FhirResourceCreator.create(valueProvided, Quantity);
             }
         });
 

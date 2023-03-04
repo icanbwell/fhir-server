@@ -72,19 +72,8 @@ class ExampleScenarioStep extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.extension = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Extension ?
-                                v : new Extension(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Extension) {
-                        this.__data.extension = valueProvided;
-                    } else {
-                        this.__data.extension = [new Extension(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -115,19 +104,8 @@ class ExampleScenarioStep extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.modifierExtension = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Extension ?
-                                v : new Extension(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Extension) {
-                        this.__data.modifierExtension = valueProvided;
-                    } else {
-                        this.__data.modifierExtension = [new Extension(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -146,19 +124,8 @@ class ExampleScenarioStep extends Element {
                     return;
                 }
                 const ExampleScenarioProcess = require('../backbone_elements/exampleScenarioProcess.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.process = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof ExampleScenarioProcess ?
-                                v : new ExampleScenarioProcess(v)
-                            );
-                } else {
-                    if (valueProvided instanceof ExampleScenarioProcess) {
-                        this.__data.process = valueProvided;
-                    } else {
-                        this.__data.process = [new ExampleScenarioProcess(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.process = FhirResourceCreator.createArray(valueProvided, ExampleScenarioProcess);
             }
         });
 
@@ -195,11 +162,8 @@ class ExampleScenarioStep extends Element {
                     return;
                 }
                 const ExampleScenarioOperation = require('../backbone_elements/exampleScenarioOperation.js');
-                if (valueProvided instanceof ExampleScenarioOperation){
-                    this.__data.operation = valueProvided;
-                } else {
-                    this.__data.operation = new ExampleScenarioOperation(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.operation = FhirResourceCreator.create(valueProvided, ExampleScenarioOperation);
             }
         });
 
@@ -219,19 +183,8 @@ class ExampleScenarioStep extends Element {
                     return;
                 }
                 const ExampleScenarioAlternative = require('../backbone_elements/exampleScenarioAlternative.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.alternative = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof ExampleScenarioAlternative ?
-                                v : new ExampleScenarioAlternative(v)
-                            );
-                } else {
-                    if (valueProvided instanceof ExampleScenarioAlternative) {
-                        this.__data.alternative = valueProvided;
-                    } else {
-                        this.__data.alternative = [new ExampleScenarioAlternative(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.alternative = FhirResourceCreator.createArray(valueProvided, ExampleScenarioAlternative);
             }
         });
 

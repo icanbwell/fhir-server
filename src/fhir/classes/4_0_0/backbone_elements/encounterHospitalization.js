@@ -83,19 +83,8 @@ class EncounterHospitalization extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.extension = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Extension ?
-                                v : new Extension(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Extension) {
-                        this.__data.extension = valueProvided;
-                    } else {
-                        this.__data.extension = [new Extension(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -126,19 +115,8 @@ class EncounterHospitalization extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.modifierExtension = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Extension ?
-                                v : new Extension(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Extension) {
-                        this.__data.modifierExtension = valueProvided;
-                    } else {
-                        this.__data.modifierExtension = [new Extension(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -157,11 +135,8 @@ class EncounterHospitalization extends Element {
                     return;
                 }
                 const Identifier = require('../complex_types/identifier.js');
-                if (valueProvided instanceof Identifier){
-                    this.__data.preAdmissionIdentifier = valueProvided;
-                } else {
-                    this.__data.preAdmissionIdentifier = new Identifier(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.preAdmissionIdentifier = FhirResourceCreator.create(valueProvided, Identifier);
             }
         });
 
@@ -180,11 +155,8 @@ class EncounterHospitalization extends Element {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                if (valueProvided instanceof Reference){
-                    this.__data.origin = valueProvided;
-                } else {
-                    this.__data.origin = new Reference(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.origin = FhirResourceCreator.create(valueProvided, Reference);
             }
         });
 
@@ -203,11 +175,8 @@ class EncounterHospitalization extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                if (valueProvided instanceof CodeableConcept){
-                    this.__data.admitSource = valueProvided;
-                } else {
-                    this.__data.admitSource = new CodeableConcept(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.admitSource = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
 
@@ -226,11 +195,8 @@ class EncounterHospitalization extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                if (valueProvided instanceof CodeableConcept){
-                    this.__data.reAdmission = valueProvided;
-                } else {
-                    this.__data.reAdmission = new CodeableConcept(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.reAdmission = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
 
@@ -249,19 +215,8 @@ class EncounterHospitalization extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.dietPreference = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof CodeableConcept ?
-                                v : new CodeableConcept(v)
-                            );
-                } else {
-                    if (valueProvided instanceof CodeableConcept) {
-                        this.__data.dietPreference = valueProvided;
-                    } else {
-                        this.__data.dietPreference = [new CodeableConcept(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.dietPreference = FhirResourceCreator.createArray(valueProvided, CodeableConcept);
             }
         });
 
@@ -280,19 +235,8 @@ class EncounterHospitalization extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.specialCourtesy = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof CodeableConcept ?
-                                v : new CodeableConcept(v)
-                            );
-                } else {
-                    if (valueProvided instanceof CodeableConcept) {
-                        this.__data.specialCourtesy = valueProvided;
-                    } else {
-                        this.__data.specialCourtesy = [new CodeableConcept(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.specialCourtesy = FhirResourceCreator.createArray(valueProvided, CodeableConcept);
             }
         });
 
@@ -312,19 +256,8 @@ class EncounterHospitalization extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.specialArrangement = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof CodeableConcept ?
-                                v : new CodeableConcept(v)
-                            );
-                } else {
-                    if (valueProvided instanceof CodeableConcept) {
-                        this.__data.specialArrangement = valueProvided;
-                    } else {
-                        this.__data.specialArrangement = [new CodeableConcept(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.specialArrangement = FhirResourceCreator.createArray(valueProvided, CodeableConcept);
             }
         });
 
@@ -343,11 +276,8 @@ class EncounterHospitalization extends Element {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                if (valueProvided instanceof Reference){
-                    this.__data.destination = valueProvided;
-                } else {
-                    this.__data.destination = new Reference(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.destination = FhirResourceCreator.create(valueProvided, Reference);
             }
         });
 
@@ -366,11 +296,8 @@ class EncounterHospitalization extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                if (valueProvided instanceof CodeableConcept){
-                    this.__data.dischargeDisposition = valueProvided;
-                } else {
-                    this.__data.dischargeDisposition = new CodeableConcept(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.dischargeDisposition = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
 

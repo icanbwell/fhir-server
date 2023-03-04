@@ -94,19 +94,8 @@ class MolecularSequenceQuality extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.extension = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Extension ?
-                                v : new Extension(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Extension) {
-                        this.__data.extension = valueProvided;
-                    } else {
-                        this.__data.extension = [new Extension(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -137,19 +126,8 @@ class MolecularSequenceQuality extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.modifierExtension = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Extension ?
-                                v : new Extension(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Extension) {
-                        this.__data.modifierExtension = valueProvided;
-                    } else {
-                        this.__data.modifierExtension = [new Extension(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -186,11 +164,8 @@ class MolecularSequenceQuality extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                if (valueProvided instanceof CodeableConcept){
-                    this.__data.standardSequence = valueProvided;
-                } else {
-                    this.__data.standardSequence = new CodeableConcept(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.standardSequence = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
 
@@ -249,11 +224,8 @@ class MolecularSequenceQuality extends Element {
                     return;
                 }
                 const Quantity = require('../complex_types/quantity.js');
-                if (valueProvided instanceof Quantity){
-                    this.__data.score = valueProvided;
-                } else {
-                    this.__data.score = new Quantity(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.score = FhirResourceCreator.create(valueProvided, Quantity);
             }
         });
 
@@ -272,11 +244,8 @@ class MolecularSequenceQuality extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                if (valueProvided instanceof CodeableConcept){
-                    this.__data.method = valueProvided;
-                } else {
-                    this.__data.method = new CodeableConcept(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.method = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
 
@@ -455,11 +424,8 @@ class MolecularSequenceQuality extends Element {
                     return;
                 }
                 const MolecularSequenceRoc = require('../backbone_elements/molecularSequenceRoc.js');
-                if (valueProvided instanceof MolecularSequenceRoc){
-                    this.__data.roc = valueProvided;
-                } else {
-                    this.__data.roc = new MolecularSequenceRoc(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.roc = FhirResourceCreator.create(valueProvided, MolecularSequenceRoc);
             }
         });
 

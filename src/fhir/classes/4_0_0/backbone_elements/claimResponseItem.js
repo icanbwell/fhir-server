@@ -73,19 +73,8 @@ class ClaimResponseItem extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.extension = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Extension ?
-                                v : new Extension(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Extension) {
-                        this.__data.extension = valueProvided;
-                    } else {
-                        this.__data.extension = [new Extension(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -116,19 +105,8 @@ class ClaimResponseItem extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.modifierExtension = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Extension ?
-                                v : new Extension(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Extension) {
-                        this.__data.modifierExtension = valueProvided;
-                    } else {
-                        this.__data.modifierExtension = [new Extension(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -186,19 +164,8 @@ class ClaimResponseItem extends Element {
                     return;
                 }
                 const ClaimResponseAdjudication = require('../backbone_elements/claimResponseAdjudication.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.adjudication = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof ClaimResponseAdjudication ?
-                                v : new ClaimResponseAdjudication(v)
-                            );
-                } else {
-                    if (valueProvided instanceof ClaimResponseAdjudication) {
-                        this.__data.adjudication = valueProvided;
-                    } else {
-                        this.__data.adjudication = [new ClaimResponseAdjudication(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.adjudication = FhirResourceCreator.createArray(valueProvided, ClaimResponseAdjudication);
             }
         });
 
@@ -218,19 +185,8 @@ class ClaimResponseItem extends Element {
                     return;
                 }
                 const ClaimResponseDetail = require('../backbone_elements/claimResponseDetail.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.detail = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof ClaimResponseDetail ?
-                                v : new ClaimResponseDetail(v)
-                            );
-                } else {
-                    if (valueProvided instanceof ClaimResponseDetail) {
-                        this.__data.detail = valueProvided;
-                    } else {
-                        this.__data.detail = [new ClaimResponseDetail(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.detail = FhirResourceCreator.createArray(valueProvided, ClaimResponseDetail);
             }
         });
 

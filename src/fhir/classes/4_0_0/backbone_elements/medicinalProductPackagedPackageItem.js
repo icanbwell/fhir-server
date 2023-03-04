@@ -88,19 +88,8 @@ class MedicinalProductPackagedPackageItem extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.extension = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Extension ?
-                                v : new Extension(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Extension) {
-                        this.__data.extension = valueProvided;
-                    } else {
-                        this.__data.extension = [new Extension(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -131,19 +120,8 @@ class MedicinalProductPackagedPackageItem extends Element {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.modifierExtension = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Extension ?
-                                v : new Extension(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Extension) {
-                        this.__data.modifierExtension = valueProvided;
-                    } else {
-                        this.__data.modifierExtension = [new Extension(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -162,19 +140,8 @@ class MedicinalProductPackagedPackageItem extends Element {
                     return;
                 }
                 const Identifier = require('../complex_types/identifier.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.identifier = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Identifier ?
-                                v : new Identifier(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Identifier) {
-                        this.__data.identifier = valueProvided;
-                    } else {
-                        this.__data.identifier = [new Identifier(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.identifier = FhirResourceCreator.createArray(valueProvided, Identifier);
             }
         });
 
@@ -193,11 +160,8 @@ class MedicinalProductPackagedPackageItem extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                if (valueProvided instanceof CodeableConcept){
-                    this.__data.type = valueProvided;
-                } else {
-                    this.__data.type = new CodeableConcept(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.type = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
 
@@ -217,11 +181,8 @@ class MedicinalProductPackagedPackageItem extends Element {
                     return;
                 }
                 const Quantity = require('../complex_types/quantity.js');
-                if (valueProvided instanceof Quantity){
-                    this.__data.quantity = valueProvided;
-                } else {
-                    this.__data.quantity = new Quantity(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.quantity = FhirResourceCreator.create(valueProvided, Quantity);
             }
         });
 
@@ -240,19 +201,8 @@ class MedicinalProductPackagedPackageItem extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.material = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof CodeableConcept ?
-                                v : new CodeableConcept(v)
-                            );
-                } else {
-                    if (valueProvided instanceof CodeableConcept) {
-                        this.__data.material = valueProvided;
-                    } else {
-                        this.__data.material = [new CodeableConcept(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.material = FhirResourceCreator.createArray(valueProvided, CodeableConcept);
             }
         });
 
@@ -271,19 +221,8 @@ class MedicinalProductPackagedPackageItem extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.alternateMaterial = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof CodeableConcept ?
-                                v : new CodeableConcept(v)
-                            );
-                } else {
-                    if (valueProvided instanceof CodeableConcept) {
-                        this.__data.alternateMaterial = valueProvided;
-                    } else {
-                        this.__data.alternateMaterial = [new CodeableConcept(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.alternateMaterial = FhirResourceCreator.createArray(valueProvided, CodeableConcept);
             }
         });
 
@@ -302,19 +241,8 @@ class MedicinalProductPackagedPackageItem extends Element {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.device = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Reference ?
-                                v : new Reference(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Reference) {
-                        this.__data.device = valueProvided;
-                    } else {
-                        this.__data.device = [new Reference(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.device = FhirResourceCreator.createArray(valueProvided, Reference);
             }
         });
 
@@ -333,19 +261,8 @@ class MedicinalProductPackagedPackageItem extends Element {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.manufacturedItem = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Reference ?
-                                v : new Reference(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Reference) {
-                        this.__data.manufacturedItem = valueProvided;
-                    } else {
-                        this.__data.manufacturedItem = [new Reference(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.manufacturedItem = FhirResourceCreator.createArray(valueProvided, Reference);
             }
         });
 
@@ -363,19 +280,8 @@ class MedicinalProductPackagedPackageItem extends Element {
                     this.__data.packageItem = undefined;
                     return;
                 }
-                if (Array.isArray(valueProvided)) {
-                    this.__data.packageItem = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof MedicinalProductPackagedPackageItem ?
-                                v : new MedicinalProductPackagedPackageItem(v)
-                            );
-                } else {
-                    if (valueProvided instanceof MedicinalProductPackagedPackageItem) {
-                        this.__data.packageItem = valueProvided;
-                    } else {
-                        this.__data.packageItem = [new MedicinalProductPackagedPackageItem(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.packageItem = FhirResourceCreator.createArray(valueProvided, MedicinalProductPackagedPackageItem);
             }
         });
 
@@ -394,11 +300,8 @@ class MedicinalProductPackagedPackageItem extends Element {
                     return;
                 }
                 const ProdCharacteristic = require('../backbone_elements/prodCharacteristic.js');
-                if (valueProvided instanceof ProdCharacteristic){
-                    this.__data.physicalCharacteristics = valueProvided;
-                } else {
-                    this.__data.physicalCharacteristics = new ProdCharacteristic(valueProvided);
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.physicalCharacteristics = FhirResourceCreator.create(valueProvided, ProdCharacteristic);
             }
         });
 
@@ -417,19 +320,8 @@ class MedicinalProductPackagedPackageItem extends Element {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.otherCharacteristics = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof CodeableConcept ?
-                                v : new CodeableConcept(v)
-                            );
-                } else {
-                    if (valueProvided instanceof CodeableConcept) {
-                        this.__data.otherCharacteristics = valueProvided;
-                    } else {
-                        this.__data.otherCharacteristics = [new CodeableConcept(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.otherCharacteristics = FhirResourceCreator.createArray(valueProvided, CodeableConcept);
             }
         });
 
@@ -448,19 +340,8 @@ class MedicinalProductPackagedPackageItem extends Element {
                     return;
                 }
                 const ProductShelfLife = require('../backbone_elements/productShelfLife.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.shelfLifeStorage = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof ProductShelfLife ?
-                                v : new ProductShelfLife(v)
-                            );
-                } else {
-                    if (valueProvided instanceof ProductShelfLife) {
-                        this.__data.shelfLifeStorage = valueProvided;
-                    } else {
-                        this.__data.shelfLifeStorage = [new ProductShelfLife(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.shelfLifeStorage = FhirResourceCreator.createArray(valueProvided, ProductShelfLife);
             }
         });
 
@@ -479,19 +360,8 @@ class MedicinalProductPackagedPackageItem extends Element {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.manufacturer = valueProvided
-                            .filter(v => v)
-                            .map(v => v instanceof Reference ?
-                                v : new Reference(v)
-                            );
-                } else {
-                    if (valueProvided instanceof Reference) {
-                        this.__data.manufacturer = valueProvided;
-                    } else {
-                        this.__data.manufacturer = [new Reference(valueProvided)];
-                    }
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.manufacturer = FhirResourceCreator.createArray(valueProvided, Reference);
             }
         });
 
