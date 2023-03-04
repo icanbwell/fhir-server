@@ -1385,20 +1385,20 @@ describe('graphHelper Tests', () => {
                         },
                     },
                     {
-                        id: '100',
-                        fullUrl: 'https://host/4_0_0/Organization/100',
-                        resource: {
-                            id: '100',
-                            resourceType: 'Organization',
-                        },
-                    },
-                    {
                         id: 'AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He',
                         fullUrl:
                             'https://host/4_0_0/InsurancePlan/AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He',
                         resource: {
                             id: 'AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He',
                             resourceType: 'InsurancePlan',
+                        },
+                    },
+                    {
+                        id: '100',
+                        fullUrl: 'https://host/4_0_0/Organization/100',
+                        resource: {
+                            id: '100',
+                            resourceType: 'Organization',
                         },
                     },
                     {
@@ -1613,12 +1613,12 @@ describe('graphHelper Tests', () => {
                                     resourceType: 'PractitionerRole',
                                 },
                                 {
-                                    id: '100',
-                                    resourceType: 'Organization',
-                                },
-                                {
                                     id: 'AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He',
                                     resourceType: 'InsurancePlan',
+                                },
+                                {
+                                    id: '100',
+                                    resourceType: 'Organization',
                                 },
                             ],
                             id: '1',

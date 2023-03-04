@@ -7,7 +7,7 @@ const {R4SearchQueryCreator} = require('../query/r4');
 const env = require('var');
 const {getFieldNameForSearchParameter} = require('../../searchParameters/searchParameterHelpers');
 const {escapeRegExp} = require('../../utils/regexEscaper');
-const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
+const {assertTypeEquals} = require('../../utils/assertType');
 const {DatabaseQueryFactory} = require('../../dataLayer/databaseQueryFactory');
 const {SecurityTagManager} = require('../common/securityTagManager');
 const {ResourceEntityAndContained} = require('./resourceEntityAndContained');
@@ -1290,49 +1290,40 @@ class GraphHelper {
                 }
             }
 
-            // add contained objects under the parent resource
-            for (const /** @type {BundleEntry} */ topLevelBundleEntry of topLevelBundleEntries) {
-                // add related resources as container
+            for (const /** @type {ResourceEntityAndContained} */ entity of allRelatedEntries) {
                 /**
-                 * @type {ResourceEntityAndContained}
+                 * @type {Resource}
                  */
-                let matchingEntity = allRelatedEntries.find(
-                    e => e.entityUuid === topLevelBundleEntry.resource._uuid &&
-                        e.entityResourceType === topLevelBundleEntry.resource.resourceType
-                );
-                if (this.configManager.supportLegacyIds && !matchingEntity) {
-                    matchingEntity = allRelatedEntries.find(
-                        e => (
-                                this.configManager.supportLegacyIds && e.entityId === topLevelBundleEntry.resource.id
-                            ) &&
-                            e.entityResourceType === topLevelBundleEntry.resource.resourceType
+                const topLevelResource = entity.resource;
+                /**
+                 * @type {BundleEntry}
+                 */
+                const bundleEntry = new BundleEntry({
+                    resource: topLevelResource
+                });
+                entries.push(bundleEntry);
+                if (entity.containedEntries.length > 0) {
+                    /**
+                     * @type {BundleEntry[]}
+                     */
+                    const recursiveEntries = entity.containedEntries.flatMap(
+                        e => this.getRecursiveContainedEntities(
+                            e
+                        )
                     );
-                }
-                assertIsValid(matchingEntity,
-                    'No matching entity found in graph for ' +
-                    `${topLevelBundleEntry.resource.resourceType}/${topLevelBundleEntry.resource.id}`);
-                /**
-                 * @type {[EntityAndContainedBase]}
-                 */
-                const related_entries = matchingEntity.containedEntries;
-                /**
-                 * @type {BundleEntry[]}
-                 */
-                const relatedEntities = related_entries
-                    .flatMap(r => this.getRecursiveContainedEntities(r))
-                    .filter(r => r.resource !== undefined && r.resource !== null);
 
-                if (contained) {
-                    if (relatedEntities.length > 0) {
-                        topLevelBundleEntry['resource']['contained'] = relatedEntities.map(r => r.resource);
+                    if (contained) {
+                        topLevelResource.contained = recursiveEntries.map(e => e.resource);
+                    } else {
+                        entries = entries.concat(recursiveEntries);
                     }
-                } else {
-                    entries = entries.concat(relatedEntities);
                 }
             }
 
-            entries = await this.enrichmentManager.enrichBundleEntriesAsync({
-                    entries, parsedArgs
+            entries = await this.enrichmentManager.enrichBundleEntriesAsync(
+                {
+                    entries,
+                    parsedArgs
                 }
             );
             entries = this.bundleManager.removeDuplicateEntries({entries});
@@ -1359,6 +1350,7 @@ class GraphHelper {
             });
         }
     }
+
 
     /**
      * process GraphDefinition and returns a bundle with all the related resources
