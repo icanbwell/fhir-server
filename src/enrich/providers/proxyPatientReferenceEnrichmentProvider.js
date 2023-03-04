@@ -100,6 +100,7 @@ class ProxyPatientReferenceEnrichmentProvider extends EnrichmentProvider {
                         parsedArgs
                     }
                 ))[0];
+                entry.id = entry.resource.id;
             }
         }
         return entries;

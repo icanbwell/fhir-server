@@ -1309,6 +1309,10 @@ class GraphHelper {
                 }
             }
 
+            /**
+             * @type {string[]}
+             */
+            const idsOfBundleEntriesProcessed = [];
             for (const /** @type {ResourceEntityAndContained} */ entity of allRelatedEntries) {
                 /**
                  * @type {Resource}
@@ -1385,13 +1389,20 @@ class GraphHelper {
 
                 if (responseStreamer) {
                     for (const bundleEntry1 of bundleEntriesForTopLevelResource) {
-                        await responseStreamer.writeBundleEntryAsync(
-                            {
-                                bundleEntry: bundleEntry1
-                            }
-                        );
+                        if (!idsOfBundleEntriesProcessed.includes(bundleEntry1.id)) {
+                            await responseStreamer.writeBundleEntryAsync(
+                                {
+                                    bundleEntry: bundleEntry1
+                                }
+                            );
+                            idsOfBundleEntriesProcessed.push(bundleEntry1.id);
+                        }
                     }
                 } else {
+                    bundleEntriesForTopLevelResource.forEach(be => idsOfBundleEntriesProcessed.push(be.id));
+                    bundleEntriesForTopLevelResource = bundleEntriesForTopLevelResource.filter(
+                        be => !idsOfBundleEntriesProcessed.includes(be.id)
+                    );
                     entries = entries.concat(bundleEntriesForTopLevelResource);
                 }
             }

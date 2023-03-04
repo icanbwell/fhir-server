@@ -106,6 +106,7 @@ class GlobalIdEnrichmentProvider extends EnrichmentProvider {
                     }
                 ))[0];
             }
+            entry.id = entry.resource.id;
         }
         return entries;
     }
