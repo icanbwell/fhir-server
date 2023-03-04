@@ -752,17 +752,19 @@ class GraphHelper {
      * @param {ParsedArgs} parsedArgs
      * @return {Promise<{queryItems: QueryItem[], childEntries: EntityAndContainedBase[]}>}
      */
-    async processLinkTargetAsync({
-                                     requestInfo,
-                                     base_version,
-                                     parentResourceType,
-                                     link,
-                                     parentEntities,
-                                     explain,
-                                     debug,
-                                     target,
-                                     parsedArgs
-                                 }) {
+    async processLinkTargetAsync(
+        {
+            requestInfo,
+            base_version,
+            parentResourceType,
+            link,
+            parentEntities,
+            explain,
+            debug,
+            target,
+            parsedArgs
+        }
+    ) {
         try {
             /**
              * @type {QueryItem[]}
@@ -953,16 +955,18 @@ class GraphHelper {
      * @param {ParsedArgs} parsedArgs
      * @returns {QueryItem[]}
      */
-    async processOneGraphLinkAsync({
-                                       requestInfo,
-                                       base_version,
-                                       parentResourceType,
-                                       link,
-                                       parentEntities,
-                                       explain,
-                                       debug,
-                                       parsedArgs
-                                   }) {
+    async processOneGraphLinkAsync(
+        {
+            requestInfo,
+            base_version,
+            parentResourceType,
+            link,
+            parentEntities,
+            explain,
+            debug,
+            parsedArgs
+        }
+    ) {
         try {
             /**
              * @type {{type: string}[]}
@@ -975,7 +979,14 @@ class GraphHelper {
                 link_targets,
                 async (/** @type {type: string} */ target) => await this.processLinkTargetAsync(
                     {
-                        requestInfo, base_version, parentResourceType, link, parentEntities, explain, debug, target,
+                        requestInfo,
+                        base_version,
+                        parentResourceType,
+                        link,
+                        parentEntities,
+                        explain,
+                        debug,
+                        target,
                         parsedArgs
                     }
                 )
