@@ -16,7 +16,6 @@ const OperationOutcome = require('../../fhir/classes/4_0_0/resources/operationOu
 const OperationOutcomeIssue = require('../../fhir/classes/4_0_0/backbone_elements/operationOutcomeIssue');
 const CodeableConcept = require('../../fhir/classes/4_0_0/complex_types/codeableConcept');
 const Coding = require('../../fhir/classes/4_0_0/complex_types/coding');
-const {getResource} = require('../common/getResource');
 const Bundle = require('../../fhir/classes/4_0_0/resources/bundle');
 const Parameters = require('../../fhir/classes/4_0_0/resources/parameters');
 const {ResourceValidator} = require('../common/resourceValidator');
@@ -26,6 +25,7 @@ const {MergeResultEntry} = require('../common/mergeResultEntry');
 const {PreSaveManager} = require('../../preSaveHandlers/preSave');
 const async = require('async');
 const {QueryItem} = require('../graph/queryItem');
+const {FhirResourceCreator} = require('../../fhir/fhirResourceCreator');
 
 class MergeOperation {
     /**
@@ -327,11 +327,7 @@ class MergeOperation {
             /**
              * @type {Resource[]}
              */
-            let resourcesIncomingArray = (wasIncomingAList ? incomingObjects : [incomingObjects])
-                .map(o => {
-                    const ResourceCreator = getResource(base_version, o.resourceType || resourceType);
-                    return new ResourceCreator(o);
-                });
+            let resourcesIncomingArray = FhirResourceCreator.createArray(incomingObjects);
 
             const {
                 /** @type {MergeResultEntry[]} */ mergePreCheckErrors,

@@ -2,7 +2,6 @@
 
 const {BadRequestError, NotFoundError} = require('../../utils/httpErrors');
 const {validate, applyPatch} = require('fast-json-patch');
-const {getResource} = require('../common/getResource');
 const moment = require('moment-timezone');
 const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
 const {DatabaseQueryFactory} = require('../../dataLayer/databaseQueryFactory');
@@ -14,6 +13,7 @@ const {DatabaseBulkInserter} = require('../../dataLayer/databaseBulkInserter');
 const {getCircularReplacer} = require('../../utils/getCircularReplacer');
 const {fhirContentTypes} = require('../../utils/contentTypes');
 const {ParsedArgs} = require('../query/parsedArgsItem');
+const {FhirResourceCreator} = require('../../fhir/fhirResourceCreator');
 
 class PatchOperation {
     /**
@@ -149,11 +149,10 @@ class PatchOperation {
              */
             let resource_incoming = applyPatch(foundResource.toJSONInternal(), patchContent).newDocument;
 
-            let ResourceCreator = getResource(base_version, resourceType);
             /**
              * @type {Resource}
              */
-            let resource = new ResourceCreator(resource_incoming);
+            let resource = FhirResourceCreator.createByResourceType(resource_incoming, resourceType);
 
             // source in metadata must exist either in incoming resource or found resource
             if (foundResource?.meta && (foundResource.meta.source || (resource?.meta?.source))) {

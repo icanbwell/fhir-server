@@ -1,7 +1,6 @@
 const {BaseBulkOperationRunner} = require('./baseBulkOperationRunner');
 const {assertTypeEquals} = require('../../utils/assertType');
 const {PreSaveManager} = require('../../preSaveHandlers/preSave');
-const {getResource} = require('../../operations/common/getResource');
 const {VERSIONS} = require('../../middleware/fhir/utils/constants');
 const {ReferenceParser} = require('../../utils/referenceParser');
 const {DatabaseQueryFactory} = require('../../dataLayer/databaseQueryFactory');
@@ -9,6 +8,7 @@ const {generateUUIDv5} = require('../../utils/uid.util');
 const deepEqual = require('fast-deep-equal');
 const moment = require('moment-timezone');
 const {ResourceLocatorFactory} = require('../../operations/common/resourceLocatorFactory');
+const {FhirResourceCreator} = require('../../fhir/fhirResourceCreator');
 
 /**
  * @classdesc finds ids in references and updates sourceAssigningAuthority with found resource
@@ -303,11 +303,10 @@ class FixReferenceSourceAssigningAuthorityRunner extends BaseBulkOperationRunner
      */
     async processRecordAsync(doc) {
         const operations = [];
-        const ResourceCreator = getResource(VERSIONS['4_0_0'], doc.resourceType);
         /**
          * @type {Resource}
          */
-        let resource = new ResourceCreator(doc);
+        let resource = FhirResourceCreator.create(doc);
         /**
          * @type {Resource}
          */

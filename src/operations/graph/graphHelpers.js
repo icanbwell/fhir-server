@@ -2,7 +2,6 @@
  * This file contains functions to retrieve a graph of data from the database
  */
 const async = require('async');
-const {getResource} = require('../common/getResource');
 const {R4SearchQueryCreator} = require('../query/r4');
 const env = require('var');
 const {getFieldNameForSearchParameter} = require('../../searchParameters/searchParameterHelpers');
@@ -31,6 +30,7 @@ const {QueryItem} = require('./queryItem');
 const {ProcessMultipleIdsAsyncResult} = require('./processMultipleIdsAsyncResult');
 const {FhirResourceCreator} = require('../../fhir/fhirResourceCreator');
 const GraphDefinition = require('../../fhir/classes/4_0_0/resources/graphDefinition');
+const ResourceContainer = require('../../fhir/classes/4_0_0/simple_types/resourceContainer');
 
 
 /**
@@ -1610,13 +1610,12 @@ class GraphHelper {
                 // for testing with delay
                 // await new Promise(r => setTimeout(r, 10000));
 
-                const ResourceCreator = getResource(base_version, resultResourceType);
                 const bundleEntry = new BundleEntry({
                     id: resource.id,
-                    resource: new ResourceCreator({
+                    resource: FhirResourceCreator.create({
                         id: resource.id,
                         resourceType: resultResourceType
-                    }),
+                    }, ResourceContainer),
                     request: new BundleRequest(
                         {
                             id: requestInfo.requestId,

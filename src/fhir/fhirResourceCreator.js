@@ -23,6 +23,21 @@ class FhirResourceCreator {
     }
 
     /**
+     * creates a resource by specified resourceType
+     * @param {Resource|Object} obj
+     * @param {string} resourceType
+     * @return {Resource}
+     */
+    static createByResourceType(obj, resourceType) {
+        assertIsValid(obj, 'obj is null');
+        if (obj instanceof Resource) {
+            return obj;
+        }
+        const ResourceCreator = getResource(VERSIONS['4_0_0'], resourceType);
+        return new ResourceCreator(obj);
+    }
+
+    /**
      * creates an array of resources
      * @param {Resource|Object|Resource[]|Object[]} obj
      * @param {*} [ResourceConstructor]

@@ -2,9 +2,8 @@ const {BaseBulkOperationRunner} = require('./baseBulkOperationRunner');
 const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
 const {PreSaveManager} = require('../../preSaveHandlers/preSave');
 const deepEqual = require('fast-deep-equal');
-const {getResource} = require('../../operations/common/getResource');
-const {VERSIONS} = require('../../middleware/fhir/utils/constants');
 const moment = require('moment-timezone');
+const {FhirResourceCreator} = require('../../fhir/fhirResourceCreator');
 
 /**
  * @classdesc runs preSave() on every record
@@ -86,11 +85,10 @@ class RunPreSaveRunner extends BaseBulkOperationRunner {
             return operations;
         }
         assertIsValid(doc.resourceType);
-        const ResourceCreator = getResource(VERSIONS['4_0_0'], doc.resourceType);
         /**
          * @type {Resource}
          */
-        const currentResource = new ResourceCreator(doc);
+        const currentResource = FhirResourceCreator.create(doc);
         /**
          * @type {Resource}
          */

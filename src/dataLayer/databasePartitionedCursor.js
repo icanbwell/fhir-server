@@ -2,12 +2,12 @@
  * This class provides a cursor that can span multiple partitioned collections
  */
 const {assertIsValid, assertFail} = require('../utils/assertType');
-const {getResource} = require('../operations/common/getResource');
 const async = require('async');
 const {RethrownError} = require('../utils/rethrownError');
 const {partitionedCollectionsCount} = require('../utils/prometheus.utils');
 const {logTraceSystemEventAsync} = require('../operations/common/logging');
 const BundleEntry = require('../fhir/classes/4_0_0/backbone_elements/bundleEntry');
+const {FhirResourceCreator} = require('../fhir/fhirResourceCreator');
 
 /**
  * @typedef CursorInfo
@@ -113,8 +113,7 @@ class DatabasePartitionedCursor {
                 // noinspection JSCheckFunctionSignatures
                 return new BundleEntry(doc);
             }
-            const ResourceCreator = getResource(this.base_version, resourceType);
-            return new ResourceCreator(doc);
+            return FhirResourceCreator.createByResourceType(doc, resourceType);
         } catch (e) {
             throw new RethrownError({
                 message: `Error hydrating resource from database: ${resourceType}/${doc.id}`,

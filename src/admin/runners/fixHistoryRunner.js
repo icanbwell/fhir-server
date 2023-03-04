@@ -1,9 +1,8 @@
 const {BaseBulkOperationRunner} = require('./baseBulkOperationRunner');
 const {assertTypeEquals} = require('../../utils/assertType');
 const {PreSaveManager} = require('../../preSaveHandlers/preSave');
-const {getResource} = require('../../operations/common/getResource');
-const {VERSIONS} = require('../../middleware/fhir/utils/constants');
 const deepcopy = require('deepcopy');
+const {FhirResourceCreator} = require('../../fhir/fhirResourceCreator');
 
 /**
  * @classdesc runs preSave() on every record
@@ -79,11 +78,10 @@ class FixHistoryRunner extends BaseBulkOperationRunner {
         }
         const resourceRaw = doc.resource;
         if (!resourceRaw._uuid) {
-            const ResourceCreator = getResource(VERSIONS['4_0_0'], resourceRaw.resourceType);
             /**
              * @type {Resource}
              */
-            let resource = new ResourceCreator(resourceRaw);
+            let resource = FhirResourceCreator.create(resourceRaw);
             resource = await this.preSaveManager.preSaveAsync(resource);
             doc.resource = resource.toJSONInternal();
             hasChanges = true;

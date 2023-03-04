@@ -4,7 +4,6 @@
 const env = require('var');
 const moment = require('moment-timezone');
 const {getMeta} = require('../operations/common/getMeta');
-const {getResource} = require('../operations/common/getResource');
 const {generateUUID} = require('./uid.util');
 const {isTrue} = require('./isTrue');
 const deepcopy = require('deepcopy');
@@ -15,6 +14,7 @@ const {assertTypeEquals} = require('./assertType');
 const {SecurityTagSystem} = require('./securityTagSystem');
 const {getCircularReplacer} = require('./getCircularReplacer');
 const {logError} = require('../operations/common/logging');
+const {AuditEvent} = require('../graphql/v2/resolvers/resources/auditEvent');
 
 class AuditLogger {
     /**
@@ -85,10 +85,9 @@ class AuditLogger {
         };
 
         // Get current record
-        let ResourceCreator = getResource(base_version, 'AuditEvent');
-
         const maxNumberOfIds = env.AUDIT_MAX_NUMBER_OF_IDS ? parseInt(env.AUDIT_MAX_NUMBER_OF_IDS) : 50;
-        const document = {
+        const resource = new AuditEvent({
+            id: generateUUID(),
             meta: new Meta({
                 versionId: '1',
                 lastUpdated: new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ssZ')),
@@ -138,11 +137,7 @@ class AuditLogger {
                         }) : null
                 };
             })
-        };
-        let resource = new ResourceCreator(document);
-
-        let id = generateUUID();
-        resource.id = id;
+        });
 
         return resource;
     }

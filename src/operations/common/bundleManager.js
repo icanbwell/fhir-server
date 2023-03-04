@@ -1,4 +1,3 @@
-const {getResource} = require('./getResource');
 const moment = require('moment-timezone');
 const env = require('var');
 const {mongoQueryAndOptionsStringify, mongoQueryStringify} = require('../../utils/mongoQueryStringify');
@@ -10,6 +9,8 @@ const {ResourceManager} = require('./resourceManager');
 const {removeDuplicatesWithLambda} = require('../../utils/list.util');
 const {getCircularReplacer} = require('../../utils/getCircularReplacer');
 const {QueryItem} = require('../graph/queryItem');
+const Bundle = require('../../fhir/classes/4_0_0/resources/bundle');
+const BundleLink = require('../../fhir/classes/4_0_0/backbone_elements/bundleLink');
 
 /**
  * This class creates a Bundle resource out of a list of resources
@@ -134,7 +135,6 @@ class BundleManager {
      * @param {string | null} protocol
      * @param {string | null} [last_id]
      * @param {BundleEntry[]} entries
-     * @param {string} base_version
      * @param {number|null} [total_count]
      * @param {ParsedArgs} parsedArgs
      * @param {QueryItem|QueryItem[]} originalQuery
@@ -160,7 +160,6 @@ class BundleManager {
             protocol,
             last_id,
             entries,
-            base_version,
             total_count,
             parsedArgs,
             originalQuery,
@@ -185,7 +184,7 @@ class BundleManager {
         }
         /**
          * array of links
-         * @type {[{relation:string, url: string}]}
+         * @type {BundleLink[]}
          */
         let link = [];
         // find id of last resource
@@ -203,28 +202,24 @@ class BundleManager {
                 // remove the _getpagesoffset param since that will skip again from this id
                 nextUrl.searchParams.delete('_getpagesoffset');
                 link = [
-                    {
+                    new BundleLink({
                         relation: 'self',
                         url: `${protocol}`.concat('://', `${host}`, `${originalUrl}`),
-                    },
-                    {
+                    }),
+                    new BundleLink({
                         relation: 'next',
                         url: `${protocol}`.concat('://', `${host}`, `${nextUrl.toString().replace(baseUrl, '')}`),
-                    },
+                    }),
                 ];
             } else {
                 link = [
-                    {
+                    new BundleLink({
                         relation: 'self',
                         url: `${protocol}`.concat('://', `${host}`, `${originalUrl}`),
-                    },
+                    }),
                 ];
             }
         }
-        /**
-         * @type {function({Object}):Resource}
-         */
-        const Bundle = getResource(base_version, 'bundle');
         // noinspection JSValidateTypes
         /**
          * @type {Bundle}
