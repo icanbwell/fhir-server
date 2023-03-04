@@ -29,6 +29,8 @@ const {VERSIONS} = require('../../middleware/fhir/utils/constants');
 const {ReferenceParser} = require('../../utils/referenceParser');
 const {QueryItem} = require('./queryItem');
 const {ProcessMultipleIdsAsyncResult} = require('./processMultipleIdsAsyncResult');
+const {FhirResourceCreator} = require('../../fhir/fhirResourceCreator');
+const GraphDefinition = require('../../fhir/classes/4_0_0/resources/graphDefinition');
 
 
 /**
@@ -1453,14 +1455,10 @@ class GraphHelper {
              */
             const startTime = Date.now();
             /**
-             * @type {function(?Object): Resource}
-             */
-            const GraphDefinitionResource = getResource(base_version, 'GraphDefinition');
-            /**
              * @type {Resource}
              */
-            const graphDefinition = new GraphDefinitionResource(graphDefinitionJson);
-
+            const graphDefinition = FhirResourceCreator.create(graphDefinitionJson);
+            assertTypeEquals(graphDefinition, GraphDefinition);
             /**
              * @type {ProcessMultipleIdsAsyncResult}
              */
