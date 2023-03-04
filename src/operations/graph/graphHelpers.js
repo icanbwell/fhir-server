@@ -1160,6 +1160,7 @@ class GraphHelper {
      * @param {boolean} [debug]
      * @param {ParsedArgs} parsedArgs
      * @param {BaseResponseStreamer|undefined} [responseStreamer]
+     * @param {string[]} idsAlreadyProcessed
      * @return {Promise<ProcessMultipleIdsAsyncResult>}
      */
     async processMultipleIdsAsync(
@@ -1172,7 +1173,8 @@ class GraphHelper {
             explain,
             debug,
             parsedArgs,
-            responseStreamer
+            responseStreamer,
+            idsAlreadyProcessed
         }
     ) {
         assertTypeEquals(parsedArgs, ParsedArgs);
@@ -1312,7 +1314,7 @@ class GraphHelper {
             /**
              * @type {string[]}
              */
-            const idsOfBundleEntriesProcessed = [];
+            const idsOfBundleEntriesProcessed = idsAlreadyProcessed;
             for (const /** @type {ResourceEntityAndContained} */ entity of allRelatedEntries) {
                 /**
                  * @type {Resource}
@@ -1407,6 +1409,7 @@ class GraphHelper {
                 }
             }
 
+            const bundleEntryIdsProcessed = entries.map(e => e.id);
             if (responseStreamer) {
                 entries = [];
             } else {
@@ -1415,7 +1418,11 @@ class GraphHelper {
 
             return new ProcessMultipleIdsAsyncResult(
                 {
-                    entries, queryItems: queries, options: optionsForQueries, explanations
+                    entries,
+                    queryItems: queries,
+                    options: optionsForQueries,
+                    explanations,
+                    bundleEntryIdsProcessed
                 }
             );
         } catch (e) {
@@ -1503,14 +1510,24 @@ class GraphHelper {
              */
             let explanations = [];
 
+            /**
+             * @type {string[]}
+             */
+            let bundleEntryIdsProcessed = [];
+
             for (const /** @type {string[]} */ idChunk of idChunks) {
                 const parsedArgsForChunk = parsedArgs.clone();
                 parsedArgsForChunk.id = idChunk;
                 /**
                  * @type {ProcessMultipleIdsAsyncResult}
                  */
-                const {entries: entries1, queryItems: queryItems1, options: options1, explanations: explanations1}
-                    = await this.processMultipleIdsAsync(
+                const {
+                    entries: entries1,
+                    queryItems: queryItems1,
+                    options: options1,
+                    explanations: explanations1,
+                    bundleEntryIdsProcessed: bundleEntryIdsProcessed1
+                } = await this.processMultipleIdsAsync(
                     {
                         base_version,
                         requestInfo,
@@ -1520,13 +1537,15 @@ class GraphHelper {
                         explain: parsedArgs['_explain'] ? true : false,
                         debug: parsedArgs['_debug'] ? true : false,
                         parsedArgs: parsedArgsForChunk,
-                        responseStreamer
+                        responseStreamer,
+                        idsAlreadyProcessed: bundleEntryIdsProcessed
                     }
                 );
                 entries = entries.concat(entries1);
                 queryItems = queryItems.concat(queryItems1);
                 options = options.concat(options1);
                 explanations = explanations.concat(explanations1);
+                bundleEntryIdsProcessed = bundleEntryIdsProcessed.concat(bundleEntryIdsProcessed1);
             }
             /**
              * @type {number}

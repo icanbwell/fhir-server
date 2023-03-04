@@ -5,12 +5,14 @@ class ProcessMultipleIdsAsyncResult {
      * @param {QueryItem[]} queryItems
      * @param {import('mongodb').FindOptions<import('mongodb').DefaultSchema>[]} options
      * @param {import('mongodb').Document[]} explanations
+     * @param {string[]} bundleEntryIdsProcessed
      */
     constructor({
                     entries,
                     queryItems,
                     options,
-                    explanations
+                    explanations,
+                    bundleEntryIdsProcessed
                 }) {
         /**
          * @type {BundleEntry[]}
@@ -28,6 +30,11 @@ class ProcessMultipleIdsAsyncResult {
          * @type {import('mongodb').Document[]}
          */
         this.explanations = explanations;
+
+        /**
+         * @type {string[]}
+         */
+        this.bundleEntryIdsProcessed = bundleEntryIdsProcessed;
     }
 }
 
