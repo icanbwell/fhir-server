@@ -287,7 +287,7 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                  */
                 let cursor = await sourceCollection
                     .find(query, options)
-                    .sort({id: 1})
+                    .sort({_uuid: 1})
                     .maxTimeMS(maxTimeMS) // 20 hours
                     .batchSize(batchSize)
                     .addCursorFlag('noCursorTimeout', true);
