@@ -8,7 +8,6 @@ const moment = require('moment-timezone');
 const {MongoNetworkTimeoutError} = require('mongodb');
 const {MemoryManager} = require('../../utils/memoryManager');
 const sizeof = require('object-sizeof');
-const prettyBytes = require('pretty-bytes');
 
 /**
  * @classdesc Implements a loop for reading records from database (based on passed in query), calling a function to
@@ -231,6 +230,11 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
          * @type {number}
          */
         let bytesLoaded = 0;
+        /**
+         * @type {MemoryManager}
+         */
+        const memoryManager = new MemoryManager();
+
         while (continueLoop && (loopRetryNumber < maxLoopRetries)) {
             if (startFromIdContainer.startFromId) {
                 query.$and.push({'id': {$gt: startFromIdContainer.startFromId}});
@@ -290,7 +294,6 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                         this.adminLogger.logInfo(
                             'refreshing session with sessionId', {'session_id': sessionId});
                         const memoryUsage = process.memoryUsage();
-                        const memoryManager = new MemoryManager();
                         this.adminLogger.logInfo(`Memory used (RSS): ${memoryManager.formatBytes(memoryUsage.rss)}`);
                         /**
                          * @type {import('mongodb').Document}
@@ -317,7 +320,7 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                         `${sourceCollectionName} ` +
                         `Scanned: ${count.toLocaleString('en-US')} of ${numberOfDocumentsToCopy.toLocaleString('en-US')} ` +
                         `Updated: ${numOperations.toLocaleString('en-US')} ` +
-                        `size: ${prettyBytes(bytesLoaded)}`);
+                        `size: ${memoryManager.formatBytes(bytesLoaded)}`);
                     /**
                      * @type {import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>[]}
                      */
@@ -358,7 +361,6 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                         // rss, Resident Set Size, is the amount of space occupied in the main memory device (that is a subset of the total allocated memory) for the process, including all C++ and JavaScript objects and code.
                         // arrayBuffers refers to memory allocated for ArrayBuffers and SharedArrayBuffers, including all Node.js Buffers. This is also included in the external value. When Node.js is used as an embedded library, this value may be 0 because allocations for ArrayBuffers may not be tracked in that case.
                         const memoryUsage = process.memoryUsage();
-                        const memoryManager = new MemoryManager();
                         this.adminLogger.logInfo(`Memory used (RSS): ${memoryManager.formatBytes(memoryUsage.rss)}`);
                     }
                 }
@@ -392,7 +394,7 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                     `${sourceCollectionName} ` +
                     `Scanned: ${count.toLocaleString('en-US')} of ${numberOfSourceDocuments.toLocaleString('en-US')} ` +
                     `Updated: ${numOperations.toLocaleString('en-US')} ` +
-                    `size: ${prettyBytes(bytesLoaded)} ` +
+                    `size: ${memoryManager.formatBytes(bytesLoaded)} ` +
                     '===');
             } catch (e) {
                 if (e instanceof MongoNetworkTimeoutError) {
