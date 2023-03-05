@@ -34,7 +34,7 @@ class BundleManager {
 
     /**
      * creates a bundle from the given resources
-     * @param {string} requestId
+     * @param {string|null} requestId
      * @param {string} type
      * @param {string | null} originalUrl
      * @param {string | null} host
@@ -44,7 +44,7 @@ class BundleManager {
      * @param {string} base_version
      * @param {number|null} [total_count]
      * @param {ParsedArgs} parsedArgs
-     * @param {QueryItem|Query[]} originalQuery
+     * @param {QueryItem|Query[]|QueryItem[]} originalQuery
      * @param {string | undefined} [databaseName]
      * @param {import('mongodb').FindOneOptions | import('mongodb').FindOneOptions[]| import('mongodb').FindOptions<import('mongodb').DefaultSchema>[]} originalOptions
      * @param {Set|undefined} [columns]
