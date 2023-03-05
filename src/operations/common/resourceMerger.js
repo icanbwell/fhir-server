@@ -38,9 +38,18 @@ class ResourceMerger {
      * @param {Resource} resourceToMerge
      * @param {boolean|undefined} [smartMerge]
      * @param {boolean|undefined} [incrementVersion]
+     * @param {string[]|undefined} [limitToPaths]
      * @returns {{updatedResource:Resource|null, patches: MergePatchEntry[]|null }} resource and patches
      */
-    async mergeResourceAsync({currentResource, resourceToMerge, smartMerge = true, incrementVersion = true}) {
+    async mergeResourceAsync(
+        {
+            currentResource,
+            resourceToMerge,
+            smartMerge = true,
+            incrementVersion = true,
+            limitToPaths
+        }
+    ) {
         // create metadata structure if not present
         if (!resourceToMerge.meta) {
             resourceToMerge.meta = {};
@@ -56,19 +65,40 @@ class ResourceMerger {
 
         // copy the identifiers over
         // if an identifier with system=https://www.icanbwell.com/sourceId exists then use that
-        if (currentResource.identifier && Array.isArray(currentResource.identifier) && currentResource.identifier.some(s => s.system === IdentifierSystem.sourceId) && (!resourceToMerge.identifier || !resourceToMerge.identifier.some(s => s.system === IdentifierSystem.sourceId))) {
+        if (currentResource.identifier &&
+            Array.isArray(currentResource.identifier) &&
+            currentResource.identifier.some(s => s.system === IdentifierSystem.sourceId) &&
+            (!resourceToMerge.identifier || !resourceToMerge.identifier.some(s => s.system === IdentifierSystem.sourceId))
+        ) {
             if (!resourceToMerge.identifier) {
-                resourceToMerge.identifier = [getFirstElementOrNull(currentResource.identifier.filter(s => s.system === IdentifierSystem.sourceId))];
+                resourceToMerge.identifier = [
+                    getFirstElementOrNull(currentResource.identifier.filter(s => s.system === IdentifierSystem.sourceId))
+                ];
             } else {
-                resourceToMerge.identifier.push(getFirstElementOrNull(currentResource.identifier.filter(s => s.system === IdentifierSystem.sourceId)));
+                resourceToMerge.identifier.push(
+                    getFirstElementOrNull(currentResource.identifier.filter(s => s.system === IdentifierSystem.sourceId))
+                );
             }
         }
 
-        if (currentResource.identifier && Array.isArray(currentResource.identifier) && currentResource.identifier.some(s => s.system === IdentifierSystem.uuid) && (!resourceToMerge.identifier || !resourceToMerge.identifier.some(s => s.system === IdentifierSystem.uuid))) {
+        if (currentResource.identifier &&
+            Array.isArray(currentResource.identifier) &&
+            currentResource.identifier.some(s => s.system === IdentifierSystem.uuid) &&
+            (!resourceToMerge.identifier ||
+                !resourceToMerge.identifier.some(s => s.system === IdentifierSystem.uuid))
+        ) {
             if (!resourceToMerge.identifier) {
-                resourceToMerge.identifier = [getFirstElementOrNull(currentResource.identifier.filter(s => s.system === IdentifierSystem.uuid))];
+                resourceToMerge.identifier = [
+                    getFirstElementOrNull(
+                        currentResource.identifier.filter(s => s.system === IdentifierSystem.uuid)
+                    )
+                ];
             } else {
-                resourceToMerge.identifier.push(getFirstElementOrNull(currentResource.identifier.filter(s => s.system === IdentifierSystem.uuid)));
+                resourceToMerge.identifier.push(
+                    getFirstElementOrNull(
+                        currentResource.identifier.filter(s => s.system === IdentifierSystem.uuid)
+                    )
+                );
             }
         }
 
@@ -83,7 +113,9 @@ class ResourceMerger {
         /**
          * @type {Object}
          */
-        let mergedObject = smartMerge ? mergeObject(currentResource.toJSON(), resourceToMerge.toJSON()) : resourceToMerge.toJSON();
+        let mergedObject = smartMerge ?
+            mergeObject(currentResource.toJSON(), resourceToMerge.toJSON()) :
+            resourceToMerge.toJSON();
 
         // now create a patch between the document in db and the incoming document
         //  this returns an array of patches
@@ -98,15 +130,22 @@ class ResourceMerger {
         // or any changes to uuid
         patchContent = patchContent.filter(
             item => !(
-                item.path.startsWith('/identifier') && item.value && item.value.system === IdentifierSystem.uuid
+                item.path.startsWith('/identifier') &&
+                item.value && item.value.system === IdentifierSystem.uuid
             )
         );
         // or any changes to sourceId
         patchContent = patchContent.filter(
             item => !(
-                item.path.startsWith('/identifier') && item.value && item.value.system === IdentifierSystem.sourceId
+                item.path.startsWith('/identifier') && item.value &&
+                item.value.system === IdentifierSystem.sourceId
             )
         );
+        if (limitToPaths && limitToPaths.length > 0) {
+            patchContent = patchContent.filter(
+                item => limitToPaths.some(path => item.path.startsWith(path))
+            );
+        }
 
         // see if there are any changes
         if (patchContent.length === 0) {
@@ -132,7 +171,9 @@ class ResourceMerger {
          * @type {Meta}
          */
         let meta = currentResource.meta;
-        meta.versionId = incrementVersion ? `${parseInt(currentResource.meta.versionId) + 1}` : currentResource.meta.versionId;
+        meta.versionId = incrementVersion ?
+            `${parseInt(currentResource.meta.versionId) + 1}` :
+            currentResource.meta.versionId;
         meta.lastUpdated = new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ssZ'));
         // set the source from the incoming resource
         meta.source = original_source;
@@ -149,7 +190,8 @@ class ResourceMerger {
         }
 
         return {
-            updatedResource: patched_resource_incoming, patches: patchContent.map(p => {
+            updatedResource: patched_resource_incoming,
+            patches: patchContent.map(p => {
                 return {
                     op: p.op, path: p.path, value: p.value
                 };

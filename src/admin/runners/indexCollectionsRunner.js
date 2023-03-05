@@ -93,6 +93,7 @@ class IndexCollectionsRunner extends BaseScriptRunner {
                             useAuditDatabase: this.useAuditDatabase,
                             includeHistoryCollections: this.includeHistoryCollections
                         });
+                    this.collections = this.collections.sort();
                 }
                 for (const collectionName of this.collections) {
                     if (this.dropIndexes) {
