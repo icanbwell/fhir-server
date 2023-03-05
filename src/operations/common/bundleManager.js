@@ -46,7 +46,7 @@ class BundleManager {
      * @param {ParsedArgs} parsedArgs
      * @param {QueryItem|Query[]} originalQuery
      * @param {string | undefined} [databaseName]
-     * @param {import('mongodb').FindOneOptions | import('mongodb').FindOneOptions[]} originalOptions
+     * @param {import('mongodb').FindOneOptions | import('mongodb').FindOneOptions[]| import('mongodb').FindOptions<import('mongodb').DefaultSchema>[]} originalOptions
      * @param {Set|undefined} [columns]
      * @param {number} stopTime
      * @param {number} startTime

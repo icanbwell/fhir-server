@@ -32,6 +32,7 @@ const {FhirResourceCreator} = require('../../fhir/fhirResourceCreator');
 const GraphDefinition = require('../../fhir/classes/4_0_0/resources/graphDefinition');
 const ResourceContainer = require('../../fhir/classes/4_0_0/simple_types/resourceContainer');
 const {sliceIntoChunks} = require('../../utils/list.util');
+const {ResourceIdentifier} = require('../../fhir/resourceIdentifier');
 
 
 /**
@@ -1160,7 +1161,7 @@ class GraphHelper {
      * @param {boolean} [debug]
      * @param {ParsedArgs} parsedArgs
      * @param {BaseResponseStreamer|undefined} [responseStreamer]
-     * @param {string[]} idsAlreadyProcessed
+     * @param {ResourceIdentifier[]} idsAlreadyProcessed
      * @return {Promise<ProcessMultipleIdsAsyncResult>}
      */
     async processMultipleIdsAsync(
@@ -1312,7 +1313,7 @@ class GraphHelper {
             }
 
             /**
-             * @type {string[]}
+             * @type {ResourceIdentifier[]}
              */
             const idsOfBundleEntriesProcessed = idsAlreadyProcessed;
             for (const /** @type {ResourceEntityAndContained} */ entity of allRelatedEntries) {
@@ -1391,25 +1392,33 @@ class GraphHelper {
 
                 if (responseStreamer) {
                     for (const bundleEntry1 of bundleEntriesForTopLevelResource) {
-                        if (!idsOfBundleEntriesProcessed.includes(bundleEntry1.id)) {
+                        const resourceIdentifier = new ResourceIdentifier(bundleEntry1.resource);
+
+                        if (!idsOfBundleEntriesProcessed.some(i => i.equals(resourceIdentifier))) {
                             await responseStreamer.writeBundleEntryAsync(
                                 {
                                     bundleEntry: bundleEntry1
                                 }
                             );
-                            idsOfBundleEntriesProcessed.push(bundleEntry1.id);
+                            idsOfBundleEntriesProcessed.push(resourceIdentifier);
                         }
                     }
                 } else {
-                    bundleEntriesForTopLevelResource.forEach(be => idsOfBundleEntriesProcessed.push(be.id));
-                    bundleEntriesForTopLevelResource = bundleEntriesForTopLevelResource.filter(
-                        be => !idsOfBundleEntriesProcessed.includes(be.id)
-                    );
-                    entries = entries.concat(bundleEntriesForTopLevelResource);
+                    for (const bundleEntry1 of bundleEntriesForTopLevelResource) {
+                        const resourceIdentifier = new ResourceIdentifier(bundleEntry1.resource);
+
+                        if (!idsOfBundleEntriesProcessed.some(i => i.equals(resourceIdentifier))) {
+                            entries.push(bundleEntry1);
+                            idsOfBundleEntriesProcessed.push(resourceIdentifier);
+                        }
+                    }
                 }
             }
 
-            const bundleEntryIdsProcessed = entries.map(e => e.id);
+            /**
+             * @type {ResourceIdentifier[]}
+             */
+            const bundleEntryIdsProcessed = entries.map(e => new ResourceIdentifier(e.resource));
             if (responseStreamer) {
                 entries = [];
             } else {
@@ -1502,7 +1511,7 @@ class GraphHelper {
              */
             let queryItems = [];
             /**
-             * @type {import('mongodb').FindOptions<import('mongodb').DefaultSchema>[][]}
+             * @type {import('mongodb').FindOptions<import('mongodb').DefaultSchema>[]}
              */
             let options = [];
             /**
@@ -1511,7 +1520,7 @@ class GraphHelper {
             let explanations = [];
 
             /**
-             * @type {string[]}
+             * @type {ResourceIdentifier[]}
              */
             let bundleEntryIdsProcessed = [];
 
@@ -1560,25 +1569,27 @@ class GraphHelper {
             /**
              * @type {Bundle}
              */
-            const bundle = this.bundleManager.createBundle({
-                type: 'searchset',
-                requestId: requestInfo.requestId,
-                originalUrl: requestInfo.originalUrl,
-                host: requestInfo.host,
-                protocol: requestInfo.protocol,
-                last_id: null,
-                resources,
-                base_version,
-                total_count: null,
-                parsedArgs,
-                originalQuery: queryItems,
-                originalOptions: options,
-                columns: new Set(),
-                stopTime,
-                startTime,
-                user: requestInfo.user,
-                explanations
-            });
+            const bundle = this.bundleManager.createBundle(
+                {
+                    type: 'searchset',
+                    requestId: requestInfo.requestId,
+                    originalUrl: requestInfo.originalUrl,
+                    host: requestInfo.host,
+                    protocol: requestInfo.protocol,
+                    last_id: null,
+                    resources,
+                    base_version,
+                    total_count: null,
+                    parsedArgs,
+                    originalQuery: queryItems,
+                    originalOptions: options,
+                    columns: new Set(),
+                    stopTime,
+                    startTime,
+                    user: requestInfo.user,
+                    explanations
+                }
+            );
             if (responseStreamer) {
                 responseStreamer.setBundle({bundle});
             }
