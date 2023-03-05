@@ -23,7 +23,7 @@ describe('mongoJsonPatchHelper Tests', () => {
     });
 
     describe('Patient mongoJsonPatchHelper Tests', () => {
-        test('mongoJsonPatchHelper works for single query', async () => {
+        test('mongoJsonPatchHelper works for adding a new link', async () => {
             await createTestRequest();
             const container = getTestContainer();
 
@@ -244,6 +244,196 @@ describe('mongoJsonPatchHelper Tests', () => {
                                     'valueString': 'myAccess'
                                 }
                             ],
+                            'reference': 'Patient/3'
+                        }
+                    }
+                ],
+                'meta': {
+                    'security': [
+                        {
+                            'code': 'myAccess',
+                            'system': 'https://www.icanbwell.com/owner'
+                        },
+                        {
+                            'code': 'myAccess',
+                            'system': 'https://www.icanbwell.com/sourceAssigningAuthority'
+                        }
+                    ],
+                    'versionId': '1'
+                },
+                'resourceType': 'Person'
+            });
+        });
+        test('mongoJsonPatchHelper works for adding a updating a link', async () => {
+            await createTestRequest();
+            const container = getTestContainer();
+
+            const preSaveManager = container.preSaveManager;
+            assertTypeEquals(preSaveManager, PreSaveManager);
+
+            let doc1 = new Person({
+                'resourceType': 'Person',
+                'id': '1',
+                'meta': new Meta(
+                    {
+                        'versionId': '1',
+                        'security': [
+                            new Coding({
+                                'system': SecurityTagSystem.owner,
+                                'code': 'myAccess'
+                            })
+                        ]
+                    }
+                ),
+                'link': [
+                    new PersonLink({
+                        'id': '1',
+                        'target': new Reference({
+                            'id': '1',
+                            'reference': 'Patient/2'
+                        })
+                    })
+                ]
+            });
+            doc1 = await preSaveManager.preSaveAsync(doc1);
+
+            /**
+             * @type {MongoDatabaseManager}
+             */
+            const mongoDatabaseManager = container.mongoDatabaseManager;
+            let db = await mongoDatabaseManager.getClientDbAsync();
+            const resourceType = 'Person';
+            const base_version = '4_0_0';
+            /**
+             * @type {import('mongodb').Collection<import('mongodb').Document>}
+             */
+            const collection = db.collection(`${resourceType}_${base_version}`);
+            await collection.insertOne(doc1.toJSONInternal());
+
+            const doc2 = new Person({
+                'resourceType': 'Person',
+                'id': '1',
+                'meta': new Meta(
+                    {
+                        'versionId': '1',
+                        'security': [
+                            new Coding({
+                                'system': SecurityTagSystem.owner,
+                                'code': 'myAccess'
+                            })
+                        ]
+                    }
+                ),
+                'link': [
+                    new PersonLink({
+                        'id': '1',
+                        'target': new Reference({
+                            'id': '1',
+                            'reference': 'Patient/3'
+                        })
+                    })
+                ]
+            });
+
+            /**
+             * @type {ResourceMerger}
+             */
+            const resourceMerger = container.resourceMerger;
+            assertTypeEquals(resourceMerger, ResourceMerger);
+
+            const {patches} = await resourceMerger.mergeResourceAsync({
+                currentResource: doc1,
+                resourceToMerge: doc2
+            });
+            expect(patches).toStrictEqual([
+                {
+                    'op': 'replace',
+                    'path': '/link/0/target/reference',
+                    'value': 'Patient/3'
+                },
+                {
+                    'op': 'replace',
+                    'path': '/link/0/target/extension/1/valueString',
+                    'value': 'Patient/21cd2633-d630-55f4-9cd9-dc1282bd199e'
+                },
+                {
+                    'op': 'replace',
+                    'path': '/link/0/target/extension/0/valueString',
+                    'value': 'Patient/3'
+                }
+            ]);
+
+            /**
+             * @type {{}}
+             */
+            const updateOperation = MongoJsonPatchHelper.convertJsonPatchesToMongoUpdateCommand({
+                patches
+            });
+
+            expect(updateOperation).toStrictEqual({
+                '$set': {
+                    'link.0.target.extension.0.valueString': 'Patient/3',
+                    'link.0.target.extension.1.valueString': 'Patient/21cd2633-d630-55f4-9cd9-dc1282bd199e',
+                    'link.0.target.reference': 'Patient/3'
+                }
+            });
+
+            const operations = [
+                {
+                    updateOne: {
+                        filter: {
+                            id: '1',
+                        },
+                        update: updateOperation
+                    }
+                }
+            ];
+            const result = await collection.bulkWrite(operations);
+            expect(result.modifiedCount).toStrictEqual(1);
+
+            const docFromDatabase = await collection.findOne({}, {projection: {_id: 0}});
+            expect(docFromDatabase).toStrictEqual({
+                '_sourceAssigningAuthority': 'myAccess',
+                '_sourceId': '1',
+                '_uuid': '87ec3599-51e3-510c-9bf4-537608fbaf7e',
+                'id': '1',
+                'identifier': [
+                    {
+                        'id': 'sourceId',
+                        'system': 'https://www.icanbwell.com/sourceId',
+                        'value': '1'
+                    },
+                    {
+                        'id': 'uuid',
+                        'system': 'https://www.icanbwell.com/uuid',
+                        'value': '87ec3599-51e3-510c-9bf4-537608fbaf7e'
+                    }
+                ],
+                'link': [
+                    {
+                        'id': '1',
+                        'target': {
+                            '_sourceAssigningAuthority': 'myAccess',
+                            '_sourceId': 'Patient/2',
+                            '_uuid': 'Patient/413ed4ad-0c9c-584f-a9b5-a3cb42aa036e',
+                            'extension': [
+                                {
+                                    'id': 'sourceId',
+                                    'url': 'https://www.icanbwell.com/sourceId',
+                                    'valueString': 'Patient/3'
+                                },
+                                {
+                                    'id': 'uuid',
+                                    'url': 'https://www.icanbwell.com/uuid',
+                                    'valueString': 'Patient/21cd2633-d630-55f4-9cd9-dc1282bd199e'
+                                },
+                                {
+                                    'id': 'sourceAssigningAuthority',
+                                    'url': 'https://www.icanbwell.com/sourceAssigningAuthority',
+                                    'valueString': 'myAccess'
+                                }
+                            ],
+                            'id': '1',
                             'reference': 'Patient/3'
                         }
                     }
