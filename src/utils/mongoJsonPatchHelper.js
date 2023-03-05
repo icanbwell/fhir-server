@@ -23,6 +23,11 @@ class MongoJsonPatchHelper {
                     var positionPart = parts.length > 1 && parts[parts.length - 1];
                     var addToEnd = positionPart === '-';
                     var key = parts.slice(0, -1).join('.');
+                    if (Number.isNaN(parseInt(positionPart))) {
+                        addToEnd = true;
+                        positionPart = '';
+                        key = parts.join('.');
+                    }
                     var $position = positionPart && parseInt(positionPart, 10) || null;
 
                     update.$push = update.$push || {};

@@ -74,16 +74,16 @@
     {
       "id": "uuid",
       "system": "https://www.icanbwell.com/uuid",
-      "value": "0aed2b07-e451-591c-8af7-512ef4e9126b"
+      "value": "b6753675-63d4-4c9c-99f6-54ee6c79804e"
     }
   ],
   "link": [
     {
       "assurance": "level4",
       "target": {
-        "_sourceAssigningAuthority": "healthsystem1",
+        "_sourceAssigningAuthority": "bwell",
         "_sourceId": "Person/a0b8be666f4a4f60a3f6129f7ddc8aab",
-        "_uuid": "7673a048-8d3d-55cd-a607-c456e1c717e5",
+        "_uuid": "Person/29bcdbae-5ab4-5eed-bd39-7e152f3e23e6",
         "extension": [
           {
             "id": "sourceId",
@@ -93,12 +93,12 @@
           {
             "id": "uuid",
             "url": "https://www.icanbwell.com/uuid",
-            "valueString": "7673a048-8d3d-55cd-a607-c456e1c717e5"
+            "valueString": "Person/7673a048-8d3d-55cd-a607-c456e1c717e5"
           },
           {
             "id": "sourceAssigningAuthority",
             "url": "https://www.icanbwell.com/sourceAssigningAuthority",
-            "valueString": "bwell"
+            "valueString": "healthsystem1"
           }
         ],
         "reference": "Person/a0b8be666f4a4f60a3f6129f7ddc8aab|healthsystem1",
@@ -108,15 +108,33 @@
     {
       "assurance": "level4",
       "target": {
-        "_sourceAssigningAuthority": "healthsystem1",
-        "_uuid": "73e3235f-e3cd-586f-85a6-9872386b672c",
+        "_uuid": "Patient/29bcdbae-5ab4-5eed-bd39-7e152f3e23e6",
+        "extension": [
+          [
+            {
+              "id": "sourceId",
+              "url": "https://www.icanbwell.com/sourceId",
+              "valueString": "Patient/123"
+            },
+            {
+              "id": "uuid",
+              "url": "https://www.icanbwell.com/uuid",
+              "valueString": "Patient/73e3235f-e3cd-586f-85a6-9872386b672c"
+            },
+            {
+              "id": "sourceAssigningAuthority",
+              "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+              "valueString": "healthsystem1"
+            }
+          ]
+        ],
         "reference": "Patient/123|healthsystem1",
         "type": "Patient"
       }
     }
   ],
   "meta": {
-    "lastUpdated": "2023-03-01T21:43:56.000Z",
+    "lastUpdated": "2023-01-19T21:57:39.000Z",
     "profile": [
       "http://hl7.org/fhir/us/core/StructureDefinition/us-core-person"
     ],
