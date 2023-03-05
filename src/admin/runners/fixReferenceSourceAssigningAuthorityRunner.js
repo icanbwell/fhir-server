@@ -213,7 +213,7 @@ class FixReferenceSourceAssigningAuthorityRunner extends BaseBulkOperationRunner
             /**
              * @type {DatabaseQueryManager}
              */
-            const databaseQueryManager = databaseQueryFactory.createQuery({
+            const referencedResourceQueryManager = databaseQueryFactory.createQuery({
                 resourceType,
                 base_version: VERSIONS['4_0_0']
             });
@@ -222,7 +222,7 @@ class FixReferenceSourceAssigningAuthorityRunner extends BaseBulkOperationRunner
              */
             let doc;
             if (uuid) {
-                doc = await databaseQueryManager.findOneAsync(
+                doc = await referencedResourceQueryManager.findOneAsync(
                     {
                         query: {
                             _uuid: uuid
@@ -246,10 +246,10 @@ class FixReferenceSourceAssigningAuthorityRunner extends BaseBulkOperationRunner
                     });
                 }
             } else {
-                doc = await databaseQueryManager.findOneAsync(
+                doc = await referencedResourceQueryManager.findOneAsync(
                     {
                         query: {
-                            id: id
+                            _sourceId: id
                         },
                         options: {
                             projection: {
