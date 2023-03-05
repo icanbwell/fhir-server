@@ -219,7 +219,7 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
             limit
         }) {
         const maxTimeMS = 20 * 60 * 60 * 1000;
-        const numberOfSecondsBetweenSessionRefreshes = 30;
+        const numberOfSecondsBetweenSessionRefreshes = 10 * 60;
         let loopRetryNumber = 0;
         const maxLoopRetries = 5;
         let continueLoop = true;
