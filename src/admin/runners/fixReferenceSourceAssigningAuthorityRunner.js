@@ -9,6 +9,22 @@ const deepEqual = require('fast-deep-equal');
 const moment = require('moment-timezone');
 const {ResourceLocatorFactory} = require('../../operations/common/resourceLocatorFactory');
 const {FhirResourceCreator} = require('../../fhir/fhirResourceCreator');
+const {MongoJsonPatchHelper} = require('../../utils/mongoJsonPatchHelper');
+const {ResourceMerger} = require('../../operations/common/resourceMerger');
+
+
+/**
+ * converts list of properties to a projection
+ * @param {string[]} properties
+ * @return {import('mongodb').Collection<import('mongodb').Document>}
+ */
+function getProjection(properties) {
+    const projection = {};
+    for (const property of properties) {
+        projection[`${property}`] = 1;
+    }
+    return projection;
+}
 
 /**
  * @classdesc finds ids in references and updates sourceAssigningAuthority with found resource
@@ -28,6 +44,8 @@ class FixReferenceSourceAssigningAuthorityRunner extends BaseBulkOperationRunner
      * @param {ResourceLocatorFactory} resourceLocatorFactory
      * @param {string[]} preloadCollections
      * @param {number|undefined} [limit]
+     * @param {string[]|undefined} [properties]
+     * @param {ResourceMerger} resourceMerger
      */
     constructor(
         {
@@ -42,7 +60,9 @@ class FixReferenceSourceAssigningAuthorityRunner extends BaseBulkOperationRunner
             startFromCollection,
             resourceLocatorFactory,
             preloadCollections,
-            limit
+            limit,
+            properties,
+            resourceMerger
         }) {
         super({
             mongoCollectionManager,
@@ -93,6 +113,17 @@ class FixReferenceSourceAssigningAuthorityRunner extends BaseBulkOperationRunner
          * @type {number|undefined}
          */
         this.limit = limit;
+
+        /**
+         * @type {string[]|undefined}
+         */
+        this.properties = properties;
+
+        /**
+         * @type {ResourceMerger}
+         */
+        this.resourceMerger = resourceMerger;
+        assertTypeEquals(resourceMerger, ResourceMerger);
 
         /**
          * cache of caches
@@ -341,8 +372,25 @@ class FixReferenceSourceAssigningAuthorityRunner extends BaseBulkOperationRunner
          */
         // batch up the calls to update
         resource.meta.lastUpdated = new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ssZ'));
-        const result = {replaceOne: {filter: {_id: doc._id}, replacement: resource.toJSONInternal()}};
-        operations.push(result);
+        if (this.properties && this.properties.length > 0) {
+            const {patches} = await this.resourceMerger.mergeResourceAsync({
+                currentResource: currentResource,
+                resourceToMerge: resource
+            });
+            const updateOperation = MongoJsonPatchHelper.convertJsonPatchesToMongoUpdateCommand({patches});
+            operations.push({
+                updateOne: {
+                    filter: {
+                        _id: doc._id
+                    },
+                    update: updateOperation
+                }
+            });
+        } else {
+            const result = {replaceOne: {filter: {_id: doc._id}, replacement: resource.toJSONInternal()}};
+            operations.push(result);
+
+        }
 
         return operations;
     }
@@ -401,8 +449,6 @@ class FixReferenceSourceAssigningAuthorityRunner extends BaseBulkOperationRunner
                 /**
                  * @type {import('mongodb').Filter<import('mongodb').Document>}
                  */
-
-
                 const query = this.afterLastUpdatedDate ? {
                     'meta.lastUpdated': {
                         $gt: this.afterLastUpdatedDate,
@@ -415,13 +461,13 @@ class FixReferenceSourceAssigningAuthorityRunner extends BaseBulkOperationRunner
                             sourceCollectionName: collectionName,
                             destinationCollectionName: collectionName,
                             query,
-                            projection: undefined,
+                            projection: this.properties ? getProjection(this.properties) : undefined,
                             startFromIdContainer: this.startFromIdContainer,
                             fnCreateBulkOperationAsync: async (doc) => await this.processRecordAsync(doc),
                             ordered: false,
                             batchSize: this.batchSize,
                             skipExistingIds: false,
-                            limit: this.limit
+                            limit: this.limit,
                         }
                     );
                 } catch (e) {

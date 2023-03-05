@@ -104,7 +104,8 @@ describe('ExplanationOfBenefit Tests', () => {
                         preloadCollections: [
                             'Person_4_0_0',
                             'Patient_4_0_0'
-                        ]
+                        ],
+                        resourceMerger: c.resourceMerger
                     }
                 )
             );

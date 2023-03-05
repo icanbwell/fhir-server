@@ -36,6 +36,10 @@ async function main() {
         parameters.preLoadCollections.split(',').map(x => x.trim()) :
         [];
 
+    let properties = parameters.properties ?
+        parameters.properties.split(',').map(x => x.trim()) :
+        undefined;
+
     const batchSize = parameters.batchSize || process.env.BULK_BUFFER_SIZE || 10000;
     /**
      * @type {Date|undefined}
@@ -62,7 +66,9 @@ async function main() {
                 startFromCollection: parameters.startFromCollection,
                 resourceLocatorFactory: c.resourceLocatorFactory,
                 preloadCollections: preLoadCollections,
-                limit: parameters.limit
+                limit: parameters.limit,
+                properties: properties,
+                resourceMerger: c.resourceMerger
             }
         )
     );
@@ -85,6 +91,7 @@ async function main() {
  * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/fixReferenceSourceAssigningAuthority.js --collections=all --batchSize=10000 --startFromCollection FamilyMemberHistory_4_0_0
  * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/fixReferenceSourceAssigningAuthority.js --collections=Person_4_0_0 --batchSize=10000 --preLoadCollections Person_4_0_0,Patient_4_0_0
  * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/fixReferenceSourceAssigningAuthority.js --collections=Person_4_0_0 --batchSize=10000 --preLoadCollections Person_4_0_0,Patient_4_0_0 --limit 10
+ * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/fixReferenceSourceAssigningAuthority.js --collections=Person_4_0_0 --batchSize=10000 --preLoadCollections Person_4_0_0,Patient_4_0_0 --limit 10 --properties link
  * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/fixReferenceSourceAssigningAuthority.js --collections=all --batchSize=10000 --after 2021-12-31
  * node src/admin/scripts/fixReferenceSourceAssigningAuthority.js --collections=Account_4_0_0 --batchSize=10000
  */
