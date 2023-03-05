@@ -122,6 +122,91 @@ describe('Person Tests', () => {
                         preloadCollections: [
                             'Person_4_0_0',
                             'Patient_4_0_0'
+                        ],
+                        resourceMerger: c.resourceMerger
+                    }
+                )
+            );
+
+            /**
+             * @type {FixReferenceSourceAssigningAuthorityRunner}
+             */
+            const fixReferenceSourceAssigningAuthorityRunner = container.fixReferenceSourceAssigningAuthorityRunner;
+            assertTypeEquals(fixReferenceSourceAssigningAuthorityRunner, FixReferenceSourceAssigningAuthorityRunner);
+            await fixReferenceSourceAssigningAuthorityRunner.processAsync();
+
+            // Check patient 1
+            const person1 = await collection.findOne({id: person1Resource.id});
+            expect(person1).toBeDefined();
+            delete person1._id;
+            expect(person1._uuid).toBeDefined();
+            expectedPerson1DatabaseAfterRun._uuid = person1._uuid;
+            expect(person1.meta).toBeDefined();
+            expect(person1.meta.lastUpdated).toBeDefined();
+            expect(person1.meta.lastUpdated).not.toStrictEqual(expectedPerson1DatabaseAfterRun.meta.lastUpdated);
+            expectedPerson1DatabaseAfterRun.meta.lastUpdated = person1.meta.lastUpdated;
+            expectedPerson1DatabaseAfterRun.identifier
+                .filter(i => i.system === IdentifierSystem.uuid)[0]
+                .value = person1._uuid;
+            expect(person1).toStrictEqual(expectedPerson1DatabaseAfterRun);
+        });
+        test('fixReferenceSourceAssigningAuthority works for patient 1 with specified properties', async () => {
+            // eslint-disable-next-line no-unused-vars
+            const request = await createTestRequest((c) => {
+                c.register('configManager', () => new MockConfigManagerWithoutGlobalId());
+                return c;
+            });
+            const container = getTestContainer();
+            /**
+             * @type {PostRequestProcessor}
+             */
+                // eslint-disable-next-line no-unused-vars
+            const postRequestProcessor = container.postRequestProcessor;
+
+            // insert directly into database instead of going through merge() so we simulate old records
+            /**
+             * @type {MongoDatabaseManager}
+             */
+            const mongoDatabaseManager = container.mongoDatabaseManager;
+            const collection = await setupDatabaseAsync(
+                mongoDatabaseManager, person1Resource, expectedPerson1DatabaseBeforeRun,
+                'Person_4_0_0'
+            );
+            await setupDatabaseAsync(
+                mongoDatabaseManager, person2Resource, expectedPerson2DatabaseBeforeRun,
+                'Person_4_0_0'
+            );
+            await setupDatabaseAsync(
+                mongoDatabaseManager, patient1Resource, expectedPatient1DatabaseBeforeRun,
+                'Patient_4_0_0'
+            );
+
+            // run admin runner
+
+            const collections = ['all'];
+            const batchSize = 10000;
+
+            container.register(
+                'fixReferenceSourceAssigningAuthorityRunner',
+                (c) => new FixReferenceSourceAssigningAuthorityRunner(
+                    {
+                        mongoCollectionManager: c.mongoCollectionManager,
+                        collections: collections,
+                        batchSize,
+                        beforeLastUpdatedDate: '2023-01-29',
+                        useAuditDatabase: false,
+                        adminLogger: new AdminLogger(),
+                        mongoDatabaseManager: c.mongoDatabaseManager,
+                        preSaveManager: c.preSaveManager,
+                        databaseQueryFactory: c.databaseQueryFactory,
+                        resourceLocatorFactory: c.resourceLocatorFactory,
+                        preloadCollections: [
+                            'Person_4_0_0',
+                            'Patient_4_0_0'
+                        ],
+                        resourceMerger: c.resourceMerger,
+                        properties: [
+                            'link'
                         ]
                     }
                 )

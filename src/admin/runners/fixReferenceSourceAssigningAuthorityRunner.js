@@ -11,6 +11,7 @@ const {ResourceLocatorFactory} = require('../../operations/common/resourceLocato
 const {FhirResourceCreator} = require('../../fhir/fhirResourceCreator');
 const {MongoJsonPatchHelper} = require('../../utils/mongoJsonPatchHelper');
 const {ResourceMerger} = require('../../operations/common/resourceMerger');
+const {RethrownError} = require('../../utils/rethrownError');
 
 
 /**
@@ -21,6 +22,11 @@ const {ResourceMerger} = require('../../operations/common/resourceMerger');
 function getProjection(properties) {
     const projection = {};
     for (const property of properties) {
+        projection[`${property}`] = 1;
+    }
+    // always add projection for needed properties
+    const neededProperties = ['resourceType', 'meta', 'identifier', '_uuid', '_sourceId', '_sourceAssigningAuthority'];
+    for (const property of neededProperties) {
         projection[`${property}`] = 1;
     }
     return projection;
@@ -151,187 +157,202 @@ class FixReferenceSourceAssigningAuthorityRunner extends BaseBulkOperationRunner
      * @return {Promise<Reference>}
      */
     async updateReferenceAsync(reference, databaseQueryFactory) {
-        assertTypeEquals(databaseQueryFactory, DatabaseQueryFactory);
-        if (!reference.reference) {
-            return reference;
-        }
+        try {
 
-        // if the _uuid reference works then we're good
-        const {resourceType, id, sourceAssigningAuthority} = ReferenceParser.parseReference(reference.reference);
-        if (!resourceType) {
-            return reference;
-        }
-        if (sourceAssigningAuthority) {
-            return reference;
-        }
-        /**
-         * @type {string}
-         */
-        let uuid;
-        if (reference._uuid) {
-            ({id: uuid} = ReferenceParser.parseReference(reference._uuid));
-        }
 
-        // find collection for resource
-        /**
-         * @type {ResourceLocator}
-         */
-        const resourceLocator = this.resourceLocatorFactory.createResourceLocator({
-            resourceType,
-            base_version: VERSIONS['4_0_0']
-        });
-        /**
-         * @type {string}
-         */
-        const referenceCollectionName = await resourceLocator.getFirstCollectionNameForQueryDebugOnlyAsync(
-            {
-                query: {}
+            assertTypeEquals(databaseQueryFactory, DatabaseQueryFactory);
+            if (!reference.reference) {
+                return reference;
             }
-        );
 
-        // first check in cache
-        /**
-         * @type {Map<string, {_uuid: (string|null), _sourceId: (string|null), _sourceAssigningAuthority: (string|null)}>}
-         */
-        const cache = this.getCacheForResourceType(
-            {
-                collectionName: referenceCollectionName
+            // if the _uuid reference works then we're good
+            const {resourceType, id, sourceAssigningAuthority} = ReferenceParser.parseReference(reference.reference);
+            if (!resourceType) {
+                return reference;
             }
-        );
-        let foundInCache = false;
-        if (uuid) {
-            if (cache.has(uuid)) {
-                // uuid already exists so nothing to do for this reference
-                foundInCache = true;
-                if (this.cacheHits.has(referenceCollectionName)) {
-                    this.cacheHits.set(referenceCollectionName, this.cacheHits.get(referenceCollectionName) + 1);
-                } else {
-                    this.cacheHits.set(referenceCollectionName, 1);
+            if (sourceAssigningAuthority) {
+                return reference;
+            }
+            /**
+             * @type {string}
+             */
+            let uuid;
+            if (reference._uuid) {
+                ({id: uuid} = ReferenceParser.parseReference(reference._uuid));
+            }
+
+            // find collection for resource
+            /**
+             * @type {ResourceLocator}
+             */
+            const resourceLocator = this.resourceLocatorFactory.createResourceLocator({
+                resourceType,
+                base_version: VERSIONS['4_0_0']
+            });
+            /**
+             * @type {string}
+             */
+            const referenceCollectionName = await resourceLocator.getFirstCollectionNameForQueryDebugOnlyAsync(
+                {
+                    query: {}
                 }
-            }
-        }
-        if (!foundInCache) {
-            // find a match on _sourceId and _sourceAssigningAuthority
-            for (const {_uuid, _sourceId, _sourceAssigningAuthority} of cache.values()) {
-                if (_sourceId === id) { // if source id matches then use that uuid and sourceAssigningAuthority
-                    // save this uuid in reference
-                    reference.reference = ReferenceParser.createReference(
-                        {
-                            resourceType,
-                            id,
-                            sourceAssigningAuthority: _sourceAssigningAuthority
-                        }
-                    );
-                    reference._sourceAssigningAuthority = _sourceAssigningAuthority;
-                    reference._uuid = _uuid;
-                    if (reference.extension) {
-                        const uuidExtension = reference.extension.find(e => e.id === 'uuid');
-                        if (uuidExtension) {
-                            uuidExtension.valueString = reference._uuid;
-                        }
-                    }
+            );
+
+            // first check in cache
+            /**
+             * @type {Map<string, {_uuid: (string|null), _sourceId: (string|null), _sourceAssigningAuthority: (string|null)}>}
+             */
+            const cache = this.getCacheForResourceType(
+                {
+                    collectionName: referenceCollectionName
+                }
+            );
+            let foundInCache = false;
+            if (uuid) {
+                if (cache.has(uuid)) {
+                    // uuid already exists so nothing to do for this reference
                     foundInCache = true;
                     if (this.cacheHits.has(referenceCollectionName)) {
                         this.cacheHits.set(referenceCollectionName, this.cacheHits.get(referenceCollectionName) + 1);
                     } else {
                         this.cacheHits.set(referenceCollectionName, 1);
                     }
-                    break;
                 }
             }
-        }
-
-        if (!foundInCache) {
-            if (this.cacheMisses.has(referenceCollectionName)) {
-                this.cacheMisses.set(referenceCollectionName, this.cacheMisses.get(referenceCollectionName) + 1);
-            } else {
-                this.cacheMisses.set(referenceCollectionName, 1);
-            }
-
-            /**
-             * @type {DatabaseQueryManager}
-             */
-            const referencedResourceQueryManager = databaseQueryFactory.createQuery({
-                resourceType,
-                base_version: VERSIONS['4_0_0']
-            });
-            /**
-             * @type {Resource|null}
-             */
-            let doc;
-            if (uuid) {
-                doc = await referencedResourceQueryManager.findOneAsync(
-                    {
-                        query: {
-                            _uuid: uuid
-                        },
-                        options: {
-                            projection: {
-                                _id: 0,
-                                _uuid: 1
+            if (!foundInCache) {
+                // find a match on _sourceId and _sourceAssigningAuthority
+                for (const {_uuid, _sourceId, _sourceAssigningAuthority} of cache.values()) {
+                    if (_sourceId === id) { // if source id matches then use that uuid and sourceAssigningAuthority
+                        // save this uuid in reference
+                        reference.reference = ReferenceParser.createReference(
+                            {
+                                resourceType,
+                                id,
+                                sourceAssigningAuthority: _sourceAssigningAuthority
+                            }
+                        );
+                        reference._sourceAssigningAuthority = _sourceAssigningAuthority;
+                        reference._uuid = _uuid;
+                        if (reference.extension) {
+                            const uuidExtension = reference.extension.find(e => e.id === 'uuid');
+                            if (uuidExtension) {
+                                uuidExtension.valueString = reference._uuid;
                             }
                         }
+                        foundInCache = true;
+                        if (this.cacheHits.has(referenceCollectionName)) {
+                            this.cacheHits.set(referenceCollectionName, this.cacheHits.get(referenceCollectionName) + 1);
+                        } else {
+                            this.cacheHits.set(referenceCollectionName, 1);
+                        }
+                        break;
                     }
-                );
-            }
-            if (doc) {
-                // just add to cache and keep going
-                if (!cache.has(uuid)) {
-                    cache.set(uuid, {
-                        _uuid: uuid,
-                        _sourceId: null,
-                        _sourceAssigningAuthority: null
-                    });
                 }
-            } else {
-                doc = await referencedResourceQueryManager.findOneAsync(
-                    {
-                        query: {
-                            _sourceId: id
-                        },
-                        options: {
-                            projection: {
-                                _id: 0,
-                                _sourceAssigningAuthority: 1
-                            }
-                        }
-                    }
-                );
-                if (doc) {
-                    reference.reference = ReferenceParser.createReference(
+            }
+
+            if (!foundInCache) {
+                if (this.cacheMisses.has(referenceCollectionName)) {
+                    this.cacheMisses.set(referenceCollectionName, this.cacheMisses.get(referenceCollectionName) + 1);
+                } else {
+                    this.cacheMisses.set(referenceCollectionName, 1);
+                }
+
+                /**
+                 * @type {DatabaseQueryManager}
+                 */
+                const referencedResourceQueryManager = databaseQueryFactory.createQuery({
+                    resourceType,
+                    base_version: VERSIONS['4_0_0']
+                });
+                /**
+                 * @type {Resource|null}
+                 */
+                let doc;
+                if (uuid) {
+                    doc = await referencedResourceQueryManager.findOneAsync(
                         {
-                            resourceType,
-                            id,
-                            sourceAssigningAuthority: doc._sourceAssigningAuthority
+                            query: {
+                                _uuid: uuid
+                            },
+                            options: {
+                                projection: {
+                                    _id: 0,
+                                    _uuid: 1
+                                }
+                            }
                         }
                     );
-                    reference._sourceAssigningAuthority = doc._sourceAssigningAuthority;
-                    reference._uuid = generateUUIDv5(`${id}|${reference._sourceAssigningAuthority}`);
-                    if (reference.extension) {
-                        const uuidExtension = reference.extension.find(e => e.id === 'uuid');
-                        if (uuidExtension) {
-                            uuidExtension.valueString = reference._uuid;
-                        }
-                    }
-                    if (!cache.has(reference._uuid)) {
-                        cache.set(reference._uuid, {
-                            _uuid: reference._uuid,
-                            _sourceId: id,
-                            _sourceAssigningAuthority: reference._sourceAssigningAuthority
+                }
+                if (doc) {
+                    // just add to cache and keep going
+                    if (!cache.has(uuid)) {
+                        cache.set(uuid, {
+                            _uuid: uuid,
+                            _sourceId: null,
+                            _sourceAssigningAuthority: null
                         });
                     }
+                } else {
+                    doc = await referencedResourceQueryManager.findOneAsync(
+                        {
+                            query: {
+                                _sourceId: id
+                            },
+                            options: {
+                                projection: {
+                                    _id: 0,
+                                    _sourceAssigningAuthority: 1
+                                }
+                            }
+                        }
+                    );
+                    if (doc) {
+                        reference.reference = ReferenceParser.createReference(
+                            {
+                                resourceType,
+                                id,
+                                sourceAssigningAuthority: doc._sourceAssigningAuthority
+                            }
+                        );
+                        reference._sourceAssigningAuthority = doc._sourceAssigningAuthority;
+                        reference._uuid = generateUUIDv5(`${id}|${reference._sourceAssigningAuthority}`);
+                        if (reference.extension) {
+                            const uuidExtension = reference.extension.find(e => e.id === 'uuid');
+                            if (uuidExtension) {
+                                uuidExtension.valueString = reference._uuid;
+                            }
+                        }
+                        if (!cache.has(reference._uuid)) {
+                            cache.set(reference._uuid, {
+                                _uuid: reference._uuid,
+                                _sourceId: id,
+                                _sourceAssigningAuthority: reference._sourceAssigningAuthority
+                            });
+                        }
+                    }
+                }
+                if (!doc) {
+                    if (!this.resourcesNotFound.has(referenceCollectionName)) {
+                        this.resourcesNotFound.set(referenceCollectionName, []);
+                    }
+                    this.resourcesNotFound.get(referenceCollectionName).push(
+                        id
+                    );
                 }
             }
-            if (!doc) {
-                if (!this.resourcesNotFound.has(referenceCollectionName)) {
-                    this.resourcesNotFound.set(referenceCollectionName, []);
+            return reference;
+        } catch (e) {
+            throw new RethrownError(
+                {
+                    message: 'Error processing reference',
+                    error: e,
+                    args: {
+                        reference: reference
+                    },
+                    source: 'FixReferenceSourceAssigningAuthorityRunner.updateReferenceAsync'
                 }
-                this.resourcesNotFound.get(referenceCollectionName).push(
-                    id
-                );
-            }
+            );
         }
-        return reference;
     }
 
     /**
@@ -340,59 +361,72 @@ class FixReferenceSourceAssigningAuthorityRunner extends BaseBulkOperationRunner
      * @returns {Promise<(import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>)[]>}
      */
     async processRecordAsync(doc) {
-        const operations = [];
-        /**
-         * @type {Resource}
-         */
-        let resource = FhirResourceCreator.create(doc);
-        /**
-         * @type {Resource}
-         */
-        const currentResource = resource.clone();
+        try {
+            const operations = [];
+            /**
+             * @type {Resource}
+             */
+            let resource = FhirResourceCreator.create(doc);
+            /**
+             * @type {Resource}
+             */
+            const currentResource = resource.clone();
 
-        await resource.updateReferencesAsync(
-            {
-                fnUpdateReferenceAsync: async (reference) => await this.updateReferenceAsync(
-                    reference,
-                    this.databaseQueryFactory
-                )
-            }
-        );
-
-        // for speed, first check if the incoming resource is exactly the same
-        const updatedResourceJsonInternal = resource.toJSONInternal();
-        const currentResourceJsonInternal = currentResource.toJSONInternal();
-        if (deepEqual(updatedResourceJsonInternal, currentResourceJsonInternal) === true) {
-            // console.log('No change detected for ');
-            return operations;
-        }
-
-        /**
-         * @type {import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>}
-         */
-        // batch up the calls to update
-        resource.meta.lastUpdated = new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ssZ'));
-        if (this.properties && this.properties.length > 0) {
-            const {patches} = await this.resourceMerger.mergeResourceAsync({
-                currentResource: currentResource,
-                resourceToMerge: resource
-            });
-            const updateOperation = MongoJsonPatchHelper.convertJsonPatchesToMongoUpdateCommand({patches});
-            operations.push({
-                updateOne: {
-                    filter: {
-                        _id: doc._id
-                    },
-                    update: updateOperation
+            await resource.updateReferencesAsync(
+                {
+                    fnUpdateReferenceAsync: async (reference) => await this.updateReferenceAsync(
+                        reference,
+                        this.databaseQueryFactory
+                    )
                 }
-            });
-        } else {
-            const result = {replaceOne: {filter: {_id: doc._id}, replacement: resource.toJSONInternal()}};
-            operations.push(result);
+            );
 
+            // for speed, first check if the incoming resource is exactly the same
+            const updatedResourceJsonInternal = resource.toJSONInternal();
+            const currentResourceJsonInternal = currentResource.toJSONInternal();
+            if (deepEqual(updatedResourceJsonInternal, currentResourceJsonInternal) === true) {
+                // console.log('No change detected for ');
+                return operations;
+            }
+
+            /**
+             * @type {import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>}
+             */
+            // batch up the calls to update
+            resource.meta.lastUpdated = new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ssZ'));
+            if (this.properties && this.properties.length > 0) {
+                const {patches} = await this.resourceMerger.mergeResourceAsync({
+                    currentResource: currentResource,
+                    resourceToMerge: resource
+                });
+                const updateOperation = MongoJsonPatchHelper.convertJsonPatchesToMongoUpdateCommand({patches});
+                operations.push({
+                    updateOne: {
+                        filter: {
+                            _id: doc._id
+                        },
+                        update: updateOperation
+                    }
+                });
+            } else {
+                const result = {replaceOne: {filter: {_id: doc._id}, replacement: resource.toJSONInternal()}};
+                operations.push(result);
+
+            }
+
+            return operations;
+        } catch (e) {
+            throw new RethrownError(
+                {
+                    message: 'Error processing record',
+                    error: e,
+                    args: {
+                        resource: doc
+                    },
+                    source: 'FixReferenceSourceAssigningAuthorityRunner.processRecordAsync'
+                }
+            );
         }
-
-        return operations;
     }
 
     /**

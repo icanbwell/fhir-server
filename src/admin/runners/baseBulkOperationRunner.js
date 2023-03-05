@@ -8,6 +8,7 @@ const moment = require('moment-timezone');
 const {MongoNetworkTimeoutError} = require('mongodb');
 const {MemoryManager} = require('../../utils/memoryManager');
 const sizeof = require('object-sizeof');
+const {RethrownError} = require('../../utils/rethrownError');
 
 /**
  * @classdesc Implements a loop for reading records from database (based on passed in query), calling a function to
@@ -71,116 +72,128 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
             limit
         }
     ) {
-        let lastCheckedId = '';
-        let {
-            sourceClient,
-            destinationClient,
-            session,
-            sessionId,
-            destinationCollection,
-            sourceCollection
-        } = await this.createConnectionAsync({config, destinationCollectionName, sourceCollectionName});
-
-        this.adminLogger.logInfo(
-            `Sending count query to Mongo: ${mongoQueryStringify(query)}. ` +
-            `for ${sourceCollectionName} and ${destinationCollectionName}`
-        );
-
-        // first get the count
-        const numberOfSourceDocuments = await sourceCollection.countDocuments(query, {});
-        this.adminLogger.logInfo(
-            `Sending distinct count query to Mongo: ${mongoQueryStringify(query)}. ` +
-            `for ${sourceCollectionName} and ${destinationCollectionName}`
-        );
-        /**
-         * @type {number}
-         */
-        const numberOfSourceDocumentsWithDistinctId = await this.mongoCollectionManager.distinctCountAsync(
-            {
-                collection: sourceCollection,
-                query,
-                groupKey: 'id'
-            });
-        const numberOfDestinationDocuments = await destinationCollection.countDocuments(query, {});
-        this.adminLogger.logInfo(
-            `Count in source: ${numberOfSourceDocuments.toLocaleString('en-US')}, ` +
-            `Count in source distinct by id: ${numberOfSourceDocumentsWithDistinctId.toLocaleString('en-US')}, ` +
-            `destination: ${numberOfDestinationDocuments.toLocaleString('en-US')}`
-        );
-
-        if (numberOfSourceDocuments === numberOfDestinationDocuments) {
-            if (skipWhenCountIsSame) {
-                this.adminLogger.logInfo(`Count matched and skipWhenCountIsSame is set so skipping collection ${destinationCollectionName}`);
-                return '';
-            }
-        } else if (dropDestinationIfCountIsDifferent) {
-            this.adminLogger.logInfo(`dropDestinationIfCountIsDifferent is set so deleting all records in ${destinationCollectionName}`);
-            await destinationCollection.deleteMany({});
-        }
-
-        if (skipExistingIds) {
-            // get latest id from destination
-            const lastIdFromDestinationList = await destinationCollection.find({}).sort({'id': -1}).project(
-                {
-                    id: 1,
-                    _id: 0
-                }
-            ).limit(1).map(p => p.id).toArray();
+        try {
+            let lastCheckedId = '';
+            let {
+                sourceClient,
+                destinationClient,
+                session,
+                sessionId,
+                destinationCollection,
+                sourceCollection
+            } = await this.createConnectionAsync({config, destinationCollectionName, sourceCollectionName});
 
             this.adminLogger.logInfo(
-                `Received last id from ${destinationCollectionName}`, {'last id': lastIdFromDestinationList}
+                `Sending count query to Mongo: ${mongoQueryStringify(query)}. ` +
+                `for ${sourceCollectionName} and ${destinationCollectionName}`
             );
 
-            if (!startFromIdContainer.startFromId &&
-                lastIdFromDestinationList &&
-                lastIdFromDestinationList.length >= 0 &&
-                lastIdFromDestinationList[0]
-            ) {
-                startFromIdContainer.startFromId = lastIdFromDestinationList[0];
-                this.adminLogger.logInfo(`Setting last id to ${startFromIdContainer.startFromId}`);
+            // first get the count
+            const numberOfSourceDocuments = await sourceCollection.countDocuments(query, {});
+            this.adminLogger.logInfo(
+                `Sending distinct count query to Mongo: ${mongoQueryStringify(query)}. ` +
+                `for ${sourceCollectionName} and ${destinationCollectionName}`
+            );
+            /**
+             * @type {number}
+             */
+            const numberOfSourceDocumentsWithDistinctId = await this.mongoCollectionManager.distinctCountAsync(
+                {
+                    collection: sourceCollection,
+                    query,
+                    groupKey: 'id'
+                });
+            const numberOfDestinationDocuments = await destinationCollection.countDocuments(query, {});
+            this.adminLogger.logInfo(
+                `Count in source: ${numberOfSourceDocuments.toLocaleString('en-US')}, ` +
+                `Count in source distinct by id: ${numberOfSourceDocumentsWithDistinctId.toLocaleString('en-US')}, ` +
+                `destination: ${numberOfDestinationDocuments.toLocaleString('en-US')}`
+            );
+
+            if (numberOfSourceDocuments === numberOfDestinationDocuments) {
+                if (skipWhenCountIsSame) {
+                    this.adminLogger.logInfo(`Count matched and skipWhenCountIsSame is set so skipping collection ${destinationCollectionName}`);
+                    return '';
+                }
+            } else if (dropDestinationIfCountIsDifferent) {
+                this.adminLogger.logInfo(`dropDestinationIfCountIsDifferent is set so deleting all records in ${destinationCollectionName}`);
+                await destinationCollection.deleteMany({});
             }
+
+            if (skipExistingIds) {
+                // get latest id from destination
+                const lastIdFromDestinationList = await destinationCollection.find({}).sort({'id': -1}).project(
+                    {
+                        id: 1,
+                        _id: 0
+                    }
+                ).limit(1).map(p => p.id).toArray();
+
+                this.adminLogger.logInfo(
+                    `Received last id from ${destinationCollectionName}`, {'last id': lastIdFromDestinationList}
+                );
+
+                if (!startFromIdContainer.startFromId &&
+                    lastIdFromDestinationList &&
+                    lastIdFromDestinationList.length >= 0 &&
+                    lastIdFromDestinationList[0]
+                ) {
+                    startFromIdContainer.startFromId = lastIdFromDestinationList[0];
+                    this.adminLogger.logInfo(`Setting last id to ${startFromIdContainer.startFromId}`);
+                }
+            }
+
+            const originalQuery = deepcopy(query);
+            lastCheckedId = await this.runLoopAsync(
+                {
+                    startFromIdContainer,
+                    query,
+                    config,
+                    destinationCollectionName,
+                    sourceCollectionName,
+                    batchSize,
+                    projection,
+                    skipExistingIds,
+                    numberOfSourceDocuments,
+                    numberOfDestinationDocuments,
+                    lastCheckedId,
+                    fnCreateBulkOperationAsync,
+                    ordered,
+                    limit
+                });
+
+            // get the count at the end
+            this.adminLogger.logInfo(
+                `Getting count afterward in ${destinationCollectionName}: ${mongoQueryStringify(originalQuery)}`
+            );
+            const numberOfDestinationDocumentsAtEnd = await destinationCollection.countDocuments(originalQuery, {});
+            this.adminLogger.logInfo(
+                `Count in source: ${numberOfSourceDocuments.toLocaleString('en-US')}, ` +
+                `Count in source distinct by id: ${numberOfSourceDocumentsWithDistinctId.toLocaleString('en-US')}, ` +
+                `destination: ${numberOfDestinationDocumentsAtEnd.toLocaleString('en-US')}`
+            );
+
+            // end session
+            this.adminLogger.logInfo('Ending session', {'Session Id': sessionId});
+            await session.endSession();
+
+            // disconnect from db
+            this.adminLogger.logInfo('Disconnecting from sourceClient...');
+            await this.mongoDatabaseManager.disconnectClientAsync(sourceClient);
+            await this.mongoDatabaseManager.disconnectClientAsync(destinationClient);
+
+            return lastCheckedId;
+        } catch (e) {
+            throw new RethrownError(
+                {
+                    message: 'Error processing record',
+                    error: e,
+                    args: {
+                    },
+                    source: 'BaseBulkOperationRunner.runForQueryBatchesAsync'
+                }
+            );
         }
-
-        const originalQuery = deepcopy(query);
-        lastCheckedId = await this.runLoopAsync(
-            {
-                startFromIdContainer,
-                query,
-                config,
-                destinationCollectionName,
-                sourceCollectionName,
-                batchSize,
-                projection,
-                skipExistingIds,
-                numberOfSourceDocuments,
-                numberOfDestinationDocuments,
-                lastCheckedId,
-                fnCreateBulkOperationAsync,
-                ordered,
-                limit
-            });
-
-        // get the count at the end
-        this.adminLogger.logInfo(
-            `Getting count afterward in ${destinationCollectionName}: ${mongoQueryStringify(originalQuery)}`
-        );
-        const numberOfDestinationDocumentsAtEnd = await destinationCollection.countDocuments(originalQuery, {});
-        this.adminLogger.logInfo(
-            `Count in source: ${numberOfSourceDocuments.toLocaleString('en-US')}, ` +
-            `Count in source distinct by id: ${numberOfSourceDocumentsWithDistinctId.toLocaleString('en-US')}, ` +
-            `destination: ${numberOfDestinationDocumentsAtEnd.toLocaleString('en-US')}`
-        );
-
-        // end session
-        this.adminLogger.logInfo('Ending session', {'Session Id': sessionId});
-        await session.endSession();
-
-        // disconnect from db
-        this.adminLogger.logInfo('Disconnecting from sourceClient...');
-        await this.mongoDatabaseManager.disconnectClientAsync(sourceClient);
-        await this.mongoDatabaseManager.disconnectClientAsync(destinationClient);
-
-        return lastCheckedId;
     }
 
     /**
@@ -263,10 +276,17 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                 // pass session to find query per:
                 // https://stackoverflow.com/questions/68607254/mongodb-node-js-driver-4-0-0-cursor-session-id-issues-in-production-on-vercel
                 /**
-                 * @type {FindCursor<WithId<import('mongodb').Document>>}
+                 * @type {import('mongodb').FindOptions}
+                 */
+                const options = {session: session, timeout: false, noCursorTimeout: true, maxTimeMS: maxTimeMS};
+                if (projection) {
+                    options['projection'] = projection;
+                }
+                /**
+                 * @type {import('mongodb').FindCursor<WithId<import('mongodb').Document>>}
                  */
                 let cursor = await sourceCollection
-                    .find(query, {session, timeout: false, noCursorTimeout: true, maxTimeMS: maxTimeMS})
+                    .find(query, options)
                     .sort({id: 1})
                     .maxTimeMS(maxTimeMS) // 20 hours
                     .batchSize(batchSize)
@@ -274,9 +294,6 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
 
                 if (limit) {
                     cursor = cursor.limit(limit);
-                }
-                if (projection) {
-                    cursor = cursor.project(projection);
                 }
 
                 let count = 0;
