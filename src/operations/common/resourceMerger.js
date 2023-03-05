@@ -38,9 +38,18 @@ class ResourceMerger {
      * @param {Resource} resourceToMerge
      * @param {boolean|undefined} [smartMerge]
      * @param {boolean|undefined} [incrementVersion]
+     * @param {string[]|undefined} [limitToPaths]
      * @returns {{updatedResource:Resource|null, patches: MergePatchEntry[]|null }} resource and patches
      */
-    async mergeResourceAsync({currentResource, resourceToMerge, smartMerge = true, incrementVersion = true}) {
+    async mergeResourceAsync(
+        {
+            currentResource,
+            resourceToMerge,
+            smartMerge = true,
+            incrementVersion = true,
+            limitToPaths
+        }
+    ) {
         // create metadata structure if not present
         if (!resourceToMerge.meta) {
             resourceToMerge.meta = {};
@@ -107,6 +116,9 @@ class ResourceMerger {
                 item.path.startsWith('/identifier') && item.value && item.value.system === IdentifierSystem.sourceId
             )
         );
+        if (limitToPaths && limitToPaths.length > 0) {
+            patchContent = patchContent.filter(item => limitToPaths.some(path => item.path.startsWith(path)));
+        }
 
         // see if there are any changes
         if (patchContent.length === 0) {

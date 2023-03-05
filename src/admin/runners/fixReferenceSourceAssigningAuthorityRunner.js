@@ -398,7 +398,8 @@ class FixReferenceSourceAssigningAuthorityRunner extends BaseBulkOperationRunner
                 const {patches} = await this.resourceMerger.mergeResourceAsync({
                     currentResource: currentResource,
                     resourceToMerge: resource,
-                    smartMerge: false
+                    smartMerge: false,
+                    limitToPaths: this.properties.map(p => `/${p}`)
                 });
                 const updateOperation = MongoJsonPatchHelper.convertJsonPatchesToMongoUpdateCommand({patches});
                 operations.push({
