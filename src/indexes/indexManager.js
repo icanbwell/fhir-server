@@ -8,6 +8,7 @@ const {ErrorReporter} = require('../utils/slack.logger');
 const {assertTypeEquals, assertIsValid} = require('../utils/assertType');
 const {IndexProvider} = require('./indexProvider');
 const {MongoDatabaseManager} = require('../utils/mongoDatabaseManager');
+const {deepEqual} = require('assert');
 
 
 /**
@@ -282,7 +283,7 @@ class IndexManager {
         }) {
 
         /**
-         * @type {{indexes: {indexConfig: IndexConfig, [missing]:boolean, [extra]: boolean}[], collectionName: string}}
+         * @type {{indexes: {indexConfig: IndexConfig, [missing]:boolean, [extra]: boolean, [changed]: boolean}[], collectionName: string}}
          */
         const compareIndexesResult = {
             collectionName: collectionName,
@@ -317,6 +318,21 @@ class IndexManager {
                         missing: true
                     }
                 );
+            } else {
+                // check if the index configuration has changed
+                /**
+                 * @type {{keys: Object, options: {name: string, unique?: (boolean|undefined)}, exclude?: (string[]|undefined)}}
+                 */
+                const indexMatchingByName = indexesMatchingByName[0];
+                // compare the keys
+                if (!(deepEqual(indexConfig, indexMatchingByName))) {
+                    compareIndexesResult.indexes.push(
+                        {
+                            indexConfig: indexConfig,
+                            changed: true
+                        }
+                    );
+                }
             }
         }
         // find indexes to remove that are present currently but not in configuration
@@ -466,7 +482,7 @@ class IndexManager {
      * Gets missingindexes on all the collections
      * @param {boolean} audit
      * @param {boolean|undefined} filterToProblems
-     * @return {Promise<{indexes: {indexConfig: IndexConfig, [missing]:boolean, [extra]: boolean}[], collectionName: string}[]>}
+     * @return {Promise<{indexes: {indexConfig: IndexConfig, [missing]:boolean, [extra]: boolean, [changed]: boolean}[], collectionName: string}[]>}
      */
     async compareCurrentIndexesWithConfigurationInAllCollectionsAsync(
         {
@@ -489,7 +505,7 @@ class IndexManager {
         }
         // now add indices on id column for every collection
         /**
-         * @type {{indexes: {indexConfig: IndexConfig, [missing]:boolean, [extra]: boolean}[], collectionName: string}[]}
+         * @type {{indexes: {indexConfig: IndexConfig, [missing]:boolean, [extra]: boolean, [changed]: boolean}[], collectionName: string}[]}
          */
         const collectionIndexes = await async.map(
             collection_names,
@@ -581,7 +597,7 @@ class IndexManager {
             await this.mongoDatabaseManager.getAuditDbAsync() :
             await this.mongoDatabaseManager.getClientDbAsync();
         /**
-         * @type {{indexes: {indexConfig: IndexConfig, missing?: boolean, extra?: boolean}[], collectionName: string}[]}
+         * @type {{indexes: {indexConfig: IndexConfig, missing?: boolean, extra?: boolean, [changed]: boolean}[], collectionName: string}[]}
          */
         const indexProblems = await this.compareCurrentIndexesWithConfigurationInAllCollectionsAsync(
             {
@@ -589,63 +605,24 @@ class IndexManager {
                 filterToProblems: true
             }
         );
-        // indexes to create
-        /**
-         * @type {{indexes: {indexConfig: IndexConfig, missing?: boolean, extra?: boolean}[], collectionName: string}[]}
-         */
-        const indexesToCreate = indexProblems.map(
-            c => {
-                return {
-                    collectionName: c.collectionName,
-                    indexes: c.indexes.filter(
-                        i => i.missing
-                    )
-                };
-            }
-        ).filter(c => c.indexes.length > 0);
-
-        for (
-            const /** @type {{indexes: {indexConfig: IndexConfig, missing?: boolean, extra?: boolean}[], collectionName: string}} */
-            indexToCreate of indexesToCreate
-            ) {
-            for (const /** @type {{indexConfig: IndexConfig, missing?: boolean, extra?: boolean}} */
-            index of indexToCreate.indexes) {
-                assertIsValid(indexToCreate.collectionName);
-                await this.createIndexIfNotExistsAsync(
-                    {
-                        db,
-                        collectionName: indexToCreate.collectionName,
-                        indexConfig: index.indexConfig
-                    }
-                );
-            }
-            if (indexToCreate.indexes && indexToCreate.indexes.length > 0) {
-                collectionIndexesCreated.push(
-                    {
-                        collectionName: indexToCreate.collectionName,
-                        indexes: indexToCreate.indexes.map(a => a.indexConfig)
-                    }
-                );
-            }
-        }
 
         // indexes to remove
         /**
-         * @type {{indexes: {indexConfig: IndexConfig, missing?: boolean, extra?: boolean}[], collectionName: string}[]}
+         * @type {{indexes: {indexConfig: IndexConfig, missing?: boolean, extra?: boolean, [changed]: boolean}[], collectionName: string}[]}
          */
         const indexesToRemove = indexProblems.map(
             c => {
                 return {
                     collectionName: c.collectionName,
                     indexes: c.indexes.filter(
-                        i => i.extra
+                        i => i.extra || i.changed // drop changed inxdexes so they can be recreatd
                     )
                 };
             }
         ).filter(c => c.indexes.length > 0);
 
         for (
-            const /** @type {{indexes: {indexConfig: IndexConfig, missing?: boolean, extra?: boolean}[], collectionName: string}} */
+            const /** @type {{indexes: {indexConfig: IndexConfig, missing?: boolean, extra?: boolean, [changed]: boolean}[], collectionName: string}} */
             indexToRemove of indexesToRemove
             ) {
             for (const /** @type {{indexConfig: IndexConfig, missing?: boolean, extra?: boolean}} */
@@ -662,6 +639,46 @@ class IndexManager {
                     {
                         collectionName: indexToRemove.collectionName,
                         indexes: indexToRemove.indexes.map(a => a.indexConfig)
+                    }
+                );
+            }
+        }
+
+        // indexes to create
+        /**
+         * @type {{indexes: {indexConfig: IndexConfig, missing?: boolean, extra?: boolean, [changed]: boolean}[], collectionName: string}[]}
+         */
+        const indexesToCreate = indexProblems.map(
+            c => {
+                return {
+                    collectionName: c.collectionName,
+                    indexes: c.indexes.filter(
+                        i => i.missing || i.changed // recreate changed indexes since they were dropped above
+                    )
+                };
+            }
+        ).filter(c => c.indexes.length > 0);
+
+        for (
+            const /** @type {{indexes: {indexConfig: IndexConfig, missing?: boolean, extra?: boolean, [changed]: boolean}[], collectionName: string}} */
+            indexToCreate of indexesToCreate
+            ) {
+            for (const /** @type {{indexConfig: IndexConfig, missing?: boolean, extra?: boolean, [changed]: boolean}} */
+            index of indexToCreate.indexes) {
+                assertIsValid(indexToCreate.collectionName);
+                await this.createIndexIfNotExistsAsync(
+                    {
+                        db,
+                        collectionName: indexToCreate.collectionName,
+                        indexConfig: index.indexConfig
+                    }
+                );
+            }
+            if (indexToCreate.indexes && indexToCreate.indexes.length > 0) {
+                collectionIndexesCreated.push(
+                    {
+                        collectionName: indexToCreate.collectionName,
+                        indexes: indexToCreate.indexes.map(a => a.indexConfig)
                     }
                 );
             }

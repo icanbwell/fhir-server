@@ -67,7 +67,7 @@ describe('Missing Index Tests', () => {
                 collectionName, db: fhirDb
             });
             /**
-             * @type {{indexes: {indexConfig: IndexConfig, [missing]:boolean, [extra]: boolean}[], collectionName: string}}
+             * @type {{indexes: {indexConfig: IndexConfig, [missing]:boolean, [extra]: boolean, [changed]: boolean}[], collectionName: string}}
              */
             const missingIndexesResult = await indexManager.compareCurrentIndexesWithConfigurationInCollectionAsync({
                 db: fhirDb, collectionName
@@ -118,7 +118,7 @@ describe('Missing Index Tests', () => {
             const indexResult = await patientCollection.createIndex(indexSpec, options);
             expect(indexResult).toStrictEqual('id_1');
             /**
-             * @type {{indexes: {indexConfig: IndexConfig, [missing]:boolean, [extra]: boolean}[], collectionName: string}}
+             * @type {{indexes: {indexConfig: IndexConfig, [missing]:boolean, [extra]: boolean, [changed]: boolean}[], collectionName: string}}
              */
             const missingIndexesResult = await indexManager.compareCurrentIndexesWithConfigurationInCollectionAsync({
                 db: fhirDb, collectionName
@@ -210,7 +210,7 @@ describe('Missing Index Tests', () => {
             const indexResult = await auditEventCollection.createIndex(indexSpec, options);
             expect(indexResult).toStrictEqual('id_1');
             /**
-             * @type {{indexes: {indexConfig: IndexConfig, [missing]:boolean, [extra]: boolean}[], collectionName: string}}
+             * @type {{indexes: {indexConfig: IndexConfig, [missing]:boolean, [extra]: boolean, [changed]: boolean}[], collectionName: string}}
              */
             const missingIndexesResult = await indexManager.compareCurrentIndexesWithConfigurationInCollectionAsync({
                 db: auditEventDb, collectionName
@@ -349,7 +349,7 @@ describe('Missing Index Tests', () => {
                 collectionName: practitionerCollectionName, db: fhirDb
             });
             /**
-             * @type {{indexes: {indexConfig: IndexConfig, missing?: boolean, extra?: boolean}[], collectionName: string}[]}
+             * @type {{indexes: {indexConfig: IndexConfig, missing?: boolean, extra?: boolean, [changed]: boolean}[], collectionName: string}[]}
              */
             const missingIndexes = await indexManager.compareCurrentIndexesWithConfigurationInAllCollectionsAsync({
                 audit: false,

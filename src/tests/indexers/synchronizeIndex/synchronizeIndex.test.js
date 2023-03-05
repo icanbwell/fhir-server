@@ -353,7 +353,7 @@ describe('Synchronize Index Tests', () => {
                 collectionName: practitionerCollectionName, db: fhirDb
             });
             /**
-             * @type {{indexes: {indexConfig: IndexConfig, missing?: boolean, extra?: boolean}[], collectionName: string}[]}
+             * @type {{indexes: {indexConfig: IndexConfig, missing?: boolean, extra?: boolean, [changed]: boolean}[], collectionName: string}[]}
              */
             const synchronizeIndexes = await indexManager.compareCurrentIndexesWithConfigurationInAllCollectionsAsync({
                 audit: false
