@@ -188,6 +188,31 @@ module.exports = {
             },
 
         ],
+        'Consent_4_0_0': [
+            {
+               keys: {
+                    'patient._uuid': 1,
+                    '_uuid': 1
+                },
+                options: {
+                    name: 'consent_graphql_1'
+                }
+            }
+        ],
+        'Communication_4_0_0': [
+            {
+               keys: {
+                    'status': 1,
+                    'category.coding.system': 1,
+                    'category.coding.code': 1,
+                    'subject._uuid': 1,
+                    '_uuid': 1
+                },
+                options: {
+                    name: 'health_notifications'
+                }
+            }
+        ],
         'Coverage_4_0_0': [
             {
                 keys: {
@@ -207,6 +232,17 @@ module.exports = {
                     name: 'helix_coverage_uuid'
                 }
             }
+        ],
+        'DocumentReference_4_0_0': [
+            {
+                keys: {
+                    'subject._uuid': 1,
+                    '_uuid': 1,
+                },
+                options: {
+                    name: 'patient_verification_1'
+                }
+            },
         ],
         'Encounter_4_0_0': [
             {
@@ -538,6 +574,20 @@ module.exports = {
                 }
             }
         ],
+        'QuestionnaireResponse_4_0_0': [
+            {
+                keys: {
+                    'subject._uuid': 1,
+                    'questionnaire': 1,
+                    'status': 1,
+                    'authored': -1,
+                    '_uuid': 1
+                },
+                options: {
+                    name: 'consent_graphql_1'
+                }
+            }
+        ],
         'Schedule_4_0_0': [
             {
                 keys: {
@@ -577,6 +627,20 @@ module.exports = {
                 },
                 options: {
                     name: 'for_reference_status_uuid'
+                }
+            }
+        ],
+        'Vitals_4_0_0': [
+            {
+                keys: {
+                    'category.coding.code': 1,
+                    'subject._uuid': 1,
+                    'subject.sourceId': 1,
+                    'effectiveDateTime': -1,
+                    '_uuid': 1
+                },
+                options: {
+                    name: 'health_vitals_1'
                 }
             }
         ]
