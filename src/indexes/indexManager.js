@@ -8,8 +8,7 @@ const {ErrorReporter} = require('../utils/slack.logger');
 const {assertTypeEquals, assertIsValid} = require('../utils/assertType');
 const {IndexProvider} = require('./indexProvider');
 const {MongoDatabaseManager} = require('../utils/mongoDatabaseManager');
-const {deepEqual} = require('assert');
-
+const deepEqual = require('fast-deep-equal');
 
 /**
  * @typedef IndexConfig
@@ -325,7 +324,7 @@ class IndexManager {
                  */
                 const indexMatchingByName = indexesMatchingByName[0];
                 // compare the keys
-                if (!(deepEqual(indexConfig, indexMatchingByName))) {
+                if (!(deepEqual(indexConfig.keys, indexMatchingByName.keys))) {
                     compareIndexesResult.indexes.push(
                         {
                             indexConfig: indexConfig,
