@@ -27,6 +27,7 @@ class FixReferenceSourceAssigningAuthorityRunner extends BaseBulkOperationRunner
      * @param {string|undefined} [startFromCollection]
      * @param {ResourceLocatorFactory} resourceLocatorFactory
      * @param {string[]} preloadCollections
+     * @param {number|undefined} [limit]
      */
     constructor(
         {
@@ -40,7 +41,8 @@ class FixReferenceSourceAssigningAuthorityRunner extends BaseBulkOperationRunner
             databaseQueryFactory,
             startFromCollection,
             resourceLocatorFactory,
-            preloadCollections
+            preloadCollections,
+            limit
         }) {
         super({
             mongoCollectionManager,
@@ -86,6 +88,11 @@ class FixReferenceSourceAssigningAuthorityRunner extends BaseBulkOperationRunner
          * @type {string[]}
          */
         this.preloadCollections = preloadCollections;
+
+        /**
+         * @type {number|undefined}
+         */
+        this.limit = limit;
 
         /**
          * cache of caches
@@ -413,7 +420,8 @@ class FixReferenceSourceAssigningAuthorityRunner extends BaseBulkOperationRunner
                             fnCreateBulkOperationAsync: async (doc) => await this.processRecordAsync(doc),
                             ordered: false,
                             batchSize: this.batchSize,
-                            skipExistingIds: false
+                            skipExistingIds: false,
+                            limit: this.limit
                         }
                     );
                 } catch (e) {

@@ -61,7 +61,8 @@ async function main() {
                 databaseQueryFactory: c.databaseQueryFactory,
                 startFromCollection: parameters.startFromCollection,
                 resourceLocatorFactory: c.resourceLocatorFactory,
-                preloadCollections: preLoadCollections
+                preloadCollections: preLoadCollections,
+                limit: parameters.limit
             }
         )
     );
@@ -83,6 +84,7 @@ async function main() {
  * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/fixReferenceSourceAssigningAuthority.js --collections=all --batchSize=10000
  * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/fixReferenceSourceAssigningAuthority.js --collections=all --batchSize=10000 --startFromCollection FamilyMemberHistory_4_0_0
  * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/fixReferenceSourceAssigningAuthority.js --collections=Person_4_0_0 --batchSize=10000 --preLoadCollections Person_4_0_0,Patient_4_0_0
+ * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/fixReferenceSourceAssigningAuthority.js --collections=Person_4_0_0 --batchSize=10000 --preLoadCollections Person_4_0_0,Patient_4_0_0 --limit 10
  * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/fixReferenceSourceAssigningAuthority.js --collections=all --batchSize=10000 --after 2021-12-31
  * node src/admin/scripts/fixReferenceSourceAssigningAuthority.js --collections=Account_4_0_0 --batchSize=10000
  */

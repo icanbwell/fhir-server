@@ -51,6 +51,7 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
      * @param {boolean} skipExistingIds
      * @param {boolean|undefined} [skipWhenCountIsSame]
      * @param {boolean|undefined} [dropDestinationIfCountIsDifferent]
+     * @param {number|undefined} [limit]
      * @returns {Promise<string>}
      */
     async runForQueryBatchesAsync(
@@ -66,7 +67,8 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
             batchSize,
             skipExistingIds,
             skipWhenCountIsSame,
-            dropDestinationIfCountIsDifferent
+            dropDestinationIfCountIsDifferent,
+            limit
         }
     ) {
         let lastCheckedId = '';
@@ -154,7 +156,8 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                 numberOfDestinationDocuments,
                 lastCheckedId,
                 fnCreateBulkOperationAsync,
-                ordered
+                ordered,
+                limit
             });
 
         // get the count at the end
@@ -195,6 +198,7 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
      * @param {string} lastCheckedId
      * @param {function(document: import('mongodb').DefaultSchema):Promise<(import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>)[]>} fnCreateBulkOperationAsync     * @param operations
      * @param {boolean|undefined} [ordered]
+     * @param {number|undefined} [limit]
      * @returns {Promise<string>}
      */
     async runLoopAsync(
@@ -211,7 +215,8 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
             numberOfDestinationDocuments,
             lastCheckedId,
             fnCreateBulkOperationAsync,
-            ordered
+            ordered,
+            limit
         }) {
         const maxTimeMS = 20 * 60 * 60 * 1000;
         const numberOfSecondsBetweenSessionRefreshes = 30;
@@ -258,6 +263,9 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                     .batchSize(batchSize)
                     .addCursorFlag('noCursorTimeout', true);
 
+                if (limit) {
+                    cursor = cursor.limit(limit);
+                }
                 if (projection) {
                     cursor = cursor.project(projection);
                 }
