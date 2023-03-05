@@ -9,6 +9,7 @@ const {logInfo} = require('../../../operations/common/logging');
 
 class MockIndexProvider extends IndexProvider {
     getIndexes() {
+        // noinspection JSValidateTypes
         return customIndexes;
     }
 }
