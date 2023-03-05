@@ -149,7 +149,8 @@ class ResourceMerger {
         }
 
         return {
-            updatedResource: patched_resource_incoming, patches: patchContent.map(p => {
+            updatedResource: patched_resource_incoming,
+            patches: patchContent.map(p => {
                 return {
                     op: p.op, path: p.path, value: p.value
                 };
