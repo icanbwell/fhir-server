@@ -7,7 +7,8 @@ const deepcopy = require('deepcopy');
 const moment = require('moment-timezone');
 const {MongoNetworkTimeoutError} = require('mongodb');
 const {MemoryManager} = require('../../utils/memoryManager');
-
+const sizeof = require('object-sizeof');
+const prettyBytes = require('pretty-bytes');
 
 /**
  * @classdesc Implements a loop for reading records from database (based on passed in query), calling a function to
@@ -226,6 +227,10 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
         let operations = [];
         let previouslyCheckedId = lastCheckedId;
 
+        /**
+         * @type {number}
+         */
+        let bytesLoaded = 0;
         while (continueLoop && (loopRetryNumber < maxLoopRetries)) {
             if (startFromIdContainer.startFromId) {
                 query.$and.push({'id': {$gt: startFromIdContainer.startFromId}});
@@ -300,6 +305,7 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                      * @type {import('mongodb').DefaultSchema}
                      */
                     const doc = await this.next(cursor);
+                    bytesLoaded += sizeof(doc);
                     startFromIdContainer.startFromId = doc.id;
                     const numberOfDocumentsToCopy = skipExistingIds ?
                         numberOfSourceDocuments - numberOfDestinationDocuments :
@@ -310,7 +316,8 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                     process.stdout.write(`[${moment().toISOString()}] ` +
                         `${sourceCollectionName} ` +
                         `Scanned: ${count.toLocaleString('en-US')} of ${numberOfDocumentsToCopy.toLocaleString('en-US')} ` +
-                        `Updated: ${numOperations.toLocaleString('en-US')}`);
+                        `Updated: ${numOperations.toLocaleString('en-US')} ` +
+                        `size: ${prettyBytes(bytesLoaded)}`);
                     /**
                      * @type {import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>[]}
                      */
@@ -384,7 +391,9 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                 this.adminLogger.logInfo('=== Finished ' +
                     `${sourceCollectionName} ` +
                     `Scanned: ${count.toLocaleString('en-US')} of ${numberOfSourceDocuments.toLocaleString('en-US')} ` +
-                    `Updated: ${numOperations.toLocaleString('en-US')} ===`);
+                    `Updated: ${numOperations.toLocaleString('en-US')} ` +
+                    `size: ${prettyBytes(bytesLoaded)} ` +
+                    '===');
             } catch (e) {
                 if (e instanceof MongoNetworkTimeoutError) {
                     // statements to handle TypeError exceptions
