@@ -53,6 +53,20 @@ describe('mongoJsonPatchHelper Tests', () => {
                 ]
             });
             doc1 = await preSaveManager.preSaveAsync(doc1);
+
+            /**
+             * @type {MongoDatabaseManager}
+             */
+            const mongoDatabaseManager = container.mongoDatabaseManager;
+            let db = await mongoDatabaseManager.getClientDbAsync();
+            const resourceType = 'Person';
+            const base_version = '4_0_0';
+            /**
+             * @type {import('mongodb').Collection<import('mongodb').Document>}
+             */
+            const collection = db.collection(`${resourceType}_${base_version}`);
+            await collection.insertOne(doc1);
+
             const doc2 = new Person({
                 'resourceType': 'Person',
                 'id': '1',
@@ -115,11 +129,14 @@ describe('mongoJsonPatchHelper Tests', () => {
                 }
             ]);
 
-            const update = MongoJsonPatchHelper.convertJsonPatchesToMongoUpdateCommand({
+            /**
+             * @type {{}}
+             */
+            const updateOperation = MongoJsonPatchHelper.convertJsonPatchesToMongoUpdateCommand({
                 patches
             });
 
-            expect(update).toStrictEqual({
+            expect(updateOperation).toStrictEqual({
                 '$push': {
                     'link': {
                         '$each': [
@@ -150,6 +167,19 @@ describe('mongoJsonPatchHelper Tests', () => {
                     }
                 }
             });
+
+            const operations = [
+                {
+                    updateOne: {
+                        filter: {
+                            id: '1',
+                        },
+                        update: updateOperation
+                    }
+                }
+            ];
+            const result = await collection.bulkWrite(operations);
+            expect(result.modifiedCount).toStrictEqual(1);
         });
     });
 });
