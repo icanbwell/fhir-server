@@ -20,6 +20,9 @@ const {RethrownError} = require('../../utils/rethrownError');
  * @return {import('mongodb').Collection<import('mongodb').Document>}
  */
 function getProjection(properties) {
+    /**
+     * @type {import('mongodb').Collection<import('mongodb').Document>}
+     */
     const projection = {};
     for (const property of properties) {
         projection[`${property}`] = 1;
@@ -30,6 +33,28 @@ function getProjection(properties) {
         projection[`${property}`] = 1;
     }
     return projection;
+}
+
+/**
+ * converts list of properties to a projection
+ * @param {string[]} properties
+ * @return {import('mongodb').Filter<import('mongodb').Document>}
+ */
+function getFilter(properties) {
+    /**
+     * @type {import('mongodb').Filter<import('mongodb').Document>}
+     */
+    const filter = {
+        $and: []
+    };
+    for (const property of properties) {
+        filter.$and.push({
+            [`${property}`]: {
+                $ne: null
+            }
+        });
+    }
+    return filter;
 }
 
 /**
@@ -457,6 +482,9 @@ class FixReferenceSourceAssigningAuthorityRunner extends BaseBulkOperationRunner
 
             await this.init();
 
+            /**
+             * @type {{connection: string, db_name: string, options: import('mongodb').MongoClientOptions}}
+             */
             const mongoConfig = await this.mongoDatabaseManager.getClientConfigAsync();
 
             for (const preloadCollection of this.preloadCollections) {
@@ -489,7 +517,9 @@ class FixReferenceSourceAssigningAuthorityRunner extends BaseBulkOperationRunner
                     'meta.lastUpdated': {
                         $gt: this.afterLastUpdatedDate,
                     }
-                } : {};
+                } : this.properties && this.properties.length > 0 ?
+                    getFilter(this.properties) :
+                    {};
                 try {
                     await this.runForQueryBatchesAsync(
                         {
