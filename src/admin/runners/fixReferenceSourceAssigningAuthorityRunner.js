@@ -427,18 +427,19 @@ class FixReferenceSourceAssigningAuthorityRunner extends BaseBulkOperationRunner
                     limitToPaths: this.properties.map(p => `/${p}`)
                 });
                 const updateOperation = MongoJsonPatchHelper.convertJsonPatchesToMongoUpdateCommand({patches});
-                operations.push({
-                    updateOne: {
-                        filter: {
-                            _id: doc._id
-                        },
-                        update: updateOperation
-                    }
-                });
+                if (Object.keys(updateOperation).length > 0) {
+                    operations.push({
+                        updateOne: {
+                            filter: {
+                                _id: doc._id
+                            },
+                            update: updateOperation
+                        }
+                    });
+                }
             } else {
                 const result = {replaceOne: {filter: {_id: doc._id}, replacement: resource.toJSONInternal()}};
                 operations.push(result);
-
             }
 
             return operations;
