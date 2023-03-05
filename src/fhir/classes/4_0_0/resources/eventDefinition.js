@@ -140,7 +140,8 @@ class EventDefinition extends Resource {
                     return;
                 }
                 const Meta = require('../complex_types/meta.js');
-                this.__data.meta = new Meta(valueProvided);
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.meta = FhirResourceCreator.create(valueProvided, Meta);
             }
         });
 
@@ -203,7 +204,8 @@ class EventDefinition extends Resource {
                     return;
                 }
                 const Narrative = require('../complex_types/narrative.js');
-                this.__data.text = new Narrative(valueProvided);
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.text = FhirResourceCreator.create(valueProvided, Narrative);
             }
         });
 
@@ -224,16 +226,8 @@ class EventDefinition extends Resource {
                     return;
                 }
                 const ResourceContainer = require('../simple_types/resourceContainer.js');
-                const {getResource} = require('../../../../operations/common/getResource');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.contained = valueProvided.filter(v => v).map(v => {
-                        const ResourceCreator = getResource('4_0_0', v.resourceType);
-                        return new ResourceCreator(v);
-                    });
-                } else {
-                const ResourceCreator = getResource('4_0_0', valueProvided.resourceType);
-                this.__data.contained = [new ResourceCreator(valueProvided)];
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.contained = FhirResourceCreator.createArray(valueProvided);
             }
         });
 
@@ -256,7 +250,8 @@ class EventDefinition extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -287,7 +282,8 @@ class EventDefinition extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -332,7 +328,8 @@ class EventDefinition extends Resource {
                     return;
                 }
                 const Identifier = require('../complex_types/identifier.js');
-                this.__data.identifier = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Identifier(v)) : [new Identifier(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.identifier = FhirResourceCreator.createArray(valueProvided, Identifier);
             }
         });
 
@@ -470,7 +467,8 @@ class EventDefinition extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.subjectCodeableConcept = new CodeableConcept(valueProvided);
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.subjectCodeableConcept = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
 
@@ -489,7 +487,8 @@ class EventDefinition extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.subjectReference = new Reference(valueProvided);
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.subjectReference = FhirResourceCreator.create(valueProvided, Reference);
             }
         });
 
@@ -549,7 +548,8 @@ class EventDefinition extends Resource {
                     return;
                 }
                 const ContactDetail = require('../complex_types/contactDetail.js');
-                this.__data.contact = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ContactDetail(v)) : [new ContactDetail(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.contact = FhirResourceCreator.createArray(valueProvided, ContactDetail);
             }
         });
 
@@ -591,7 +591,8 @@ class EventDefinition extends Resource {
                     return;
                 }
                 const UsageContext = require('../complex_types/usageContext.js');
-                this.__data.useContext = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new UsageContext(v)) : [new UsageContext(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.useContext = FhirResourceCreator.createArray(valueProvided, UsageContext);
             }
         });
 
@@ -611,7 +612,8 @@ class EventDefinition extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.jurisdiction = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.jurisdiction = FhirResourceCreator.createArray(valueProvided, CodeableConcept);
             }
         });
 
@@ -727,7 +729,8 @@ class EventDefinition extends Resource {
                     return;
                 }
                 const Period = require('../complex_types/period.js');
-                this.__data.effectivePeriod = new Period(valueProvided);
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.effectivePeriod = FhirResourceCreator.create(valueProvided, Period);
             }
         });
 
@@ -747,7 +750,8 @@ class EventDefinition extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.topic = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.topic = FhirResourceCreator.createArray(valueProvided, CodeableConcept);
             }
         });
 
@@ -767,7 +771,8 @@ class EventDefinition extends Resource {
                     return;
                 }
                 const ContactDetail = require('../complex_types/contactDetail.js');
-                this.__data.author = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ContactDetail(v)) : [new ContactDetail(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.author = FhirResourceCreator.createArray(valueProvided, ContactDetail);
             }
         });
 
@@ -787,7 +792,8 @@ class EventDefinition extends Resource {
                     return;
                 }
                 const ContactDetail = require('../complex_types/contactDetail.js');
-                this.__data.editor = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ContactDetail(v)) : [new ContactDetail(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.editor = FhirResourceCreator.createArray(valueProvided, ContactDetail);
             }
         });
 
@@ -807,7 +813,8 @@ class EventDefinition extends Resource {
                     return;
                 }
                 const ContactDetail = require('../complex_types/contactDetail.js');
-                this.__data.reviewer = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ContactDetail(v)) : [new ContactDetail(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.reviewer = FhirResourceCreator.createArray(valueProvided, ContactDetail);
             }
         });
 
@@ -827,7 +834,8 @@ class EventDefinition extends Resource {
                     return;
                 }
                 const ContactDetail = require('../complex_types/contactDetail.js');
-                this.__data.endorser = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ContactDetail(v)) : [new ContactDetail(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.endorser = FhirResourceCreator.createArray(valueProvided, ContactDetail);
             }
         });
 
@@ -847,7 +855,8 @@ class EventDefinition extends Resource {
                     return;
                 }
                 const RelatedArtifact = require('../complex_types/relatedArtifact.js');
-                this.__data.relatedArtifact = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new RelatedArtifact(v)) : [new RelatedArtifact(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.relatedArtifact = FhirResourceCreator.createArray(valueProvided, RelatedArtifact);
             }
         });
 
@@ -868,7 +877,8 @@ class EventDefinition extends Resource {
                     return;
                 }
                 const TriggerDefinition = require('../complex_types/triggerDefinition.js');
-                this.__data.trigger = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new TriggerDefinition(v)) : [new TriggerDefinition(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.trigger = FhirResourceCreator.createArray(valueProvided, TriggerDefinition);
             }
         });
 

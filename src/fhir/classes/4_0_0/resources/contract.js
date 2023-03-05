@@ -152,7 +152,8 @@ class Contract extends Resource {
                     return;
                 }
                 const Meta = require('../complex_types/meta.js');
-                this.__data.meta = new Meta(valueProvided);
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.meta = FhirResourceCreator.create(valueProvided, Meta);
             }
         });
 
@@ -215,7 +216,8 @@ class Contract extends Resource {
                     return;
                 }
                 const Narrative = require('../complex_types/narrative.js');
-                this.__data.text = new Narrative(valueProvided);
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.text = FhirResourceCreator.create(valueProvided, Narrative);
             }
         });
 
@@ -236,16 +238,8 @@ class Contract extends Resource {
                     return;
                 }
                 const ResourceContainer = require('../simple_types/resourceContainer.js');
-                const {getResource} = require('../../../../operations/common/getResource');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.contained = valueProvided.filter(v => v).map(v => {
-                        const ResourceCreator = getResource('4_0_0', v.resourceType);
-                        return new ResourceCreator(v);
-                    });
-                } else {
-                const ResourceCreator = getResource('4_0_0', valueProvided.resourceType);
-                this.__data.contained = [new ResourceCreator(valueProvided)];
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.contained = FhirResourceCreator.createArray(valueProvided);
             }
         });
 
@@ -268,7 +262,8 @@ class Contract extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -299,7 +294,8 @@ class Contract extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -319,7 +315,8 @@ class Contract extends Resource {
                     return;
                 }
                 const Identifier = require('../complex_types/identifier.js');
-                this.__data.identifier = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Identifier(v)) : [new Identifier(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.identifier = FhirResourceCreator.createArray(valueProvided, Identifier);
             }
         });
 
@@ -398,7 +395,8 @@ class Contract extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.legalState = new CodeableConcept(valueProvided);
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.legalState = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
 
@@ -418,7 +416,8 @@ class Contract extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.instantiatesCanonical = new Reference(valueProvided);
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.instantiatesCanonical = FhirResourceCreator.create(valueProvided, Reference);
             }
         });
 
@@ -457,7 +456,8 @@ class Contract extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.contentDerivative = new CodeableConcept(valueProvided);
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.contentDerivative = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
 
@@ -494,7 +494,8 @@ class Contract extends Resource {
                     return;
                 }
                 const Period = require('../complex_types/period.js');
-                this.__data.applies = new Period(valueProvided);
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.applies = FhirResourceCreator.create(valueProvided, Period);
             }
         });
 
@@ -514,7 +515,8 @@ class Contract extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.expirationType = new CodeableConcept(valueProvided);
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.expirationType = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
 
@@ -533,7 +535,8 @@ class Contract extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.subject = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.subject = FhirResourceCreator.createArray(valueProvided, Reference);
             }
         });
 
@@ -555,7 +558,8 @@ class Contract extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.authority = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.authority = FhirResourceCreator.createArray(valueProvided, Reference);
             }
         });
 
@@ -577,7 +581,8 @@ class Contract extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.domain = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.domain = FhirResourceCreator.createArray(valueProvided, Reference);
             }
         });
 
@@ -596,7 +601,8 @@ class Contract extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.site = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.site = FhirResourceCreator.createArray(valueProvided, Reference);
             }
         });
 
@@ -697,7 +703,8 @@ class Contract extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.author = new Reference(valueProvided);
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.author = FhirResourceCreator.create(valueProvided, Reference);
             }
         });
 
@@ -717,7 +724,8 @@ class Contract extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.scope = new CodeableConcept(valueProvided);
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.scope = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
 
@@ -736,7 +744,8 @@ class Contract extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.topicCodeableConcept = new CodeableConcept(valueProvided);
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.topicCodeableConcept = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
 
@@ -755,7 +764,8 @@ class Contract extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.topicReference = new Reference(valueProvided);
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.topicReference = FhirResourceCreator.create(valueProvided, Reference);
             }
         });
 
@@ -778,7 +788,8 @@ class Contract extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.type = new CodeableConcept(valueProvided);
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.type = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
 
@@ -799,7 +810,8 @@ class Contract extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.subType = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.subType = FhirResourceCreator.createArray(valueProvided, CodeableConcept);
             }
         });
 
@@ -820,7 +832,8 @@ class Contract extends Resource {
                     return;
                 }
                 const ContractContentDefinition = require('../backbone_elements/contractContentDefinition.js');
-                this.__data.contentDefinition = new ContractContentDefinition(valueProvided);
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.contentDefinition = FhirResourceCreator.create(valueProvided, ContractContentDefinition);
             }
         });
 
@@ -840,7 +853,8 @@ class Contract extends Resource {
                     return;
                 }
                 const ContractTerm = require('../backbone_elements/contractTerm.js');
-                this.__data.term = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ContractTerm(v)) : [new ContractTerm(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.term = FhirResourceCreator.createArray(valueProvided, ContractTerm);
             }
         });
 
@@ -860,7 +874,8 @@ class Contract extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.supportingInfo = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.supportingInfo = FhirResourceCreator.createArray(valueProvided, Reference);
             }
         });
 
@@ -883,7 +898,8 @@ class Contract extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.relevantHistory = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.relevantHistory = FhirResourceCreator.createArray(valueProvided, Reference);
             }
         });
 
@@ -905,7 +921,8 @@ class Contract extends Resource {
                     return;
                 }
                 const ContractSigner = require('../backbone_elements/contractSigner.js');
-                this.__data.signer = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ContractSigner(v)) : [new ContractSigner(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.signer = FhirResourceCreator.createArray(valueProvided, ContractSigner);
             }
         });
 
@@ -929,7 +946,8 @@ class Contract extends Resource {
                     return;
                 }
                 const ContractFriendly = require('../backbone_elements/contractFriendly.js');
-                this.__data.friendly = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ContractFriendly(v)) : [new ContractFriendly(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.friendly = FhirResourceCreator.createArray(valueProvided, ContractFriendly);
             }
         });
 
@@ -948,7 +966,8 @@ class Contract extends Resource {
                     return;
                 }
                 const ContractLegal = require('../backbone_elements/contractLegal.js');
-                this.__data.legal = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ContractLegal(v)) : [new ContractLegal(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.legal = FhirResourceCreator.createArray(valueProvided, ContractLegal);
             }
         });
 
@@ -967,7 +986,8 @@ class Contract extends Resource {
                     return;
                 }
                 const ContractRule = require('../backbone_elements/contractRule.js');
-                this.__data.rule = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ContractRule(v)) : [new ContractRule(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.rule = FhirResourceCreator.createArray(valueProvided, ContractRule);
             }
         });
 
@@ -986,7 +1006,8 @@ class Contract extends Resource {
                     return;
                 }
                 const Attachment = require('../complex_types/attachment.js');
-                this.__data.legallyBindingAttachment = new Attachment(valueProvided);
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.legallyBindingAttachment = FhirResourceCreator.create(valueProvided, Attachment);
             }
         });
 
@@ -1005,7 +1026,8 @@ class Contract extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.legallyBindingReference = new Reference(valueProvided);
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.legallyBindingReference = FhirResourceCreator.create(valueProvided, Reference);
             }
         });
 

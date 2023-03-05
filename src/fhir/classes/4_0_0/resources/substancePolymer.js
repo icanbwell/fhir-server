@@ -93,7 +93,8 @@ class SubstancePolymer extends Resource {
                     return;
                 }
                 const Meta = require('../complex_types/meta.js');
-                this.__data.meta = new Meta(valueProvided);
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.meta = FhirResourceCreator.create(valueProvided, Meta);
             }
         });
 
@@ -156,7 +157,8 @@ class SubstancePolymer extends Resource {
                     return;
                 }
                 const Narrative = require('../complex_types/narrative.js');
-                this.__data.text = new Narrative(valueProvided);
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.text = FhirResourceCreator.create(valueProvided, Narrative);
             }
         });
 
@@ -177,16 +179,8 @@ class SubstancePolymer extends Resource {
                     return;
                 }
                 const ResourceContainer = require('../simple_types/resourceContainer.js');
-                const {getResource} = require('../../../../operations/common/getResource');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.contained = valueProvided.filter(v => v).map(v => {
-                        const ResourceCreator = getResource('4_0_0', v.resourceType);
-                        return new ResourceCreator(v);
-                    });
-                } else {
-                const ResourceCreator = getResource('4_0_0', valueProvided.resourceType);
-                this.__data.contained = [new ResourceCreator(valueProvided)];
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.contained = FhirResourceCreator.createArray(valueProvided);
             }
         });
 
@@ -209,7 +203,8 @@ class SubstancePolymer extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -240,7 +235,8 @@ class SubstancePolymer extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -259,7 +255,8 @@ class SubstancePolymer extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.class = new CodeableConcept(valueProvided);
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.class = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
 
@@ -278,7 +275,8 @@ class SubstancePolymer extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.geometry = new CodeableConcept(valueProvided);
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.geometry = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
 
@@ -297,7 +295,8 @@ class SubstancePolymer extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.copolymerConnectivity = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.copolymerConnectivity = FhirResourceCreator.createArray(valueProvided, CodeableConcept);
             }
         });
 
@@ -334,7 +333,8 @@ class SubstancePolymer extends Resource {
                     return;
                 }
                 const SubstancePolymerMonomerSet = require('../backbone_elements/substancePolymerMonomerSet.js');
-                this.__data.monomerSet = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new SubstancePolymerMonomerSet(v)) : [new SubstancePolymerMonomerSet(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.monomerSet = FhirResourceCreator.createArray(valueProvided, SubstancePolymerMonomerSet);
             }
         });
 
@@ -353,7 +353,8 @@ class SubstancePolymer extends Resource {
                     return;
                 }
                 const SubstancePolymerRepeat = require('../backbone_elements/substancePolymerRepeat.js');
-                this.__data.repeat = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new SubstancePolymerRepeat(v)) : [new SubstancePolymerRepeat(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.repeat = FhirResourceCreator.createArray(valueProvided, SubstancePolymerRepeat);
             }
         });
 

@@ -81,7 +81,8 @@ class Binary extends Resource {
                     return;
                 }
                 const Meta = require('../complex_types/meta.js');
-                this.__data.meta = new Meta(valueProvided);
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.meta = FhirResourceCreator.create(valueProvided, Meta);
             }
         });
 
@@ -166,7 +167,8 @@ class Binary extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.securityContext = new Reference(valueProvided);
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.securityContext = FhirResourceCreator.create(valueProvided, Reference);
             }
         });
 

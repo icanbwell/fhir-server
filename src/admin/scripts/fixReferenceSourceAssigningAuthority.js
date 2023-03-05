@@ -26,10 +26,16 @@ async function main() {
     /**
      * @type {string[]}
      */
-    let collections = parameters.collections ? parameters.collections.split(',').map(x => x.trim()) : [];
+    let collections = parameters.collections ?
+        parameters.collections.split(',').map(x => x.trim()) :
+        [];
     if (parameters.collections === 'all') {
         collections = ['all'];
     }
+    let preLoadCollections = parameters.preLoadCollections ?
+        parameters.preLoadCollections.split(',').map(x => x.trim()) :
+        [];
+
     const batchSize = parameters.batchSize || process.env.BULK_BUFFER_SIZE || 10000;
     /**
      * @type {Date|undefined}
@@ -53,7 +59,9 @@ async function main() {
                 mongoDatabaseManager: c.mongoDatabaseManager,
                 preSaveManager: c.preSaveManager,
                 databaseQueryFactory: c.databaseQueryFactory,
-                startFromCollection: parameters.startFromCollection
+                startFromCollection: parameters.startFromCollection,
+                resourceLocatorFactory: c.resourceLocatorFactory,
+                preloadCollections: preLoadCollections
             }
         )
     );
@@ -74,6 +82,7 @@ async function main() {
  * node src/admin/scripts/fixReferenceSourceAssigningAuthority.js --collections=Practitioner_4_0_0 --batchSize=10000
  * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/fixReferenceSourceAssigningAuthority.js --collections=all --batchSize=10000
  * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/fixReferenceSourceAssigningAuthority.js --collections=all --batchSize=10000 --startFromCollection FamilyMemberHistory_4_0_0
+ * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/fixReferenceSourceAssigningAuthority.js --collections=Person_4_0_0 --batchSize=10000 --preLoadCollections Person_4_0_0,Patient_4_0_0
  * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/fixReferenceSourceAssigningAuthority.js --collections=all --batchSize=10000 --after 2021-12-31
  * node src/admin/scripts/fixReferenceSourceAssigningAuthority.js --collections=Account_4_0_0 --batchSize=10000
  */

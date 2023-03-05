@@ -213,8 +213,9 @@ class ParsedArgs {
      * constructor
      * @param {string} base_version
      * @param {ParsedArgsItem[]} [parsedArgItems]
+     * @param {Object|undefined} [headers]
      */
-    constructor({base_version, parsedArgItems = []}) {
+    constructor({base_version, parsedArgItems = [], headers}) {
         assertIsValid(base_version, 'base_version is missing');
         this.base_version = base_version;
         /**
@@ -234,7 +235,7 @@ class ParsedArgs {
          * headers
          * @type {Object|undefined}
          */
-        this.headers = undefined;
+        this.headers = headers;
     }
 
     /**
@@ -327,7 +328,8 @@ class ParsedArgs {
         return new ParsedArgs(
             {
                 base_version: this.base_version,
-                parsedArgItems: this.parsedArgItems.map(p => p.clone())
+                parsedArgItems: this.parsedArgItems.map(p => p.clone()),
+                headers: this.headers
             }
         );
     }

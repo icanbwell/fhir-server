@@ -131,7 +131,8 @@ class TerminologyCapabilities extends Resource {
                     return;
                 }
                 const Meta = require('../complex_types/meta.js');
-                this.__data.meta = new Meta(valueProvided);
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.meta = FhirResourceCreator.create(valueProvided, Meta);
             }
         });
 
@@ -194,7 +195,8 @@ class TerminologyCapabilities extends Resource {
                     return;
                 }
                 const Narrative = require('../complex_types/narrative.js');
-                this.__data.text = new Narrative(valueProvided);
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.text = FhirResourceCreator.create(valueProvided, Narrative);
             }
         });
 
@@ -215,16 +217,8 @@ class TerminologyCapabilities extends Resource {
                     return;
                 }
                 const ResourceContainer = require('../simple_types/resourceContainer.js');
-                const {getResource} = require('../../../../operations/common/getResource');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.contained = valueProvided.filter(v => v).map(v => {
-                        const ResourceCreator = getResource('4_0_0', v.resourceType);
-                        return new ResourceCreator(v);
-                    });
-                } else {
-                const ResourceCreator = getResource('4_0_0', valueProvided.resourceType);
-                this.__data.contained = [new ResourceCreator(valueProvided)];
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.contained = FhirResourceCreator.createArray(valueProvided);
             }
         });
 
@@ -247,7 +241,8 @@ class TerminologyCapabilities extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -278,7 +273,8 @@ class TerminologyCapabilities extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -462,7 +458,8 @@ class TerminologyCapabilities extends Resource {
                     return;
                 }
                 const ContactDetail = require('../complex_types/contactDetail.js');
-                this.__data.contact = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ContactDetail(v)) : [new ContactDetail(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.contact = FhirResourceCreator.createArray(valueProvided, ContactDetail);
             }
         });
 
@@ -506,7 +503,8 @@ class TerminologyCapabilities extends Resource {
                     return;
                 }
                 const UsageContext = require('../complex_types/usageContext.js');
-                this.__data.useContext = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new UsageContext(v)) : [new UsageContext(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.useContext = FhirResourceCreator.createArray(valueProvided, UsageContext);
             }
         });
 
@@ -526,7 +524,8 @@ class TerminologyCapabilities extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.jurisdiction = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.jurisdiction = FhirResourceCreator.createArray(valueProvided, CodeableConcept);
             }
         });
 
@@ -606,7 +605,8 @@ class TerminologyCapabilities extends Resource {
                     return;
                 }
                 const TerminologyCapabilitiesSoftware = require('../backbone_elements/terminologyCapabilitiesSoftware.js');
-                this.__data.software = new TerminologyCapabilitiesSoftware(valueProvided);
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.software = FhirResourceCreator.create(valueProvided, TerminologyCapabilitiesSoftware);
             }
         });
 
@@ -627,7 +627,8 @@ class TerminologyCapabilities extends Resource {
                     return;
                 }
                 const TerminologyCapabilitiesImplementation = require('../backbone_elements/terminologyCapabilitiesImplementation.js');
-                this.__data.implementation = new TerminologyCapabilitiesImplementation(valueProvided);
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.implementation = FhirResourceCreator.create(valueProvided, TerminologyCapabilitiesImplementation);
             }
         });
 
@@ -666,7 +667,8 @@ class TerminologyCapabilities extends Resource {
                     return;
                 }
                 const TerminologyCapabilitiesCodeSystem = require('../backbone_elements/terminologyCapabilitiesCodeSystem.js');
-                this.__data.codeSystem = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new TerminologyCapabilitiesCodeSystem(v)) : [new TerminologyCapabilitiesCodeSystem(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.codeSystem = FhirResourceCreator.createArray(valueProvided, TerminologyCapabilitiesCodeSystem);
             }
         });
 
@@ -686,7 +688,8 @@ class TerminologyCapabilities extends Resource {
                     return;
                 }
                 const TerminologyCapabilitiesExpansion = require('../backbone_elements/terminologyCapabilitiesExpansion.js');
-                this.__data.expansion = new TerminologyCapabilitiesExpansion(valueProvided);
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.expansion = FhirResourceCreator.create(valueProvided, TerminologyCapabilitiesExpansion);
             }
         });
 
@@ -725,7 +728,8 @@ class TerminologyCapabilities extends Resource {
                     return;
                 }
                 const TerminologyCapabilitiesValidateCode = require('../backbone_elements/terminologyCapabilitiesValidateCode.js');
-                this.__data.validateCode = new TerminologyCapabilitiesValidateCode(valueProvided);
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.validateCode = FhirResourceCreator.create(valueProvided, TerminologyCapabilitiesValidateCode);
             }
         });
 
@@ -745,7 +749,8 @@ class TerminologyCapabilities extends Resource {
                     return;
                 }
                 const TerminologyCapabilitiesTranslation = require('../backbone_elements/terminologyCapabilitiesTranslation.js');
-                this.__data.translation = new TerminologyCapabilitiesTranslation(valueProvided);
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.translation = FhirResourceCreator.create(valueProvided, TerminologyCapabilitiesTranslation);
             }
         });
 
@@ -764,7 +769,8 @@ class TerminologyCapabilities extends Resource {
                     return;
                 }
                 const TerminologyCapabilitiesClosure = require('../backbone_elements/terminologyCapabilitiesClosure.js');
-                this.__data.closure = new TerminologyCapabilitiesClosure(valueProvided);
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.closure = FhirResourceCreator.create(valueProvided, TerminologyCapabilitiesClosure);
             }
         });
 

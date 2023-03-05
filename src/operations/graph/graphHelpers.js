@@ -2,12 +2,11 @@
  * This file contains functions to retrieve a graph of data from the database
  */
 const async = require('async');
-const {getResource} = require('../common/getResource');
 const {R4SearchQueryCreator} = require('../query/r4');
 const env = require('var');
 const {getFieldNameForSearchParameter} = require('../../searchParameters/searchParameterHelpers');
 const {escapeRegExp} = require('../../utils/regexEscaper');
-const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
+const {assertTypeEquals} = require('../../utils/assertType');
 const {DatabaseQueryFactory} = require('../../dataLayer/databaseQueryFactory');
 const {SecurityTagManager} = require('../common/securityTagManager');
 const {ResourceEntityAndContained} = require('./resourceEntityAndContained');
@@ -29,6 +28,11 @@ const {VERSIONS} = require('../../middleware/fhir/utils/constants');
 const {ReferenceParser} = require('../../utils/referenceParser');
 const {QueryItem} = require('./queryItem');
 const {ProcessMultipleIdsAsyncResult} = require('./processMultipleIdsAsyncResult');
+const {FhirResourceCreator} = require('../../fhir/fhirResourceCreator');
+const GraphDefinition = require('../../fhir/classes/4_0_0/resources/graphDefinition');
+const ResourceContainer = require('../../fhir/classes/4_0_0/simple_types/resourceContainer');
+const {sliceIntoChunks} = require('../../utils/list.util');
+const {ResourceIdentifier} = require('../../fhir/resourceIdentifier');
 
 
 /**
@@ -330,6 +334,9 @@ class GraphHelper {
 
                 if (relatedResource) {
                     // create a class to hold information about this resource
+                    /**
+                     * @type {ResourceEntityAndContained}
+                     */
                     const relatedEntityAndContained = new ResourceEntityAndContained({
                         entityId: relatedResource.id,
                         entityUuid: relatedResource._uuid,
@@ -372,6 +379,9 @@ class GraphHelper {
                                     .includes(idToSearch));
                     }
                     if (matchingParentEntities.length === 0) {
+                        /**
+                         * @type {string}
+                         */
                         const parentEntitiesString = parentEntities.map(p => `${p.resource.resourceType}/${p.resource._uuid}`).toString();
                         throw new Error('Forward Reference: No match found for child entity ' +
                             `${relatedResource.resourceType}/${relatedResource._uuid} in parent entities ` +
@@ -379,7 +389,7 @@ class GraphHelper {
                     }
 
                     // add it to each one since there can be multiple resources that point to the same related resource
-                    for (const matchingParentEntity of matchingParentEntities) {
+                    for (const /** @type {EntityAndContainedBase} */ matchingParentEntity of matchingParentEntities) {
                         matchingParentEntity.containedEntries = matchingParentEntity.containedEntries.concat(relatedEntityAndContained);
                     }
                 }
@@ -746,22 +756,24 @@ class GraphHelper {
      * @param {ParsedArgs} parsedArgs
      * @return {Promise<{queryItems: QueryItem[], childEntries: EntityAndContainedBase[]}>}
      */
-    async processLinkTargetAsync({
-                                     requestInfo,
-                                     base_version,
-                                     parentResourceType,
-                                     link,
-                                     parentEntities,
-                                     explain,
-                                     debug,
-                                     target,
-                                     parsedArgs
-                                 }) {
+    async processLinkTargetAsync(
+        {
+            requestInfo,
+            base_version,
+            parentResourceType,
+            link,
+            parentEntities,
+            explain,
+            debug,
+            target,
+            parsedArgs
+        }
+    ) {
         try {
             /**
              * @type {QueryItem[]}
              */
-            const queryItems = [];
+            let queryItems = [];
             /**
              * @type {EntityAndContainedBase[]}
              */
@@ -890,15 +902,13 @@ class GraphHelper {
                  */
                 const childLinks = target.link;
                 if (childLinks) {
+                    // now recurse and process the next link in GraphDefinition
                     /**
-                     * @type {{path:string, params: string,target:[{type: string}]}}
+                     * @type {QueryItem[]}
                      */
-                    for (const childLink of childLinks) {
-                        // now recurse and process the next link in GraphDefinition
-                        /**
-                         * @type {QueryItem[]}
-                         */
-                        const recursiveQueries = await this.processOneGraphLinkAsync(
+                    const recursiveQueries = await async.flatMap(
+                        childLinks,
+                        async childLink => await this.processOneGraphLinkAsync(
                             {
                                 requestInfo,
                                 base_version,
@@ -909,11 +919,9 @@ class GraphHelper {
                                 debug,
                                 parsedArgs
                             }
-                        );
-                        for (const recursiveQuery of recursiveQueries) {
-                            queryItems.push(recursiveQuery);
-                        }
-                    }
+                        )
+                    );
+                    queryItems = queryItems.concat(recursiveQueries);
                 }
             }
             return {queryItems, childEntries};
@@ -947,16 +955,18 @@ class GraphHelper {
      * @param {ParsedArgs} parsedArgs
      * @returns {QueryItem[]}
      */
-    async processOneGraphLinkAsync({
-                                       requestInfo,
-                                       base_version,
-                                       parentResourceType,
-                                       link,
-                                       parentEntities,
-                                       explain,
-                                       debug,
-                                       parsedArgs
-                                   }) {
+    async processOneGraphLinkAsync(
+        {
+            requestInfo,
+            base_version,
+            parentResourceType,
+            link,
+            parentEntities,
+            explain,
+            debug,
+            parsedArgs
+        }
+    ) {
         try {
             /**
              * @type {{type: string}[]}
@@ -969,7 +979,14 @@ class GraphHelper {
                 link_targets,
                 async (/** @type {type: string} */ target) => await this.processLinkTargetAsync(
                     {
-                        requestInfo, base_version, parentResourceType, link, parentEntities, explain, debug, target,
+                        requestInfo,
+                        base_version,
+                        parentResourceType,
+                        link,
+                        parentEntities,
+                        explain,
+                        debug,
+                        target,
                         parsedArgs
                     }
                 )
@@ -1003,33 +1020,35 @@ class GraphHelper {
      * @param {FhirRequestInfo} requestInfo
      * @param {string} base_version
      * @param {string} parentResourceType
-     * @param {[Resource]} parentEntities
-     * @param {[{path:string, params: string,target:[{type: string}]}]} linkItems
+     * @param {Resource[]} parentResources
+     * @param {{path:string, params: string,target:{type: string}[]}[]} linkItems
      * @param {boolean} [explain]
      * @param {boolean} [debug]
      * @param {ParsedArgs} parsedArgs
      * @return {Promise<{entities: ResourceEntityAndContained[], queryItems: QueryItem[]}>}
      */
-    async processGraphLinksAsync({
-                                     requestInfo,
-                                     base_version,
-                                     parentResourceType,
-                                     parentEntities,
-                                     linkItems,
-                                     explain,
-                                     debug,
-                                     parsedArgs
-                                 }) {
+    async processGraphLinksAsync(
+        {
+            requestInfo,
+            base_version,
+            parentResourceType,
+            parentResources,
+            linkItems,
+            explain,
+            debug,
+            parsedArgs
+        }
+    ) {
         try {
             /**
              * @type {ResourceEntityAndContained[]}
              */
-            const resultEntities = parentEntities.map(parentEntity => new ResourceEntityAndContained({
-                entityId: parentEntity.id,
-                entityUuid: parentEntity._uuid,
-                entityResourceType: parentEntity.resourceType,
+            const resultEntities = parentResources.map(parentResource => new ResourceEntityAndContained({
+                entityId: parentResource.id,
+                entityUuid: parentResource._uuid,
+                entityResourceType: parentResource.resourceType,
                 includeInOutput: true,
-                resource: parentEntity,
+                resource: parentResource,
                 containedEntries: []
             }));
             /**
@@ -1055,13 +1074,13 @@ class GraphHelper {
             throw new RethrownError({
                 message: 'Error in processGraphLinksAsync(): ' +
                     `parentResourceType: ${parentResourceType} , ` +
-                    `parents:${parentEntities.map(p => p.entityId)}, `,
+                    `parents:${parentResources.map(p => p.id)}, `,
                 error: e,
                 args: {
                     requestInfo,
                     base_version,
                     parentResourceType,
-                    parentEntities,
+                    parentEntities: parentResources,
                     linkItems,
                     explain,
                     debug
@@ -1073,7 +1092,7 @@ class GraphHelper {
     /**
      * prepends # character in references
      * @param {Resource} parent_entity
-     * @param {[reference:string]} linkReferences
+     * @param {reference:string[]} linkReferences
      * @return {Promise<Resource>}
      */
     async convertToHashedReferencesAsync({parent_entity, linkReferences}) {
@@ -1113,9 +1132,17 @@ class GraphHelper {
          */
         let result = [];
         if (entityAndContained.includeInOutput) { // only include entities the caller has requested
-            result = result.concat([new BundleEntry({
-                fullUrl: entityAndContained.fullUrl, resource: entityAndContained.resource
-            })]);
+            result = result.concat(
+                [
+                    new BundleEntry(
+                        {
+                            id: entityAndContained.resource.id,
+                            fullUrl: entityAndContained.fullUrl,
+                            resource: entityAndContained.resource
+                        }
+                    )
+                ]
+            );
         }
 
         // now recurse
@@ -1133,6 +1160,8 @@ class GraphHelper {
      * @param {boolean} [explain]
      * @param {boolean} [debug]
      * @param {ParsedArgs} parsedArgs
+     * @param {BaseResponseStreamer|undefined} [responseStreamer]
+     * @param {ResourceIdentifier[]} idsAlreadyProcessed
      * @return {Promise<ProcessMultipleIdsAsyncResult>}
      */
     async processMultipleIdsAsync(
@@ -1144,7 +1173,9 @@ class GraphHelper {
             contained,
             explain,
             debug,
-            parsedArgs
+            parsedArgs,
+            responseStreamer,
+            idsAlreadyProcessed
         }
     ) {
         assertTypeEquals(parsedArgs, ParsedArgs);
@@ -1237,6 +1268,7 @@ class GraphHelper {
                      * @type {BundleEntry}
                      */
                     let current_entity = new BundleEntry({
+                        id: startResource.id,
                         resource: startResource
                     });
                     entries = entries.concat([current_entity]);
@@ -1245,7 +1277,12 @@ class GraphHelper {
             }
 
             /**
-             * @type {[{path:string, params: string,target:[{type: string}]}]}
+             * @type {Resource[]}
+             */
+            const parentResources = topLevelBundleEntries.map(e => e.resource);
+
+            /**
+             * @type {{path:string, params: string,target:{type: string}[]}[]}
              */
             const linkItems = graphDefinition.link;
             /**
@@ -1256,7 +1293,7 @@ class GraphHelper {
                     requestInfo,
                     base_version,
                     parentResourceType: resourceType,
-                    parentEntities: topLevelBundleEntries.map(e => e.resource),
+                    parentResources,
                     linkItems,
                     explain,
                     debug,
@@ -1275,56 +1312,126 @@ class GraphHelper {
                 }
             }
 
-            // add contained objects under the parent resource
-            for (const /** @type {BundleEntry} */ topLevelBundleEntry of topLevelBundleEntries) {
-                // add related resources as container
+            /**
+             * @type {ResourceIdentifier[]}
+             */
+            const idsOfBundleEntriesProcessed = idsAlreadyProcessed;
+            for (const /** @type {ResourceEntityAndContained} */ entity of allRelatedEntries) {
                 /**
-                 * @type {ResourceEntityAndContained}
+                 * @type {Resource}
                  */
-                let matchingEntity = allRelatedEntries.find(
-                    e => e.entityUuid === topLevelBundleEntry.resource._uuid &&
-                        e.entityResourceType === topLevelBundleEntry.resource.resourceType
-                );
-                if (this.configManager.supportLegacyIds && !matchingEntity) {
-                    matchingEntity = allRelatedEntries.find(
-                        e => (
-                                this.configManager.supportLegacyIds && e.entityId === topLevelBundleEntry.resource.id
-                            ) &&
-                            e.entityResourceType === topLevelBundleEntry.resource.resourceType
-                    );
-                }
-                assertIsValid(matchingEntity,
-                    'No matching entity found in graph for ' +
-                    `${topLevelBundleEntry.resource.resourceType}/${topLevelBundleEntry.resource.id}`);
-                /**
-                 * @type {[EntityAndContainedBase]}
-                 */
-                const related_entries = matchingEntity.containedEntries;
+                const topLevelResource = entity.resource;
                 /**
                  * @type {BundleEntry[]}
                  */
-                const relatedEntities = related_entries
-                    .flatMap(r => this.getRecursiveContainedEntities(r))
-                    .filter(r => r.resource !== undefined && r.resource !== null);
+                let bundleEntriesForTopLevelResource = [];
+                /**
+                 * @type {BundleEntry}
+                 */
+                const bundleEntry = new BundleEntry({
+                    id: topLevelResource.id,
+                    resource: topLevelResource
+                });
+                bundleEntriesForTopLevelResource.push(bundleEntry);
+                bundleEntriesForTopLevelResource = await this.enrichmentManager.enrichBundleEntriesAsync(
+                    {
+                        entries: bundleEntriesForTopLevelResource,
+                        parsedArgs
+                    }
+                );
 
-                if (contained) {
-                    if (relatedEntities.length > 0) {
-                        topLevelBundleEntry['resource']['contained'] = relatedEntities.map(r => r.resource);
+                if (entity.containedEntries.length > 0) {
+                    /**
+                     * @type {BundleEntry[]}
+                     */
+                    const recursiveEntries = entity.containedEntries.flatMap(
+                        e => this.getRecursiveContainedEntities(
+                            e
+                        )
+                    );
+
+                    if (contained) {
+                        /**
+                         * @type {Resource[]}
+                         */
+                        let containedResources = recursiveEntries.map(e => e.resource);
+                        containedResources = await this.enrichmentManager.enrichAsync(
+                            {
+                                resources: containedResources,
+                                parsedArgs
+                            }
+                        );
+                        topLevelResource.contained = containedResources;
+                        // enrich again now that we've changed the resource
+                        bundleEntriesForTopLevelResource = await this.enrichmentManager.enrichBundleEntriesAsync(
+                            {
+                                entries: bundleEntriesForTopLevelResource,
+                                parsedArgs
+                            }
+                        );
+                    } else {
+                        bundleEntriesForTopLevelResource = bundleEntriesForTopLevelResource.concat(recursiveEntries);
+                        // enrich again now that we've added new entries to bundle
+                        bundleEntriesForTopLevelResource = await this.enrichmentManager.enrichBundleEntriesAsync(
+                            {
+                                entries: bundleEntriesForTopLevelResource,
+                                parsedArgs
+                            }
+                        );
+                    }
+                }
+                /**
+                 * @type {string[]}
+                 */
+                const accessCodes = this.scopesManager.getAccessCodesFromScopes('read', requestInfo.user, requestInfo.scope);
+                bundleEntriesForTopLevelResource = bundleEntriesForTopLevelResource.filter(
+                    e => this.scopesManager.doesResourceHaveAnyAccessCodeFromThisList(
+                        accessCodes, requestInfo.user, requestInfo.scope, e.resource
+                    )
+                );
+
+                if (responseStreamer) {
+                    for (const bundleEntry1 of bundleEntriesForTopLevelResource) {
+                        const resourceIdentifier = new ResourceIdentifier(bundleEntry1.resource);
+
+                        if (!idsOfBundleEntriesProcessed.some(i => i.equals(resourceIdentifier))) {
+                            await responseStreamer.writeBundleEntryAsync(
+                                {
+                                    bundleEntry: bundleEntry1
+                                }
+                            );
+                            idsOfBundleEntriesProcessed.push(resourceIdentifier);
+                        }
                     }
                 } else {
-                    entries = entries.concat(relatedEntities);
+                    for (const bundleEntry1 of bundleEntriesForTopLevelResource) {
+                        const resourceIdentifier = new ResourceIdentifier(bundleEntry1.resource);
+
+                        if (!idsOfBundleEntriesProcessed.some(i => i.equals(resourceIdentifier))) {
+                            entries.push(bundleEntry1);
+                            idsOfBundleEntriesProcessed.push(resourceIdentifier);
+                        }
+                    }
                 }
             }
 
-            entries = await this.enrichmentManager.enrichBundleEntriesAsync({
-                    entries, parsedArgs
-                }
-            );
-            entries = this.bundleManager.removeDuplicateEntries({entries});
+            /**
+             * @type {ResourceIdentifier[]}
+             */
+            const bundleEntryIdsProcessed = entries.map(e => new ResourceIdentifier(e.resource));
+            if (responseStreamer) {
+                entries = [];
+            } else {
+                entries = this.bundleManager.removeDuplicateEntries({entries});
+            }
 
             return new ProcessMultipleIdsAsyncResult(
                 {
-                    entries, queryItems: queries, options: optionsForQueries, explanations
+                    entries,
+                    queryItems: queries,
+                    options: optionsForQueries,
+                    explanations,
+                    bundleEntryIdsProcessed
                 }
             );
         } catch (e) {
@@ -1344,6 +1451,7 @@ class GraphHelper {
             });
         }
     }
+
 
     /**
      * process GraphDefinition and returns a bundle with all the related resources
@@ -1374,90 +1482,112 @@ class GraphHelper {
              */
             const startTime = Date.now();
             /**
-             * @type {function(?Object): Resource}
-             */
-            const GraphDefinitionResource = getResource(base_version, 'GraphDefinition');
-            /**
              * @type {Resource}
              */
-            const graphDefinition = new GraphDefinitionResource(graphDefinitionJson);
+            const graphDefinition = FhirResourceCreator.create(graphDefinitionJson, GraphDefinition);
+            assertTypeEquals(graphDefinition, GraphDefinition);
 
+
+            // see if the count of ids is greater than batch size
             /**
-             * @type {ProcessMultipleIdsAsyncResult}
+             * @type {ParsedArgsItem}
              */
-            const {entries, queryItems, options, explanations} = await this.processMultipleIdsAsync(
-                {
-                    base_version,
-                    requestInfo,
-                    resourceType,
-                    graphDefinition,
-                    contained,
-                    explain: parsedArgs['_explain'] ? true : false,
-                    debug: parsedArgs['_debug'] ? true : false,
-                    parsedArgs
-                }
-            );
-
-            // remove duplicate resources
-            /**
-             * @type {BundleEntry[]}
-             */
-            let uniqueEntries = this.bundleManager.removeDuplicateEntries({entries});
-
+            const idParsedArg = parsedArgs.get('id') || parsedArgs.get('_id');
             /**
              * @type {string[]}
              */
-            const accessCodes = this.scopesManager.getAccessCodesFromScopes('read', requestInfo.user, requestInfo.scope);
-            uniqueEntries = uniqueEntries.filter(e => this.scopesManager.doesResourceHaveAnyAccessCodeFromThisList(accessCodes, requestInfo.user, requestInfo.scope, e.resource));
+            const ids = idParsedArg.queryParameterValues;
+            /**
+             * @type {string[][]}
+             */
+            const idChunks = sliceIntoChunks(ids, this.configManager.graphBatchSize);
 
+            /**
+             * @type {BundleEntry[]}
+             */
+            let entries = [];
+            /**
+             * @type {QueryItem[]}
+             */
+            let queryItems = [];
+            /**
+             * @type {import('mongodb').FindOptions<import('mongodb').DefaultSchema>[]}
+             */
+            let options = [];
+            /**
+             * @type {import('mongodb').Document[]}
+             */
+            let explanations = [];
+
+            /**
+             * @type {ResourceIdentifier[]}
+             */
+            let bundleEntryIdsProcessed = [];
+
+            for (const /** @type {string[]} */ idChunk of idChunks) {
+                const parsedArgsForChunk = parsedArgs.clone();
+                parsedArgsForChunk.id = idChunk;
+                /**
+                 * @type {ProcessMultipleIdsAsyncResult}
+                 */
+                const {
+                    entries: entries1,
+                    queryItems: queryItems1,
+                    options: options1,
+                    explanations: explanations1,
+                    bundleEntryIdsProcessed: bundleEntryIdsProcessed1
+                } = await this.processMultipleIdsAsync(
+                    {
+                        base_version,
+                        requestInfo,
+                        resourceType,
+                        graphDefinition,
+                        contained,
+                        explain: parsedArgs['_explain'] ? true : false,
+                        debug: parsedArgs['_debug'] ? true : false,
+                        parsedArgs: parsedArgsForChunk,
+                        responseStreamer,
+                        idsAlreadyProcessed: bundleEntryIdsProcessed
+                    }
+                );
+                entries = entries.concat(entries1);
+                queryItems = queryItems.concat(queryItems1);
+                options = options.concat(options1);
+                explanations = explanations.concat(explanations1);
+                bundleEntryIdsProcessed = bundleEntryIdsProcessed.concat(bundleEntryIdsProcessed1);
+            }
             /**
              * @type {number}
              */
             const stopTime = Date.now();
+
             /**
              * @type {Resource[]}
              */
-            const resources = uniqueEntries.map(bundleEntry => bundleEntry.resource);
-
-            await this.enrichmentManager.enrichAsync({
-                    resources: resources, parsedArgs
-                }
-            );
-
-            if (responseStreamer) {
-                for (const resource of resources) {
-                    await responseStreamer.writeBundleEntryAsync({
-                        bundleEntry: new BundleEntry({
-                                id: resource._uuid,
-                                resource
-                            }
-                        )
-                    });
-                }
-            }
+            const resources = entries.map(bundleEntry => bundleEntry.resource);
 
             /**
              * @type {Bundle}
              */
-            const bundle = this.bundleManager.createBundle({
-                type: 'searchset',
-                requestId: requestInfo.requestId,
-                originalUrl: requestInfo.originalUrl,
-                host: requestInfo.host,
-                protocol: requestInfo.protocol,
-                last_id: null,
-                resources,
-                base_version,
-                total_count: null,
-                parsedArgs,
-                originalQuery: queryItems,
-                originalOptions: options,
-                columns: new Set(),
-                stopTime,
-                startTime,
-                user: requestInfo.user,
-                explanations
-            });
+            const bundle = this.bundleManager.createBundle(
+                {
+                    type: 'searchset',
+                    requestId: requestInfo.requestId,
+                    originalUrl: requestInfo.originalUrl,
+                    host: requestInfo.host,
+                    protocol: requestInfo.protocol,
+                    resources,
+                    base_version,
+                    parsedArgs,
+                    originalQuery: queryItems,
+                    originalOptions: options,
+                    columns: new Set(),
+                    stopTime,
+                    startTime,
+                    user: requestInfo.user,
+                    explanations
+                }
+            );
             if (responseStreamer) {
                 responseStreamer.setBundle({bundle});
             }
@@ -1560,13 +1690,12 @@ class GraphHelper {
                 // for testing with delay
                 // await new Promise(r => setTimeout(r, 10000));
 
-                const ResourceCreator = getResource(base_version, resultResourceType);
                 const bundleEntry = new BundleEntry({
                     id: resource.id,
-                    resource: new ResourceCreator({
+                    resource: FhirResourceCreator.create({
                         id: resource.id,
                         resourceType: resultResourceType
-                    }),
+                    }, ResourceContainer),
                     request: new BundleRequest(
                         {
                             id: requestInfo.requestId,

@@ -102,7 +102,8 @@ class Practitioner extends Resource {
                     return;
                 }
                 const Meta = require('../complex_types/meta.js');
-                this.__data.meta = new Meta(valueProvided);
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.meta = FhirResourceCreator.create(valueProvided, Meta);
             }
         });
 
@@ -165,7 +166,8 @@ class Practitioner extends Resource {
                     return;
                 }
                 const Narrative = require('../complex_types/narrative.js');
-                this.__data.text = new Narrative(valueProvided);
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.text = FhirResourceCreator.create(valueProvided, Narrative);
             }
         });
 
@@ -186,16 +188,8 @@ class Practitioner extends Resource {
                     return;
                 }
                 const ResourceContainer = require('../simple_types/resourceContainer.js');
-                const {getResource} = require('../../../../operations/common/getResource');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.contained = valueProvided.filter(v => v).map(v => {
-                        const ResourceCreator = getResource('4_0_0', v.resourceType);
-                        return new ResourceCreator(v);
-                    });
-                } else {
-                const ResourceCreator = getResource('4_0_0', valueProvided.resourceType);
-                this.__data.contained = [new ResourceCreator(valueProvided)];
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.contained = FhirResourceCreator.createArray(valueProvided);
             }
         });
 
@@ -218,7 +212,8 @@ class Practitioner extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -249,7 +244,8 @@ class Practitioner extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -268,7 +264,8 @@ class Practitioner extends Resource {
                     return;
                 }
                 const Identifier = require('../complex_types/identifier.js');
-                this.__data.identifier = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Identifier(v)) : [new Identifier(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.identifier = FhirResourceCreator.createArray(valueProvided, Identifier);
             }
         });
 
@@ -305,7 +302,8 @@ class Practitioner extends Resource {
                     return;
                 }
                 const HumanName = require('../complex_types/humanName.js');
-                this.__data.name = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new HumanName(v)) : [new HumanName(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.name = FhirResourceCreator.createArray(valueProvided, HumanName);
             }
         });
 
@@ -325,7 +323,8 @@ class Practitioner extends Resource {
                     return;
                 }
                 const ContactPoint = require('../complex_types/contactPoint.js');
-                this.__data.telecom = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ContactPoint(v)) : [new ContactPoint(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.telecom = FhirResourceCreator.createArray(valueProvided, ContactPoint);
             }
         });
 
@@ -347,7 +346,8 @@ class Practitioner extends Resource {
                     return;
                 }
                 const Address = require('../complex_types/address.js');
-                this.__data.address = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Address(v)) : [new Address(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.address = FhirResourceCreator.createArray(valueProvided, Address);
             }
         });
 
@@ -403,7 +403,8 @@ class Practitioner extends Resource {
                     return;
                 }
                 const Attachment = require('../complex_types/attachment.js');
-                this.__data.photo = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Attachment(v)) : [new Attachment(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.photo = FhirResourceCreator.createArray(valueProvided, Attachment);
             }
         });
 
@@ -425,7 +426,8 @@ class Practitioner extends Resource {
                     return;
                 }
                 const PractitionerQualification = require('../backbone_elements/practitionerQualification.js');
-                this.__data.qualification = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new PractitionerQualification(v)) : [new PractitionerQualification(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.qualification = FhirResourceCreator.createArray(valueProvided, PractitionerQualification);
             }
         });
 
@@ -444,7 +446,8 @@ class Practitioner extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.communication = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.communication = FhirResourceCreator.createArray(valueProvided, CodeableConcept);
             }
         });
 

@@ -25,7 +25,7 @@ function checkReferenceValue(referenceObj, path) {
 
 /**
  * Validate if the references in a resource object/array are valid or not
- * @param {Object} resourceObj
+ * @param {Resource} resourceObj
  * @param {string} path
  * @returns {*[]}
  */

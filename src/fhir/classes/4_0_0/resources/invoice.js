@@ -114,7 +114,8 @@ class Invoice extends Resource {
                     return;
                 }
                 const Meta = require('../complex_types/meta.js');
-                this.__data.meta = new Meta(valueProvided);
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.meta = FhirResourceCreator.create(valueProvided, Meta);
             }
         });
 
@@ -177,7 +178,8 @@ class Invoice extends Resource {
                     return;
                 }
                 const Narrative = require('../complex_types/narrative.js');
-                this.__data.text = new Narrative(valueProvided);
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.text = FhirResourceCreator.create(valueProvided, Narrative);
             }
         });
 
@@ -198,16 +200,8 @@ class Invoice extends Resource {
                     return;
                 }
                 const ResourceContainer = require('../simple_types/resourceContainer.js');
-                const {getResource} = require('../../../../operations/common/getResource');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.contained = valueProvided.filter(v => v).map(v => {
-                        const ResourceCreator = getResource('4_0_0', v.resourceType);
-                        return new ResourceCreator(v);
-                    });
-                } else {
-                const ResourceCreator = getResource('4_0_0', valueProvided.resourceType);
-                this.__data.contained = [new ResourceCreator(valueProvided)];
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.contained = FhirResourceCreator.createArray(valueProvided);
             }
         });
 
@@ -230,7 +224,8 @@ class Invoice extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -261,7 +256,8 @@ class Invoice extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -281,7 +277,8 @@ class Invoice extends Resource {
                     return;
                 }
                 const Identifier = require('../complex_types/identifier.js');
-                this.__data.identifier = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Identifier(v)) : [new Identifier(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.identifier = FhirResourceCreator.createArray(valueProvided, Identifier);
             }
         });
 
@@ -338,7 +335,8 @@ class Invoice extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.type = new CodeableConcept(valueProvided);
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.type = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
 
@@ -358,7 +356,8 @@ class Invoice extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.subject = new Reference(valueProvided);
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.subject = FhirResourceCreator.create(valueProvided, Reference);
             }
         });
 
@@ -377,7 +376,8 @@ class Invoice extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.recipient = new Reference(valueProvided);
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.recipient = FhirResourceCreator.create(valueProvided, Reference);
             }
         });
 
@@ -414,7 +414,8 @@ class Invoice extends Resource {
                     return;
                 }
                 const InvoiceParticipant = require('../backbone_elements/invoiceParticipant.js');
-                this.__data.participant = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new InvoiceParticipant(v)) : [new InvoiceParticipant(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.participant = FhirResourceCreator.createArray(valueProvided, InvoiceParticipant);
             }
         });
 
@@ -433,7 +434,8 @@ class Invoice extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.issuer = new Reference(valueProvided);
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.issuer = FhirResourceCreator.create(valueProvided, Reference);
             }
         });
 
@@ -452,7 +454,8 @@ class Invoice extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.account = new Reference(valueProvided);
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.account = FhirResourceCreator.create(valueProvided, Reference);
             }
         });
 
@@ -472,7 +475,8 @@ class Invoice extends Resource {
                     return;
                 }
                 const InvoiceLineItem = require('../backbone_elements/invoiceLineItem.js');
-                this.__data.lineItem = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new InvoiceLineItem(v)) : [new InvoiceLineItem(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.lineItem = FhirResourceCreator.createArray(valueProvided, InvoiceLineItem);
             }
         });
 
@@ -494,7 +498,8 @@ class Invoice extends Resource {
                     return;
                 }
                 const InvoicePriceComponent = require('../backbone_elements/invoicePriceComponent.js');
-                this.__data.totalPriceComponent = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new InvoicePriceComponent(v)) : [new InvoicePriceComponent(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.totalPriceComponent = FhirResourceCreator.createArray(valueProvided, InvoicePriceComponent);
             }
         });
 
@@ -513,7 +518,8 @@ class Invoice extends Resource {
                     return;
                 }
                 const Money = require('../complex_types/money.js');
-                this.__data.totalNet = new Money(valueProvided);
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.totalNet = FhirResourceCreator.create(valueProvided, Money);
             }
         });
 
@@ -532,7 +538,8 @@ class Invoice extends Resource {
                     return;
                 }
                 const Money = require('../complex_types/money.js');
-                this.__data.totalGross = new Money(valueProvided);
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.totalGross = FhirResourceCreator.create(valueProvided, Money);
             }
         });
 
@@ -570,7 +577,8 @@ class Invoice extends Resource {
                     return;
                 }
                 const Annotation = require('../complex_types/annotation.js');
-                this.__data.note = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Annotation(v)) : [new Annotation(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.note = FhirResourceCreator.createArray(valueProvided, Annotation);
             }
         });
 

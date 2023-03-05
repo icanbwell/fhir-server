@@ -134,7 +134,8 @@ class FamilyMemberHistory extends Resource {
                     return;
                 }
                 const Meta = require('../complex_types/meta.js');
-                this.__data.meta = new Meta(valueProvided);
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.meta = FhirResourceCreator.create(valueProvided, Meta);
             }
         });
 
@@ -197,7 +198,8 @@ class FamilyMemberHistory extends Resource {
                     return;
                 }
                 const Narrative = require('../complex_types/narrative.js');
-                this.__data.text = new Narrative(valueProvided);
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.text = FhirResourceCreator.create(valueProvided, Narrative);
             }
         });
 
@@ -218,16 +220,8 @@ class FamilyMemberHistory extends Resource {
                     return;
                 }
                 const ResourceContainer = require('../simple_types/resourceContainer.js');
-                const {getResource} = require('../../../../operations/common/getResource');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.contained = valueProvided.filter(v => v).map(v => {
-                        const ResourceCreator = getResource('4_0_0', v.resourceType);
-                        return new ResourceCreator(v);
-                    });
-                } else {
-                const ResourceCreator = getResource('4_0_0', valueProvided.resourceType);
-                this.__data.contained = [new ResourceCreator(valueProvided)];
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.contained = FhirResourceCreator.createArray(valueProvided);
             }
         });
 
@@ -250,7 +244,8 @@ class FamilyMemberHistory extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -281,7 +276,8 @@ class FamilyMemberHistory extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -302,7 +298,8 @@ class FamilyMemberHistory extends Resource {
                     return;
                 }
                 const Identifier = require('../complex_types/identifier.js');
-                this.__data.identifier = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Identifier(v)) : [new Identifier(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.identifier = FhirResourceCreator.createArray(valueProvided, Identifier);
             }
         });
 
@@ -379,7 +376,8 @@ class FamilyMemberHistory extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.dataAbsentReason = new CodeableConcept(valueProvided);
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.dataAbsentReason = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
 
@@ -398,7 +396,8 @@ class FamilyMemberHistory extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.patient = new Reference(valueProvided);
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.patient = FhirResourceCreator.create(valueProvided, Reference);
             }
         });
 
@@ -456,7 +455,8 @@ class FamilyMemberHistory extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.relationship = new CodeableConcept(valueProvided);
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.relationship = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
 
@@ -475,7 +475,8 @@ class FamilyMemberHistory extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.sex = new CodeableConcept(valueProvided);
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.sex = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
 
@@ -494,7 +495,8 @@ class FamilyMemberHistory extends Resource {
                     return;
                 }
                 const Period = require('../complex_types/period.js');
-                this.__data.bornPeriod = new Period(valueProvided);
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.bornPeriod = FhirResourceCreator.create(valueProvided, Period);
             }
         });
 
@@ -549,7 +551,8 @@ class FamilyMemberHistory extends Resource {
                     return;
                 }
                 const Quantity = require('../complex_types/quantity.js');
-                this.__data.ageAge = new Quantity(valueProvided);
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.ageAge = FhirResourceCreator.create(valueProvided, Quantity);
             }
         });
 
@@ -568,7 +571,8 @@ class FamilyMemberHistory extends Resource {
                     return;
                 }
                 const Range = require('../complex_types/range.js');
-                this.__data.ageRange = new Range(valueProvided);
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.ageRange = FhirResourceCreator.create(valueProvided, Range);
             }
         });
 
@@ -641,7 +645,8 @@ class FamilyMemberHistory extends Resource {
                     return;
                 }
                 const Quantity = require('../complex_types/quantity.js');
-                this.__data.deceasedAge = new Quantity(valueProvided);
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.deceasedAge = FhirResourceCreator.create(valueProvided, Quantity);
             }
         });
 
@@ -660,7 +665,8 @@ class FamilyMemberHistory extends Resource {
                     return;
                 }
                 const Range = require('../complex_types/range.js');
-                this.__data.deceasedRange = new Range(valueProvided);
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.deceasedRange = FhirResourceCreator.create(valueProvided, Range);
             }
         });
 
@@ -715,7 +721,8 @@ class FamilyMemberHistory extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.reasonCode = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.reasonCode = FhirResourceCreator.createArray(valueProvided, CodeableConcept);
             }
         });
 
@@ -735,7 +742,8 @@ class FamilyMemberHistory extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.reasonReference = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.reasonReference = FhirResourceCreator.createArray(valueProvided, Reference);
             }
         });
 
@@ -756,7 +764,8 @@ class FamilyMemberHistory extends Resource {
                     return;
                 }
                 const Annotation = require('../complex_types/annotation.js');
-                this.__data.note = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Annotation(v)) : [new Annotation(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.note = FhirResourceCreator.createArray(valueProvided, Annotation);
             }
         });
 
@@ -778,7 +787,8 @@ class FamilyMemberHistory extends Resource {
                     return;
                 }
                 const FamilyMemberHistoryCondition = require('../backbone_elements/familyMemberHistoryCondition.js');
-                this.__data.condition = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new FamilyMemberHistoryCondition(v)) : [new FamilyMemberHistoryCondition(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.condition = FhirResourceCreator.createArray(valueProvided, FamilyMemberHistoryCondition);
             }
         });
 

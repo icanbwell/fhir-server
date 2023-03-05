@@ -2,9 +2,13 @@
 const person1Resource = require('./fixtures/Person/person1.json');
 const person2Resource = require('./fixtures/Person/person2.json');
 
+const patient1Resource = require('./fixtures/Patient/patient1.json');
+
 // expected
 const expectedPerson1DatabaseBeforeRun = require('./fixtures/expected/expected_person1_in_database_before_run.json');
 const expectedPerson2DatabaseBeforeRun = require('./fixtures/expected/expected_person2_in_database_before_run.json');
+const expectedPatient1DatabaseBeforeRun = require('./fixtures/expected/expected_patient1_in_database_before_run.json');
+
 const expectedPerson1DatabaseAfterRun = require('./fixtures/expected/expected_person1.json');
 
 const {
@@ -32,10 +36,11 @@ class MockConfigManagerWithoutGlobalId extends ConfigManager {
     }
 }
 
-async function setupDatabaseAsync(mongoDatabaseManager, personResource, expectedPersonInDatabase) {
+async function setupDatabaseAsync(mongoDatabaseManager, personResource, expectedPersonInDatabase,
+                                  collectionName) {
     const fhirDb = await mongoDatabaseManager.getClientDbAsync();
 
-    const collection = fhirDb.collection('Person_4_0_0');
+    const collection = fhirDb.collection(collectionName);
     await collection.insertOne(personResource);
 
     // ACT & ASSERT
@@ -83,10 +88,16 @@ describe('Person Tests', () => {
              */
             const mongoDatabaseManager = container.mongoDatabaseManager;
             const collection = await setupDatabaseAsync(
-                mongoDatabaseManager, person1Resource, expectedPerson1DatabaseBeforeRun
+                mongoDatabaseManager, person1Resource, expectedPerson1DatabaseBeforeRun,
+                'Person_4_0_0'
             );
             await setupDatabaseAsync(
-                mongoDatabaseManager, person2Resource, expectedPerson2DatabaseBeforeRun
+                mongoDatabaseManager, person2Resource, expectedPerson2DatabaseBeforeRun,
+                'Person_4_0_0'
+            );
+            await setupDatabaseAsync(
+                mongoDatabaseManager, patient1Resource, expectedPatient1DatabaseBeforeRun,
+                'Patient_4_0_0'
             );
 
             // run admin runner
@@ -106,7 +117,12 @@ describe('Person Tests', () => {
                         adminLogger: new AdminLogger(),
                         mongoDatabaseManager: c.mongoDatabaseManager,
                         preSaveManager: c.preSaveManager,
-                        databaseQueryFactory: c.databaseQueryFactory
+                        databaseQueryFactory: c.databaseQueryFactory,
+                        resourceLocatorFactory: c.resourceLocatorFactory,
+                        preloadCollections: [
+                            'Person_4_0_0',
+                            'Patient_4_0_0'
+                        ]
                     }
                 )
             );

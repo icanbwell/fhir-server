@@ -125,7 +125,8 @@ class MedicationKnowledge extends Resource {
                     return;
                 }
                 const Meta = require('../complex_types/meta.js');
-                this.__data.meta = new Meta(valueProvided);
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.meta = FhirResourceCreator.create(valueProvided, Meta);
             }
         });
 
@@ -188,7 +189,8 @@ class MedicationKnowledge extends Resource {
                     return;
                 }
                 const Narrative = require('../complex_types/narrative.js');
-                this.__data.text = new Narrative(valueProvided);
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.text = FhirResourceCreator.create(valueProvided, Narrative);
             }
         });
 
@@ -209,16 +211,8 @@ class MedicationKnowledge extends Resource {
                     return;
                 }
                 const ResourceContainer = require('../simple_types/resourceContainer.js');
-                const {getResource} = require('../../../../operations/common/getResource');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.contained = valueProvided.filter(v => v).map(v => {
-                        const ResourceCreator = getResource('4_0_0', v.resourceType);
-                        return new ResourceCreator(v);
-                    });
-                } else {
-                const ResourceCreator = getResource('4_0_0', valueProvided.resourceType);
-                this.__data.contained = [new ResourceCreator(valueProvided)];
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.contained = FhirResourceCreator.createArray(valueProvided);
             }
         });
 
@@ -241,7 +235,8 @@ class MedicationKnowledge extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -272,7 +267,8 @@ class MedicationKnowledge extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -294,7 +290,8 @@ class MedicationKnowledge extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.code = new CodeableConcept(valueProvided);
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.code = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
 
@@ -334,7 +331,8 @@ class MedicationKnowledge extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.manufacturer = new Reference(valueProvided);
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.manufacturer = FhirResourceCreator.create(valueProvided, Reference);
             }
         });
 
@@ -353,7 +351,8 @@ class MedicationKnowledge extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.doseForm = new CodeableConcept(valueProvided);
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.doseForm = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
 
@@ -375,7 +374,8 @@ class MedicationKnowledge extends Resource {
                     return;
                 }
                 const Quantity = require('../complex_types/quantity.js');
-                this.__data.amount = new Quantity(valueProvided);
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.amount = FhirResourceCreator.create(valueProvided, Quantity);
             }
         });
 
@@ -414,7 +414,8 @@ class MedicationKnowledge extends Resource {
                     return;
                 }
                 const MedicationKnowledgeRelatedMedicationKnowledge = require('../backbone_elements/medicationKnowledgeRelatedMedicationKnowledge.js');
-                this.__data.relatedMedicationKnowledge = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new MedicationKnowledgeRelatedMedicationKnowledge(v)) : [new MedicationKnowledgeRelatedMedicationKnowledge(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.relatedMedicationKnowledge = FhirResourceCreator.createArray(valueProvided, MedicationKnowledgeRelatedMedicationKnowledge);
             }
         });
 
@@ -436,7 +437,8 @@ class MedicationKnowledge extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.associatedMedication = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.associatedMedication = FhirResourceCreator.createArray(valueProvided, Reference);
             }
         });
 
@@ -456,7 +458,8 @@ class MedicationKnowledge extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.productType = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.productType = FhirResourceCreator.createArray(valueProvided, CodeableConcept);
             }
         });
 
@@ -475,7 +478,8 @@ class MedicationKnowledge extends Resource {
                     return;
                 }
                 const MedicationKnowledgeMonograph = require('../backbone_elements/medicationKnowledgeMonograph.js');
-                this.__data.monograph = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new MedicationKnowledgeMonograph(v)) : [new MedicationKnowledgeMonograph(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.monograph = FhirResourceCreator.createArray(valueProvided, MedicationKnowledgeMonograph);
             }
         });
 
@@ -494,7 +498,8 @@ class MedicationKnowledge extends Resource {
                     return;
                 }
                 const MedicationKnowledgeIngredient = require('../backbone_elements/medicationKnowledgeIngredient.js');
-                this.__data.ingredient = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new MedicationKnowledgeIngredient(v)) : [new MedicationKnowledgeIngredient(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.ingredient = FhirResourceCreator.createArray(valueProvided, MedicationKnowledgeIngredient);
             }
         });
 
@@ -531,7 +536,8 @@ class MedicationKnowledge extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.intendedRoute = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.intendedRoute = FhirResourceCreator.createArray(valueProvided, CodeableConcept);
             }
         });
 
@@ -550,7 +556,8 @@ class MedicationKnowledge extends Resource {
                     return;
                 }
                 const MedicationKnowledgeCost = require('../backbone_elements/medicationKnowledgeCost.js');
-                this.__data.cost = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new MedicationKnowledgeCost(v)) : [new MedicationKnowledgeCost(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.cost = FhirResourceCreator.createArray(valueProvided, MedicationKnowledgeCost);
             }
         });
 
@@ -569,7 +576,8 @@ class MedicationKnowledge extends Resource {
                     return;
                 }
                 const MedicationKnowledgeMonitoringProgram = require('../backbone_elements/medicationKnowledgeMonitoringProgram.js');
-                this.__data.monitoringProgram = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new MedicationKnowledgeMonitoringProgram(v)) : [new MedicationKnowledgeMonitoringProgram(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.monitoringProgram = FhirResourceCreator.createArray(valueProvided, MedicationKnowledgeMonitoringProgram);
             }
         });
 
@@ -588,7 +596,8 @@ class MedicationKnowledge extends Resource {
                     return;
                 }
                 const MedicationKnowledgeAdministrationGuidelines = require('../backbone_elements/medicationKnowledgeAdministrationGuidelines.js');
-                this.__data.administrationGuidelines = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new MedicationKnowledgeAdministrationGuidelines(v)) : [new MedicationKnowledgeAdministrationGuidelines(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.administrationGuidelines = FhirResourceCreator.createArray(valueProvided, MedicationKnowledgeAdministrationGuidelines);
             }
         });
 
@@ -607,7 +616,8 @@ class MedicationKnowledge extends Resource {
                     return;
                 }
                 const MedicationKnowledgeMedicineClassification = require('../backbone_elements/medicationKnowledgeMedicineClassification.js');
-                this.__data.medicineClassification = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new MedicationKnowledgeMedicineClassification(v)) : [new MedicationKnowledgeMedicineClassification(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.medicineClassification = FhirResourceCreator.createArray(valueProvided, MedicationKnowledgeMedicineClassification);
             }
         });
 
@@ -626,7 +636,8 @@ class MedicationKnowledge extends Resource {
                     return;
                 }
                 const MedicationKnowledgePackaging = require('../backbone_elements/medicationKnowledgePackaging.js');
-                this.__data.packaging = new MedicationKnowledgePackaging(valueProvided);
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.packaging = FhirResourceCreator.create(valueProvided, MedicationKnowledgePackaging);
             }
         });
 
@@ -646,7 +657,8 @@ class MedicationKnowledge extends Resource {
                     return;
                 }
                 const MedicationKnowledgeDrugCharacteristic = require('../backbone_elements/medicationKnowledgeDrugCharacteristic.js');
-                this.__data.drugCharacteristic = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new MedicationKnowledgeDrugCharacteristic(v)) : [new MedicationKnowledgeDrugCharacteristic(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.drugCharacteristic = FhirResourceCreator.createArray(valueProvided, MedicationKnowledgeDrugCharacteristic);
             }
         });
 
@@ -666,7 +678,8 @@ class MedicationKnowledge extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.contraindication = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.contraindication = FhirResourceCreator.createArray(valueProvided, Reference);
             }
         });
 
@@ -685,7 +698,8 @@ class MedicationKnowledge extends Resource {
                     return;
                 }
                 const MedicationKnowledgeRegulatory = require('../backbone_elements/medicationKnowledgeRegulatory.js');
-                this.__data.regulatory = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new MedicationKnowledgeRegulatory(v)) : [new MedicationKnowledgeRegulatory(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.regulatory = FhirResourceCreator.createArray(valueProvided, MedicationKnowledgeRegulatory);
             }
         });
 
@@ -705,7 +719,8 @@ class MedicationKnowledge extends Resource {
                     return;
                 }
                 const MedicationKnowledgeKinetics = require('../backbone_elements/medicationKnowledgeKinetics.js');
-                this.__data.kinetics = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new MedicationKnowledgeKinetics(v)) : [new MedicationKnowledgeKinetics(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.kinetics = FhirResourceCreator.createArray(valueProvided, MedicationKnowledgeKinetics);
             }
         });
 

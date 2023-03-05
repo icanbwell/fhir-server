@@ -2,7 +2,6 @@ const env = require('var');
 const moment = require('moment-timezone');
 const sendToS3 = require('../../utils/aws-s3');
 const {NotValidatedError, ForbiddenError, BadRequestError} = require('../../utils/httpErrors');
-const {getResource} = require('../common/getResource');
 const {isTrue} = require('../../utils/isTrue');
 const {validationsFailedCounter} = require('../../utils/prometheus.utils');
 const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
@@ -20,6 +19,7 @@ const {ResourceMerger} = require('../common/resourceMerger');
 const {getCircularReplacer} = require('../../utils/getCircularReplacer');
 const {ParsedArgs} = require('../query/parsedArgsItem');
 const {ConfigManager} = require('../../utils/configManager');
+const {FhirResourceCreator} = require('../../fhir/fhirResourceCreator');
 
 /**
  * Update Operation
@@ -171,14 +171,9 @@ class UpdateOperation {
 
         // create a resource with incoming data
         /**
-         * @type {function(?Object): Resource}
-         */
-        let ResourceCreator = getResource(base_version, resourceType);
-
-        /**
          * @type {Resource}
          */
-        let resource_incoming = new ResourceCreator(resource_incoming_json);
+        let resource_incoming = FhirResourceCreator.createByResourceType(resource_incoming_json, resourceType);
 
         if (env.VALIDATE_SCHEMA || parsedArgs['_validate']) {
             /**

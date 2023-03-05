@@ -120,7 +120,8 @@ class SubstanceSpecification extends Resource {
                     return;
                 }
                 const Meta = require('../complex_types/meta.js');
-                this.__data.meta = new Meta(valueProvided);
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.meta = FhirResourceCreator.create(valueProvided, Meta);
             }
         });
 
@@ -183,7 +184,8 @@ class SubstanceSpecification extends Resource {
                     return;
                 }
                 const Narrative = require('../complex_types/narrative.js');
-                this.__data.text = new Narrative(valueProvided);
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.text = FhirResourceCreator.create(valueProvided, Narrative);
             }
         });
 
@@ -204,16 +206,8 @@ class SubstanceSpecification extends Resource {
                     return;
                 }
                 const ResourceContainer = require('../simple_types/resourceContainer.js');
-                const {getResource} = require('../../../../operations/common/getResource');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.contained = valueProvided.filter(v => v).map(v => {
-                        const ResourceCreator = getResource('4_0_0', v.resourceType);
-                        return new ResourceCreator(v);
-                    });
-                } else {
-                const ResourceCreator = getResource('4_0_0', valueProvided.resourceType);
-                this.__data.contained = [new ResourceCreator(valueProvided)];
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.contained = FhirResourceCreator.createArray(valueProvided);
             }
         });
 
@@ -236,7 +230,8 @@ class SubstanceSpecification extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -267,7 +262,8 @@ class SubstanceSpecification extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -286,7 +282,8 @@ class SubstanceSpecification extends Resource {
                     return;
                 }
                 const Identifier = require('../complex_types/identifier.js');
-                this.__data.identifier = new Identifier(valueProvided);
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.identifier = FhirResourceCreator.create(valueProvided, Identifier);
             }
         });
 
@@ -305,7 +302,8 @@ class SubstanceSpecification extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.type = new CodeableConcept(valueProvided);
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.type = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
 
@@ -324,7 +322,8 @@ class SubstanceSpecification extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.status = new CodeableConcept(valueProvided);
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.status = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
 
@@ -343,7 +342,8 @@ class SubstanceSpecification extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.domain = new CodeableConcept(valueProvided);
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.domain = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
 
@@ -380,7 +380,8 @@ class SubstanceSpecification extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.source = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.source = FhirResourceCreator.createArray(valueProvided, Reference);
             }
         });
 
@@ -417,7 +418,8 @@ class SubstanceSpecification extends Resource {
                     return;
                 }
                 const SubstanceSpecificationMoiety = require('../backbone_elements/substanceSpecificationMoiety.js');
-                this.__data.moiety = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new SubstanceSpecificationMoiety(v)) : [new SubstanceSpecificationMoiety(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.moiety = FhirResourceCreator.createArray(valueProvided, SubstanceSpecificationMoiety);
             }
         });
 
@@ -437,7 +439,8 @@ class SubstanceSpecification extends Resource {
                     return;
                 }
                 const SubstanceSpecificationProperty = require('../backbone_elements/substanceSpecificationProperty.js');
-                this.__data.property = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new SubstanceSpecificationProperty(v)) : [new SubstanceSpecificationProperty(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.property = FhirResourceCreator.createArray(valueProvided, SubstanceSpecificationProperty);
             }
         });
 
@@ -456,7 +459,8 @@ class SubstanceSpecification extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.referenceInformation = new Reference(valueProvided);
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.referenceInformation = FhirResourceCreator.create(valueProvided, Reference);
             }
         });
 
@@ -475,7 +479,8 @@ class SubstanceSpecification extends Resource {
                     return;
                 }
                 const SubstanceSpecificationStructure = require('../backbone_elements/substanceSpecificationStructure.js');
-                this.__data.structure = new SubstanceSpecificationStructure(valueProvided);
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.structure = FhirResourceCreator.create(valueProvided, SubstanceSpecificationStructure);
             }
         });
 
@@ -494,7 +499,8 @@ class SubstanceSpecification extends Resource {
                     return;
                 }
                 const SubstanceSpecificationCode = require('../backbone_elements/substanceSpecificationCode.js');
-                this.__data.code = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new SubstanceSpecificationCode(v)) : [new SubstanceSpecificationCode(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.code = FhirResourceCreator.createArray(valueProvided, SubstanceSpecificationCode);
             }
         });
 
@@ -513,7 +519,8 @@ class SubstanceSpecification extends Resource {
                     return;
                 }
                 const SubstanceSpecificationName = require('../backbone_elements/substanceSpecificationName.js');
-                this.__data.name = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new SubstanceSpecificationName(v)) : [new SubstanceSpecificationName(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.name = FhirResourceCreator.createArray(valueProvided, SubstanceSpecificationName);
             }
         });
 
@@ -533,7 +540,8 @@ class SubstanceSpecification extends Resource {
                     return;
                 }
                 const SubstanceSpecificationMolecularWeight = require('../backbone_elements/substanceSpecificationMolecularWeight.js');
-                this.__data.molecularWeight = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new SubstanceSpecificationMolecularWeight(v)) : [new SubstanceSpecificationMolecularWeight(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.molecularWeight = FhirResourceCreator.createArray(valueProvided, SubstanceSpecificationMolecularWeight);
             }
         });
 
@@ -552,7 +560,8 @@ class SubstanceSpecification extends Resource {
                     return;
                 }
                 const SubstanceSpecificationRelationship = require('../backbone_elements/substanceSpecificationRelationship.js');
-                this.__data.relationship = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new SubstanceSpecificationRelationship(v)) : [new SubstanceSpecificationRelationship(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.relationship = FhirResourceCreator.createArray(valueProvided, SubstanceSpecificationRelationship);
             }
         });
 
@@ -571,7 +580,8 @@ class SubstanceSpecification extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.nucleicAcid = new Reference(valueProvided);
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.nucleicAcid = FhirResourceCreator.create(valueProvided, Reference);
             }
         });
 
@@ -590,7 +600,8 @@ class SubstanceSpecification extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.polymer = new Reference(valueProvided);
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.polymer = FhirResourceCreator.create(valueProvided, Reference);
             }
         });
 
@@ -609,7 +620,8 @@ class SubstanceSpecification extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.protein = new Reference(valueProvided);
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.protein = FhirResourceCreator.create(valueProvided, Reference);
             }
         });
 
@@ -628,7 +640,8 @@ class SubstanceSpecification extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.sourceMaterial = new Reference(valueProvided);
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.sourceMaterial = FhirResourceCreator.create(valueProvided, Reference);
             }
         });
 

@@ -128,7 +128,8 @@ class DeviceDefinition extends Resource {
                     return;
                 }
                 const Meta = require('../complex_types/meta.js');
-                this.__data.meta = new Meta(valueProvided);
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.meta = FhirResourceCreator.create(valueProvided, Meta);
             }
         });
 
@@ -191,7 +192,8 @@ class DeviceDefinition extends Resource {
                     return;
                 }
                 const Narrative = require('../complex_types/narrative.js');
-                this.__data.text = new Narrative(valueProvided);
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.text = FhirResourceCreator.create(valueProvided, Narrative);
             }
         });
 
@@ -212,16 +214,8 @@ class DeviceDefinition extends Resource {
                     return;
                 }
                 const ResourceContainer = require('../simple_types/resourceContainer.js');
-                const {getResource} = require('../../../../operations/common/getResource');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.contained = valueProvided.filter(v => v).map(v => {
-                        const ResourceCreator = getResource('4_0_0', v.resourceType);
-                        return new ResourceCreator(v);
-                    });
-                } else {
-                const ResourceCreator = getResource('4_0_0', valueProvided.resourceType);
-                this.__data.contained = [new ResourceCreator(valueProvided)];
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.contained = FhirResourceCreator.createArray(valueProvided);
             }
         });
 
@@ -244,7 +238,8 @@ class DeviceDefinition extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -275,7 +270,8 @@ class DeviceDefinition extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -295,7 +291,8 @@ class DeviceDefinition extends Resource {
                     return;
                 }
                 const Identifier = require('../complex_types/identifier.js');
-                this.__data.identifier = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Identifier(v)) : [new Identifier(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.identifier = FhirResourceCreator.createArray(valueProvided, Identifier);
             }
         });
 
@@ -317,7 +314,8 @@ class DeviceDefinition extends Resource {
                     return;
                 }
                 const DeviceDefinitionUdiDeviceIdentifier = require('../backbone_elements/deviceDefinitionUdiDeviceIdentifier.js');
-                this.__data.udiDeviceIdentifier = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new DeviceDefinitionUdiDeviceIdentifier(v)) : [new DeviceDefinitionUdiDeviceIdentifier(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.udiDeviceIdentifier = FhirResourceCreator.createArray(valueProvided, DeviceDefinitionUdiDeviceIdentifier);
             }
         });
 
@@ -354,7 +352,8 @@ class DeviceDefinition extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.manufacturerReference = new Reference(valueProvided);
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.manufacturerReference = FhirResourceCreator.create(valueProvided, Reference);
             }
         });
 
@@ -373,7 +372,8 @@ class DeviceDefinition extends Resource {
                     return;
                 }
                 const DeviceDefinitionDeviceName = require('../backbone_elements/deviceDefinitionDeviceName.js');
-                this.__data.deviceName = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new DeviceDefinitionDeviceName(v)) : [new DeviceDefinitionDeviceName(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.deviceName = FhirResourceCreator.createArray(valueProvided, DeviceDefinitionDeviceName);
             }
         });
 
@@ -410,7 +410,8 @@ class DeviceDefinition extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.type = new CodeableConcept(valueProvided);
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.type = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
 
@@ -430,7 +431,8 @@ class DeviceDefinition extends Resource {
                     return;
                 }
                 const DeviceDefinitionSpecialization = require('../backbone_elements/deviceDefinitionSpecialization.js');
-                this.__data.specialization = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new DeviceDefinitionSpecialization(v)) : [new DeviceDefinitionSpecialization(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.specialization = FhirResourceCreator.createArray(valueProvided, DeviceDefinitionSpecialization);
             }
         });
 
@@ -467,7 +469,8 @@ class DeviceDefinition extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.safety = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.safety = FhirResourceCreator.createArray(valueProvided, CodeableConcept);
             }
         });
 
@@ -486,7 +489,8 @@ class DeviceDefinition extends Resource {
                     return;
                 }
                 const ProductShelfLife = require('../backbone_elements/productShelfLife.js');
-                this.__data.shelfLifeStorage = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ProductShelfLife(v)) : [new ProductShelfLife(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.shelfLifeStorage = FhirResourceCreator.createArray(valueProvided, ProductShelfLife);
             }
         });
 
@@ -505,7 +509,8 @@ class DeviceDefinition extends Resource {
                     return;
                 }
                 const ProdCharacteristic = require('../backbone_elements/prodCharacteristic.js');
-                this.__data.physicalCharacteristics = new ProdCharacteristic(valueProvided);
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.physicalCharacteristics = FhirResourceCreator.create(valueProvided, ProdCharacteristic);
             }
         });
 
@@ -525,7 +530,8 @@ class DeviceDefinition extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.languageCode = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.languageCode = FhirResourceCreator.createArray(valueProvided, CodeableConcept);
             }
         });
 
@@ -544,7 +550,8 @@ class DeviceDefinition extends Resource {
                     return;
                 }
                 const DeviceDefinitionCapability = require('../backbone_elements/deviceDefinitionCapability.js');
-                this.__data.capability = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new DeviceDefinitionCapability(v)) : [new DeviceDefinitionCapability(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.capability = FhirResourceCreator.createArray(valueProvided, DeviceDefinitionCapability);
             }
         });
 
@@ -564,7 +571,8 @@ class DeviceDefinition extends Resource {
                     return;
                 }
                 const DeviceDefinitionProperty = require('../backbone_elements/deviceDefinitionProperty.js');
-                this.__data.property = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new DeviceDefinitionProperty(v)) : [new DeviceDefinitionProperty(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.property = FhirResourceCreator.createArray(valueProvided, DeviceDefinitionProperty);
             }
         });
 
@@ -584,7 +592,8 @@ class DeviceDefinition extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.owner = new Reference(valueProvided);
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.owner = FhirResourceCreator.create(valueProvided, Reference);
             }
         });
 
@@ -604,7 +613,8 @@ class DeviceDefinition extends Resource {
                     return;
                 }
                 const ContactPoint = require('../complex_types/contactPoint.js');
-                this.__data.contact = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ContactPoint(v)) : [new ContactPoint(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.contact = FhirResourceCreator.createArray(valueProvided, ContactPoint);
             }
         });
 
@@ -660,7 +670,8 @@ class DeviceDefinition extends Resource {
                     return;
                 }
                 const Annotation = require('../complex_types/annotation.js');
-                this.__data.note = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Annotation(v)) : [new Annotation(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.note = FhirResourceCreator.createArray(valueProvided, Annotation);
             }
         });
 
@@ -681,7 +692,8 @@ class DeviceDefinition extends Resource {
                     return;
                 }
                 const Quantity = require('../complex_types/quantity.js');
-                this.__data.quantity = new Quantity(valueProvided);
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.quantity = FhirResourceCreator.create(valueProvided, Quantity);
             }
         });
 
@@ -700,7 +712,8 @@ class DeviceDefinition extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.parentDevice = new Reference(valueProvided);
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.parentDevice = FhirResourceCreator.create(valueProvided, Reference);
             }
         });
 
@@ -719,7 +732,8 @@ class DeviceDefinition extends Resource {
                     return;
                 }
                 const DeviceDefinitionMaterial = require('../backbone_elements/deviceDefinitionMaterial.js');
-                this.__data.material = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new DeviceDefinitionMaterial(v)) : [new DeviceDefinitionMaterial(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.material = FhirResourceCreator.createArray(valueProvided, DeviceDefinitionMaterial);
             }
         });
 

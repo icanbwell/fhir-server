@@ -87,7 +87,8 @@ class Bundle extends Resource {
                     return;
                 }
                 const Meta = require('../complex_types/meta.js');
-                this.__data.meta = new Meta(valueProvided);
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.meta = FhirResourceCreator.create(valueProvided, Meta);
             }
         });
 
@@ -146,7 +147,8 @@ class Bundle extends Resource {
                     return;
                 }
                 const Identifier = require('../complex_types/identifier.js');
-                this.__data.identifier = new Identifier(valueProvided);
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.identifier = FhirResourceCreator.create(valueProvided, Identifier);
             }
         });
 
@@ -223,7 +225,8 @@ class Bundle extends Resource {
                     return;
                 }
                 const BundleLink = require('../backbone_elements/bundleLink.js');
-                this.__data.link = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new BundleLink(v)) : [new BundleLink(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.link = FhirResourceCreator.createArray(valueProvided, BundleLink);
             }
         });
 
@@ -243,7 +246,8 @@ class Bundle extends Resource {
                     return;
                 }
                 const BundleEntry = require('../backbone_elements/bundleEntry.js');
-                this.__data.entry = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new BundleEntry(v)) : [new BundleEntry(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.entry = FhirResourceCreator.createArray(valueProvided, BundleEntry);
             }
         });
 
@@ -262,7 +266,8 @@ class Bundle extends Resource {
                     return;
                 }
                 const Signature = require('../complex_types/signature.js');
-                this.__data.signature = new Signature(valueProvided);
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.signature = FhirResourceCreator.create(valueProvided, Signature);
             }
         });
 

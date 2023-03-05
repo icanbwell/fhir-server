@@ -99,7 +99,8 @@ class MedicinalProductIndication extends Resource {
                     return;
                 }
                 const Meta = require('../complex_types/meta.js');
-                this.__data.meta = new Meta(valueProvided);
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.meta = FhirResourceCreator.create(valueProvided, Meta);
             }
         });
 
@@ -162,7 +163,8 @@ class MedicinalProductIndication extends Resource {
                     return;
                 }
                 const Narrative = require('../complex_types/narrative.js');
-                this.__data.text = new Narrative(valueProvided);
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.text = FhirResourceCreator.create(valueProvided, Narrative);
             }
         });
 
@@ -183,16 +185,8 @@ class MedicinalProductIndication extends Resource {
                     return;
                 }
                 const ResourceContainer = require('../simple_types/resourceContainer.js');
-                const {getResource} = require('../../../../operations/common/getResource');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.contained = valueProvided.filter(v => v).map(v => {
-                        const ResourceCreator = getResource('4_0_0', v.resourceType);
-                        return new ResourceCreator(v);
-                    });
-                } else {
-                const ResourceCreator = getResource('4_0_0', valueProvided.resourceType);
-                this.__data.contained = [new ResourceCreator(valueProvided)];
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.contained = FhirResourceCreator.createArray(valueProvided);
             }
         });
 
@@ -215,7 +209,8 @@ class MedicinalProductIndication extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -246,7 +241,8 @@ class MedicinalProductIndication extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -265,7 +261,8 @@ class MedicinalProductIndication extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.subject = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.subject = FhirResourceCreator.createArray(valueProvided, Reference);
             }
         });
 
@@ -284,7 +281,8 @@ class MedicinalProductIndication extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.diseaseSymptomProcedure = new CodeableConcept(valueProvided);
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.diseaseSymptomProcedure = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
 
@@ -303,7 +301,8 @@ class MedicinalProductIndication extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.diseaseStatus = new CodeableConcept(valueProvided);
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.diseaseStatus = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
 
@@ -322,7 +321,8 @@ class MedicinalProductIndication extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.comorbidity = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.comorbidity = FhirResourceCreator.createArray(valueProvided, CodeableConcept);
             }
         });
 
@@ -341,7 +341,8 @@ class MedicinalProductIndication extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.intendedEffect = new CodeableConcept(valueProvided);
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.intendedEffect = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
 
@@ -360,7 +361,8 @@ class MedicinalProductIndication extends Resource {
                     return;
                 }
                 const Quantity = require('../complex_types/quantity.js');
-                this.__data.duration = new Quantity(valueProvided);
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.duration = FhirResourceCreator.create(valueProvided, Quantity);
             }
         });
 
@@ -380,7 +382,8 @@ class MedicinalProductIndication extends Resource {
                     return;
                 }
                 const MedicinalProductIndicationOtherTherapy = require('../backbone_elements/medicinalProductIndicationOtherTherapy.js');
-                this.__data.otherTherapy = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new MedicinalProductIndicationOtherTherapy(v)) : [new MedicinalProductIndicationOtherTherapy(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.otherTherapy = FhirResourceCreator.createArray(valueProvided, MedicinalProductIndicationOtherTherapy);
             }
         });
 
@@ -399,7 +402,8 @@ class MedicinalProductIndication extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.undesirableEffect = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.undesirableEffect = FhirResourceCreator.createArray(valueProvided, Reference);
             }
         });
 
@@ -418,7 +422,8 @@ class MedicinalProductIndication extends Resource {
                     return;
                 }
                 const Population = require('../backbone_elements/population.js');
-                this.__data.population = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Population(v)) : [new Population(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.population = FhirResourceCreator.createArray(valueProvided, Population);
             }
         });
 

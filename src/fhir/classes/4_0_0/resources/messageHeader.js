@@ -109,7 +109,8 @@ class MessageHeader extends Resource {
                     return;
                 }
                 const Meta = require('../complex_types/meta.js');
-                this.__data.meta = new Meta(valueProvided);
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.meta = FhirResourceCreator.create(valueProvided, Meta);
             }
         });
 
@@ -172,7 +173,8 @@ class MessageHeader extends Resource {
                     return;
                 }
                 const Narrative = require('../complex_types/narrative.js');
-                this.__data.text = new Narrative(valueProvided);
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.text = FhirResourceCreator.create(valueProvided, Narrative);
             }
         });
 
@@ -193,16 +195,8 @@ class MessageHeader extends Resource {
                     return;
                 }
                 const ResourceContainer = require('../simple_types/resourceContainer.js');
-                const {getResource} = require('../../../../operations/common/getResource');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.contained = valueProvided.filter(v => v).map(v => {
-                        const ResourceCreator = getResource('4_0_0', v.resourceType);
-                        return new ResourceCreator(v);
-                    });
-                } else {
-                const ResourceCreator = getResource('4_0_0', valueProvided.resourceType);
-                this.__data.contained = [new ResourceCreator(valueProvided)];
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.contained = FhirResourceCreator.createArray(valueProvided);
             }
         });
 
@@ -225,7 +219,8 @@ class MessageHeader extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -256,7 +251,8 @@ class MessageHeader extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -275,7 +271,8 @@ class MessageHeader extends Resource {
                     return;
                 }
                 const Coding = require('../complex_types/coding.js');
-                this.__data.eventCoding = new Coding(valueProvided);
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.eventCoding = FhirResourceCreator.create(valueProvided, Coding);
             }
         });
 
@@ -312,7 +309,8 @@ class MessageHeader extends Resource {
                     return;
                 }
                 const MessageHeaderDestination = require('../backbone_elements/messageHeaderDestination.js');
-                this.__data.destination = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new MessageHeaderDestination(v)) : [new MessageHeaderDestination(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.destination = FhirResourceCreator.createArray(valueProvided, MessageHeaderDestination);
             }
         });
 
@@ -331,7 +329,8 @@ class MessageHeader extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.sender = new Reference(valueProvided);
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.sender = FhirResourceCreator.create(valueProvided, Reference);
             }
         });
 
@@ -352,7 +351,8 @@ class MessageHeader extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.enterer = new Reference(valueProvided);
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.enterer = FhirResourceCreator.create(valueProvided, Reference);
             }
         });
 
@@ -373,7 +373,8 @@ class MessageHeader extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.author = new Reference(valueProvided);
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.author = FhirResourceCreator.create(valueProvided, Reference);
             }
         });
 
@@ -392,7 +393,8 @@ class MessageHeader extends Resource {
                     return;
                 }
                 const MessageHeaderSource = require('../backbone_elements/messageHeaderSource.js');
-                this.__data.source = new MessageHeaderSource(valueProvided);
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.source = FhirResourceCreator.create(valueProvided, MessageHeaderSource);
             }
         });
 
@@ -413,7 +415,8 @@ class MessageHeader extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.responsible = new Reference(valueProvided);
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.responsible = FhirResourceCreator.create(valueProvided, Reference);
             }
         });
 
@@ -433,7 +436,8 @@ class MessageHeader extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.reason = new CodeableConcept(valueProvided);
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.reason = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
 
@@ -453,7 +457,8 @@ class MessageHeader extends Resource {
                     return;
                 }
                 const MessageHeaderResponse = require('../backbone_elements/messageHeaderResponse.js');
-                this.__data.response = new MessageHeaderResponse(valueProvided);
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.response = FhirResourceCreator.create(valueProvided, MessageHeaderResponse);
             }
         });
 
@@ -473,7 +478,8 @@ class MessageHeader extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.focus = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.focus = FhirResourceCreator.createArray(valueProvided, Reference);
             }
         });
 

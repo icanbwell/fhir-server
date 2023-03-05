@@ -1,6 +1,5 @@
 const {validationsFailedCounter} = require('../../utils/prometheus.utils');
 const {assertIsValid, assertTypeEquals} = require('../../utils/assertType');
-const {getResource} = require('../common/getResource');
 const {ScopesManager} = require('../security/scopesManager');
 const {FhirLoggingManager} = require('../common/fhirLoggingManager');
 const {getFirstElementOrNull} = require('../../utils/list.util');
@@ -11,6 +10,7 @@ const {ResourceValidator} = require('../common/resourceValidator');
 const moment = require('moment-timezone');
 const {ParsedArgs} = require('../query/parsedArgsItem');
 const {SecurityTagSystem} = require('../../utils/securityTagSystem');
+const {FhirResourceCreator} = require('../../fhir/fhirResourceCreator');
 
 class ValidateOperation {
     /**
@@ -60,10 +60,6 @@ class ValidateOperation {
          */
         const startTime = Date.now();
         const path = requestInfo.path;
-        /**
-         * @type {string}
-         */
-        let {base_version} = parsedArgs;
 
         /**
          * @type {string}
@@ -128,11 +124,10 @@ class ValidateOperation {
             resource_incoming = resourceParameter.resource;
         }
 
-        const ResourceCreator = getResource(base_version, resourceType);
         /**
          * @type {Resource}
          */
-        const resourceToValidate = new ResourceCreator(resource_incoming);
+        const resourceToValidate = FhirResourceCreator.createByResourceType(resource_incoming, resourceType);
 
         /**
          * @type {OperationOutcome|null}

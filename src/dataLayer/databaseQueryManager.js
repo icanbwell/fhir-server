@@ -2,7 +2,6 @@ const {DatabasePartitionedCursor} = require('./databasePartitionedCursor');
 const {ResourceLocatorFactory} = require('../operations/common/resourceLocatorFactory');
 const {ResourceLocator} = require('../operations/common/resourceLocator');
 const {assertTypeEquals} = require('../utils/assertType');
-const {getResource} = require('../operations/common/getResource');
 const {RethrownError} = require('../utils/rethrownError');
 const BundleEntry = require('../fhir/classes/4_0_0/backbone_elements/bundleEntry');
 const BundleRequest = require('../fhir/classes/4_0_0/backbone_elements/bundleRequest');
@@ -10,6 +9,7 @@ const moment = require('moment-timezone');
 const {getCircularReplacer} = require('../utils/getCircularReplacer');
 const {MongoFilterGenerator} = require('../utils/mongoFilterGenerator');
 const {SecurityTagStructure} = require('../fhir/securityTagStructure');
+const {FhirResourceCreator} = require('../fhir/fhirResourceCreator');
 
 /**
  * @typedef FindOneAndUpdateResult
@@ -85,8 +85,7 @@ class DatabaseQueryManager {
                  */
                 const resource = await collection.findOne(query, options);
                 if (resource !== null) {
-                    const ResourceCreator = getResource(this._base_version, this._resourceType);
-                    return new ResourceCreator(resource);
+                    return FhirResourceCreator.createByResourceType(resource, this._resourceType);
                 }
             }
             return null;

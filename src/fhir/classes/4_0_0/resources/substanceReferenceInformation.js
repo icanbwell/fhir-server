@@ -91,7 +91,8 @@ class SubstanceReferenceInformation extends Resource {
                     return;
                 }
                 const Meta = require('../complex_types/meta.js');
-                this.__data.meta = new Meta(valueProvided);
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.meta = FhirResourceCreator.create(valueProvided, Meta);
             }
         });
 
@@ -154,7 +155,8 @@ class SubstanceReferenceInformation extends Resource {
                     return;
                 }
                 const Narrative = require('../complex_types/narrative.js');
-                this.__data.text = new Narrative(valueProvided);
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.text = FhirResourceCreator.create(valueProvided, Narrative);
             }
         });
 
@@ -175,16 +177,8 @@ class SubstanceReferenceInformation extends Resource {
                     return;
                 }
                 const ResourceContainer = require('../simple_types/resourceContainer.js');
-                const {getResource} = require('../../../../operations/common/getResource');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.contained = valueProvided.filter(v => v).map(v => {
-                        const ResourceCreator = getResource('4_0_0', v.resourceType);
-                        return new ResourceCreator(v);
-                    });
-                } else {
-                const ResourceCreator = getResource('4_0_0', valueProvided.resourceType);
-                this.__data.contained = [new ResourceCreator(valueProvided)];
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.contained = FhirResourceCreator.createArray(valueProvided);
             }
         });
 
@@ -207,7 +201,8 @@ class SubstanceReferenceInformation extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -238,7 +233,8 @@ class SubstanceReferenceInformation extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -275,7 +271,8 @@ class SubstanceReferenceInformation extends Resource {
                     return;
                 }
                 const SubstanceReferenceInformationGene = require('../backbone_elements/substanceReferenceInformationGene.js');
-                this.__data.gene = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new SubstanceReferenceInformationGene(v)) : [new SubstanceReferenceInformationGene(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.gene = FhirResourceCreator.createArray(valueProvided, SubstanceReferenceInformationGene);
             }
         });
 
@@ -294,7 +291,8 @@ class SubstanceReferenceInformation extends Resource {
                     return;
                 }
                 const SubstanceReferenceInformationGeneElement = require('../backbone_elements/substanceReferenceInformationGeneElement.js');
-                this.__data.geneElement = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new SubstanceReferenceInformationGeneElement(v)) : [new SubstanceReferenceInformationGeneElement(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.geneElement = FhirResourceCreator.createArray(valueProvided, SubstanceReferenceInformationGeneElement);
             }
         });
 
@@ -313,7 +311,8 @@ class SubstanceReferenceInformation extends Resource {
                     return;
                 }
                 const SubstanceReferenceInformationClassification = require('../backbone_elements/substanceReferenceInformationClassification.js');
-                this.__data.classification = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new SubstanceReferenceInformationClassification(v)) : [new SubstanceReferenceInformationClassification(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.classification = FhirResourceCreator.createArray(valueProvided, SubstanceReferenceInformationClassification);
             }
         });
 
@@ -332,7 +331,8 @@ class SubstanceReferenceInformation extends Resource {
                     return;
                 }
                 const SubstanceReferenceInformationTarget = require('../backbone_elements/substanceReferenceInformationTarget.js');
-                this.__data.target = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new SubstanceReferenceInformationTarget(v)) : [new SubstanceReferenceInformationTarget(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.target = FhirResourceCreator.createArray(valueProvided, SubstanceReferenceInformationTarget);
             }
         });
 

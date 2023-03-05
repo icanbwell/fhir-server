@@ -113,7 +113,8 @@ class MedicinalProductAuthorization extends Resource {
                     return;
                 }
                 const Meta = require('../complex_types/meta.js');
-                this.__data.meta = new Meta(valueProvided);
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.meta = FhirResourceCreator.create(valueProvided, Meta);
             }
         });
 
@@ -176,7 +177,8 @@ class MedicinalProductAuthorization extends Resource {
                     return;
                 }
                 const Narrative = require('../complex_types/narrative.js');
-                this.__data.text = new Narrative(valueProvided);
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.text = FhirResourceCreator.create(valueProvided, Narrative);
             }
         });
 
@@ -197,16 +199,8 @@ class MedicinalProductAuthorization extends Resource {
                     return;
                 }
                 const ResourceContainer = require('../simple_types/resourceContainer.js');
-                const {getResource} = require('../../../../operations/common/getResource');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.contained = valueProvided.filter(v => v).map(v => {
-                        const ResourceCreator = getResource('4_0_0', v.resourceType);
-                        return new ResourceCreator(v);
-                    });
-                } else {
-                const ResourceCreator = getResource('4_0_0', valueProvided.resourceType);
-                this.__data.contained = [new ResourceCreator(valueProvided)];
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.contained = FhirResourceCreator.createArray(valueProvided);
             }
         });
 
@@ -229,7 +223,8 @@ class MedicinalProductAuthorization extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -260,7 +255,8 @@ class MedicinalProductAuthorization extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -280,7 +276,8 @@ class MedicinalProductAuthorization extends Resource {
                     return;
                 }
                 const Identifier = require('../complex_types/identifier.js');
-                this.__data.identifier = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Identifier(v)) : [new Identifier(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.identifier = FhirResourceCreator.createArray(valueProvided, Identifier);
             }
         });
 
@@ -299,7 +296,8 @@ class MedicinalProductAuthorization extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.subject = new Reference(valueProvided);
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.subject = FhirResourceCreator.create(valueProvided, Reference);
             }
         });
 
@@ -318,7 +316,8 @@ class MedicinalProductAuthorization extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.country = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.country = FhirResourceCreator.createArray(valueProvided, CodeableConcept);
             }
         });
 
@@ -337,7 +336,8 @@ class MedicinalProductAuthorization extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.jurisdiction = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.jurisdiction = FhirResourceCreator.createArray(valueProvided, CodeableConcept);
             }
         });
 
@@ -356,7 +356,8 @@ class MedicinalProductAuthorization extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.status = new CodeableConcept(valueProvided);
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.status = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
 
@@ -414,7 +415,8 @@ class MedicinalProductAuthorization extends Resource {
                     return;
                 }
                 const Period = require('../complex_types/period.js');
-                this.__data.validityPeriod = new Period(valueProvided);
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.validityPeriod = FhirResourceCreator.create(valueProvided, Period);
             }
         });
 
@@ -434,7 +436,8 @@ class MedicinalProductAuthorization extends Resource {
                     return;
                 }
                 const Period = require('../complex_types/period.js');
-                this.__data.dataExclusivityPeriod = new Period(valueProvided);
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.dataExclusivityPeriod = FhirResourceCreator.create(valueProvided, Period);
             }
         });
 
@@ -491,7 +494,8 @@ class MedicinalProductAuthorization extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.legalBasis = new CodeableConcept(valueProvided);
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.legalBasis = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
 
@@ -510,7 +514,8 @@ class MedicinalProductAuthorization extends Resource {
                     return;
                 }
                 const MedicinalProductAuthorizationJurisdictionalAuthorization = require('../backbone_elements/medicinalProductAuthorizationJurisdictionalAuthorization.js');
-                this.__data.jurisdictionalAuthorization = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new MedicinalProductAuthorizationJurisdictionalAuthorization(v)) : [new MedicinalProductAuthorizationJurisdictionalAuthorization(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.jurisdictionalAuthorization = FhirResourceCreator.createArray(valueProvided, MedicinalProductAuthorizationJurisdictionalAuthorization);
             }
         });
 
@@ -529,7 +534,8 @@ class MedicinalProductAuthorization extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.holder = new Reference(valueProvided);
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.holder = FhirResourceCreator.create(valueProvided, Reference);
             }
         });
 
@@ -548,7 +554,8 @@ class MedicinalProductAuthorization extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.regulator = new Reference(valueProvided);
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.regulator = FhirResourceCreator.create(valueProvided, Reference);
             }
         });
 
@@ -567,7 +574,8 @@ class MedicinalProductAuthorization extends Resource {
                     return;
                 }
                 const MedicinalProductAuthorizationProcedure = require('../backbone_elements/medicinalProductAuthorizationProcedure.js');
-                this.__data.procedure = new MedicinalProductAuthorizationProcedure(valueProvided);
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.procedure = FhirResourceCreator.create(valueProvided, MedicinalProductAuthorizationProcedure);
             }
         });
 

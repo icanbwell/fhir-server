@@ -343,7 +343,9 @@ class MergeManager {
                 } else {
                     await this.mergeInsertAsync({
                         requestId,
-                        resourceToMerge, user, scope
+                        resourceToMerge,
+                        user,
+                        scope
                     });
                 }
             } catch (e) {

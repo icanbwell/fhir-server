@@ -1,5 +1,5 @@
 const {EnrichmentProvider} = require('./enrichmentProvider');
-const {getFirstResourceOrNull, getFirstBundleEntryOrNull} = require('../../utils/list.util');
+const {getFirstResourceOrNull} = require('../../utils/list.util');
 const {assertTypeEquals} = require('../../utils/assertType');
 const {ParsedArgs} = require('../../operations/query/parsedArgsItem');
 
@@ -92,46 +92,15 @@ class ProxyPatientReferenceEnrichmentProvider extends EnrichmentProvider {
      * @return {Promise<BundleEntry[]>}
      */
     async enrichBundleEntriesAsync({entries, parsedArgs}) {
-        // check if any args have a proxy patient
-        let {proxyPatientPersonId, proxyPatientPersonIdKey} = this.getProxyPatientFromArgs({parsedArgs});
-        if (proxyPatientPersonId && proxyPatientPersonIdKey) {
-            /**
-             * @type {ParsedArgsItem}
-             */
-            const parsedArgsItem = parsedArgs.get(`${proxyPatientPersonIdKey}`);
-            if (parsedArgsItem) {
-                /**
-                 * @type {string[]}
-                 */
-                const proxyPatientIds = parsedArgsItem.queryParameterValues.map(
-                    a => a.startsWith('Patient/') ? a : `Patient/${a}`);
-                for (const entry of entries) {
-                    await entry.resource.updateReferencesAsync({
-                        fnUpdateReferenceAsync: async (reference) => {
-                            if (reference.reference && proxyPatientIds.includes(reference.reference)) {
-                                reference.reference = proxyPatientPersonId.startsWith('Patient/') ?
-                                    proxyPatientPersonId : `Patient/${proxyPatientPersonId}`;
-                            }
-                            return reference;
-                        }
-                    });
-                }
-                // now copy the latest Patient and set the id to proxyPatient
-                const patientEntries = entries.filter(r => r.resource.resourceType === 'Patient')
-                    .sort(
-                        (a, b) =>
-                            (a.resource.meta.lastUpdated > b.resource.meta.lastUpdated ? -1 : 1)
-                    );
-                const latestPatientEntry = getFirstBundleEntryOrNull(patientEntries);
-                if (latestPatientEntry) {
-                    // remove all other Patient resources except the latest
-                    entries = entries.filter(
-                        r => r.resource.resourceType !== 'Patient' ||
-                            r.resource.id === latestPatientEntry.resource.id
-                    );
-                    // and set the id of the latest Patient resource to proxyPatient
-                    latestPatientEntry.resource.id = proxyPatientPersonId;
-                }
+        for (const entry of entries) {
+            if (entry.resource) {
+                entry.resource = (await this.enrichAsync(
+                    {
+                        resources: [entry.resource],
+                        parsedArgs
+                    }
+                ))[0];
+                entry.id = entry.resource.id;
             }
         }
         return entries;

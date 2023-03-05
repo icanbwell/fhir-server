@@ -12,8 +12,10 @@ const ResourceContainer = require('../simple_types/resourceContainer');
 {%  elif fhir_entity.is_resource %}
 const Resource = require('../resources/resource');
 {% elif fhir_entity.cleaned_name == 'Element' %}
+const Resource = require('../resources/resource');
 {%  else %}
 const Element = require('../complex_types/element');
+const Resource = require('../resources/resource');
 {%  endif %}
 const async = require('async');
 
@@ -157,26 +159,18 @@ class {{ fhir_entity.cleaned_name }} extends Element {
 {#                this.__data.{{ property.name }} = value;#}
     {% endif %}
     {%  if property.is_resource or property.is_extension or property.fhir_type == "BackboneElement" or property.is_complex or property.fhir_type == "Element" %}
-            {% if property.is_list %}
-                this.__data.{{ property.name }} = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new {{ property.cleaned_type | replace(".","") }}(v)) : [new {{ property.cleaned_type | replace(".","") }}(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+        {% if property.is_list %}
+                this.__data.{{ property.name }} = FhirResourceCreator.createArray(valueProvided, {{ property.cleaned_type | replace(".","") }});
             {%  else %}
-                this.__data.{{ property.name }} = new {{ property.cleaned_type | replace(".","") }}(valueProvided);
+                this.__data.{{ property.name }} = FhirResourceCreator.create(valueProvided, {{ property.cleaned_type | replace(".","") }});
             {% endif %}
     {%  elif property.cleaned_type == "ResourceContainer" %}
-                const {getResource} = require('../../../../operations/common/getResource');
-            {% if property.is_list %}
-                if (Array.isArray(valueProvided)) {
-                    this.__data.{{ property.name }} = valueProvided.filter(v => v).map(v => {
-                        const ResourceCreator = getResource('4_0_0', v.resourceType);
-                        return new ResourceCreator(v);
-                    });
-                } else {
-                const ResourceCreator = getResource('4_0_0', valueProvided.resourceType);
-                this.__data.{{ property.name }} = [new ResourceCreator(valueProvided)];
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+        {% if property.is_list %}
+                this.__data.{{ property.name }} = FhirResourceCreator.createArray(valueProvided);
             {%  else %}
-                const ResourceCreator = getResource('4_0_0', valueProvided.resourceType);
-                this.__data.{{ property.name }} = new ResourceCreator(valueProvided);
+                this.__data.{{ property.name }} = FhirResourceCreator.create(valueProvided);
             {% endif %}
     {%  else %}
             {% if property.is_list %}

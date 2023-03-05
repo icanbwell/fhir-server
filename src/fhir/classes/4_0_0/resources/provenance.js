@@ -111,7 +111,8 @@ class Provenance extends Resource {
                     return;
                 }
                 const Meta = require('../complex_types/meta.js');
-                this.__data.meta = new Meta(valueProvided);
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.meta = FhirResourceCreator.create(valueProvided, Meta);
             }
         });
 
@@ -174,7 +175,8 @@ class Provenance extends Resource {
                     return;
                 }
                 const Narrative = require('../complex_types/narrative.js');
-                this.__data.text = new Narrative(valueProvided);
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.text = FhirResourceCreator.create(valueProvided, Narrative);
             }
         });
 
@@ -195,16 +197,8 @@ class Provenance extends Resource {
                     return;
                 }
                 const ResourceContainer = require('../simple_types/resourceContainer.js');
-                const {getResource} = require('../../../../operations/common/getResource');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.contained = valueProvided.filter(v => v).map(v => {
-                        const ResourceCreator = getResource('4_0_0', v.resourceType);
-                        return new ResourceCreator(v);
-                    });
-                } else {
-                const ResourceCreator = getResource('4_0_0', valueProvided.resourceType);
-                this.__data.contained = [new ResourceCreator(valueProvided)];
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.contained = FhirResourceCreator.createArray(valueProvided);
             }
         });
 
@@ -227,7 +221,8 @@ class Provenance extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -258,7 +253,8 @@ class Provenance extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -279,7 +275,8 @@ class Provenance extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.target = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.target = FhirResourceCreator.createArray(valueProvided, Reference);
             }
         });
 
@@ -298,7 +295,8 @@ class Provenance extends Resource {
                     return;
                 }
                 const Period = require('../complex_types/period.js');
-                this.__data.occurredPeriod = new Period(valueProvided);
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.occurredPeriod = FhirResourceCreator.create(valueProvided, Period);
             }
         });
 
@@ -373,7 +371,8 @@ class Provenance extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.location = new Reference(valueProvided);
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.location = FhirResourceCreator.create(valueProvided, Reference);
             }
         });
 
@@ -392,7 +391,8 @@ class Provenance extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.reason = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.reason = FhirResourceCreator.createArray(valueProvided, CodeableConcept);
             }
         });
 
@@ -413,7 +413,8 @@ class Provenance extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.activity = new CodeableConcept(valueProvided);
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.activity = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
 
@@ -433,7 +434,8 @@ class Provenance extends Resource {
                     return;
                 }
                 const ProvenanceAgent = require('../backbone_elements/provenanceAgent.js');
-                this.__data.agent = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ProvenanceAgent(v)) : [new ProvenanceAgent(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.agent = FhirResourceCreator.createArray(valueProvided, ProvenanceAgent);
             }
         });
 
@@ -452,7 +454,8 @@ class Provenance extends Resource {
                     return;
                 }
                 const ProvenanceEntity = require('../backbone_elements/provenanceEntity.js');
-                this.__data.entity = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ProvenanceEntity(v)) : [new ProvenanceEntity(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.entity = FhirResourceCreator.createArray(valueProvided, ProvenanceEntity);
             }
         });
 
@@ -472,7 +475,8 @@ class Provenance extends Resource {
                     return;
                 }
                 const Signature = require('../complex_types/signature.js');
-                this.__data.signature = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Signature(v)) : [new Signature(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.signature = FhirResourceCreator.createArray(valueProvided, Signature);
             }
         });
 

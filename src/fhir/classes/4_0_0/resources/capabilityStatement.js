@@ -136,7 +136,8 @@ class CapabilityStatement extends Resource {
                     return;
                 }
                 const Meta = require('../complex_types/meta.js');
-                this.__data.meta = new Meta(valueProvided);
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.meta = FhirResourceCreator.create(valueProvided, Meta);
             }
         });
 
@@ -199,7 +200,8 @@ class CapabilityStatement extends Resource {
                     return;
                 }
                 const Narrative = require('../complex_types/narrative.js');
-                this.__data.text = new Narrative(valueProvided);
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.text = FhirResourceCreator.create(valueProvided, Narrative);
             }
         });
 
@@ -220,16 +222,8 @@ class CapabilityStatement extends Resource {
                     return;
                 }
                 const ResourceContainer = require('../simple_types/resourceContainer.js');
-                const {getResource} = require('../../../../operations/common/getResource');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.contained = valueProvided.filter(v => v).map(v => {
-                        const ResourceCreator = getResource('4_0_0', v.resourceType);
-                        return new ResourceCreator(v);
-                    });
-                } else {
-                const ResourceCreator = getResource('4_0_0', valueProvided.resourceType);
-                this.__data.contained = [new ResourceCreator(valueProvided)];
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.contained = FhirResourceCreator.createArray(valueProvided);
             }
         });
 
@@ -252,7 +246,8 @@ class CapabilityStatement extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -283,7 +278,8 @@ class CapabilityStatement extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -467,7 +463,8 @@ class CapabilityStatement extends Resource {
                     return;
                 }
                 const ContactDetail = require('../complex_types/contactDetail.js');
-                this.__data.contact = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ContactDetail(v)) : [new ContactDetail(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.contact = FhirResourceCreator.createArray(valueProvided, ContactDetail);
             }
         });
 
@@ -511,7 +508,8 @@ class CapabilityStatement extends Resource {
                     return;
                 }
                 const UsageContext = require('../complex_types/usageContext.js');
-                this.__data.useContext = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new UsageContext(v)) : [new UsageContext(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.useContext = FhirResourceCreator.createArray(valueProvided, UsageContext);
             }
         });
 
@@ -531,7 +529,8 @@ class CapabilityStatement extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.jurisdiction = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.jurisdiction = FhirResourceCreator.createArray(valueProvided, CodeableConcept);
             }
         });
 
@@ -654,7 +653,8 @@ class CapabilityStatement extends Resource {
                     return;
                 }
                 const CapabilityStatementSoftware = require('../backbone_elements/capabilityStatementSoftware.js');
-                this.__data.software = new CapabilityStatementSoftware(valueProvided);
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.software = FhirResourceCreator.create(valueProvided, CapabilityStatementSoftware);
             }
         });
 
@@ -675,7 +675,8 @@ class CapabilityStatement extends Resource {
                     return;
                 }
                 const CapabilityStatementImplementation = require('../backbone_elements/capabilityStatementImplementation.js');
-                this.__data.implementation = new CapabilityStatementImplementation(valueProvided);
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.implementation = FhirResourceCreator.create(valueProvided, CapabilityStatementImplementation);
             }
         });
 
@@ -771,7 +772,8 @@ class CapabilityStatement extends Resource {
                     return;
                 }
                 const CapabilityStatementRest = require('../backbone_elements/capabilityStatementRest.js');
-                this.__data.rest = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CapabilityStatementRest(v)) : [new CapabilityStatementRest(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.rest = FhirResourceCreator.createArray(valueProvided, CapabilityStatementRest);
             }
         });
 
@@ -790,7 +792,8 @@ class CapabilityStatement extends Resource {
                     return;
                 }
                 const CapabilityStatementMessaging = require('../backbone_elements/capabilityStatementMessaging.js');
-                this.__data.messaging = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CapabilityStatementMessaging(v)) : [new CapabilityStatementMessaging(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.messaging = FhirResourceCreator.createArray(valueProvided, CapabilityStatementMessaging);
             }
         });
 
@@ -809,7 +812,8 @@ class CapabilityStatement extends Resource {
                     return;
                 }
                 const CapabilityStatementDocument = require('../backbone_elements/capabilityStatementDocument.js');
-                this.__data.document = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CapabilityStatementDocument(v)) : [new CapabilityStatementDocument(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.document = FhirResourceCreator.createArray(valueProvided, CapabilityStatementDocument);
             }
         });
 

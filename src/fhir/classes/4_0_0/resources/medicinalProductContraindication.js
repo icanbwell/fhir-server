@@ -96,7 +96,8 @@ class MedicinalProductContraindication extends Resource {
                     return;
                 }
                 const Meta = require('../complex_types/meta.js');
-                this.__data.meta = new Meta(valueProvided);
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.meta = FhirResourceCreator.create(valueProvided, Meta);
             }
         });
 
@@ -159,7 +160,8 @@ class MedicinalProductContraindication extends Resource {
                     return;
                 }
                 const Narrative = require('../complex_types/narrative.js');
-                this.__data.text = new Narrative(valueProvided);
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.text = FhirResourceCreator.create(valueProvided, Narrative);
             }
         });
 
@@ -180,16 +182,8 @@ class MedicinalProductContraindication extends Resource {
                     return;
                 }
                 const ResourceContainer = require('../simple_types/resourceContainer.js');
-                const {getResource} = require('../../../../operations/common/getResource');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.contained = valueProvided.filter(v => v).map(v => {
-                        const ResourceCreator = getResource('4_0_0', v.resourceType);
-                        return new ResourceCreator(v);
-                    });
-                } else {
-                const ResourceCreator = getResource('4_0_0', valueProvided.resourceType);
-                this.__data.contained = [new ResourceCreator(valueProvided)];
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.contained = FhirResourceCreator.createArray(valueProvided);
             }
         });
 
@@ -212,7 +206,8 @@ class MedicinalProductContraindication extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -243,7 +238,8 @@ class MedicinalProductContraindication extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -262,7 +258,8 @@ class MedicinalProductContraindication extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.subject = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.subject = FhirResourceCreator.createArray(valueProvided, Reference);
             }
         });
 
@@ -281,7 +278,8 @@ class MedicinalProductContraindication extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.disease = new CodeableConcept(valueProvided);
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.disease = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
 
@@ -300,7 +298,8 @@ class MedicinalProductContraindication extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.diseaseStatus = new CodeableConcept(valueProvided);
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.diseaseStatus = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
 
@@ -319,7 +318,8 @@ class MedicinalProductContraindication extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.comorbidity = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.comorbidity = FhirResourceCreator.createArray(valueProvided, CodeableConcept);
             }
         });
 
@@ -339,7 +339,8 @@ class MedicinalProductContraindication extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.therapeuticIndication = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.therapeuticIndication = FhirResourceCreator.createArray(valueProvided, Reference);
             }
         });
 
@@ -359,7 +360,8 @@ class MedicinalProductContraindication extends Resource {
                     return;
                 }
                 const MedicinalProductContraindicationOtherTherapy = require('../backbone_elements/medicinalProductContraindicationOtherTherapy.js');
-                this.__data.otherTherapy = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new MedicinalProductContraindicationOtherTherapy(v)) : [new MedicinalProductContraindicationOtherTherapy(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.otherTherapy = FhirResourceCreator.createArray(valueProvided, MedicinalProductContraindicationOtherTherapy);
             }
         });
 
@@ -378,7 +380,8 @@ class MedicinalProductContraindication extends Resource {
                     return;
                 }
                 const Population = require('../backbone_elements/population.js');
-                this.__data.population = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Population(v)) : [new Population(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.population = FhirResourceCreator.createArray(valueProvided, Population);
             }
         });
 

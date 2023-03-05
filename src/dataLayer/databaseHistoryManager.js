@@ -1,8 +1,8 @@
 const {DatabasePartitionedCursor} = require('./databasePartitionedCursor');
 const {assertTypeEquals} = require('../utils/assertType');
 const {ResourceLocatorFactory} = require('../operations/common/resourceLocatorFactory');
-const {getResource} = require('../operations/common/getResource');
 const {RethrownError} = require('../utils/rethrownError');
+const {FhirResourceCreator} = require('../fhir/fhirResourceCreator');
 
 /**
  * This class provides access to _History collections
@@ -71,8 +71,7 @@ class DatabaseHistoryManager {
                     if (resource.resource) { // is a bundle entry
                         resource = resource.resource;
                     }
-                    const ResourceCreator = getResource(this._base_version, this._resourceType);
-                    return new ResourceCreator(resource);
+                    return FhirResourceCreator.create(resource);
                 }
             }
             return null;

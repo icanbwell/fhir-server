@@ -118,7 +118,8 @@ class Patient extends Resource {
                     return;
                 }
                 const Meta = require('../complex_types/meta.js');
-                this.__data.meta = new Meta(valueProvided);
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.meta = FhirResourceCreator.create(valueProvided, Meta);
             }
         });
 
@@ -181,7 +182,8 @@ class Patient extends Resource {
                     return;
                 }
                 const Narrative = require('../complex_types/narrative.js');
-                this.__data.text = new Narrative(valueProvided);
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.text = FhirResourceCreator.create(valueProvided, Narrative);
             }
         });
 
@@ -202,16 +204,8 @@ class Patient extends Resource {
                     return;
                 }
                 const ResourceContainer = require('../simple_types/resourceContainer.js');
-                const {getResource} = require('../../../../operations/common/getResource');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.contained = valueProvided.filter(v => v).map(v => {
-                        const ResourceCreator = getResource('4_0_0', v.resourceType);
-                        return new ResourceCreator(v);
-                    });
-                } else {
-                const ResourceCreator = getResource('4_0_0', valueProvided.resourceType);
-                this.__data.contained = [new ResourceCreator(valueProvided)];
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.contained = FhirResourceCreator.createArray(valueProvided);
             }
         });
 
@@ -234,7 +228,8 @@ class Patient extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -265,7 +260,8 @@ class Patient extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -284,7 +280,8 @@ class Patient extends Resource {
                     return;
                 }
                 const Identifier = require('../complex_types/identifier.js');
-                this.__data.identifier = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Identifier(v)) : [new Identifier(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.identifier = FhirResourceCreator.createArray(valueProvided, Identifier);
             }
         });
 
@@ -329,7 +326,8 @@ class Patient extends Resource {
                     return;
                 }
                 const HumanName = require('../complex_types/humanName.js');
-                this.__data.name = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new HumanName(v)) : [new HumanName(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.name = FhirResourceCreator.createArray(valueProvided, HumanName);
             }
         });
 
@@ -349,7 +347,8 @@ class Patient extends Resource {
                     return;
                 }
                 const ContactPoint = require('../complex_types/contactPoint.js');
-                this.__data.telecom = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ContactPoint(v)) : [new ContactPoint(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.telecom = FhirResourceCreator.createArray(valueProvided, ContactPoint);
             }
         });
 
@@ -441,7 +440,8 @@ class Patient extends Resource {
                     return;
                 }
                 const Address = require('../complex_types/address.js');
-                this.__data.address = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Address(v)) : [new Address(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.address = FhirResourceCreator.createArray(valueProvided, Address);
             }
         });
 
@@ -460,7 +460,8 @@ class Patient extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.maritalStatus = new CodeableConcept(valueProvided);
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.maritalStatus = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
 
@@ -515,7 +516,8 @@ class Patient extends Resource {
                     return;
                 }
                 const Attachment = require('../complex_types/attachment.js');
-                this.__data.photo = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Attachment(v)) : [new Attachment(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.photo = FhirResourceCreator.createArray(valueProvided, Attachment);
             }
         });
 
@@ -534,7 +536,8 @@ class Patient extends Resource {
                     return;
                 }
                 const PatientContact = require('../backbone_elements/patientContact.js');
-                this.__data.contact = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new PatientContact(v)) : [new PatientContact(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.contact = FhirResourceCreator.createArray(valueProvided, PatientContact);
             }
         });
 
@@ -554,7 +557,8 @@ class Patient extends Resource {
                     return;
                 }
                 const PatientCommunication = require('../backbone_elements/patientCommunication.js');
-                this.__data.communication = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new PatientCommunication(v)) : [new PatientCommunication(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.communication = FhirResourceCreator.createArray(valueProvided, PatientCommunication);
             }
         });
 
@@ -573,7 +577,8 @@ class Patient extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.generalPractitioner = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.generalPractitioner = FhirResourceCreator.createArray(valueProvided, Reference);
             }
         });
 
@@ -592,7 +597,8 @@ class Patient extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.managingOrganization = new Reference(valueProvided);
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.managingOrganization = FhirResourceCreator.create(valueProvided, Reference);
             }
         });
 
@@ -611,7 +617,8 @@ class Patient extends Resource {
                     return;
                 }
                 const PatientLink = require('../backbone_elements/patientLink.js');
-                this.__data.link = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new PatientLink(v)) : [new PatientLink(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.link = FhirResourceCreator.createArray(valueProvided, PatientLink);
             }
         });
 

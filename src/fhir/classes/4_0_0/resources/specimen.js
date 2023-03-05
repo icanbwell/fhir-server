@@ -107,7 +107,8 @@ class Specimen extends Resource {
                     return;
                 }
                 const Meta = require('../complex_types/meta.js');
-                this.__data.meta = new Meta(valueProvided);
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.meta = FhirResourceCreator.create(valueProvided, Meta);
             }
         });
 
@@ -170,7 +171,8 @@ class Specimen extends Resource {
                     return;
                 }
                 const Narrative = require('../complex_types/narrative.js');
-                this.__data.text = new Narrative(valueProvided);
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.text = FhirResourceCreator.create(valueProvided, Narrative);
             }
         });
 
@@ -191,16 +193,8 @@ class Specimen extends Resource {
                     return;
                 }
                 const ResourceContainer = require('../simple_types/resourceContainer.js');
-                const {getResource} = require('../../../../operations/common/getResource');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.contained = valueProvided.filter(v => v).map(v => {
-                        const ResourceCreator = getResource('4_0_0', v.resourceType);
-                        return new ResourceCreator(v);
-                    });
-                } else {
-                const ResourceCreator = getResource('4_0_0', valueProvided.resourceType);
-                this.__data.contained = [new ResourceCreator(valueProvided)];
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.contained = FhirResourceCreator.createArray(valueProvided);
             }
         });
 
@@ -223,7 +217,8 @@ class Specimen extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -254,7 +249,8 @@ class Specimen extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -273,7 +269,8 @@ class Specimen extends Resource {
                     return;
                 }
                 const Identifier = require('../complex_types/identifier.js');
-                this.__data.identifier = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Identifier(v)) : [new Identifier(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.identifier = FhirResourceCreator.createArray(valueProvided, Identifier);
             }
         });
 
@@ -294,7 +291,8 @@ class Specimen extends Resource {
                     return;
                 }
                 const Identifier = require('../complex_types/identifier.js');
-                this.__data.accessionIdentifier = new Identifier(valueProvided);
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.accessionIdentifier = FhirResourceCreator.create(valueProvided, Identifier);
             }
         });
 
@@ -331,7 +329,8 @@ class Specimen extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.type = new CodeableConcept(valueProvided);
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.type = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
 
@@ -352,7 +351,8 @@ class Specimen extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.subject = new Reference(valueProvided);
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.subject = FhirResourceCreator.create(valueProvided, Reference);
             }
         });
 
@@ -390,7 +390,8 @@ class Specimen extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.parent = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.parent = FhirResourceCreator.createArray(valueProvided, Reference);
             }
         });
 
@@ -409,7 +410,8 @@ class Specimen extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.request = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.request = FhirResourceCreator.createArray(valueProvided, Reference);
             }
         });
 
@@ -428,7 +430,8 @@ class Specimen extends Resource {
                     return;
                 }
                 const SpecimenCollection = require('../backbone_elements/specimenCollection.js');
-                this.__data.collection = new SpecimenCollection(valueProvided);
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.collection = FhirResourceCreator.create(valueProvided, SpecimenCollection);
             }
         });
 
@@ -447,7 +450,8 @@ class Specimen extends Resource {
                     return;
                 }
                 const SpecimenProcessing = require('../backbone_elements/specimenProcessing.js');
-                this.__data.processing = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new SpecimenProcessing(v)) : [new SpecimenProcessing(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.processing = FhirResourceCreator.createArray(valueProvided, SpecimenProcessing);
             }
         });
 
@@ -467,7 +471,8 @@ class Specimen extends Resource {
                     return;
                 }
                 const SpecimenContainer = require('../backbone_elements/specimenContainer.js');
-                this.__data.container = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new SpecimenContainer(v)) : [new SpecimenContainer(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.container = FhirResourceCreator.createArray(valueProvided, SpecimenContainer);
             }
         });
 
@@ -486,7 +491,8 @@ class Specimen extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.condition = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new CodeableConcept(v)) : [new CodeableConcept(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.condition = FhirResourceCreator.createArray(valueProvided, CodeableConcept);
             }
         });
 
@@ -506,7 +512,8 @@ class Specimen extends Resource {
                     return;
                 }
                 const Annotation = require('../complex_types/annotation.js');
-                this.__data.note = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Annotation(v)) : [new Annotation(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.note = FhirResourceCreator.createArray(valueProvided, Annotation);
             }
         });
 

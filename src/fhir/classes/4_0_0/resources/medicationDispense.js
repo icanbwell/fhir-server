@@ -137,7 +137,8 @@ class MedicationDispense extends Resource {
                     return;
                 }
                 const Meta = require('../complex_types/meta.js');
-                this.__data.meta = new Meta(valueProvided);
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.meta = FhirResourceCreator.create(valueProvided, Meta);
             }
         });
 
@@ -200,7 +201,8 @@ class MedicationDispense extends Resource {
                     return;
                 }
                 const Narrative = require('../complex_types/narrative.js');
-                this.__data.text = new Narrative(valueProvided);
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.text = FhirResourceCreator.create(valueProvided, Narrative);
             }
         });
 
@@ -221,16 +223,8 @@ class MedicationDispense extends Resource {
                     return;
                 }
                 const ResourceContainer = require('../simple_types/resourceContainer.js');
-                const {getResource} = require('../../../../operations/common/getResource');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.contained = valueProvided.filter(v => v).map(v => {
-                        const ResourceCreator = getResource('4_0_0', v.resourceType);
-                        return new ResourceCreator(v);
-                    });
-                } else {
-                const ResourceCreator = getResource('4_0_0', valueProvided.resourceType);
-                this.__data.contained = [new ResourceCreator(valueProvided)];
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.contained = FhirResourceCreator.createArray(valueProvided);
             }
         });
 
@@ -253,7 +247,8 @@ class MedicationDispense extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -284,7 +279,8 @@ class MedicationDispense extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -307,7 +303,8 @@ class MedicationDispense extends Resource {
                     return;
                 }
                 const Identifier = require('../complex_types/identifier.js');
-                this.__data.identifier = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Identifier(v)) : [new Identifier(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.identifier = FhirResourceCreator.createArray(valueProvided, Identifier);
             }
         });
 
@@ -326,7 +323,8 @@ class MedicationDispense extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.partOf = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.partOf = FhirResourceCreator.createArray(valueProvided, Reference);
             }
         });
 
@@ -363,7 +361,8 @@ class MedicationDispense extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.statusReasonCodeableConcept = new CodeableConcept(valueProvided);
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.statusReasonCodeableConcept = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
 
@@ -382,7 +381,8 @@ class MedicationDispense extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.statusReasonReference = new Reference(valueProvided);
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.statusReasonReference = FhirResourceCreator.create(valueProvided, Reference);
             }
         });
 
@@ -402,7 +402,8 @@ class MedicationDispense extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.category = new CodeableConcept(valueProvided);
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.category = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
 
@@ -421,7 +422,8 @@ class MedicationDispense extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.medicationCodeableConcept = new CodeableConcept(valueProvided);
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.medicationCodeableConcept = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
 
@@ -440,7 +442,8 @@ class MedicationDispense extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.medicationReference = new Reference(valueProvided);
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.medicationReference = FhirResourceCreator.create(valueProvided, Reference);
             }
         });
 
@@ -460,7 +463,8 @@ class MedicationDispense extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.subject = new Reference(valueProvided);
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.subject = FhirResourceCreator.create(valueProvided, Reference);
             }
         });
 
@@ -479,7 +483,8 @@ class MedicationDispense extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.context = new Reference(valueProvided);
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.context = FhirResourceCreator.create(valueProvided, Reference);
             }
         });
 
@@ -498,7 +503,8 @@ class MedicationDispense extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.supportingInformation = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.supportingInformation = FhirResourceCreator.createArray(valueProvided, Reference);
             }
         });
 
@@ -517,7 +523,8 @@ class MedicationDispense extends Resource {
                     return;
                 }
                 const MedicationDispensePerformer = require('../backbone_elements/medicationDispensePerformer.js');
-                this.__data.performer = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new MedicationDispensePerformer(v)) : [new MedicationDispensePerformer(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.performer = FhirResourceCreator.createArray(valueProvided, MedicationDispensePerformer);
             }
         });
 
@@ -536,7 +543,8 @@ class MedicationDispense extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.location = new Reference(valueProvided);
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.location = FhirResourceCreator.create(valueProvided, Reference);
             }
         });
 
@@ -555,7 +563,8 @@ class MedicationDispense extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.authorizingPrescription = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.authorizingPrescription = FhirResourceCreator.createArray(valueProvided, Reference);
             }
         });
 
@@ -575,7 +584,8 @@ class MedicationDispense extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.type = new CodeableConcept(valueProvided);
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.type = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
 
@@ -594,7 +604,8 @@ class MedicationDispense extends Resource {
                     return;
                 }
                 const Quantity = require('../complex_types/quantity.js');
-                this.__data.quantity = new Quantity(valueProvided);
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.quantity = FhirResourceCreator.create(valueProvided, Quantity);
             }
         });
 
@@ -613,7 +624,8 @@ class MedicationDispense extends Resource {
                     return;
                 }
                 const Quantity = require('../complex_types/quantity.js');
-                this.__data.daysSupply = new Quantity(valueProvided);
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.daysSupply = FhirResourceCreator.create(valueProvided, Quantity);
             }
         });
 
@@ -670,7 +682,8 @@ class MedicationDispense extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.destination = new Reference(valueProvided);
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.destination = FhirResourceCreator.create(valueProvided, Reference);
             }
         });
 
@@ -691,7 +704,8 @@ class MedicationDispense extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.receiver = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.receiver = FhirResourceCreator.createArray(valueProvided, Reference);
             }
         });
 
@@ -711,7 +725,8 @@ class MedicationDispense extends Resource {
                     return;
                 }
                 const Annotation = require('../complex_types/annotation.js');
-                this.__data.note = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Annotation(v)) : [new Annotation(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.note = FhirResourceCreator.createArray(valueProvided, Annotation);
             }
         });
 
@@ -730,7 +745,8 @@ class MedicationDispense extends Resource {
                     return;
                 }
                 const Dosage = require('../backbone_elements/dosage.js');
-                this.__data.dosageInstruction = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Dosage(v)) : [new Dosage(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.dosageInstruction = FhirResourceCreator.createArray(valueProvided, Dosage);
             }
         });
 
@@ -753,7 +769,8 @@ class MedicationDispense extends Resource {
                     return;
                 }
                 const MedicationDispenseSubstitution = require('../backbone_elements/medicationDispenseSubstitution.js');
-                this.__data.substitution = new MedicationDispenseSubstitution(valueProvided);
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.substitution = FhirResourceCreator.create(valueProvided, MedicationDispenseSubstitution);
             }
         });
 
@@ -774,7 +791,8 @@ class MedicationDispense extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.detectedIssue = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.detectedIssue = FhirResourceCreator.createArray(valueProvided, Reference);
             }
         });
 
@@ -794,7 +812,8 @@ class MedicationDispense extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.eventHistory = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.eventHistory = FhirResourceCreator.createArray(valueProvided, Reference);
             }
         });
 

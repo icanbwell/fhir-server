@@ -147,6 +147,14 @@
         "type": "Person"
       },
       "assurance": "level4"
+    },
+    {
+      "target": {
+        "_uuid": "Patient/29bcdbae-5ab4-5eed-bd39-7e152f3e23e6",
+        "reference": "Patient/123",
+        "type": "Patient"
+      },
+      "assurance": "level4"
     }
   ],
   "_access": {

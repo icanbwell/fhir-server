@@ -136,7 +136,8 @@ class ClaimResponse extends Resource {
                     return;
                 }
                 const Meta = require('../complex_types/meta.js');
-                this.__data.meta = new Meta(valueProvided);
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.meta = FhirResourceCreator.create(valueProvided, Meta);
             }
         });
 
@@ -199,7 +200,8 @@ class ClaimResponse extends Resource {
                     return;
                 }
                 const Narrative = require('../complex_types/narrative.js');
-                this.__data.text = new Narrative(valueProvided);
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.text = FhirResourceCreator.create(valueProvided, Narrative);
             }
         });
 
@@ -220,16 +222,8 @@ class ClaimResponse extends Resource {
                     return;
                 }
                 const ResourceContainer = require('../simple_types/resourceContainer.js');
-                const {getResource} = require('../../../../operations/common/getResource');
-                if (Array.isArray(valueProvided)) {
-                    this.__data.contained = valueProvided.filter(v => v).map(v => {
-                        const ResourceCreator = getResource('4_0_0', v.resourceType);
-                        return new ResourceCreator(v);
-                    });
-                } else {
-                const ResourceCreator = getResource('4_0_0', valueProvided.resourceType);
-                this.__data.contained = [new ResourceCreator(valueProvided)];
-                }
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.contained = FhirResourceCreator.createArray(valueProvided);
             }
         });
 
@@ -252,7 +246,8 @@ class ClaimResponse extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                this.__data.extension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.extension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -283,7 +278,8 @@ class ClaimResponse extends Resource {
                     return;
                 }
                 const Extension = require('../complex_types/extension.js');
-                this.__data.modifierExtension = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Extension(v)) : [new Extension(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.modifierExtension = FhirResourceCreator.createArray(valueProvided, Extension);
             }
         });
 
@@ -302,7 +298,8 @@ class ClaimResponse extends Resource {
                     return;
                 }
                 const Identifier = require('../complex_types/identifier.js');
-                this.__data.identifier = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Identifier(v)) : [new Identifier(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.identifier = FhirResourceCreator.createArray(valueProvided, Identifier);
             }
         });
 
@@ -340,7 +337,8 @@ class ClaimResponse extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.type = new CodeableConcept(valueProvided);
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.type = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
 
@@ -360,7 +358,8 @@ class ClaimResponse extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.subType = new CodeableConcept(valueProvided);
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.subType = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
 
@@ -403,7 +402,8 @@ class ClaimResponse extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.patient = new Reference(valueProvided);
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.patient = FhirResourceCreator.create(valueProvided, Reference);
             }
         });
 
@@ -440,7 +440,8 @@ class ClaimResponse extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.insurer = new Reference(valueProvided);
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.insurer = FhirResourceCreator.create(valueProvided, Reference);
             }
         });
 
@@ -460,7 +461,8 @@ class ClaimResponse extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.requestor = new Reference(valueProvided);
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.requestor = FhirResourceCreator.create(valueProvided, Reference);
             }
         });
 
@@ -479,7 +481,8 @@ class ClaimResponse extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.request = new Reference(valueProvided);
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.request = FhirResourceCreator.create(valueProvided, Reference);
             }
         });
 
@@ -553,7 +556,8 @@ class ClaimResponse extends Resource {
                     return;
                 }
                 const Period = require('../complex_types/period.js');
-                this.__data.preAuthPeriod = new Period(valueProvided);
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.preAuthPeriod = FhirResourceCreator.create(valueProvided, Period);
             }
         });
 
@@ -572,7 +576,8 @@ class ClaimResponse extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.payeeType = new CodeableConcept(valueProvided);
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.payeeType = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
 
@@ -592,7 +597,8 @@ class ClaimResponse extends Resource {
                     return;
                 }
                 const ClaimResponseItem = require('../backbone_elements/claimResponseItem.js');
-                this.__data.item = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ClaimResponseItem(v)) : [new ClaimResponseItem(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.item = FhirResourceCreator.createArray(valueProvided, ClaimResponseItem);
             }
         });
 
@@ -611,7 +617,8 @@ class ClaimResponse extends Resource {
                     return;
                 }
                 const ClaimResponseAddItem = require('../backbone_elements/claimResponseAddItem.js');
-                this.__data.addItem = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ClaimResponseAddItem(v)) : [new ClaimResponseAddItem(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.addItem = FhirResourceCreator.createArray(valueProvided, ClaimResponseAddItem);
             }
         });
 
@@ -631,7 +638,8 @@ class ClaimResponse extends Resource {
                     return;
                 }
                 const ClaimResponseAdjudication = require('../backbone_elements/claimResponseAdjudication.js');
-                this.__data.adjudication = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ClaimResponseAdjudication(v)) : [new ClaimResponseAdjudication(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.adjudication = FhirResourceCreator.createArray(valueProvided, ClaimResponseAdjudication);
             }
         });
 
@@ -650,7 +658,8 @@ class ClaimResponse extends Resource {
                     return;
                 }
                 const ClaimResponseTotal = require('../backbone_elements/claimResponseTotal.js');
-                this.__data.total = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ClaimResponseTotal(v)) : [new ClaimResponseTotal(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.total = FhirResourceCreator.createArray(valueProvided, ClaimResponseTotal);
             }
         });
 
@@ -669,7 +678,8 @@ class ClaimResponse extends Resource {
                     return;
                 }
                 const ClaimResponsePayment = require('../backbone_elements/claimResponsePayment.js');
-                this.__data.payment = new ClaimResponsePayment(valueProvided);
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.payment = FhirResourceCreator.create(valueProvided, ClaimResponsePayment);
             }
         });
 
@@ -689,7 +699,8 @@ class ClaimResponse extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.fundsReserve = new CodeableConcept(valueProvided);
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.fundsReserve = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
 
@@ -708,7 +719,8 @@ class ClaimResponse extends Resource {
                     return;
                 }
                 const CodeableConcept = require('../complex_types/codeableConcept.js');
-                this.__data.formCode = new CodeableConcept(valueProvided);
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.formCode = FhirResourceCreator.create(valueProvided, CodeableConcept);
             }
         });
 
@@ -728,7 +740,8 @@ class ClaimResponse extends Resource {
                     return;
                 }
                 const Attachment = require('../complex_types/attachment.js');
-                this.__data.form = new Attachment(valueProvided);
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.form = FhirResourceCreator.create(valueProvided, Attachment);
             }
         });
 
@@ -748,7 +761,8 @@ class ClaimResponse extends Resource {
                     return;
                 }
                 const ClaimResponseProcessNote = require('../backbone_elements/claimResponseProcessNote.js');
-                this.__data.processNote = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ClaimResponseProcessNote(v)) : [new ClaimResponseProcessNote(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.processNote = FhirResourceCreator.createArray(valueProvided, ClaimResponseProcessNote);
             }
         });
 
@@ -767,7 +781,8 @@ class ClaimResponse extends Resource {
                     return;
                 }
                 const Reference = require('../complex_types/reference.js');
-                this.__data.communicationRequest = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new Reference(v)) : [new Reference(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.communicationRequest = FhirResourceCreator.createArray(valueProvided, Reference);
             }
         });
 
@@ -787,7 +802,8 @@ class ClaimResponse extends Resource {
                     return;
                 }
                 const ClaimResponseInsurance = require('../backbone_elements/claimResponseInsurance.js');
-                this.__data.insurance = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ClaimResponseInsurance(v)) : [new ClaimResponseInsurance(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.insurance = FhirResourceCreator.createArray(valueProvided, ClaimResponseInsurance);
             }
         });
 
@@ -806,7 +822,8 @@ class ClaimResponse extends Resource {
                     return;
                 }
                 const ClaimResponseError = require('../backbone_elements/claimResponseError.js');
-                this.__data.error = Array.isArray(valueProvided) ? valueProvided.filter(v => v).map(v => new ClaimResponseError(v)) : [new ClaimResponseError(valueProvided)];
+                const {FhirResourceCreator} = require('../../../fhirResourceCreator');
+                this.__data.error = FhirResourceCreator.createArray(valueProvided, ClaimResponseError);
             }
         });
 

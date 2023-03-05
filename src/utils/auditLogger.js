@@ -3,8 +3,6 @@
  */
 const env = require('var');
 const moment = require('moment-timezone');
-const {getMeta} = require('../operations/common/getMeta');
-const {getResource} = require('../operations/common/getResource');
 const {generateUUID} = require('./uid.util');
 const {isTrue} = require('./isTrue');
 const deepcopy = require('deepcopy');
@@ -15,6 +13,9 @@ const {assertTypeEquals} = require('./assertType');
 const {SecurityTagSystem} = require('./securityTagSystem');
 const {getCircularReplacer} = require('./getCircularReplacer');
 const {logError} = require('../operations/common/logging');
+const AuditEvent = require('../fhir/classes/4_0_0/resources/auditEvent');
+const Meta = require('../fhir/classes/4_0_0/complex_types/meta');
+const Coding = require('../fhir/classes/4_0_0/complex_types/coding');
 
 class AuditLogger {
     /**
@@ -59,7 +60,6 @@ class AuditLogger {
      * Create an AuditEntry resource
      * @param {import('./fhirRequestInfo').FhirRequestInfo} requestInfo
      * @param {string} resourceType
-     * @param {string} base_version
      * @param {string} operation
      * @param {Object} cleanedArgs
      * @param {string[]} ids
@@ -67,15 +67,10 @@ class AuditLogger {
      */
     createAuditEntry(
         {
-            base_version, requestInfo, operation,
+            requestInfo, operation,
             ids, resourceType, cleanedArgs
         }
     ) {
-        /**
-         * @type {function({Object}): Meta}
-         */
-        let Meta = getMeta(base_version);
-
         const operationCodeMapping = {
             'create': 'C',
             'read': 'R',
@@ -85,22 +80,22 @@ class AuditLogger {
         };
 
         // Get current record
-        let ResourceCreator = getResource(base_version, 'AuditEvent');
-
         const maxNumberOfIds = env.AUDIT_MAX_NUMBER_OF_IDS ? parseInt(env.AUDIT_MAX_NUMBER_OF_IDS) : 50;
-        const document = {
+
+        const resource = new AuditEvent({
+            id: generateUUID(),
             meta: new Meta({
                 versionId: '1',
                 lastUpdated: new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ssZ')),
                 security: [
-                    {
+                    new Coding({
                         'system': SecurityTagSystem.owner,
                         'code': 'bwell'
-                    },
-                    {
+                    }),
+                    new Coding({
                         'system': SecurityTagSystem.access,
                         'code': 'bwell'
-                    }
+                    })
                 ]
             }),
             recorded: new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ssZ')),
@@ -138,11 +133,7 @@ class AuditLogger {
                         }) : null
                 };
             })
-        };
-        let resource = new ResourceCreator(document);
-
-        let id = generateUUID();
-        resource.id = id;
+        });
 
         return resource;
     }

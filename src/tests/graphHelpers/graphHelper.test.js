@@ -1385,20 +1385,20 @@ describe('graphHelper Tests', () => {
                         },
                     },
                     {
-                        id: '100',
-                        fullUrl: 'https://host/4_0_0/Organization/100',
-                        resource: {
-                            id: '100',
-                            resourceType: 'Organization',
-                        },
-                    },
-                    {
                         id: 'AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He',
                         fullUrl:
                             'https://host/4_0_0/InsurancePlan/AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He',
                         resource: {
                             id: 'AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He',
                             resourceType: 'InsurancePlan',
+                        },
+                    },
+                    {
+                        id: '100',
+                        fullUrl: 'https://host/4_0_0/Organization/100',
+                        resource: {
+                            id: '100',
+                            resourceType: 'Organization',
                         },
                     },
                     {
@@ -1613,12 +1613,12 @@ describe('graphHelper Tests', () => {
                                     resourceType: 'PractitionerRole',
                                 },
                                 {
-                                    id: '100',
-                                    resourceType: 'Organization',
-                                },
-                                {
                                     id: 'AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He',
                                     resourceType: 'InsurancePlan',
+                                },
+                                {
+                                    id: '100',
+                                    resourceType: 'Organization',
                                 },
                             ],
                             id: '1',
@@ -1864,12 +1864,12 @@ describe('graphHelper Tests', () => {
                                     resourceType: 'PractitionerRole',
                                 },
                                 {
-                                    id: '100',
-                                    resourceType: 'Organization',
-                                },
-                                {
                                     id: 'AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He',
                                     resourceType: 'InsurancePlan',
+                                },
+                                {
+                                    id: '100',
+                                    resourceType: 'Organization',
                                 },
                             ],
                             id: '1',
@@ -2111,7 +2111,7 @@ describe('graphHelper Tests', () => {
                     'tag': [
                         {
                             'system': 'https://www.icanbwell.com/query',
-                            'display': "db.Practitioner_4_0_0.find({'_sourceId':{'$in':['1','2']}}, {'_id':0})  | db.PractitionerRole_4_0_0.find({'$or':[{'practitioner._sourceId':'Practitioner/18ba3527-77e0-5ae6-a872-181654110d28'},{'practitioner._uuid':'Practitioner/18ba3527-77e0-5ae6-a872-181654110d28'},{'practitioner._sourceId':'Practitioner/1'},{'practitioner._uuid':'Practitioner/1'}]}, {}) | db.Organization_4_0_0.find({'$or':[{'_sourceId':{'$in':['100']}},{'_uuid':{'$in':['5a1d6b34-dbdc-5974-9816-53a13b80c839']}}]}, {}) | db.InsurancePlan_4_0_0.find({'$or':[{'_sourceId':{'$in':['AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He']}},{'_uuid':{'$in':['24c117ef-4601-52ea-8812-ac66793956b5']}}]}, {})",
+                            'display': 'db.Practitioner_4_0_0.find({\'_sourceId\':{\'$in\':[\'1\',\'2\']}}, {\'_id\':0})  | db.PractitionerRole_4_0_0.find({\'$or\':[{\'practitioner._sourceId\':\'Practitioner/18ba3527-77e0-5ae6-a872-181654110d28\'},{\'practitioner._uuid\':\'Practitioner/18ba3527-77e0-5ae6-a872-181654110d28\'},{\'practitioner._sourceId\':\'Practitioner/1\'},{\'practitioner._uuid\':\'Practitioner/1\'}]}, {}) | db.Organization_4_0_0.find({\'$or\':[{\'_sourceId\':{\'$in\':[\'100\']}},{\'_uuid\':{\'$in\':[\'5a1d6b34-dbdc-5974-9816-53a13b80c839\']}}]}, {}) | db.InsurancePlan_4_0_0.find({\'$or\':[{\'_sourceId\':{\'$in\':[\'AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He\']}},{\'_uuid\':{\'$in\':[\'24c117ef-4601-52ea-8812-ac66793956b5\']}}]}, {})',
                         },
                         {
                             'system': 'https://www.icanbwell.com/queryCollection',
@@ -2187,13 +2187,13 @@ describe('graphHelper Tests', () => {
                                     }
                                 },
                                 {
+                                    'resourceType': 'InsurancePlan',
+                                    'id': 'AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He'
+                                },
+                                {
                                     'resourceType': 'Organization',
                                     'id': '100'
                                 },
-                                {
-                                    'resourceType': 'InsurancePlan',
-                                    'id': 'AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He'
-                                }
                             ]
                         }
                     }
