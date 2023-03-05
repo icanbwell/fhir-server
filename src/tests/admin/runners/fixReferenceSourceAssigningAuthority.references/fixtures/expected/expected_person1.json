@@ -4,7 +4,7 @@
   },
   "_sourceAssigningAuthority": "bwell",
   "_sourceId": "53341b2a35bf4d1cb47de4945a22c499",
-  "_uuid": "0aed2b07-e451-591c-8af7-512ef4e9126b",
+  "_uuid": "eec2d149-36fd-5204-9c5f-3774774fe2f5",
   "address": [
     {
       "city": "San Antonio",
@@ -74,7 +74,7 @@
     {
       "id": "uuid",
       "system": "https://www.icanbwell.com/uuid",
-      "value": "b6753675-63d4-4c9c-99f6-54ee6c79804e"
+      "value": "eec2d149-36fd-5204-9c5f-3774774fe2f5"
     }
   ],
   "link": [
@@ -108,25 +108,25 @@
     {
       "assurance": "level4",
       "target": {
-        "_uuid": "Patient/29bcdbae-5ab4-5eed-bd39-7e152f3e23e6",
+        "_sourceAssigningAuthority": "healthsystem1",
+        "_sourceId": "Patient/123",
+        "_uuid": "Patient/73e3235f-e3cd-586f-85a6-9872386b672c",
         "extension": [
-          [
-            {
-              "id": "sourceId",
-              "url": "https://www.icanbwell.com/sourceId",
-              "valueString": "Patient/123"
-            },
-            {
-              "id": "uuid",
-              "url": "https://www.icanbwell.com/uuid",
-              "valueString": "Patient/73e3235f-e3cd-586f-85a6-9872386b672c"
-            },
-            {
-              "id": "sourceAssigningAuthority",
-              "url": "https://www.icanbwell.com/sourceAssigningAuthority",
-              "valueString": "healthsystem1"
-            }
-          ]
+          {
+            "id": "sourceId",
+            "url": "https://www.icanbwell.com/sourceId",
+            "valueString": "Patient/123"
+          },
+          {
+            "id": "uuid",
+            "url": "https://www.icanbwell.com/uuid",
+            "valueString": "Patient/73e3235f-e3cd-586f-85a6-9872386b672c"
+          },
+          {
+            "id": "sourceAssigningAuthority",
+            "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+            "valueString": "healthsystem1"
+          }
         ],
         "reference": "Patient/123|healthsystem1",
         "type": "Patient"
@@ -134,7 +134,7 @@
     }
   ],
   "meta": {
-    "lastUpdated": "2023-01-19T21:57:39.000Z",
+    "lastUpdated": "2023-03-05T20:22:27.000Z",
     "profile": [
       "http://hl7.org/fhir/us/core/StructureDefinition/us-core-person"
     ],

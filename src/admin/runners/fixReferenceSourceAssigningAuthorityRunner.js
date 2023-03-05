@@ -395,10 +395,13 @@ class FixReferenceSourceAssigningAuthorityRunner extends BaseBulkOperationRunner
              * @type {Resource}
              */
             let resource = FhirResourceCreator.create(doc);
+
             /**
              * @type {Resource}
              */
             const currentResource = resource.clone();
+
+            resource = await this.preSaveManager.preSaveAsync(resource);
 
             await resource.updateReferencesAsync(
                 {
