@@ -183,8 +183,6 @@ class FixReferenceSourceAssigningAuthorityRunner extends BaseBulkOperationRunner
      */
     async updateReferenceAsync(reference, databaseQueryFactory) {
         try {
-
-
             assertTypeEquals(databaseQueryFactory, DatabaseQueryFactory);
             if (!reference.reference) {
                 return reference;
@@ -257,11 +255,16 @@ class FixReferenceSourceAssigningAuthorityRunner extends BaseBulkOperationRunner
                             }
                         );
                         reference._sourceAssigningAuthority = _sourceAssigningAuthority;
-                        reference._uuid = _uuid;
+                        reference._uuid = `${resourceType}/${_uuid}`;
                         if (reference.extension) {
                             const uuidExtension = reference.extension.find(e => e.id === 'uuid');
                             if (uuidExtension) {
                                 uuidExtension.valueString = reference._uuid;
+                            }
+                            const sourceAssigningAuthorityExtension = reference.extension.find(
+                                e => e.id === 'sourceAssigningAuthority');
+                            if (sourceAssigningAuthorityExtension) {
+                                sourceAssigningAuthorityExtension.valueString = reference._sourceAssigningAuthority;
                             }
                         }
                         foundInCache = true;

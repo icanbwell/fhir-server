@@ -81,9 +81,9 @@
     {
       "assurance": "level4",
       "target": {
-        "_sourceAssigningAuthority": "bwell",
+        "_sourceAssigningAuthority": "healthsystem1",
         "_sourceId": "Person/a0b8be666f4a4f60a3f6129f7ddc8aab",
-        "_uuid": "Person/29bcdbae-5ab4-5eed-bd39-7e152f3e23e6",
+        "_uuid": "Person/7673a048-8d3d-55cd-a607-c456e1c717e5",
         "extension": [
           {
             "id": "sourceId",
