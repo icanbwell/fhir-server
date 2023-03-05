@@ -431,7 +431,7 @@ class FixReferenceSourceAssigningAuthorityRunner extends BaseBulkOperationRunner
                 }
                 console.log(`Resources not found in ${this.resourcesNotFound.size} collections`);
                 for (const [cacheCollectionName, resourceIds] of this.resourcesNotFound.entries()) {
-                    console.log(`${cacheCollectionName} not found: ${resourceIds.join(',')}`);
+                    console.log(`${cacheCollectionName} not found (${resourceIds.length}): ${resourceIds.join(',')}`);
                 }
             }
             console.log('Finished script');
