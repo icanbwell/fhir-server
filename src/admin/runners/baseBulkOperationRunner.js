@@ -241,7 +241,7 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
             skip
         }) {
         const maxTimeMS = 20 * 60 * 60 * 1000;
-        const numberOfSecondsBetweenSessionRefreshes = 10 * 60;
+        const numberOfSecondsBetweenSessionRefreshes = 30;
         let loopRetryNumber = 0;
         const maxLoopRetries = 5;
         let continueLoop = true;
@@ -268,8 +268,11 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
             loopRetryNumber += 1;
 
             // Step 2: Optional. Define options to use for the transaction
+            // https://www.mongodb.com/docs/manual/core/transactions/#std-label-transactions-write-concern
             const transactionOptions = {
+                // https://www.mongodb.com/docs/manual/core/read-preference/
                 readPreference: 'secondaryPreferred',
+                // https://www.mongodb.com/docs/manual/reference/mongodb-defaults/
                 readConcern: {level: 'local'},
                 writeConcern: {w: 1}
             };
