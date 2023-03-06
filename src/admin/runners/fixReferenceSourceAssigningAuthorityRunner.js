@@ -518,7 +518,7 @@ class FixReferenceSourceAssigningAuthorityRunner extends BaseBulkOperationRunner
                 console.log(`Done preloading collection: ${preloadCollection}: ${count}`);
             }
 
-            console.log(`Starting loop for ${this.collections.join(',')}`);
+            console.log(`Starting loop for ${this.collections.join(',')}. useTransaction: ${this.useTransaction}`);
 
             // if there is an exception, continue processing from the last id
             for (const collectionName of this.collections) {

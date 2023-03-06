@@ -244,7 +244,7 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
         let previouslyCheckedId = lastCheckedId;
 
         if (useTransaction) {
-            this.adminLogger.logInfo('==== Using transactions ===');
+            console.log('==== Using transactions ===');
         }
         /**
          * @type {number}
