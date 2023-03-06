@@ -269,9 +269,9 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
 
             // Step 2: Optional. Define options to use for the transaction
             const transactionOptions = {
-                // readPreference: 'primary',
-                // readConcern: {level: 'local'},
-                // writeConcern: {w: 'majority'}
+                readPreference: 'secondaryPreferred',
+                readConcern: {level: 'local'},
+                writeConcern: {w: 1}
             };
             try {
                 let {
