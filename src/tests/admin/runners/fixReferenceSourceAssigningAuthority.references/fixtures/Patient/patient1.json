@@ -1,5 +1,5 @@
 {
-  "resourceType": "Person",
+  "resourceType": "Patient",
   "id": "123",
   "meta": {
     "versionId": "2",

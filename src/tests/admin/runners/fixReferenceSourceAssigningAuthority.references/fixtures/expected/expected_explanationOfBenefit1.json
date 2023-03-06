@@ -4,7 +4,7 @@
   },
   "_sourceAssigningAuthority": "centene",
   "_sourceId": "Centene-3289",
-  "_uuid": "e1d85740-3060-509e-b9fd-006449e88271",
+  "_uuid": "6acd3e2e-4e87-5e93-a125-542a89251ca0",
   "billablePeriod": {
     "end": "2021-04-21T11:00:00.000Z",
     "start": "2021-04-17T01:00:00.000Z"
@@ -12,6 +12,26 @@
   "careTeam": [
     {
       "provider": {
+        "_sourceAssigningAuthority": "centene",
+        "_sourceId": "Organization/2645",
+        "_uuid": "Organization/719f80e9-5f3b-5f0a-ae23-70432f94932f",
+        "extension": [
+          {
+            "id": "sourceId",
+            "url": "https://www.icanbwell.com/sourceId",
+            "valueString": "Organization/2645"
+          },
+          {
+            "id": "uuid",
+            "url": "https://www.icanbwell.com/uuid",
+            "valueString": "Organization/719f80e9-5f3b-5f0a-ae23-70432f94932f"
+          },
+          {
+            "id": "sourceAssigningAuthority",
+            "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+            "valueString": "centene"
+          }
+        ],
         "reference": "Organization/2645"
       },
       "role": {
@@ -122,18 +142,58 @@
     {
       "id": "uuid",
       "system": "https://www.icanbwell.com/uuid",
-      "value": "e1d85740-3060-509e-b9fd-006449e88271"
+      "value": "6acd3e2e-4e87-5e93-a125-542a89251ca0"
     }
   ],
   "insurance": [
     {
       "coverage": {
+        "_sourceAssigningAuthority": "centene",
+        "_sourceId": "Coverage/3288",
+        "_uuid": "Coverage/3d43782d-4896-597a-bd87-c607dedbaa1c",
+        "extension": [
+          {
+            "id": "sourceId",
+            "url": "https://www.icanbwell.com/sourceId",
+            "valueString": "Coverage/3288"
+          },
+          {
+            "id": "uuid",
+            "url": "https://www.icanbwell.com/uuid",
+            "valueString": "Coverage/3d43782d-4896-597a-bd87-c607dedbaa1c"
+          },
+          {
+            "id": "sourceAssigningAuthority",
+            "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+            "valueString": "centene"
+          }
+        ],
         "reference": "Coverage/3288"
       },
       "focal": true
     }
   ],
   "insurer": {
+    "_sourceAssigningAuthority": "centene",
+    "_sourceId": "Organization/3287",
+    "_uuid": "Organization/0bbb2960-c281-5f09-9ec7-5263183a85a1",
+    "extension": [
+      {
+        "id": "sourceId",
+        "url": "https://www.icanbwell.com/sourceId",
+        "valueString": "Organization/3287"
+      },
+      {
+        "id": "uuid",
+        "url": "https://www.icanbwell.com/uuid",
+        "valueString": "Organization/0bbb2960-c281-5f09-9ec7-5263183a85a1"
+      },
+      {
+        "id": "sourceAssigningAuthority",
+        "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+        "valueString": "centene"
+      }
+    ],
     "reference": "Organization/3287"
   },
   "item": [
@@ -330,7 +390,7 @@
     }
   ],
   "meta": {
-    "lastUpdated": "2023-01-19T21:57:39.000Z",
+    "lastUpdated": "2023-03-05T21:51:53.000Z",
     "profile": [
       "http://hl7.org/fhir/us/carin-bb/StructureDefinition/C4BB-ExplanationOfBenefit-Inpatient-Institutional"
     ],
@@ -357,10 +417,50 @@
   },
   "outcome": "partial",
   "patient": {
+    "_sourceAssigningAuthority": "centene",
+    "_sourceId": "Patient/Centene-3286",
+    "_uuid": "Patient/206deb6d-3260-5825-9312-2c99f8812fb6",
+    "extension": [
+      {
+        "id": "sourceId",
+        "url": "https://www.icanbwell.com/sourceId",
+        "valueString": "Patient/Centene-3286"
+      },
+      {
+        "id": "uuid",
+        "url": "https://www.icanbwell.com/uuid",
+        "valueString": "Patient/206deb6d-3260-5825-9312-2c99f8812fb6"
+      },
+      {
+        "id": "sourceAssigningAuthority",
+        "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+        "valueString": "centene"
+      }
+    ],
     "reference": "Patient/Centene-3286"
   },
   "payee": {
     "party": {
+      "_sourceAssigningAuthority": "centene",
+      "_sourceId": "Patient/3286",
+      "_uuid": "Patient/997aa639-acb0-5d2a-a5c7-0c27afb59f28",
+      "extension": [
+        {
+          "id": "sourceId",
+          "url": "https://www.icanbwell.com/sourceId",
+          "valueString": "Patient/3286"
+        },
+        {
+          "id": "uuid",
+          "url": "https://www.icanbwell.com/uuid",
+          "valueString": "Patient/997aa639-acb0-5d2a-a5c7-0c27afb59f28"
+        },
+        {
+          "id": "sourceAssigningAuthority",
+          "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+          "valueString": "centene"
+        }
+      ],
       "reference": "Patient/3286"
     },
     "type": {
@@ -415,6 +515,26 @@
     }
   ],
   "provider": {
+    "_sourceAssigningAuthority": "centene",
+    "_sourceId": "Organization/2645",
+    "_uuid": "Organization/719f80e9-5f3b-5f0a-ae23-70432f94932f",
+    "extension": [
+      {
+        "id": "sourceId",
+        "url": "https://www.icanbwell.com/sourceId",
+        "valueString": "Organization/2645"
+      },
+      {
+        "id": "uuid",
+        "url": "https://www.icanbwell.com/uuid",
+        "valueString": "Organization/719f80e9-5f3b-5f0a-ae23-70432f94932f"
+      },
+      {
+        "id": "sourceAssigningAuthority",
+        "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+        "valueString": "centene"
+      }
+    ],
     "reference": "Organization/2645"
   },
   "related": [

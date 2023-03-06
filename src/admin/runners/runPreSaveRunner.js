@@ -21,6 +21,7 @@ class RunPreSaveRunner extends BaseBulkOperationRunner {
      * @param {PreSaveManager} preSaveManager
      * @param {boolean|undefined} [includeHistoryCollections]
      * @param {string|undefined} [startFromCollection]
+     * @param {number|undefined} [limit]
      */
     constructor(
         {
@@ -33,7 +34,8 @@ class RunPreSaveRunner extends BaseBulkOperationRunner {
             mongoDatabaseManager,
             preSaveManager,
             includeHistoryCollections,
-            startFromCollection
+            startFromCollection,
+            limit
         }) {
         super({
             mongoCollectionManager,
@@ -72,6 +74,11 @@ class RunPreSaveRunner extends BaseBulkOperationRunner {
          * @type {string|undefined}
          */
         this.startFromCollection = startFromCollection;
+
+        /**
+         * @type {number|undefined}
+         */
+        this.limit = limit;
     }
 
     /**
@@ -168,7 +175,8 @@ class RunPreSaveRunner extends BaseBulkOperationRunner {
                             fnCreateBulkOperationAsync: async (doc) => await this.processRecordAsync(doc),
                             ordered: false,
                             batchSize: this.batchSize,
-                            skipExistingIds: false
+                            skipExistingIds: false,
+                            limit: this.limit
                         }
                     );
                 } catch (e) {
