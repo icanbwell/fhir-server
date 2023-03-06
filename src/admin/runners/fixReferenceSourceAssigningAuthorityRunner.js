@@ -12,6 +12,7 @@ const {FhirResourceCreator} = require('../../fhir/fhirResourceCreator');
 const {MongoJsonPatchHelper} = require('../../utils/mongoJsonPatchHelper');
 const {ResourceMerger} = require('../../operations/common/resourceMerger');
 const {RethrownError} = require('../../utils/rethrownError');
+const {mongoQueryStringify} = require('../../utils/mongoQueryStringify');
 
 
 /**
@@ -551,7 +552,7 @@ class FixReferenceSourceAssigningAuthorityRunner extends BaseBulkOperationRunner
                 } : this.properties && this.properties.length > 0 ?
                     getFilter(this.properties.concat(this.filterToRecordsWithFields || [])) :
                     getFilter(this.filterToRecordsWithFields);
-                console.log(`Running query: ${query}`);
+                console.log(`Running query: ${mongoQueryStringify(query)}`);
                 try {
                     await this.runForQueryBatchesAsync(
                         {
