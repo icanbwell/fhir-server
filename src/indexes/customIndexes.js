@@ -574,6 +574,17 @@ module.exports = {
                 }
             }
         ],
+        'Questionnaire_4_0_0': [
+            {
+                keys: {
+                    'name': 1,
+                    '_uuid': 1
+                },
+                options: {
+                    name: 'consent_query_1'
+                }
+            }
+        ],
         'QuestionnaireResponse_4_0_0': [
             {
                 keys: {
