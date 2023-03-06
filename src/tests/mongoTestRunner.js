@@ -1,4 +1,4 @@
-const {MongoMemoryServer} = require('mongodb-memory-server-core');
+const {MongoMemoryReplSet} = require('mongodb-memory-server-core');
 /**
  * @type {import('mongodb-memory-server').MongoMemoryServer|undefined|null}
  */
@@ -7,8 +7,11 @@ let mongo;
 let myMongoUrl;
 
 async function startTestMongoServerAsync() {
-    mongo = await MongoMemoryServer.create();
-    await mongo.ensureInstance();
+    mongo = await MongoMemoryReplSet.create({
+        replSet: {count: 1, storageEngine: 'wiredTiger'},
+    });
+    // mongo = await MongoMemoryServer.create();
+    // await mongo.ensureInstance();
     myMongoUrl = mongo.getUri();
     global.__MONGO_URI__ = myMongoUrl;
 }

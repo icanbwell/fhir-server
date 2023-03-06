@@ -381,7 +381,7 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                                 startFromIdContainer.startFromId = previouslyCheckedId;
                                 operations = [];
                                 if (useTransaction) {
-                                    session.commitTransaction();
+                                    await session.commitTransaction();
                                 }
                             },
                             {
@@ -416,23 +416,27 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                             if (useTransaction) {
                                 session.startTransaction(transactionOptions);
                             }
-                            const bulkResult = await destinationCollection.bulkWrite(operations,
-                                {
-                                    ordered: ordered,
-                                    session: session
-                                }
-                            );
-                            startFromIdContainer.nModified += bulkResult.nModified;
-                            startFromIdContainer.nUpserted += bulkResult.nUpserted;
-                            startFromIdContainer.startFromId = previouslyCheckedId;
-                            const message =
-                                `Final write ${startFromIdContainer.convertedIds.toLocaleString()} ` +
-                                `modified: ${startFromIdContainer.nModified.toLocaleString('en-US')}, ` +
-                                `upserted: ${startFromIdContainer.nUpserted.toLocaleString('en-US')} ` +
-                                `from ${sourceCollectionName} to ${destinationCollectionName}. last id: ${previouslyCheckedId}`;
-                            this.adminLogger.logInfo(message);
+                            try {
+                                const bulkResult = await destinationCollection.bulkWrite(operations,
+                                    {
+                                        ordered: ordered,
+                                        session: session
+                                    }
+                                );
+                                startFromIdContainer.nModified += bulkResult.nModified;
+                                startFromIdContainer.nUpserted += bulkResult.nUpserted;
+                                startFromIdContainer.startFromId = previouslyCheckedId;
+                                const message =
+                                    `Final write ${startFromIdContainer.convertedIds.toLocaleString()} ` +
+                                    `modified: ${startFromIdContainer.nModified.toLocaleString('en-US')}, ` +
+                                    `upserted: ${startFromIdContainer.nUpserted.toLocaleString('en-US')} ` +
+                                    `from ${sourceCollectionName} to ${destinationCollectionName}. last id: ${previouslyCheckedId}`;
+                                this.adminLogger.logInfo(message);
+                            } catch (e) {
+                                console.error(e);
+                            }
                             if (useTransaction) {
-                                session.commitTransaction();
+                                await session.commitTransaction();
                             }
                         },
                         {
