@@ -6,9 +6,11 @@ const {
     commonBeforeEach,
     commonAfterEach,
     getHeaders,
-    createTestRequest,
+    createTestRequest, getTestContainer, getRequestId,
 } = require('../../common');
 const {describe, beforeEach, afterEach, expect, test} = require('@jest/globals');
+const {assertTypeEquals} = require('../../../utils/assertType');
+const {PostRequestProcessor} = require('../../../utils/postRequestProcessor');
 
 describe('Stats Tests', () => {
     beforeEach(async () => {
@@ -34,6 +36,23 @@ describe('Stats Tests', () => {
 
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveMergeResponse({created: true});
+
+            /**
+             * @type {SimpleContainer}
+             */
+            const container = getTestContainer();
+
+            /**
+             * @type {PostRequestProcessor}
+             */
+            const postRequestProcessor = container.postRequestProcessor;
+            assertTypeEquals(postRequestProcessor, PostRequestProcessor);
+
+            await postRequestProcessor.waitTillDoneAsync(
+                {
+                    requestId: getRequestId(resp)
+                }
+            );
 
             resp = await request
                 .get('/stats')
