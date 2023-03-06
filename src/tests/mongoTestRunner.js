@@ -15,10 +15,7 @@ async function startTestMongoServerAsync() {
     mongoRepl = await MongoMemoryReplSet.create({
         replSet: {count: 1, storageEngine: 'wiredTiger'},
     });
-    // await mongoRepl.start();
     await mongoRepl.waitUntilRunning();
-    // mongo = mongoRepl.servers[0];
-    // await mongo.ensureInstance();
     myMongoUrl = mongoRepl.getUri();
     global.__MONGO_URI__ = myMongoUrl;
 }
