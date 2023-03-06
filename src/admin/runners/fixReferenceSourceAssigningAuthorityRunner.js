@@ -78,6 +78,7 @@ class FixReferenceSourceAssigningAuthorityRunner extends BaseBulkOperationRunner
      * @param {string[]|undefined} [properties]
      * @param {ResourceMerger} resourceMerger
      * @param {boolean|undefined} [useTransaction]
+     * @param {number|undefined} [skip]
      */
     constructor(
         {
@@ -95,7 +96,8 @@ class FixReferenceSourceAssigningAuthorityRunner extends BaseBulkOperationRunner
             limit,
             properties,
             resourceMerger,
-            useTransaction
+            useTransaction,
+            skip
         }) {
         super({
             mongoCollectionManager,
@@ -156,6 +158,11 @@ class FixReferenceSourceAssigningAuthorityRunner extends BaseBulkOperationRunner
          * @type {boolean|undefined}
          */
         this.useTransaction = useTransaction;
+
+        /**
+         * @type {number|undefined}
+         */
+        this.skip = skip;
 
         /**
          * @type {ResourceMerger}
@@ -548,7 +555,8 @@ class FixReferenceSourceAssigningAuthorityRunner extends BaseBulkOperationRunner
                             batchSize: this.batchSize,
                             skipExistingIds: false,
                             limit: this.limit,
-                            useTransaction: this.useTransaction
+                            useTransaction: this.useTransaction,
+                            skip: this.skip
                         }
                     );
                 } catch (e) {

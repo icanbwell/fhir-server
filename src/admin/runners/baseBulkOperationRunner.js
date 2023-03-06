@@ -54,6 +54,7 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
      * @param {boolean|undefined} [dropDestinationIfCountIsDifferent]
      * @param {number|undefined} [limit]
      * @param {boolean|undefined} [useTransaction]
+     * @param {number|undefined} [skip]
      * @returns {Promise<string>}
      */
     async runForQueryBatchesAsync(
@@ -71,7 +72,8 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
             skipWhenCountIsSame,
             dropDestinationIfCountIsDifferent,
             limit,
-            useTransaction
+            useTransaction,
+            skip
         }
     ) {
         try {
@@ -162,7 +164,8 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                     fnCreateBulkOperationAsync,
                     ordered,
                     limit,
-                    useTransaction
+                    useTransaction,
+                    skip
                 });
 
             // get the count at the end
@@ -215,6 +218,7 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
      * @param {boolean|undefined} [ordered]
      * @param {number|undefined} [limit]
      * @param {boolean|undefined} [useTransaction]
+     * @param {number|undefined} [skip]
      * @returns {Promise<string>}
      */
     async runLoopAsync(
@@ -233,7 +237,8 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
             fnCreateBulkOperationAsync,
             ordered,
             limit,
-            useTransaction
+            useTransaction,
+            skip
         }) {
         const maxTimeMS = 20 * 60 * 60 * 1000;
         const numberOfSecondsBetweenSessionRefreshes = 10 * 60;
@@ -300,13 +305,17 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                  */
                 let cursor = await sourceCollection
                     .find(query, options)
-                    // .sort({_uuid: 1})
+                    .sort({_id: 1})
                     .maxTimeMS(maxTimeMS) // 20 hours
                     .batchSize(batchSize)
                     .addCursorFlag('noCursorTimeout', true);
 
                 if (limit) {
                     cursor = cursor.limit(limit);
+                }
+
+                if (skip) {
+                    cursor = cursor.skip(skip);
                 }
 
                 let count = 0;
