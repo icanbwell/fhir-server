@@ -1,7 +1,6 @@
 const {assertIsValid} = require('../../utils/assertType');
 const {BaseScriptRunner} = require('./baseScriptRunner');
 const readline = require('readline');
-const retry = require('async-retry');
 const {mongoQueryStringify} = require('../../utils/mongoQueryStringify');
 const deepcopy = require('deepcopy');
 const moment = require('moment-timezone');
@@ -335,8 +334,7 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                     if (moment().diff(refreshTimestamp, 'seconds') > numberOfSecondsBetweenSessionRefreshes) {
                         this.adminLogger.logInfo(
                             'refreshing session with sessionId', {'session_id': sessionId});
-                        const memoryUsage = process.memoryUsage();
-                        this.adminLogger.logInfo(`Memory used (RSS): ${memoryManager.formatBytes(memoryUsage.rss)}`);
+                        this.adminLogger.logInfo(`Memory used (RSS): ${memoryManager.memoryUsed}`);
                         /**
                          * @type {import('mongodb').Document}
                          */
@@ -362,7 +360,8 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                         `Reading ${sourceCollectionName} ` +
                         `Scanned: ${count.toLocaleString('en-US')} of ${numberOfDocumentsToCopy.toLocaleString('en-US')} ` +
                         `Updated: ${numOperations.toLocaleString('en-US')} ` +
-                        `size: ${memoryManager.formatBytes(bytesLoaded)}`);
+                        `size: ${memoryManager.formatBytes(bytesLoaded)} ` +
+                        `mem: ${memoryManager.memoryUsed}`);
                     /**
                      * @type {import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>[]}
                      */
@@ -374,41 +373,34 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
 
                     startFromIdContainer.convertedIds += 1;
                     if (operations.length > 0 && (operations.length % this.batchSize === 0)) { // write every x items
-                        // https://www.npmjs.com/package/async-retry
-                        await retry(
-                            // eslint-disable-next-line no-loop-func
-                            async (bail, retryNumber) => {
-                                this.adminLogger.logInfo(
-                                    `Writing ${operations.length.toLocaleString('en-US')} operations in bulk to ${destinationCollectionName}. ` +
-                                    (retryNumber > 1 ? `retry=${retryNumber}` : ''));
-                                readline.cursorTo(process.stdout, 0);
-                                process.stdout.write(`[${moment().toISOString()}] ` +
-                                    `Writing ${sourceCollectionName} ` +
-                                    `Scanned: ${count.toLocaleString('en-US')} of ${numberOfDocumentsToCopy.toLocaleString('en-US')} ` +
-                                    `Updated: ${numOperations.toLocaleString('en-US')} ` +
-                                    `size: ${memoryManager.formatBytes(bytesLoaded)}`);
-                                // https://www.mongodb.com/docs/upcoming/core/transactions
-                                if (useTransaction) {
-                                    session.startTransaction(transactionOptions);
-                                }
-                                const bulkResult = await destinationCollection.bulkWrite(operations,
-                                    {
-                                        ordered: ordered,
-                                        session: session
-                                    }
-                                );
-                                startFromIdContainer.nModified += bulkResult.nModified;
-                                startFromIdContainer.nUpserted += bulkResult.nUpserted;
-                                startFromIdContainer.startFromId = previouslyCheckedId;
-                                operations = [];
-                                if (useTransaction) {
-                                    await session.commitTransaction();
-                                }
-                            },
+                        this.adminLogger.logInfo(
+                            `Writing ${operations.length.toLocaleString('en-US')} operations in bulk to ${destinationCollectionName}. `
+                        );
+                        readline.cursorTo(process.stdout, 0);
+                        process.stdout.write(`[${moment().toISOString()}] ` +
+                            `Writing ${sourceCollectionName} ` +
+                            `Scanned: ${count.toLocaleString('en-US')} of ${numberOfDocumentsToCopy.toLocaleString('en-US')} ` +
+                            `Updated: ${numOperations.toLocaleString('en-US')} ` +
+                            `size: ${memoryManager.formatBytes(bytesLoaded)} ` +
+                            `mem: ${memoryManager.memoryUsed}`);
+                        // https://www.mongodb.com/docs/upcoming/core/transactions
+                        if (useTransaction) {
+                            session.startTransaction(transactionOptions);
+                        }
+                        const bulkResult = await destinationCollection.bulkWrite(operations,
                             {
-                                retries: 5,
+                                ordered: ordered,
+                                session: session
                             }
                         );
+                        startFromIdContainer.nModified += bulkResult.nModified;
+                        startFromIdContainer.nUpserted += bulkResult.nUpserted;
+                        startFromIdContainer.startFromId = previouslyCheckedId;
+                        operations = [];
+                        if (useTransaction) {
+                            await session.commitTransaction();
+                        }
+
                         const message =
                             `Processed ${startFromIdContainer.convertedIds.toLocaleString()}, ` +
                             `modified: ${startFromIdContainer.nModified.toLocaleString('en-US')}, ` +
@@ -420,51 +412,41 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                         // external refers to the memory usage of C++ objects bound to JavaScript objects managed by V8.
                         // rss, Resident Set Size, is the amount of space occupied in the main memory device (that is a subset of the total allocated memory) for the process, including all C++ and JavaScript objects and code.
                         // arrayBuffers refers to memory allocated for ArrayBuffers and SharedArrayBuffers, including all Node.js Buffers. This is also included in the external value. When Node.js is used as an embedded library, this value may be 0 because allocations for ArrayBuffers may not be tracked in that case.
-                        const memoryUsage = process.memoryUsage();
-                        this.adminLogger.logInfo(`Memory used (RSS): ${memoryManager.formatBytes(memoryUsage.rss)}`);
+                        this.adminLogger.logInfo(`Memory used (RSS): ${memoryManager.memoryUsed}`);
                     }
                 }
 
                 // now write out any remaining items
                 if (operations.length > 0) { // if any items left to write
-                    await retry(
-                        // eslint-disable-next-line no-loop-func
-                        async (bail, retryNumber) => {
-                            this.adminLogger.logInfo(
-                                `Final writing ${operations.length.toLocaleString('en-US')} operations in bulk to ${destinationCollectionName}. ` +
-                                (retryNumber > 1 ? `retry=${retryNumber}` : ''));
+                    this.adminLogger.logInfo(
+                        `Final writing ${operations.length.toLocaleString('en-US')} operations in bulk to ${destinationCollectionName}. `);
 
-                            if (useTransaction) {
-                                session.startTransaction(transactionOptions);
+                    if (useTransaction) {
+                        session.startTransaction(transactionOptions);
+                    }
+                    try {
+                        const bulkResult = await destinationCollection.bulkWrite(operations,
+                            {
+                                ordered: ordered,
+                                session: session
                             }
-                            try {
-                                const bulkResult = await destinationCollection.bulkWrite(operations,
-                                    {
-                                        ordered: ordered,
-                                        session: session
-                                    }
-                                );
-                                startFromIdContainer.nModified += bulkResult.nModified;
-                                startFromIdContainer.nUpserted += bulkResult.nUpserted;
-                                startFromIdContainer.startFromId = previouslyCheckedId;
-                                const message =
-                                    `Final write ${startFromIdContainer.convertedIds.toLocaleString()} ` +
-                                    `modified: ${startFromIdContainer.nModified.toLocaleString('en-US')}, ` +
-                                    `upserted: ${startFromIdContainer.nUpserted.toLocaleString('en-US')} ` +
-                                    `from ${sourceCollectionName} to ${destinationCollectionName}. last id: ${previouslyCheckedId}`;
-                                this.adminLogger.logInfo(message);
-                            } catch (e) {
-                                console.error(e);
-                            }
-                            if (useTransaction) {
-                                await session.commitTransaction();
-                            }
-                        },
-                        {
-                            retries: 5,
-                            onRetry: (err/*, num*/) => console.error(err)
-                        }
-                    );
+                        );
+                        operations = [];
+                        startFromIdContainer.nModified += bulkResult.nModified;
+                        startFromIdContainer.nUpserted += bulkResult.nUpserted;
+                        startFromIdContainer.startFromId = previouslyCheckedId;
+                        const message =
+                            `Final write ${startFromIdContainer.convertedIds.toLocaleString()} ` +
+                            `modified: ${startFromIdContainer.nModified.toLocaleString('en-US')}, ` +
+                            `upserted: ${startFromIdContainer.nUpserted.toLocaleString('en-US')} ` +
+                            `from ${sourceCollectionName} to ${destinationCollectionName}. last id: ${previouslyCheckedId}`;
+                        this.adminLogger.logInfo(message);
+                    } catch (e) {
+                        console.error(e);
+                    }
+                    if (useTransaction) {
+                        await session.commitTransaction();
+                    }
                 }
                 continueLoop = false; // done
                 this.adminLogger.logInfo('=== Finished ' +
