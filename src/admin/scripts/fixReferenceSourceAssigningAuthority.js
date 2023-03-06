@@ -40,6 +40,10 @@ async function main() {
         parameters.properties.split(',').map(x => x.trim()) :
         undefined;
 
+    let filterToRecordsWithFields = parameters.filterToRecordsWithFields ?
+        parameters.filterToRecordsWithFields.split(',').map(x => x.trim()) :
+        undefined;
+
     const batchSize = parameters.batchSize || process.env.BULK_BUFFER_SIZE || 10000;
     /**
      * @type {Date|undefined}
@@ -70,7 +74,8 @@ async function main() {
                 properties: properties,
                 resourceMerger: c.resourceMerger,
                 useTransaction: parameters.useTransaction ? true : false,
-                skip: parameters.skip
+                skip: parameters.skip,
+                filterToRecordsWithFields: filterToRecordsWithFields
             }
         )
     );
@@ -93,6 +98,7 @@ async function main() {
  * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/fixReferenceSourceAssigningAuthority.js --collections=all --batchSize=10000 --startFromCollection FamilyMemberHistory_4_0_0
  * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/fixReferenceSourceAssigningAuthority.js --collections=Person_4_0_0 --batchSize=10000 --preLoadCollections Person_4_0_0,Patient_4_0_0
  * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/fixReferenceSourceAssigningAuthority.js --collections=Person_4_0_0 --batchSize=10000 --preLoadCollections Person_4_0_0,Patient_4_0_0 --useTransaction
+ * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/fixReferenceSourceAssigningAuthority.js --collections=Person_4_0_0 --batchSize=10000 --preLoadCollections Person_4_0_0,Patient_4_0_0 --useTransaction --filterToRecordsWithFields link
  * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/fixReferenceSourceAssigningAuthority.js --collections=Person_4_0_0 --batchSize=10000 --preLoadCollections Person_4_0_0,Patient_4_0_0 --useTransaction --skip 200000
  * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/fixReferenceSourceAssigningAuthority.js --collections=Person_4_0_0 --batchSize=10000 --preLoadCollections Person_4_0_0,Patient_4_0_0 --limit 10
  * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/fixReferenceSourceAssigningAuthority.js --collections=Person_4_0_0 --batchSize=10000 --preLoadCollections Person_4_0_0,Patient_4_0_0 --limit 10 --properties link

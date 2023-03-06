@@ -40,7 +40,10 @@ function getProjection(properties) {
  * @param {string[]} properties
  * @return {import('mongodb').Filter<import('mongodb').Document>}
  */
-function getFilter(properties) {
+function getFilter(properties,) {
+    if (!properties || properties.length === 0) {
+        return {};
+    }
     /**
      * @type {import('mongodb').Filter<import('mongodb').Document>}
      */
@@ -79,6 +82,7 @@ class FixReferenceSourceAssigningAuthorityRunner extends BaseBulkOperationRunner
      * @param {ResourceMerger} resourceMerger
      * @param {boolean|undefined} [useTransaction]
      * @param {number|undefined} [skip]
+     * @param {string[]|undefined} [filterToRecordsWithFields]
      */
     constructor(
         {
@@ -97,7 +101,8 @@ class FixReferenceSourceAssigningAuthorityRunner extends BaseBulkOperationRunner
             properties,
             resourceMerger,
             useTransaction,
-            skip
+            skip,
+            filterToRecordsWithFields
         }) {
         super({
             mongoCollectionManager,
@@ -163,6 +168,11 @@ class FixReferenceSourceAssigningAuthorityRunner extends BaseBulkOperationRunner
          * @type {number|undefined}
          */
         this.skip = skip;
+
+        /**
+         * @type {string[]|undefined}
+         */
+        this.filterToRecordsWithFields = filterToRecordsWithFields;
 
         /**
          * @type {ResourceMerger}
@@ -539,8 +549,9 @@ class FixReferenceSourceAssigningAuthorityRunner extends BaseBulkOperationRunner
                         $gt: this.afterLastUpdatedDate,
                     }
                 } : this.properties && this.properties.length > 0 ?
-                    getFilter(this.properties) :
-                    {};
+                    getFilter(this.properties.concat(this.filterToRecordsWithFields || [])) :
+                    getFilter(this.filterToRecordsWithFields);
+                console.log(`Running query: ${query}`);
                 try {
                     await this.runForQueryBatchesAsync(
                         {
