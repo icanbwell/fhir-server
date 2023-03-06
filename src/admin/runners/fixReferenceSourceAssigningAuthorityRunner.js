@@ -17,11 +17,11 @@ const {RethrownError} = require('../../utils/rethrownError');
 /**
  * converts list of properties to a projection
  * @param {string[]} properties
- * @return {import('mongodb').Collection<import('mongodb').Document>}
+ * @return {import('mongodb').Document}
  */
 function getProjection(properties) {
     /**
-     * @type {import('mongodb').Collection<import('mongodb').Document>}
+     * @type {import('mongodb').Document}
      */
     const projection = {};
     for (const property of properties) {
@@ -77,6 +77,7 @@ class FixReferenceSourceAssigningAuthorityRunner extends BaseBulkOperationRunner
      * @param {number|undefined} [limit]
      * @param {string[]|undefined} [properties]
      * @param {ResourceMerger} resourceMerger
+     * @param {boolean|undefined} [useTransaction]
      */
     constructor(
         {
@@ -93,7 +94,8 @@ class FixReferenceSourceAssigningAuthorityRunner extends BaseBulkOperationRunner
             preloadCollections,
             limit,
             properties,
-            resourceMerger
+            resourceMerger,
+            useTransaction
         }) {
         super({
             mongoCollectionManager,
@@ -149,6 +151,11 @@ class FixReferenceSourceAssigningAuthorityRunner extends BaseBulkOperationRunner
          * @type {string[]|undefined}
          */
         this.properties = properties;
+
+        /**
+         * @type {boolean|undefined}
+         */
+        this.useTransaction = useTransaction;
 
         /**
          * @type {ResourceMerger}
@@ -511,7 +518,7 @@ class FixReferenceSourceAssigningAuthorityRunner extends BaseBulkOperationRunner
                 console.log(`Done preloading collection: ${preloadCollection}: ${count}`);
             }
 
-            console.log(`Starting loop for ${this.collections.join(',')}`);
+            console.log(`Starting loop for ${this.collections.join(',')}. useTransaction: ${this.useTransaction}`);
 
             // if there is an exception, continue processing from the last id
             for (const collectionName of this.collections) {
@@ -541,6 +548,7 @@ class FixReferenceSourceAssigningAuthorityRunner extends BaseBulkOperationRunner
                             batchSize: this.batchSize,
                             skipExistingIds: false,
                             limit: this.limit,
+                            useTransaction: this.useTransaction
                         }
                     );
                 } catch (e) {

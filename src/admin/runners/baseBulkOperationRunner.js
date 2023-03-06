@@ -53,6 +53,7 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
      * @param {boolean|undefined} [skipWhenCountIsSame]
      * @param {boolean|undefined} [dropDestinationIfCountIsDifferent]
      * @param {number|undefined} [limit]
+     * @param {boolean|undefined} [useTransaction]
      * @returns {Promise<string>}
      */
     async runForQueryBatchesAsync(
@@ -69,7 +70,8 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
             skipExistingIds,
             skipWhenCountIsSame,
             dropDestinationIfCountIsDifferent,
-            limit
+            limit,
+            useTransaction
         }
     ) {
         try {
@@ -159,7 +161,8 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                     lastCheckedId,
                     fnCreateBulkOperationAsync,
                     ordered,
-                    limit
+                    limit,
+                    useTransaction
                 });
 
             // get the count at the end
@@ -188,8 +191,7 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                 {
                     message: 'Error processing record',
                     error: e,
-                    args: {
-                    },
+                    args: {},
                     source: 'BaseBulkOperationRunner.runForQueryBatchesAsync'
                 }
             );
@@ -212,6 +214,7 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
      * @param {function(document: import('mongodb').DefaultSchema):Promise<(import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>)[]>} fnCreateBulkOperationAsync     * @param operations
      * @param {boolean|undefined} [ordered]
      * @param {number|undefined} [limit]
+     * @param {boolean|undefined} [useTransaction]
      * @returns {Promise<string>}
      */
     async runLoopAsync(
@@ -229,7 +232,8 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
             lastCheckedId,
             fnCreateBulkOperationAsync,
             ordered,
-            limit
+            limit,
+            useTransaction
         }) {
         const maxTimeMS = 20 * 60 * 60 * 1000;
         const numberOfSecondsBetweenSessionRefreshes = 10 * 60;
@@ -239,6 +243,9 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
         let operations = [];
         let previouslyCheckedId = lastCheckedId;
 
+        if (useTransaction) {
+            console.log('==== Using transactions ===');
+        }
         /**
          * @type {number}
          */
@@ -255,6 +262,12 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
 
             loopRetryNumber += 1;
 
+            // Step 2: Optional. Define options to use for the transaction
+            const transactionOptions = {
+                // readPreference: 'primary',
+                // readConcern: {level: 'local'},
+                // writeConcern: {w: 'majority'}
+            };
             try {
                 let {
                     session,
@@ -356,11 +369,23 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                                 this.adminLogger.logInfo(
                                     `Writing ${operations.length.toLocaleString('en-US')} operations in bulk to ${destinationCollectionName}. ` +
                                     (retryNumber > 1 ? `retry=${retryNumber}` : ''));
-                                const bulkResult = await destinationCollection.bulkWrite(operations, {ordered: ordered});
+                                // https://www.mongodb.com/docs/upcoming/core/transactions
+                                if (useTransaction) {
+                                    session.startTransaction(transactionOptions);
+                                }
+                                const bulkResult = await destinationCollection.bulkWrite(operations,
+                                    {
+                                        ordered: ordered,
+                                        session: session
+                                    }
+                                );
                                 startFromIdContainer.nModified += bulkResult.nModified;
                                 startFromIdContainer.nUpserted += bulkResult.nUpserted;
                                 startFromIdContainer.startFromId = previouslyCheckedId;
                                 operations = [];
+                                if (useTransaction) {
+                                    await session.commitTransaction();
+                                }
                             },
                             {
                                 retries: 5,
@@ -390,19 +415,36 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                             this.adminLogger.logInfo(
                                 `Final writing ${operations.length.toLocaleString('en-US')} operations in bulk to ${destinationCollectionName}. ` +
                                 (retryNumber > 1 ? `retry=${retryNumber}` : ''));
-                            const bulkResult = await destinationCollection.bulkWrite(operations, {ordered: ordered});
-                            startFromIdContainer.nModified += bulkResult.nModified;
-                            startFromIdContainer.nUpserted += bulkResult.nUpserted;
-                            startFromIdContainer.startFromId = previouslyCheckedId;
-                            const message =
-                                `Final write ${startFromIdContainer.convertedIds.toLocaleString()} ` +
-                                `modified: ${startFromIdContainer.nModified.toLocaleString('en-US')}, ` +
-                                `upserted: ${startFromIdContainer.nUpserted.toLocaleString('en-US')} ` +
-                                `from ${sourceCollectionName} to ${destinationCollectionName}. last id: ${previouslyCheckedId}`;
-                            this.adminLogger.logInfo(message);
+
+                            if (useTransaction) {
+                                session.startTransaction(transactionOptions);
+                            }
+                            try {
+                                const bulkResult = await destinationCollection.bulkWrite(operations,
+                                    {
+                                        ordered: ordered,
+                                        session: session
+                                    }
+                                );
+                                startFromIdContainer.nModified += bulkResult.nModified;
+                                startFromIdContainer.nUpserted += bulkResult.nUpserted;
+                                startFromIdContainer.startFromId = previouslyCheckedId;
+                                const message =
+                                    `Final write ${startFromIdContainer.convertedIds.toLocaleString()} ` +
+                                    `modified: ${startFromIdContainer.nModified.toLocaleString('en-US')}, ` +
+                                    `upserted: ${startFromIdContainer.nUpserted.toLocaleString('en-US')} ` +
+                                    `from ${sourceCollectionName} to ${destinationCollectionName}. last id: ${previouslyCheckedId}`;
+                                this.adminLogger.logInfo(message);
+                            } catch (e) {
+                                console.error(e);
+                            }
+                            if (useTransaction) {
+                                await session.commitTransaction();
+                            }
                         },
                         {
                             retries: 5,
+                            onRetry: (err/*, num*/) => console.error(err)
                         }
                     );
                 }
@@ -413,6 +455,8 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                     `Updated: ${numOperations.toLocaleString('en-US')} ` +
                     `size: ${memoryManager.formatBytes(bytesLoaded)} ` +
                     '===');
+
+                session.endSession();
             } catch (e) {
                 if (e instanceof MongoNetworkTimeoutError) {
                     // statements to handle TypeError exceptions

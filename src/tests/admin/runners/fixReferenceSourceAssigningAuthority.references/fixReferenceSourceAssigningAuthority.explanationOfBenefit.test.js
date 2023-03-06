@@ -99,7 +99,8 @@ describe('ExplanationOfBenefit Tests', () => {
                             'Person_4_0_0',
                             'Patient_4_0_0'
                         ],
-                        resourceMerger: c.resourceMerger
+                        resourceMerger: c.resourceMerger,
+                        useTransaction: true
                     }
                 )
             );
