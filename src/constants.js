@@ -168,5 +168,17 @@ module.exports = {
         'onBehalfOf', 'period', 'practitionerId', 'patientId', '_prefer'
     ],
     REQUEST_ID_HEADER: 'x-request-id',
-    KAFKA_CONNECTION_HEALTHCHECK_INTERVAL: 30000, // In milliseconds
+    KAFKA_CONNECTION_HEALTHCHECK_INTERVAL: 30000, // In milliseconds,
+    REFERENCE_EXTENSION_DATA_MAP: {
+        'display': {
+            id: 'referenceDisplay',
+            url: 'https://www.icanbwell.com/referenceDisplay',
+            valueKey: 'valueString',
+        },
+        'type': {
+            id: 'referenceType',
+            url: 'https://www.icanbwell.com/referenceType',
+            valueKey: 'valueUri',
+        },
+    },
 };

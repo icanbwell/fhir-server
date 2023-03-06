@@ -209,7 +209,10 @@
         ],
         "id": "e0KCoLVWohg-G-hgz4OlNgTVlr75yqrmgGssLTpjovC83",
         "medicationCodeableConcept": null,
-        "medicationReference": null,
+        "medicationReference": {
+          "code": null,
+          "ingredient": null
+        },
         "meta": {
           "security": [
             {

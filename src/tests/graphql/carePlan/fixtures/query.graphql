@@ -16,6 +16,14 @@ query {
                         }
                     }
                 }
+                encounter{
+                    extension{
+                        id
+                        url
+                        valueString
+                        valueUri
+                    }
+                }
             }
         }
     }

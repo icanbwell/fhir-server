@@ -50,7 +50,8 @@
       "reference": "Patient/8ba1017f-0aad-1b91-ff9e-416a96e11f0b"
     },
     "encounter": {
-      "reference": "Encounter/43b17aee-f0a0-3eb7-8e68-9d3454869a77"
+      "reference": "Encounter/43b17aee-f0a0-3eb7-8e68-9d3454869a77",
+      "display": "Visit with Dr. Who"
     },
     "period": {
       "start": "2021-02-13T20:21:20-05:00"
@@ -155,7 +156,8 @@
       "reference": "Patient/8ba1017f-0aad-1b91-ff9e-416a96e11f0b"
     },
     "encounter": {
-      "reference": "Encounter/3f8b341f-09ba-5497-4a6e-59f5227ff93b"
+      "display": "Visit with another Dr. Who",
+      "type": "Encounter"
     },
     "period": {
       "start": "2020-02-29T20:33:52-05:00",
