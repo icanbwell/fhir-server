@@ -348,12 +348,6 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                     const numberOfDocumentsToCopy = skipExistingIds ?
                         numberOfSourceDocuments - numberOfDestinationDocuments :
                         numberOfSourceDocuments;
-                    readline.cursorTo(process.stdout, 0);
-                    process.stdout.write(`[${moment().toISOString()}] ` +
-                        `Reading ${sourceCollectionName} ` +
-                        `Scanned: ${count.toLocaleString('en-US')} of ${numberOfDocumentsToCopy.toLocaleString('en-US')} ` +
-                        `Updated: ${numOperations.toLocaleString('en-US')} ` +
-                        `size: ${memoryManager.formatBytes(bytesLoaded)}`);
                     /**
                      * element
                      * @type {import('mongodb').DefaultSchema}
@@ -365,7 +359,7 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                     count += 1;
                     readline.cursorTo(process.stdout, 0);
                     process.stdout.write(`[${moment().toISOString()}] ` +
-                        `Writing ${sourceCollectionName} ` +
+                        `Reading ${sourceCollectionName} ` +
                         `Scanned: ${count.toLocaleString('en-US')} of ${numberOfDocumentsToCopy.toLocaleString('en-US')} ` +
                         `Updated: ${numOperations.toLocaleString('en-US')} ` +
                         `size: ${memoryManager.formatBytes(bytesLoaded)}`);
@@ -387,6 +381,12 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                                 this.adminLogger.logInfo(
                                     `Writing ${operations.length.toLocaleString('en-US')} operations in bulk to ${destinationCollectionName}. ` +
                                     (retryNumber > 1 ? `retry=${retryNumber}` : ''));
+                                readline.cursorTo(process.stdout, 0);
+                                process.stdout.write(`[${moment().toISOString()}] ` +
+                                    `Writing ${sourceCollectionName} ` +
+                                    `Scanned: ${count.toLocaleString('en-US')} of ${numberOfDocumentsToCopy.toLocaleString('en-US')} ` +
+                                    `Updated: ${numOperations.toLocaleString('en-US')} ` +
+                                    `size: ${memoryManager.formatBytes(bytesLoaded)}`);
                                 // https://www.mongodb.com/docs/upcoming/core/transactions
                                 if (useTransaction) {
                                     session.startTransaction(transactionOptions);
