@@ -191,7 +191,7 @@ class MergeManager {
      * @param {Resource} resourceToMerge
      * @param {string} base_version
      * @param {string | null} user
-     * @param {string} scope
+     * @param {string|null} scope
      * @returns {Promise<void>}
      */
     async mergeInsertAsync(
@@ -344,6 +344,7 @@ class MergeManager {
                     await this.mergeInsertAsync({
                         requestId,
                         resourceToMerge,
+                        base_version,
                         user,
                         scope
                     });
