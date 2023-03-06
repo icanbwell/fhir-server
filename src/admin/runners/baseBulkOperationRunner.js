@@ -342,6 +342,15 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                             'result from refreshing session', {'result': adminResult});
                         refreshTimestamp = moment();
                     }
+                    const numberOfDocumentsToCopy = skipExistingIds ?
+                        numberOfSourceDocuments - numberOfDestinationDocuments :
+                        numberOfSourceDocuments;
+                    readline.cursorTo(process.stdout, 0);
+                    process.stdout.write(`[${moment().toISOString()}] ` +
+                        `Reading ${sourceCollectionName} ` +
+                        `Scanned: ${count.toLocaleString('en-US')} of ${numberOfDocumentsToCopy.toLocaleString('en-US')} ` +
+                        `Updated: ${numOperations.toLocaleString('en-US')} ` +
+                        `size: ${memoryManager.formatBytes(bytesLoaded)}`);
                     /**
                      * element
                      * @type {import('mongodb').DefaultSchema}
@@ -349,14 +358,11 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                     const doc = await this.next(cursor);
                     bytesLoaded += sizeof(doc);
                     startFromIdContainer.startFromId = doc.id;
-                    const numberOfDocumentsToCopy = skipExistingIds ?
-                        numberOfSourceDocuments - numberOfDestinationDocuments :
-                        numberOfSourceDocuments;
                     previouslyCheckedId = doc.id;
                     count += 1;
                     readline.cursorTo(process.stdout, 0);
                     process.stdout.write(`[${moment().toISOString()}] ` +
-                        `${sourceCollectionName} ` +
+                        `Writing ${sourceCollectionName} ` +
                         `Scanned: ${count.toLocaleString('en-US')} of ${numberOfDocumentsToCopy.toLocaleString('en-US')} ` +
                         `Updated: ${numOperations.toLocaleString('en-US')} ` +
                         `size: ${memoryManager.formatBytes(bytesLoaded)}`);
