@@ -337,11 +337,6 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                                 [`${filterToIdProperty}`]: {
                                     $in: uuidListChunk
                                 }
-                            },
-                            {
-                                link: {
-                                    $exists: true
-                                }
                             }
                         ]
                     };
