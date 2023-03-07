@@ -494,14 +494,15 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                         }
                     }
                     continueLoop = false; // done
-                    this.adminLogger.logInfo('=== Finished ' +
-                        `${sourceCollectionName} ` +
-                        `Scanned: ${startFromIdContainer.numScanned.toLocaleString('en-US')} of ` +
-                        `${numberOfSourceDocuments.toLocaleString('en-US')} ` +
-                        `Updated: ${startFromIdContainer.numOperations.toLocaleString('en-US')} ` +
-                        `size: ${memoryManager.formatBytes(bytesLoaded)} ` +
-                        '===');
+
                 }
+                this.adminLogger.logInfo('=== Finished ' +
+                    `${sourceCollectionName} ` +
+                    `Scanned: ${startFromIdContainer.numScanned.toLocaleString('en-US')} of ` +
+                    `${numberOfSourceDocuments.toLocaleString('en-US')} ` +
+                    `Updated: ${startFromIdContainer.numOperations.toLocaleString('en-US')} ` +
+                    `size: ${memoryManager.formatBytes(bytesLoaded)} ` +
+                    '===');
                 session.endSession();
             } catch (e) {
                 if (e instanceof MongoNetworkTimeoutError) {
