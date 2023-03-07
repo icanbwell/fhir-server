@@ -352,8 +352,8 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                      */
                     const doc = await this.next(cursor);
                     bytesLoaded += sizeof(doc);
-                    startFromIdContainer.startFromId = doc.id;
-                    previouslyCheckedId = doc.id;
+                    startFromIdContainer.startFromId = doc._id;
+                    previouslyCheckedId = doc._id;
                     count += 1;
                     readline.cursorTo(process.stdout, 0);
                     process.stdout.write(`[${moment().toISOString()}] ` +
@@ -361,7 +361,8 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                         `Scanned: ${count.toLocaleString('en-US')} of ${numberOfDocumentsToCopy.toLocaleString('en-US')} ` +
                         `Updated: ${numOperations.toLocaleString('en-US')} ` +
                         `size: ${memoryManager.formatBytes(bytesLoaded)} ` +
-                        `mem: ${memoryManager.memoryUsed}`);
+                        `mem: ${memoryManager.memoryUsed} ` +
+                        `lastId: ${previouslyCheckedId}`);
                     /**
                      * @type {import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>[]}
                      */
@@ -382,7 +383,8 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                             `Scanned: ${count.toLocaleString('en-US')} of ${numberOfDocumentsToCopy.toLocaleString('en-US')} ` +
                             `Updated: ${numOperations.toLocaleString('en-US')} ` +
                             `size: ${memoryManager.formatBytes(bytesLoaded)} ` +
-                            `mem: ${memoryManager.memoryUsed}`);
+                            `mem: ${memoryManager.memoryUsed}` +
+                            `lastId: ${previouslyCheckedId}`);
                         // https://www.mongodb.com/docs/upcoming/core/transactions
                         if (useTransaction) {
                             session.startTransaction(transactionOptions);
