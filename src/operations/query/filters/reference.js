@@ -4,8 +4,8 @@ const {isUuid} = require('../../../utils/uid.util');
 
 /**
  * Get reference id filter
- * @param {[SearchParameterDefinition]} fields
- * @param {ParsedReferenceItem[]} references
+ * @param {[string]} fields
+ * @param {[ParsedReferenceItem]} references
  * @param {string} idField
  * @returns {*}
  */
@@ -23,12 +23,19 @@ function getIdFilter(fields, references, idField){
                 ),
             );
             let res = [];
-            if (query.some(q => q[`${field}`])) {
+            const directFieldFilterLength = query.filter(q => q[`${field}`]).length;
+            if ( directFieldFilterLength > 1) {
                 res.push(
                     {
                         [`${field}`]: {
                             '$in': query.map(q => q[`${field}`]),
                         },
+                    },
+                );
+            } else if (directFieldFilterLength === 1){
+                res.push(
+                    {
+                        [`${field}`]: query.map(q => q[`${field}`])[0],
                     },
                 );
             }
