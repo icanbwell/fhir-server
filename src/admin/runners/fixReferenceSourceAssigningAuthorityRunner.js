@@ -12,7 +12,6 @@ const {FhirResourceCreator} = require('../../fhir/fhirResourceCreator');
 const {MongoJsonPatchHelper} = require('../../utils/mongoJsonPatchHelper');
 const {ResourceMerger} = require('../../operations/common/resourceMerger');
 const {RethrownError} = require('../../utils/rethrownError');
-const {mongoQueryStringify} = require('../../utils/mongoQueryStringify');
 const {sliceIntoChunks} = require('../../utils/list.util');
 
 
@@ -585,11 +584,21 @@ class FixReferenceSourceAssigningAuthorityRunner extends BaseBulkOperationRunner
                          * @type  {import('mongodb').Filter<import('mongodb').Document>}
                          */
                         const queryForChunk = {
-                            '_uuid': {
-                                $in: uuidListChunk
-                            }
+                            $and: [
+                                {
+                                    '_uuid': {
+                                        $in: uuidListChunk
+                                    }
+                                },
+                                {
+                                    link: {
+                                        $exists: true
+                                    }
+                                }
+                            ]
                         };
-                        console.log(`Running loop ${loopNumber} query: ${mongoQueryStringify(queryForChunk)}`);
+                        console.log(`Running loop ${loopNumber}`);
+                        // console.log(`query: ${mongoQueryStringify(queryForChunk)}`);
                         await this.runForQueryBatchesAsync(
                             {
                                 config: mongoConfig,

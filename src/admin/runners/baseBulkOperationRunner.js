@@ -246,7 +246,10 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
         let continueLoop = true;
         let operations = [];
         let previouslyCheckedId = lastCheckedId;
-        let numberWritten = 0;
+
+        const numberOfDocumentsToCopy = skipExistingIds ?
+            numberOfSourceDocuments - numberOfDestinationDocuments :
+            numberOfSourceDocuments;
 
         if (useTransaction) {
             console.log(`==== Using transactions batchSize:${batchSize} ===`);
@@ -321,8 +324,6 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                     cursor = cursor.skip(skip);
                 }
 
-                let count = 0;
-                let numOperations = 0;
                 var refreshTimestamp = moment(); // take note of time at operation start
                 // const fnRefreshSessionAsync = async () => await db.admin().command({'refreshSessions': [sessionId]});
                 // const fnRefreshSessionAsync = async () => {
@@ -344,9 +345,6 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                             'result from refreshing session', {'result': adminResult});
                         refreshTimestamp = moment();
                     }
-                    const numberOfDocumentsToCopy = skipExistingIds ?
-                        numberOfSourceDocuments - numberOfDestinationDocuments :
-                        numberOfSourceDocuments;
                     /**
                      * element
                      * @type {import('mongodb').DefaultSchema}
@@ -355,13 +353,14 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                     bytesLoaded += sizeof(doc);
                     startFromIdContainer.startFromId = doc._id;
                     previouslyCheckedId = doc._id;
-                    count += 1;
+                    startFromIdContainer.numOperations += 1;
                     readline.cursorTo(process.stdout, 0);
                     process.stdout.write(`[${moment().toISOString()}] ` +
                         `Reading ${sourceCollectionName} ` +
-                        `Scanned: ${count.toLocaleString('en-US')} of ${numberOfDocumentsToCopy.toLocaleString('en-US')} ` +
-                        `ToWrite: ${numOperations.toLocaleString('en-US')} ` +
-                        `Written: ${numberWritten.toLocaleString('en-US')} ` +
+                        `Scanned: ${startFromIdContainer.numScanned.toLocaleString('en-US')} of ` +
+                        `${numberOfDocumentsToCopy.toLocaleString('en-US')} ` +
+                        `ToWrite: ${startFromIdContainer.numOperations.toLocaleString('en-US')} ` +
+                        `Written: ${startFromIdContainer.numberWritten.toLocaleString('en-US')} ` +
                         `size: ${memoryManager.formatBytes(bytesLoaded)} ` +
                         `mem: ${memoryManager.memoryUsed} ` +
                         `lastId: ${previouslyCheckedId}`);
@@ -371,7 +370,7 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                     const bulkOperations = await fnCreateBulkOperationAsync(doc);
                     for (const bulkOperation of bulkOperations) {
                         operations.push(bulkOperation);
-                        numOperations += 1;
+                        startFromIdContainer.numOperations += 1;
                     }
 
                     startFromIdContainer.convertedIds += 1;
@@ -382,9 +381,10 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                         readline.cursorTo(process.stdout, 0);
                         process.stdout.write(`[${moment().toISOString()}] ` +
                             `Writing ${sourceCollectionName} ` +
-                            `Scanned: ${count.toLocaleString('en-US')} of ${numberOfDocumentsToCopy.toLocaleString('en-US')} ` +
-                            `ToWrite: ${numOperations.toLocaleString('en-US')} ` +
-                            `Written: ${numberWritten.toLocaleString('en-US')} ` +
+                            `Scanned: ${startFromIdContainer.numScanned.toLocaleString('en-US')} of ` +
+                            `${numberOfDocumentsToCopy.toLocaleString('en-US')} ` +
+                            `ToWrite: ${startFromIdContainer.numOperations.toLocaleString('en-US')} ` +
+                            `Written: ${startFromIdContainer.numberWritten.toLocaleString('en-US')} ` +
                             `size: ${memoryManager.formatBytes(bytesLoaded)} ` +
                             `mem: ${memoryManager.memoryUsed}` +
                             `lastId: ${previouslyCheckedId}`);
@@ -401,11 +401,12 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                         startFromIdContainer.nModified += bulkResult.nModified;
                         startFromIdContainer.nUpserted += bulkResult.nUpserted;
                         startFromIdContainer.startFromId = previouslyCheckedId;
+                        startFromIdContainer.numberWritten += operations.length;
                         operations = [];
                         if (useTransaction) {
                             await session.commitTransaction();
                         }
-                        numberWritten += numOperations;
+
 
                         const message =
                             `Processed ${startFromIdContainer.convertedIds.toLocaleString()}, ` +
@@ -437,11 +438,12 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                                 session: session
                             }
                         );
+                        startFromIdContainer.numberWritten += operations.length;
                         operations = [];
                         startFromIdContainer.nModified += bulkResult.nModified;
                         startFromIdContainer.nUpserted += bulkResult.nUpserted;
                         startFromIdContainer.startFromId = previouslyCheckedId;
-                        numberWritten += numOperations;
+
                         const message =
                             `Final write ${startFromIdContainer.convertedIds.toLocaleString()} ` +
                             `modified: ${startFromIdContainer.nModified.toLocaleString('en-US')}, ` +
@@ -458,8 +460,9 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                 continueLoop = false; // done
                 this.adminLogger.logInfo('=== Finished ' +
                     `${sourceCollectionName} ` +
-                    `Scanned: ${count.toLocaleString('en-US')} of ${numberOfSourceDocuments.toLocaleString('en-US')} ` +
-                    `Updated: ${numOperations.toLocaleString('en-US')} ` +
+                    `Scanned: ${startFromIdContainer.numScanned.toLocaleString('en-US')} of ` +
+                    `${numberOfSourceDocuments.toLocaleString('en-US')} ` +
+                    `Updated: ${startFromIdContainer.numOperations.toLocaleString('en-US')} ` +
                     `size: ${memoryManager.formatBytes(bytesLoaded)} ` +
                     '===');
 
