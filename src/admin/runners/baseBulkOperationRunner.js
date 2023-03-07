@@ -249,7 +249,7 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
         let numberWritten = 0;
 
         if (useTransaction) {
-            console.log('==== Using transactions ===');
+            console.log(`==== Using transactions batchSize:${batchSize} ===`);
         }
         /**
          * @type {number}

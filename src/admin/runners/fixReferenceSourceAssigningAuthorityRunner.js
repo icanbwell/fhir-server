@@ -45,16 +45,24 @@ function getFilter(properties,) {
     if (!properties || properties.length === 0) {
         return {};
     }
+    if (properties.length === 1) {
+        return {
+            [properties[0]]: {
+                $exists: true
+            }
+        };
+    }
     /**
      * @type {import('mongodb').Filter<import('mongodb').Document>}
      */
     const filter = {
         $and: []
     };
+
     for (const property of properties) {
         filter.$and.push({
             [`${property}`]: {
-                $ne: null
+                $exists: true
             }
         });
     }
