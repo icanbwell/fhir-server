@@ -8,6 +8,7 @@ const {MongoNetworkTimeoutError} = require('mongodb');
 const {MemoryManager} = require('../../utils/memoryManager');
 const sizeof = require('object-sizeof');
 const {RethrownError} = require('../../utils/rethrownError');
+const {sliceIntoChunks} = require('../../utils/list.util');
 
 /**
  * @classdesc Implements a loop for reading records from database (based on passed in query), calling a function to
@@ -54,6 +55,8 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
      * @param {number|undefined} [limit]
      * @param {boolean|undefined} [useTransaction]
      * @param {number|undefined} [skip]
+     * @param {string[]|undefined} [filterToIds]
+     * @param {string|undefined} [filterToIdProperty]
      * @returns {Promise<string>}
      */
     async runForQueryBatchesAsync(
@@ -72,7 +75,9 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
             dropDestinationIfCountIsDifferent,
             limit,
             useTransaction,
-            skip
+            skip,
+            filterToIds,
+            filterToIdProperty
         }
     ) {
         try {
@@ -164,7 +169,9 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                     ordered,
                     limit,
                     useTransaction,
-                    skip
+                    skip,
+                    filterToIds,
+                    filterToIdProperty
                 });
 
             // get the count at the end
@@ -218,6 +225,8 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
      * @param {number|undefined} [limit]
      * @param {boolean|undefined} [useTransaction]
      * @param {number|undefined} [skip]
+     * @param {string[]|undefined} [filterToIds]
+     * @param {string|undefined} [filterToIdProperty]
      * @returns {Promise<string>}
      */
     async runLoopAsync(
@@ -237,7 +246,9 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
             ordered,
             limit,
             useTransaction,
-            skip
+            skip,
+            filterToIds,
+            filterToIdProperty
         }) {
         const maxTimeMS = 20 * 60 * 60 * 1000;
         const numberOfSecondsBetweenSessionRefreshes = 10 * 60;
@@ -306,166 +317,191 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                 if (projection) {
                     options['projection'] = projection;
                 }
+
                 /**
-                 * @type {import('mongodb').FindCursor<WithId<import('mongodb').Document>>}
+                 * @type {string[][]}
                  */
-                let cursor = await sourceCollection
-                    .find(query, options)
-                    .sort({_id: 1})
-                    .maxTimeMS(maxTimeMS) // 20 hours
-                    .batchSize(batchSize)
-                    .addCursorFlag('noCursorTimeout', true);
+                const uuidListChunks = sliceIntoChunks(filterToIds, batchSize);
+                // let loopNumber = 0;
+                for (const uuidListChunk of uuidListChunks) {
+                    // loopNumber += 1;
+                    /**
+                     * @type  {import('mongodb').Filter<import('mongodb').Document>}
+                     */
+                    const queryForChunk = {
+                        $and: [
+                            {
+                                [`${filterToIdProperty}`]: {
+                                    $in: uuidListChunk
+                                }
+                            },
+                            {
+                                link: {
+                                    $exists: true
+                                }
+                            }
+                        ]
+                    };
+                    /**
+                     * @type {import('mongodb').FindCursor<WithId<import('mongodb').Document>>}
+                     */
+                    let cursor = await sourceCollection
+                        .find(queryForChunk, options)
+                        .sort({_id: 1})
+                        .maxTimeMS(maxTimeMS) // 20 hours
+                        .batchSize(batchSize)
+                        .addCursorFlag('noCursorTimeout', true);
 
-                if (limit) {
-                    cursor = cursor.limit(limit);
-                }
+                    if (limit) {
+                        cursor = cursor.limit(limit);
+                    }
 
-                if (skip) {
-                    cursor = cursor.skip(skip);
-                }
+                    if (skip) {
+                        cursor = cursor.skip(skip);
+                    }
 
-                var refreshTimestamp = moment(); // take note of time at operation start
-                // const fnRefreshSessionAsync = async () => await db.admin().command({'refreshSessions': [sessionId]});
-                // const fnRefreshSessionAsync = async () => {
-                //     session = sourceClient.startSession();
-                //     sessionId = session.serverSession.id;
-                //     logInfo('Restarted session', {'session id': sessionId});
-                // };
-                while (await this.hasNext(cursor)) {
-                    // Check if more than 5 minutes have passed since the last refresh
-                    if (moment().diff(refreshTimestamp, 'seconds') > numberOfSecondsBetweenSessionRefreshes) {
-                        this.adminLogger.logInfo(
-                            'refreshing session with sessionId', {'session_id': sessionId});
-                        this.adminLogger.logInfo(`Memory used (RSS): ${memoryManager.memoryUsed}`);
+                    var refreshTimestamp = moment(); // take note of time at operation start
+                    // const fnRefreshSessionAsync = async () => await db.admin().command({'refreshSessions': [sessionId]});
+                    // const fnRefreshSessionAsync = async () => {
+                    //     session = sourceClient.startSession();
+                    //     sessionId = session.serverSession.id;
+                    //     logInfo('Restarted session', {'session id': sessionId});
+                    // };
+                    while (await this.hasNext(cursor)) {
+                        // Check if more than 5 minutes have passed since the last refresh
+                        if (moment().diff(refreshTimestamp, 'seconds') > numberOfSecondsBetweenSessionRefreshes) {
+                            this.adminLogger.logInfo(
+                                'refreshing session with sessionId', {'session_id': sessionId});
+                            this.adminLogger.logInfo(`Memory used (RSS): ${memoryManager.memoryUsed}`);
+                            /**
+                             * @type {import('mongodb').Document}
+                             */
+                            const adminResult = await sourceDb.admin().command({'refreshSessions': [sessionId]});
+                            this.adminLogger.logInfo(
+                                'result from refreshing session', {'result': adminResult});
+                            refreshTimestamp = moment();
+                        }
                         /**
-                         * @type {import('mongodb').Document}
+                         * element
+                         * @type {import('mongodb').DefaultSchema}
                          */
-                        const adminResult = await sourceDb.admin().command({'refreshSessions': [sessionId]});
-                        this.adminLogger.logInfo(
-                            'result from refreshing session', {'result': adminResult});
-                        refreshTimestamp = moment();
-                    }
-                    /**
-                     * element
-                     * @type {import('mongodb').DefaultSchema}
-                     */
-                    const doc = await this.next(cursor);
-                    bytesLoaded += sizeof(doc);
-                    startFromIdContainer.startFromId = doc._id;
-                    previouslyCheckedId = doc._id;
-                    startFromIdContainer.numScanned += 1;
-                    readline.cursorTo(process.stdout, 0);
-                    process.stdout.write(`[${moment().toISOString()}] ` +
-                        `Reading ${sourceCollectionName} ` +
-                        `Scanned: ${startFromIdContainer.numScanned.toLocaleString('en-US')} of ` +
-                        `${numberOfDocumentsToCopy.toLocaleString('en-US')} ` +
-                        `ToWrite: ${startFromIdContainer.numOperations.toLocaleString('en-US')} ` +
-                        `Written: ${startFromIdContainer.numberWritten.toLocaleString('en-US')} ` +
-                        `size: ${memoryManager.formatBytes(bytesLoaded)} ` +
-                        `mem: ${memoryManager.memoryUsed} ` +
-                        `lastId: ${previouslyCheckedId}`);
-                    /**
-                     * @type {import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>[]}
-                     */
-                    const bulkOperations = await fnCreateBulkOperationAsync(doc);
-                    for (const bulkOperation of bulkOperations) {
-                        operations.push(bulkOperation);
-                        startFromIdContainer.numOperations += 1;
-                    }
-
-                    startFromIdContainer.convertedIds += 1;
-                    if (operations.length > 0 && (operations.length % this.batchSize === 0)) { // write every x items
-                        this.adminLogger.logInfo(
-                            `Writing ${operations.length.toLocaleString('en-US')} operations in bulk to ${destinationCollectionName}. `
-                        );
+                        const doc = await this.next(cursor);
+                        bytesLoaded += sizeof(doc);
+                        startFromIdContainer.startFromId = doc._id;
+                        previouslyCheckedId = doc._id;
+                        startFromIdContainer.numScanned += 1;
                         readline.cursorTo(process.stdout, 0);
                         process.stdout.write(`[${moment().toISOString()}] ` +
-                            `Writing ${sourceCollectionName} ` +
+                            `Reading ${sourceCollectionName} ` +
                             `Scanned: ${startFromIdContainer.numScanned.toLocaleString('en-US')} of ` +
                             `${numberOfDocumentsToCopy.toLocaleString('en-US')} ` +
                             `ToWrite: ${startFromIdContainer.numOperations.toLocaleString('en-US')} ` +
                             `Written: ${startFromIdContainer.numberWritten.toLocaleString('en-US')} ` +
                             `size: ${memoryManager.formatBytes(bytesLoaded)} ` +
-                            `mem: ${memoryManager.memoryUsed}` +
+                            `mem: ${memoryManager.memoryUsed} ` +
                             `lastId: ${previouslyCheckedId}`);
-                        // https://www.mongodb.com/docs/upcoming/core/transactions
+                        /**
+                         * @type {import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>[]}
+                         */
+                        const bulkOperations = await fnCreateBulkOperationAsync(doc);
+                        for (const bulkOperation of bulkOperations) {
+                            operations.push(bulkOperation);
+                            startFromIdContainer.numOperations += 1;
+                        }
+
+                        startFromIdContainer.convertedIds += 1;
+                        if (operations.length > 0 && (operations.length % this.batchSize === 0)) { // write every x items
+                            this.adminLogger.logInfo(
+                                `Writing ${operations.length.toLocaleString('en-US')} operations in bulk to ${destinationCollectionName}. `
+                            );
+                            readline.cursorTo(process.stdout, 0);
+                            process.stdout.write(`[${moment().toISOString()}] ` +
+                                `Writing ${sourceCollectionName} ` +
+                                `Scanned: ${startFromIdContainer.numScanned.toLocaleString('en-US')} of ` +
+                                `${numberOfDocumentsToCopy.toLocaleString('en-US')} ` +
+                                `ToWrite: ${startFromIdContainer.numOperations.toLocaleString('en-US')} ` +
+                                `Written: ${startFromIdContainer.numberWritten.toLocaleString('en-US')} ` +
+                                `size: ${memoryManager.formatBytes(bytesLoaded)} ` +
+                                `mem: ${memoryManager.memoryUsed}` +
+                                `lastId: ${previouslyCheckedId}`);
+                            // https://www.mongodb.com/docs/upcoming/core/transactions
+                            if (useTransaction) {
+                                session.startTransaction(transactionOptions);
+                            }
+                            const bulkResult = await destinationCollection.bulkWrite(operations,
+                                {
+                                    ordered: ordered,
+                                    session: session
+                                }
+                            );
+                            startFromIdContainer.nModified += bulkResult.nModified;
+                            startFromIdContainer.nUpserted += bulkResult.nUpserted;
+                            startFromIdContainer.startFromId = previouslyCheckedId;
+                            startFromIdContainer.numberWritten += operations.length;
+                            operations = [];
+                            if (useTransaction) {
+                                await session.commitTransaction();
+                            }
+
+
+                            const message =
+                                `Processed ${startFromIdContainer.convertedIds.toLocaleString()}, ` +
+                                `modified: ${startFromIdContainer.nModified.toLocaleString('en-US')}, ` +
+                                `upserted: ${startFromIdContainer.nUpserted.toLocaleString('en-US')}, ` +
+                                `from ${sourceCollectionName} to ${destinationCollectionName}. last id: ${previouslyCheckedId}`;
+                            this.adminLogger.logInfo(message);
+                            // https://nodejs.org/api/process.html#process_process_memoryusage
+                            // heapTotal and heapUsed refer to V8's memory usage.
+                            // external refers to the memory usage of C++ objects bound to JavaScript objects managed by V8.
+                            // rss, Resident Set Size, is the amount of space occupied in the main memory device (that is a subset of the total allocated memory) for the process, including all C++ and JavaScript objects and code.
+                            // arrayBuffers refers to memory allocated for ArrayBuffers and SharedArrayBuffers, including all Node.js Buffers. This is also included in the external value. When Node.js is used as an embedded library, this value may be 0 because allocations for ArrayBuffers may not be tracked in that case.
+                            this.adminLogger.logInfo(`Memory used (RSS): ${memoryManager.memoryUsed}`);
+                        }
+                    }
+
+                    // now write out any remaining items
+                    if (operations.length > 0) { // if any items left to write
+                        this.adminLogger.logInfo(
+                            `Final writing ${operations.length.toLocaleString('en-US')} operations in bulk to ${destinationCollectionName}. `);
+
                         if (useTransaction) {
                             session.startTransaction(transactionOptions);
                         }
-                        const bulkResult = await destinationCollection.bulkWrite(operations,
-                            {
-                                ordered: ordered,
-                                session: session
-                            }
-                        );
-                        startFromIdContainer.nModified += bulkResult.nModified;
-                        startFromIdContainer.nUpserted += bulkResult.nUpserted;
-                        startFromIdContainer.startFromId = previouslyCheckedId;
-                        startFromIdContainer.numberWritten += operations.length;
-                        operations = [];
+                        try {
+                            const bulkResult = await destinationCollection.bulkWrite(operations,
+                                {
+                                    ordered: ordered,
+                                    session: session
+                                }
+                            );
+                            startFromIdContainer.numberWritten += operations.length;
+                            operations = [];
+                            startFromIdContainer.nModified += bulkResult.nModified;
+                            startFromIdContainer.nUpserted += bulkResult.nUpserted;
+                            startFromIdContainer.startFromId = previouslyCheckedId;
+
+                            const message =
+                                `Final write ${startFromIdContainer.convertedIds.toLocaleString()} ` +
+                                `modified: ${startFromIdContainer.nModified.toLocaleString('en-US')}, ` +
+                                `upserted: ${startFromIdContainer.nUpserted.toLocaleString('en-US')} ` +
+                                `from ${sourceCollectionName} to ${destinationCollectionName}. last id: ${previouslyCheckedId}`;
+                            this.adminLogger.logInfo(message);
+                        } catch (e) {
+                            console.error(e);
+                        }
                         if (useTransaction) {
                             await session.commitTransaction();
                         }
-
-
-                        const message =
-                            `Processed ${startFromIdContainer.convertedIds.toLocaleString()}, ` +
-                            `modified: ${startFromIdContainer.nModified.toLocaleString('en-US')}, ` +
-                            `upserted: ${startFromIdContainer.nUpserted.toLocaleString('en-US')}, ` +
-                            `from ${sourceCollectionName} to ${destinationCollectionName}. last id: ${previouslyCheckedId}`;
-                        this.adminLogger.logInfo(message);
-                        // https://nodejs.org/api/process.html#process_process_memoryusage
-                        // heapTotal and heapUsed refer to V8's memory usage.
-                        // external refers to the memory usage of C++ objects bound to JavaScript objects managed by V8.
-                        // rss, Resident Set Size, is the amount of space occupied in the main memory device (that is a subset of the total allocated memory) for the process, including all C++ and JavaScript objects and code.
-                        // arrayBuffers refers to memory allocated for ArrayBuffers and SharedArrayBuffers, including all Node.js Buffers. This is also included in the external value. When Node.js is used as an embedded library, this value may be 0 because allocations for ArrayBuffers may not be tracked in that case.
-                        this.adminLogger.logInfo(`Memory used (RSS): ${memoryManager.memoryUsed}`);
                     }
+                    continueLoop = false; // done
+                    this.adminLogger.logInfo('=== Finished ' +
+                        `${sourceCollectionName} ` +
+                        `Scanned: ${startFromIdContainer.numScanned.toLocaleString('en-US')} of ` +
+                        `${numberOfSourceDocuments.toLocaleString('en-US')} ` +
+                        `Updated: ${startFromIdContainer.numOperations.toLocaleString('en-US')} ` +
+                        `size: ${memoryManager.formatBytes(bytesLoaded)} ` +
+                        '===');
                 }
-
-                // now write out any remaining items
-                if (operations.length > 0) { // if any items left to write
-                    this.adminLogger.logInfo(
-                        `Final writing ${operations.length.toLocaleString('en-US')} operations in bulk to ${destinationCollectionName}. `);
-
-                    if (useTransaction) {
-                        session.startTransaction(transactionOptions);
-                    }
-                    try {
-                        const bulkResult = await destinationCollection.bulkWrite(operations,
-                            {
-                                ordered: ordered,
-                                session: session
-                            }
-                        );
-                        startFromIdContainer.numberWritten += operations.length;
-                        operations = [];
-                        startFromIdContainer.nModified += bulkResult.nModified;
-                        startFromIdContainer.nUpserted += bulkResult.nUpserted;
-                        startFromIdContainer.startFromId = previouslyCheckedId;
-
-                        const message =
-                            `Final write ${startFromIdContainer.convertedIds.toLocaleString()} ` +
-                            `modified: ${startFromIdContainer.nModified.toLocaleString('en-US')}, ` +
-                            `upserted: ${startFromIdContainer.nUpserted.toLocaleString('en-US')} ` +
-                            `from ${sourceCollectionName} to ${destinationCollectionName}. last id: ${previouslyCheckedId}`;
-                        this.adminLogger.logInfo(message);
-                    } catch (e) {
-                        console.error(e);
-                    }
-                    if (useTransaction) {
-                        await session.commitTransaction();
-                    }
-                }
-                continueLoop = false; // done
-                this.adminLogger.logInfo('=== Finished ' +
-                    `${sourceCollectionName} ` +
-                    `Scanned: ${startFromIdContainer.numScanned.toLocaleString('en-US')} of ` +
-                    `${numberOfSourceDocuments.toLocaleString('en-US')} ` +
-                    `Updated: ${startFromIdContainer.numOperations.toLocaleString('en-US')} ` +
-                    `size: ${memoryManager.formatBytes(bytesLoaded)} ` +
-                    '===');
-
                 session.endSession();
             } catch (e) {
                 if (e instanceof MongoNetworkTimeoutError) {

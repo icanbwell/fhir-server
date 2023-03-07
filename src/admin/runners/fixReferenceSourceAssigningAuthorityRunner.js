@@ -12,7 +12,6 @@ const {FhirResourceCreator} = require('../../fhir/fhirResourceCreator');
 const {MongoJsonPatchHelper} = require('../../utils/mongoJsonPatchHelper');
 const {ResourceMerger} = require('../../operations/common/resourceMerger');
 const {RethrownError} = require('../../utils/rethrownError');
-const {sliceIntoChunks} = require('../../utils/list.util');
 
 
 /**
@@ -542,7 +541,7 @@ class FixReferenceSourceAssigningAuthorityRunner extends BaseBulkOperationRunner
                         collectionName: preloadCollection
                     }
                 ).size;
-                console.log(`Done preloading collection: ${preloadCollection}: ${count}`);
+                console.log(`Done preloading collection: ${preloadCollection}: ${count.toLocaleString('en-US')}`);
             }
 
             console.log(`Starting loop for ${this.collections.join(',')}. useTransaction: ${this.useTransaction}`);
@@ -572,51 +571,28 @@ class FixReferenceSourceAssigningAuthorityRunner extends BaseBulkOperationRunner
                  */
                 const uuidList = Array.from(personCache.keys());
 
-                /**
-                 * @type {string[][]}
-                 */
-                const uuidListChunks = sliceIntoChunks(uuidList, 1000);
                 try {
-                    let loopNumber = 0;
-                    for (const uuidListChunk of uuidListChunks) {
-                        loopNumber += 1;
-                        /**
-                         * @type  {import('mongodb').Filter<import('mongodb').Document>}
-                         */
-                        const queryForChunk = {
-                            $and: [
-                                {
-                                    '_uuid': {
-                                        $in: uuidListChunk
-                                    }
-                                },
-                                {
-                                    link: {
-                                        $exists: true
-                                    }
-                                }
-                            ]
-                        };
-                        console.log(`Running loop ${loopNumber}`);
-                        // console.log(`query: ${mongoQueryStringify(queryForChunk)}`);
-                        await this.runForQueryBatchesAsync(
-                            {
-                                config: mongoConfig,
-                                sourceCollectionName: collectionName,
-                                destinationCollectionName: collectionName,
-                                query: queryForChunk,
-                                projection: this.properties ? getProjection(this.properties) : undefined,
-                                startFromIdContainer: this.startFromIdContainer,
-                                fnCreateBulkOperationAsync: async (doc) => await this.processRecordAsync(doc),
-                                ordered: false,
-                                batchSize: this.batchSize,
-                                skipExistingIds: false,
-                                limit: this.limit,
-                                useTransaction: this.useTransaction,
-                                skip: this.skip
-                            }
-                        );
-                    }
+                    // console.log(`query: ${mongoQueryStringify(queryForChunk)}`);
+                    await this.runForQueryBatchesAsync(
+                        {
+                            config: mongoConfig,
+                            sourceCollectionName: collectionName,
+                            destinationCollectionName: collectionName,
+                            query: {},
+                            projection: this.properties ? getProjection(this.properties) : undefined,
+                            startFromIdContainer: this.startFromIdContainer,
+                            fnCreateBulkOperationAsync: async (doc) => await this.processRecordAsync(doc),
+                            ordered: false,
+                            batchSize: this.batchSize,
+                            skipExistingIds: false,
+                            limit: this.limit,
+                            useTransaction: this.useTransaction,
+                            skip: this.skip,
+                            filterToIdProperty: '_uuid',
+                            filterToIds: uuidList
+                        }
+                    );
+
                 } catch (e) {
                     console.error(e);
                     console.log(`Got error ${e}.  At ${this.startFromIdContainer.startFromId}`);
