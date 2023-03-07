@@ -561,15 +561,15 @@ class FixReferenceSourceAssigningAuthorityRunner extends BaseBulkOperationRunner
                     getFilter(this.properties.concat(this.filterToRecordsWithFields || [])) :
                     getFilter(this.filterToRecordsWithFields);
 
-                const personCache = this.getCacheForResourceType(
-                    {
-                        collectionName: 'Person_4_0_0'
-                    }
-                );
-                /**
-                 * @type {string[]}
-                 */
-                const uuidList = Array.from(personCache.keys());
+                // const personCache = this.getCacheForResourceType(
+                //     {
+                //         collectionName: 'Person_4_0_0'
+                //     }
+                // );
+                // /**
+                //  * @type {string[]}
+                //  */
+                // const uuidList = Array.from(personCache.keys());
 
                 try {
                     // console.log(`query: ${mongoQueryStringify(queryForChunk)}`);
@@ -588,8 +588,8 @@ class FixReferenceSourceAssigningAuthorityRunner extends BaseBulkOperationRunner
                             limit: this.limit,
                             useTransaction: this.useTransaction,
                             skip: this.skip,
-                            filterToIdProperty: '_uuid',
-                            filterToIds: uuidList
+                            // filterToIdProperty: '_uuid',
+                            // filterToIds: uuidList
                         }
                     );
 
