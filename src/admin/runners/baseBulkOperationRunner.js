@@ -246,6 +246,7 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
         let continueLoop = true;
         let operations = [];
         let previouslyCheckedId = lastCheckedId;
+        let numberWritten = 0;
 
         if (useTransaction) {
             console.log('==== Using transactions ===');
@@ -359,7 +360,8 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                     process.stdout.write(`[${moment().toISOString()}] ` +
                         `Reading ${sourceCollectionName} ` +
                         `Scanned: ${count.toLocaleString('en-US')} of ${numberOfDocumentsToCopy.toLocaleString('en-US')} ` +
-                        `Updated: ${numOperations.toLocaleString('en-US')} ` +
+                        `ToWrite: ${numOperations.toLocaleString('en-US')} ` +
+                        `Written: ${numberWritten.toLocaleString('en-US')} ` +
                         `size: ${memoryManager.formatBytes(bytesLoaded)} ` +
                         `mem: ${memoryManager.memoryUsed} ` +
                         `lastId: ${previouslyCheckedId}`);
@@ -381,7 +383,8 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                         process.stdout.write(`[${moment().toISOString()}] ` +
                             `Writing ${sourceCollectionName} ` +
                             `Scanned: ${count.toLocaleString('en-US')} of ${numberOfDocumentsToCopy.toLocaleString('en-US')} ` +
-                            `Updated: ${numOperations.toLocaleString('en-US')} ` +
+                            `ToWrite: ${numOperations.toLocaleString('en-US')} ` +
+                            `Written: ${numberWritten.toLocaleString('en-US')} ` +
                             `size: ${memoryManager.formatBytes(bytesLoaded)} ` +
                             `mem: ${memoryManager.memoryUsed}` +
                             `lastId: ${previouslyCheckedId}`);
@@ -402,6 +405,7 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                         if (useTransaction) {
                             await session.commitTransaction();
                         }
+                        numberWritten += numOperations;
 
                         const message =
                             `Processed ${startFromIdContainer.convertedIds.toLocaleString()}, ` +
@@ -437,6 +441,7 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                         startFromIdContainer.nModified += bulkResult.nModified;
                         startFromIdContainer.nUpserted += bulkResult.nUpserted;
                         startFromIdContainer.startFromId = previouslyCheckedId;
+                        numberWritten += numOperations;
                         const message =
                             `Final write ${startFromIdContainer.convertedIds.toLocaleString()} ` +
                             `modified: ${startFromIdContainer.nModified.toLocaleString('en-US')}, ` +
