@@ -261,9 +261,9 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
         const memoryManager = new MemoryManager();
 
         while (continueLoop && (loopRetryNumber < maxLoopRetries)) {
-            if (startFromIdContainer.startFromId) {
-                query.$and.push({'id': {$gt: startFromIdContainer.startFromId}});
-            }
+            // if (startFromIdContainer.startFromId) {
+            //     query.$and.push({'id': {$gt: startFromIdContainer.startFromId}});
+            // }
 
             loopRetryNumber += 1;
 
