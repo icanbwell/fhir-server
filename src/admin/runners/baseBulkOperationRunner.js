@@ -291,7 +291,7 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                 /**
                  * @type {string[][]}
                  */
-                const uuidListChunks = sliceIntoChunks(filterToIds, batchSize);
+                const uuidListChunks = filterToIds ? sliceIntoChunks(filterToIds, batchSize) : ['all'];
                 if (useTransaction) {
                     console.log(`==== Using transactions batchSize:${batchSize} chunks: ${uuidListChunks.length} ===`);
                 }
@@ -326,29 +326,30 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                         options['projection'] = projection;
                     }
 
-
                     // loopNumber += 1;
-                    let queryForChunk;
-                    /**
-                     * @type  {import('mongodb').Filter<import('mongodb').Document>}
-                     */
-                    let queryForChunkIds = {
-                        [`${filterToIdProperty}`]: {
-                            $in: uuidListChunk
-                        }
-                    };
-                    if (query && query.$and) {
-                        queryForChunk = deepcopy(query);
-                        queryForChunk.$and.push(queryForChunkIds);
-                    } else if (query && Object.keys(query) > 0) {
-                        queryForChunk = {
-                            $and: [
-                                query,
-                                queryForChunkIds
-                            ]
+                    let queryForChunk = query;
+                    if (filterToIds) {
+                        /**
+                         * @type  {import('mongodb').Filter<import('mongodb').Document>}
+                         */
+                        let queryForChunkIds = {
+                            [`${filterToIdProperty}`]: {
+                                $in: uuidListChunk
+                            }
                         };
-                    } else {
-                        queryForChunk = queryForChunkIds;
+                        if (query && query.$and) {
+                            queryForChunk = deepcopy(query);
+                            queryForChunk.$and.push(queryForChunkIds);
+                        } else if (query && Object.keys(query) > 0) {
+                            queryForChunk = {
+                                $and: [
+                                    query,
+                                    queryForChunkIds
+                                ]
+                            };
+                        } else {
+                            queryForChunk = queryForChunkIds;
+                        }
                     }
 
                     /**
