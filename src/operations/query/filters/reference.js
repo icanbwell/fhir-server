@@ -3,6 +3,49 @@ const {getIndexHints} = require('../../common/getIndexHints');
 const {isUuid} = require('../../../utils/uid.util');
 
 /**
+ * Get reference id filter
+ * @param {[string]} fields
+ * @param {[ParsedReferenceItem]} references
+ * @param {string} idField
+ * @returns {*}
+ */
+function getIdFilter(fields, references, idField){
+    return fields.flatMap(
+        field1 => {
+            const field = `${field1}.${idField}`;
+            const query = references.map(reference =>
+                referenceQueryBuilderOptimized({
+                        target_type: reference.resourceType,
+                        target: reference.id,
+                        field: field,
+                        sourceAssigningAuthorityField: `${field1}._sourceAssigningAuthority`,
+                    },
+                ),
+            );
+            let res = [];
+            const directFieldFilterLength = query.filter(q => q[`${field}`]).length;
+            if ( directFieldFilterLength > 1) {
+                res.push(
+                    {
+                        [`${field}`]: {
+                            '$in': query.map(q => q[`${field}`]),
+                        },
+                    },
+                );
+            } else if (directFieldFilterLength === 1){
+                res.push(
+                    {
+                        [`${field}`]: query.map(q => q[`${field}`])[0],
+                    },
+                );
+            }
+            query.filter(q => !q[`${field}`]).forEach(q => res.push(q));
+            return res;
+        },
+    );
+}
+
+/**
  * Filters by reference
  * https://www.hl7.org/fhir/search.html#reference
  * @param {ParsedArgsItem} parsedArg
@@ -36,35 +79,12 @@ function filterByReference({parsedArg, columns}) {
     if (allReferencesAreUuids) {
         //optimize by looking only in _uuid field
         filter = {
-            $or: propertyObj.target.flatMap(target =>
-                fields.flatMap((field1) =>
-                    parsedArg.references.map(reference =>
-                        referenceQueryBuilderOptimized({
-                                target_type: reference.resourceType || target,
-                                target: reference.id,
-                                field: `${field1}._uuid`,
-                                sourceAssigningAuthorityField: `${field1}._sourceAssigningAuthority`
-                            }
-                        )
-                    )
-                )
-            ),
+            $or: getIdFilter(fields, parsedArg.references, '_uuid'),
         };
     } else if (noReferencesAreUuids) {
         filter = {
-            $or: propertyObj.target.flatMap(target =>
-                fields.flatMap((field1) =>
-                    parsedArg.references.map(reference =>
-                        referenceQueryBuilderOptimized({
-                                target_type: reference.resourceType || target,
-                                target: reference.id,
-                                field: `${field1}._sourceId`,
-                                sourceAssigningAuthorityField: `${field1}._sourceAssigningAuthority`
-                            }
-                        )
-                    )
-                )
-            ),
+            $or:
+                getIdFilter(fields, parsedArg.references, '_sourceId'),
         };
     } else {
         // there is a mix of uuids and ids so we have to look in both fields
