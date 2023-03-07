@@ -13,6 +13,7 @@ const {MongoJsonPatchHelper} = require('../../utils/mongoJsonPatchHelper');
 const {ResourceMerger} = require('../../operations/common/resourceMerger');
 const {RethrownError} = require('../../utils/rethrownError');
 const {mongoQueryStringify} = require('../../utils/mongoQueryStringify');
+const {sliceIntoChunks} = require('../../utils/list.util');
 
 
 /**
@@ -41,6 +42,7 @@ function getProjection(properties) {
  * @param {string[]} properties
  * @return {import('mongodb').Filter<import('mongodb').Document>}
  */
+// eslint-disable-next-line no-unused-vars
 function getFilter(properties,) {
     if (!properties || properties.length === 0) {
         return {};
@@ -550,35 +552,62 @@ class FixReferenceSourceAssigningAuthorityRunner extends BaseBulkOperationRunner
             for (const collectionName of this.collections) {
 
                 this.startFromIdContainer.startFromId = '';
-                /**
-                 * @type {import('mongodb').Filter<import('mongodb').Document>}
-                 */
-                const query = this.afterLastUpdatedDate ? {
-                    'meta.lastUpdated': {
-                        $gt: this.afterLastUpdatedDate,
+                // /**
+                //  * @type {import('mongodb').Filter<import('mongodb').Document>}
+                //  */
+                // const query = this.afterLastUpdatedDate ? {
+                //     'meta.lastUpdated': {
+                //         $gt: this.afterLastUpdatedDate,
+                //     }
+                // } : this.properties && this.properties.length > 0 ?
+                //     getFilter(this.properties.concat(this.filterToRecordsWithFields || [])) :
+                //     getFilter(this.filterToRecordsWithFields);
+
+                const personCache = this.getCacheForResourceType(
+                    {
+                        collectionName: 'Person_4_0_0'
                     }
-                } : this.properties && this.properties.length > 0 ?
-                    getFilter(this.properties.concat(this.filterToRecordsWithFields || [])) :
-                    getFilter(this.filterToRecordsWithFields);
-                console.log(`Running query: ${mongoQueryStringify(query)}`);
+                );
+                /**
+                 * @type {string[]}
+                 */
+                const uuidList = Array.from(personCache.keys());
+
+                /**
+                 * @type {string[][]}
+                 */
+                const uuidListChunks = sliceIntoChunks(uuidList, 1000);
                 try {
-                    await this.runForQueryBatchesAsync(
-                        {
-                            config: mongoConfig,
-                            sourceCollectionName: collectionName,
-                            destinationCollectionName: collectionName,
-                            query,
-                            projection: this.properties ? getProjection(this.properties) : undefined,
-                            startFromIdContainer: this.startFromIdContainer,
-                            fnCreateBulkOperationAsync: async (doc) => await this.processRecordAsync(doc),
-                            ordered: false,
-                            batchSize: this.batchSize,
-                            skipExistingIds: false,
-                            limit: this.limit,
-                            useTransaction: this.useTransaction,
-                            skip: this.skip
-                        }
-                    );
+                    let loopNumber = 0;
+                    for (const uuidListChunk of uuidListChunks) {
+                        loopNumber += 1;
+                        /**
+                         * @type  {import('mongodb').Filter<import('mongodb').Document>}
+                         */
+                        const queryForChunk = {
+                            '_uuid': {
+                                $in: uuidListChunk
+                            }
+                        };
+                        console.log(`Running loop ${loopNumber} query: ${mongoQueryStringify(queryForChunk)}`);
+                        await this.runForQueryBatchesAsync(
+                            {
+                                config: mongoConfig,
+                                sourceCollectionName: collectionName,
+                                destinationCollectionName: collectionName,
+                                query: queryForChunk,
+                                projection: this.properties ? getProjection(this.properties) : undefined,
+                                startFromIdContainer: this.startFromIdContainer,
+                                fnCreateBulkOperationAsync: async (doc) => await this.processRecordAsync(doc),
+                                ordered: false,
+                                batchSize: this.batchSize,
+                                skipExistingIds: false,
+                                limit: this.limit,
+                                useTransaction: this.useTransaction,
+                                skip: this.skip
+                            }
+                        );
+                    }
                 } catch (e) {
                     console.error(e);
                     console.log(`Got error ${e}.  At ${this.startFromIdContainer.startFromId}`);
