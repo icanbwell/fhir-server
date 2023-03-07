@@ -1,5 +1,4 @@
 const scopeChecker = require('@asymmetrik/sof-scope-checker');
-const { logInfo } = require('../common/logging');
 const {ForbiddenError} = require('../../utils/httpErrors');
 const {authorizationFailedCounter} = require('../../utils/prometheus.utils');
 const {assertTypeEquals} = require('../../utils/assertType');
@@ -52,33 +51,24 @@ class ScopesValidator {
         }
     ) {
         // eslint-disable-next-line no-useless-catch
-        logInfo('verifyHasValidScopesAsync: checking scopes', {});
         try {
             const {user, scope} = requestInfo;
-            logInfo('verifyHasValidScopesAsync: user', {'user': user});
-            logInfo('verifyHasValidScopesAsync: scope', {'scope': scope});
 
             if (this.configManager.authEnabled) {
-                logInfo('verifyHasValidScopesAsync: auth is enabled', {});
                 // http://www.hl7.org/fhir/smart-app-launch/scopes-and-launch-context/index.html
                 if (scope) {
                     /**
                      * @type {string[]}
                      */
                     let scopes = this.scopesManager.parseScopes(scope);
-                    logInfo('verifyHasValidScopesAsync: parse scopes', {'scopes': scopes});
                     let {error, success} = scopeChecker(resourceType, accessRequested, scopes);
-                    logInfo('verifyHasValidScopesAsync: error/success', {'error': error, 'success': success});
 
                     if (success) {
                         return;
                     }
-                    logInfo('verifyHasValidScopesAsync: After success block', {});
                     let errorMessage = 'user ' + user + ' with scopes [' + scopes + '] failed access check to [' + resourceType + '.' + accessRequested + ']';
                     const forbiddenError = new ForbiddenError(error.message + ': ' + errorMessage);
-                    logInfo('verifyHasValidScopesAsync: created forbidden error', {'forbiddenError': forbiddenError});
                     authorizationFailedCounter.inc({action: action, resourceType: resourceType});
-                    logInfo('verifyHasValidScopesAsync: incremented promtheus counter', {});
                     await this.fhirLoggingManager.logOperationFailureAsync(
                         {
                             requestInfo,
@@ -88,10 +78,8 @@ class ScopesValidator {
                             action: action,
                             error: forbiddenError
                         });
-                    logInfo('verifyHasValidScopesAsync: logged operation failure', {});
                     throw forbiddenError;
                 } else {
-                    logInfo('verifyHasValidScopesAsync: scope does not exist', {});
                     let errorMessage = 'user ' + user + ' with no scopes failed access check to [' + resourceType + '.' + accessRequested + ']';
                     const forbiddenError1 = new ForbiddenError(errorMessage);
                     authorizationFailedCounter.inc({action: action, resourceType: resourceType});
@@ -108,7 +96,6 @@ class ScopesValidator {
                 }
             }
         } catch (e) {
-            logInfo('verifyHasValidScopesAsync: caught exception', {'e': e});
             throw e;
         }
     }

@@ -9,19 +9,10 @@ require('dd-trace').init({
 const { createServer } = require('./server');
 const { createContainer } = require('./createContainer');
 const { ErrorReporter } = require('./utils/slack.logger');
-const env = require('var');
 const { getImageVersion } = require('./utils/getImageVersion');
 const { getCircularReplacer } = require('./utils/getCircularReplacer');
 const { initialize } = require('./winstonInit');
 const { logError } = require('./operations/common/logging');
-const blocked = require('blocked-at');
-const { isTrue } = require('./utils/isTrue');
-
-if (isTrue(env.ENABLE_BLOCKED_INFO)){
-    blocked((time, stack) => {
-        console.log(`Blocked for ${time}ms, operation started here:`, stack);
-    }, { threshold: env.BLOCKED_THRESHOLD || 100});
-}
 
 const main = async function () {
     try {
