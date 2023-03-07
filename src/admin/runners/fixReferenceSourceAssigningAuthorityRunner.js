@@ -550,16 +550,16 @@ class FixReferenceSourceAssigningAuthorityRunner extends BaseBulkOperationRunner
             for (const collectionName of this.collections) {
 
                 this.startFromIdContainer.startFromId = '';
-                // /**
-                //  * @type {import('mongodb').Filter<import('mongodb').Document>}
-                //  */
-                // const query = this.afterLastUpdatedDate ? {
-                //     'meta.lastUpdated': {
-                //         $gt: this.afterLastUpdatedDate,
-                //     }
-                // } : this.properties && this.properties.length > 0 ?
-                //     getFilter(this.properties.concat(this.filterToRecordsWithFields || [])) :
-                //     getFilter(this.filterToRecordsWithFields);
+                /**
+                 * @type {import('mongodb').Filter<import('mongodb').Document>}
+                 */
+                const query = this.afterLastUpdatedDate ? {
+                    'meta.lastUpdated': {
+                        $gt: this.afterLastUpdatedDate,
+                    }
+                } : this.properties && this.properties.length > 0 ?
+                    getFilter(this.properties.concat(this.filterToRecordsWithFields || [])) :
+                    getFilter(this.filterToRecordsWithFields);
 
                 const personCache = this.getCacheForResourceType(
                     {
@@ -578,7 +578,7 @@ class FixReferenceSourceAssigningAuthorityRunner extends BaseBulkOperationRunner
                             config: mongoConfig,
                             sourceCollectionName: collectionName,
                             destinationCollectionName: collectionName,
-                            query: {},
+                            query: query,
                             projection: this.properties ? getProjection(this.properties) : undefined,
                             startFromIdContainer: this.startFromIdContainer,
                             fnCreateBulkOperationAsync: async (doc) => await this.processRecordAsync(doc),

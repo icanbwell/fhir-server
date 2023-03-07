@@ -328,18 +328,29 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
 
 
                     // loopNumber += 1;
+                    let queryForChunk;
                     /**
                      * @type  {import('mongodb').Filter<import('mongodb').Document>}
                      */
-                    const queryForChunk = {
-                        $and: [
-                            {
-                                [`${filterToIdProperty}`]: {
-                                    $in: uuidListChunk
-                                }
-                            }
-                        ]
+                    let queryForChunkIds = {
+                        [`${filterToIdProperty}`]: {
+                            $in: uuidListChunk
+                        }
                     };
+                    if (query && query.$and) {
+                        queryForChunk = deepcopy(query);
+                        queryForChunk.$and.push(queryForChunkIds);
+                    } else if (query && Object.keys(query) > 0) {
+                        queryForChunk = {
+                            $and: [
+                                query,
+                                queryForChunkIds
+                            ]
+                        };
+                    } else {
+                        queryForChunk = queryForChunkIds;
+                    }
+
                     /**
                      * @type {import('mongodb').FindCursor<WithId<import('mongodb').Document>>}
                      */
