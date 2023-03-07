@@ -353,7 +353,7 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                     bytesLoaded += sizeof(doc);
                     startFromIdContainer.startFromId = doc._id;
                     previouslyCheckedId = doc._id;
-                    startFromIdContainer.numOperations += 1;
+                    startFromIdContainer.numScanned += 1;
                     readline.cursorTo(process.stdout, 0);
                     process.stdout.write(`[${moment().toISOString()}] ` +
                         `Reading ${sourceCollectionName} ` +
