@@ -291,39 +291,41 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                 writeConcern: {w: 1}
             };
             try {
-                let {
-                    session,
-                    sessionId,
-                    sourceDb,
-                    destinationCollection,
-                    sourceCollection
-                } = await this.createConnectionAsync(
-                    {
-                        config, destinationCollectionName, sourceCollectionName
-                    });
-
-                this.adminLogger.logInfo(
-                    `Sending query to Mongo: ${mongoQueryStringify(query)}. ` +
-                    `From ${sourceCollectionName} to ${destinationCollectionName}` +
-                    loopRetryNumber > 0 ? ` [Retry: ${loopRetryNumber}/${maxLoopRetries}]` : ''
-                );
-
-                // pass session to find query per:
-                // https://stackoverflow.com/questions/68607254/mongodb-node-js-driver-4-0-0-cursor-session-id-issues-in-production-on-vercel
-                /**
-                 * @type {import('mongodb').FindOptions}
-                 */
-                const options = {session: session, timeout: false, noCursorTimeout: true, maxTimeMS: maxTimeMS};
-                if (projection) {
-                    options['projection'] = projection;
-                }
-
                 /**
                  * @type {string[][]}
                  */
                 const uuidListChunks = sliceIntoChunks(filterToIds, batchSize);
-                // let loopNumber = 0;
+                let loopNumber = 0;
                 for (const uuidListChunk of uuidListChunks) {
+                    loopNumber += 1;
+                    let {
+                        session,
+                        sessionId,
+                        sourceDb,
+                        destinationCollection,
+                        sourceCollection
+                    } = await this.createConnectionAsync(
+                        {
+                            config, destinationCollectionName, sourceCollectionName
+                        });
+
+                    this.adminLogger.logInfo(
+                        `Sending query to Mongo: ${mongoQueryStringify(query)}. ` +
+                        `From ${sourceCollectionName} to ${destinationCollectionName}` +
+                        loopRetryNumber > 0 ? ` [Retry: ${loopRetryNumber}/${maxLoopRetries}]` : ''
+                    );
+
+                    // pass session to find query per:
+                    // https://stackoverflow.com/questions/68607254/mongodb-node-js-driver-4-0-0-cursor-session-id-issues-in-production-on-vercel
+                    /**
+                     * @type {import('mongodb').FindOptions}
+                     */
+                    const options = {session: session, timeout: false, noCursorTimeout: true, maxTimeMS: maxTimeMS};
+                    if (projection) {
+                        options['projection'] = projection;
+                    }
+
+
                     // loopNumber += 1;
                     /**
                      * @type  {import('mongodb').Filter<import('mongodb').Document>}
@@ -392,6 +394,7 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                         startFromIdContainer.numScanned += 1;
                         readline.cursorTo(process.stdout, 0);
                         process.stdout.write(`[${moment().toISOString()}] ` +
+                            `[${loopNumber}] ` +
                             `Reading ${sourceCollectionName} ` +
                             `Scanned: ${startFromIdContainer.numScanned.toLocaleString('en-US')} of ` +
                             `${numberOfDocumentsToCopy.toLocaleString('en-US')} ` +
@@ -416,6 +419,7 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                             );
                             readline.cursorTo(process.stdout, 0);
                             process.stdout.write(`[${moment().toISOString()}] ` +
+                                `[${loopNumber}] ` +
                                 `Writing ${sourceCollectionName} ` +
                                 `Scanned: ${startFromIdContainer.numScanned.toLocaleString('en-US')} of ` +
                                 `${numberOfDocumentsToCopy.toLocaleString('en-US')} ` +
@@ -494,7 +498,7 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                         }
                     }
                     continueLoop = false; // done
-
+                    session.endSession();
                 }
                 this.adminLogger.logInfo('=== Finished ' +
                     `${sourceCollectionName} ` +
@@ -503,7 +507,6 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                     `Updated: ${startFromIdContainer.numOperations.toLocaleString('en-US')} ` +
                     `size: ${memoryManager.formatBytes(bytesLoaded)} ` +
                     '===');
-                session.endSession();
             } catch (e) {
                 if (e instanceof MongoNetworkTimeoutError) {
                     // statements to handle TypeError exceptions
