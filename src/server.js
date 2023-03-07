@@ -4,7 +4,6 @@ const env = require('var');
 const {logError, logInfo, logSystemEventAsync} = require('./operations/common/logging');
 const {createHttpTerminator} = require('http-terminator');
 const http = require('http');
-const { isTrue } = require('./utils/isTrue');
 const {getImageVersion} = require('./utils/getImageVersion');
 const {MongoDatabaseManager} = require('./utils/mongoDatabaseManager');
 
@@ -16,7 +15,7 @@ const {MongoDatabaseManager} = require('./utils/mongoDatabaseManager');
 async function createServer(fnCreateContainer) {
     await new MongoDatabaseManager().connectAsync();
 
-    const app = createApp({fnCreateContainer, trackMetrics: isTrue(env.TRACK_METRICS)});
+    const app = createApp({fnCreateContainer, trackMetrics: true});
 
     const server = http
         .createServer(app)
