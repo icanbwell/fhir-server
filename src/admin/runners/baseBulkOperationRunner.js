@@ -262,9 +262,6 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
             numberOfSourceDocuments - numberOfDestinationDocuments :
             numberOfSourceDocuments;
 
-        if (useTransaction) {
-            console.log(`==== Using transactions batchSize:${batchSize} ===`);
-        }
         /**
          * @type {number}
          */
@@ -295,6 +292,10 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                  * @type {string[][]}
                  */
                 const uuidListChunks = sliceIntoChunks(filterToIds, batchSize);
+                if (useTransaction) {
+                    console.log(`==== Using transactions batchSize:${batchSize} chunks: ${uuidListChunks.length} ===`);
+                }
+
                 let loopNumber = 0;
                 for (const uuidListChunk of uuidListChunks) {
                     loopNumber += 1;
