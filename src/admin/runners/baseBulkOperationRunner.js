@@ -86,17 +86,17 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                 sourceCollection
             } = await this.createConnectionAsync({config, destinationCollectionName, sourceCollectionName});
 
-            this.adminLogger.logInfo(
-                `Sending count query to Mongo: ${mongoQueryStringify(query)}. ` +
-                `for ${sourceCollectionName} and ${destinationCollectionName}`
-            );
+            // this.adminLogger.logInfo(
+            //     `Sending count query to Mongo: ${mongoQueryStringify(query)}. ` +
+            //     `for ${sourceCollectionName} and ${destinationCollectionName}`
+            // );
 
             // first get the count
             const numberOfSourceDocuments = await sourceCollection.countDocuments(query, {});
-            this.adminLogger.logInfo(
-                `Sending distinct count query to Mongo: ${mongoQueryStringify(query)}. ` +
-                `for ${sourceCollectionName} and ${destinationCollectionName}`
-            );
+            // this.adminLogger.logInfo(
+            //     `Sending distinct count query to Mongo: ${mongoQueryStringify(query)}. ` +
+            //     `for ${sourceCollectionName} and ${destinationCollectionName}`
+            // );
             /**
              * @type {number}
              */
@@ -107,11 +107,11 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                     groupKey: 'id'
                 });
             const numberOfDestinationDocuments = await destinationCollection.countDocuments(query, {});
-            this.adminLogger.logInfo(
-                `Count in source: ${numberOfSourceDocuments.toLocaleString('en-US')}, ` +
-                `Count in source distinct by id: ${numberOfSourceDocumentsWithDistinctId.toLocaleString('en-US')}, ` +
-                `destination: ${numberOfDestinationDocuments.toLocaleString('en-US')}`
-            );
+            // this.adminLogger.logInfo(
+            //     `Count in source: ${numberOfSourceDocuments.toLocaleString('en-US')}, ` +
+            //     `Count in source distinct by id: ${numberOfSourceDocumentsWithDistinctId.toLocaleString('en-US')}, ` +
+            //     `destination: ${numberOfDestinationDocuments.toLocaleString('en-US')}`
+            // );
 
             if (numberOfSourceDocuments === numberOfDestinationDocuments) {
                 if (skipWhenCountIsSame) {
