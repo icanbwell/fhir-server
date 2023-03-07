@@ -168,9 +168,9 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                 });
 
             // get the count at the end
-            this.adminLogger.logInfo(
-                `Getting count afterward in ${destinationCollectionName}: ${mongoQueryStringify(originalQuery)}`
-            );
+            // this.adminLogger.logInfo(
+            //     `Getting count afterward in ${destinationCollectionName}: ${mongoQueryStringify(originalQuery)}`
+            // );
             const numberOfDestinationDocumentsAtEnd = await destinationCollection.countDocuments(originalQuery, {});
             this.adminLogger.logInfo(
                 `Count in source: ${numberOfSourceDocuments.toLocaleString('en-US')}, ` +
