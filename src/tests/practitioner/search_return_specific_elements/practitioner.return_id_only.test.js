@@ -5,6 +5,8 @@ const practitionerResource = require('./fixtures/practitioner/practitioner.json'
 const expectedPractitionerResource = require('./fixtures/expected/expected_practitioner.json');
 const expectedPractitionerResourceBundle = require('./fixtures/expected/expected_practitioner_bundle.json');
 const expectedPractitionerNoUserScopesBundle = require('./fixtures/expected/expected_practitioner_no_user_scopes.json');
+const expectedPractitionerMultiElementResourceBundle = require('./fixtures/expected/expected_practitioner_multi_element_bundle.json');
+
 
 const {
     commonBeforeEach,
@@ -128,6 +130,27 @@ describe('PractitionerReturnIdTests', () => {
                 .set(getHeaders('user/Practitioner.read access/fake.*'));
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResourceCount(0);
+        });
+        test('Multiple Elements work with bundle', async () => {
+            const request = await createTestRequest();
+            let resp = await request
+                .get('/4_0_0/Practitioner?_bundle=true')
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResourceCount(0);
+
+            resp = await request
+                .post('/4_0_0/Practitioner/1679033641/$merge')
+                .send(practitionerResource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
+
+            resp = await request
+                .get('/4_0_0/Practitioner?_elements=id,identifier&_bundle=true&_total=accurate')
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedPractitionerMultiElementResourceBundle);
         });
     });
 });
