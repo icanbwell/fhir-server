@@ -569,24 +569,26 @@ class FixReferenceSourceAssigningAuthorityRunner extends BaseBulkOperationRunner
                     getFilter(this.properties.concat(this.filterToRecordsWithFields || [])) :
                     getFilter(this.filterToRecordsWithFields);
 
-                if (this.startFromId && Object.keys(query) > 0) {
-                    // noinspection JSValidateTypes
-                    query = {
-                        $and: [
-                            query,
-                            {
-                                _id: {
-                                    $gte: this.startFromId
+                if (this.startFromId) {
+                    if (Object.keys(query) > 0) {
+                        // noinspection JSValidateTypes
+                        query = {
+                            $and: [
+                                query,
+                                {
+                                    _id: {
+                                        $gte: this.startFromId
+                                    }
                                 }
+                            ]
+                        };
+                    } else {
+                        query = {
+                            _id: {
+                                $gte: this.startFromId
                             }
-                        ]
-                    };
-                } else {
-                    query = {
-                        _id: {
-                            $gte: this.startFromId
-                        }
-                    };
+                        };
+                    }
                 }
                 // const personCache = this.getCacheForResourceType(
                 //     {
