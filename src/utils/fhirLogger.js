@@ -3,7 +3,6 @@ const winston = require('winston');
 const {ElasticsearchTransport} = require('winston-elasticsearch');
 const {Client} = require('@opensearch-project/opensearch');
 const {isTrue} = require('./isTrue');
-const {getElasticSearchParameterAsync} = require('./aws-ssm');
 const Transport = require('winston-transport');
 const {assertIsValid} = require('./assertType');
 
@@ -127,7 +126,8 @@ class FhirLogger {
             if (env.LOG_ELASTIC_SEARCH_USERNAME !== undefined && env.LOG_ELASTIC_SEARCH_PASSWORD !== undefined) {
                 node = node.replace('https://', `https://${env.LOG_ELASTIC_SEARCH_USERNAME}:${env.LOG_ELASTIC_SEARCH_PASSWORD}@`);
             } else {
-                const {username, password} = await getElasticSearchParameterAsync(env.ENV);
+                const username = env.ELASTIC_SEARCH_USERNAME;
+                const password = env.ELASTIC_SEARCH_PASSWORD;
                 assertIsValid(username);
                 assertIsValid(typeof username === 'string');
                 assertIsValid(password);

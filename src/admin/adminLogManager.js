@@ -1,6 +1,5 @@
 const env = require('var');
 const {assertIsValid} = require('../utils/assertType');
-const {getElasticSearchParameterAsync} = require('../utils/aws-ssm');
 const {Client} = require('@opensearch-project/opensearch');
 const {logInfo, logError} = require('../operations/common/logging');
 
@@ -24,7 +23,8 @@ class AdminLogManager {
         if (env.LOG_ELASTIC_SEARCH_USERNAME !== undefined && env.LOG_ELASTIC_SEARCH_PASSWORD !== undefined) {
             node = node.replace('https://', `https://${env.LOG_ELASTIC_SEARCH_USERNAME}:${env.LOG_ELASTIC_SEARCH_PASSWORD}@`);
         } else {
-            const {username, password} = await getElasticSearchParameterAsync(env.ENV);
+            const username = env.ELASTIC_SEARCH_USERNAME;
+            const password = env.ELASTIC_SEARCH_PASSWORD;
             assertIsValid(username);
             assertIsValid(typeof username === 'string');
             assertIsValid(password);
