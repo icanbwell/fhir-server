@@ -44,7 +44,7 @@ describe('Multiple codes for task Ttests', () => {
             // ACT & ASSERT
             // search by token system and code and make sure we get the right task back
             resp = await request
-                .get('/4_0_0/Task/?code=health-activity,care-need&_bundle=1')
+                .get('/4_0_0/Task/?code=health-activity,care-need&_bundle=1&_debug=1')
                 .set(getHeaders())
                 .expect(200);
             // noinspection JSUnresolvedFunction
