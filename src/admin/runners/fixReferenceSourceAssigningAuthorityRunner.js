@@ -12,6 +12,7 @@ const {FhirResourceCreator} = require('../../fhir/fhirResourceCreator');
 const {MongoJsonPatchHelper} = require('../../utils/mongoJsonPatchHelper');
 const {ResourceMerger} = require('../../operations/common/resourceMerger');
 const {RethrownError} = require('../../utils/rethrownError');
+const {mongoQueryStringify} = require('../../utils/mongoQueryStringify');
 
 
 /**
@@ -569,6 +570,7 @@ class FixReferenceSourceAssigningAuthorityRunner extends BaseBulkOperationRunner
                     getFilter(this.filterToRecordsWithFields);
 
                 if (this.startFromId && Object.keys(query) > 0) {
+                    // noinspection JSValidateTypes
                     query = {
                         $and: [
                             query,
@@ -597,7 +599,7 @@ class FixReferenceSourceAssigningAuthorityRunner extends BaseBulkOperationRunner
                 // const uuidList = Array.from(personCache.keys());
 
                 try {
-                    // console.log(`query: ${mongoQueryStringify(queryForChunk)}`);
+                    console.log(`query: ${mongoQueryStringify(query)}`);
                     await this.runForQueryBatchesAsync(
                         {
                             config: mongoConfig,
