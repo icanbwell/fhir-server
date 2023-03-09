@@ -147,7 +147,7 @@ describe('PractitionerReturnIdTests', () => {
             expect(resp).toHaveMergeResponse({created: true});
 
             resp = await request
-                .get('/4_0_0/Practitioner?_elements=id,identifier&_bundle=true&_total=accurate')
+                .get('/4_0_0/Practitioner?_elements=id,identifier&_bundle=true&_total=accurate&_debug=1')
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedPractitionerMultiElementResourceBundle);
