@@ -265,6 +265,39 @@ describe('r4 search Tests', () => {
             expect(result.query['for._sourceId']['$in'][1]).toStrictEqual('ActivityDefinition/1234');
             expect(result.query['for._sourceId']['$in'][145]).toStrictEqual('Account/4567');
         });
+        test('r4 works with Task and multiple codes', async () => {
+            await createTestRequest((container) => {
+                container.register('configManager', () => new MockConfigManager());
+                container.register('indexProvider', (c) => new MockIndexProvider({
+                    configManager: c.configManager
+                }));
+                container.register('accessIndexManager', (c1) => new MockAccessIndexManager({
+                    configManager: c1.configManager,
+                    indexProvider: c1.indexProvider
+                }));
+                return container;
+            });
+            const container = getTestContainer();
+            /**
+             * @type {R4SearchQueryCreator}
+             */
+            const r4SearchQueryCreator = container.r4SearchQueryCreator;
+            /**
+             * @type {R4ArgsParser}
+             */
+            const r4ArgsParser = container.r4ArgsParser;
+
+            const args = {
+                'base_version': VERSIONS['4_0_0'],
+                'code': '1234,4567'
+            };
+            const result = r4SearchQueryCreator.buildR4SearchQuery({
+                resourceType: 'Task',
+                parsedArgs: r4ArgsParser.parseArgs({resourceType: 'Task', args})
+            });
+            expect(result.query.$or['0']['code.coding.code']).toStrictEqual('1234');
+            expect(result.query.$or['1']['code.coding.code']).toStrictEqual('4567');
+        });
         test('r4 works with Task and multiple subjects with reference type', async () => {
             await createTestRequest((container) => {
                 container.register('configManager', () => new MockConfigManager());
