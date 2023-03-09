@@ -92,6 +92,7 @@ class FixReferenceSourceAssigningAuthorityRunner extends BaseBulkOperationRunner
      * @param {boolean|undefined} [useTransaction]
      * @param {number|undefined} [skip]
      * @param {string[]|undefined} [filterToRecordsWithFields]
+     * @param {string|undefined} [startFromId]
      */
     constructor(
         {
@@ -111,7 +112,8 @@ class FixReferenceSourceAssigningAuthorityRunner extends BaseBulkOperationRunner
             resourceMerger,
             useTransaction,
             skip,
-            filterToRecordsWithFields
+            filterToRecordsWithFields,
+            startFromId
         }) {
         super({
             mongoCollectionManager,
@@ -182,6 +184,11 @@ class FixReferenceSourceAssigningAuthorityRunner extends BaseBulkOperationRunner
          * @type {string[]|undefined}
          */
         this.filterToRecordsWithFields = filterToRecordsWithFields;
+
+        /**
+         * @type {string|undefined}
+         */
+        this.startFromId = startFromId;
 
         /**
          * @type {ResourceMerger}
@@ -553,7 +560,7 @@ class FixReferenceSourceAssigningAuthorityRunner extends BaseBulkOperationRunner
                 /**
                  * @type {import('mongodb').Filter<import('mongodb').Document>}
                  */
-                const query = this.afterLastUpdatedDate ? {
+                let query = this.afterLastUpdatedDate ? {
                     'meta.lastUpdated': {
                         $gt: this.afterLastUpdatedDate,
                     }
@@ -561,6 +568,24 @@ class FixReferenceSourceAssigningAuthorityRunner extends BaseBulkOperationRunner
                     getFilter(this.properties.concat(this.filterToRecordsWithFields || [])) :
                     getFilter(this.filterToRecordsWithFields);
 
+                if (this.startFromId && Object.keys(query) > 0) {
+                    query = {
+                        $and: [
+                            query,
+                            {
+                                _id: {
+                                    $gte: this.startFromId
+                                }
+                            }
+                        ]
+                    };
+                } else {
+                    query = {
+                        _id: {
+                            $gte: this.startFromId
+                        }
+                    };
+                }
                 // const personCache = this.getCacheForResourceType(
                 //     {
                 //         collectionName: 'Person_4_0_0'
