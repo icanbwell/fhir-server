@@ -121,6 +121,7 @@ class ParsedArgsItem {
      * @param {SearchParameterDefinition} propertyObj
      * @return {string|string[]|null}
      */
+    // eslint-disable-next-line no-unused-vars
     parseQueryParameterValueIntoArrayIfNeeded({queryParameterValue, propertyObj}) {
         if (!queryParameterValue) {
             return queryParameterValue;
@@ -129,9 +130,7 @@ class ParsedArgsItem {
             return queryParameterValue;
         }
         if (
-            typeof queryParameterValue === 'string' &&
-            propertyObj &&
-            ((propertyObj.type && propertyObj.type === 'reference') || (propertyObj.field && propertyObj.field === 'id'))
+            typeof queryParameterValue === 'string'
         ) {
             const parts = queryParameterValue.split(',');
             if (parts.length > 1) {
