@@ -86,8 +86,8 @@ describe('kafkaClientFactory Tests', () => {
                 'sasl': {
                     'mechanism': 'aws',
                     'authorizationIdentity': null,
-                    'username': undefined,
-                    'password': undefined,
+                    'username': 'msk_user_dev_ue1',
+                    'password': 'foo;ar',
                     'accessKeyId': null,
                     'secretAccessKey': null
                 }

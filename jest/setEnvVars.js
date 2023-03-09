@@ -21,3 +21,5 @@ process.env.ENABLE_KAFKA_HEALTHCHECK = '0';
 process.env.SET_INDEX_HINTS = '0';
 process.env.PARTITION_RESOURCES = 'AuditEvent';
 process.env.LOGLEVEL = 'TRACE';
+process.env.KAFKA_SASL_USERNAME = 'msk_user_dev_ue1';
+process.env.KAFKA_SASL_PASSWORD = 'foo;ar';
