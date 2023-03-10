@@ -26,6 +26,8 @@ const {handleStats} = require('./routeHandlers/stats');
 const {handleSmartConfiguration} = require('./routeHandlers/smartConfiguration');
 const {isTrue} = require('./utils/isTrue');
 const cookieParser = require('cookie-parser');
+const { writeHeapSnapshot } = require('v8');
+const fs = require('fs');
 const {handleAdmin} = require('./routeHandlers/admin');
 const {json} = require('body-parser');
 
@@ -266,6 +268,19 @@ function createApp({fnCreateContainer, trackMetrics}) {
         createFhirApp(fnCreateContainer, app);
     }
     app.locals.currentYear = new Date().getFullYear();
+
+    adminRouter.get('/heapdump', async (
+        /** @type {import('express').Request} */ req,
+        /** @type {import('express').Response} */ response) => {
+        let filePath = writeHeapSnapshot();
+
+        response.writeHead(200, {
+            'Content-Type': 'application/octet-stream',
+            'Content-Disposition': 'attachment; filename=' + filePath,
+        });
+        fs.createReadStream(filePath).pipe(response);
+        return;
+    });
 
     // enables access to reverse proxy information
     // https://expressjs.com/en/guide/behind-proxies.html
