@@ -212,7 +212,11 @@ class FhirDataSource {
             return null;
         }
         if (!reference.reference){
-            return this.enrichResourceWithReferenceData({}, reference);
+            let possibleResourceType = reference.type;
+            if (!possibleResourceType && info.returnType && info.returnType._types && info.returnType._types.length > 0){
+                possibleResourceType = info.returnType._types[0].name;
+            }
+            return this.enrichResourceWithReferenceData({}, reference, possibleResourceType);
         }
         const {
             /** @type {string} **/
@@ -224,7 +228,7 @@ class FhirDataSource {
             this.createDataLoader(args);
             // noinspection JSValidateTypes
             let resource = await this.dataLoader.load(ResourceWithId.getReferenceKey(resourceType, id));
-            resource = this.enrichResourceWithReferenceData(resource, reference);
+            resource = this.enrichResourceWithReferenceData(resource, reference, resourceType);
             return resource;
         } catch (e) {
             if (e.name === 'NotFound') {
@@ -445,9 +449,10 @@ class FhirDataSource {
      * This is useful when no resource is resolved and the client needs display data in graphql response.
      * @param resolvedResource
      * @param reference
+     * @param resourceType
      * @returns {{extension}|*|{}}
      */
-    enrichResourceWithReferenceData(resolvedResource, reference) {
+    enrichResourceWithReferenceData(resolvedResource, reference, resourceType) {
         let resource = resolvedResource;
         const dataToEnrich = ['display', 'type'];
         const dataExtensionMap = REFERENCE_EXTENSION_DATA_MAP;
@@ -463,6 +468,9 @@ class FhirDataSource {
             });
             resource = resource || {};
             resource.extension = extension;
+            if (!resource.resourceType){
+                resource.resourceType = resourceType;
+            }
         }
         return resource;
     }

@@ -24,6 +24,16 @@ query {
                         valueUri
                     }
                 }
+                author {
+                    ... on Patient {
+                        extension{
+                            id
+                            url
+                            valueString
+                            valueUri
+                        }
+                    }
+                }
             }
         }
     }
