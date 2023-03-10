@@ -70,5 +70,13 @@ jobs:
             - name: Perform CodeQL Analysis
               uses: github/codeql-action/analyze@v2
               with:
-                  threads: 4
-                  wait-for-processing: false
+                  resource-usage: |
+                  {
+                    "concurrency": {
+                      "scans": 4
+                    },
+                    "memory": {
+                      "min": "4GB",
+                      "max": "8GB"
+                    }
+                  }
