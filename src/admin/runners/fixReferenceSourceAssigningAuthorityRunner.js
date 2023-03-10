@@ -12,6 +12,7 @@ const {FhirResourceCreator} = require('../../fhir/fhirResourceCreator');
 const {MongoJsonPatchHelper} = require('../../utils/mongoJsonPatchHelper');
 const {ResourceMerger} = require('../../operations/common/resourceMerger');
 const {RethrownError} = require('../../utils/rethrownError');
+const {mongoQueryStringify} = require('../../utils/mongoQueryStringify');
 
 
 /**
@@ -40,17 +41,29 @@ function getProjection(properties) {
  * @param {string[]} properties
  * @return {import('mongodb').Filter<import('mongodb').Document>}
  */
-function getFilter(properties) {
+// eslint-disable-next-line no-unused-vars
+function getFilter(properties,) {
+    if (!properties || properties.length === 0) {
+        return {};
+    }
+    if (properties.length === 1) {
+        return {
+            [properties[0]]: {
+                $exists: true
+            }
+        };
+    }
     /**
      * @type {import('mongodb').Filter<import('mongodb').Document>}
      */
     const filter = {
         $and: []
     };
+
     for (const property of properties) {
         filter.$and.push({
             [`${property}`]: {
-                $ne: null
+                $exists: true
             }
         });
     }
@@ -78,6 +91,9 @@ class FixReferenceSourceAssigningAuthorityRunner extends BaseBulkOperationRunner
      * @param {string[]|undefined} [properties]
      * @param {ResourceMerger} resourceMerger
      * @param {boolean|undefined} [useTransaction]
+     * @param {number|undefined} [skip]
+     * @param {string[]|undefined} [filterToRecordsWithFields]
+     * @param {string|undefined} [startFromId]
      */
     constructor(
         {
@@ -95,7 +111,10 @@ class FixReferenceSourceAssigningAuthorityRunner extends BaseBulkOperationRunner
             limit,
             properties,
             resourceMerger,
-            useTransaction
+            useTransaction,
+            skip,
+            filterToRecordsWithFields,
+            startFromId
         }) {
         super({
             mongoCollectionManager,
@@ -156,6 +175,21 @@ class FixReferenceSourceAssigningAuthorityRunner extends BaseBulkOperationRunner
          * @type {boolean|undefined}
          */
         this.useTransaction = useTransaction;
+
+        /**
+         * @type {number|undefined}
+         */
+        this.skip = skip;
+
+        /**
+         * @type {string[]|undefined}
+         */
+        this.filterToRecordsWithFields = filterToRecordsWithFields;
+
+        /**
+         * @type {string|undefined}
+         */
+        this.startFromId = startFromId;
 
         /**
          * @type {ResourceMerger}
@@ -515,7 +549,7 @@ class FixReferenceSourceAssigningAuthorityRunner extends BaseBulkOperationRunner
                         collectionName: preloadCollection
                     }
                 ).size;
-                console.log(`Done preloading collection: ${preloadCollection}: ${count}`);
+                console.log(`Done preloading collection: ${preloadCollection}: ${count.toLocaleString('en-US')}`);
             }
 
             console.log(`Starting loop for ${this.collections.join(',')}. useTransaction: ${this.useTransaction}`);
@@ -527,20 +561,53 @@ class FixReferenceSourceAssigningAuthorityRunner extends BaseBulkOperationRunner
                 /**
                  * @type {import('mongodb').Filter<import('mongodb').Document>}
                  */
-                const query = this.afterLastUpdatedDate ? {
+                let query = this.afterLastUpdatedDate ? {
                     'meta.lastUpdated': {
                         $gt: this.afterLastUpdatedDate,
                     }
                 } : this.properties && this.properties.length > 0 ?
-                    getFilter(this.properties) :
-                    {};
+                    getFilter(this.properties.concat(this.filterToRecordsWithFields || [])) :
+                    getFilter(this.filterToRecordsWithFields);
+
+                if (this.startFromId) {
+                    if (Object.keys(query) > 0) {
+                        // noinspection JSValidateTypes
+                        query = {
+                            $and: [
+                                query,
+                                {
+                                    _id: {
+                                        $gte: this.startFromId
+                                    }
+                                }
+                            ]
+                        };
+                    } else {
+                        query = {
+                            _id: {
+                                $gte: this.startFromId
+                            }
+                        };
+                    }
+                }
+                // const personCache = this.getCacheForResourceType(
+                //     {
+                //         collectionName: 'Person_4_0_0'
+                //     }
+                // );
+                // /**
+                //  * @type {string[]}
+                //  */
+                // const uuidList = Array.from(personCache.keys());
+
                 try {
+                    console.log(`query: ${mongoQueryStringify(query)}`);
                     await this.runForQueryBatchesAsync(
                         {
                             config: mongoConfig,
                             sourceCollectionName: collectionName,
                             destinationCollectionName: collectionName,
-                            query,
+                            query: query,
                             projection: this.properties ? getProjection(this.properties) : undefined,
                             startFromIdContainer: this.startFromIdContainer,
                             fnCreateBulkOperationAsync: async (doc) => await this.processRecordAsync(doc),
@@ -548,9 +615,13 @@ class FixReferenceSourceAssigningAuthorityRunner extends BaseBulkOperationRunner
                             batchSize: this.batchSize,
                             skipExistingIds: false,
                             limit: this.limit,
-                            useTransaction: this.useTransaction
+                            useTransaction: this.useTransaction,
+                            skip: this.skip,
+                            // filterToIdProperty: '_uuid',
+                            // filterToIds: uuidList
                         }
                     );
+
                 } catch (e) {
                     console.error(e);
                     console.log(`Got error ${e}.  At ${this.startFromIdContainer.startFromId}`);
