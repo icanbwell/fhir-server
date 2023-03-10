@@ -49,6 +49,9 @@
     "subject": {
       "reference": "Patient/8ba1017f-0aad-1b91-ff9e-416a96e11f0b"
     },
+    "author": {
+      "display": "Annis955 Hamill307"
+    },
     "encounter": {
       "reference": "Encounter/43b17aee-f0a0-3eb7-8e68-9d3454869a77",
       "display": "Visit with Dr. Who"
