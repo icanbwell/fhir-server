@@ -47,6 +47,10 @@
     "coding": [{
       "system": "https://www.icanbwell.com/activityType",
       "code": "care-need"
+    },
+    {
+      "system": "https://www.icanbwell.com/activityTopic",
+      "code": "education"
     }]
   },
   "for": {

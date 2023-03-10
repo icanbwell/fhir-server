@@ -1,10 +1,10 @@
 {
   "resourceType": "Task",
-  "id": "48905b68-88dd-421b-9f31-b975bfc03224",
+  "id": "4a33a7e6-41cc-4646-8a09-6b964c0cf1c1",
   "meta": {
     "source": "bwell",
     "versionId": "1",
-			"lastUpdated": "2023-02-27T11:41:36.000Z",
+    "lastUpdated": "2023-02-27T11:41:36.000Z",
     "security": [{
       "system": "https://www.icanbwell.com/access",
       "code": "bwell"
@@ -27,19 +27,22 @@
     "valueInteger": 800
   }, {
     "url": "https://www.icanbwell.com/activityCompletionMethod",
-    "valueString": "Data"
+    "valueString": "Manual"
+  }, {
+    "url": "https://www.icanbwell.com/contentButtonText",
+    "valueString": "Complete"
   }],
   "identifier": [{
     "id": "sourceId",
     "system": "https://www.icanbwell.com/sourceId",
-    "value": "48905b68-88dd-421b-9f31-b975bfc03224"
+    "value": "4a33a7e6-41cc-4646-8a09-6b964c0cf1c1"
   }, {
     "id": "uuid",
     "system": "https://www.icanbwell.com/uuid",
-    "value": "48905b68-88dd-421b-9f31-b975bfc03224"
+    "value": "4a33a7e6-41cc-4646-8a09-6b964c0cf1c1"
   }],
   "instantiatesCanonical": "https://fhir.dev-ue1.bwell.zone/4_0_0/ActivityDefinition/545110b2-d9af-4f15-b978-417ceb27db36",
-  "status": "ready",
+  "status": "completed",
   "code": {
     "coding": [{
       "system": "https://www.icanbwell.com/activityType",
@@ -47,24 +50,24 @@
     },
     {
       "system": "https://www.icanbwell.com/activityTopic",
-      "code": "education"
+      "code": "prevention"
     }]
   },
   "for": {
     "extension": [{
       "id": "sourceId",
       "url": "https://www.icanbwell.com/sourceId",
-      "valueString": "Patient/d0887715-74dc-48a5-94be-add91a60519d"
+      "valueString": "Patient/bd327f5d-adcb-4c90-b407-14ccf564c511"
     }, {
       "id": "uuid",
       "url": "https://www.icanbwell.com/uuid",
-      "valueString": "Patient/d0887715-74dc-48a5-94be-add91a60519d"
+      "valueString": "Patient/bd327f5d-adcb-4c90-b407-14ccf564c511"
     }, {
       "id": "sourceAssigningAuthority",
       "url": "https://www.icanbwell.com/sourceAssigningAuthority",
       "valueString": "bwell"
     }],
-    "reference": "Patient/d0887715-74dc-48a5-94be-add91a60519d",
+    "reference": "Patient/bd327f5d-adcb-4c90-b407-14ccf564c511",
     "display": "Test Test2"
   }
 }
