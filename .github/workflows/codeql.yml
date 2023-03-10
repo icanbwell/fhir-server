@@ -70,5 +70,5 @@ jobs:
             - name: Perform CodeQL Analysis
               uses: github/codeql-action/analyze@v2
               with:
-                  ram: '8g'
                   threads: 4
+                  wait-for-processing: false
