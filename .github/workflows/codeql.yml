@@ -71,3 +71,4 @@ jobs:
               uses: github/codeql-action/analyze@v2
               with:
                   debug: true
+                  ACTIONS_RUNNER_DEBUG: true
