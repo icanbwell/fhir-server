@@ -118,6 +118,16 @@ module.exports = {
                     // unique: true,
                     name: 'id_1'
                 }
+            },
+            {
+                keys: {
+                    'resource._uuid': 1,
+                    'resource.meta.versionId': 1
+                },
+                options: {
+                    // unique: true,
+                    name: 'resource_by_uuid'
+                }
             }
         ],
         'AuditEvent_4_0_0': [
