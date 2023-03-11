@@ -1496,7 +1496,7 @@ class GraphHelper {
             /**
              * @type {string[]}
              */
-            const ids = idParsedArg.queryParameterValues;
+            const ids = idParsedArg.queryParameterValue.values;
             /**
              * @type {string[][]}
              */

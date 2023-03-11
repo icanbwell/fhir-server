@@ -569,7 +569,7 @@ class SearchManager {
         /**
          * @type {string[]}
          */
-        const properties_to_return_list = parsedArgs.get('_elements').queryParameterValues;
+        const properties_to_return_list = parsedArgs.get('_elements').queryParameterValue.values;
         if (properties_to_return_list.length > 0) {
             /**
              * @type {import('mongodb').Document}
@@ -649,7 +649,7 @@ class SearchManager {
         /**
          * @type {string[]}
          */
-        const sort_properties_list = parsedArgs.get('_sort').queryParameterValues;
+        const sort_properties_list = parsedArgs.get('_sort').queryParameterValue.values;
         if (sort_properties_list.length > 0) {
             /**
              * @type {import('mongodb').Sort}

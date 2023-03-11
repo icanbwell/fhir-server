@@ -41,7 +41,7 @@ class PatientProxyQueryRewriter extends QueryRewriter {
         for (const parsedArg of parsedArgs.parsedArgItems) {
             if (resourceType === 'Patient') {
                 if (parsedArg.queryParameter === 'id' || parsedArg.queryParameter === '_id') {
-                    const queryParameterValues = parsedArg.queryParameterValues;
+                    const queryParameterValues = parsedArg.queryParameterValue.values;
                     if (queryParameterValues.length > 0) {
                         if (queryParameterValues.some(
                             a => a.startsWith(personProxyPrefix) ||
@@ -62,7 +62,7 @@ class PatientProxyQueryRewriter extends QueryRewriter {
                     }
                 }
             } else { // resourceType other than Patient
-                const queryParameterValues = parsedArg.queryParameterValues;
+                const queryParameterValues = parsedArg.queryParameterValue.values;
                 if (queryParameterValues.length > 0) {
                     if (queryParameterValues.some(
                         a => typeof a === 'string' &&
