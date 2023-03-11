@@ -30,11 +30,11 @@ class QueryParameterValue {
 
     /**
      * @param {string|string[]|undefined|null} queryParameterValue
-     * @return {string|string[]|null}
+     * @return {string[]|null}
      */
     parseQueryParameterValueIntoArrayIfNeeded({queryParameterValue}) {
         if (!queryParameterValue) {
-            return queryParameterValue;
+            return null;
         }
         if (Array.isArray(queryParameterValue)) {
             return queryParameterValue;
@@ -48,9 +48,13 @@ class QueryParameterValue {
             }
         }
 
-        return queryParameterValue;
+        return [queryParameterValue];
     }
 
+    /**
+     * returns values for this arg as an array
+     * @return {string[]|null}
+     */
     get values() {
         return this.parseQueryParameterValueIntoArrayIfNeeded(
             {

@@ -93,7 +93,7 @@ class ParsedArgsItem {
          * @type {ParsedReferenceItem[]}
          */
         const result = [];
-        const queryParameterValues = queryParameterValue.values();
+        const queryParameterValues = queryParameterValue.values;
         // The forms are:
         // 1. Patient/123,456
         // 2. 123,456
