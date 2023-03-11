@@ -1,7 +1,7 @@
 const {EnrichmentProvider} = require('./enrichmentProvider');
 const {getFirstResourceOrNull} = require('../../utils/list.util');
 const {assertTypeEquals} = require('../../utils/assertType');
-const {ParsedArgs} = require('../../operations/query/parsedArgsItem');
+const {ParsedArgs} = require('../../operations/query/parsedArgs');
 
 class ProxyPatientReferenceEnrichmentProvider extends EnrichmentProvider {
     /**

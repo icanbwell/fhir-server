@@ -2,11 +2,15 @@
  * filters by above FHIR search parameters
  * https://www.hl7.org/fhir/search.html#modifiers
  * @param {SearchParameterDefinition} propertyObj
- * @param {string} queryParameterValue
+ * @param {ParsedArgsItem} parsedArg
  * @param {Set} columns
  * @return {import('mongodb').Filter<import('mongodb').DefaultSchema>[]}
  */
-function filterByAbove({propertyObj, queryParameterValue, columns}) {
+function filterByAbove({propertyObj, parsedArg, columns}) {
+    /**
+     * @type {string[]}
+     */
+    const queryParameterValues = parsedArg.queryParameterValue.values;
     /**
      * @type {Object[]}
      */
@@ -15,9 +19,14 @@ function filterByAbove({propertyObj, queryParameterValue, columns}) {
     and_segments.push({
         '$or': Array.from(columns).map(c => {
             return {
-                [c]: {
-                    $gt: queryParameterValue,
-                },
+                $and: queryParameterValues.map(v => {
+                        return {
+                            [c]: {
+                                $gt: v,
+                            }
+                        };
+                    }
+                )
             };
         })
     });
@@ -29,22 +38,31 @@ function filterByAbove({propertyObj, queryParameterValue, columns}) {
  * filters by below FHIR search parameters
  * https://www.hl7.org/fhir/search.html#modifiers
  * @param {import('../../common/types').SearchParameterDefinition} propertyObj
- * @param {string} queryParameterValue
+ * @param {ParsedArgsItem} parsedArg
  * @param {Set} columns
  * @return {Object[]}
  */
-function filterByBelow({propertyObj, queryParameterValue, columns}) {
+function filterByBelow({propertyObj, parsedArg, columns}) {
+    /**
+     * @type {string[]}
+     */
+    const queryParameterValues = parsedArg.queryParameterValue.values;
     /**
      * @type {Object[]}
      */
     const and_segments = [];
-    // handle check for below the passed in value
+    // handle check for above the passed in  value
     and_segments.push({
         '$or': Array.from(columns).map(c => {
             return {
-                [c]: {
-                    lt: queryParameterValue,
-                },
+                $and: queryParameterValues.map(v => {
+                        return {
+                            [c]: {
+                                $lt: v,
+                            }
+                        };
+                    }
+                )
             };
         })
     });

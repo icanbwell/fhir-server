@@ -10,11 +10,15 @@ const {escapeRegExp} = require('../../../utils/regexEscaper');
  * filters by contains
  * https://www.hl7.org/fhir/search.html#string
  * @param {SearchParameterDefinition} propertyObj
- * @param {string} queryParameterValue
+ * @param {ParsedArgsItem} parsedArg
  * @param {Set} columns
  * @return {import('mongodb').Filter<import('mongodb').DefaultSchema>[]}
  */
-function filterByContains({propertyObj, queryParameterValue, columns}) {
+function filterByContains({propertyObj, parsedArg, columns}) {
+    /**
+     * @type {string[]}
+     */
+    const queryParameterValues = parsedArg.queryParameterValue.values;
     /**
      * @type {Object[]}
      */
@@ -22,11 +26,16 @@ function filterByContains({propertyObj, queryParameterValue, columns}) {
     and_segments.push({
         '$or': Array.from(columns).map(c => {
             return {
-                [c]:
-                    {
-                        $regex: escapeRegExp(queryParameterValue),
-                        $options: 'i',
-                    },
+                $and: queryParameterValues.map(v => {
+                        return {
+                            [c]:
+                                {
+                                    $regex: escapeRegExp(v),
+                                    $options: 'i',
+                                }
+                        };
+                    }
+                )
             };
         })
     });

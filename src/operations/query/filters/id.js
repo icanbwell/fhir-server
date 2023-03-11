@@ -6,7 +6,7 @@ const sourceIdFieldName = '_sourceId';
 /**
  * Filters by id
  * https://www.hl7.org/fhir/search.html#id
- * @param {string | string[]} queryParameterValue
+ * @param {ParsedArgsItem} parsedArg
  * @param {SearchParameterDefinition} propertyObj
  * @param {Set} columns
  * @param {boolean} enableGlobalIdSupport
@@ -15,18 +15,23 @@ const sourceIdFieldName = '_sourceId';
  */
 function filterById(
     {
-        queryParameterValue,
+        parsedArg,
         propertyObj,
+        // eslint-disable-next-line no-unused-vars
         columns,
         enableGlobalIdSupport,
         useHistoryTable
     }
 ) {
     /**
+     * @type {string[]}
+     */
+    const queryParameterValues = parsedArg.queryParameterValue.values;
+    /**
      * @type {Object[]}
      */
     const and_segments = [];
-    if (queryParameterValue === undefined || queryParameterValue === null || queryParameterValue.length === 0) {
+    if (queryParameterValues.length === 0) {
         return and_segments;
     }
     /**
@@ -118,45 +123,9 @@ function filterById(
         }
     }
 
-    if (Array.isArray(queryParameterValue)) {
-        getIdFilterForArray({idAndUuidList: queryParameterValue});
-        // if array is passed then check in array
-    } else if (queryParameterValue.includes(',')) {
-        // see if this is a comma separated list
-        const value_list = queryParameterValue.split(',');
-        getIdFilterForArray({idAndUuidList: value_list});
-    } else {
-        if (enableGlobalIdSupport && isUuid(queryParameterValue)) {
-            field = uuidFieldName;
-        }
-        if (queryParameterValue.includes('|')) {
-            /**
-             * @type {string[]}
-             */
-            const idAndSourceAssigningAuthority = queryParameterValue.split('|');
-            if (idAndSourceAssigningAuthority.length > 1) {
-                const id = idAndSourceAssigningAuthority[0];
-                const sourceAssigningAuthority = idAndSourceAssigningAuthority[1];
-                and_segments.push({
-                    $and: [
-                        {
-                            [getFullFieldName(field)]: id,
-                        },
-                        {
-                            [getFullFieldName('_sourceAssigningAuthority')]: sourceAssigningAuthority
-                        }
-                    ]
-                });
-                columns.add(getFullFieldName(field));
-            }
-        } else {
-            // single value is passed
-            and_segments.push({
-                [getFullFieldName(field)]: queryParameterValue,
-            });
-            columns.add(getFullFieldName(field));
-        }
-    }
+    getIdFilterForArray({idAndUuidList: queryParameterValues});
+    // if array is passed then check in array
+
     return and_segments;
 }
 

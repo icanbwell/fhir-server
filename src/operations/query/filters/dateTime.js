@@ -9,24 +9,22 @@ function isPeriodField(fieldString) {
 /**
  * filters by date
  * https://www.hl7.org/fhir/search.html#date
- * @param {string | string[]} queryParameterValue
+ * @param {ParsedArgsItem} parsedArg
  * @param {SearchParameterDefinition} propertyObj
  * @param {string} resourceType
  * @param {Set} columns
  * @returns {import('mongodb').Filter<import('mongodb').DefaultSchema>[]}
  */
-function filterByDateTime({queryParameterValue, propertyObj, resourceType, columns}) {
+function filterByDateTime({parsedArg, propertyObj, resourceType, columns}) {
+        /**
+     * @type {string[]}
+     */
+    const queryParameterValues = parsedArg.queryParameterValue.values;
     /**
      * @type {Object[]}
      */
     const and_segments = [];
-    if (!Array.isArray(queryParameterValue)) {
-        queryParameterValue = [queryParameterValue];
-    }
-    if (queryParameterValue.join('').trim() === '') {
-        return [];
-    }
-    for (const dateQueryItem of queryParameterValue) {
+    for (const dateQueryItem of queryParameterValues) {
         // prettier-ignore
         // eslint-disable-next-line security/detect-object-injection
         const isDateSearchingPeriod = isPeriodField(propertyObj.field);

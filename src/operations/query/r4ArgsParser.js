@@ -2,9 +2,11 @@ const {searchParameterQueries} = require('../../searchParameters/searchParameter
 const {STRICT_SEARCH_HANDLING, SPECIFIED_QUERY_PARAMS} = require('../../constants');
 const {BadRequestError} = require('../../utils/httpErrors');
 const {convertGraphQLParameters} = require('./convertGraphQLParameters');
-const {ParsedArgsItem, ParsedArgs} = require('./parsedArgsItem');
+const {ParsedArgsItem} = require('./parsedArgsItem');
 const {assertTypeEquals} = require('../../utils/assertType');
 const {FhirTypesManager} = require('../../fhir/fhirTypesManager');
+const {QueryParameterValue} = require('./queryParameterValue');
+const {ParsedArgs} = require('./parsedArgs');
 
 /**
  * @classdesc This classes parses an array of args into structured ParsedArgsItem array
@@ -107,7 +109,10 @@ class R4ArgsParser {
                 parseArgItems.push(
                     new ParsedArgsItem({
                         queryParameter,
-                        queryParameterValue,
+                        queryParameterValue: new QueryParameterValue({
+                            value: queryParameterValue,
+                            operator: Array.isArray(queryParameterValue) ? 'and' : undefined
+                        }),
                         propertyObj,
                         modifiers
                     })
@@ -131,7 +136,10 @@ class R4ArgsParser {
             parseArgItems.push(
                 new ParsedArgsItem({
                     queryParameter,
-                    queryParameterValue,
+                    queryParameterValue: new QueryParameterValue({
+                        value: queryParameterValue,
+                        operator: Array.isArray(queryParameterValue) ? 'and' : undefined
+                    }),
                     propertyObj,
                     modifiers
                 })

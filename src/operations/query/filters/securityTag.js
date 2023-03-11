@@ -4,7 +4,7 @@ const {SecurityTagSystem} = require('../../../utils/securityTagSystem');
 /**
  * Filters by token
  * https://www.hl7.org/fhir/search.html#token
- * @param {string | string[]} queryParameterValue
+ * @param {ParsedArgsItem} parsedArg
  * @param {SearchParameterDefinition} propertyObj
  * @param {Set} columns
  * @param {function(code): boolean} fnUseAccessIndex function that returns whether to use access index for this code
@@ -12,19 +12,21 @@ const {SecurityTagSystem} = require('../../../utils/securityTagSystem');
  */
 function filterBySecurityTag(
     {
-        queryParameterValue,
+        parsedArg,
         propertyObj,
         columns,
         fnUseAccessIndex,
     }) {
+        /**
+     * @type {string[]}
+     */
+    const queryParameterValues = parsedArg.queryParameterValue.values;
     /**
      * @type {Object[]}
      */
     const and_segments = [];
-    if (!Array.isArray(queryParameterValue)) {
-        queryParameterValue = [queryParameterValue];
-    }
-    for (const tokenQueryItem of queryParameterValue) {
+
+    for (const tokenQueryItem of queryParameterValues) {
         if (propertyObj.fieldFilter === '[system/@value=\'email\']') {
             and_segments.push(
                 tokenQueryBuilder(

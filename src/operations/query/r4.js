@@ -16,7 +16,7 @@ const {ConfigManager} = require('../../utils/configManager');
 const {AccessIndexManager} = require('../common/accessIndexManager');
 const {R4ArgsParser} = require('./r4ArgsParser');
 const {removeDuplicatesWithLambda} = require('../../utils/list.util');
-const {ParsedArgs} = require('./parsedArgsItem');
+const {ParsedArgs} = require('./parsedArgs');
 
 function isUrl(queryParameterValue) {
     return typeof queryParameterValue === 'string' &&
@@ -89,9 +89,6 @@ class R4SearchQueryCreator {
                     andSegments
                 } = this.getColumnsAndSegmentsForParameterType({
                     resourceType,
-                    queryParameter: parsedArg.queryParameter,
-                    queryParameterValue: parsedArg.queryParameterValue,
-                    propertyObj: parsedArg.propertyObj,
                     enableGlobalIdSupport: this.configManager.enableGlobalIdSupport,
                     parsedArg,
                     useHistoryTable
@@ -104,20 +101,20 @@ class R4SearchQueryCreator {
                     });
                 } else if (parsedArg.modifiers.includes('contains')) {
                     andSegments = filterByContains({
-                        propertyObj: parsedArg.propertyObj, queryParameterValue: parsedArg.queryParameterValue, columns
+                        propertyObj: parsedArg.propertyObj, parsedArg, columns
                     });
                 } else if (parsedArg.modifiers.includes('above')) {
                     andSegments = filterByAbove({
-                        propertyObj: parsedArg.propertyObj, queryParameterValue: parsedArg.queryParameterValue, columns
+                        propertyObj: parsedArg.propertyObj, parsedArg, columns
                     });
                 } else if (parsedArg.modifiers.includes('below')) {
                     andSegments = filterByBelow({
-                        propertyObj: parsedArg.propertyObj, queryParameterValue: parsedArg.queryParameterValue, columns
+                        propertyObj: parsedArg.propertyObj, parsedArg, columns
                     });
                 } else if (parsedArg.modifiers.includes('text')) {
                     columns = new Set(); // text overrides datatype column logic
                     andSegments = filterByPartialText({
-                        queryParameterValue: parsedArg.queryParameterValue, propertyObj: parsedArg.propertyObj, columns,
+                        parsedArg, propertyObj: parsedArg.propertyObj, columns,
                     });
                 }
 
@@ -156,9 +153,6 @@ class R4SearchQueryCreator {
     /**
      * Builds a set of columns and list of segments to apply for a particular query parameter
      * @param {string} resourceType
-     * @param {string} queryParameter
-     * @param {string|string[]} queryParameterValue
-     * @param {SearchParameterDefinition} propertyObj
      * @param {boolean} enableGlobalIdSupport
      * @param {ParsedArgsItem} parsedArg
      * @param {boolean|undefined} useHistoryTable
@@ -167,14 +161,14 @@ class R4SearchQueryCreator {
     getColumnsAndSegmentsForParameterType(
         {
             resourceType,
-            queryParameter,
-            queryParameterValue,
-            propertyObj,
             enableGlobalIdSupport,
             parsedArg,
             useHistoryTable
         }
     ) {
+        const queryParameter = parsedArg.queryParameter;
+        const queryParameterValue = parsedArg.queryParameterValue;
+        const propertyObj = parsedArg.propertyObj;
         /**
          * list of columns used in the query for this parameter
          * this is used to pick index hints
@@ -194,7 +188,7 @@ class R4SearchQueryCreator {
         if (queryParameter === '_id') {
             // handle id differently since it is a token, but we want to do exact match
             andSegments = filterById({
-                queryParameterValue, propertyObj, columns,
+                parsedArg, propertyObj, columns,
                 enableGlobalIdSupport,
                 useHistoryTable
             });
@@ -202,12 +196,12 @@ class R4SearchQueryCreator {
             switch (propertyObj.type) {
                 case fhirFilterTypes.string:
                     andSegments = filterByString({
-                        queryParameterValue, propertyObj, columns
+                        parsedArg, propertyObj, columns
                     });
                     break;
                 case fhirFilterTypes.uri:
                     andSegments = filterByUri({
-                        propertyObj, queryParameterValue, columns
+                        propertyObj, parsedArg, columns
                     });
                     break;
                 case fhirFilterTypes.dateTime:
@@ -216,7 +210,7 @@ class R4SearchQueryCreator {
                 case fhirFilterTypes.instant:
                     andSegments = filterByDateTime(
                         {
-                            queryParameterValue,
+                            parsedArg,
                             propertyObj,
                             resourceType,
                             columns
@@ -226,7 +220,7 @@ class R4SearchQueryCreator {
                 case fhirFilterTypes.token:
                     if (propertyObj.field === 'meta.security') {
                         andSegments = filterBySecurityTag({
-                            queryParameterValue, propertyObj, columns,
+                            parsedArg, propertyObj, columns,
                             fnUseAccessIndex: (accessCode) =>
                                 this.configManager.useAccessIndex &&
                                 this.accessIndexManager.resourceHasAccessIndexForAccessCodes({
@@ -236,14 +230,14 @@ class R4SearchQueryCreator {
                         });
                     } else {
                         andSegments = filterByToken({
-                            queryParameterValue, propertyObj, columns
+                            parsedArg, propertyObj, columns
                         });
                     }
                     break;
                 case fhirFilterTypes.reference:
                     if (isUrl(queryParameterValue)) {
                         andSegments = filterByCanonical({
-                            propertyObj, queryParameterValue, columns
+                            propertyObj, parsedArg, columns
                         });
                     } else {
                         andSegments = filterByReference(

@@ -3,21 +3,22 @@ const {tokenQueryBuilder, exactMatchQueryBuilder} = require('../../../utils/quer
 /**
  * Filters by token
  * https://www.hl7.org/fhir/search.html#token
- * @param {string | string[]} queryParameterValue
+ * @param {ParsedArgsItem} parsedArg
  * @param {SearchParameterDefinition} propertyObj
  * @param {Set} columns
  * @returns {import('mongodb').Filter<import('mongodb').DefaultSchema>[]}
  */
-function filterByToken({queryParameterValue, propertyObj, columns}) {
+function filterByToken({parsedArg, propertyObj, columns}) {
+            /**
+     * @type {string[]}
+     */
+    const queryParameterValues = parsedArg.queryParameterValue.values;
     /**
      * @type {Object[]}
      */
     const or_segments = [];
-    if (!Array.isArray(queryParameterValue)) {
-        queryParameterValue = [queryParameterValue];
-    }
     // https://hl7.org/fhir/search.html#token
-    for (const tokenQueryItem of queryParameterValue) {
+    for (const tokenQueryItem of queryParameterValues) {
         if (propertyObj.fieldFilter === '[system/@value=\'email\']') {
             or_segments.push(
                 tokenQueryBuilder(

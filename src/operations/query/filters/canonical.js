@@ -1,14 +1,18 @@
-const { getIndexHints } = require('../../common/getIndexHints');
+const {getIndexHints} = require('../../common/getIndexHints');
 
 /**
  * filters by canonical uri
  * https://www.hl7.org/fhir/search.html#uri
  * @param {SearchParameterDefinition} propertyObj
- * @param {string | string[]} queryParameterValue
+ * @param {ParsedArgsItem} parsedArg
  * @param {Set} columns
  * @return {import('mongodb').Filter<import('mongodb').DefaultSchema>[]}
  */
-function filterByCanonical({propertyObj, queryParameterValue, columns}) {
+function filterByCanonical({propertyObj, parsedArg, columns}) {
+    /**
+     * @type {string[]}
+     */
+    const queryParameterValues = parsedArg.queryParameterValue.values;
     /**
      * @type {Object[]}
      */
@@ -18,7 +22,11 @@ function filterByCanonical({propertyObj, queryParameterValue, columns}) {
         and_segments.push({
                 $or: propertyObj.fields.map((field1) => {
                         return {
-                            [`${field1}`]: queryParameterValue,
+                            $and: queryParameterValues.map(v => {
+                                return {
+                                    [`${field1}`]: v,
+                                };
+                            })
                         };
                     }
                 ),
@@ -27,7 +35,11 @@ function filterByCanonical({propertyObj, queryParameterValue, columns}) {
     } else {
         and_segments.push(
             {
-                [`${propertyObj.field}`]: queryParameterValue,
+                $and: queryParameterValues.map(v => {
+                    return {
+                        [`${propertyObj.field}`]: v
+                    };
+                }),
             }
         );
         // Adding the field to columns set, to be used as index hints
