@@ -278,7 +278,7 @@ class GraphHelper {
              */
             const useAccessIndex = this.configManager.useAccessIndex;
 
-            const args = Object.assign({'base_version': base_version}, {'id': relatedReferenceIds});
+            const args = Object.assign({'base_version': base_version}, {'id': relatedReferenceIds.join(',')});
             const childParseArgs = this.r4ArgsParser.parseArgs(
                 {
                     resourceType,
