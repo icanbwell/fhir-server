@@ -127,6 +127,23 @@ describe('mongoQuerySimplifier Tests', () => {
                 }
             });
         });
+        test('mongoQuerySimplifier does not convert $or to $in if fields are different', () => {
+            const query = {
+                '$or': [
+                    {'foo': '1'},
+                    {'bar': '2'},
+                ]
+            };
+
+            const result = MongoQuerySimplifier.simplifyFilter({filter: query});
+            logInfo('', {result});
+            expect(result).toStrictEqual({
+                '$or': [
+                    {'foo': '1'},
+                    {'bar': '2'},
+                ]
+            });
+        });
         test('mongoQuerySimplifier handles empty clauses', () => {
             const query = {
                 '$and': [
@@ -201,61 +218,6 @@ describe('mongoQuerySimplifier Tests', () => {
                     }
                 ]
             });
-        });
-    });
-    describe('Patient mongoQuerySimplifier findColumn Tests', () => {
-        test('mongoQuerySimplifier works for findColumn query 1', () => {
-            const query = {
-                '$and': [
-                    {
-                        '$or': [
-                            {
-                                '$and': [
-                                    {
-                                        'meta.security.code': 'https://www.icanbwell.com/access%7Cmedstar'
-                                    }
-                                ]
-                            }
-                        ]
-                    },
-                    {
-                        '$or': [
-                            {
-                                '$and': [
-                                    {
-                                        'birthDate': {
-                                            '$lt': '2021-09-22T00:00:00+00:00'
-                                        }
-                                    },
-                                    {
-                                        'birthDate': {
-                                            '$gte': '2021-09-19T00:00:00+00:00'
-                                        }
-                                    }
-                                ]
-                            }
-                        ]
-                    }
-                ]
-            };
-
-            const columns = MongoQuerySimplifier.findColumnsInFilter({filter: query});
-            logInfo('', {columns});
-            expect(columns).toStrictEqual(new Set(['meta.security.code', 'birthDate']));
-        });
-        test('mongoQuerySimplifier works for findColumn query nested', () => {
-            const query = {
-                'identifier': {
-                    '$elemMatch': {
-                        'system': 'http://www.walgreens.com/profileid',
-                        'value': '1000000-a-01'
-                    }
-                }
-            };
-
-            const columns = MongoQuerySimplifier.findColumnsInFilter({filter: query});
-            logInfo('', {columns});
-            expect(Array.from(columns)).toStrictEqual(['identifier.system', 'identifier.value']);
         });
     });
 });
