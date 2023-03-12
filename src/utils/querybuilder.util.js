@@ -5,6 +5,9 @@
 
 const moment = require('moment-timezone');
 const {escapeRegExp} = require('./regexEscaper');
+const {IdParser} = require('./idParser');
+const {UrlParser} = require('./urlParser');
+const {ReferenceParser} = require('./referenceParser');
 /**
  * @name stringQueryBuilder
  * @description builds mongo default query for string inputs, no modifiers
@@ -208,13 +211,13 @@ const tokenQueryContainsBuilder = function ({target, type, field, required, exis
     const queryBuilderElementMatch = {};
     if (system) {
         queryBuilder[`${field}.system`] = {
-                $regex: escapeRegExp(system),
-                $options: 'i',
-            };
+            $regex: escapeRegExp(system),
+            $options: 'i',
+        };
         queryBuilderElementMatch['system'] = {
-                $regex: escapeRegExp(system),
-                $options: 'i',
-            };
+            $regex: escapeRegExp(system),
+            $options: 'i',
+        };
     }
 
     if (value) {
@@ -382,18 +385,18 @@ const referenceQueryBuilderOptimized = function (
         return queryBuilder;
     }
     if (target_type && target) {
-        const targetPlusSourceAssigningAuthority = target.split('|');
-        if (targetPlusSourceAssigningAuthority.length > 1) {
+        const {id, sourceAssigningAuthority} = IdParser.parse(target);
+        if (sourceAssigningAuthority) {
             queryBuilder['$and'] = [
                 {
-                    [`${sourceAssigningAuthorityField}`]: targetPlusSourceAssigningAuthority[1]
+                    [`${sourceAssigningAuthorityField}`]: sourceAssigningAuthority
                 },
                 {
-                    [`${field}`]: `${target_type}/${targetPlusSourceAssigningAuthority[0]}`
+                    [`${field}`]: UrlParser.isUrl(id) ? id : `${target_type}/${id}`
                 }
             ];
         } else {
-            queryBuilder[`${field}`] = `${target_type}/${target}`;
+            queryBuilder[`${field}`] = UrlParser.isUrl(id) ? id : `${target_type}/${id}`;
         }
         return queryBuilder;
     }
@@ -411,20 +414,20 @@ const referenceQueryBuilderOptimized = function (
         const fullResourceTypeAndIdList = [];
         for (const searchItem of searchItems) {
             if (searchItem.includes('/')) {
-                const [type, id] = searchItem.split('/');
-                fullResourceTypeAndIdList.push(`${type}/${id}`);
+                const {resourceType, id} = ReferenceParser.parseReference(searchItem);
+                fullResourceTypeAndIdList.push(`${resourceType}/${id}`);
             } else {
                 fullResourceTypeAndIdList.push(`${target_type}/${searchItem}`);
             }
         }
         queryBuilder[`${field}`] = {$in: fullResourceTypeAndIdList.map(s => `${s}`)};
     } else if (target.includes('/')) {
-        const [type, id] = target.split('/');
+        const {resourceType, id} = ReferenceParser.parseReference(target);
         if (id.includes(',')) {
             const idList = id.split(',');
-            queryBuilder[`${field}`] = {$in: idList.map(i => `${type}/${i}`)};
+            queryBuilder[`${field}`] = {$in: idList.map(i => `${resourceType}/${i}`)};
         } else {
-            queryBuilder[`${field}`] = `${type}/${id}`;
+            queryBuilder[`${field}`] = `${resourceType}/${id}`;
         }
     }
     // target = id The type may be there so we need to check the end of the field for the id

@@ -101,6 +101,13 @@ class MongoQuerySimplifier {
         if (filter.$and && filter.$and.length === 1) {
             filter = filter.$and[0];
         }
+
+        if (filter.$in && filter.$in.length > 1) {
+            filter.$in = removeDuplicatesWithLambda(filter.$in,
+                (a, b) => JSON.stringify(a) === JSON.stringify(b)
+            );
+        }
+
         // simplify $in
         if (filter.$in && filter.$in.length === 1) {
             filter = filter.$in[0];
