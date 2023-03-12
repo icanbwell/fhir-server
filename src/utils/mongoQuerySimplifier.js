@@ -121,25 +121,55 @@ class MongoQuerySimplifier {
 
     /**
      * finds all columns being used in the filter
+     * @param {string|undefined} [parentKey]
      * @param {import('mongodb').Filter<import('mongodb').DefaultSchema>} filter
      * @return {Set<string>}
      */
-    static findColumnsInFilter({filter}) {
+    static findColumnsInFilter({parentKey, filter}) {
         const columns = new Set();
         if (!this.isFilter(filter)) {
             return columns;
         }
+        const parentColumns = new Set();
+        const columnsForChildren = new Set();
         for (const [operator, subFilter] of Object.entries(filter)) {
+            let newParentKey = parentKey;
+
             if (!operator.startsWith('$')) {
-                columns.add(operator);
+                if (parentKey) {
+                    newParentKey = `${parentKey}.${operator}`;
+                } else {
+                    newParentKey = operator;
+                }
+                parentColumns.add(newParentKey);
             }
             if (Array.isArray(subFilter)) {
-                const newColumns = subFilter.flatMap(sf => Array.from(this.findColumnsInFilter({filter: sf})));
-                newColumns.forEach(c => columns.add(c));
+                const newColumns = subFilter.flatMap(
+                    // eslint-disable-next-line no-loop-func
+                    sf => Array.from(
+                        this.findColumnsInFilter(
+                            {
+                                parentKey: newParentKey,
+                                filter: sf
+                            }
+                        )
+                    )
+                );
+                newColumns.forEach(c => columnsForChildren.add(c));
             } else if (this.isFilter(subFilter)) {
-                const newColumns = this.findColumnsInFilter({filter: subFilter});
-                newColumns.forEach(c => columns.add(c));
+                const newColumns = this.findColumnsInFilter(
+                    {
+                        parentKey: newParentKey,
+                        filter: subFilter
+                    }
+                );
+                newColumns.forEach(c => columnsForChildren.add(c));
             }
+        }
+        if (columnsForChildren.size > 0) {
+            columnsForChildren.forEach(c => columns.add(c));
+        } else if (parentColumns.size > 0) {
+            parentColumns.forEach(c => columns.add(c));
         }
         return columns;
     }

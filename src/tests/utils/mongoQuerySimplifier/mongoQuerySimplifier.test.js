@@ -168,5 +168,19 @@ describe('mongoQuerySimplifier Tests', () => {
             logInfo('', {columns});
             expect(columns).toStrictEqual(new Set(['meta.security.code', 'birthDate']));
         });
+        test('mongoQuerySimplifier works for findColumn query nested', () => {
+            const query = {
+                'identifier': {
+                    '$elemMatch': {
+                        'system': 'http://www.walgreens.com/profileid',
+                        'value': '1000000-a-01'
+                    }
+                }
+            };
+
+            const columns = MongoQuerySimplifier.findColumnsInFilter({filter: query});
+            logInfo('', {columns});
+            expect(Array.from(columns)).toStrictEqual(['identifier.system', 'identifier.value']);
+        });
     });
 });
