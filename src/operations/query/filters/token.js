@@ -34,7 +34,7 @@ class FilterByToken extends BaseFilter {
             );
             // columns.add(`${propertyObj.field}.system`);
             // columns.add(`${propertyObj.field}.value`);
-        } else if (this.propertyObj.field === 'identifier') {
+        } else if (field === 'identifier') {
             // http://www.hl7.org/fhir/search.html#token
             return tokenQueryBuilder(
                 {
@@ -46,8 +46,8 @@ class FilterByToken extends BaseFilter {
             // columns.add(`${propertyObj.field}.system`);
             // columns.add(`${propertyObj.field}.value`);
         } else if (
-            this.propertyObj.field === 'meta.security' ||
-            this.propertyObj.field === 'meta.tag'
+            field === 'meta.security' ||
+            field === 'meta.tag'
         ) {
             // http://www.hl7.org/fhir/search.html#token
             return tokenQueryBuilder(

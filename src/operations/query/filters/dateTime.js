@@ -37,7 +37,7 @@ class FilterByDateTime extends BaseFilter {
                 }
             );
         } else if (
-            this.propertyObj.field === 'meta.lastUpdated' ||
+            field === 'meta.lastUpdated' ||
             isColumnDateType(this.resourceType, this.fieldMapper.getFieldName(field))
         ) {
             // if this of native Date type
