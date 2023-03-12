@@ -7,12 +7,6 @@ const uuidFieldName = '_uuid';
 /**
  * Filters by id
  * https://www.hl7.org/fhir/search.html#id
- * @param {ParsedArgsItem} parsedArg
- * @param {SearchParameterDefinition} propertyObj
- * @param {Set} columns
- * @param {FieldMapper} fieldMapper
- * @param {boolean|undefined} enableGlobalIdSupport
- * @return {import('mongodb').Filter<import('mongodb').DefaultSchema>[]}
  */
 class FilterById extends BaseFilter {
     /**

@@ -69,12 +69,7 @@ class R4SearchQueryCreator {
     buildR4SearchQuery({resourceType, parsedArgs, useHistoryTable}) {
         assertIsValid(resourceType);
         assertTypeEquals(parsedArgs, ParsedArgs);
-        /**
-         * list of columns used in the query
-         * this is used to pick index hints
-         * @type {Set}
-         */
-        let totalColumns = new Set();
+
         /**
          * and segments
          * these are combined to create the query
@@ -93,7 +88,6 @@ class R4SearchQueryCreator {
                         useHistoryTable: useHistoryTable
                     }
                 );
-                let columns = new Set();
                 /**
                  * @type {FilterParameters}
                  */
@@ -101,7 +95,6 @@ class R4SearchQueryCreator {
                     {
                         parsedArg,
                         propertyObj: parsedArg.propertyObj,
-                        columns,
                         fnUseAccessIndex: (accessCode) =>
                             this.configManager.useAccessIndex &&
                             this.accessIndexManager.resourceHasAccessIndexForAccessCodes({
@@ -131,7 +124,6 @@ class R4SearchQueryCreator {
                 } else if (parsedArg.modifiers.includes('below')) {
                     andSegments = new FilterByBelow(filterParameters).filter();
                 } else if (parsedArg.modifiers.includes('text')) {
-                    columns = new Set(); // text overrides datatype column logic
                     andSegments = new FilterByPartialText(filterParameters).filter();
                 }
 
@@ -140,10 +132,6 @@ class R4SearchQueryCreator {
                     andSegments.forEach(q => totalAndSegments.push({$nor: [q]}));
                 } else {
                     andSegments.forEach(q => totalAndSegments.push(q));
-                }
-
-                for (const column of columns) {
-                    totalColumns.add(column);
                 }
             }
         }
@@ -161,6 +149,13 @@ class R4SearchQueryCreator {
 
         query = MongoQuerySimplifier.simplifyFilter({filter: query});
 
+        /**
+         * list of columns used in the query
+         * this is used to pick index hints
+         * @type {Set}
+         */
+        const totalColumns = MongoQuerySimplifier.findColumnsInFilter({filter: query});
+
         return {
             query: query,
             columns: totalColumns,
@@ -171,7 +166,7 @@ class R4SearchQueryCreator {
      * Builds a set of columns and list of segments to apply for a particular query parameter
      * @param {ParsedArgsItem} parsedArg
      * @param {FilterParameters} filterParameters
-     * @returns {{columns: Set, andSegments: import('mongodb').Filter<import('mongodb').DefaultSchema>[]}} columns and andSegments for query parameter
+     * @returns {{andSegments: import('mongodb').Filter<import('mongodb').DefaultSchema>[]}} columns and andSegments for query parameter
      */
     getColumnsAndSegmentsForParameterType(
         {
@@ -182,12 +177,6 @@ class R4SearchQueryCreator {
         const queryParameter = parsedArg.queryParameter;
         const queryParameterValue = parsedArg.queryParameterValue;
         const propertyObj = parsedArg.propertyObj;
-        /**
-         * list of columns used in the query for this parameter
-         * this is used to pick index hints
-         * @type {Set}
-         */
-        let columns = new Set();
 
         /**
          * and segments
@@ -234,7 +223,7 @@ class R4SearchQueryCreator {
             }
         }
 
-        return {columns, andSegments};
+        return {andSegments};
     }
 }
 

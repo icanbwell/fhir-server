@@ -3,7 +3,6 @@ class FilterParameters {
      * constructor
      * @param {SearchParameterDefinition} propertyObj
      * @param {ParsedArgsItem} parsedArg
-     * @param {Set} columns
      * @param {FieldMapper} fieldMapper
      * @param {function(code): boolean} fnUseAccessIndex function that returns whether to use access index for this code
      * @param {string} resourceType
@@ -13,7 +12,6 @@ class FilterParameters {
         {
             propertyObj,
             parsedArg,
-            columns,
             fieldMapper,
             fnUseAccessIndex,
             resourceType,
@@ -28,10 +26,6 @@ class FilterParameters {
          * @type {ParsedArgsItem}
          */
         this.parsedArg = parsedArg;
-        /**
-         * @type {Set}
-         */
-        this.columns = columns;
         /**
          * @type {FieldMapper}
          */

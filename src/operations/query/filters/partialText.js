@@ -2,13 +2,8 @@ const {partialTextQueryBuilder} = require('../../../utils/querybuilder.util');
 const {BaseFilter} = require('./baseFilter');
 
 /**
- * Filters by missing
+ * @classdesc Filters by missing
  * https://www.hl7.org/fhir/search.html#modifiers
- * @param {ParsedArgsItem} parsedArg
- * @param {SearchParameterDefinition} propertyObj
- * @param {Set} columns
- * @param {FieldMapper} fieldMapper
- * @return {import('mongodb').Filter<import('mongodb').DefaultSchema>[]}
  */
 class FilterByPartialText extends BaseFilter {
     /**

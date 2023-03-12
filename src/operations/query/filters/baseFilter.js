@@ -1,4 +1,3 @@
-const {getIndexHints} = require('../../common/getIndexHints');
 const {assertIsValid} = require('../../../utils/assertType');
 
 class BaseFilter {
@@ -19,10 +18,6 @@ class BaseFilter {
          */
         this.parsedArg = filterParameters.parsedArg;
         assertIsValid(filterParameters.parsedArg, 'filterParameters.parsedArg is null');
-        /**
-         * @type {Set}
-         */
-        this.columns = filterParameters.columns;
         /**
          * @type {FieldMapper}
          */
@@ -83,8 +78,6 @@ class BaseFilter {
             },
         );
 
-        this.propertyObj.fields.forEach(field => this.columns.add(this.fieldMapper.getFieldName(field)));
-        getIndexHints(this.columns, this.propertyObj);
         return and_segments;
     }
 }

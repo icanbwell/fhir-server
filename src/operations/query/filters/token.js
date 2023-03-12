@@ -21,8 +21,6 @@ class FilterByToken extends BaseFilter {
                     required: 'email'
                 }
             );
-            // columns.add(`${propertyObj.field}.system`);
-            // columns.add(`${propertyObj.field}.value`);
         } else if (this.propertyObj.fieldFilter === '[system/@value=\'phone\']') {
             return tokenQueryBuilder(
                 {
@@ -32,8 +30,6 @@ class FilterByToken extends BaseFilter {
                     required: 'phone'
                 }
             );
-            // columns.add(`${propertyObj.field}.system`);
-            // columns.add(`${propertyObj.field}.value`);
         } else if (field === 'identifier') {
             // http://www.hl7.org/fhir/search.html#token
             return tokenQueryBuilder(
@@ -43,8 +39,6 @@ class FilterByToken extends BaseFilter {
                     field: this.fieldMapper.getFieldName(field)
                 }
             );
-            // columns.add(`${propertyObj.field}.system`);
-            // columns.add(`${propertyObj.field}.value`);
         } else if (
             field === 'meta.security' ||
             field === 'meta.tag'
@@ -57,8 +51,6 @@ class FilterByToken extends BaseFilter {
                     field: this.fieldMapper.getFieldName(field)
                 }
             );
-            // columns.add(`${propertyObj.field}.system`);
-            // columns.add(`${propertyObj.field}.code`);
         } else {
             switch (this.propertyObj.fieldType) {
                 // https://hl7.org/fhir/search.html#token
@@ -70,8 +62,6 @@ class FilterByToken extends BaseFilter {
                             field: this.fieldMapper.getFieldName(field)
                         }
                     );
-                // columns.add(`${propertyObj.field}.system`);
-                // columns.add(`${propertyObj.field}.code`);
 
                 case 'CodeableConcept':
                     return tokenQueryBuilder(
@@ -81,9 +71,6 @@ class FilterByToken extends BaseFilter {
                             field: this.fieldMapper.getFieldName(`${field}.coding`)
                         }
                     );
-                // columns.add(`${propertyObj.field}.coding.system`);
-                // columns.add(`${propertyObj.field}.coding.code`);
-                // break;
 
                 case 'Identifier':
                     return tokenQueryBuilder(
@@ -93,10 +80,6 @@ class FilterByToken extends BaseFilter {
                             field: this.fieldMapper.getFieldName(field)
                         }
                     );
-                // columns.add(`${propertyObj.field}.system`);
-                // columns.add(`${propertyObj.field}.value`);
-                //
-                // break;
 
                 case 'ContactPoint':
                     return exactMatchQueryBuilder(
@@ -105,8 +88,6 @@ class FilterByToken extends BaseFilter {
                             field: this.fieldMapper.getFieldName(`${field}.value`)
                         }
                     );
-                // columns.add(`${propertyObj.field}.value`);
-                // break;
 
                 case 'boolean':
                     return exactMatchQueryBuilder(
@@ -115,8 +96,6 @@ class FilterByToken extends BaseFilter {
                             field: this.fieldMapper.getFieldName(field)
                         }
                     );
-                // columns.add(`${propertyObj.field}`);
-                // break;
 
                 case 'code':
                 case 'uri':
@@ -127,8 +106,6 @@ class FilterByToken extends BaseFilter {
                             field: this.fieldMapper.getFieldName(field)
                         }
                     );
-                // columns.add(`${propertyObj.field}`);
-                // break;
 
                 default:
                     // can't detect type so use multiple methods
@@ -156,8 +133,6 @@ class FilterByToken extends BaseFilter {
                             ),
                         ],
                     };
-                // columns.add(`${propertyObj.field}.coding.system`);
-                // columns.add(`${propertyObj.field}.coding.code`);
             }
         }
     }

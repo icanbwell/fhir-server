@@ -1,5 +1,4 @@
 const {referenceQueryBuilderOptimized} = require('../../../utils/querybuilder.util');
-const {getIndexHints} = require('../../common/getIndexHints');
 const {isUuid} = require('../../../utils/uid.util');
 const {BaseFilter} = require('./baseFilter');
 
@@ -47,12 +46,8 @@ function getIdFilter(fields, references, idField) {
 }
 
 /**
- * Filters by reference
+ * @classdesc Filters by reference
  * https://www.hl7.org/fhir/search.html#reference
- * @param {ParsedArgsItem} parsedArg
- * @param {Set} columns
- * @param {FieldMapper} fieldMapper
- * @return {import('mongodb').Filter<import('mongodb').DefaultSchema>[]}
  */
 class FilterByReference extends BaseFilter {
     /**
@@ -122,7 +117,6 @@ class FilterByReference extends BaseFilter {
         if (filter) {
             and_segments.push(filter);
         }
-        getIndexHints(this.columns, propertyObj, 'reference');
         return and_segments;
 
     }

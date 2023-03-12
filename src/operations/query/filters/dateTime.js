@@ -13,12 +13,6 @@ function isPeriodField(fieldString) {
 /**
  * filters by date
  * https://www.hl7.org/fhir/search.html#date
- * @param {ParsedArgsItem} parsedArg
- * @param {SearchParameterDefinition} propertyObj
- * @param {string} resourceType
- * @param {Set} columns
- * @param {FieldMapper} fieldMapper
- * @returns {import('mongodb').Filter<import('mongodb').DefaultSchema>[]}
  */
 class FilterByDateTime extends BaseFilter {
     /**

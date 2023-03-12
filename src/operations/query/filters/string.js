@@ -17,10 +17,6 @@ class FilterByString extends BaseFilter {
         if (this.propertyObj && this.propertyObj.fieldType && this.propertyObj.fieldType.toLowerCase() === 'humanname') {
             const ors = nameQueryBuilder({target: value});
             return {$or: ors};
-            // [
-            //     `${propertyObj.field}.text`, `${propertyObj.field}.family`, `${propertyObj.field}.given`,
-            //     `${propertyObj.field}.suffix`, `${propertyObj.field}.prefix`
-            // ].forEach(columns.add, columns);
         } else if (this.propertyObj && this.propertyObj.fieldType && this.propertyObj.fieldType.toLowerCase() === 'address') {
             // If the field is address, use address query builder to apply the search in all address attributes
             const ors = addressQueryBuilder({target: value});

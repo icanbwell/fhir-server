@@ -24,8 +24,6 @@ class FilterBySecurityTag extends BaseFilter {
                     required: 'email'
                 }
             );
-            // columns.add(`${propertyObj.field}.system`);
-            // columns.add(`${propertyObj.field}.value`);
         } else if (this.propertyObj.fieldFilter === '[system/@value=\'phone\']') {
             return tokenQueryBuilder(
                 {
@@ -35,8 +33,6 @@ class FilterBySecurityTag extends BaseFilter {
                     required: 'phone'
                 }
             );
-            // columns.add(`${propertyObj.field}.system`);
-            // columns.add(`${propertyObj.field}.value`);
         } else if (field === 'identifier') {
             // http://www.hl7.org/fhir/search.html#token
             return tokenQueryBuilder(
@@ -46,8 +42,6 @@ class FilterBySecurityTag extends BaseFilter {
                     field: this.fieldMapper.getFieldName(field),
                 }
             );
-            // columns.add(`${propertyObj.field}.system`);
-            // columns.add(`${propertyObj.field}.value`);
         } else if (
             field === 'meta.security' ||
             field === 'meta.tag'

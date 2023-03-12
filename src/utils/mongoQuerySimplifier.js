@@ -13,22 +13,50 @@ class MongoQuerySimplifier {
                 (a, b) => JSON.stringify(a) === JSON.stringify(b)
             );
         }
+        // remove nested $or if there is a parent $or
         if (filter.$or && filter.$or.length > 0) {
             filter.$or = filter.$or.map(f => this.simplifyFilter({filter: f}));
             const indexesToSplice = [];
             for (const [subFilterIndex, subFilter] of filter.$or.entries()) {
                 if (this.isFilter(subFilter) && subFilter.$or) {
-                    const andFilters = subFilter.$or;
+                    const orFilters = subFilter.$or;
                     // eslint-disable-next-line no-loop-func
-                    andFilters.forEach(af => filter.$or.push(af));
+                    orFilters.forEach(af => filter.$or.push(af));
                     indexesToSplice.push(subFilterIndex);
                 }
             }
             if (indexesToSplice.length > 0) {
                 filter.$or = filter.$or.filter((item, index) => !indexesToSplice.includes(index));
             }
-
+            let key = null;
+            let allKeysAreSame = true;
+            const valuesInSubFilters = [];
+            // Turn $or into $in if all the field names are same and the filters are strings
+            for (const subFilter of filter.$or) {
+                if (this.isFilter(subFilter)) {
+                    const keysForSubFilter = Object.keys(subFilter);
+                    if (!key && keysForSubFilter.length > 0) {
+                        key = keysForSubFilter[0];
+                    }
+                    if (key === keysForSubFilter[0] && typeof subFilter[keysForSubFilter[0]] === 'string') {
+                        valuesInSubFilters.push(subFilter[keysForSubFilter[0]]);
+                    } else {
+                        allKeysAreSame = false;
+                        break;
+                    }
+                }
+            }
+            if (allKeysAreSame && valuesInSubFilters.length > 0) {
+                // convert to an $in filter
+                filter = {
+                    [key]: {
+                        $in: valuesInSubFilters
+                    }
+                };
+            }
         }
+
+
         if (filter.$or && filter.$or.length === 1) {
             filter = filter.$or[0];
         }
@@ -89,6 +117,31 @@ class MongoQuerySimplifier {
      */
     static isFilter(value) {
         return !Array.isArray(value) && typeof value === 'object';
+    }
+
+    /**
+     * finds all columns being used in the filter
+     * @param {import('mongodb').Filter<import('mongodb').DefaultSchema>} filter
+     * @return {Set<string>}
+     */
+    static findColumnsInFilter({filter}) {
+        const columns = new Set();
+        if (!this.isFilter(filter)) {
+            return columns;
+        }
+        for (const [operator, subFilter] of Object.entries(filter)) {
+            if (!operator.startsWith('$')) {
+                columns.add(operator);
+            }
+            if (Array.isArray(subFilter)) {
+                const newColumns = subFilter.flatMap(sf => Array.from(this.findColumnsInFilter({filter: sf})));
+                newColumns.forEach(c => columns.add(c));
+            } else if (this.isFilter(subFilter)) {
+                const newColumns = this.findColumnsInFilter({filter: subFilter});
+                newColumns.forEach(c => columns.add(c));
+            }
+        }
+        return columns;
     }
 }
 
