@@ -147,6 +147,61 @@ describe('mongoQuerySimplifier Tests', () => {
             logInfo('', {result});
             expect(result).toStrictEqual({});
         });
+        test('mongoQuerySimplifier handles date clauses', () => {
+            const query = {
+                '$and': [
+                    {
+                        '$or': [
+                            {
+                                '$and': [
+                                    {
+                                        'meta.security.code': 'https://www.icanbwell.com/access%7Cfoobar'
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        '$or': [
+                            {
+                                '$and': [
+                                    {
+                                        'recorded': {
+                                            '$lt': new Date('2021-09-22T00:00:00.000Z')
+                                        }
+                                    },
+                                    {
+                                        'recorded': {
+                                            '$gte': new Date('2021-09-19T00:00:00.000Z')
+                                        }
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            };
+
+            const result = MongoQuerySimplifier.simplifyFilter({filter: query});
+            logInfo('', {result});
+            expect(result).toStrictEqual({
+                '$and': [
+                    {
+                        'meta.security.code': 'https://www.icanbwell.com/access%7Cfoobar'
+                    },
+                    {
+                        'recorded': {
+                            '$lt': new Date('2021-09-22T00:00:00.000Z')
+                        }
+                    },
+                    {
+                        'recorded': {
+                            '$gte': new Date('2021-09-19T00:00:00.000Z')
+                        }
+                    }
+                ]
+            });
+        });
     });
     describe('Patient mongoQuerySimplifier findColumn Tests', () => {
         test('mongoQuerySimplifier works for findColumn query 1', () => {

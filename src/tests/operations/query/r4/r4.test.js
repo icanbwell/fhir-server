@@ -98,6 +98,7 @@ describe('r4 search Tests', () => {
                 resourceType: 'AuditEvent',
                 parsedArgs: r4ArgsParser.parseArgs({resourceType: 'AuditEvent', args})
             });
+            expect(result.query.$and['2'].recorded.$gte).toStrictEqual(new Date('2021-09-19T00:00:00Z'));
             expect(result.query.$and['1'].recorded.$lt).toStrictEqual(new Date('2021-09-22T00:00:00.000Z'));
             expect(result.query.$and['0']['meta.security.code']).toBe('https://www.icanbwell.com/access%7Cfoobar');
         });

@@ -38,7 +38,7 @@ class MongoQuerySimplifier {
                     if (!key && keysForSubFilter.length > 0) {
                         key = keysForSubFilter[0];
                     }
-                    if (key === keysForSubFilter[0] && typeof subFilter[keysForSubFilter[0]] === 'string') {
+                    if (key === keysForSubFilter[0] && !(this.isFilter(subFilter[keysForSubFilter[0]]))) {
                         valuesInSubFilters.push(subFilter[keysForSubFilter[0]]);
                     } else {
                         allKeysAreSame = false;
@@ -150,7 +150,7 @@ class MongoQuerySimplifier {
      * @return {boolean}
      */
     static isFilter(value) {
-        return !Array.isArray(value) && typeof value === 'object';
+        return !Array.isArray(value) && !(value instanceof Date) && (value instanceof Object);
     }
 
     /**
