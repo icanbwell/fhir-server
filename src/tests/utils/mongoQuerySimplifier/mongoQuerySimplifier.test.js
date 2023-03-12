@@ -127,6 +127,26 @@ describe('mongoQuerySimplifier Tests', () => {
                 }
             });
         });
+        test('mongoQuerySimplifier handles empty clauses', () => {
+            const query = {
+                '$and': [
+                    {
+                        '$or': [
+                            {
+                                '$or': []
+                            }
+                        ]
+                    },
+                    {
+                        '$or': []
+                    }
+                ]
+            };
+
+            const result = MongoQuerySimplifier.simplifyFilter({filter: query});
+            logInfo('', {result});
+            expect(result).toStrictEqual({});
+        });
     });
     describe('Patient mongoQuerySimplifier findColumn Tests', () => {
         test('mongoQuerySimplifier works for findColumn query 1', () => {

@@ -99,6 +99,7 @@ class MongoQuerySimplifier {
             filter = filter.$in[0];
         }
 
+        // recurse into non-mongo filters
         for (const [key, value] of Object.entries(filter)) {
             if (!['$and', '$in', '$or', '$nor'].includes(key) && value) {
                 if (this.isFilter(value)) {
@@ -107,7 +108,40 @@ class MongoQuerySimplifier {
             }
         }
 
+        for (let [key, value] of Object.entries(filter)) {
+            if (Array.isArray(value)) {
+                filter[`${key}`] = value.map(v => this.simplifyFilter({filter: v}))
+                    .filter(v => !this.isEmpty(v));
+                if (filter[`${key}`].length === 0) {
+                    delete filter[`${key}`]; // remove empty clauses
+                }
+            } else if (this.isFilter(value)) {
+                filter[`${key}`] = this.simplifyFilter({filter: value});
+                if (this.isEmpty(filter[`${key}`])) {
+                    delete filter[`${key}`]; // remove empty clauses
+                }
+            }
+        }
+
         return filter;
+    }
+
+    /**
+     * whether the passed object/array is empty
+     * @param {*} value
+     * @return {boolean}
+     */
+    static isEmpty(value) {
+        if (!value) {
+            return true;
+        }
+        if (Array.isArray(value) && value.length === 0) {
+            return true;
+        }
+        if (this.isFilter(value) && Object.keys(value).length === 0) {
+            return true;
+        }
+        return false;
     }
 
     /**
