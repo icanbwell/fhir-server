@@ -1494,13 +1494,13 @@ class GraphHelper {
              */
             const idParsedArg = parsedArgs.get('id') || parsedArgs.get('_id');
             /**
-             * @type {string[]}
+             * @type {string[]|null}
              */
             const ids = idParsedArg.queryParameterValue.values;
             /**
              * @type {string[][]}
              */
-            const idChunks = sliceIntoChunks(ids, this.configManager.graphBatchSize);
+            const idChunks = ids ? sliceIntoChunks(ids, this.configManager.graphBatchSize) : [];
 
             /**
              * @type {BundleEntry[]}

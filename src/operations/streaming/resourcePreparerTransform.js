@@ -85,10 +85,10 @@ class ResourcePreparerTransform extends Transform {
             );
             Promise.all(promises).then(() => callback()).catch(
                 (reason) => {
-                    throw new AggregateError([reason], 'ResourcePreparer _transform: error');
+                    throw new AggregateError([reason], `ResourcePreparer _transform: error: ${reason}`);
                 });
         } catch (e) {
-            throw new AggregateError([e], 'ResourcePreparer _transform: error');
+            throw new AggregateError([e], `ResourcePreparer _transform: error: ${e}`);
         }
     }
 

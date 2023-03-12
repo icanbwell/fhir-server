@@ -69,15 +69,17 @@ class ProxyPatientReferenceEnrichmentProvider extends EnrichmentProvider {
                  */
                 const key = parsedArgsItem.queryParameter;
                 /**
-                 * @type {string[]}
+                 * @type {string[]|null}
                  */
                 const values = parsedArgsItem.queryParameterValue.values;
-                for (const value of values) {
-                    if (value && typeof value === 'string' &&
-                        (value.startsWith('Patient/person.') || value.startsWith('person.'))
-                    ) {
-                        proxyPatientPersonId = value;
-                        proxyPatientPersonIdKey = key;
+                if (values) {
+                    for (const value of values) {
+                        if (value && typeof value === 'string' &&
+                            (value.startsWith('Patient/person.') || value.startsWith('person.'))
+                        ) {
+                            proxyPatientPersonId = value;
+                            proxyPatientPersonIdKey = key;
+                        }
                     }
                 }
             }
