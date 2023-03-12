@@ -126,10 +126,13 @@ class ParsedArgs {
         );
     }
 
+    /**
+     * @return {Object.<string,string|string[]>}
+     */
     getRawArgs() {
         const obj = {};
         for (const [, /** @type {ParsedArgsItem} */ value] of Object.entries(this.parsedArgItems)) {
-            obj[`${value.queryParameter}`] = value._queryParameterValue;
+            obj[`${value.queryParameter}`] = value._queryParameterValue.value;
         }
         return obj;
     }
