@@ -60,9 +60,9 @@ class ParsedArgs {
                 this,
                 propertyName,
                 {
-                    get: () => parsedArgItem.queryParameterValue,
+                    get: () => parsedArgItem.queryParameterValue.value,
                     set: valueProvided => {
-                        parsedArgItem.queryParameterValue = valueProvided;
+                        parsedArgItem.queryParameterValue.value = valueProvided;
                     }
                 }
             );
@@ -72,9 +72,9 @@ class ParsedArgs {
                     this,
                     'id',
                     {
-                        get: () => parsedArgItem.queryParameterValue,
+                        get: () => parsedArgItem.queryParameterValue.value,
                         set: valueProvided => {
-                            parsedArgItem.queryParameterValue = valueProvided;
+                            parsedArgItem.queryParameterValue.value = valueProvided;
                         }
                     }
                 );
