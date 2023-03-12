@@ -125,7 +125,7 @@ class R4ArgsParser {
                 this.fhirTypesManager.getTypeForField(
                     {
                         resourceType,
-                        field: propertyObj.fields[0]
+                        field: propertyObj.firstField
                     }
                 ) : null;
 

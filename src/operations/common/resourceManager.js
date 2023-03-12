@@ -28,7 +28,7 @@ class ResourceManager {
                     /** @type {SearchParameterDefinition} **/ propertyObj,
                 ] of Object.entries(resourceObj)) {
                     if (queryParameter === 'patient') {
-                        return propertyObj.fields.length > 0 ? propertyObj.fields[0] : null;
+                        return propertyObj.firstField;
                     }
                 }
             }

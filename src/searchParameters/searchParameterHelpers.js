@@ -11,7 +11,7 @@ function getFieldNameForSearchParameter(searchResourceType, searchParameterName)
         if (resourceType === searchResourceType || resourceType === 'Resource') {
             for (const [queryParameter, propertyObj] of Object.entries(resourceObj)) {
                 if (queryParameter === searchParameterName) {
-                    return propertyObj.fields.length > 0 ? propertyObj.fields[0] : null;
+                    return propertyObj.firstField;
                 }
             }
         }

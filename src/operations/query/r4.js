@@ -216,7 +216,7 @@ class R4SearchQueryCreator {
                     andSegments = new FilterByDateTime(filterParameters).filter();
                     break;
                 case fhirFilterTypes.token:
-                    if (propertyObj.fields.length > 0 && propertyObj.fields[0] === 'meta.security') {
+                    if (propertyObj.firstField === 'meta.security') {
                         andSegments = new FilterBySecurityTag(filterParameters).filter();
                     } else {
                         andSegments = new FilterByToken(filterParameters).filter();

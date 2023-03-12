@@ -67,6 +67,14 @@ class SearchParameterDefinition {
     get fields() {
         return this._fields ? this._fields : this._field ? [this._field] : [];
     }
+
+    /**
+     * returns the first field for this search parameter or null if there are no fields
+     * @return {string|null}
+     */
+    get firstField() {
+        return this.fields.length > 0 ? this.fields[0] : null;
+    }
 }
 
 module.exports = {
