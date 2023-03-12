@@ -116,7 +116,7 @@ class RemoveOperation {
         if (parsedArgs.get('id') &&
             (
                 !parsedArgs.get('id').queryParameterValue ||
-                parsedArgs.get('id').queryParameterValue === '0'
+                parsedArgs.get('id').queryParameterValue.value === '0'
             )
         ) {
             parsedArgs.remove('id');
@@ -124,7 +124,7 @@ class RemoveOperation {
         if (parsedArgs.get('_id') &&
             (
                 !parsedArgs.get('_id').queryParameterValue ||
-                parsedArgs.get('_id').queryParameterValue === '0'
+                parsedArgs.get('_id').queryParameterValue.value === '0'
             )
         ) {
             parsedArgs.remove('_id');

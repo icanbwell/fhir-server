@@ -2,6 +2,7 @@ const async = require('async');
 const {QueryRewriter} = require('./queryRewriter');
 const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
 const {PersonToPatientIdsExpander} = require('../../utils/personToPatientIdsExpander');
+const {QueryParameterValue} = require('../../operations/query/queryParameterValue');
 
 const patientReferencePrefix = 'Patient/';
 const personProxyPrefix = 'person.';
@@ -47,7 +48,7 @@ class PatientProxyQueryRewriter extends QueryRewriter {
                             a => a.startsWith(personProxyPrefix) ||
                                 a.startsWith(patientReferencePlusPersonProxyPrefix))
                         ) {
-                            parsedArg.queryParameterValue = await async.flatMapSeries(
+                            const patientProxyIds = await async.flatMapSeries(
                                 queryParameterValues,
                                 async a => a.startsWith(personProxyPrefix) ||
                                 a.startsWith(patientReferencePlusPersonProxyPrefix) ?
@@ -58,6 +59,10 @@ class PatientProxyQueryRewriter extends QueryRewriter {
                                             includePatientPrefix: false
                                         }) : a
                             );
+                            parsedArg.queryParameterValue = new QueryParameterValue({
+                                value: patientProxyIds,
+                                operator: '$or'
+                            });
                         }
                     }
                 }
@@ -68,7 +73,7 @@ class PatientProxyQueryRewriter extends QueryRewriter {
                         a => typeof a === 'string' &&
                             a.startsWith(patientReferencePlusPersonProxyPrefix))) {
                         // replace with patient ids from person
-                        parsedArg.queryParameterValue = await async.flatMapSeries(
+                        const patientProxyIds = await async.flatMapSeries(
                             queryParameterValues,
                             async a => a.startsWith(patientReferencePlusPersonProxyPrefix) ?
                                 await this.personToPatientIdsExpander.getPatientProxyIdsAsync(
@@ -77,6 +82,10 @@ class PatientProxyQueryRewriter extends QueryRewriter {
                                         id: a, includePatientPrefix: true
                                     }) : a
                         );
+                        parsedArg.queryParameterValue = new QueryParameterValue({
+                            value: patientProxyIds,
+                            operator: '$or'
+                        });
                     }
                 }
             }

@@ -40,7 +40,7 @@ describe('Patient Tests', () => {
             });
             expect(parsedArgs.parsedArgItems.length).toStrictEqual(2);
             expect(parsedArgs.parsedArgItems[1].queryParameter).toStrictEqual('_id');
-            expect(parsedArgs.parsedArgItems[1].queryParameterValue).toStrictEqual('1');
+            expect(parsedArgs.parsedArgItems[1].queryParameterValue.value).toStrictEqual('1');
             expect(parsedArgs.parsedArgItems[1].modifiers).toStrictEqual(['above']);
             expect(parsedArgs.parsedArgItems[1].propertyObj).toBeDefined();
         });
@@ -64,7 +64,7 @@ describe('Patient Tests', () => {
             });
             expect(parsedArgs.parsedArgItems.length).toStrictEqual(2);
             expect(parsedArgs.parsedArgItems[1].queryParameter).toStrictEqual('category');
-            expect(parsedArgs.parsedArgItems[1].queryParameterValue).toStrictEqual('true');
+            expect(parsedArgs.parsedArgItems[1].queryParameterValue.value).toStrictEqual('true');
             expect(parsedArgs.parsedArgItems[1].modifiers).toStrictEqual(['missing']);
         });
         test('r4ArgsParser works for gt', async () => {
@@ -89,10 +89,10 @@ describe('Patient Tests', () => {
             });
             expect(parsedArgs.parsedArgItems.length).toStrictEqual(3);
             expect(parsedArgs.parsedArgItems[1].queryParameter).toStrictEqual('_id');
-            expect(parsedArgs.parsedArgItems[1].queryParameterValue).toStrictEqual('john-muir-health-e.k-4ea143ZrQGvdUvf-b2y.tdyiVMBWgblY4f6y2zis3');
+            expect(parsedArgs.parsedArgItems[1].queryParameterValue.value).toStrictEqual('john-muir-health-e.k-4ea143ZrQGvdUvf-b2y.tdyiVMBWgblY4f6y2zis3');
             expect(parsedArgs.parsedArgItems[1].modifiers).toStrictEqual([]);
             expect(parsedArgs.parsedArgItems[2].queryParameter).toStrictEqual('_id');
-            expect(parsedArgs.parsedArgItems[2].queryParameterValue).toStrictEqual('john-muir-health-e.k-4ea143ZrQGvdUvf-b2y.tdyiVMBWgblY4f6y2zis3');
+            expect(parsedArgs.parsedArgItems[2].queryParameterValue.value).toStrictEqual('john-muir-health-e.k-4ea143ZrQGvdUvf-b2y.tdyiVMBWgblY4f6y2zis3');
             expect(parsedArgs.parsedArgItems[2].modifiers).toStrictEqual(['above']);
         });
         test('r4ArgsParser works for multiple parameters', async () => {
@@ -116,10 +116,10 @@ describe('Patient Tests', () => {
             });
             expect(parsedArgs.parsedArgItems.length).toStrictEqual(3);
             expect(parsedArgs.parsedArgItems[1].queryParameter).toStrictEqual('_id');
-            expect(parsedArgs.parsedArgItems[1].queryParameterValue).toStrictEqual('john-muir-health-e.k-4ea143ZrQGvdUvf-b2y.tdyiVMBWgblY4f6y2zis3');
+            expect(parsedArgs.parsedArgItems[1].queryParameterValue.value).toStrictEqual('john-muir-health-e.k-4ea143ZrQGvdUvf-b2y.tdyiVMBWgblY4f6y2zis3');
             expect(parsedArgs.parsedArgItems[1].modifiers).toStrictEqual([]);
             expect(parsedArgs.parsedArgItems[2].queryParameter).toStrictEqual('_id');
-            expect(parsedArgs.parsedArgItems[2].queryParameterValue).toStrictEqual('john-muir-health-e.k-4ea143ZrQGvdUvf-b2y.tdyiVMBWgblY4f6y2zis3');
+            expect(parsedArgs.parsedArgItems[2].queryParameterValue.value).toStrictEqual('john-muir-health-e.k-4ea143ZrQGvdUvf-b2y.tdyiVMBWgblY4f6y2zis3');
             expect(parsedArgs.parsedArgItems[2].modifiers).toStrictEqual(['above']);
         });
     });

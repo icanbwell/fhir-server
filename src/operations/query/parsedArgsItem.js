@@ -1,4 +1,7 @@
 const {ParsedReferenceItem} = require('./parsedReferenceItem');
+const {assertIsValid, assertTypeEquals} = require('../../utils/assertType');
+const {QueryParameterValue} = require('./queryParameterValue');
+const {SearchParameterDefinition} = require('../../searchParameters/searchParameterTypes');
 
 /**
  * @classdesc This class holds the parsed structure for an arg on the url
@@ -8,7 +11,7 @@ class ParsedArgsItem {
      * constructor
      * @param {string} queryParameter
      * @param {QueryParameterValue} queryParameterValue
-     * @param {SearchParameterDefinition} propertyObj
+     * @param {SearchParameterDefinition|undefined} propertyObj
      * @param {string[]|undefined} modifiers
      * @param {ParsedReferenceItem[]|undefined} [references]
      */
@@ -29,10 +32,14 @@ class ParsedArgsItem {
          * @type {QueryParameterValue}
          */
         this._queryParameterValue = queryParameterValue;
+        assertTypeEquals(queryParameterValue, QueryParameterValue);
         /**
-         * @type {SearchParameterDefinition}
+         * @type {SearchParameterDefinition|undefined}
          */
         this.propertyObj = propertyObj;
+        if (propertyObj) {
+            assertTypeEquals(propertyObj, SearchParameterDefinition);
+        }
         /**
          * @type {string[]}
          */
@@ -60,6 +67,7 @@ class ParsedArgsItem {
      * @param {QueryParameterValue} value
      */
     set queryParameterValue(value) {
+        assertTypeEquals(value, QueryParameterValue);
         this._queryParameterValue = value;
         this.updateReferences();
     }
@@ -79,13 +87,16 @@ class ParsedArgsItem {
     /**
      * parses a query parameter value for reference into resourceType, id
      * @param {QueryParameterValue} queryParameterValue
-     * @param {SearchParameterDefinition} propertyObj
+     * @param {SearchParameterDefinition|undefined} propertyObj
      * @return {ParsedReferenceItem[]}
      */
     parseQueryParameterValueIntoReferences({queryParameterValue, propertyObj}) {
+        assertTypeEquals(queryParameterValue, QueryParameterValue);
         if (!propertyObj) {
             return [];
         }
+
+        assertTypeEquals(propertyObj, SearchParameterDefinition);
         if (!(propertyObj.target)) {
             return [];
         }
@@ -93,6 +104,9 @@ class ParsedArgsItem {
          * @type {ParsedReferenceItem[]}
          */
         const result = [];
+        /**
+         * @type {string[]|null}
+         */
         const queryParameterValues = queryParameterValue.values;
         // The forms are:
         // 1. Patient/123,456
@@ -102,37 +116,41 @@ class ParsedArgsItem {
          * @type {string|null}
          */
         let resourceType = null;
-        for (const /** @type {string} */ val of queryParameterValues) {
-            const valueParts = val.split('/');
-            /**
-             * @type {string}
-             */
-            let id;
-            if (valueParts.length > 1) {
-                resourceType = valueParts[0];
-                id = valueParts[1];
-            } else {
-                id = valueParts[0];
-            }
-            if (resourceType) {
-                // resource type was specified
-                result.push(
-                    new ParsedReferenceItem({
-                        resourceType,
-                        id
-                    })
-                );
-            } else {
-                for (const target of propertyObj.target) {
+        if (queryParameterValues) {
+            assertIsValid(Array.isArray(queryParameterValues), `queryParameterValues is not an array but ${typeof queryParameterValues}`);
+            for (const /** @type {string} */ val of queryParameterValues) {
+                const valueParts = val.split('/');
+                /**
+                 * @type {string}
+                 */
+                let id;
+                if (valueParts.length > 1) {
+                    resourceType = valueParts[0];
+                    id = valueParts[1];
+                } else {
+                    id = valueParts[0];
+                }
+                if (resourceType) {
+                    // resource type was specified
                     result.push(
                         new ParsedReferenceItem({
-                            resourceType: target,
+                            resourceType,
                             id
                         })
                     );
+                } else {
+                    for (const target of propertyObj.target) {
+                        result.push(
+                            new ParsedReferenceItem({
+                                resourceType: target,
+                                id
+                            })
+                        );
+                    }
                 }
             }
         }
+
         return result;
     }
 
