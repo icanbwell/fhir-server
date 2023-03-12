@@ -7,6 +7,9 @@ class MongoQuerySimplifier {
      * @return {import('mongodb').Filter<import('mongodb').DefaultSchema>}
      */
     static simplifyFilter({filter}) {
+        if (filter === null) {
+            return filter;
+        }
         // simplify $or
         if (filter.$or && filter.$or.length > 1) {
             filter.$or = removeDuplicatesWithLambda(filter.$or,
@@ -103,26 +106,28 @@ class MongoQuerySimplifier {
             filter = filter.$in[0];
         }
 
-        // recurse into non-mongo filters
-        for (const [key, value] of Object.entries(filter)) {
-            if (!['$and', '$in', '$or', '$nor'].includes(key) && value) {
-                if (this.isFilter(value)) {
-                    filter[`${key}`] = this.simplifyFilter({filter: value});
+        if (filter) {
+            // recurse into non-mongo filters
+            for (const [key, value] of Object.entries(filter)) {
+                if (!['$and', '$in', '$or', '$nor'].includes(key) && value) {
+                    if (this.isFilter(value)) {
+                        filter[`${key}`] = this.simplifyFilter({filter: value});
+                    }
                 }
             }
-        }
 
-        for (let [key, value] of Object.entries(filter)) {
-            if (Array.isArray(value)) {
-                filter[`${key}`] = value.map(v => this.simplifyFilter({filter: v}))
-                    .filter(v => !this.isEmpty(v));
-                if (filter[`${key}`].length === 0) {
-                    delete filter[`${key}`]; // remove empty clauses
-                }
-            } else if (this.isFilter(value)) {
-                filter[`${key}`] = this.simplifyFilter({filter: value});
-                if (this.isEmpty(filter[`${key}`])) {
-                    delete filter[`${key}`]; // remove empty clauses
+            for (let [key, value] of Object.entries(filter)) {
+                if (Array.isArray(value)) {
+                    filter[`${key}`] = value.map(v => this.simplifyFilter({filter: v}))
+                        .filter(v => !this.isEmpty(v));
+                    if (filter[`${key}`].length === 0) {
+                        delete filter[`${key}`]; // remove empty clauses
+                    }
+                } else if (this.isFilter(value)) {
+                    filter[`${key}`] = this.simplifyFilter({filter: value});
+                    if (this.isEmpty(filter[`${key}`])) {
+                        delete filter[`${key}`]; // remove empty clauses
+                    }
                 }
             }
         }
