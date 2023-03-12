@@ -11,7 +11,7 @@
 class SearchParameterDefinition {
     /**
      * constructor
-     * @param {string} description
+     * @param {string|undefined} [description]
      * @param {SearchParameterDefinitionType} type
      * @param {string|undefined} [field]
      * @param {string[]|undefined} [fields]
@@ -31,7 +31,7 @@ class SearchParameterDefinition {
         }
     ) {
         /**
-         * @type {string}
+         * @type {string|undefined}
          */
         this.description = description;
         /**
