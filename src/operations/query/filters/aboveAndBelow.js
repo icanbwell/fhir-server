@@ -1,77 +1,45 @@
+const {BaseFilter} = require('./baseFilter');
+
 /**
- * filters by above FHIR search parameters
+ * @classdesc filters by above FHIR search parameters
  * https://www.hl7.org/fhir/search.html#modifiers
- * @param {SearchParameterDefinition} propertyObj
- * @param {ParsedArgsItem} parsedArg
- * @param {Set} columns
  * @return {import('mongodb').Filter<import('mongodb').DefaultSchema>[]}
  */
-function filterByAbove({propertyObj, parsedArg, columns}) {
+class FilterByAbove extends BaseFilter {
     /**
-     * @type {string[]}
+     * @param {string} field
+     * @param {string} value
+     * @return {import('mongodb').Filter<import('mongodb').DefaultSchema>}
      */
-    const queryParameterValues = parsedArg.queryParameterValue.values;
-    /**
-     * @type {Object[]}
-     */
-    const and_segments = [];
-    // handle check for above the passed in  value
-    and_segments.push({
-        '$or': Array.from(columns).map(c => {
-            return {
-                $and: queryParameterValues.map(v => {
-                        return {
-                            [c]: {
-                                $gt: v,
-                            }
-                        };
-                    }
-                )
-            };
-        })
-    });
-    columns.add(`${propertyObj.field}`);
-    return and_segments;
+    filterByItem(field, value) {
+        return {
+            [this.fieldMapper.getFieldName(field)]: {
+                $gt: value,
+            }
+        };
+    }
 }
 
 /**
- * filters by below FHIR search parameters
+ * @classdesc filters by below FHIR search parameters
  * https://www.hl7.org/fhir/search.html#modifiers
- * @param {import('../../common/types').SearchParameterDefinition} propertyObj
- * @param {ParsedArgsItem} parsedArg
- * @param {Set} columns
- * @return {Object[]}
  */
-function filterByBelow({propertyObj, parsedArg, columns}) {
+class FilterByBelow extends BaseFilter {
     /**
-     * @type {string[]}
+     * @param {string} field
+     * @param {string} value
+     * @return {import('mongodb').Filter<import('mongodb').DefaultSchema>}
      */
-    const queryParameterValues = parsedArg.queryParameterValue.values;
-    /**
-     * @type {Object[]}
-     */
-    const and_segments = [];
-    // handle check for above the passed in  value
-    and_segments.push({
-        '$or': Array.from(columns).map(c => {
-            return {
-                $and: queryParameterValues.map(v => {
-                        return {
-                            [c]: {
-                                $lt: v,
-                            }
-                        };
-                    }
-                )
-            };
-        })
-    });
-    columns.add(`${propertyObj.field}`);
-    return and_segments;
+    filterByItem(field, value) {
+        return {
+            [this.fieldMapper.getFieldName(field)]: {
+                $lt: value,
+            }
+        };
+    }
 }
 
-
 module.exports = {
-    filterByBelow,
-    filterByAbove
+    FilterByAbove,
+    FilterByBelow
 };

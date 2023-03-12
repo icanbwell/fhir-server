@@ -5,44 +5,29 @@
  * @returns {string}
  */
 const {escapeRegExp} = require('../../../utils/regexEscaper');
+const {BaseFilter} = require('./baseFilter');
 
 /**
  * filters by contains
  * https://www.hl7.org/fhir/search.html#string
- * @param {SearchParameterDefinition} propertyObj
- * @param {ParsedArgsItem} parsedArg
- * @param {Set} columns
- * @return {import('mongodb').Filter<import('mongodb').DefaultSchema>[]}
  */
-function filterByContains({propertyObj, parsedArg, columns}) {
+class FilterByContains extends BaseFilter {
     /**
-     * @type {string[]}
+     * @param {string} field
+     * @param {string} value
+     * @return {import('mongodb').Filter<import('mongodb').DefaultSchema>}
      */
-    const queryParameterValues = parsedArg.queryParameterValue.values;
-    /**
-     * @type {Object[]}
-     */
-    const and_segments = [];
-    and_segments.push({
-        '$or': Array.from(columns).map(c => {
-            return {
-                $and: queryParameterValues.map(v => {
-                        return {
-                            [c]:
-                                {
-                                    $regex: escapeRegExp(v),
-                                    $options: 'i',
-                                }
-                        };
-                    }
-                )
-            };
-        })
-    });
-    columns.add(`${propertyObj.field}`);
-    return and_segments;
+    filterByItem(field, value) {
+        return {
+            [this.fieldMapper.getFieldName(field)]:
+                {
+                    $regex: escapeRegExp(value),
+                    $options: 'i',
+                }
+        };
+    }
 }
 
 module.exports = {
-    filterByContains
+    FilterByContains
 };

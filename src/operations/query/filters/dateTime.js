@@ -1,6 +1,10 @@
-const {dateQueryBuilder, dateQueryBuilderNative, datetimePeriodQueryBuilder} = require('../../../utils/querybuilder.util');
+const {
+    dateQueryBuilder,
+    dateQueryBuilderNative,
+    datetimePeriodQueryBuilder
+} = require('../../../utils/querybuilder.util');
 const {isColumnDateType} = require('../../common/isColumnDateType');
-const { getIndexHints } = require('../../common/getIndexHints');
+const {BaseFilter} = require('./baseFilter');
 
 function isPeriodField(fieldString) {
     return fieldString === 'period' || fieldString === 'effectivePeriod';
@@ -13,67 +17,50 @@ function isPeriodField(fieldString) {
  * @param {SearchParameterDefinition} propertyObj
  * @param {string} resourceType
  * @param {Set} columns
+ * @param {FieldMapper} fieldMapper
  * @returns {import('mongodb').Filter<import('mongodb').DefaultSchema>[]}
  */
-function filterByDateTime({parsedArg, propertyObj, resourceType, columns}) {
-        /**
-     * @type {string[]}
-     */
-    const queryParameterValues = parsedArg.queryParameterValue.values;
+class FilterByDateTime extends BaseFilter {
     /**
-     * @type {Object[]}
+     * @param {string} field
+     * @param {string} value
+     * @return {import('mongodb').Filter<import('mongodb').DefaultSchema>}
      */
-    const and_segments = [];
-    for (const dateQueryItem of queryParameterValues) {
+    filterByItem(field, value) {
         // prettier-ignore
-        // eslint-disable-next-line security/detect-object-injection
-        const isDateSearchingPeriod = isPeriodField(propertyObj.field);
+        const isDateSearchingPeriod = isPeriodField(field);
         if (isDateSearchingPeriod) {
-            and_segments.push(
-                ...datetimePeriodQueryBuilder({ dateQueryItem, fieldName: propertyObj.field })
-            );
-        } else if (propertyObj.fields) {
-            // if there are multiple fields
-            and_segments.push(
+            return datetimePeriodQueryBuilder(
                 {
-                    $or: propertyObj.fields.map((f) => {
-                        return isPeriodField(f) ?
-                            { $and: datetimePeriodQueryBuilder({ dateQueryItem, fieldName: f }) } :
-                            {
-                                [`${f}`]: dateQueryBuilder({
-                                    date: dateQueryItem, type: propertyObj.type,
-                                }),
-                            };
-                    }),
+                    dateQueryItem: value,
+                    fieldName: this.fieldMapper.getFieldName(field)
                 }
             );
         } else if (
-            propertyObj.field === 'meta.lastUpdated' ||
-            isColumnDateType(resourceType, propertyObj.field)
+            this.propertyObj.field === 'meta.lastUpdated' ||
+            isColumnDateType(this.resourceType, this.fieldMapper.getFieldName(field))
         ) {
             // if this of native Date type
             // this field stores the date as a native date, so we can do faster queries
-            and_segments.push({
-                [`${propertyObj.field}`]: dateQueryBuilderNative(
+            return {
+                [this.fieldMapper.getFieldName(field)]: dateQueryBuilderNative(
                     {
-                        dateSearchParameter: dateQueryItem,
-                        type: propertyObj.type
+                        dateSearchParameter: value,
+                        type: this.propertyObj.type
                     }
                 ),
-            });
+            };
         } else {
             // if this is date as a string
-            and_segments.push({
-                [`${propertyObj.field}`]: dateQueryBuilder({
-                    date: dateQueryItem, type: propertyObj.type
+            return {
+                [this.fieldMapper.getFieldName(field)]: dateQueryBuilder({
+                    date: value, type: this.propertyObj.type
                 }),
-            });
+            };
         }
     }
-    getIndexHints(columns, propertyObj);
-    return and_segments;
 }
 
 module.exports = {
-    filterByDateTime,
+    FilterByDateTime,
 };

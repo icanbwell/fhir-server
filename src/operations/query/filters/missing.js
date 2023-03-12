@@ -1,4 +1,5 @@
 const {isTrue} = require('../../../utils/isTrue');
+const {BaseFilter} = require('./baseFilter');
 
 /**
  * Filters by missing
@@ -7,38 +8,26 @@ const {isTrue} = require('../../../utils/isTrue');
  * @param {ParsedArgsItem} parsedArg
  * @param {SearchParameterDefinition} propertyObj
  * @param {Set} columns
+ * @param {FieldMapper} fieldMapper
  * @return {import('mongodb').Filter<import('mongodb').DefaultSchema>[]}
  */
-function filterByMissing({parsedArg, propertyObj, columns}) {
+class FilterByMissing extends BaseFilter {
     /**
-     * @type {string[]}
+     * @param {string} field
+     * @param {string} value
+     * @return {import('mongodb').Filter<import('mongodb').DefaultSchema>}
      */
-    const queryParameterValues = parsedArg.queryParameterValue.values;
-    /**
-     * @type {Object[]}
-     */
-    const and_segments = [];
-    for (const queryParameterValue of queryParameterValues) {
-        // handle check for missing values
-        const missing_flag = isTrue(queryParameterValue);
-        if (missing_flag === true) {
-            // https://www.mongodb.com/docs/manual/tutorial/query-for-null-fields/#equality-filter
-            // if we are looking for resources where this is missing
-            and_segments.push({
-                [`${propertyObj.field}`]: null,
-            });
-        } else {
-            // if we are looking for resources where this is NOT missing
-            // http://docs.mongodb.org/manual/reference/operator/query/ne/
-            and_segments.push({
-                [`${propertyObj.field}`]: {$ne: null}
-            });
-        }
+    filterByItem(field, value) {
+        return isTrue(value) ?
+            {
+                [this.fieldMapper.getFieldName(field)]: null
+            } :
+            {
+                [this.fieldMapper.getFieldName(field)]: {$ne: null}
+            };
     }
-    columns.add(`${propertyObj.field}`);
-    return and_segments;
 }
 
 module.exports = {
-    filterByMissing
+    FilterByMissing
 };

@@ -1,4 +1,5 @@
 const {partialTextQueryBuilder} = require('../../../utils/querybuilder.util');
+const {BaseFilter} = require('./baseFilter');
 
 /**
  * Filters by missing
@@ -6,52 +7,40 @@ const {partialTextQueryBuilder} = require('../../../utils/querybuilder.util');
  * @param {ParsedArgsItem} parsedArg
  * @param {SearchParameterDefinition} propertyObj
  * @param {Set} columns
+ * @param {FieldMapper} fieldMapper
  * @return {import('mongodb').Filter<import('mongodb').DefaultSchema>[]}
  */
-function filterByPartialText({parsedArg, propertyObj, columns}) {
+class FilterByPartialText extends BaseFilter {
     /**
-     * @type {string[]}
+     * @param {string} field
+     * @param {string} value
+     * @return {import('mongodb').Filter<import('mongodb').DefaultSchema>}
      */
-    const queryParameterValues = parsedArg.queryParameterValue.values;
-    /**
-     * @type {Object[]}
-     */
-    const and_segments = [];
-    // implement the modifier for partial text search
-    // https://www.hl7.org/fhir/search.html#modifiers
-    for (const queryParameterValue of queryParameterValues) {
-        /**
-         * @type {string}
-         */
-        const textToSearchFor = queryParameterValue;
-
-        and_segments.push(
-            {
-                '$or': [
-                    // 1. search in text field
-                    partialTextQueryBuilder(
-                        {
-                            field: `${propertyObj.field}.text`,
-                            partialText: textToSearchFor,
-                            ignoreCase: true,
-                        }
-                    ),
-                    // 2. search in display field for every coding
-                    partialTextQueryBuilder(
-                        {
-                            field: `${propertyObj.field}.coding.display`,
-                            partialText: textToSearchFor,
-                            ignoreCase: true,
-                        }
-                    )
-                ]
-            },
-        );
+    filterByItem(field, value) {
+        return {
+            '$or': [
+                // 1. search in text field
+                partialTextQueryBuilder(
+                    {
+                        field: this.fieldMapper.getFieldName(`${field}.text`),
+                        partialText: value,
+                        ignoreCase: true,
+                    }
+                ),
+                // 2. search in display field for every coding
+                partialTextQueryBuilder(
+                    {
+                        field: this.fieldMapper.getFieldName(`${field}.coding.display`),
+                        partialText: value,
+                        ignoreCase: true,
+                    }
+                )
+            ]
+        };
     }
-    columns.add(`${propertyObj.field}`);
-    return and_segments;
 }
 
+
 module.exports = {
-    filterByPartialText
+    FilterByPartialText
 };

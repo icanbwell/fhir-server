@@ -1,27 +1,22 @@
+const {BaseFilter} = require('./baseFilter');
+
 /**
  * filters by uri
  * https://www.hl7.org/fhir/search.html#uri
- * @param {SearchParameterDefinition} propertyObj
- * @param {ParsedArgsItem} parsedArg
- * @param {Set} columns
- * @return {import('mongodb').Filter<import('mongodb').DefaultSchema>[]}
  */
-function filterByUri({propertyObj, parsedArg, columns}) {
+class FilterByUri extends BaseFilter {
     /**
-     * @type {string[]}
+     * @param {string} field
+     * @param {string} value
+     * @return {import('mongodb').Filter<import('mongodb').DefaultSchema>}
      */
-    const queryParameterValues = parsedArg.queryParameterValue.values;
-    /**
-     * @type {Object[]}
-     */
-    const and_segments = [];
-    for (const queryParameterValue of queryParameterValues) {
-        and_segments.push({[`${propertyObj.field}`]: queryParameterValue});
+    filterByItem(field, value) {
+        return {
+            [this.fieldMapper.getFieldName(field)]: value,
+        };
     }
-    columns.add(`${propertyObj.field}`);
-    return and_segments;
 }
 
 module.exports = {
-    filterByUri
+    FilterByUri
 };

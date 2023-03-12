@@ -2,7 +2,7 @@
  * @desc Type of operation
  * @desc and = do an AND operation between the array items
  * @desc or = do an OR operation between the array items
- * @typedef {('and'|'or')} QueryParameterType
+ * @typedef {('$and'|'$or')} QueryParameterType
  **/
 
 
