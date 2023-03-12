@@ -121,12 +121,14 @@ class R4ArgsParser {
             }
 
             // set type of field in propertyObj
-            propertyObj.fieldType = this.fhirTypesManager.getTypeForField(
-                {
-                    resourceType,
-                    field: propertyObj.field
-                }
-            );
+            propertyObj.fieldType = propertyObj.fields.length > 0 ?
+                this.fhirTypesManager.getTypeForField(
+                    {
+                        resourceType,
+                        field: propertyObj.fields[0]
+                    }
+                ) : null;
+
             queryParameterValue = convertGraphQLParameters(
                 queryParameterValue,
                 args,

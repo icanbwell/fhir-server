@@ -22,14 +22,13 @@ class ResourceManager {
         }
         for (const [resourceType1, resourceObj] of Object.entries(searchParameterQueries)) {
             if (resourceType1 === resourceType) {
-
                 // see if there is a 'patient' property
                 for (const [
                     /** @type {string} **/ queryParameter,
-                    /** @type {import('../common/types').SearchParameterDefinition} **/ propertyObj,
+                    /** @type {SearchParameterDefinition} **/ propertyObj,
                 ] of Object.entries(resourceObj)) {
                     if (queryParameter === 'patient') {
-                        return propertyObj.field;
+                        return propertyObj.fields.length > 0 ? propertyObj.fields[0] : null;
                     }
                 }
             }
