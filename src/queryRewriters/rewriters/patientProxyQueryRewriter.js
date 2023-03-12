@@ -43,7 +43,7 @@ class PatientProxyQueryRewriter extends QueryRewriter {
             if (resourceType === 'Patient') {
                 if (parsedArg.queryParameter === 'id' || parsedArg.queryParameter === '_id') {
                     const queryParameterValues = parsedArg.queryParameterValue.values;
-                    if (queryParameterValues.length > 0) {
+                    if (queryParameterValues && queryParameterValues.length > 0) {
                         if (queryParameterValues.some(
                             a => a.startsWith(personProxyPrefix) ||
                                 a.startsWith(patientReferencePlusPersonProxyPrefix))
@@ -68,7 +68,7 @@ class PatientProxyQueryRewriter extends QueryRewriter {
                 }
             } else { // resourceType other than Patient
                 const queryParameterValues = parsedArg.queryParameterValue.values;
-                if (queryParameterValues.length > 0) {
+                if (queryParameterValues && queryParameterValues.length > 0) {
                     if (queryParameterValues.some(
                         a => typeof a === 'string' &&
                             a.startsWith(patientReferencePlusPersonProxyPrefix))) {
