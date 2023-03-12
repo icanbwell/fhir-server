@@ -15,7 +15,7 @@ class QueryParameterValue {
     constructor(
         {
             value,
-            operator
+            operator = '$and'
         }
     ) {
         /**
@@ -23,7 +23,7 @@ class QueryParameterValue {
          */
         this.value = value;
         /**
-         * @type {QueryParameterType|undefined}
+         * @type {QueryParameterType}
          */
         this.operator = operator;
     }
