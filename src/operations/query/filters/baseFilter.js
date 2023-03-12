@@ -64,19 +64,20 @@ class BaseFilter {
          */
         const and_segments = [];
 
-        // handle simple case without an OR to keep it simple
-        and_segments.push({
-                $or: this.propertyObj.fields.map((field) => {
-                        return {
-                            [this.parsedArg.queryParameterValue.operator]:
-                                this.parsedArg.queryParameterValue.values.map(v => {
-                                    return this.filterByItem(field, v);
-                                })
-                        };
-                    }
-                ),
-            },
-        );
+        if (this.parsedArg.queryParameterValue.values) {
+            and_segments.push({
+                    $or: this.propertyObj.fields.map((field) => {
+                            return {
+                                [this.parsedArg.queryParameterValue.operator]:
+                                    this.parsedArg.queryParameterValue.values.map(v => {
+                                        return this.filterByItem(field, v);
+                                    })
+                            };
+                        }
+                    ),
+                },
+            );
+        }
 
         return and_segments;
     }

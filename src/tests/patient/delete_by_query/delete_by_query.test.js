@@ -70,9 +70,9 @@ describe('Practitioner Delete Tests', () => {
             resp = await request.get('/4_0_0/Patient').set(getHeaders()).expect(200);
 
             expect(resp.body.length).toBe(1);
-            logInfo('------- response 3 ------------');
+            logInfo('------- response 3 ------------', {});
             logInfo('', {'resp': resp.body});
-            logInfo('------- end response 3 ------------');
+            logInfo('------- end response 3 ------------', {});
 
             resp = await request.get('/4_0_0/Patient/00100000000').set(getHeaders()).expect(200);
 
