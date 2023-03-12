@@ -295,8 +295,7 @@ describe('r4 search Tests', () => {
                 resourceType: 'Task',
                 parsedArgs: r4ArgsParser.parseArgs({resourceType: 'Task', args})
             });
-            expect(result.query.$or['0']['code.coding.code']).toStrictEqual('1234');
-            expect(result.query.$or['1']['code.coding.code']).toStrictEqual('4567');
+            expect(result.query['code.coding.code'].$in).toStrictEqual(['1234', '4567']);
         });
         test('r4 works with Task and multiple subjects with reference type', async () => {
             await createTestRequest((container) => {

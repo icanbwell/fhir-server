@@ -33,7 +33,7 @@ class MongoQuerySimplifier {
             const valuesInSubFilters = [];
             // Turn $or into $in if all the field names are same and the filters are strings
             for (const subFilter of filter.$or) {
-                if (this.isFilter(subFilter)) {
+                if (subFilter && this.isFilter(subFilter)) {
                     const keysForSubFilter = Object.keys(subFilter);
                     if (!key && keysForSubFilter.length > 0) {
                         key = keysForSubFilter[0];
