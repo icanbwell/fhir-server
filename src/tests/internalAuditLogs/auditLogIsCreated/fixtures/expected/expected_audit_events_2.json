@@ -10,7 +10,7 @@
         "altId": "user/*.read user/*.write access/*.*",
         "name": "imran",
         "network": {
-          "type": 2
+          "type": "2"
         },
         "requestor": true,
         "who": {
@@ -93,8 +93,33 @@
       "versionId": "1"
     },
     "resourceType": "AuditEvent",
+    "source": {
+      "observer": {
+        "_sourceAssigningAuthority": "bwell",
+        "_sourceId": "Person/imran",
+        "_uuid": "Person/63d18720-c48b-534c-9127-76e01034414f",
+        "extension": [
+          {
+            "id": "sourceId",
+            "url": "https://www.icanbwell.com/sourceId",
+            "valueString": "Person/imran"
+          },
+          {
+            "id": "uuid",
+            "url": "https://www.icanbwell.com/uuid",
+            "valueString": "Person/63d18720-c48b-534c-9127-76e01034414f"
+          },
+          {
+            "id": "sourceAssigningAuthority",
+            "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+            "valueString": "bwell"
+          }
+        ],
+        "reference": "Person/imran"
+      }
+    },
     "type": {
-      "code": 110112,
+      "code": "110112",
       "display": "Query",
       "system": "http://dicom.nema.org/resources/ontology/DCM"
     }
@@ -110,7 +135,7 @@
         "altId": "user/*.read user/*.write access/*.*",
         "name": "imran",
         "network": {
-          "type": 2
+          "type": "2"
         },
         "requestor": true,
         "who": {
@@ -189,8 +214,33 @@
       "versionId": "1"
     },
     "resourceType": "AuditEvent",
+    "source": {
+      "observer": {
+        "_sourceAssigningAuthority": "bwell",
+        "_sourceId": "Person/imran",
+        "_uuid": "Person/63d18720-c48b-534c-9127-76e01034414f",
+        "extension": [
+          {
+            "id": "sourceId",
+            "url": "https://www.icanbwell.com/sourceId",
+            "valueString": "Person/imran"
+          },
+          {
+            "id": "uuid",
+            "url": "https://www.icanbwell.com/uuid",
+            "valueString": "Person/63d18720-c48b-534c-9127-76e01034414f"
+          },
+          {
+            "id": "sourceAssigningAuthority",
+            "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+            "valueString": "bwell"
+          }
+        ],
+        "reference": "Person/imran"
+      }
+    },
     "type": {
-      "code": 110112,
+      "code": "110112",
       "display": "Query",
       "system": "http://dicom.nema.org/resources/ontology/DCM"
     }
