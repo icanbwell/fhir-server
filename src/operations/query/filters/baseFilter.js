@@ -1,4 +1,5 @@
 const {getIndexHints} = require('../../common/getIndexHints');
+const {assertIsValid} = require('../../../utils/assertType');
 
 class BaseFilter {
     /**
@@ -11,11 +12,13 @@ class BaseFilter {
         /**
          * @type {SearchParameterDefinition}
          */
-        this.properyObj = filterParameters.propertyObj;
+        this.propertyObj = filterParameters.propertyObj;
+        assertIsValid(filterParameters.propertyObj, 'filterParameters.propertyObj is null');
         /**
          * @type {ParsedArgsItem}
          */
         this.parsedArg = filterParameters.parsedArg;
+        assertIsValid(filterParameters.parsedArg, 'filterParameters.parsedArg is null');
         /**
          * @type {Set}
          */
@@ -24,6 +27,7 @@ class BaseFilter {
          * @type {FieldMapper}
          */
         this.fieldMapper = filterParameters.fieldMapper;
+        assertIsValid(filterParameters.fieldMapper, 'filterParameters.fieldMapper is null');
 
         /**
          * @type {function(code): boolean}
@@ -34,6 +38,8 @@ class BaseFilter {
          * @type {string}
          */
         this.resourceType = filterParameters.resourceType;
+        assertIsValid(filterParameters.resourceType, 'filterParameters.resourceType is null');
+
 
         /**
          * @type {boolean|undefined}

@@ -23,7 +23,7 @@ class FilterParameters {
         /**
          * @type {SearchParameterDefinition}
          */
-        this.properyObj = propertyObj;
+        this.propertyObj = propertyObj;
         /**
          * @type {ParsedArgsItem}
          */
