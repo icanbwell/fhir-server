@@ -100,6 +100,8 @@ describe('GraphQL Patient Tests', () => {
             expect(resp.body.length).toBe(2);
 
             await postRequestProcessor.waitTillDoneAsync({requestId: getRequestId(resp)});
+            const auditEntries = await internalAuditEventCollection.find({}).toArray();
+            console.log(JSON.stringify(auditEntries));
             expect(await internalAuditEventCollection.countDocuments()).toStrictEqual(4);
             // clear out audit table
             await internalAuditEventCollection.deleteMany({});

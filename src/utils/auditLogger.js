@@ -146,6 +146,7 @@ class AuditLogger {
      * @param {string} operation
      * @param {Object} args
      * @param {string[]} ids
+     * @return {Promise<void>}
      */
     async logAuditEntryAsync(
         {
