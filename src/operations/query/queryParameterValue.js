@@ -67,6 +67,13 @@ class QueryParameterValue {
             }
         );
     }
+
+    clone() {
+        return new QueryParameterValue({
+            value: this.value,
+            operator: this.operator
+        });
+    }
 }
 
 module.exports = {

@@ -158,7 +158,7 @@ class ParsedArgsItem {
         return new ParsedArgsItem(
             {
                 queryParameter: this.queryParameter,
-                queryParameterValue: this._queryParameterValue,
+                queryParameterValue: this._queryParameterValue.clone(),
                 propertyObj: this.propertyObj,
                 modifiers: this.modifiers,
                 references: this.references
