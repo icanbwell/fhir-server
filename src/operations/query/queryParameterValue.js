@@ -4,6 +4,7 @@
  * @desc or = do an OR operation between the array items
  * @typedef {('$and'|'$or')} QueryParameterType
  **/
+const {assertIsValid} = require('../../utils/assertType');
 
 
 class QueryParameterValue {
@@ -26,6 +27,7 @@ class QueryParameterValue {
          * @type {QueryParameterType}
          */
         this.operator = operator;
+        assertIsValid(['$or', '$and'].includes(operator), `operator ${operator} is not in $or, $and`);
     }
 
     /**

@@ -36,7 +36,20 @@ class MongoQuerySimplifier {
         }
         if (filter.$and && filter.$and.length > 0) {
             filter.$and = filter.$and.map(f => this.simplifyFilter({filter: f}));
+            const indexesToSplice = [];
+            for (const [subFilterIndex, subFilter] of filter.$and.entries()) {
+                if (this.isFilter(subFilter) && subFilter.$and) {
+                    const andFilters = subFilter.$and;
+                    // eslint-disable-next-line no-loop-func
+                    andFilters.forEach(af => filter.$and.push(af));
+                    indexesToSplice.push(subFilterIndex);
+                }
+            }
+            if (indexesToSplice.length > 0) {
+                filter.$and = filter.$and.filter((item, index) => !indexesToSplice.includes(index));
+            }
         }
+        // if there are $and filters inside this $and then promote them to the same level
         if (filter.$and && filter.$and.length === 1) {
             filter = filter.$and[0];
         }
@@ -47,13 +60,22 @@ class MongoQuerySimplifier {
 
         for (const [key, value] of Object.entries(filter)) {
             if (!['$and', '$in', '$or', '$nor'].includes(key) && value) {
-                if (!Array.isArray(value) && typeof value === 'object') {
+                if (this.isFilter(value)) {
                     filter[`${key}`] = this.simplifyFilter({filter: value});
                 }
             }
         }
 
         return filter;
+    }
+
+    /**
+     * Returns whether value is a filter
+     * @param {*} value
+     * @return {boolean}
+     */
+    static isFilter(value) {
+        return !Array.isArray(value) && typeof value === 'object';
     }
 }
 
