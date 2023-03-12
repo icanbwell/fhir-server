@@ -661,5 +661,79 @@ describe('r4 search Tests', () => {
                 }
             });
         });
+        test('r4 works with :contains for name in Patient', async () => {
+            await createTestRequest((container) => {
+                container.register('configManager', () => new MockConfigManager());
+                container.register('indexProvider', (c) => new MockIndexProvider({
+                    configManager: c.configManager
+                }));
+                container.register('accessIndexManager', (c1) => new MockAccessIndexManager({
+                    configManager: c1.configManager,
+                    indexProvider: c1.indexProvider
+                }));
+                return container;
+            });
+            const container = getTestContainer();
+            /**
+             * @type {R4SearchQueryCreator}
+             */
+            const r4SearchQueryCreator = container.r4SearchQueryCreator;
+            /**
+             * @type {R4ArgsParser}
+             */
+            const r4ArgsParser = container.r4ArgsParser;
+
+            const args = {
+                'base_version': VERSIONS['4_0_0'],
+                'given:contains': 'foo',
+            };
+            const result = r4SearchQueryCreator.buildR4SearchQuery({
+                resourceType: 'Patient',
+                parsedArgs: r4ArgsParser.parseArgs({resourceType: 'Patient', args})
+            });
+            expect(result.query).toStrictEqual({
+                'name.given': {
+                    '$options': 'i',
+                    '$regex': 'foo'
+                }
+            });
+        });
+        test('r4 works with :contains for gender in Patient', async () => {
+            await createTestRequest((container) => {
+                container.register('configManager', () => new MockConfigManager());
+                container.register('indexProvider', (c) => new MockIndexProvider({
+                    configManager: c.configManager
+                }));
+                container.register('accessIndexManager', (c1) => new MockAccessIndexManager({
+                    configManager: c1.configManager,
+                    indexProvider: c1.indexProvider
+                }));
+                return container;
+            });
+            const container = getTestContainer();
+            /**
+             * @type {R4SearchQueryCreator}
+             */
+            const r4SearchQueryCreator = container.r4SearchQueryCreator;
+            /**
+             * @type {R4ArgsParser}
+             */
+            const r4ArgsParser = container.r4ArgsParser;
+
+            const args = {
+                'base_version': VERSIONS['4_0_0'],
+                'gender:contains': 'foo',
+            };
+            const result = r4SearchQueryCreator.buildR4SearchQuery({
+                resourceType: 'Patient',
+                parsedArgs: r4ArgsParser.parseArgs({resourceType: 'Patient', args})
+            });
+            expect(result.query).toStrictEqual({
+                'gender': {
+                    '$options': 'i',
+                    '$regex': 'foo'
+                }
+            });
+        });
     });
 });

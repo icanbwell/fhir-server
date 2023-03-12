@@ -111,7 +111,6 @@ class FhirDataSource {
      * @return {Promise<(Resource|null)[]>}>}
      */
     async getResourcesInBatch({keys, requestInfo, args}) {
-        console.log(`getResourcesInBatch start: ${keys.join(',')}`);
         // separate by resourceType
         /**
          * Each field in the object is the key
@@ -148,7 +147,6 @@ class FhirDataSource {
                         _bundle: '1',
                         ...args,
                     };
-                    console.log(`getResourcesInBatch ask: ${resourceType} ${idsOfReference.join(',')}`);
 
                     const bundle = await this.searchBundleOperation.searchBundle(
                         {
@@ -164,7 +162,6 @@ class FhirDataSource {
                             useAggregationPipeline: false
                         }
                     );
-                    console.log(`getResourcesInBatch got:  ${resourceType} ${idsOfReference.join(',')}`);
 
                     return this.unBundle(bundle);
                 }
@@ -172,7 +169,6 @@ class FhirDataSource {
             keys
         );
 
-        console.log(`getResourcesInBatch end: ${keys.join(',')}`);
         return results;
     }
 
