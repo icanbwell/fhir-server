@@ -38,8 +38,12 @@ class MongoQuerySimplifier {
                     if (!key && keysForSubFilter.length > 0) {
                         key = keysForSubFilter[0];
                     }
-                    if (key === keysForSubFilter[0] && !(this.isFilter(subFilter[keysForSubFilter[0]]))) {
-                        valuesInSubFilters.push(subFilter[keysForSubFilter[0]]);
+                    const subFilterValue = subFilter[keysForSubFilter[0]];
+                    if (key === keysForSubFilter[0] &&
+                        !(Array.isArray(subFilterValue)) &&
+                        !(this.isFilter(subFilterValue))
+                    ) {
+                        valuesInSubFilters.push(subFilterValue);
                     } else {
                         allKeysAreSame = false;
                         break;

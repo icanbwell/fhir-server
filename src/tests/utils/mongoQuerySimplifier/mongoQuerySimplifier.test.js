@@ -144,6 +144,63 @@ describe('mongoQuerySimplifier Tests', () => {
                 ]
             });
         });
+        test('mongoQuerySimplifier does not convert $or to $in if fields are not primitive', () => {
+            const query = {
+                '$and': [
+                    {
+                        '$or': [
+                            {
+                                '$and': [
+                                    {
+                                        'subject._sourceAssigningAuthority': 'C'
+                                    },
+                                    {
+                                        'subject._sourceId': 'Patient/patient1'
+                                    }
+                                ]
+                            },
+                            {
+                                '$and': [
+                                    {
+                                        'subject._sourceAssigningAuthority': 'C'
+                                    },
+                                    {
+                                        'subject._sourceId': 'Group/patient1'
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            };
+
+            const result = MongoQuerySimplifier.simplifyFilter({filter: query});
+            logInfo('', {result});
+            expect(result).toStrictEqual({
+                '$or': [
+                    {
+                        '$and': [
+                            {
+                                'subject._sourceAssigningAuthority': 'C'
+                            },
+                            {
+                                'subject._sourceId': 'Patient/patient1'
+                            }
+                        ]
+                    },
+                    {
+                        '$and': [
+                            {
+                                'subject._sourceAssigningAuthority': 'C'
+                            },
+                            {
+                                'subject._sourceId': 'Group/patient1'
+                            }
+                        ]
+                    }
+                ]
+            });
+        });
         test('mongoQuerySimplifier handles empty clauses', () => {
             const query = {
                 '$and': [
