@@ -165,6 +165,89 @@ const tokenQueryBuilder = function ({target, type, field, required, exists_flag}
 };
 
 /**
+ * @name tokenQueryContainsBuilder
+ * @param {?string} target what we are searching for
+ * @param {string} type codeable concepts use a code field and identifiers use a value
+ * @param {string} field path to system and value from field
+ * @param {string|undefined} [required] the required system if specified
+ * @param {boolean|undefined} [exists_flag] whether to check for existence
+ * @return {JSON} queryBuilder
+ * Using to assign a single variable:
+ *      const queryBuilder = tokenQueryBuilder(identifier, 'value', 'identifier');
+ for (const i in queryBuilder) {
+			 query[i] = queryBuilder[i];
+		}
+ * Use in an or query
+ *      query.$or = [tokenQueryBuilder(identifier, 'value', 'identifier'), tokenQueryBuilder(type, 'code', 'type.coding')];
+ */
+const tokenQueryContainsBuilder = function ({target, type, field, required, exists_flag}) {
+    let queryBuilder = {};
+    let system = '';
+    let value;
+
+    if (target === null || exists_flag === false) {
+        queryBuilder[`${field}`] = {$exists: false};
+        return queryBuilder;
+    }
+    if (exists_flag === true) {
+        queryBuilder[`${field}`] = {$exists: true};
+        return queryBuilder;
+    }
+
+    if (target.includes('|')) {
+        [system, value] = target.split('|');
+
+    } else {
+        value = target;
+    }
+
+    if (required) {
+        system = required;
+    }
+
+    const queryBuilderElementMatch = {};
+    if (system) {
+        queryBuilder[`${field}.system`] = {
+                $regex: escapeRegExp(system),
+                $options: 'i',
+            };
+        queryBuilderElementMatch['system'] = {
+                $regex: escapeRegExp(system),
+                $options: 'i',
+            };
+    }
+
+    if (value) {
+        if (value.includes(',')) {
+            const values = value.split(',');
+            queryBuilder[`${field}.${type}`] = {
+                $regex: values.map(v => escapeRegExp(v)).join('|'),
+                $options: 'i',
+            };
+            queryBuilderElementMatch[`${type}`] = {
+                $regex: values.map(v => escapeRegExp(v)).join('|'),
+                $options: 'i',
+            };
+        } else {
+            queryBuilder[`${field}.${type}`] = {
+                $regex: escapeRegExp(value),
+                $options: 'i',
+            };
+            queryBuilderElementMatch[`${type}`] = {
+                $regex: escapeRegExp(value),
+                $options: 'i',
+            };
+        }
+    }
+
+    if (system && value) {
+        // $elemMatch so we match on BOTH system and value in the same array element
+        queryBuilder = {};
+        queryBuilder[`${field}`] = {$elemMatch: queryBuilderElementMatch};
+    }
+    return queryBuilder;
+};
+/**
  * @name exactMatchQueryBuilder
  * @param {string|boolean|null} target what we are searching for
  * @param {string} field path to system and value from field
@@ -1050,5 +1133,6 @@ module.exports = {
     dateQueryBuilderNative,
     datetimePeriodQueryBuilder,
     partialTextQueryBuilder,
-    exactMatchQueryBuilder
+    exactMatchQueryBuilder,
+    tokenQueryContainsBuilder
 };

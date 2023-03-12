@@ -532,5 +532,134 @@ describe('r4 search Tests', () => {
                 'code': 'bwell'
             });
         });
+        test('r4 works with :contains for identifier value', async () => {
+            await createTestRequest((container) => {
+                container.register('configManager', () => new MockConfigManager());
+                container.register('indexProvider', (c) => new MockIndexProvider({
+                    configManager: c.configManager
+                }));
+                container.register('accessIndexManager', (c1) => new MockAccessIndexManager({
+                    configManager: c1.configManager,
+                    indexProvider: c1.indexProvider
+                }));
+                return container;
+            });
+            const container = getTestContainer();
+            /**
+             * @type {R4SearchQueryCreator}
+             */
+            const r4SearchQueryCreator = container.r4SearchQueryCreator;
+            /**
+             * @type {R4ArgsParser}
+             */
+            const r4ArgsParser = container.r4ArgsParser;
+
+            const args = {
+                'base_version': VERSIONS['4_0_0'],
+                'identifier:contains': '465',
+            };
+            const result = r4SearchQueryCreator.buildR4SearchQuery({
+                resourceType: 'Patient',
+                parsedArgs: r4ArgsParser.parseArgs({resourceType: 'Patient', args})
+            });
+            expect(result.query).toStrictEqual({
+                'identifier.value': {
+                    '$regex': '465',
+                    '$options': 'i'
+                }
+            });
+        });
+        test('r4 works with :contains for identifier multiple values', async () => {
+            await createTestRequest((container) => {
+                container.register('configManager', () => new MockConfigManager());
+                container.register('indexProvider', (c) => new MockIndexProvider({
+                    configManager: c.configManager
+                }));
+                container.register('accessIndexManager', (c1) => new MockAccessIndexManager({
+                    configManager: c1.configManager,
+                    indexProvider: c1.indexProvider
+                }));
+                return container;
+            });
+            const container = getTestContainer();
+            /**
+             * @type {R4SearchQueryCreator}
+             */
+            const r4SearchQueryCreator = container.r4SearchQueryCreator;
+            /**
+             * @type {R4ArgsParser}
+             */
+            const r4ArgsParser = container.r4ArgsParser;
+
+            const args = {
+                'base_version': VERSIONS['4_0_0'],
+                'identifier:contains': '465,789',
+            };
+            const result = r4SearchQueryCreator.buildR4SearchQuery({
+                resourceType: 'Patient',
+                parsedArgs: r4ArgsParser.parseArgs({resourceType: 'Patient', args})
+            });
+            expect(result.query).toStrictEqual({
+                '$or': [
+                    {
+                        'identifier.value': {
+                            '$options': 'i',
+                            '$regex': '465'
+                        }
+                    },
+                    {
+                        'identifier.value': {
+                            '$options': 'i',
+                            '$regex': '789'
+                        }
+                    }
+                ]
+            });
+        });
+        test('r4 works with :contains for identifier value and system', async () => {
+            await createTestRequest((container) => {
+                container.register('configManager', () => new MockConfigManager());
+                container.register('indexProvider', (c) => new MockIndexProvider({
+                    configManager: c.configManager
+                }));
+                container.register('accessIndexManager', (c1) => new MockAccessIndexManager({
+                    configManager: c1.configManager,
+                    indexProvider: c1.indexProvider
+                }));
+                return container;
+            });
+            const container = getTestContainer();
+            /**
+             * @type {R4SearchQueryCreator}
+             */
+            const r4SearchQueryCreator = container.r4SearchQueryCreator;
+            /**
+             * @type {R4ArgsParser}
+             */
+            const r4ArgsParser = container.r4ArgsParser;
+
+            const args = {
+                'base_version': VERSIONS['4_0_0'],
+                'identifier:contains': 'foo|465',
+            };
+            const result = r4SearchQueryCreator.buildR4SearchQuery({
+                resourceType: 'Patient',
+                parsedArgs: r4ArgsParser.parseArgs({resourceType: 'Patient', args})
+            });
+            expect(result.query).toStrictEqual({
+                'identifier': {
+                    '$elemMatch': {
+                        'system': {
+                            '$options': 'i',
+                            '$regex': 'foo'
+                        },
+                        'value': {
+                            '$options': 'i',
+                            '$regex': '465'
+                        }
+                    }
+                }
+            });
+        });
     });
 });
