@@ -28,9 +28,10 @@ class R4ArgsParser {
      * parses args
      * @param {string} resourceType
      * @param {Object} args
+     * @param {boolean|undefined} [useOrFilterForArrays]  whether to use OR filters for arrays
      * @return {ParsedArgs}
      */
-    parseArgs({resourceType, args}) {
+    parseArgs({resourceType, args, useOrFilterForArrays}) {
         /**
          * @type {ParsedArgsItem[]}
          */
@@ -111,7 +112,7 @@ class R4ArgsParser {
                         queryParameter,
                         queryParameterValue: new QueryParameterValue({
                             value: queryParameterValue,
-                            operator: '$and'
+                            operator: useOrFilterForArrays ? '$or' : '$and'
                         }),
                         propertyObj,
                         modifiers
@@ -140,7 +141,7 @@ class R4ArgsParser {
                     queryParameter,
                     queryParameterValue: new QueryParameterValue({
                         value: queryParameterValue,
-                        operator: '$and'
+                        operator: useOrFilterForArrays ? '$or' : '$and'
                     }),
                     propertyObj,
                     modifiers

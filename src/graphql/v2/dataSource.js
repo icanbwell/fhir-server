@@ -1,7 +1,7 @@
 const {logWarn} = require('../../operations/common/logging');
 const async = require('async');
 const DataLoader = require('dataloader');
-const { REFERENCE_EXTENSION_DATA_MAP } = require('../../constants');
+const {REFERENCE_EXTENSION_DATA_MAP} = require('../../constants');
 const {groupByLambda} = require('../../utils/list.util');
 const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
 const {R4ArgsParser} = require('../../operations/query/r4ArgsParser');
@@ -144,7 +144,7 @@ class FhirDataSource {
                         .filter((r) => r !== null);
                     const args1 = {
                         base_version: '4_0_0',
-                        id: idsOfReference,
+                        id: idsOfReference.join(','),
                         _bundle: '1',
                         ...args,
                     };
@@ -211,9 +211,9 @@ class FhirDataSource {
         if (!reference) {
             return null;
         }
-        if (!reference.reference){
+        if (!reference.reference) {
             let possibleResourceType = reference.type;
-            if (!possibleResourceType && info.returnType && info.returnType._types && info.returnType._types.length > 0){
+            if (!possibleResourceType && info.returnType && info.returnType._types && info.returnType._types.length > 0) {
                 possibleResourceType = info.returnType._types[0].name;
             }
             return this.enrichResourceWithReferenceData({}, reference, possibleResourceType);
@@ -431,7 +431,12 @@ class FhirDataSource {
         /**
          * @type {ParsedArgs}
          */
-        let parsedArgs = this.r4ArgsParser.parseArgs({resourceType, args});
+        let parsedArgs = this.r4ArgsParser.parseArgs(
+            {
+                resourceType, args,
+                useOrFilterForArrays: true // in GraphQL we get arrays where we want to OR between the elements
+            }
+        );
         // see if any query rewriters want to rewrite the args
         parsedArgs = await this.queryRewriterManager.rewriteArgsAsync(
             {
@@ -460,7 +465,7 @@ class FhirDataSource {
             let extension = (resource && resource.extension) || [];
             dataToEnrich.forEach(dataKey => {
                 if (reference[`${dataKey}`]) {
-                    const extensionData = { ...dataExtensionMap[`${dataKey}`] };
+                    const extensionData = {...dataExtensionMap[`${dataKey}`]};
                     extensionData[extensionData['valueKey']] = reference[`${dataKey}`];
                     delete extensionData['valueKey'];
                     extension.push(extensionData);
@@ -468,7 +473,7 @@ class FhirDataSource {
             });
             resource = resource || {};
             resource.extension = extension;
-            if (!resource.resourceType){
+            if (!resource.resourceType) {
                 resource.resourceType = resourceType;
             }
         }
