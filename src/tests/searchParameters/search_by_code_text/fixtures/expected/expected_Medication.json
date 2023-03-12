@@ -277,7 +277,7 @@
         "system": "https://www.icanbwell.com/queryOptions"
       },
       {
-        "display": "['code','id']",
+        "display": "['code.text','code.coding.display','id']",
         "system": "https://www.icanbwell.com/queryFields"
       },
       {

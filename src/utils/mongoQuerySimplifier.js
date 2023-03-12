@@ -159,7 +159,7 @@ class MongoQuerySimplifier {
      * @return {boolean}
      */
     static isFilter(value) {
-        return !Array.isArray(value) && !(value instanceof Date) && (value instanceof Object);
+        return !Array.isArray(value) && !(value instanceof Date) && !(value instanceof RegExp) && (value instanceof Object);
     }
 
     /**

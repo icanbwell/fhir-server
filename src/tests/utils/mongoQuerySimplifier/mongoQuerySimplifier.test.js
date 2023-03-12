@@ -276,5 +276,54 @@ describe('mongoQuerySimplifier Tests', () => {
                 ]
             });
         });
+        test('mongoQuerySimplifier handles regex clauses', () => {
+            const query = {
+                '$and': [
+                    {
+                        '$or': [
+                            {
+                                '$and': [
+                                    {
+                                        '$or': [
+                                            {
+                                                'code.text': {
+                                                    '$regex': new RegExp(/prednisoLONE/),
+                                                    '$options': 'i'
+                                                }
+                                            },
+                                            {
+                                                'code.coding.display': {
+                                                    '$regex': new RegExp(/prednisoLONE/),
+                                                    '$options': 'i'
+                                                }
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            };
+
+            const result = MongoQuerySimplifier.simplifyFilter({filter: query});
+            logInfo('', {result});
+            expect(result).toStrictEqual({
+                '$or': [
+                    {
+                        'code.text': {
+                            '$regex': new RegExp(/prednisoLONE/),
+                            '$options': 'i'
+                        }
+                    },
+                    {
+                        'code.coding.display': {
+                            '$regex': new RegExp(/prednisoLONE/),
+                            '$options': 'i'
+                        }
+                    }
+                ]
+            });
+        });
     });
 });
