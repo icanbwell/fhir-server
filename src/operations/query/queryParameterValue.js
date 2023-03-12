@@ -27,6 +27,9 @@ class QueryParameterValue {
          * @type {QueryParameterType}
          */
         this.operator = operator;
+        if (typeof value === 'string' && value.includes(',')) {
+            this.operator = '$or';
+        }
         assertIsValid(['$or', '$and'].includes(operator), `operator ${operator} is not in $or, $and`);
     }
 

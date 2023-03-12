@@ -15,6 +15,19 @@ class MongoQuerySimplifier {
         }
         if (filter.$or && filter.$or.length > 0) {
             filter.$or = filter.$or.map(f => this.simplifyFilter({filter: f}));
+            const indexesToSplice = [];
+            for (const [subFilterIndex, subFilter] of filter.$or.entries()) {
+                if (this.isFilter(subFilter) && subFilter.$or) {
+                    const andFilters = subFilter.$or;
+                    // eslint-disable-next-line no-loop-func
+                    andFilters.forEach(af => filter.$or.push(af));
+                    indexesToSplice.push(subFilterIndex);
+                }
+            }
+            if (indexesToSplice.length > 0) {
+                filter.$or = filter.$or.filter((item, index) => !indexesToSplice.includes(index));
+            }
+
         }
         if (filter.$or && filter.$or.length === 1) {
             filter = filter.$or[0];
