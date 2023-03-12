@@ -99,6 +99,7 @@ describe('GraphQL Patient Tests', () => {
             resp = await request.get('/4_0_0/Practitioner/').set(getHeaders()).expect(200);
             expect(resp.body.length).toBe(2);
 
+            expect(getRequestId(resp)).not.toBeUndefined();
             await postRequestProcessor.waitTillDoneAsync({requestId: getRequestId(resp)});
             const auditEntries = await internalAuditEventCollection.find({}).toArray();
             console.log(JSON.stringify(auditEntries));

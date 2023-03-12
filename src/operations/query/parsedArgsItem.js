@@ -2,6 +2,7 @@ const {ParsedReferenceItem} = require('./parsedReferenceItem');
 const {assertIsValid, assertTypeEquals} = require('../../utils/assertType');
 const {QueryParameterValue} = require('./queryParameterValue');
 const {SearchParameterDefinition} = require('../../searchParameters/searchParameterTypes');
+const {ReferenceParser} = require('../../utils/referenceParser');
 
 /**
  * @classdesc This class holds the parsed structure for an arg on the url
@@ -112,30 +113,17 @@ class ParsedArgsItem {
         // 1. Patient/123,456
         // 2. 123,456
         // 3. Patient/123, Patient/456
-        /**
-         * @type {string|null}
-         */
-        let resourceType = null;
         if (queryParameterValues) {
             assertIsValid(Array.isArray(queryParameterValues), `queryParameterValues is not an array but ${typeof queryParameterValues}`);
             for (const /** @type {string} */ val of queryParameterValues) {
-                const valueParts = val.split('/');
-                /**
-                 * @type {string}
-                 */
-                let id;
-                if (valueParts.length > 1) {
-                    resourceType = valueParts[0];
-                    id = valueParts[1];
-                } else {
-                    id = valueParts[0];
-                }
+                const {resourceType, id, sourceAssigningAuthority} = ReferenceParser.parseReference(val);
                 if (resourceType) {
                     // resource type was specified
                     result.push(
                         new ParsedReferenceItem({
                             resourceType,
-                            id
+                            id,
+                            sourceAssigningAuthority
                         })
                     );
                 } else {
@@ -143,7 +131,8 @@ class ParsedArgsItem {
                         result.push(
                             new ParsedReferenceItem({
                                 resourceType: target,
-                                id
+                                id,
+                                sourceAssigningAuthority
                             })
                         );
                     }
@@ -161,7 +150,7 @@ class ParsedArgsItem {
                 queryParameterValue: this._queryParameterValue.clone(),
                 propertyObj: this.propertyObj,
                 modifiers: this.modifiers,
-                references: this.references
+                references: this.references ? this.references.map(r => r.clone()) : undefined
             }
         );
     }

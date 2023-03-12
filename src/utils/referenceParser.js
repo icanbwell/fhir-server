@@ -1,4 +1,5 @@
 const {isUuid} = require('./uid.util');
+const {UrlParser} = require('./urlParser');
 
 class ReferenceParser {
     /**
@@ -8,6 +9,9 @@ class ReferenceParser {
      * @return {{ resourceType: string|undefined, id: string, sourceAssigningAuthority: string|undefined}}
      */
     static parseReference(reference) {
+        if (UrlParser.isUrl(reference)) { // is a url so don't try to parse
+            return {id: reference};
+        }
         const parts = reference.split('/');
         let resourceType;
         let id;

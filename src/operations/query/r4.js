@@ -19,15 +19,7 @@ const {FilterByPartialText} = require('./filters/partialText');
 const {FilterById} = require('./filters/id');
 const {MongoQuerySimplifier} = require('../../utils/mongoQuerySimplifier');
 const {FilterParameters} = require('./filters/filterParameters');
-
-function isUrl(queryParameterValue) {
-    return typeof queryParameterValue === 'string' &&
-        (
-            queryParameterValue.startsWith('http://') ||
-            queryParameterValue.startsWith('https://') ||
-            queryParameterValue.startsWith('ftp://')
-        );
-}
+const {UrlParser} = require('../../utils/urlParser');
 
 class R4SearchQueryCreator {
     /**
@@ -212,7 +204,7 @@ class R4SearchQueryCreator {
                     }
                     break;
                 case fhirFilterTypes.reference:
-                    if (isUrl(queryParameterValue)) {
+                    if (UrlParser.isUrl(queryParameterValue)) {
                         andSegments = new FilterByCanonical(filterParameters).filter();
                     } else {
                         andSegments = new FilterByReference(filterParameters).filter();
