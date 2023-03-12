@@ -111,7 +111,7 @@ class R4ArgsParser {
                         queryParameter,
                         queryParameterValue: new QueryParameterValue({
                             value: queryParameterValue,
-                            operator: Array.isArray(queryParameterValue) ? 'and' : undefined
+                            operator: '$and'
                         }),
                         propertyObj,
                         modifiers
