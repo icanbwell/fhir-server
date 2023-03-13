@@ -17,7 +17,7 @@ const {DatabaseBulkInserter} = require('../../dataLayer/databaseBulkInserter');
 const {SecurityTagSystem} = require('../../utils/securityTagSystem');
 const {ResourceMerger} = require('../common/resourceMerger');
 const {getCircularReplacer} = require('../../utils/getCircularReplacer');
-const {ParsedArgs} = require('../query/parsedArgsItem');
+const {ParsedArgs} = require('../query/parsedArgs');
 const {ConfigManager} = require('../../utils/configManager');
 const {FhirResourceCreator} = require('../../fhir/fhirResourceCreator');
 

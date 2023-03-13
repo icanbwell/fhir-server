@@ -1,59 +1,45 @@
+const {BaseFilter} = require('./baseFilter');
+
 /**
- * filters by above FHIR search parameters
+ * @classdesc filters by above FHIR search parameters
  * https://www.hl7.org/fhir/search.html#modifiers
- * @param {SearchParameterDefinition} propertyObj
- * @param {string} queryParameterValue
- * @param {Set} columns
  * @return {import('mongodb').Filter<import('mongodb').DefaultSchema>[]}
  */
-function filterByAbove({propertyObj, queryParameterValue, columns}) {
+class FilterByAbove extends BaseFilter {
     /**
-     * @type {Object[]}
+     * @param {string} field
+     * @param {string} value
+     * @return {import('mongodb').Filter<import('mongodb').DefaultSchema>|import('mongodb').Filter<import('mongodb').DefaultSchema>[]}
      */
-    const and_segments = [];
-    // handle check for above the passed in  value
-    and_segments.push({
-        '$or': Array.from(columns).map(c => {
-            return {
-                [c]: {
-                    $gt: queryParameterValue,
-                },
-            };
-        })
-    });
-    columns.add(`${propertyObj.field}`);
-    return and_segments;
+    filterByItem(field, value) {
+        return {
+            [this.fieldMapper.getFieldName(field)]: {
+                $gt: value,
+            }
+        };
+    }
 }
 
 /**
- * filters by below FHIR search parameters
+ * @classdesc filters by below FHIR search parameters
  * https://www.hl7.org/fhir/search.html#modifiers
- * @param {import('../../common/types').SearchParameterDefinition} propertyObj
- * @param {string} queryParameterValue
- * @param {Set} columns
- * @return {Object[]}
  */
-function filterByBelow({propertyObj, queryParameterValue, columns}) {
+class FilterByBelow extends BaseFilter {
     /**
-     * @type {Object[]}
+     * @param {string} field
+     * @param {string} value
+     * @return {import('mongodb').Filter<import('mongodb').DefaultSchema>}
      */
-    const and_segments = [];
-    // handle check for below the passed in value
-    and_segments.push({
-        '$or': Array.from(columns).map(c => {
-            return {
-                [c]: {
-                    lt: queryParameterValue,
-                },
-            };
-        })
-    });
-    columns.add(`${propertyObj.field}`);
-    return and_segments;
+    filterByItem(field, value) {
+        return {
+            [this.fieldMapper.getFieldName(field)]: {
+                $lt: value,
+            }
+        };
+    }
 }
 
-
 module.exports = {
-    filterByBelow,
-    filterByAbove
+    FilterByAbove,
+    FilterByBelow
 };

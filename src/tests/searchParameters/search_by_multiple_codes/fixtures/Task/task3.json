@@ -1,0 +1,73 @@
+{
+  "resourceType": "Task",
+  "id": "4a33a7e6-41cc-4646-8a09-6b964c0cf1c1",
+  "meta": {
+    "source": "bwell",
+    "versionId": "1",
+    "lastUpdated": "2023-02-27T11:41:36.000Z",
+    "security": [{
+      "system": "https://www.icanbwell.com/access",
+      "code": "bwell"
+    }, {
+      "system": "https://www.icanbwell.com/owner",
+      "code": "bwell"
+    }, {
+      "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+      "code": "bwell"
+    }]
+  },
+  "extension": [{
+    "url": "https://www.icanbwell.com/activityRedirectUrl",
+    "valueString": "/find-a-doctor/"
+  }, {
+    "url": "https://www.icanbwell.com/activityContentId",
+    "valueString": "1bcc972e-0e9b-11ed-a121-f239354a0b36"
+  }, {
+    "url": "https://www.icanbwell.com/activityPoints",
+    "valueInteger": 800
+  }, {
+    "url": "https://www.icanbwell.com/activityCompletionMethod",
+    "valueString": "Manual"
+  }, {
+    "url": "https://www.icanbwell.com/contentButtonText",
+    "valueString": "Complete"
+  }],
+  "identifier": [{
+    "id": "sourceId",
+    "system": "https://www.icanbwell.com/sourceId",
+    "value": "4a33a7e6-41cc-4646-8a09-6b964c0cf1c1"
+  }, {
+    "id": "uuid",
+    "system": "https://www.icanbwell.com/uuid",
+    "value": "4a33a7e6-41cc-4646-8a09-6b964c0cf1c1"
+  }],
+  "instantiatesCanonical": "https://fhir.dev-ue1.bwell.zone/4_0_0/ActivityDefinition/545110b2-d9af-4f15-b978-417ceb27db36",
+  "status": "completed",
+  "code": {
+    "coding": [{
+      "system": "https://www.icanbwell.com/activityType",
+      "code": "health-activity"
+    },
+    {
+      "system": "https://www.icanbwell.com/activityTopic",
+      "code": "prevention"
+    }]
+  },
+  "for": {
+    "extension": [{
+      "id": "sourceId",
+      "url": "https://www.icanbwell.com/sourceId",
+      "valueString": "Patient/bd327f5d-adcb-4c90-b407-14ccf564c511"
+    }, {
+      "id": "uuid",
+      "url": "https://www.icanbwell.com/uuid",
+      "valueString": "Patient/bd327f5d-adcb-4c90-b407-14ccf564c511"
+    }, {
+      "id": "sourceAssigningAuthority",
+      "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+      "valueString": "bwell"
+    }],
+    "reference": "Patient/bd327f5d-adcb-4c90-b407-14ccf564c511",
+    "display": "Test Test2"
+  }
+}

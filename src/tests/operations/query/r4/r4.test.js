@@ -98,6 +98,7 @@ describe('r4 search Tests', () => {
                 resourceType: 'AuditEvent',
                 parsedArgs: r4ArgsParser.parseArgs({resourceType: 'AuditEvent', args})
             });
+            expect(result.query.$and['2'].recorded.$gte).toStrictEqual(new Date('2021-09-19T00:00:00Z'));
             expect(result.query.$and['1'].recorded.$lt).toStrictEqual(new Date('2021-09-22T00:00:00.000Z'));
             expect(result.query.$and['0']['meta.security.code']).toBe('https://www.icanbwell.com/access%7Cfoobar');
         });
@@ -295,8 +296,7 @@ describe('r4 search Tests', () => {
                 resourceType: 'Task',
                 parsedArgs: r4ArgsParser.parseArgs({resourceType: 'Task', args})
             });
-            expect(result.query.$or['0']['code.coding.code']).toStrictEqual('1234');
-            expect(result.query.$or['1']['code.coding.code']).toStrictEqual('4567');
+            expect(result.query['code.coding.code'].$in).toStrictEqual(['1234', '4567']);
         });
         test('r4 works with Task and multiple subjects with reference type', async () => {
             await createTestRequest((container) => {
@@ -496,6 +496,437 @@ describe('r4 search Tests', () => {
                 'system': 'https://www.icanbwell.com/access',
                 'code': 'bwell'
             });
+        });
+        test('r4 works with :not for _security', async () => {
+            await createTestRequest((container) => {
+                container.register('configManager', () => new MockConfigManager());
+                container.register('indexProvider', (c) => new MockIndexProvider({
+                    configManager: c.configManager
+                }));
+                container.register('accessIndexManager', (c1) => new MockAccessIndexManager({
+                    configManager: c1.configManager,
+                    indexProvider: c1.indexProvider
+                }));
+                return container;
+            });
+            const container = getTestContainer();
+            /**
+             * @type {R4SearchQueryCreator}
+             */
+            const r4SearchQueryCreator = container.r4SearchQueryCreator;
+            /**
+             * @type {R4ArgsParser}
+             */
+            const r4ArgsParser = container.r4ArgsParser;
+
+            const args = {
+                'base_version': VERSIONS['4_0_0'],
+                '_security:not': 'https://www.icanbwell.com/access|bwell',
+            };
+            const result = r4SearchQueryCreator.buildR4SearchQuery({
+                resourceType: 'Patient',
+                parsedArgs: r4ArgsParser.parseArgs({resourceType: 'Patient', args})
+            });
+            expect(result.query.$nor['0']['meta.security'].$elemMatch).toStrictEqual({
+                'system': 'https://www.icanbwell.com/access',
+                'code': 'bwell'
+            });
+        });
+        test('r4 works with :contains for identifier value', async () => {
+            await createTestRequest((container) => {
+                container.register('configManager', () => new MockConfigManager());
+                container.register('indexProvider', (c) => new MockIndexProvider({
+                    configManager: c.configManager
+                }));
+                container.register('accessIndexManager', (c1) => new MockAccessIndexManager({
+                    configManager: c1.configManager,
+                    indexProvider: c1.indexProvider
+                }));
+                return container;
+            });
+            const container = getTestContainer();
+            /**
+             * @type {R4SearchQueryCreator}
+             */
+            const r4SearchQueryCreator = container.r4SearchQueryCreator;
+            /**
+             * @type {R4ArgsParser}
+             */
+            const r4ArgsParser = container.r4ArgsParser;
+
+            const args = {
+                'base_version': VERSIONS['4_0_0'],
+                'identifier:contains': '465',
+            };
+            const result = r4SearchQueryCreator.buildR4SearchQuery({
+                resourceType: 'Patient',
+                parsedArgs: r4ArgsParser.parseArgs({resourceType: 'Patient', args})
+            });
+            expect(result.query).toStrictEqual({
+                'identifier.value': {
+                    '$regex': '465',
+                    '$options': 'i'
+                }
+            });
+        });
+        test('r4 works with :contains for identifier multiple values', async () => {
+            await createTestRequest((container) => {
+                container.register('configManager', () => new MockConfigManager());
+                container.register('indexProvider', (c) => new MockIndexProvider({
+                    configManager: c.configManager
+                }));
+                container.register('accessIndexManager', (c1) => new MockAccessIndexManager({
+                    configManager: c1.configManager,
+                    indexProvider: c1.indexProvider
+                }));
+                return container;
+            });
+            const container = getTestContainer();
+            /**
+             * @type {R4SearchQueryCreator}
+             */
+            const r4SearchQueryCreator = container.r4SearchQueryCreator;
+            /**
+             * @type {R4ArgsParser}
+             */
+            const r4ArgsParser = container.r4ArgsParser;
+
+            const args = {
+                'base_version': VERSIONS['4_0_0'],
+                'identifier:contains': '465,789',
+            };
+            const result = r4SearchQueryCreator.buildR4SearchQuery({
+                resourceType: 'Patient',
+                parsedArgs: r4ArgsParser.parseArgs({resourceType: 'Patient', args})
+            });
+            expect(result.query).toStrictEqual({
+                '$or': [
+                    {
+                        'identifier.value': {
+                            '$options': 'i',
+                            '$regex': '465'
+                        }
+                    },
+                    {
+                        'identifier.value': {
+                            '$options': 'i',
+                            '$regex': '789'
+                        }
+                    }
+                ]
+            });
+        });
+        test('r4 works with :contains for identifier value and system', async () => {
+            await createTestRequest((container) => {
+                container.register('configManager', () => new MockConfigManager());
+                container.register('indexProvider', (c) => new MockIndexProvider({
+                    configManager: c.configManager
+                }));
+                container.register('accessIndexManager', (c1) => new MockAccessIndexManager({
+                    configManager: c1.configManager,
+                    indexProvider: c1.indexProvider
+                }));
+                return container;
+            });
+            const container = getTestContainer();
+            /**
+             * @type {R4SearchQueryCreator}
+             */
+            const r4SearchQueryCreator = container.r4SearchQueryCreator;
+            /**
+             * @type {R4ArgsParser}
+             */
+            const r4ArgsParser = container.r4ArgsParser;
+
+            const args = {
+                'base_version': VERSIONS['4_0_0'],
+                'identifier:contains': 'foo|465',
+            };
+            const result = r4SearchQueryCreator.buildR4SearchQuery({
+                resourceType: 'Patient',
+                parsedArgs: r4ArgsParser.parseArgs({resourceType: 'Patient', args})
+            });
+            expect(result.query).toStrictEqual({
+                'identifier': {
+                    '$elemMatch': {
+                        'system': {
+                            '$options': 'i',
+                            '$regex': 'foo'
+                        },
+                        'value': {
+                            '$options': 'i',
+                            '$regex': '465'
+                        }
+                    }
+                }
+            });
+        });
+        test('r4 works with :contains for name in Patient', async () => {
+            await createTestRequest((container) => {
+                container.register('configManager', () => new MockConfigManager());
+                container.register('indexProvider', (c) => new MockIndexProvider({
+                    configManager: c.configManager
+                }));
+                container.register('accessIndexManager', (c1) => new MockAccessIndexManager({
+                    configManager: c1.configManager,
+                    indexProvider: c1.indexProvider
+                }));
+                return container;
+            });
+            const container = getTestContainer();
+            /**
+             * @type {R4SearchQueryCreator}
+             */
+            const r4SearchQueryCreator = container.r4SearchQueryCreator;
+            /**
+             * @type {R4ArgsParser}
+             */
+            const r4ArgsParser = container.r4ArgsParser;
+
+            const args = {
+                'base_version': VERSIONS['4_0_0'],
+                'given:contains': 'foo',
+            };
+            const result = r4SearchQueryCreator.buildR4SearchQuery({
+                resourceType: 'Patient',
+                parsedArgs: r4ArgsParser.parseArgs({resourceType: 'Patient', args})
+            });
+            expect(result.query).toStrictEqual({
+                'name.given': {
+                    '$options': 'i',
+                    '$regex': 'foo'
+                }
+            });
+        });
+        test('r4 works with :contains for gender in Patient', async () => {
+            await createTestRequest((container) => {
+                container.register('configManager', () => new MockConfigManager());
+                container.register('indexProvider', (c) => new MockIndexProvider({
+                    configManager: c.configManager
+                }));
+                container.register('accessIndexManager', (c1) => new MockAccessIndexManager({
+                    configManager: c1.configManager,
+                    indexProvider: c1.indexProvider
+                }));
+                return container;
+            });
+            const container = getTestContainer();
+            /**
+             * @type {R4SearchQueryCreator}
+             */
+            const r4SearchQueryCreator = container.r4SearchQueryCreator;
+            /**
+             * @type {R4ArgsParser}
+             */
+            const r4ArgsParser = container.r4ArgsParser;
+
+            const args = {
+                'base_version': VERSIONS['4_0_0'],
+                'gender:contains': 'foo',
+            };
+            const result = r4SearchQueryCreator.buildR4SearchQuery({
+                resourceType: 'Patient',
+                parsedArgs: r4ArgsParser.parseArgs({resourceType: 'Patient', args})
+            });
+            expect(result.query).toStrictEqual({
+                'gender': {
+                    '$options': 'i',
+                    '$regex': 'foo'
+                }
+            });
+        });
+        test('r4 works with depends-upon in Measure', async () => {
+            await createTestRequest((container) => {
+                container.register('configManager', () => new MockConfigManager());
+                container.register('indexProvider', (c) => new MockIndexProvider({
+                    configManager: c.configManager
+                }));
+                container.register('accessIndexManager', (c1) => new MockAccessIndexManager({
+                    configManager: c1.configManager,
+                    indexProvider: c1.indexProvider
+                }));
+                return container;
+            });
+            const container = getTestContainer();
+            /**
+             * @type {R4SearchQueryCreator}
+             */
+            const r4SearchQueryCreator = container.r4SearchQueryCreator;
+            /**
+             * @type {R4ArgsParser}
+             */
+            const r4ArgsParser = container.r4ArgsParser;
+
+            const args = {
+                'base_version': VERSIONS['4_0_0'],
+                'depends-on': 'https://fhir.dev.icanbwell.com/4_0_0/Library/AWVCN',
+            };
+            const result = r4SearchQueryCreator.buildR4SearchQuery({
+                resourceType: 'Measure',
+                parsedArgs: r4ArgsParser.parseArgs({resourceType: 'Measure', args})
+            });
+            expect(result.query).toStrictEqual(
+                {
+                    '$or': [
+                        {
+                            'relatedArtifact.resource': 'https://fhir.dev.icanbwell.com/4_0_0/Library/AWVCN'
+                        },
+                        {
+                            'library': 'https://fhir.dev.icanbwell.com/4_0_0/Library/AWVCN'
+                        }
+                    ]
+                });
+        });
+        test('r4 works with date without microseconds in Observation', async () => {
+            await createTestRequest((container) => {
+                container.register('configManager', () => new MockConfigManager());
+                container.register('indexProvider', (c) => new MockIndexProvider({
+                    configManager: c.configManager
+                }));
+                container.register('accessIndexManager', (c1) => new MockAccessIndexManager({
+                    configManager: c1.configManager,
+                    indexProvider: c1.indexProvider
+                }));
+                return container;
+            });
+            const container = getTestContainer();
+            /**
+             * @type {R4SearchQueryCreator}
+             */
+            const r4SearchQueryCreator = container.r4SearchQueryCreator;
+            /**
+             * @type {R4ArgsParser}
+             */
+            const r4ArgsParser = container.r4ArgsParser;
+
+            const args = {
+                'base_version': VERSIONS['4_0_0'],
+                'date': '2019-10-16T22:12:29',
+            };
+            const result = r4SearchQueryCreator.buildR4SearchQuery({
+                resourceType: 'Observation',
+                parsedArgs: r4ArgsParser.parseArgs({resourceType: 'Observation', args})
+            });
+            expect(result.query).toStrictEqual(
+                {
+                    '$or': [
+                        {
+                            'effectiveDateTime': {
+                                '$options': 'i',
+                                '$regex': new RegExp(/\^\(\?:2019-10-16T22:12\)\|\(\?:2019-10-16T22:12:29\)\|\(\?:2019\$\)\|\(\?:2019-10\$\)\|\(\?:2019-10-16\$\)\|\(\?:2019-10-16T22:12Z\?\$\)/)
+                            }
+                        },
+                        {
+                            '$and': [
+                                {
+                                    'effectivePeriod.start': {
+                                        '$lte': '2019-10-16T22:12:29+00:00'
+                                    }
+                                },
+                                {
+                                    '$or': [
+                                        {
+                                            'effectivePeriod.end': {
+                                                '$gte': '2019-10-16T22:12:29+00:00'
+                                            }
+                                        },
+                                        {
+                                            'effectivePeriod.end': null
+                                        }
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            'effectiveTiming': {
+                                '$options': 'i',
+                                '$regex': new RegExp(/\^\(\?:2019-10-16T22:12\)\|\(\?:2019-10-16T22:12:29\)\|\(\?:2019\$\)\|\(\?:2019-10\$\)\|\(\?:2019-10-16\$\)\|\(\?:2019-10-16T22:12Z\?\$\)/)
+                            }
+                        },
+                        {
+                            'effectiveInstant': {
+                                '$options': 'i',
+                                '$regex': new RegExp(/\^\(\?:2019-10-16T22:12\)\|\(\?:2019-10-16T22:12:29\)\|\(\?:2019\$\)\|\(\?:2019-10\$\)\|\(\?:2019-10-16\$\)\|\(\?:2019-10-16T22:12Z\?\$\)/)
+                            }
+                        }
+                    ]
+                });
+        });
+        test.skip('r4 works with date with microseconds in Observation', async () => {
+            // TODO: Fix dateQueryBuilder() first
+            await createTestRequest((container) => {
+                container.register('configManager', () => new MockConfigManager());
+                container.register('indexProvider', (c) => new MockIndexProvider({
+                    configManager: c.configManager
+                }));
+                container.register('accessIndexManager', (c1) => new MockAccessIndexManager({
+                    configManager: c1.configManager,
+                    indexProvider: c1.indexProvider
+                }));
+                return container;
+            });
+            const container = getTestContainer();
+            /**
+             * @type {R4SearchQueryCreator}
+             */
+            const r4SearchQueryCreator = container.r4SearchQueryCreator;
+            /**
+             * @type {R4ArgsParser}
+             */
+            const r4ArgsParser = container.r4ArgsParser;
+
+            const args = {
+                'base_version': VERSIONS['4_0_0'],
+                'date': '2019-10-16T22:12:29.000Z',
+            };
+            const result = r4SearchQueryCreator.buildR4SearchQuery({
+                resourceType: 'Observation',
+                parsedArgs: r4ArgsParser.parseArgs({resourceType: 'Observation', args})
+            });
+            expect(result.query).toStrictEqual(
+                {
+                    '$or': [
+                        {
+                            'effectiveDateTime': {
+                                '$options': 'i',
+                                '$regex': new RegExp(/\^\(\?:2019-10-16T22:12\)\|\(\?:2019-10-16T22:12:29\.000Z\)\|\(\?:2019\$\)\|\(\?:2019-10\$\)\|\(\?:2019-10-16\$\)\|\(\?:2019-10-16T22:12Z\?\$\)/)
+                            }
+                        },
+                        {
+                            '$and': [
+                                {
+                                    'effectivePeriod.start': {
+                                        '$lte': '2019-10-16T22:12:29+00:00'
+                                    }
+                                },
+                                {
+                                    '$or': [
+                                        {
+                                            'effectivePeriod.end': {
+                                                '$gte': '2019-10-16T22:12:29+00:00'
+                                            }
+                                        },
+                                        {
+                                            'effectivePeriod.end': null
+                                        }
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            'effectiveTiming': {
+                                '$options': 'i',
+                                '$regex': new RegExp(/\^\(\?:2019-10-16T22:12\)\|\(\?:2019-10-16T22:12:29\.000Z\)\|\(\?:2019\$\)\|\(\?:2019-10\$\)\|\(\?:2019-10-16\$\)\|\(\?:2019-10-16T22:12Z\?\$\)/)
+                            }
+                        },
+                        {
+                            'effectiveInstant': {
+                                '$options': 'i',
+                                '$regex': new RegExp(/\^\(\?:2019-10-16T22:12\)\|\(\?:2019-10-16T22:12:29\.000Z\)\|\(\?:2019\$\)\|\(\?:2019-10\$\)\|\(\?:2019-10-16\$\)\|\(\?:2019-10-16T22:12Z\?\$\)/)
+                            }
+                        }
+                    ]
+                });
         });
     });
 });

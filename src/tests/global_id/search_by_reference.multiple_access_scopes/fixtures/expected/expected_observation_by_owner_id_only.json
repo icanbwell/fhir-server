@@ -103,7 +103,7 @@
         "system": "https://www.icanbwell.com/queryOptions"
       },
       {
-        "display": "['subject.reference','meta.security.system','meta.security.code','id']",
+        "display": "['subject._sourceId','meta.security.system','meta.security.code','id']",
         "system": "https://www.icanbwell.com/queryFields"
       },
       {

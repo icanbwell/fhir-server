@@ -1,52 +1,41 @@
 const {partialTextQueryBuilder} = require('../../../utils/querybuilder.util');
+const {BaseFilter} = require('./baseFilter');
 
 /**
- * Filters by missing
+ * @classdesc Filters by missing
  * https://www.hl7.org/fhir/search.html#modifiers
- * @param {Object} args
- * @param {string} queryParameterValue
- * @param {SearchParameterDefinition} propertyObj
- * @param {Set} columns
- * @return {import('mongodb').Filter<import('mongodb').DefaultSchema>[]}
  */
-function filterByPartialText({queryParameterValue, propertyObj, columns}) {
+class FilterByPartialText extends BaseFilter {
     /**
-     * @type {Object[]}
+     * @param {string} field
+     * @param {string} value
+     * @return {import('mongodb').Filter<import('mongodb').DefaultSchema>|import('mongodb').Filter<import('mongodb').DefaultSchema>[]}
      */
-    const and_segments = [];
-    // implement the modifier for partial text search
-    // https://www.hl7.org/fhir/search.html#modifiers
-    /**
-     * @type {string}
-     */
-    const textToSearchFor = queryParameterValue;
-
-    and_segments.push(
-        {
+    filterByItem(field, value) {
+        return {
             '$or': [
                 // 1. search in text field
                 partialTextQueryBuilder(
                     {
-                        field: `${propertyObj.field}.text`,
-                        partialText: textToSearchFor,
+                        field: this.fieldMapper.getFieldName(`${field}.text`),
+                        partialText: value,
                         ignoreCase: true,
                     }
                 ),
                 // 2. search in display field for every coding
                 partialTextQueryBuilder(
                     {
-                        field: `${propertyObj.field}.coding.display`,
-                        partialText: textToSearchFor,
+                        field: this.fieldMapper.getFieldName(`${field}.coding.display`),
+                        partialText: value,
                         ignoreCase: true,
                     }
                 )
             ]
-        },
-    );
-    columns.add(`${propertyObj.field}`);
-    return and_segments;
+        };
+    }
 }
 
+
 module.exports = {
-    filterByPartialText
+    FilterByPartialText
 };

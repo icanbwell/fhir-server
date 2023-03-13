@@ -2,9 +2,11 @@ const {searchParameterQueries} = require('../../searchParameters/searchParameter
 const {STRICT_SEARCH_HANDLING, SPECIFIED_QUERY_PARAMS} = require('../../constants');
 const {BadRequestError} = require('../../utils/httpErrors');
 const {convertGraphQLParameters} = require('./convertGraphQLParameters');
-const {ParsedArgsItem, ParsedArgs} = require('./parsedArgsItem');
+const {ParsedArgsItem} = require('./parsedArgsItem');
 const {assertTypeEquals} = require('../../utils/assertType');
 const {FhirTypesManager} = require('../../fhir/fhirTypesManager');
+const {QueryParameterValue} = require('./queryParameterValue');
+const {ParsedArgs} = require('./parsedArgs');
 
 /**
  * @classdesc This classes parses an array of args into structured ParsedArgsItem array
@@ -26,9 +28,10 @@ class R4ArgsParser {
      * parses args
      * @param {string} resourceType
      * @param {Object} args
+     * @param {boolean|undefined} [useOrFilterForArrays]  whether to use OR filters for arrays
      * @return {ParsedArgs}
      */
-    parseArgs({resourceType, args}) {
+    parseArgs({resourceType, args, useOrFilterForArrays}) {
         /**
          * @type {ParsedArgsItem[]}
          */
@@ -107,7 +110,10 @@ class R4ArgsParser {
                 parseArgItems.push(
                     new ParsedArgsItem({
                         queryParameter,
-                        queryParameterValue,
+                        queryParameterValue: new QueryParameterValue({
+                            value: queryParameterValue,
+                            operator: useOrFilterForArrays ? '$or' : '$and'
+                        }),
                         propertyObj,
                         modifiers
                     })
@@ -116,12 +122,14 @@ class R4ArgsParser {
             }
 
             // set type of field in propertyObj
-            propertyObj.fieldType = this.fhirTypesManager.getTypeForField(
-                {
-                    resourceType,
-                    field: propertyObj.field
-                }
-            );
+            propertyObj.fieldType = propertyObj.fields.length > 0 ?
+                this.fhirTypesManager.getTypeForField(
+                    {
+                        resourceType,
+                        field: propertyObj.firstField
+                    }
+                ) : null;
+
             queryParameterValue = convertGraphQLParameters(
                 queryParameterValue,
                 args,
@@ -131,7 +139,10 @@ class R4ArgsParser {
             parseArgItems.push(
                 new ParsedArgsItem({
                     queryParameter,
-                    queryParameterValue,
+                    queryParameterValue: new QueryParameterValue({
+                        value: queryParameterValue,
+                        operator: useOrFilterForArrays ? '$or' : '$and'
+                    }),
                     propertyObj,
                     modifiers
                 })

@@ -12,7 +12,7 @@ const {ScopesValidator} = require('../security/scopesValidator');
 const {DatabaseBulkInserter} = require('../../dataLayer/databaseBulkInserter');
 const {getCircularReplacer} = require('../../utils/getCircularReplacer');
 const {fhirContentTypes} = require('../../utils/contentTypes');
-const {ParsedArgs} = require('../query/parsedArgsItem');
+const {ParsedArgs} = require('../query/parsedArgs');
 const {FhirResourceCreator} = require('../../fhir/fhirResourceCreator');
 
 class PatchOperation {

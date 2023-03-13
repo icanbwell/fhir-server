@@ -1,32 +1,18 @@
-const {assertIsValid} = require('../../utils/assertType');
+const {ParsedReferenceItem} = require('./parsedReferenceItem');
+const {assertIsValid, assertTypeEquals} = require('../../utils/assertType');
+const {QueryParameterValue} = require('./queryParameterValue');
+const {SearchParameterDefinition} = require('../../searchParameters/searchParameterTypes');
+const {ReferenceParser} = require('../../utils/referenceParser');
 
 /**
  * @classdesc This class holds the parsed structure for an arg on the url
  */
-class ParsedReferenceItem {
-    /**
-     * constructor
-     * @param {string|undefined} resourceType
-     * @param {string} id
-     */
-    constructor({resourceType, id}) {
-        /**
-         * @type {string|undefined}
-         */
-        this.resourceType = resourceType;
-        /**
-         * @type {string}
-         */
-        this.id = id;
-    }
-}
-
 class ParsedArgsItem {
     /**
      * constructor
      * @param {string} queryParameter
-     * @param {string | string[]} queryParameterValue
-     * @param {SearchParameterDefinition} propertyObj
+     * @param {QueryParameterValue} queryParameterValue
+     * @param {SearchParameterDefinition|undefined} propertyObj
      * @param {string[]|undefined} modifiers
      * @param {ParsedReferenceItem[]|undefined} [references]
      */
@@ -44,13 +30,17 @@ class ParsedArgsItem {
          */
         this.queryParameter = queryParameter;
         /**
-         * @type {string|string[]}
+         * @type {QueryParameterValue}
          */
         this._queryParameterValue = queryParameterValue;
+        assertTypeEquals(queryParameterValue, QueryParameterValue);
         /**
-         * @type {SearchParameterDefinition}
+         * @type {SearchParameterDefinition|undefined}
          */
         this.propertyObj = propertyObj;
+        if (propertyObj) {
+            assertTypeEquals(propertyObj, SearchParameterDefinition);
+        }
         /**
          * @type {string[]}
          */
@@ -67,39 +57,18 @@ class ParsedArgsItem {
 
     /**
      * calculates query parameter value
-     * @return {string|string[]|null}
+     * @return {QueryParameterValue|null}
      */
     get queryParameterValue() {
-        return this.parseQueryParameterValueIntoArrayIfNeeded(
-            {
-                queryParameterValue: this._queryParameterValue,
-                propertyObj: this.propertyObj
-            }
-        );
-    }
-
-    /**
-     * calculates query parameter values
-     * @return {string[]}
-     */
-    get queryParameterValues() {
-        const value = this.parseQueryParameterValueIntoArrayIfNeeded(
-            {
-                queryParameterValue: this._queryParameterValue,
-                propertyObj: this.propertyObj
-            }
-        );
-        return value === null || value === undefined ? [] : Array.isArray(value) ? value : [value];
+        return this._queryParameterValue;
     }
 
     /**
      * sets the queryParameterValue
-     * @param {string|string[]} value
+     * @param {QueryParameterValue} value
      */
     set queryParameterValue(value) {
-        if (value && Array.isArray(value)) {
-            value = value.join(',');
-        }
+        assertTypeEquals(value, QueryParameterValue);
         this._queryParameterValue = value;
         this.updateReferences();
     }
@@ -117,40 +86,18 @@ class ParsedArgsItem {
     }
 
     /**
-     * @param {string|string[]|undefined|null} queryParameterValue
-     * @param {SearchParameterDefinition} propertyObj
-     * @return {string|string[]|null}
-     */
-    // eslint-disable-next-line no-unused-vars
-    parseQueryParameterValueIntoArrayIfNeeded({queryParameterValue, propertyObj}) {
-        if (!queryParameterValue) {
-            return queryParameterValue;
-        }
-        if (Array.isArray(queryParameterValue)) {
-            return queryParameterValue;
-        }
-        if (
-            typeof queryParameterValue === 'string'
-        ) {
-            const parts = queryParameterValue.split(',');
-            if (parts.length > 1) {
-                return parts;
-            }
-        }
-
-        return queryParameterValue;
-    }
-
-    /**
      * parses a query parameter value for reference into resourceType, id
-     * @param {string|string[]} queryParameterValue
-     * @param {SearchParameterDefinition} propertyObj
+     * @param {QueryParameterValue} queryParameterValue
+     * @param {SearchParameterDefinition|undefined} propertyObj
      * @return {ParsedReferenceItem[]}
      */
     parseQueryParameterValueIntoReferences({queryParameterValue, propertyObj}) {
+        assertTypeEquals(queryParameterValue, QueryParameterValue);
         if (!propertyObj) {
             return [];
         }
+
+        assertTypeEquals(propertyObj, SearchParameterDefinition);
         if (!(propertyObj.target)) {
             return [];
         }
@@ -158,46 +105,41 @@ class ParsedArgsItem {
          * @type {ParsedReferenceItem[]}
          */
         const result = [];
-        queryParameterValue = Array.isArray(queryParameterValue) ? queryParameterValue : [queryParameterValue];
+        /**
+         * @type {string[]|null}
+         */
+        const queryParameterValues = queryParameterValue.values;
         // The forms are:
         // 1. Patient/123,456
         // 2. 123,456
         // 3. Patient/123, Patient/456
-        /**
-         * @type {string|null}
-         */
-        let resourceType = null;
-        for (const /** @type {string} */ val of queryParameterValue) {
-            const valueParts = val.split('/');
-            /**
-             * @type {string}
-             */
-            let id;
-            if (valueParts.length > 1) {
-                resourceType = valueParts[0];
-                id = valueParts[1];
-            } else {
-                id = valueParts[0];
-            }
-            if (resourceType) {
-                // resource type was specified
-                result.push(
-                    new ParsedReferenceItem({
-                        resourceType,
-                        id
-                    })
-                );
-            } else {
-                for (const target of propertyObj.target) {
+        if (queryParameterValues) {
+            assertIsValid(Array.isArray(queryParameterValues), `queryParameterValues is not an array but ${typeof queryParameterValues}`);
+            for (const /** @type {string} */ val of queryParameterValues) {
+                const {resourceType, id, sourceAssigningAuthority} = ReferenceParser.parseReference(val);
+                if (resourceType) {
+                    // resource type was specified
                     result.push(
                         new ParsedReferenceItem({
-                            resourceType: target,
-                            id
+                            resourceType,
+                            id,
+                            sourceAssigningAuthority
                         })
                     );
+                } else {
+                    for (const target of propertyObj.target) {
+                        result.push(
+                            new ParsedReferenceItem({
+                                resourceType: target,
+                                id,
+                                sourceAssigningAuthority
+                            })
+                        );
+                    }
                 }
             }
         }
+
         return result;
     }
 
@@ -205,152 +147,16 @@ class ParsedArgsItem {
         return new ParsedArgsItem(
             {
                 queryParameter: this.queryParameter,
-                queryParameterValue: this._queryParameterValue,
+                queryParameterValue: this._queryParameterValue.clone(),
                 propertyObj: this.propertyObj,
                 modifiers: this.modifiers,
-                references: this.references
+                references: this.references ? this.references.map(r => r.clone()) : undefined
             }
         );
     }
 }
 
-class ParsedArgs {
-    /**
-     * constructor
-     * @param {string} base_version
-     * @param {ParsedArgsItem[]} [parsedArgItems]
-     * @param {Object|undefined} [headers]
-     */
-    constructor({base_version, parsedArgItems = [], headers}) {
-        assertIsValid(base_version, 'base_version is missing');
-        this.base_version = base_version;
-        /**
-         * @type {ParsedArgsItem[]}
-         */
-        this.parsedArgItems = [];
-        for (const parsedArgItem of parsedArgItems) {
-            this.add(parsedArgItem);
-        }
-        /**
-         * args before query rewrites
-         * @type {ParsedArgsItem[]}
-         */
-        this.originalParsedArgItems = this.parsedArgItems.map(a => a.clone());
-
-        /**
-         * headers
-         * @type {Object|undefined}
-         */
-        this.headers = headers;
-    }
-
-    /**
-     * adds an arg
-     * @param {ParsedArgsItem} parsedArgItem
-     * @return {ParsedArgs}
-     */
-    add(parsedArgItem) {
-        /**
-         * @type {string}
-         */
-        let propertyName = parsedArgItem.queryParameter;
-        /**
-         * @type {ParsedArgsItem|undefined}
-         */
-        const existingParseArgItem = this.parsedArgItems.find(
-            a => a.queryParameter === propertyName &&
-                (a.modifiers && a.modifiers.toString()) === (parsedArgItem.modifiers && parsedArgItem.modifiers.toString())
-        );
-        if (existingParseArgItem) {
-            existingParseArgItem.queryParameterValue = parsedArgItem.queryParameterValue;
-            existingParseArgItem.propertyObj = parsedArgItem.propertyObj;
-            existingParseArgItem.modifiers = parsedArgItem.modifiers;
-        } else {
-            this.parsedArgItems.push(parsedArgItem);
-            if (parsedArgItem.modifiers && parsedArgItem.modifiers.length > 0) {
-                propertyName = propertyName + ':' + parsedArgItem.modifiers.join(':');
-            }
-            Object.defineProperty(
-                this,
-                propertyName,
-                {
-                    get: () => parsedArgItem.queryParameterValue,
-                    set: valueProvided => {
-                        parsedArgItem.queryParameterValue = valueProvided;
-                    }
-                }
-            );
-            // special case to handle backwards compatibility
-            if (propertyName === '_id') {
-                Object.defineProperty(
-                    this,
-                    'id',
-                    {
-                        get: () => parsedArgItem.queryParameterValue,
-                        set: valueProvided => {
-                            parsedArgItem.queryParameterValue = valueProvided;
-                        }
-                    }
-                );
-            }
-
-        }
-        return this;
-    }
-
-    /**
-     * get Arg
-     * @param {string} argName
-     * @return {ParsedArgsItem}
-     */
-    get(argName) {
-        return this.parsedArgItems.find(a => a.queryParameter === argName);
-    }
-
-    /**
-     * get original Arg i.e., before query rewrites
-     * @param {string} argName
-     * @return {ParsedArgsItem}
-     */
-    getOriginal(argName) {
-        return this.originalParsedArgItems.find(a => a.queryParameter === argName);
-    }
-
-    /**
-     * remove an arg item
-     * @param {string} argName
-     * @return {ParsedArgs}
-     */
-    remove(argName) {
-        this.parsedArgItems = this.parsedArgItems.filter(a => a.queryParameter !== argName);
-        return this;
-    }
-
-    /**
-     * Clone
-     * @return {ParsedArgs}
-     */
-    clone() {
-        return new ParsedArgs(
-            {
-                base_version: this.base_version,
-                parsedArgItems: this.parsedArgItems.map(p => p.clone()),
-                headers: this.headers
-            }
-        );
-    }
-
-    getRawArgs() {
-        const obj = {};
-        for (const [, /** @type {ParsedArgsItem} */ value] of Object.entries(this.parsedArgItems)) {
-            obj[`${value.queryParameter}`] = value._queryParameterValue;
-        }
-        return obj;
-    }
-}
 
 module.exports = {
-    ParsedArgsItem,
-    ParsedReferenceItem,
-    ParsedArgs
+    ParsedArgsItem
 };

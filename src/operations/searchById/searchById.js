@@ -14,7 +14,7 @@ const {isTrue} = require('../../utils/isTrue');
 const {ConfigManager} = require('../../utils/configManager');
 const {getFirstResourceOrNull} = require('../../utils/list.util');
 const {SecurityTagSystem} = require('../../utils/securityTagSystem');
-const {ParsedArgs} = require('../query/parsedArgsItem');
+const {ParsedArgs} = require('../query/parsedArgs');
 
 class SearchByIdOperation {
     /**
@@ -182,7 +182,7 @@ class SearchByIdOperation {
             const originalIdParsedArg = parsedArgs.getOriginal('id') || parsedArgs.getOriginal('_id');
             if (resources.length > 1 &&
                 originalIdParsedArg &&// in case of patient proxy lookup allow multiple resources
-                !originalIdParsedArg.queryParameterValues.some(q => q && q.startsWith('person.'))) {
+                !originalIdParsedArg.queryParameterValue.values.some(q => q && q.startsWith('person.'))) {
                 /**
                  * @type {string[]}
                  */

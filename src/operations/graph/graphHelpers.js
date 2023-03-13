@@ -23,7 +23,7 @@ const Bundle = require('../../fhir/classes/4_0_0/resources/bundle');
 const BundleRequest = require('../../fhir/classes/4_0_0/backbone_elements/bundleRequest');
 const {EnrichmentManager} = require('../../enrich/enrich');
 const {R4ArgsParser} = require('../query/r4ArgsParser');
-const {ParsedArgs} = require('../query/parsedArgsItem');
+const {ParsedArgs} = require('../query/parsedArgs');
 const {VERSIONS} = require('../../middleware/fhir/utils/constants');
 const {ReferenceParser} = require('../../utils/referenceParser');
 const {QueryItem} = require('./queryItem');
@@ -278,7 +278,7 @@ class GraphHelper {
              */
             const useAccessIndex = this.configManager.useAccessIndex;
 
-            const args = Object.assign({'base_version': base_version}, {'id': relatedReferenceIds});
+            const args = Object.assign({'base_version': base_version}, {'id': relatedReferenceIds.join(',')});
             const childParseArgs = this.r4ArgsParser.parseArgs(
                 {
                     resourceType,
@@ -1494,13 +1494,13 @@ class GraphHelper {
              */
             const idParsedArg = parsedArgs.get('id') || parsedArgs.get('_id');
             /**
-             * @type {string[]}
+             * @type {string[]|null}
              */
-            const ids = idParsedArg.queryParameterValues;
+            const ids = idParsedArg.queryParameterValue.values;
             /**
              * @type {string[][]}
              */
-            const idChunks = sliceIntoChunks(ids, this.configManager.graphBatchSize);
+            const idChunks = ids ? sliceIntoChunks(ids, this.configManager.graphBatchSize) : [];
 
             /**
              * @type {BundleEntry[]}

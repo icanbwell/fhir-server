@@ -8,7 +8,7 @@ const {ScopesValidator} = require('../security/scopesValidator');
 const {isTrue} = require('../../utils/isTrue');
 const {ConfigManager} = require('../../utils/configManager');
 const {SearchManager} = require('../search/searchManager');
-const {ParsedArgs} = require('../query/parsedArgsItem');
+const {ParsedArgs} = require('../query/parsedArgs');
 
 class SearchByVersionIdOperation {
     /**

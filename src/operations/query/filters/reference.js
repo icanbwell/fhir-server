@@ -1,15 +1,15 @@
 const {referenceQueryBuilderOptimized} = require('../../../utils/querybuilder.util');
-const {getIndexHints} = require('../../common/getIndexHints');
 const {isUuid} = require('../../../utils/uid.util');
+const {BaseFilter} = require('./baseFilter');
 
 /**
  * Get reference id filter
  * @param {[string]} fields
  * @param {[ParsedReferenceItem]} references
  * @param {string} idField
- * @returns {*}
+ * @returns {import('mongodb').Filter<import('mongodb').DefaultSchema>[]}
  */
-function getIdFilter(fields, references, idField){
+function getIdFilter(fields, references, idField) {
     return fields.flatMap(
         field1 => {
             const field = `${field1}.${idField}`;
@@ -17,6 +17,7 @@ function getIdFilter(fields, references, idField){
                 referenceQueryBuilderOptimized({
                         target_type: reference.resourceType,
                         target: reference.id,
+                        sourceAssigningAuthority: reference.sourceAssigningAuthority,
                         field: field,
                         sourceAssigningAuthorityField: `${field1}._sourceAssigningAuthority`,
                     },
@@ -24,7 +25,7 @@ function getIdFilter(fields, references, idField){
             );
             let res = [];
             const directFieldFilterLength = query.filter(q => q[`${field}`]).length;
-            if ( directFieldFilterLength > 1) {
+            if (directFieldFilterLength > 1) {
                 res.push(
                     {
                         [`${field}`]: {
@@ -32,7 +33,7 @@ function getIdFilter(fields, references, idField){
                         },
                     },
                 );
-            } else if (directFieldFilterLength === 1){
+            } else if (directFieldFilterLength === 1) {
                 res.push(
                     {
                         [`${field}`]: query.map(q => q[`${field}`])[0],
@@ -46,81 +47,85 @@ function getIdFilter(fields, references, idField){
 }
 
 /**
- * Filters by reference
+ * @classdesc Filters by reference
  * https://www.hl7.org/fhir/search.html#reference
- * @param {ParsedArgsItem} parsedArg
- * @param {Set} columns
- * @return {import('mongodb').Filter<import('mongodb').DefaultSchema>[]}
  */
-function filterByReference({parsedArg, columns}) {
+class FilterByReference extends BaseFilter {
     /**
-     * @type {Object[]}
+     * filter function that calls filterByItem for each field and each value supplied
+     * @return {import('mongodb').Filter<import('mongodb').DefaultSchema>[]}
      */
-    const and_segments = [];
-    const propertyObj = parsedArg.propertyObj;
+    filter() {
+        /**
+         * @type {Object[]}
+         */
+        const and_segments = [];
+        const propertyObj = this.propertyObj;
 
 
-    const fields = propertyObj.fields && Array.isArray(propertyObj.fields) ?
-        propertyObj.fields :
-        [propertyObj.field];
+        const fields = this.propertyObj.fields;
 
-    /**
-     * @type {import('mongodb').Filter<import('mongodb').DefaultSchema>}
-     */
-    let filter;
-    /**
-     * @type {boolean}
-     */
-    const allReferencesAreUuids = parsedArg.references.every(reference => isUuid(reference.id));
-    /**
-     * @type {boolean}
-     */
-    const noReferencesAreUuids = !parsedArg.references.some(reference => isUuid(reference.id));
-    if (allReferencesAreUuids) {
-        //optimize by looking only in _uuid field
-        filter = {
-            $or: getIdFilter(fields, parsedArg.references, '_uuid'),
-        };
-    } else if (noReferencesAreUuids) {
-        filter = {
-            $or:
-                getIdFilter(fields, parsedArg.references, '_sourceId'),
-        };
-    } else {
-        // there is a mix of uuids and ids so we have to look in both fields
-        filter = {
-            $or: propertyObj.target.flatMap(target =>
-                fields.flatMap((field1) =>
-                    parsedArg.references.flatMap(reference =>
-                        [
-                            referenceQueryBuilderOptimized({
-                                    target_type: reference.resourceType || target,
-                                    target: reference.id,
-                                    field: `${field1}._sourceId`,
-                                    sourceAssigningAuthorityField: `${field1}._sourceAssigningAuthority`
-                                }
-                            ),
-                            referenceQueryBuilderOptimized({
-                                    target_type: reference.resourceType || target,
-                                    target: reference.id,
-                                    field: `${field1}._uuid`,
-                                    sourceAssigningAuthorityField: `${field1}._sourceAssigningAuthority`
-                                }
-                            )
-                        ]
+        /**
+         * @type {import('mongodb').Filter<import('mongodb').DefaultSchema>}
+         */
+        let filter;
+        /**
+         * @type {boolean}
+         */
+        const allReferencesAreUuids = this.parsedArg.references.every(reference => isUuid(reference.id));
+        /**
+         * @type {boolean}
+         */
+        const noReferencesAreUuids = !this.parsedArg.references.some(reference => isUuid(reference.id));
+        if (allReferencesAreUuids) {
+            //optimize by looking only in _uuid field
+            filter = {
+                $or: getIdFilter(fields, this.parsedArg.references, '_uuid'),
+            };
+        } else if (noReferencesAreUuids) {
+            filter = {
+                $or:
+                    getIdFilter(fields, this.parsedArg.references, '_sourceId'),
+            };
+        } else {
+            // there is a mix of uuids and ids so we have to look in both fields
+            filter = {
+                $or: propertyObj.target.flatMap(target =>
+                    fields.flatMap((field1) =>
+                        this.parsedArg.references.flatMap(reference =>
+                            [
+                                referenceQueryBuilderOptimized({
+                                        target_type: reference.resourceType || target,
+                                        target: reference.id,
+                                        sourceAssigningAuthority: reference.sourceAssigningAuthority,
+                                        field: `${field1}._sourceId`,
+                                        sourceAssigningAuthorityField: `${field1}._sourceAssigningAuthority`
+                                    }
+                                ),
+                                referenceQueryBuilderOptimized({
+                                        target_type: reference.resourceType || target,
+                                        target: reference.id,
+                                        sourceAssigningAuthority: reference.sourceAssigningAuthority,
+                                        field: `${field1}._uuid`,
+                                        sourceAssigningAuthorityField: `${field1}._sourceAssigningAuthority`
+                                    }
+                                )
+                            ]
+                        )
                     )
-                )
-            ),
-        };
-    }
+                ),
+            };
+        }
 
-    if (filter) {
-        and_segments.push(filter);
+        if (filter) {
+            and_segments.push(filter);
+        }
+        return and_segments;
+
     }
-    getIndexHints(columns, propertyObj, 'reference');
-    return and_segments;
 }
 
+
 module.exports = {
-    filterByReference
+    FilterByReference
 };

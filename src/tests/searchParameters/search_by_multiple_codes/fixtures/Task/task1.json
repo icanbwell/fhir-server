@@ -44,6 +44,10 @@
     "coding": [{
       "system": "https://www.icanbwell.com/activityType",
       "code": "health-activity"
+    },
+    {
+      "system": "https://www.icanbwell.com/activityTopic",
+      "code": "education"
     }]
   },
   "for": {

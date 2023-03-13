@@ -12,7 +12,7 @@ const {getFirstElementOrNull} = require('../../utils/list.util');
 const {ResourceValidator} = require('../common/resourceValidator');
 const moment = require('moment-timezone');
 const {ResourceLocatorFactory} = require('../common/resourceLocatorFactory');
-const {ParsedArgs} = require('../query/parsedArgsItem');
+const {ParsedArgs} = require('../query/parsedArgs');
 
 class GraphOperation {
     /**

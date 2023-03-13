@@ -189,7 +189,6 @@ class MergeManager {
      * merge insert
      * @param {string} requestId
      * @param {Resource} resourceToMerge
-     * @param {string} base_version
      * @param {string | null} user
      * @param {string|null} scope
      * @returns {Promise<void>}
@@ -329,7 +328,7 @@ class MergeManager {
 
                 // check if resource was found in database or not
                 if (currentResource && currentResource.meta) {
-                    if (currentResource.meta.source || resourceToMerge?.meta?.source) {
+                    if (currentResource.meta.source || (resourceToMerge && resourceToMerge.meta && resourceToMerge.meta.source)) {
                         await this.mergeExistingAsync(
                             {
                                 resourceToMerge, currentResource, user, scope, currentDate, requestId
@@ -344,7 +343,6 @@ class MergeManager {
                     await this.mergeInsertAsync({
                         requestId,
                         resourceToMerge,
-                        base_version,
                         user,
                         scope
                     });

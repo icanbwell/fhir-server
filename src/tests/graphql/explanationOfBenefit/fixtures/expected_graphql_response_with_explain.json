@@ -15,7 +15,7 @@
         "system": "https://www.icanbwell.com/queryOptions"
       },
       {
-        "display": "[['id']]",
+        "display": "[['_sourceId','id']]",
         "system": "https://www.icanbwell.com/queryFields"
       },
       {

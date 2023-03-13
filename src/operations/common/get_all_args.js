@@ -6,7 +6,7 @@ const {LENIENT_SEARCH_HANDLING} = require('../../constants');
  * @returns {Object} array of combined arguments
  */
 module.exports.get_all_args = (req, args) => {
-    // asymmetric hides certain query parameters from us so we need to get them from the context
+    // our query processor hides certain query parameters from us so we need to get them from the context
     const query_param_args = {};
     /**
      * args array
