@@ -20,6 +20,17 @@ class ParsedReferenceItem {
         this.sourceAssigningAuthority = sourceAssigningAuthority;
     }
 
+    /**
+     * returns id + sourceAssigningAuthority (if present)
+     * @return {string}
+     */
+    get idPlusSourceAssigningAuthority() {
+        if (this.sourceAssigningAuthority) {
+            return `${this.id}|${this.sourceAssigningAuthority}`;
+        }
+        return this.id;
+    }
+
     clone() {
         return new ParsedReferenceItem(
             {
