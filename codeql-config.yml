@@ -1,6 +1,6 @@
 paths:
   - src
 paths-ignore:
-  - src/admin
+  - src/dataLayer
   - src/tests
   - src/views
