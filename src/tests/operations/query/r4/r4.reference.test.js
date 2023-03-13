@@ -73,5 +73,153 @@ describe('r4 search Tests', () => {
                 }
             });
         });
+        test('single uuid reference with resourceType', async () => {
+            await createTestRequest((container) => {
+                container.register('configManager', () => new MockConfigManager());
+                container.register('indexProvider', (c) => new MockIndexProvider({
+                    configManager: c.configManager
+                }));
+                container.register('accessIndexManager', (c1) => new MockAccessIndexManager({
+                    configManager: c1.configManager,
+                    indexProvider: c1.indexProvider
+                }));
+                return container;
+            });
+            const container = getTestContainer();
+            /**
+             * @type {R4SearchQueryCreator}
+             */
+            const r4SearchQueryCreator = container.r4SearchQueryCreator;
+            /**
+             * @type {R4ArgsParser}
+             */
+            const r4ArgsParser = container.r4ArgsParser;
+            const resourceType = 'Condition';
+            const args = {
+                'base_version': VERSIONS['4_0_0'],
+                'patient': 'Patient/7708d86f-1d3e-4389-a8c6-3a88075934f1'
+            };
+            const parsedArgs = r4ArgsParser.parseArgs({resourceType: resourceType, args});
+            const result = r4SearchQueryCreator.buildR4SearchQuery({
+                resourceType: resourceType, parsedArgs: parsedArgs
+            });
+            expect(result.query).toStrictEqual({
+                'subject._uuid': 'Patient/7708d86f-1d3e-4389-a8c6-3a88075934f1'
+            });
+        });
+        test('single id reference without resourceType and sourceAssigningAuthority', async () => {
+            await createTestRequest((container) => {
+                container.register('configManager', () => new MockConfigManager());
+                container.register('indexProvider', (c) => new MockIndexProvider({
+                    configManager: c.configManager
+                }));
+                container.register('accessIndexManager', (c1) => new MockAccessIndexManager({
+                    configManager: c1.configManager,
+                    indexProvider: c1.indexProvider
+                }));
+                return container;
+            });
+            const container = getTestContainer();
+            /**
+             * @type {R4SearchQueryCreator}
+             */
+            const r4SearchQueryCreator = container.r4SearchQueryCreator;
+            /**
+             * @type {R4ArgsParser}
+             */
+            const r4ArgsParser = container.r4ArgsParser;
+            const resourceType = 'Condition';
+            const args = {
+                'base_version': VERSIONS['4_0_0'],
+                'patient': '1234'
+            };
+            const parsedArgs = r4ArgsParser.parseArgs({resourceType: resourceType, args});
+            const result = r4SearchQueryCreator.buildR4SearchQuery({
+                resourceType: resourceType, parsedArgs: parsedArgs
+            });
+            expect(result.query).toStrictEqual({
+                'subject._sourceId': {
+                    '$in': [
+                        'Patient/1234',
+                        'Group/1234'
+                    ]
+                }
+            });
+        });
+        test('single id reference with resourceType but no sourceAssigningAuthority', async () => {
+            await createTestRequest((container) => {
+                container.register('configManager', () => new MockConfigManager());
+                container.register('indexProvider', (c) => new MockIndexProvider({
+                    configManager: c.configManager
+                }));
+                container.register('accessIndexManager', (c1) => new MockAccessIndexManager({
+                    configManager: c1.configManager,
+                    indexProvider: c1.indexProvider
+                }));
+                return container;
+            });
+            const container = getTestContainer();
+            /**
+             * @type {R4SearchQueryCreator}
+             */
+            const r4SearchQueryCreator = container.r4SearchQueryCreator;
+            /**
+             * @type {R4ArgsParser}
+             */
+            const r4ArgsParser = container.r4ArgsParser;
+            const resourceType = 'Condition';
+            const args = {
+                'base_version': VERSIONS['4_0_0'],
+                'patient': 'Patient/1234'
+            };
+            const parsedArgs = r4ArgsParser.parseArgs({resourceType: resourceType, args});
+            const result = r4SearchQueryCreator.buildR4SearchQuery({
+                resourceType: resourceType, parsedArgs: parsedArgs
+            });
+            expect(result.query).toStrictEqual({
+                'subject._sourceId': 'Patient/1234'
+            });
+        });
+        test('single id reference with resourceType and sourceAssigningAuthority', async () => {
+            await createTestRequest((container) => {
+                container.register('configManager', () => new MockConfigManager());
+                container.register('indexProvider', (c) => new MockIndexProvider({
+                    configManager: c.configManager
+                }));
+                container.register('accessIndexManager', (c1) => new MockAccessIndexManager({
+                    configManager: c1.configManager,
+                    indexProvider: c1.indexProvider
+                }));
+                return container;
+            });
+            const container = getTestContainer();
+            /**
+             * @type {R4SearchQueryCreator}
+             */
+            const r4SearchQueryCreator = container.r4SearchQueryCreator;
+            /**
+             * @type {R4ArgsParser}
+             */
+            const r4ArgsParser = container.r4ArgsParser;
+            const resourceType = 'Condition';
+            const args = {
+                'base_version': VERSIONS['4_0_0'],
+                'patient': 'Patient/1234|abc'
+            };
+            const parsedArgs = r4ArgsParser.parseArgs({resourceType: resourceType, args});
+            const result = r4SearchQueryCreator.buildR4SearchQuery({
+                resourceType: resourceType, parsedArgs: parsedArgs
+            });
+            expect(result.query).toStrictEqual({
+                '$and': [
+                    {
+                        'subject._sourceAssigningAuthority': 'abc'
+                    },
+                    {
+                        'subject._sourceId': 'Patient/1234'
+                    }
+                ]
+            });
+        });
     });
 });
