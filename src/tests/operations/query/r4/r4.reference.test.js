@@ -247,7 +247,7 @@ describe('r4 search Tests', () => {
             const resourceType = 'Condition';
             const args = {
                 'base_version': VERSIONS['4_0_0'],
-                'patient': '7708d86f-1d3e-4389-a8c6-3a88075934f1,2b383507-dffb-4ab2-9e41-d6f64efa56c1'
+                'patient': '7708d86f-1d3e-4389-a8c6-3a88075934f1,6286dcd1-2e3a-42a3-8f93-41f79f3148fb1'
             };
             const parsedArgs = r4ArgsParser.parseArgs({resourceType: resourceType, args});
             const result = r4SearchQueryCreator.buildR4SearchQuery({
@@ -258,8 +258,8 @@ describe('r4 search Tests', () => {
                     '$in': [
                         'Patient/7708d86f-1d3e-4389-a8c6-3a88075934f1',
                         'Group/7708d86f-1d3e-4389-a8c6-3a88075934f1',
-                        'Patient/2b383507-dffb-4ab2-9e41-d6f64efa56c1',
-                        'Group/2b383507-dffb-4ab2-9e41-d6f64efa56c1'
+                        'Patient/6286dcd1-2e3a-42a3-8f93-41f79f3148fb1',
+                        'Group/6286dcd1-2e3a-42a3-8f93-41f79f3148fb1'
                     ]
                 }
             });
@@ -288,7 +288,7 @@ describe('r4 search Tests', () => {
             const resourceType = 'Condition';
             const args = {
                 'base_version': VERSIONS['4_0_0'],
-                'patient': 'Patient/7708d86f-1d3e-4389-a8c6-3a88075934f1,Group/2b383507-dffb-4ab2-9e41-d6f64efa56c'
+                'patient': 'Patient/7708d86f-1d3e-4389-a8c6-3a88075934f1,Group/6286dcd1-2e3a-42a3-8f93-41f79f3148fb'
             };
             const parsedArgs = r4ArgsParser.parseArgs({resourceType: resourceType, args});
             const result = r4SearchQueryCreator.buildR4SearchQuery({
@@ -298,7 +298,7 @@ describe('r4 search Tests', () => {
                 'subject._uuid': {
                     '$in': [
                         'Patient/7708d86f-1d3e-4389-a8c6-3a88075934f1',
-                        'Group/2b383507-dffb-4ab2-9e41-d6f64efa56c'
+                        'Group/6286dcd1-2e3a-42a3-8f93-41f79f3148fb'
                     ]
                 }
             });
@@ -334,7 +334,7 @@ describe('r4 search Tests', () => {
                 resourceType: resourceType, parsedArgs: parsedArgs
             });
             expect(result.query).toStrictEqual({
-                'subject._sourceid': {
+                'subject._sourceId': {
                     '$in': [
                         'Patient/123',
                         'Group/123',
@@ -375,7 +375,7 @@ describe('r4 search Tests', () => {
                 resourceType: resourceType, parsedArgs: parsedArgs
             });
             expect(result.query).toStrictEqual({
-                'subject._sourceid': {
+                'subject._sourceId': {
                     '$in': [
                         'Patient/123',
                         'Group/456'
@@ -419,11 +419,11 @@ describe('r4 search Tests', () => {
                         'subject._sourceAssigningAuthority': 'medstar'
                     },
                     {
-                        'subject._sourceid': {
+                        'subject._sourceId': {
                             '$in': [
                                 'Patient/123',
-                                'Patient/456',
                                 'Group/123',
+                                'Patient/456',
                                 'Group/456'
                             ]
                         }
@@ -467,7 +467,7 @@ describe('r4 search Tests', () => {
                         'subject._sourceAssigningAuthority': 'medstar'
                     },
                     {
-                        'subject._sourceid': {
+                        'subject._sourceId': {
                             '$in': [
                                 'Patient/123',
                                 'Group/456'
@@ -767,7 +767,7 @@ describe('r4 search Tests', () => {
                         }
                     },
                     {
-                        'subject._sourceid': {
+                        'subject._sourceId': {
                             '$in': [
                                 'Patient/123',
                                 'Group/123'
@@ -813,7 +813,7 @@ describe('r4 search Tests', () => {
                         'subject._uuid': 'Group/7708d86f-1d3e-4389-a8c6-3a88075934f1'
                     },
                     {
-                        'subject._sourceid': 'Patient/123'
+                        'subject._sourceId': 'Patient/123'
                     }
                 ]
             });
@@ -864,7 +864,7 @@ describe('r4 search Tests', () => {
                                 'subject._sourceAssigningAuthority': 'medstar'
                             },
                             {
-                                'subject._sourceid': {
+                                'subject._sourceId': {
                                     '$in': [
                                         'Patient/123',
                                         'Group/123',
@@ -917,7 +917,7 @@ describe('r4 search Tests', () => {
                                 'subject._sourceAssigningAuthority': 'medstar'
                             },
                             {
-                                'subject._sourceid': 'Patient/123'
+                                'subject._sourceId': 'Patient/123'
                             }
                         ]
                     }
