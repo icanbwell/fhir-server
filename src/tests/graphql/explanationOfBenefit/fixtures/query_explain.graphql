@@ -5,13 +5,6 @@ query {
         _count: 2
         _explain: true
     ) {
-        meta {
-            tag {
-                system
-                code
-                display
-            }
-        }
         entry {
             resource {
                 id
