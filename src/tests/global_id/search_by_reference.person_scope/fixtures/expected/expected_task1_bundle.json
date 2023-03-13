@@ -72,7 +72,7 @@
         "system": "https://www.icanbwell.com/queryCollection"
       },
       {
-        "display": "{'limit':10000,'sort':{'id':1}}",
+        "display": "{'limit':10000,'sort':{'_uuid':1}}",
         "system": "https://www.icanbwell.com/queryOptions"
       },
       {
