@@ -725,4 +725,342 @@ describe('r4 search Tests', () => {
             });
         });
     });
+    describe('r4 search mix id and uuid Tests', () => {
+        test('multiple id reference without resourceType and without sourceAssigningAuthority', async () => {
+            await createTestRequest((container) => {
+                container.register('configManager', () => new MockConfigManager());
+                container.register('indexProvider', (c) => new MockIndexProvider({
+                    configManager: c.configManager
+                }));
+                container.register('accessIndexManager', (c1) => new MockAccessIndexManager({
+                    configManager: c1.configManager,
+                    indexProvider: c1.indexProvider
+                }));
+                return container;
+            });
+            const container = getTestContainer();
+            /**
+             * @type {R4SearchQueryCreator}
+             */
+            const r4SearchQueryCreator = container.r4SearchQueryCreator;
+            /**
+             * @type {R4ArgsParser}
+             */
+            const r4ArgsParser = container.r4ArgsParser;
+            const resourceType = 'Condition';
+            const args = {
+                'base_version': VERSIONS['4_0_0'],
+                'patient': '123,7708d86f-1d3e-4389-a8c6-3a88075934f1'
+            };
+            const parsedArgs = r4ArgsParser.parseArgs({resourceType: resourceType, args});
+            const result = r4SearchQueryCreator.buildR4SearchQuery({
+                resourceType: resourceType, parsedArgs: parsedArgs
+            });
+            expect(result.query).toStrictEqual({
+                '$or': [
+                    {
+                        'subject._uuid': {
+                            '$in': [
+                                'Patient/7708d86f-1d3e-4389-a8c6-3a88075934f1',
+                                'Group/7708d86f-1d3e-4389-a8c6-3a88075934f1'
+                            ]
+                        }
+                    },
+                    {
+                        'subject._sourceid': {
+                            '$in': [
+                                'Patient/123',
+                                'Group/123'
+                            ]
+                        }
+                    }
+                ]
+            });
+        });
+        test('multiple id reference with resourceType and without sourceAssigningAuthority', async () => {
+            await createTestRequest((container) => {
+                container.register('configManager', () => new MockConfigManager());
+                container.register('indexProvider', (c) => new MockIndexProvider({
+                    configManager: c.configManager
+                }));
+                container.register('accessIndexManager', (c1) => new MockAccessIndexManager({
+                    configManager: c1.configManager,
+                    indexProvider: c1.indexProvider
+                }));
+                return container;
+            });
+            const container = getTestContainer();
+            /**
+             * @type {R4SearchQueryCreator}
+             */
+            const r4SearchQueryCreator = container.r4SearchQueryCreator;
+            /**
+             * @type {R4ArgsParser}
+             */
+            const r4ArgsParser = container.r4ArgsParser;
+            const resourceType = 'Condition';
+            const args = {
+                'base_version': VERSIONS['4_0_0'],
+                'patient': 'Patient/123,Group/7708d86f-1d3e-4389-a8c6-3a88075934f1'
+            };
+            const parsedArgs = r4ArgsParser.parseArgs({resourceType: resourceType, args});
+            const result = r4SearchQueryCreator.buildR4SearchQuery({
+                resourceType: resourceType, parsedArgs: parsedArgs
+            });
+            expect(result.query).toStrictEqual({
+                '$or': [
+                    {
+                        'subject._uuid': 'Group/7708d86f-1d3e-4389-a8c6-3a88075934f1'
+                    },
+                    {
+                        'subject._sourceid': 'Patient/123'
+                    }
+                ]
+            });
+        });
+        test('multiple id reference without resourceType and with same sourceAssigningAuthority', async () => {
+            await createTestRequest((container) => {
+                container.register('configManager', () => new MockConfigManager());
+                container.register('indexProvider', (c) => new MockIndexProvider({
+                    configManager: c.configManager
+                }));
+                container.register('accessIndexManager', (c1) => new MockAccessIndexManager({
+                    configManager: c1.configManager,
+                    indexProvider: c1.indexProvider
+                }));
+                return container;
+            });
+            const container = getTestContainer();
+            /**
+             * @type {R4SearchQueryCreator}
+             */
+            const r4SearchQueryCreator = container.r4SearchQueryCreator;
+            /**
+             * @type {R4ArgsParser}
+             */
+            const r4ArgsParser = container.r4ArgsParser;
+            const resourceType = 'Condition';
+            const args = {
+                'base_version': VERSIONS['4_0_0'],
+                'patient': '123|medstar,7708d86f-1d3e-4389-a8c6-3a88075934f1'
+            };
+            const parsedArgs = r4ArgsParser.parseArgs({resourceType: resourceType, args});
+            const result = r4SearchQueryCreator.buildR4SearchQuery({
+                resourceType: resourceType, parsedArgs: parsedArgs
+            });
+            expect(result.query).toStrictEqual({
+                '$or': [
+                    {
+                        'subject._uuid': {
+                            '$in': [
+                                'Patient/7708d86f-1d3e-4389-a8c6-3a88075934f1',
+                                'Group/7708d86f-1d3e-4389-a8c6-3a88075934f1'
+                            ]
+                        }
+                    },
+                    {
+                        '$and': [
+                            {
+                                'subject._sourceAssigningAuthority': 'medstar'
+                            },
+                            {
+                                'subject._sourceid': {
+                                    '$in': [
+                                        'Patient/123',
+                                        'Group/123',
+                                    ]
+                                }
+                            }
+                        ]
+                    }
+                ]
+            });
+        });
+        test('multiple id reference with resourceType and with same sourceAssigningAuthority', async () => {
+            await createTestRequest((container) => {
+                container.register('configManager', () => new MockConfigManager());
+                container.register('indexProvider', (c) => new MockIndexProvider({
+                    configManager: c.configManager
+                }));
+                container.register('accessIndexManager', (c1) => new MockAccessIndexManager({
+                    configManager: c1.configManager,
+                    indexProvider: c1.indexProvider
+                }));
+                return container;
+            });
+            const container = getTestContainer();
+            /**
+             * @type {R4SearchQueryCreator}
+             */
+            const r4SearchQueryCreator = container.r4SearchQueryCreator;
+            /**
+             * @type {R4ArgsParser}
+             */
+            const r4ArgsParser = container.r4ArgsParser;
+            const resourceType = 'Condition';
+            const args = {
+                'base_version': VERSIONS['4_0_0'],
+                'patient': 'Patient/123|medstar,Group/7708d86f-1d3e-4389-a8c6-3a88075934f1'
+            };
+            const parsedArgs = r4ArgsParser.parseArgs({resourceType: resourceType, args});
+            const result = r4SearchQueryCreator.buildR4SearchQuery({
+                resourceType: resourceType, parsedArgs: parsedArgs
+            });
+            expect(result.query).toStrictEqual({
+                '$or': [
+                    {
+                        'subject._uuid': 'Group/7708d86f-1d3e-4389-a8c6-3a88075934f1'
+                    },
+                    {
+                        '$and': [
+                            {
+                                'subject._sourceAssigningAuthority': 'medstar'
+                            },
+                            {
+                                'subject._sourceid': 'Patient/123'
+                            }
+                        ]
+                    }
+                ]
+            });
+        });
+        test('multiple id reference without resourceType and with same & different sourceAssigningAuthority', async () => {
+            await createTestRequest((container) => {
+                container.register('configManager', () => new MockConfigManager());
+                container.register('indexProvider', (c) => new MockIndexProvider({
+                    configManager: c.configManager
+                }));
+                container.register('accessIndexManager', (c1) => new MockAccessIndexManager({
+                    configManager: c1.configManager,
+                    indexProvider: c1.indexProvider
+                }));
+                return container;
+            });
+            const container = getTestContainer();
+            /**
+             * @type {R4SearchQueryCreator}
+             */
+            const r4SearchQueryCreator = container.r4SearchQueryCreator;
+            /**
+             * @type {R4ArgsParser}
+             */
+            const r4ArgsParser = container.r4ArgsParser;
+            const resourceType = 'Condition';
+            const args = {
+                'base_version': VERSIONS['4_0_0'],
+                'patient': '123|healthsystem1,456|healthsystem2,789|healthsystem2,7708d86f-1d3e-4389-a8c6-3a88075934f1'
+            };
+            const parsedArgs = r4ArgsParser.parseArgs({resourceType: resourceType, args});
+            const result = r4SearchQueryCreator.buildR4SearchQuery({
+                resourceType: resourceType, parsedArgs: parsedArgs
+            });
+            expect(result.query).toStrictEqual({
+                '$or': [
+                    {
+                        'subject._uuid': {
+                            '$in': [
+                                'Patient/7708d86f-1d3e-4389-a8c6-3a88075934f1',
+                                'Group/7708d86f-1d3e-4389-a8c6-3a88075934f1'
+                            ]
+                        }
+                    },
+                    {
+                        '$and': [
+                            {
+                                'subject._sourceAssigningAuthority': 'healthsystem1'
+                            },
+                            {
+                                'subject._sourceId': {
+                                    '$in': [
+                                        'Patient/123',
+                                        'Group/123'
+                                    ]
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        '$and': [
+                            {
+                                'subject._sourceAssigningAuthority': 'healthsystem2'
+                            },
+                            {
+                                'subject._sourceId': {
+                                    '$in': [
+                                        'Patient/456',
+                                        'Group/456',
+                                        'Patient/789',
+                                        'Group/789',
+                                    ]
+                                }
+                            }
+                        ]
+                    }
+                ]
+            });
+        });
+        test('multiple id reference with resourceType and with same & different sourceAssigningAuthority', async () => {
+            await createTestRequest((container) => {
+                container.register('configManager', () => new MockConfigManager());
+                container.register('indexProvider', (c) => new MockIndexProvider({
+                    configManager: c.configManager
+                }));
+                container.register('accessIndexManager', (c1) => new MockAccessIndexManager({
+                    configManager: c1.configManager,
+                    indexProvider: c1.indexProvider
+                }));
+                return container;
+            });
+            const container = getTestContainer();
+            /**
+             * @type {R4SearchQueryCreator}
+             */
+            const r4SearchQueryCreator = container.r4SearchQueryCreator;
+            /**
+             * @type {R4ArgsParser}
+             */
+            const r4ArgsParser = container.r4ArgsParser;
+            const resourceType = 'Condition';
+            const args = {
+                'base_version': VERSIONS['4_0_0'],
+                'patient': 'Patient/123|healthsystem1,Group/456|healthsystem2,Patient/789|healthsystem2,Patient/7708d86f-1d3e-4389-a8c6-3a88075934f1'
+            };
+            const parsedArgs = r4ArgsParser.parseArgs({resourceType: resourceType, args});
+            const result = r4SearchQueryCreator.buildR4SearchQuery({
+                resourceType: resourceType, parsedArgs: parsedArgs
+            });
+            expect(result.query).toStrictEqual({
+                '$or': [
+                    {
+                        'subject._uuid': 'Patient/7708d86f-1d3e-4389-a8c6-3a88075934f1'
+                    },
+                    {
+                        '$and': [
+                            {
+                                'subject._sourceAssigningAuthority': 'healthsystem1'
+                            },
+                            {
+                                'subject._sourceId': 'Patient/123'
+                            }
+                        ]
+                    },
+                    {
+                        '$and': [
+                            {
+                                'subject._sourceAssigningAuthority': 'healthsystem2'
+                            },
+                            {
+                                'subject._sourceId': {
+                                    '$in': [
+                                        'Group/456',
+                                        'Patient/789'
+                                    ]
+                                }
+                            }
+                        ]
+                    }
+                ]
+            });
+        });
+    });
 });
