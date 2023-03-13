@@ -228,7 +228,7 @@ class SearchManager {
             return {base_version, query, columns};
         } catch (e) {
             throw new RethrownError({
-                    message: 'Error in constructQueryAsync()',
+                    message: 'Error in constructQueryAsync(): ' + (e.message || ''),
                     error: e,
                     args: {
                         user, scope,

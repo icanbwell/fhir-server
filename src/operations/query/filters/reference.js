@@ -45,6 +45,10 @@ class FilterByReference extends BaseFilter {
          */
         const and_segments = [];
 
+        if (!this.parsedArg.queryParameterValue.values || this.parsedArg.queryParameterValue.values.length === 0) {
+            return and_segments;
+        }
+
         const filters = [];
 
         // separate uuids and ids
