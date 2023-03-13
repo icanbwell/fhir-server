@@ -1,17 +1,16 @@
 {
   "entry": [
     {
-      "id": "2354-InAgeCohort",
       "resource": {
         "code": {
           "coding": [
             {
-              "code": "BMI001",
+              "code": "OtherRule",
               "system": "http://www.icanbwell.com/cql/library"
             },
             {
               "code": "1.0.0",
-              "system": "http://www.icanbwell.com/cql/libraryVersion"
+              "system": "http://www.icanbwell.com/cql/libraryVersion2"
             },
             {
               "code": "InAgeCohort",
@@ -23,70 +22,28 @@
           "end": "2021-12-31T00:00:00.000Z",
           "start": "2021-01-01T00:00:00.000Z"
         },
-        "focus": [
-          {
-            "extension": [
-              {
-                "id": "sourceId",
-                "url": "https://www.icanbwell.com/sourceId",
-                "valueString": "Person/9999"
-              },
-              {
-                "id": "uuid",
-                "url": "https://www.icanbwell.com/uuid",
-                "valueString": "Person/e2ffdbce-b4d3-583f-8c12-1cdc653c46b3"
-              },
-              {
-                "id": "sourceAssigningAuthority",
-                "url": "https://www.icanbwell.com/sourceAssigningAuthority",
-                "valueString": "healthsystem1"
-              }
-            ],
-            "reference": "Person/9999"
-          },
-          {
-            "extension": [
-              {
-                "id": "sourceId",
-                "url": "https://www.icanbwell.com/sourceId",
-                "valueString": "Task/9999"
-              },
-              {
-                "id": "uuid",
-                "url": "https://www.icanbwell.com/uuid",
-                "valueString": "Task/e2ffdbce-b4d3-583f-8c12-1cdc653c46b3"
-              },
-              {
-                "id": "sourceAssigningAuthority",
-                "url": "https://www.icanbwell.com/sourceAssigningAuthority",
-                "valueString": "healthsystem1"
-              }
-            ],
-            "reference": "Task/9999"
-          }
-        ],
-        "id": "2354-InAgeCohort",
+        "id": "1",
         "identifier": [
           {
             "id": "sourceId",
             "system": "https://www.icanbwell.com/sourceId",
-            "value": "2354-InAgeCohort"
+            "value": "1"
           },
           {
             "id": "uuid",
             "system": "https://www.icanbwell.com/uuid",
-            "value": "61886699-c643-5e3b-a074-569e4c43bddf"
+            "value": "7fcfcd47-31f1-5044-be40-cd2d0059bd67"
           }
         ],
         "issued": "2021-01-01T12:00:00Z",
         "meta": {
           "security": [
             {
-              "code": "healthsystem1",
+              "code": "C",
               "system": "https://www.icanbwell.com/owner"
             },
             {
-              "code": "healthsystem1",
+              "code": "C",
               "system": "https://www.icanbwell.com/access"
             },
             {
@@ -98,35 +55,13 @@
               "system": "https://www.icanbwell.com/access"
             },
             {
-              "code": "healthsystem1",
+              "code": "C",
               "system": "https://www.icanbwell.com/sourceAssigningAuthority"
             }
           ],
           "source": "/patients",
           "versionId": "1"
         },
-        "performer": [
-          {
-            "extension": [
-              {
-                "id": "sourceId",
-                "url": "https://www.icanbwell.com/sourceId",
-                "valueString": "Practitioner/5555"
-              },
-              {
-                "id": "uuid",
-                "url": "https://www.icanbwell.com/uuid",
-                "valueString": "Practitioner/c0623a55-d228-521c-ae3e-571c1968b6b8"
-              },
-              {
-                "id": "sourceAssigningAuthority",
-                "url": "https://www.icanbwell.com/sourceAssigningAuthority",
-                "valueString": "healthsystem1"
-              }
-            ],
-            "reference": "Practitioner/5555"
-          }
-        ],
         "resourceType": "Observation",
         "status": "final",
         "subject": {
@@ -134,90 +69,41 @@
             {
               "id": "sourceId",
               "url": "https://www.icanbwell.com/sourceId",
-              "valueString": "Patient/00100000000"
+              "valueString": "Patient/patient1"
             },
             {
               "id": "uuid",
               "url": "https://www.icanbwell.com/uuid",
-              "valueString": "Patient/262230ac-b567-55ca-a224-0ed5ed1e285b"
+              "valueString": "Patient/8b4f5ad7-d7e0-5b49-a5fb-0330001efa25"
             },
             {
               "id": "sourceAssigningAuthority",
               "url": "https://www.icanbwell.com/sourceAssigningAuthority",
-              "valueString": "healthsystem1"
+              "valueString": "C"
             }
           ],
-          "reference": "Patient/person.m65633"
+          "reference": "Patient/patient1"
         },
         "valueBoolean": false
-      }
-    },
-    {
-      "id": "person.m65633",
-      "resource": {
-        "birthDate": "2017-01-01",
-        "gender": "female",
-        "id": "person.m65633",
-        "identifier": [
-          {
-            "id": "sourceId",
-            "system": "https://www.icanbwell.com/sourceId",
-            "value": "00100000000"
-          },
-          {
-            "id": "uuid",
-            "system": "https://www.icanbwell.com/uuid",
-            "value": "262230ac-b567-55ca-a224-0ed5ed1e285b"
-          }
-        ],
-        "meta": {
-          "security": [
-            {
-              "code": "healthsystem1",
-              "system": "https://www.icanbwell.com/access"
-            },
-            {
-              "code": "healthsystem1",
-              "system": "https://www.icanbwell.com/owner"
-            },
-            {
-              "code": "healthsystem1",
-              "system": "https://www.icanbwell.com/sourceAssigningAuthority"
-            }
-          ],
-          "source": "http://healthsystem1health.org/provider",
-          "versionId": "1"
-        },
-        "name": [
-          {
-            "family": "PATIENT1",
-            "given": [
-              "SHYLA"
-            ],
-            "text": "t",
-            "use": "usual"
-          }
-        ],
-        "resourceType": "Patient"
       }
     }
   ],
   "meta": {
     "tag": [
       {
-        "display": "db.Patient_4_0_0.find({'_sourceId':{'$in':['00100000000','00200000000','person.m65633']}}, {'_id':0})  | db.Observation_4_0_0.find({'$or':[{'subject._sourceId':'Patient/262230ac-b567-55ca-a224-0ed5ed1e285b'},{'subject._uuid':'Patient/262230ac-b567-55ca-a224-0ed5ed1e285b'},{'subject._sourceId':'Patient/00100000000'},{'subject._uuid':'Patient/00100000000'}]}, {})",
+        "display": "db.Observation_4_0_0.find({'$and':[{'subject._sourceAssigningAuthority':'C'},{'subject._sourceId':{'$in':['Patient/patient1','Group/patient1']}},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':{'$in':['C','A']}}}}]}, {}).sort({'id':1}).limit(100)",
         "system": "https://www.icanbwell.com/query"
       },
       {
-        "code": "Patient_4_0_0|Observation_4_0_0",
+        "code": "Observation_4_0_0",
         "system": "https://www.icanbwell.com/queryCollection"
       },
       {
-        "display": "[{'projection':{'_id':0}}]",
+        "display": "{'limit':100,'sort':{'id':1}}",
         "system": "https://www.icanbwell.com/queryOptions"
       },
       {
-        "display": "[]",
+        "display": "['subject._sourceAssigningAuthority','subject._sourceId','id']",
         "system": "https://www.icanbwell.com/queryFields"
       },
       {
@@ -228,6 +114,10 @@
         "system": "https://www.icanbwell.com/queryOptimization"
       },
       {
+        "code": "fhir",
+        "system": "https://www.icanbwell.com/queryDatabase"
+      },
+      {
         "system": "https://www.icanbwell.com/queryExplain"
       },
       {
@@ -236,6 +126,6 @@
     ]
   },
   "resourceType": "Bundle",
-  "total": 2,
+  "total": 0,
   "type": "searchset"
 }
