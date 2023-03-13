@@ -325,7 +325,7 @@ describe('mongoQuerySimplifier Tests', () => {
                 ]
             });
         });
-        test('mongoQuerySimplifier removes duplicate $in ite,s', () => {
+        test('mongoQuerySimplifier removes duplicate $in items', () => {
             const query = {
                 '$or': [
                     {
@@ -642,6 +642,160 @@ describe('mongoQuerySimplifier Tests', () => {
                     },
                     {
                         'library._sourceId': 'https://fhir.dev.icanbwell.com/4_0_0/Library/AWVCN'
+                    }
+                ]
+            });
+        });
+        test('mongoQuerySimplifier handles nested $or and $and simple', () => {
+            const query = {
+                '$and': [
+                    {
+                        'effectivePeriod.start': {
+                            '$lte': '2019-10-16T22:12:29+00:00'
+                        }
+                    },
+                    {
+                        '$or': [
+                            {
+                                'effectivePeriod.end': {
+                                    '$gte': '2019-10-16T22:12:29+00:00'
+                                }
+                            },
+                            {
+                                'effectivePeriod.end': null
+                            }
+                        ]
+                    }
+                ]
+            };
+
+            const result = MongoQuerySimplifier.simplifyFilter({filter: query});
+            logInfo('', {result});
+            expect(result).toStrictEqual({
+                '$and': [
+                    {
+                        'effectivePeriod.start': {
+                            '$lte': '2019-10-16T22:12:29+00:00'
+                        }
+                    },
+                    {
+                        '$or': [
+                            {
+                                'effectivePeriod.end': {
+                                    '$gte': '2019-10-16T22:12:29+00:00'
+                                }
+                            },
+                            {
+                                'effectivePeriod.end': null
+                            }
+                        ]
+                    }
+                ]
+            });
+        });
+        test('mongoQuerySimplifier handles nested $or and $and', () => {
+            const query = {
+                '$and': [
+                    {
+                        '$or': [
+                            {
+                                '$and': [
+                                    {
+                                        'effectiveDateTime': {
+                                            '$regex': new RegExp(/\^\(\?:2019-10-16T22:12\)\|\(\?:2019-10-16T22:12:29\.000Z\)\|\(\?:2019\$\)\|\(\?:2019-10\$\)\|\(\?:2019-10-16\$\)\|\(\?:2019-10-16T22:12Z\?\$\)/,),
+                                            '$options': 'i'
+                                        }
+                                    }
+                                ]
+                            },
+                            {
+                                '$and': [
+                                    {
+                                        'effectivePeriod.start': {
+                                            '$lte': '2019-10-16T22:12:29+00:00'
+                                        }
+                                    },
+                                    {
+                                        '$or': [
+                                            {
+                                                'effectivePeriod.end': {
+                                                    '$gte': '2019-10-16T22:12:29+00:00'
+                                                }
+                                            },
+                                            {
+                                                'effectivePeriod.end': null
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                '$and': [
+                                    {
+                                        'effectiveTiming': {
+                                            '$regex': new RegExp(/\^\(\?:2019-10-16T22:12\)\|\(\?:2019-10-16T22:12:29\.000Z\)\|\(\?:2019\$\)\|\(\?:2019-10\$\)\|\(\?:2019-10-16\$\)\|\(\?:2019-10-16T22:12Z\?\$\)/),
+                                            '$options': 'i'
+                                        }
+                                    }
+                                ]
+                            },
+                            {
+                                '$and': [
+                                    {
+                                        'effectiveInstant': {
+                                            '$regex': new RegExp(/\^\(\?:2019-10-16T22:12\)\|\(\?:2019-10-16T22:12:29\.000Z\)\|\(\?:2019\$\)\|\(\?:2019-10\$\)\|\(\?:2019-10-16\$\)\|\(\?:2019-10-16T22:12Z\?\$\)/),
+                                            '$options': 'i'
+                                        }
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            };
+
+            const result = MongoQuerySimplifier.simplifyFilter({filter: query});
+            logInfo('', {result});
+            expect(result).toStrictEqual({
+                '$or': [
+                    {
+                        'effectiveDateTime': {
+                            '$options': 'i',
+                            '$regex': new RegExp(/\^\(\?:2019-10-16T22:12\)\|\(\?:2019-10-16T22:12:29\.000Z\)\|\(\?:2019\$\)\|\(\?:2019-10\$\)\|\(\?:2019-10-16\$\)\|\(\?:2019-10-16T22:12Z\?\$\)/)
+                        }
+                    },
+                    {
+                        '$and': [
+                            {
+                                'effectivePeriod.start': {
+                                    '$lte': '2019-10-16T22:12:29+00:00'
+                                }
+                            },
+                            {
+                                '$or': [
+                                    {
+                                        'effectivePeriod.end': {
+                                            '$gte': '2019-10-16T22:12:29+00:00'
+                                        }
+                                    },
+                                    {
+                                        'effectivePeriod.end': null
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        'effectiveTiming': {
+                            '$options': 'i',
+                            '$regex': new RegExp(/\^\(\?:2019-10-16T22:12\)\|\(\?:2019-10-16T22:12:29\.000Z\)\|\(\?:2019\$\)\|\(\?:2019-10\$\)\|\(\?:2019-10-16\$\)\|\(\?:2019-10-16T22:12Z\?\$\)/)
+                        }
+                    },
+                    {
+                        'effectiveInstant': {
+                            '$options': 'i',
+                            '$regex': new RegExp(/\^\(\?:2019-10-16T22:12\)\|\(\?:2019-10-16T22:12:29\.000Z\)\|\(\?:2019\$\)\|\(\?:2019-10\$\)\|\(\?:2019-10-16\$\)\|\(\?:2019-10-16T22:12Z\?\$\)/)
+                        }
                     }
                 ]
             });

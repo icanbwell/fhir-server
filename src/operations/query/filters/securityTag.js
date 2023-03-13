@@ -6,13 +6,12 @@ const {SystemValueParser} = require('../../../utils/systemValueParser');
 /**
  * Filters by token
  * https://www.hl7.org/fhir/search.html#token
- * @returns {import('mongodb').Filter<import('mongodb').DefaultSchema>[]}
  */
 class FilterBySecurityTag extends BaseFilter {
     /**
      * @param {string} field
      * @param {string} value
-     * @return {import('mongodb').Filter<import('mongodb').DefaultSchema>}
+     * @return {import('mongodb').Filter<import('mongodb').DefaultSchema>|import('mongodb').Filter<import('mongodb').DefaultSchema>[]}
      */
     filterByItem(field, value) {
         if (this.propertyObj.fieldFilter === '[system/@value=\'email\']') {

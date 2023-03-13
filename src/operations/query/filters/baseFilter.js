@@ -46,7 +46,7 @@ class BaseFilter {
      * override this if all you want to do is just provide a filter of a field and value
      * @param {string} field
      * @param {string} value
-     * @return {import('mongodb').Filter<import('mongodb').DefaultSchema>}
+     * @return {import('mongodb').Filter<import('mongodb').DefaultSchema>|import('mongodb').Filter<import('mongodb').DefaultSchema>[]}
      */
     filterByItem(field, value) {
         return {
@@ -66,10 +66,10 @@ class BaseFilter {
 
         if (this.parsedArg.queryParameterValue.values) {
             and_segments.push({
-                    $or: this.propertyObj.fields.map((field) => {
+                    $or: this.propertyObj.fields.flatMap((field) => {
                             return {
                                 [this.parsedArg.queryParameterValue.operator]:
-                                    this.parsedArg.queryParameterValue.values.map(v => {
+                                    this.parsedArg.queryParameterValue.values.flatMap(v => {
                                         return this.filterByItem(field, v);
                                     })
                             };

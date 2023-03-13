@@ -18,7 +18,7 @@ class FilterByContains extends BaseFilter {
     /**
      * @param {string} field
      * @param {string} value
-     * @return {import('mongodb').Filter<import('mongodb').DefaultSchema>}
+     * @return {import('mongodb').Filter<import('mongodb').DefaultSchema>|import('mongodb').Filter<import('mongodb').DefaultSchema>[]}
      */
     filterByItem(field, value) {
         if (this.propertyObj.type === 'token') {
