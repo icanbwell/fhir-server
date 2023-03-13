@@ -1,4 +1,4 @@
 paths:
-  - admin
+  - src/admin
 paths-ignore:
   - src/node_modules
