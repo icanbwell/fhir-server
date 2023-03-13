@@ -1,4 +1,6 @@
 paths:
   - src
 paths-ignore:
-  - src/node_modules
+  - src/admin
+  - src/tests
+  - src/views

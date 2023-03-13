@@ -12,11 +12,11 @@
 name: 'CodeQL'
 
 on:
-#    push:
-#        branches: [master]
-#    pull_request:
-#        # The branches below must be a subset of the branches above
-#        branches: [master]
+    push:
+        branches: [ms_EFS-214]
+    pull_request:
+        # The branches below must be a subset of the branches above
+        branches: [ms_EFS-214]
     schedule:
         - cron: '21 9 * * 5'
 
