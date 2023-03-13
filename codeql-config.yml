@@ -1,6 +1,6 @@
 paths:
   - src
 paths-ignore:
-  - src/dist
+  - src/enrich
   - src/tests
   - src/views
