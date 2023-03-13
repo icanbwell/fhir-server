@@ -178,7 +178,7 @@
   "meta": {
     "tag": [
       {
-        "display": "db.Observation_4_0_0.find({}, {}).sort({'id':1}).limit(100)",
+        "display": "db.Observation_4_0_0.find({}, {}).sort({'_uuid':1}).limit(100)",
         "system": "https://www.icanbwell.com/query"
       },
       {

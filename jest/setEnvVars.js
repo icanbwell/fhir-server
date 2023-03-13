@@ -21,3 +21,5 @@ process.env.ENABLE_KAFKA_HEALTHCHECK = '0';
 process.env.SET_INDEX_HINTS = '0';
 process.env.PARTITION_RESOURCES = 'AuditEvent';
 process.env.LOGLEVEL = 'TRACE';
+process.env.DEFAULT_SORT_ID = '_uuid';
+process.env.SUPPORT_LEGACY_IDS = '0';

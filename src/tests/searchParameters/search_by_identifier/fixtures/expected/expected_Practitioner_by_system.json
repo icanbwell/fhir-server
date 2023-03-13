@@ -154,7 +154,7 @@
   "meta": {
     "tag": [
       {
-        "display": "db.Practitioner_4_0_0.find({'identifier':{'$elemMatch':{'system':{'$regex':'medstarhealth','$options':'i'},'value':{'$regex':'465','$options':'i'}}}}, {}).sort({'id':1}).limit(100)",
+        "display": "db.Practitioner_4_0_0.find({'identifier':{'$elemMatch':{'system':{'$regex':'medstarhealth','$options':'i'},'value':{'$regex':'465','$options':'i'}}}}, {}).sort({'_uuid':1}).limit(100)",
         "system": "https://www.icanbwell.com/query"
       },
       {

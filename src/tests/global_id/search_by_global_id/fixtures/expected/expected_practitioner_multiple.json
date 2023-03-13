@@ -304,7 +304,7 @@
   "meta": {
     "tag": [
       {
-        "display": "db.Practitioner_4_0_0.find({'$or':[{'_uuid':'53252897-13a1-5c6a-b631-a5a7bfc175b3'},{'_sourceId':'2'}]}, {}).sort({'id':1}).limit(10000)",
+        "display": "db.Practitioner_4_0_0.find({'$or':[{'_uuid':'53252897-13a1-5c6a-b631-a5a7bfc175b3'},{'_sourceId':'2'}]}, {}).sort({'_uuid':1}).limit(10000)",
         "system": "https://www.icanbwell.com/query"
       },
       {
