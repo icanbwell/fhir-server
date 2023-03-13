@@ -3,6 +3,8 @@ const practitioner1Resource = require('./fixtures/Practitioner/practitioner1.jso
 
 // expected
 const expectedPractitionerResources = require('./fixtures/expected/expected_Practitioner.json');
+const expectedPractitionerContainsResources = require('./fixtures/expected/expected_Practitioner_contains.json');
+const expectedPractitionerByGenderResources = require('./fixtures/expected/expected_Practitioner_gender.json');
 const expectedPractitionerBySystemResources = require('./fixtures/expected/expected_Practitioner_by_system.json');
 
 const {
@@ -37,7 +39,7 @@ describe('Practitioner Tests', () => {
             // ACT & ASSERT
             // search by token system and code and make sure we get the right Practitioner back
             resp = await request
-                .get('/4_0_0/Practitioner/?_bundle=1&identifier=http://medstarhealth.org|4657')
+                .get('/4_0_0/Practitioner/?_bundle=1&identifier=http://medstarhealth.org|4657&_debug=1')
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedPractitionerResources);
@@ -56,10 +58,10 @@ describe('Practitioner Tests', () => {
             // ACT & ASSERT
             // search by token system and code and make sure we get the right Practitioner back
             resp = await request
-                .get('/4_0_0/Practitioner/?_bundle=1&gender:contains=nk')
+                .get('/4_0_0/Practitioner/?_bundle=1&gender:contains=nk&_debug=1')
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse(expectedPractitionerResources);
+            expect(resp).toHaveResponse(expectedPractitionerByGenderResources);
         });
         test('search_by_identifier with contains works on just value', async () => {
             const request = await createTestRequest();
@@ -78,7 +80,7 @@ describe('Practitioner Tests', () => {
                 .get('/4_0_0/Practitioner/?_bundle=1&identifier:contains=465&_debug=1')
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse(expectedPractitionerResources);
+            expect(resp).toHaveResponse(expectedPractitionerContainsResources);
         });
         test('search_by_identifier with contains works on system and value', async () => {
             const request = await createTestRequest();

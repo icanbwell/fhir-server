@@ -125,7 +125,7 @@ describe('Observation Tests', () => {
             // ACT & ASSERT
             // search by date and make sure we get the right Observation back
             resp = await request
-                .get('/4_0_0/Observation/?_bundle=1&date=2019-10-16T22:12:29.000Z&_debug=1')
+                .get('/4_0_0/Observation/?_bundle=1&date=2019-10-16T22:12:29.000Z')
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedObservationResources3);
