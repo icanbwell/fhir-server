@@ -201,8 +201,8 @@ function checkContent({actual, expected, utils, options, expand, fnCleanResource
             return (
                 // eslint-disable-next-line prefer-template
                 (utils.matcherHint('toBe', undefined, undefined, options) +
-                '\n\n' + (diffString && diffString.includes('- Expect') ? `Difference:\n\n${diffString}` : `Expected: ${utils.printExpected(expected)}\n` +
-                `Received: ${utils.printReceived(actual)}`))
+                    '\n\n' + (diffString && diffString.includes('- Expect') ? `Difference:\n\n${diffString}` : `Expected: ${utils.printExpected(expected)}\n` +
+                        `Received: ${utils.printReceived(actual)}`))
             );
         };
     return {actual: actual, expected: expected, message, pass};
@@ -377,8 +377,8 @@ function toHaveGraphQLResponse(resp, expected, queryName, fnCleanResource) {
     } else if (body.data && !(expected.body && expected.body.data) && !(expected.data)) {
         // GraphQL response
         // get first property of resp.body.data
-        // eslint-disable-next-line no-unused-vars
         let propertyValue = body.data[`${queryName}`];
+        expect(body.errors).toBeUndefined();
         // see if the return value is a bundle
         if (propertyValue && !(Array.isArray(propertyValue)) && propertyValue.entry && Array.isArray(expected)) {
             propertyValue = propertyValue.entry.map(e => e.resource);

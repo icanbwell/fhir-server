@@ -202,6 +202,39 @@
       }
     }
   ],
+  "meta": {
+    "tag": [
+      {
+        "display": "db.Patient_4_0_0.find({'_sourceId':'00100000000'}, {'_id':0})  | db.Observation_4_0_0.find({'subject._uuid':'Patient/262230ac-b567-55ca-a224-0ed5ed1e285b'}, {})",
+        "system": "https://www.icanbwell.com/query"
+      },
+      {
+        "code": "Patient_4_0_0|Observation_4_0_0",
+        "system": "https://www.icanbwell.com/queryCollection"
+      },
+      {
+        "display": "[{'projection':{'_id':0}}]",
+        "system": "https://www.icanbwell.com/queryOptions"
+      },
+      {
+        "display": "[]",
+        "system": "https://www.icanbwell.com/queryFields"
+      },
+      {
+        "system": "https://www.icanbwell.com/queryTime"
+      },
+      {
+        "display": "{'useTwoStepSearchOptimization':undefined}",
+        "system": "https://www.icanbwell.com/queryOptimization"
+      },
+      {
+        "system": "https://www.icanbwell.com/queryExplain"
+      },
+      {
+        "system": "https://www.icanbwell.com/queryExplainSimple"
+      }
+    ]
+  },
   "resourceType": "Bundle",
   "total": 2,
   "type": "searchset"

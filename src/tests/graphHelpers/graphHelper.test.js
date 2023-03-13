@@ -8,13 +8,31 @@ const {FhirRequestInfo} = require('../../utils/fhirRequestInfo');
 const {createTestContainer} = require('../createTestContainer');
 const {describe, beforeEach, afterEach, expect, test} = require('@jest/globals');
 const {generateUUIDv5} = require('../../utils/uid.util');
+const {ConfigManager} = require('../../utils/configManager');
+
+class MockConfigManager extends ConfigManager {
+    get enableGlobalIdSupport() {
+        return true;
+    }
+
+    get enableReturnBundle() {
+        return true;
+    }
+
+    get supportLegacyIds() {
+        return false;
+    }
+}
 
 /**
  * Gets graph helper
  * @return {GraphHelper}
  */
 function getGraphHelper() {
-    const container = createTestContainer();
+    const container = createTestContainer((c) => {
+        c.register('configManager', () => new MockConfigManager());
+        return c;
+    });
     return container.graphHelper;
 }
 
@@ -1916,7 +1934,7 @@ describe('graphHelper Tests', () => {
                 'meta': {
                     'tag': [
                         {
-                            'display': "db.Practitioner_4_0_0.find({'_sourceId':{'$in':['1','2']}}, {'_id':0})  | db.PractitionerRole_4_0_0.find({'$or':[{'practitioner._sourceId':'Practitioner/18ba3527-77e0-5ae6-a872-181654110d28'},{'practitioner._uuid':'Practitioner/18ba3527-77e0-5ae6-a872-181654110d28'},{'practitioner._sourceId':'Practitioner/034ef9e0-007c-54a7-a0be-a06db20b9ea9'},{'practitioner._uuid':'Practitioner/034ef9e0-007c-54a7-a0be-a06db20b9ea9'},{'practitioner._sourceId':'Practitioner/1'},{'practitioner._uuid':'Practitioner/1'},{'practitioner._sourceId':'Practitioner/2'},{'practitioner._uuid':'Practitioner/2'}]}, {}) | db.Organization_4_0_0.find({'$or':[{'_uuid':'5a1d6b34-dbdc-5974-9816-53a13b80c839'},{'_sourceId':'100'},{'_uuid':'2cab0141-cb78-5ca1-8673-8c7bcdcf524d'},{'_sourceId':'200'}]}, {}) | db.InsurancePlan_4_0_0.find({'$or':[{'_uuid':'24c117ef-4601-52ea-8812-ac66793956b5'},{'_sourceId':'AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He'}]}, {})",
+                            'display': 'db.Practitioner_4_0_0.find({\'_sourceId\':{\'$in\':[\'1\',\'2\']}}, {\'_id\':0})  | db.PractitionerRole_4_0_0.find({\'practitioner._uuid\':{\'$in\':[\'Practitioner/18ba3527-77e0-5ae6-a872-181654110d28\',\'Practitioner/034ef9e0-007c-54a7-a0be-a06db20b9ea9\']}}, {}) | db.Organization_4_0_0.find({\'_uuid\':{\'$in\':[\'5a1d6b34-dbdc-5974-9816-53a13b80c839\',\'2cab0141-cb78-5ca1-8673-8c7bcdcf524d\']}}, {}) | db.InsurancePlan_4_0_0.find({\'_uuid\':\'24c117ef-4601-52ea-8812-ac66793956b5\'}, {})',
                             'system': 'https://www.icanbwell.com/query'
                         },
                         {
@@ -2111,7 +2129,7 @@ describe('graphHelper Tests', () => {
                     'tag': [
                         {
                             'system': 'https://www.icanbwell.com/query',
-                            'display': "db.Practitioner_4_0_0.find({'_sourceId':{'$in':['1','2']}}, {'_id':0})  | db.PractitionerRole_4_0_0.find({'$or':[{'practitioner._sourceId':'Practitioner/18ba3527-77e0-5ae6-a872-181654110d28'},{'practitioner._uuid':'Practitioner/18ba3527-77e0-5ae6-a872-181654110d28'},{'practitioner._sourceId':'Practitioner/1'},{'practitioner._uuid':'Practitioner/1'}]}, {}) | db.Organization_4_0_0.find({'$or':[{'_uuid':'5a1d6b34-dbdc-5974-9816-53a13b80c839'},{'_sourceId':'100'}]}, {}) | db.InsurancePlan_4_0_0.find({'$or':[{'_uuid':'24c117ef-4601-52ea-8812-ac66793956b5'},{'_sourceId':'AETNA-Aetna-Elect-Choice--EPO--Aetna-Health-Fund--Innovation-He'}]}, {})",
+                            'display': 'db.Practitioner_4_0_0.find({\'_sourceId\':{\'$in\':[\'1\',\'2\']}}, {\'_id\':0})  | db.PractitionerRole_4_0_0.find({\'practitioner._uuid\':\'Practitioner/18ba3527-77e0-5ae6-a872-181654110d28\'}, {}) | db.Organization_4_0_0.find({\'_uuid\':\'5a1d6b34-dbdc-5974-9816-53a13b80c839\'}, {}) | db.InsurancePlan_4_0_0.find({\'_uuid\':\'24c117ef-4601-52ea-8812-ac66793956b5\'}, {})',
                         },
                         {
                             'system': 'https://www.icanbwell.com/queryCollection',

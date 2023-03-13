@@ -1,56 +1,40 @@
-const {referenceQueryBuilderOptimized} = require('../../../utils/querybuilder.util');
-const {isUuid} = require('../../../utils/uid.util');
 const {BaseFilter} = require('./baseFilter');
-
-/**
- * Get reference id filter
- * @param {[string]} fields
- * @param {[ParsedReferenceItem]} references
- * @param {string} idField
- * @returns {import('mongodb').Filter<import('mongodb').DefaultSchema>[]}
- */
-function getIdFilter(fields, references, idField) {
-    return fields.flatMap(
-        field1 => {
-            const field = `${field1}.${idField}`;
-            const query = references.map(reference =>
-                referenceQueryBuilderOptimized({
-                        target_type: reference.resourceType,
-                        target: reference.id,
-                        sourceAssigningAuthority: reference.sourceAssigningAuthority,
-                        field: field,
-                        sourceAssigningAuthorityField: `${field1}._sourceAssigningAuthority`,
-                    },
-                ),
-            );
-            let res = [];
-            const directFieldFilterLength = query.filter(q => q[`${field}`]).length;
-            if (directFieldFilterLength > 1) {
-                res.push(
-                    {
-                        [`${field}`]: {
-                            '$in': query.map(q => q[`${field}`]),
-                        },
-                    },
-                );
-            } else if (directFieldFilterLength === 1) {
-                res.push(
-                    {
-                        [`${field}`]: query.map(q => q[`${field}`])[0],
-                    },
-                );
-            }
-            query.filter(q => !q[`${field}`]).forEach(q => res.push(q));
-            return res;
-        },
-    );
-}
+const {ReferenceParser} = require('../../../utils/referenceParser');
+const {groupByLambda} = require('../../../utils/list.util');
 
 /**
  * @classdesc Filters by reference
  * https://www.hl7.org/fhir/search.html#reference
  */
 class FilterByReference extends BaseFilter {
+
+    /**
+     * Get references
+     * @param {string[]} targets
+     * @param {string} reference
+     * @return {string[]}
+     */
+    getReferences({targets, reference}) {
+        const {resourceType, id} = ReferenceParser.parseReference(reference);
+        if (resourceType) {
+            return [
+                ReferenceParser.createReference(
+                    {
+                        resourceType: resourceType, id: id // do not set sourceAssigningAuthority since we set that as a separate $and clause
+                    }
+                )
+            ];
+        } else {
+            return targets.map(
+                t => ReferenceParser.createReference(
+                    {
+                        resourceType: t, id: id // do not set sourceAssigningAuthority since we set that as a separate $and clause
+                    }
+                )
+            );
+        }
+    }
+
     /**
      * filter function that calls filterByItem for each field and each value supplied
      * @return {import('mongodb').Filter<import('mongodb').DefaultSchema>[]}
@@ -60,68 +44,106 @@ class FilterByReference extends BaseFilter {
          * @type {Object[]}
          */
         const and_segments = [];
-        const propertyObj = this.propertyObj;
 
+        if (!this.parsedArg.queryParameterValue.values || this.parsedArg.queryParameterValue.values.length === 0) {
+            return and_segments;
+        }
 
-        const fields = this.propertyObj.fields;
+        const filters = [];
 
-        /**
-         * @type {import('mongodb').Filter<import('mongodb').DefaultSchema>}
-         */
-        let filter;
-        /**
-         * @type {boolean}
-         */
-        const allReferencesAreUuids = this.parsedArg.references.every(reference => isUuid(reference.id));
-        /**
-         * @type {boolean}
-         */
-        const noReferencesAreUuids = !this.parsedArg.references.some(reference => isUuid(reference.id));
-        if (allReferencesAreUuids) {
-            //optimize by looking only in _uuid field
-            filter = {
-                $or: getIdFilter(fields, this.parsedArg.references, '_uuid'),
-            };
-        } else if (noReferencesAreUuids) {
-            filter = {
-                $or:
-                    getIdFilter(fields, this.parsedArg.references, '_sourceId'),
-            };
-        } else {
-            // there is a mix of uuids and ids so we have to look in both fields
-            filter = {
-                $or: propertyObj.target.flatMap(target =>
-                    fields.flatMap((field1) =>
-                        this.parsedArg.references.flatMap(reference =>
-                            [
-                                referenceQueryBuilderOptimized({
-                                        target_type: reference.resourceType || target,
-                                        target: reference.id,
-                                        sourceAssigningAuthority: reference.sourceAssigningAuthority,
-                                        field: `${field1}._sourceId`,
-                                        sourceAssigningAuthorityField: `${field1}._sourceAssigningAuthority`
-                                    }
-                                ),
-                                referenceQueryBuilderOptimized({
-                                        target_type: reference.resourceType || target,
-                                        target: reference.id,
-                                        sourceAssigningAuthority: reference.sourceAssigningAuthority,
-                                        field: `${field1}._uuid`,
-                                        sourceAssigningAuthorityField: `${field1}._sourceAssigningAuthority`
+        // separate uuids and ids
+        const uuidReferences = this.parsedArg.queryParameterValue.values.filter(r => ReferenceParser.isUuidReference(r));
+
+        if (uuidReferences.length > 0) {
+            // process uuids first
+            const uuidFilters = [];
+            for (const field of this.propertyObj.fields) {
+                uuidFilters.push(
+                    {
+                        [`${field}._uuid`]: {
+                            '$in': uuidReferences.flatMap(
+                                r => this.getReferences(
+                                    {
+                                        targets: this.propertyObj.target,
+                                        reference: r
                                     }
                                 )
-                            ]
-                        )
-                    )
-                ),
-            };
-        }
+                            )
+                        }
+                    }
+                );
 
-        if (filter) {
-            and_segments.push(filter);
+                if (uuidFilters.length > 0) {
+                    filters.push({
+                        '$or': uuidFilters
+                    });
+                }
+            }
         }
+        // process ids next
+        const idReferences = this.parsedArg.queryParameterValue.values.filter(r => !ReferenceParser.isUuidReference(r));
+        if (idReferences.length > 0) {
+            const idFilters = [];
+            for (const field of this.propertyObj.fields) {
+                const idReferencesWithSourceAssigningAuthority = idReferences.filter(r => ReferenceParser.getSourceAssigningAuthority(r));
+                const idReferencesWithoutSourceAssigningAuthority = idReferences.filter(r => !ReferenceParser.getSourceAssigningAuthority(r));
+                if (idReferencesWithSourceAssigningAuthority.length > 0) {
+                    // group by sourceAssigningAuthority
+                    const idReferencesWithResourceTypeAndSourceAssigningAuthorityGroups = groupByLambda(
+                        idReferencesWithSourceAssigningAuthority,
+                        r => ReferenceParser.getSourceAssigningAuthority(r)
+                    );
+                    for (
+                        const [sourceAssigningAuthority, references]
+                        of Object.entries(idReferencesWithResourceTypeAndSourceAssigningAuthorityGroups)
+                        ) {
+                        idFilters.push(
+                            {
+                                '$and': [
+                                    {
+                                        [`${field}._sourceAssigningAuthority`]: sourceAssigningAuthority
+                                    },
+                                    {
+                                        [`${field}._sourceId`]: {
+                                            '$in': references.flatMap(
+                                                r => this.getReferences({
+                                                    targets: this.propertyObj.target,
+                                                    reference: r
+                                                })
+                                            )
+                                        }
+                                    }
+                                ]
+                            }
+                        );
+                    }
+                }
+                if (idReferencesWithoutSourceAssigningAuthority.length > 0) {
+                    idFilters.push(
+                        {
+                            [`${field}._sourceId`]: {
+                                '$in': idReferencesWithoutSourceAssigningAuthority.flatMap(
+                                    r => this.getReferences({
+                                        targets: this.propertyObj.target,
+                                        reference: r
+                                    })
+                                )
+                            }
+                        }
+                    );
+                }
+            }
+            if (idFilters.length > 0) {
+                filters.push({
+                    '$or': idFilters
+                });
+            }
+        }
+        const filter = {
+            '$or': filters
+        };
+        and_segments.push(filter);
         return and_segments;
-
     }
 }
 
