@@ -204,7 +204,7 @@ class R4SearchQueryCreator {
                     }
                     break;
                 case fhirFilterTypes.reference:
-                    if (queryParameterValue.values.every(v => UrlParser.isUrl(v))) {
+                    if (queryParameterValue.values && queryParameterValue.values.every(v => UrlParser.isUrl(v))) {
                         andSegments = new FilterByCanonical(filterParameters).filter();
                     } else {
                         andSegments = new FilterByReference(filterParameters).filter();
