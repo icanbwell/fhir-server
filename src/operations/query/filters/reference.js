@@ -15,14 +15,20 @@ class FilterByReference extends BaseFilter {
      * @return {string[]}
      */
     getReferences({targets, reference}) {
-        const {resourceType, id, sourceAssigningAuthority} = ReferenceParser.parseReference(reference);
+        const {resourceType, id} = ReferenceParser.parseReference(reference);
         if (resourceType) {
-            return [reference];
+            return [
+                ReferenceParser.createReference(
+                    {
+                        resourceType: resourceType, id: id // do not set sourceAssigningAuthority since we set that as a separate $and clause
+                    }
+                )
+            ];
         } else {
             return targets.map(
                 t => ReferenceParser.createReference(
                     {
-                        resourceType: t, id: id, sourceAssigningAuthority
+                        resourceType: t, id: id // do not set sourceAssigningAuthority since we set that as a separate $and clause
                     }
                 )
             );
@@ -73,12 +79,10 @@ class FilterByReference extends BaseFilter {
         // process ids next
         const idReferences = this.parsedArg.queryParameterValue.values.filter(r => !ReferenceParser.isUuidReference(r));
         if (idReferences.length > 0) {
-
-
             const idFilters = [];
             for (const field of this.propertyObj.fields) {
                 const idReferencesWithSourceAssigningAuthority = idReferences.filter(r => ReferenceParser.getSourceAssigningAuthority(r));
-                const idReferencesWithoutSourceAssigningAuthority = idReferences.filter(r => !ReferenceParser.getResourceType(r));
+                const idReferencesWithoutSourceAssigningAuthority = idReferences.filter(r => !ReferenceParser.getSourceAssigningAuthority(r));
                 if (idReferencesWithSourceAssigningAuthority.length > 0) {
                     // group by sourceAssigningAuthority
                     const idReferencesWithResourceTypeAndSourceAssigningAuthorityGroups = groupByLambda(
