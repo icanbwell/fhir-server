@@ -16,7 +16,8 @@ function getIdFilter(fields, references, idField) {
             const query = references.map(reference =>
                 referenceQueryBuilderOptimized({
                         target_type: reference.resourceType,
-                        target: reference.idPlusSourceAssigningAuthority,
+                        target: reference.id,
+                        sourceAssigningAuthority: reference.sourceAssigningAuthority,
                         field: field,
                         sourceAssigningAuthorityField: `${field1}._sourceAssigningAuthority`,
                     },
@@ -95,14 +96,16 @@ class FilterByReference extends BaseFilter {
                             [
                                 referenceQueryBuilderOptimized({
                                         target_type: reference.resourceType || target,
-                                        target: reference.idPlusSourceAssigningAuthority,
+                                        target: reference.id,
+                                        sourceAssigningAuthority: reference.sourceAssigningAuthority,
                                         field: `${field1}._sourceId`,
                                         sourceAssigningAuthorityField: `${field1}._sourceAssigningAuthority`
                                     }
                                 ),
                                 referenceQueryBuilderOptimized({
                                         target_type: reference.resourceType || target,
-                                        target: reference.idPlusSourceAssigningAuthority,
+                                        target: reference.id,
+                                        sourceAssigningAuthority: reference.sourceAssigningAuthority,
                                         field: `${field1}._uuid`,
                                         sourceAssigningAuthorityField: `${field1}._sourceAssigningAuthority`
                                     }

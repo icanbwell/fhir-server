@@ -5,7 +5,6 @@
 
 const moment = require('moment-timezone');
 const {escapeRegExp} = require('./regexEscaper');
-const {IdParser} = require('./idParser');
 const {UrlParser} = require('./urlParser');
 const {ReferenceParser} = require('./referenceParser');
 /**
@@ -361,6 +360,7 @@ const referenceQueryBuilder = function ({target_type, target, field, exists_flag
  * @param {string} target_type
  * @param {string} target
  * @param {string} field
+ * @param {string|undefined} sourceAssigningAuthority
  * @param {string|undefined} sourceAssigningAuthorityField
  * @param {boolean|undefined} [exists_flag]
  * @return {JSON} queryBuilder
@@ -370,6 +370,7 @@ const referenceQueryBuilderOptimized = function (
         target_type,
         target,
         field,
+        sourceAssigningAuthority,
         sourceAssigningAuthorityField,
         exists_flag
     }
@@ -385,18 +386,17 @@ const referenceQueryBuilderOptimized = function (
         return queryBuilder;
     }
     if (target_type && target) {
-        const {id, sourceAssigningAuthority} = IdParser.parse(target);
         if (sourceAssigningAuthority) {
             queryBuilder['$and'] = [
                 {
                     [`${sourceAssigningAuthorityField}`]: sourceAssigningAuthority
                 },
                 {
-                    [`${field}`]: UrlParser.isUrl(id) ? id : `${target_type}/${id}`
+                    [`${field}`]: UrlParser.isUrl(target) ? target : `${target_type}/${target}`
                 }
             ];
         } else {
-            queryBuilder[`${field}`] = UrlParser.isUrl(id) ? id : `${target_type}/${id}`;
+            queryBuilder[`${field}`] = UrlParser.isUrl(target) ? target : `${target_type}/${target}`;
         }
         return queryBuilder;
     }
