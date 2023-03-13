@@ -777,5 +777,151 @@ describe('r4 search Tests', () => {
                     ]
                 });
         });
+        test('r4 works with date without microseconds in Observation', async () => {
+            await createTestRequest((container) => {
+                container.register('configManager', () => new MockConfigManager());
+                container.register('indexProvider', (c) => new MockIndexProvider({
+                    configManager: c.configManager
+                }));
+                container.register('accessIndexManager', (c1) => new MockAccessIndexManager({
+                    configManager: c1.configManager,
+                    indexProvider: c1.indexProvider
+                }));
+                return container;
+            });
+            const container = getTestContainer();
+            /**
+             * @type {R4SearchQueryCreator}
+             */
+            const r4SearchQueryCreator = container.r4SearchQueryCreator;
+            /**
+             * @type {R4ArgsParser}
+             */
+            const r4ArgsParser = container.r4ArgsParser;
+
+            const args = {
+                'base_version': VERSIONS['4_0_0'],
+                'date': '2019-10-16T22:12:29',
+            };
+            const result = r4SearchQueryCreator.buildR4SearchQuery({
+                resourceType: 'Observation',
+                parsedArgs: r4ArgsParser.parseArgs({resourceType: 'Observation', args})
+            });
+            expect(result.query).toStrictEqual(
+                {
+                    '$or': [
+                        {
+                            'effectiveDateTime': {
+                                '$options': 'i',
+                                '$regex': new RegExp(/\^\(\?:2019-10-16T22:12\)\|\(\?:2019-10-16T22:12:29\)\|\(\?:2019\$\)\|\(\?:2019-10\$\)\|\(\?:2019-10-16\$\)\|\(\?:2019-10-16T22:12Z\?\$\)/)
+                            }
+                        },
+                        [
+                            {
+                                'effectivePeriod.start': {
+                                    '$lte': '2019-10-16T22:12:29+00:00'
+                                }
+                            },
+                            {
+                                '$or': [
+                                    {
+                                        'effectivePeriod.end': {
+                                            '$gte': '2019-10-16T22:12:29+00:00'
+                                        }
+                                    },
+                                    {
+                                        'effectivePeriod.end': null
+                                    }
+                                ]
+                            }
+                        ],
+                        {
+                            'effectiveTiming': {
+                                '$options': 'i',
+                                '$regex': new RegExp(/\^\(\?:2019-10-16T22:12\)\|\(\?:2019-10-16T22:12:29\)\|\(\?:2019\$\)\|\(\?:2019-10\$\)\|\(\?:2019-10-16\$\)\|\(\?:2019-10-16T22:12Z\?\$\)/)
+                            }
+                        },
+                        {
+                            'effectiveInstant': {
+                                '$options': 'i',
+                                '$regex': new RegExp(/\^\(\?:2019-10-16T22:12\)\|\(\?:2019-10-16T22:12:29\)\|\(\?:2019\$\)\|\(\?:2019-10\$\)\|\(\?:2019-10-16\$\)\|\(\?:2019-10-16T22:12Z\?\$\)/)
+                            }
+                        }
+                    ]
+                });
+        });
+        test('r4 works with date with microseconds in Observation', async () => {
+            await createTestRequest((container) => {
+                container.register('configManager', () => new MockConfigManager());
+                container.register('indexProvider', (c) => new MockIndexProvider({
+                    configManager: c.configManager
+                }));
+                container.register('accessIndexManager', (c1) => new MockAccessIndexManager({
+                    configManager: c1.configManager,
+                    indexProvider: c1.indexProvider
+                }));
+                return container;
+            });
+            const container = getTestContainer();
+            /**
+             * @type {R4SearchQueryCreator}
+             */
+            const r4SearchQueryCreator = container.r4SearchQueryCreator;
+            /**
+             * @type {R4ArgsParser}
+             */
+            const r4ArgsParser = container.r4ArgsParser;
+
+            const args = {
+                'base_version': VERSIONS['4_0_0'],
+                'date': '2019-10-16T22:12:29.000Z',
+            };
+            const result = r4SearchQueryCreator.buildR4SearchQuery({
+                resourceType: 'Observation',
+                parsedArgs: r4ArgsParser.parseArgs({resourceType: 'Observation', args})
+            });
+            expect(result.query).toStrictEqual(
+                {
+                    '$or': [
+                        {
+                            'effectiveDateTime': {
+                                '$options': 'i',
+                                '$regex': new RegExp(/\^\(\?:2019-10-16T22:12\)\|\(\?:2019-10-16T22:12:29\.000Z\)\|\(\?:2019\$\)\|\(\?:2019-10\$\)\|\(\?:2019-10-16\$\)\|\(\?:2019-10-16T22:12Z\?\$\)/,)
+                            }
+                        },
+                        [
+                            {
+                                'effectivePeriod.start': {
+                                    '$lte': '2019-10-16T22:12:29+00:00'
+                                }
+                            },
+                            {
+                                '$or': [
+                                    {
+                                        'effectivePeriod.end': {
+                                            '$gte': '2019-10-16T22:12:29+00:00'
+                                        }
+                                    },
+                                    {
+                                        'effectivePeriod.end': null
+                                    }
+                                ]
+                            }
+                        ],
+                        {
+                            'effectiveTiming': {
+                                '$options': 'i',
+                                '$regex': new RegExp(/\^\(\?:2019-10-16T22:12\)\|\(\?:2019-10-16T22:12:29\.000Z\)\|\(\?:2019\$\)\|\(\?:2019-10\$\)\|\(\?:2019-10-16\$\)\|\(\?:2019-10-16T22:12Z\?\$\)/,)
+                            }
+                        },
+                        {
+                            'effectiveInstant': {
+                                '$options': 'i',
+                                '$regex': new RegExp(/\^\(\?:2019-10-16T22:12\)\|\(\?:2019-10-16T22:12:29\.000Z\)\|\(\?:2019\$\)\|\(\?:2019-10\$\)\|\(\?:2019-10-16\$\)\|\(\?:2019-10-16T22:12Z\?\$\)/,)
+                            }
+                        }
+                    ]
+                });
+        });
     });
 });

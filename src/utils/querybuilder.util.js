@@ -591,7 +591,7 @@ const getDateFromNum = function (days) {
 const dateQueryBuilder = function ({date, type, path}) {
     // noinspection RegExpSingleCharAlternation
     // eslint-disable-next-line security/detect-unsafe-regex
-    const regex = /^(\D{2})?(\d{4})(-\d{2})?(-\d{2})?(?:(T\d{2}:\d{2})(:\d{2})?)?(Z|(\+|-)(\d{2}):(\d{2}))?$/;
+    const regex = /^(\D{2})?(\d{4})(-\d{2})?(-\d{2})?(?:(T\d{2}:\d{2})(:\d{2})?)?(Z|(\+|-)(\d{2}):(\d{2}))?(\.\d{3}Z)?$/;
     const match = date.match(regex);
     let str = '';
     let toReturn = [];

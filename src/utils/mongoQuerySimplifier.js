@@ -7,7 +7,7 @@ class MongoQuerySimplifier {
      * @return {import('mongodb').Filter<import('mongodb').DefaultSchema>}
      */
     static simplifyFilter({filter}) {
-        if (filter === null) {
+        if (filter === null || filter === undefined) {
             return filter;
         }
         // simplify $or
