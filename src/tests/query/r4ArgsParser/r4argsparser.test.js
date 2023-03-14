@@ -3,6 +3,7 @@
 
 // expected
 // const expectedPatientResources = require('./fixtures/expected/expected_patient.json');
+const expectedEmptyParameters = require('./fixtures/expected/expected_empty_parameters.json');
 
 const {commonBeforeEach, commonAfterEach, createTestRequest, getTestContainer} = require('../../common');
 const {describe, beforeEach, afterEach, test} = require('@jest/globals');
@@ -144,6 +145,45 @@ describe('Patient Tests', () => {
             expect(parsedArgs.parsedArgItems[1].queryParameterValue.operator).toStrictEqual('$or');
             expect(parsedArgs.parsedArgItems[1].queryParameterValue.values).toStrictEqual(['health-activity', 'foo']);
             expect(parsedArgs.parsedArgItems[1].modifiers).toStrictEqual([]);
+        });
+        test('r4ArgsParser works for empty parameters', async () => {
+            await createTestRequest();
+            /**
+             * @type {SimpleContainer}
+             */
+            const container = getTestContainer();
+            /**
+             * @type  {R4ArgsParser}
+             */
+            const r4ArgsParser = container.r4ArgsParser;
+            assertTypeEquals(r4ArgsParser, R4ArgsParser);
+
+            const parsedArgs = r4ArgsParser.parseArgs({
+                resourceType: 'Patient',
+                args: {
+                    'base_version': VERSIONS['4_0_0'],
+                    'address:contains': '',
+                    'address-city:contains': '',
+                    'address-country:contains': '',
+                    'address-postalcode:contains': '',
+                    'address-state:contains': '',
+                    'name:contains': '',
+                    'phonetic:contains': '',
+                    '_lastUpdated': ['', ''],
+                    'given': 'DONOTUSE',
+                    'family': 'HIEMASTERONE',
+                    'email': '',
+                    '_security': '',
+                    'id': '',
+                    'identifier': ['', ''],
+                    '_source:contains': '',
+                    '_getpagesoffset': '',
+                    '_sort': '',
+                    '_count': '100'
+
+                }
+            });
+            expect(parsedArgs.toJSON()).toStrictEqual(expectedEmptyParameters);
         });
     });
 });

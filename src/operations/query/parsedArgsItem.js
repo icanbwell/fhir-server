@@ -3,6 +3,7 @@ const {assertIsValid, assertTypeEquals} = require('../../utils/assertType');
 const {QueryParameterValue} = require('./queryParameterValue');
 const {SearchParameterDefinition} = require('../../searchParameters/searchParameterTypes');
 const {ReferenceParser} = require('../../utils/referenceParser');
+const {removeNull} = require('../../utils/nullRemover');
 
 /**
  * @classdesc This class holds the parsed structure for an arg on the url
@@ -148,11 +149,25 @@ class ParsedArgsItem {
             {
                 queryParameter: this.queryParameter,
                 queryParameterValue: this._queryParameterValue.clone(),
-                propertyObj: this.propertyObj,
+                propertyObj: this.propertyObj ? this.propertyObj.clone() : undefined,
                 modifiers: this.modifiers,
                 references: this.references ? this.references.map(r => r.clone()) : undefined
             }
         );
+    }
+
+    /**
+     * Returns JSON representation of entity
+     * @return {Object}
+     */
+    toJSON() {
+        return removeNull({
+            queryParameter: this.queryParameter,
+            queryParameterValue: this._queryParameterValue.toJSON(),
+            propertyObj: this.propertyObj ? this.propertyObj.toJSON() : undefined,
+            modifiers: this.modifiers,
+            references: this.references ? this.references.map(r => r.toJSON()) : undefined
+        });
     }
 }
 

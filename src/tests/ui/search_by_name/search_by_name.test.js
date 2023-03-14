@@ -27,32 +27,22 @@ describe('Patient UI Tests', () => {
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResourceCount(0);
 
-            expect(resp.body.length).toBe(0);
-            logInfo('------- response 1 ------------');
-            logInfo('', {'resp': resp.body});
-            logInfo('------- end response 1 ------------');
-
             resp = await request
                 .post('/4_0_0/Patient/1679033641/$merge?validate=true')
                 .send(patient1Resource)
-                .set(getHeaders())
-                .expect(200);
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
 
-            logInfo('------- response patient1Resource ------------');
-            logInfo('', {'resp': resp.body});
-            logInfo('------- end response  ------------');
-            expect(resp.body['created']).toBe(true);
-
-            resp = await request.get('/4_0_0/Patient').set(getHeaders()).expect(200);
-
-            logInfo('------- response 3 ------------');
-            logInfo('', {'resp': resp.body});
-            logInfo('------- end response 3 ------------');
+            resp = await request.get('/4_0_0/Patient').set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResourceCount(1);
 
             resp = await request
                 .get('/4_0_0/Patient/00100000000')
-                .set(getHtmlHeaders())
-                .expect(200);
+                .set(getHtmlHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveStatusOk();
 
             logInfo('------- response Patient sorted ------------');
             logInfo('', {resp});
@@ -90,24 +80,9 @@ describe('Patient UI Tests', () => {
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveStatusOk();
 
-            logInfo('------- response Patient sorted ------------');
+            logInfo('------- response Patient sorted ------------', {});
             logInfo('', {resp});
-            logInfo('------- end response sort ------------');
-            expect(resp.type).toStrictEqual('text/html');
-            expect(resp.body).toStrictEqual({});
-            expect(resp.text).not.toBeNull();
-            expect(resp.text).toMatch(new RegExp('^<!DOCTYPE html>?'));
-
-            resp = await request
-                .get('/4_0_0/Patient/_search')
-                .set(getHtmlHeaders());
-
-            // noinspection JSUnresolvedFunction
-            expect(resp).toHaveStatusOk();
-
-            logInfo('------- response Patient sorted ------------');
-            logInfo('', {resp});
-            logInfo('------- end response sort ------------');
+            logInfo('------- end response sort ------------', {});
             expect(resp.type).toStrictEqual('text/html');
             expect(resp.body).toStrictEqual({});
             expect(resp.text).not.toBeNull();

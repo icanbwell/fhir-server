@@ -75,6 +75,36 @@ class SearchParameterDefinition {
     get firstField() {
         return this.fields.length > 0 ? this.fields[0] : null;
     }
+
+    clone() {
+        return new SearchParameterDefinition(
+            {
+                description: this.description,
+                type: this.type,
+                field: this._field,
+                fields: this._fields,
+                fieldFilter: this.fieldFilter,
+                target: this.target,
+                fieldType: this.fieldType
+            }
+        );
+    }
+
+    /**
+     * Returns JSON representation of entity
+     * @return {Object}
+     */
+    toJSON() {
+        return {
+            description: this.description,
+            type: this.type,
+            field: this._field,
+            fields: this._fields,
+            fieldFilter: this.fieldFilter,
+            target: this.target,
+            fieldType: this.fieldType
+        };
+    }
 }
 
 module.exports = {

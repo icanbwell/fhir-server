@@ -1,4 +1,5 @@
 const {assertIsValid} = require('../../utils/assertType');
+const {removeNull} = require('../../utils/nullRemover');
 
 class ParsedArgs {
     /**
@@ -135,6 +136,18 @@ class ParsedArgs {
             obj[`${value.queryParameter}`] = value._queryParameterValue.value;
         }
         return obj;
+    }
+
+    /**
+     * Returns JSON representation of entity
+     * @return {Object}
+     */
+    toJSON() {
+        return removeNull({
+            base_version: this.base_version,
+            parsedArgItems: this.parsedArgItems.map(p => p.toJSON()),
+            headers: this.headers
+        });
     }
 }
 

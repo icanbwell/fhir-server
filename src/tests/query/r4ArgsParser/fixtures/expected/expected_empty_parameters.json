@@ -1,0 +1,253 @@
+{
+  "base_version": "4_0_0",
+  "parsedArgItems": [
+    {
+      "queryParameter": "base_version",
+      "queryParameterValue": {
+        "operator": "$and",
+        "value": "4_0_0",
+        "values": [
+          "4_0_0"
+        ]
+      }
+    },
+    {
+      "modifiers": [
+        "contains"
+      ],
+      "propertyObj": {
+        "description": "Multiple Resources: * [Patient](patient.html): A server defined search that may match any of the string fields in the Address, including line, city, district, state, country, postalCode, and/or text* [Person](person.html): A server defined search that may match any of the string fields in the Address, including line, city, district, state, country, postalCode, and/or text* [Practitioner](practitioner.html): A server defined search that may match any of the string fields in the Address, including line, city, district, state, country, postalCode, and/or text* [RelatedPerson](relatedperson.html): A server defined search that may match any of the string fields in the Address, including line, city, district, state, country, postalCode, and/or text",
+        "field": "address",
+        "fieldType": "Address",
+        "type": "string"
+      },
+      "queryParameter": "address",
+      "queryParameterValue": {
+        "operator": "$and",
+        "value": ""
+      }
+    },
+    {
+      "modifiers": [
+        "contains"
+      ],
+      "propertyObj": {
+        "description": "Multiple Resources: * [Patient](patient.html): A city specified in an address* [Person](person.html): A city specified in an address* [Practitioner](practitioner.html): A city specified in an address* [RelatedPerson](relatedperson.html): A city specified in an address",
+        "field": "address.city",
+        "type": "string"
+      },
+      "queryParameter": "address-city",
+      "queryParameterValue": {
+        "operator": "$and",
+        "value": ""
+      }
+    },
+    {
+      "modifiers": [
+        "contains"
+      ],
+      "propertyObj": {
+        "description": "Multiple Resources: * [Patient](patient.html): A country specified in an address* [Person](person.html): A country specified in an address* [Practitioner](practitioner.html): A country specified in an address* [RelatedPerson](relatedperson.html): A country specified in an address",
+        "field": "address.country",
+        "type": "string"
+      },
+      "queryParameter": "address-country",
+      "queryParameterValue": {
+        "operator": "$and",
+        "value": ""
+      }
+    },
+    {
+      "modifiers": [
+        "contains"
+      ],
+      "propertyObj": {
+        "description": "Multiple Resources: * [Patient](patient.html): A postalCode specified in an address* [Person](person.html): A postal code specified in an address* [Practitioner](practitioner.html): A postalCode specified in an address* [RelatedPerson](relatedperson.html): A postal code specified in an address",
+        "field": "address.postalCode",
+        "type": "string"
+      },
+      "queryParameter": "address-postalcode",
+      "queryParameterValue": {
+        "operator": "$and",
+        "value": ""
+      }
+    },
+    {
+      "modifiers": [
+        "contains"
+      ],
+      "propertyObj": {
+        "description": "Multiple Resources: * [Patient](patient.html): A state specified in an address* [Person](person.html): A state specified in an address* [Practitioner](practitioner.html): A state specified in an address* [RelatedPerson](relatedperson.html): A state specified in an address",
+        "field": "address.state",
+        "type": "string"
+      },
+      "queryParameter": "address-state",
+      "queryParameterValue": {
+        "operator": "$and",
+        "value": ""
+      }
+    },
+    {
+      "modifiers": [
+        "contains"
+      ],
+      "propertyObj": {
+        "description": "A server defined search that may match any of the string fields in the HumanName, including family, give, prefix, suffix, suffix, and/or text",
+        "field": "name",
+        "fieldType": "HumanName",
+        "type": "string"
+      },
+      "queryParameter": "name",
+      "queryParameterValue": {
+        "operator": "$and",
+        "value": ""
+      }
+    },
+    {
+      "modifiers": [
+        "contains"
+      ],
+      "propertyObj": {
+        "description": "Multiple Resources: * [Patient](patient.html): A portion of either family or given name using some kind of phonetic matching algorithm* [Person](person.html): A portion of name using some kind of phonetic matching algorithm* [Practitioner](practitioner.html): A portion of either family or given name using some kind of phonetic matching algorithm* [RelatedPerson](relatedperson.html): A portion of name using some kind of phonetic matching algorithm",
+        "field": "name",
+        "fieldType": "HumanName",
+        "type": "string"
+      },
+      "queryParameter": "phonetic",
+      "queryParameterValue": {
+        "operator": "$and",
+        "value": ""
+      }
+    },
+    {
+      "propertyObj": {
+        "description": "When the resource version last changed",
+        "field": "meta.lastUpdated",
+        "type": "date"
+      },
+      "queryParameter": "_lastUpdated",
+      "queryParameterValue": {
+        "operator": "$and"
+      }
+    },
+    {
+      "propertyObj": {
+        "description": "Multiple Resources: * [Patient](patient.html): A portion of the given name of the patient* [Practitioner](practitioner.html): A portion of the given name* [Person](person.html): A portion of the given name of the person",
+        "field": "name.given",
+        "type": "string"
+      },
+      "queryParameter": "given",
+      "queryParameterValue": {
+        "operator": "$and",
+        "value": "DONOTUSE",
+        "values": [
+          "DONOTUSE"
+        ]
+      }
+    },
+    {
+      "propertyObj": {
+        "description": "Multiple Resources: * [Patient](patient.html): A portion of the family name of the patient* [Practitioner](practitioner.html): A portion of the family name* [Person](person.html): A portion of the family name of the person",
+        "field": "name.family",
+        "type": "string"
+      },
+      "queryParameter": "family",
+      "queryParameterValue": {
+        "operator": "$and",
+        "value": "HIEMASTERONE",
+        "values": [
+          "HIEMASTERONE"
+        ]
+      }
+    },
+    {
+      "propertyObj": {
+        "description": "Multiple Resources: * [Patient](patient.html): A value in an email contact* [Person](person.html): A value in an email contact* [Practitioner](practitioner.html): A value in an email contact* [PractitionerRole](practitionerrole.html): A value in an email contact* [RelatedPerson](relatedperson.html): A value in an email contact",
+        "field": "telecom",
+        "fieldFilter": "[system/@value='email']",
+        "fieldType": "ContactPoint",
+        "type": "token"
+      },
+      "queryParameter": "email",
+      "queryParameterValue": {
+        "operator": "$and",
+        "value": ""
+      }
+    },
+    {
+      "propertyObj": {
+        "description": "Security Labels applied to this resource",
+        "field": "meta.security",
+        "type": "token"
+      },
+      "queryParameter": "_security",
+      "queryParameterValue": {
+        "operator": "$and",
+        "value": ""
+      }
+    },
+    {
+      "propertyObj": {
+        "description": "Logical id of this artifact",
+        "field": "id",
+        "type": "token"
+      },
+      "queryParameter": "_id",
+      "queryParameterValue": {
+        "operator": "$and",
+        "value": ""
+      }
+    },
+    {
+      "propertyObj": {
+        "description": "A patient identifier",
+        "field": "identifier",
+        "fieldType": "Identifier",
+        "type": "token"
+      },
+      "queryParameter": "identifier",
+      "queryParameterValue": {
+        "operator": "$and"
+      }
+    },
+    {
+      "modifiers": [
+        "contains"
+      ],
+      "propertyObj": {
+        "description": "Identifies where the resource comes from",
+        "field": "meta.source",
+        "type": "uri"
+      },
+      "queryParameter": "_source",
+      "queryParameterValue": {
+        "operator": "$and",
+        "value": ""
+      }
+    },
+    {
+      "queryParameter": "_getpagesoffset",
+      "queryParameterValue": {
+        "operator": "$and",
+        "value": ""
+      }
+    },
+    {
+      "queryParameter": "_sort",
+      "queryParameterValue": {
+        "operator": "$and",
+        "value": ""
+      }
+    },
+    {
+      "queryParameter": "_count",
+      "queryParameterValue": {
+        "operator": "$and",
+        "value": "100",
+        "values": [
+          "100"
+        ]
+      }
+    }
+  ]
+}
