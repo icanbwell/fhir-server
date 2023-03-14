@@ -23,8 +23,9 @@ class ProxyPatientReferenceEnrichmentProvider extends EnrichmentProvider {
                 /**
                  * @type {string[]}
                  */
-                const proxyPatientIds = parsedArgsItem.queryParameterValue.values.map(
-                    a => a.startsWith('Patient/') ? a : `Patient/${a}`);
+                const proxyPatientIds = parsedArgsItem.queryParameterValue.values ?
+                    parsedArgsItem.queryParameterValue.values.map(
+                        a => a.startsWith('Patient/') ? a : `Patient/${a}`) : [];
                 for (const resource of resources) {
                     await resource.updateReferencesAsync({
                         fnUpdateReferenceAsync: async (reference) => {
