@@ -286,3 +286,8 @@ Output:
 {"dd":{"service":"bwell-fhir-server","version":"0.0.1"},"level":"info","logger":"admin","message":"Logger Message","timestamp":"Feb-10-2023 10:10:10+00:00"}
 ```
 
+## Search UI
+Search Form is rendered by [src/views/partials/searchForm.ejs](src/views/partials/searchForm.ejs)
+
+When the user presses the Search button, this script [src/dist/js/search.js](src/dist/js/search.js) bundles up 
+the user entered values and sends to `/_search` endpoint on the server.
