@@ -291,3 +291,8 @@ Search Form is rendered by [src/views/partials/searchForm.ejs](src/views/partial
 
 When the user presses the Search button, this script [src/dist/js/search.js](src/dist/js/search.js) bundles up 
 the user entered values and sends to `/_search` endpoint on the server.
+
+The results are shown by [src/views/pages/SearchResult.ejs](src/views/pages/SearchResult.ejs).
+
+Clicking on the search results is handled by [src/dist/js/searchResults.js](src/dist/js/searchResults.js).
+Helper functions are in [src/utils/searchForm.util.js](src/utils/searchForm.util.js).
