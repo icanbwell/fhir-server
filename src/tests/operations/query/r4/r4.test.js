@@ -928,5 +928,66 @@ describe('r4 search Tests', () => {
                     ]
                 });
         });
+        test('r4 works with empty parameters', async () => {
+            await createTestRequest((container) => {
+                container.register('configManager', () => new MockConfigManager());
+                container.register('indexProvider', (c) => new MockIndexProvider({
+                    configManager: c.configManager
+                }));
+                container.register('accessIndexManager', (c1) => new MockAccessIndexManager({
+                    configManager: c1.configManager,
+                    indexProvider: c1.indexProvider
+                }));
+                return container;
+            });
+            const container = getTestContainer();
+            /**
+             * @type {R4SearchQueryCreator}
+             */
+            const r4SearchQueryCreator = container.r4SearchQueryCreator;
+            /**
+             * @type {R4ArgsParser}
+             */
+            const r4ArgsParser = container.r4ArgsParser;
+
+            const args = {
+                'base_version': VERSIONS['4_0_0'],
+                'address:contains': '',
+                'address-city:contains': '',
+                'address-country:contains': '',
+                'address-postalcode:contains': '',
+                'address-state:contains': '',
+                'name:contains': '',
+                'phonetic:contains': '',
+                '_lastUpdated': ['', ''],
+                'given': 'DONOTUSE',
+                'family': 'HIEMASTERONE',
+                'email': '',
+                '_security': '',
+                'id': '',
+                'identifier': ['', ''],
+                '_source:contains': '',
+                '_getpagesoffset': '',
+                '_sort': '',
+                '_count': '100'
+
+            };
+            const resourceType = 'Patient';
+            const result = r4SearchQueryCreator.buildR4SearchQuery({
+                resourceType: resourceType,
+                parsedArgs: r4ArgsParser.parseArgs({resourceType: resourceType, args})
+            });
+            expect(result.query).toStrictEqual(
+                {
+                    '$and': [
+                        {
+                            'name.given': 'DONOTUSE'
+                        },
+                        {
+                            'name.family': 'HIEMASTERONE'
+                        }
+                    ]
+                });
+        });
     });
 });

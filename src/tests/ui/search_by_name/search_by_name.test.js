@@ -61,8 +61,8 @@ describe('Patient UI Tests', () => {
                 'name:contains': '',
                 'phonetic:contains': '',
                 '_lastUpdated': ['', ''],
-                'given': 'DONOTUSE',
-                'family': 'HIEMASTERONE',
+                'given': 'SHYLA',
+                'family': 'PATIENT1',
                 'email': '',
                 '_security': '',
                 'id': '',
@@ -86,8 +86,7 @@ describe('Patient UI Tests', () => {
             expect(resp.type).toStrictEqual('text/html');
             expect(resp.body).toStrictEqual({});
             expect(resp.text).not.toBeNull();
-            expect(resp.text).toMatch(new RegExp('^<!DOCTYPE html>?'));
-        })
-        ;
+            expect(resp.text).not.toMatch(new RegExp('No Results Found'));
+        });
     });
 });
