@@ -50,7 +50,7 @@ describe('Patient UI Tests', () => {
             expect(resp.type).toStrictEqual('text/html');
             expect(resp.body).toStrictEqual({});
             expect(resp.text).not.toBeNull();
-            expect(resp.text).toMatch(new RegExp('^<!DOCTYPE html>?'));
+            expect(resp.text).toMatch(new RegExp('SHYLA'));
 
             const body = {
                 'address:contains': '',
@@ -86,7 +86,7 @@ describe('Patient UI Tests', () => {
             expect(resp.type).toStrictEqual('text/html');
             expect(resp.body).toStrictEqual({});
             expect(resp.text).not.toBeNull();
-            expect(resp.text).not.toMatch(new RegExp('No Results Found'));
+            expect(resp.text).toMatch(new RegExp('SHYLA'));
         });
     });
 });
