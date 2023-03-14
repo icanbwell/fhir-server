@@ -107,17 +107,23 @@ class R4ArgsParser {
                 if (handlingType === STRICT_SEARCH_HANDLING && SPECIFIED_QUERY_PARAMS.indexOf(queryParameter) === -1) {
                     throw new BadRequestError(new Error(`${queryParameter} is not a parameter for ${resourceType}`));
                 }
-                parseArgItems.push(
-                    new ParsedArgsItem({
-                        queryParameter,
-                        queryParameterValue: new QueryParameterValue({
-                            value: queryParameterValue,
-                            operator: useOrFilterForArrays ? '$or' : '$and'
-                        }),
-                        propertyObj,
-                        modifiers
-                    })
-                );
+                if (
+                    (queryParameterValue && queryParameterValue !== '') && (
+                        !Array.isArray(queryParameterValue) || queryParameterValue.filter(v => v).length > 0
+                    )
+                ) {
+                    parseArgItems.push(
+                        new ParsedArgsItem({
+                            queryParameter,
+                            queryParameterValue: new QueryParameterValue({
+                                value: queryParameterValue,
+                                operator: useOrFilterForArrays ? '$or' : '$and'
+                            }),
+                            propertyObj,
+                            modifiers
+                        })
+                    );
+                }
                 continue;
             }
 
@@ -136,17 +142,24 @@ class R4ArgsParser {
                 queryParameter
             );
 
-            parseArgItems.push(
-                new ParsedArgsItem({
-                    queryParameter,
-                    queryParameterValue: new QueryParameterValue({
-                        value: queryParameterValue,
-                        operator: useOrFilterForArrays ? '$or' : '$and'
-                    }),
-                    propertyObj,
-                    modifiers
-                })
-            );
+            // if it is a valid parameter then add it
+            if (
+                (queryParameterValue && queryParameterValue !== '') && (
+                    !Array.isArray(queryParameterValue) || queryParameterValue.filter(v => v).length > 0
+                )
+            ) {
+                parseArgItems.push(
+                    new ParsedArgsItem({
+                        queryParameter,
+                        queryParameterValue: new QueryParameterValue({
+                            value: queryParameterValue,
+                            operator: useOrFilterForArrays ? '$or' : '$and'
+                        }),
+                        propertyObj,
+                        modifiers
+                    })
+                );
+            }
 
         }
 
