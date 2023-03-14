@@ -113,7 +113,7 @@ module.exports = {
                 const r4ArgsParser = container.r4ArgsParser;
                 assertTypeEquals(r4ArgsParser, R4ArgsParser);
                 const resourceType = 'CareTeam';
-                const result = await mergeOperation.merge(
+                const result = await mergeOperation.mergeAsync(
                     {
                         requestInfo,
                         parsedArgs: r4ArgsParser.parseArgs({

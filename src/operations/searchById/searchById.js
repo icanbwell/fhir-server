@@ -99,7 +99,7 @@ class SearchByIdOperation {
      * @param {string} resourceType
      * @return {Resource}
      */
-    async searchById({requestInfo, parsedArgs, resourceType}) {
+    async searchByIdAsync({requestInfo, parsedArgs, resourceType}) {
         assertIsValid(requestInfo !== undefined);
         assertIsValid(resourceType !== undefined);
         assertTypeEquals(parsedArgs, ParsedArgs);

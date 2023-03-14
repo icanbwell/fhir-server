@@ -101,7 +101,7 @@ class RemoveOperation {
      * @param {ParsedArgs} parsedArgs
      * @param {string} resourceType
      */
-    async remove({requestInfo, parsedArgs, resourceType}) {
+    async removeAsync({requestInfo, parsedArgs, resourceType}) {
         assertIsValid(requestInfo !== undefined);
         assertIsValid(resourceType !== undefined);
         assertTypeEquals(parsedArgs, ParsedArgs);

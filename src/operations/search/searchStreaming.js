@@ -98,7 +98,7 @@ class SearchStreamingOperation {
      * @param {string} resourceType
      * @return {Promise<Resource[] | {entry:{resource: Resource}[]}>} array of resources or a bundle
      */
-    async searchStreaming(
+    async searchStreamingAsync(
         {requestInfo, res, parsedArgs, resourceType}) {
         assertTypeEquals(parsedArgs, ParsedArgs);
         const currentOperationName = 'searchStreaming';

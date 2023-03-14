@@ -49,7 +49,7 @@ class ValidateOperation {
      * @param {string} resourceType
      * @returns {Promise<Resource>}
      */
-    async validate({requestInfo, parsedArgs, resourceType}) {
+    async validateAsync({requestInfo, parsedArgs, resourceType}) {
         assertIsValid(requestInfo !== undefined);
         assertIsValid(resourceType !== undefined);
         assertTypeEquals(parsedArgs, ParsedArgs);
