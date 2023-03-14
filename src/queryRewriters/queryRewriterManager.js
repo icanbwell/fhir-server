@@ -1,3 +1,5 @@
+const {RethrownError} = require('../utils/rethrownError');
+
 class QueryRewriterManager {
     /**
      * constructor
@@ -20,7 +22,18 @@ class QueryRewriterManager {
      */
     async rewriteQueryAsync({base_version, query, columns, resourceType}) {
         for (const queryRewriter of this.queryRewriters) {
-            ({query, columns} = await queryRewriter.rewriteQueryAsync({base_version, query, columns, resourceType}));
+            try {
+                ({query, columns} = await queryRewriter.rewriteQueryAsync({
+                    base_version,
+                    query,
+                    columns,
+                    resourceType
+                }));
+            } catch (e) {
+                throw new RethrownError({
+                    message: 'Error in rewriteQueryAsync(): ', error: e
+                });
+            }
         }
         return {query, columns};
     }

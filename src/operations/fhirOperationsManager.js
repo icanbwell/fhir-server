@@ -308,7 +308,7 @@ class FhirOperationsManager {
                 args: combined_args, resourceType, headers: req.headers
             }
         );
-        return this.searchBundleOperation.searchBundle(
+        return await this.searchBundleOperation.searchBundleAsync(
             {
                 requestInfo: this.getRequestInfo(req),
                 parsedArgs,

@@ -97,7 +97,7 @@ class SearchBundleOperation {
      * @param {boolean} useAggregationPipeline
      * @return {Promise<Bundle>} array of resources or a bundle
      */
-    async searchBundle(
+    async searchBundleAsync(
         {requestInfo, parsedArgs, resourceType, useAggregationPipeline}
     ) {
         assertIsValid(requestInfo !== undefined);

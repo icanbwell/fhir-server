@@ -39,6 +39,8 @@ class PatientProxyQueryRewriter extends QueryRewriter {
     async rewriteArgsAsync({base_version, parsedArgs, resourceType}) {
         assertIsValid(resourceType);
         assertIsValid(base_version);
+        // const foo = undefined[1];
+
         for (const parsedArg of parsedArgs.parsedArgItems) {
             if (resourceType === 'Patient') {
                 if (parsedArg.queryParameter === 'id' || parsedArg.queryParameter === '_id') {

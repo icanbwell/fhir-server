@@ -23,7 +23,9 @@ describe('Patient UI Tests', () => {
     describe('Patient Search By Id Tests', () => {
         test('search by single name works', async () => {
             const request = await createTestRequest();
-            let resp = await request.get('/4_0_0/Patient').set(getHeaders()).expect(200);
+            let resp = await request.get('/4_0_0/Patient').set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResourceCount(0);
 
             expect(resp.body.length).toBe(0);
             logInfo('------- response 1 ------------');
@@ -60,7 +62,26 @@ describe('Patient UI Tests', () => {
             expect(resp.text).not.toBeNull();
             expect(resp.text).toMatch(new RegExp('^<!DOCTYPE html>?'));
 
-            const body = '{"address:contains":"","address-city:contains":"","address-country:contains":"","address-postalcode:contains":"","address-state:contains":"","name:contains":"","phonetic:contains":"","_lastUpdated":["",""],"given":"DONOTUSE","family":"HIEMASTERONE","email":"","_security":"","id":"","identifier":["",""],"_source:contains":"","_getpagesoffset":"","_sort":"","_count":"100"}';
+            const body = {
+                'address:contains': '',
+                'address-city:contains': '',
+                'address-country:contains': '',
+                'address-postalcode:contains': '',
+                'address-state:contains': '',
+                'name:contains': '',
+                'phonetic:contains': '',
+                '_lastUpdated': ['', ''],
+                'given': 'DONOTUSE',
+                'family': 'HIEMASTERONE',
+                'email': '',
+                '_security': '',
+                'id': '',
+                'identifier': ['', ''],
+                '_source:contains': '',
+                '_getpagesoffset': '',
+                '_sort': '',
+                '_count': '100'
+            };
             resp = await request
                 .post('/4_0_0/Patient/_search')
                 .send(body)
