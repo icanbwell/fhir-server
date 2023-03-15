@@ -53,6 +53,8 @@ class KafkaClient {
         const config = {
             clientId: clientId,
             brokers: brokers,
+            // Timeout in ms for authentication requests
+            authenticationTimeout: 60000,
             ssl: ssl,
             sasl: sasl,
             // connectionTimeout in milliseconds(10 seconds), to wait for a successful connection
