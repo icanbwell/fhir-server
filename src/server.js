@@ -7,6 +7,15 @@ const http = require('http');
 const { isTrue } = require('./utils/isTrue');
 const {getImageVersion} = require('./utils/getImageVersion');
 const {MongoDatabaseManager} = require('./utils/mongoDatabaseManager');
+const memwatch = require('@airbnb/node-memwatch');
+
+var hd = new memwatch.HeapDiff();
+setInterval(function() {
+    let diff = hd.end();
+    console.dir(diff);
+    console.dir(diff.change.details.sort((a, b) => (a.size_bytes > b.size_bytes ? -1 : 1)));
+    hd = new memwatch.HeapDiff();
+}, env.HEAP_DIFF_TIME_GAP ? parseInt(env.HEAP_DIFF_TIME_GAP) : 10000);
 
 /**
  * Creates the http server

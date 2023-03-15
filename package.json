@@ -100,6 +100,7 @@
     }
   },
   "dependencies": {
+    "@airbnb/node-memwatch": "^2.0.0",
     "@apollo/server": "^4.4.1",
     "@apollo/server-plugin-landing-page-graphql-playground": "^4.0.0",
     "@asymmetrik/fhir-json-schema-validator": "^0.9.8",

@@ -6,6 +6,8 @@ ARG NODE_ENV=production
 # Update everything on the OS
 RUN apt-get -y update && apt-get -y install autoconf build-essential && apt-get clean
 
+RUN apt-get -y install python3 make g++
+
 # update npm
 RUN npm install -g npm@latest && npm upgrade --global yarn
 # RUN npm install -g npm@latest && npm upgrade --global yarn && yarn set version berry
@@ -29,6 +31,8 @@ ARG NODE_ENV=production
 
 # Update everything on the OS
 RUN apt-get -y update && apt-get -y upgrade && apt-get -y install curl && apt-get clean
+
+RUN apt-get -y install python3 make g++
 
 # update npm
 RUN npm install -g npm@latest && npm upgrade --global yarn
