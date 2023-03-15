@@ -1,6 +1,6 @@
 paths:
   - src
 paths-ignore:
-  - src/admin
+  - src/fhir/fhirResourceCreator.js
+  - src/node_modules
   - src/tests
-  - src/views
