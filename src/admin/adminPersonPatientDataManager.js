@@ -77,7 +77,7 @@ class AdminPersonPatientDataManager {
                 'base_version': base_version,
                 'id': patientId
             };
-            const bundle = await this.everythingOperation.everything({
+            const bundle = await this.everythingOperation.everythingAsync({
                 requestInfo,
                 res,
                 resourceType: 'Patient',
@@ -168,7 +168,7 @@ class AdminPersonPatientDataManager {
                 'base_version': base_version,
                 'id': personId
             };
-            const bundle = await this.everythingOperation.everything({
+            const bundle = await this.everythingOperation.everythingAsync({
                 requestInfo,
                 res,
                 resourceType: 'Person',

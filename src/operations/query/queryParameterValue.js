@@ -5,6 +5,7 @@
  * @typedef {('$and'|'$or')} QueryParameterType
  **/
 const {assertIsValid} = require('../../utils/assertType');
+const {removeNull} = require('../../utils/nullRemover');
 
 
 class QueryParameterValue {
@@ -22,7 +23,7 @@ class QueryParameterValue {
         /**
          * @type {string|string[]}
          */
-        this.value = value;
+        this.value = Array.isArray(value) ? value.filter(v => v) : value;
         /**
          * @type {QueryParameterType}
          */
@@ -71,6 +72,18 @@ class QueryParameterValue {
     clone() {
         return new QueryParameterValue({
             value: this.value,
+            operator: this.operator
+        });
+    }
+
+    /**
+     * Returns JSON representation of entity
+     * @return {Object}
+     */
+    toJSON() {
+        return removeNull({
+            value: this.value,
+            values: this.values,
             operator: this.operator
         });
     }

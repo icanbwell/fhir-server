@@ -148,7 +148,7 @@ class FhirDataSource {
                         ...args,
                     };
 
-                    const bundle = await this.searchBundleOperation.searchBundle(
+                    const bundle = await this.searchBundleOperation.searchBundleAsync(
                         {
                             requestInfo,
                             resourceType,
@@ -282,7 +282,7 @@ class FhirDataSource {
             ...args
         };
         return this.unBundle(
-            await this.searchBundleOperation.searchBundle(
+            await this.searchBundleOperation.searchBundleAsync(
                 {
                     requestInfo: context.fhirRequestInfo,
                     resourceType,
@@ -318,7 +318,7 @@ class FhirDataSource {
             _bundle: '1',
             ...args
         };
-        const bundle = await this.searchBundleOperation.searchBundle(
+        const bundle = await this.searchBundleOperation.searchBundleAsync(
             {
                 requestInfo: context.fhirRequestInfo,
                 resourceType,

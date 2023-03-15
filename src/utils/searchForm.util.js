@@ -368,13 +368,13 @@ const getFieldValue = (res, name) => {
         case 'npi':
             return (res.identifier || [])
                 .map(id => id.value)
-                .join(', ');
+                .join(',<br>');
         case 'given':
             return givenNameValue(res.name);
         case 'family':
             return (res.name || [])
                 .map(n => n.family)
-                .join(', ');
+                .join(',<br>');
         case 'name':
             return getNameValue(res.name);
         case 'id':
@@ -383,21 +383,21 @@ const getFieldValue = (res, name) => {
             return (res.telecom || [])
                 .filter(n => n.system === 'email')
                 .map(n => n.value)
-                .join(', ');
+                .join(',<br>');
         case 'identifier':
             return (res.identifier || [])
                 .map(n => `${n.value}(${n.system})`)
-                .join(', ');
+                .join(',<br>');
         case '_security':
             return (res.meta && res.meta.security || [])
                 .map(n => `${n.code}(${n.system.split('/').pop()})`)
-                .join(', ');
+                .join(',<br>');
     }
     if (res.name) {
         return res.name;
     }
     if (Array.isArray(res)) {
-        return res.map(r => r.name).join(', ');
+        return res.map(r => r.name).join(',<br>');
     }
     return JSON.stringify(res[`${name}`]);
 };
@@ -412,6 +412,7 @@ const isValidResource = (resource, resourceName) => {
 const getTotalMessage = (res) => {
     if (
         res.resources.length === 0 ||
+        !res.resourceDefinition ||
         !isValidResource(res.resources[0], res.resourceDefinition.name)
     ) {
         return '';

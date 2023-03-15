@@ -98,7 +98,7 @@ class HistoryOperation {
      * @param {ParsedArgs} parsedArgs
      * @param {string} resourceType
      */
-    async history({requestInfo, parsedArgs, resourceType}) {
+    async historyAsync({requestInfo, parsedArgs, resourceType}) {
         assertIsValid(requestInfo !== undefined);
         assertIsValid(parsedArgs !== undefined);
         assertIsValid(resourceType !== undefined);

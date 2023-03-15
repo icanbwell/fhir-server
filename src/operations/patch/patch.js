@@ -74,7 +74,7 @@ class PatchOperation {
      * @param {string} resourceType
      * @returns {{id: string,created: boolean, resource_version: string, resource: Resource}}
      */
-    async patch({requestInfo, parsedArgs, resourceType}) {
+    async patchAsync({requestInfo, parsedArgs, resourceType}) {
         assertIsValid(requestInfo !== undefined);
         assertIsValid(resourceType !== undefined);
         assertTypeEquals(parsedArgs, ParsedArgs);

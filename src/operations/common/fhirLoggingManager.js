@@ -175,7 +175,7 @@ class FhirLoggingManager {
          * @type {string|null}
          */
         let firstAccessCode = null;
-        if (accessCodes?.length > 0) {
+        if (accessCodes && accessCodes.length > 0) {
             firstAccessCode = accessCodes[0] === '*' ? 'bwell' : accessCodes[0];
         }
 
@@ -226,6 +226,20 @@ class FhirLoggingManager {
             fhirInSecureLogger.info(logEntry);
         }
         // Now write out the secure logs
+        detail.push({
+            type: 'method',
+            valueString: requestInfo.method
+        });
+        if (requestInfo.contentTypeFromHeader) {
+            detail.push({
+                type: 'content-type',
+                valueString: requestInfo.contentTypeFromHeader.type
+            });
+        }
+        logEntry.message = error ?
+            `${error.message}: ${error.stack || ''}` :
+            message;
+
         if (requestInfo.body) {
             detail.push({
                 type: 'body',

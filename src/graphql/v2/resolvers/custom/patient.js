@@ -183,7 +183,7 @@ module.exports = {
                         base_version: '4_0_0',
                         id: args.patientId,
                     };
-                    await removeOperation.remove(
+                    await removeOperation.removeAsync(
                         {
                             requestInfo: requestInfo,
                             parsedArgs: r4ArgsParser.parseArgs({resourceType: 'Patient', args: args1}),
@@ -221,7 +221,7 @@ module.exports = {
                  */
                 const r4ArgsParser = container.r4ArgsParser;
                 assertTypeEquals(r4ArgsParser, R4ArgsParser);
-                const result = await mergeOperation.merge(
+                const result = await mergeOperation.mergeAsync(
                     {
                         requestInfo,
                         parsedArgs: r4ArgsParser.parseArgs({resourceType: 'Patient', args: args1}),
