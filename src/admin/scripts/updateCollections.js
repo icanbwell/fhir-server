@@ -21,17 +21,11 @@ async function main() {
      * @type {Object}
      */
     const parameters = CommandLineParser.parseCommandLine();
-    const updatedAfter = parameters.updatedAfter
-        ? new Date(`${parameters.updatedAfter}T00:00:00Z`)
-        : new Date(2023, 3 - 1, 14);
+    const updatedAfter = parameters.updatedAfter ? new Date(`${parameters.updatedAfter}T00:00:00Z`) : new Date(2023, 3 - 1, 14);
     const readBatchSize = parameters.readBatchSize || process.env.BULK_BUFFER_SIZE || 10000;
     const writeBatchSize = parameters.writeBatchSize || process.env.BULK_BUFFER_SIZE || 10000;
-    const readOnlyCertainCollections = parameters.readOnlyCertainCollections
-        ? parameters.readOnlyCertainCollections.split(',')
-        : undefined;
-    const excludeCollection = parameters.excludeCollection
-        ? parameters.excludeCollection.split(',')
-        : undefined;
+    const readOnlyCertainCollections = parameters.readOnlyCertainCollections ? parameters.readOnlyCertainCollections.split(',') : undefined;
+    const excludeCollection = parameters.excludeCollection ? parameters.excludeCollection.split(',') : undefined;
     console.log(`Running script to update data with last_updated greater than ${updatedAfter}`);
 
     // set up all the standard services in the container

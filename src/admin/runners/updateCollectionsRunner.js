@@ -1,4 +1,3 @@
-const env = require('var');
 const { assertTypeEquals } = require('../../utils/assertType');
 const moment = require('moment-timezone');
 const { MongoCollectionManager } = require('../../utils/mongoCollectionManager');
@@ -83,7 +82,7 @@ class UpdateCollectionsRunner {
         // const mongoUrl = encodeURI(`mongodb+srv://${env.MONGO_USERNAME}:${env.MONGO_PASSWORD}@`)
         // const db_name = "cl-dev-fhir-pl-0.vpsmx.mongodb.net"
 
-        const mongoUrl = encodeURI(`mongodb://localhost:27017/`);
+        const mongoUrl = encodeURI('mongodb://localhost:27017/');
         const db_name = 'fhir';
         const options = {
             retryWrites: true,
@@ -100,7 +99,7 @@ class UpdateCollectionsRunner {
         // const mongoUrl = encodeURI(`mongodb+srv://${env.MONGO_USERNAME}:${env.MONGO_PASSWORD}`)
         // const db_name = "@cl-dev-fhir-v3-pl-0.vpsmx.mongodb.net"
 
-        const mongoUrl = encodeURI(`mongodb://localhost:27017/`);
+        const mongoUrl = encodeURI('mongodb://localhost:27017/');
         const db_name = 'fhir_v3';
         const options = {
             retryWrites: true,
