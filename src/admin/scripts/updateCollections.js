@@ -25,6 +25,7 @@ async function main() {
     const readBatchSize = parameters.readBatchSize || process.env.BULK_BUFFER_SIZE || 10000;
     const writeBatchSize = parameters.writeBatchSize || process.env.BULK_BUFFER_SIZE || 10000;
     const concurrentRunners = parameters.concurrentRunners || 1;
+    const _idAbove = parameters._idAbove ? String(parameters._idAbove) : undefined;
     const readOnlyCertainCollections = parameters.readOnlyCertainCollections ? parameters.readOnlyCertainCollections.split(',') : undefined;
     const excludeCollection = parameters.excludeCollection ? parameters.excludeCollection.split(',') : undefined;
     console.log(`Running script to update data with last_updated greater than ${updatedAfter}`);
@@ -44,6 +45,7 @@ async function main() {
                 readBatchSize,
                 writeBatchSize,
                 concurrentRunners,
+                _idAbove,
                 readOnlyCertainCollections,
                 excludeCollection,
                 adminLogger: new AdminLogger(),
@@ -63,7 +65,7 @@ async function main() {
 /**
  * To run this:
  * nvm use 18.14.2
- * node src/admin/scripts/updateCollections.js --updatedAfter=2023-03-14 --readbatchSize=10000 --writeBatchSize=10000 --concurrentRunners=5
+ * node src/admin/scripts/updateCollections.js --updatedAfter=2023-03-14 --readbatchSize=10000 --writeBatchSize=10000 --concurrentRunners=5 --_idAbove="1"
  * node src/admin/scripts/updateCollections.js --updatedAfter=2023-03-14 --readOnlyCertainCollections="value1,value2" --excludeCollection="valueX,valueY"
  */
 main().catch((reason) => {

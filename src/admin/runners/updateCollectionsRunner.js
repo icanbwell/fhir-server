@@ -3,6 +3,7 @@ const moment = require('moment-timezone');
 const { MongoCollectionManager } = require('../../utils/mongoCollectionManager');
 const { MongoDatabaseManager } = require('../../utils/mongoDatabaseManager');
 const { AdminLogger } = require('../adminLogger');
+const { ObjectId } = require('mongodb');
 
 /**
  * @classdesc Copies documents from one collection into the other collection in different clusters
@@ -26,6 +27,7 @@ class UpdateCollectionsRunner {
         readBatchSize,
         writeBatchSize,
         concurrentRunners,
+        _idAbove,
         readOnlyCertainCollections,
         excludeCollection,
         adminLogger,
@@ -50,6 +52,11 @@ class UpdateCollectionsRunner {
          * @type {number}
          */
         this.concurrentRunners = concurrentRunners;
+
+        /**
+         * @type {string|undefined}
+         */
+        this._idAbove = _idAbove;
 
         /**
          * @type {object|string|undefined}
@@ -117,6 +124,17 @@ class UpdateCollectionsRunner {
      * Runs a loop to process all the documents.
      */
     async processAsync() {
+        // If idabove is to be used and but readOnlyCertainCollections is not provided or readOnlyCertainCollections contains multiple values return
+        if (
+            this._idAbove &&
+            (!this.readOnlyCertainCollections || this.readOnlyCertainCollections.length > 1)
+        ) {
+            this.adminLogger.logError(
+                'To support _idAbove provide a single collection name under readOnlyCertainCollections param'
+            );
+            return;
+        }
+
         // Creating config specific to each cluster
         const targetClusterConfig = this.getTargetClusterConfig();
         const sourceClusterConfig = this.getSourceClusterConfig();
@@ -128,10 +146,11 @@ class UpdateCollectionsRunner {
             sourceClient = await this.mongoDatabaseManager.createClientAsync(sourceClusterConfig);
 
             this.adminLogger.logInfo('Client connected successfully to both the clusters.');
-            // Createing a new db instance for both the clusters
+            // Creating a new db instance for both the clusters
             const targetDatabase = targetClient.db(targetClusterConfig.db_name);
             const sourceDatabase = sourceClient.db(sourceClusterConfig.db_name);
 
+            // Fetch all the collection names for the source database.
             const sourceCollections = await this.mongoCollectionManager.getAllCollectionNames({
                 db: sourceDatabase,
             });
@@ -141,6 +160,7 @@ class UpdateCollectionsRunner {
 
             // Creating batches of collections depending on the concurrency parameter passed.
             let collectionNameBatches = [];
+            // Dpending on concurrentRunners provided we eill batch collections in equivalent groups.
             let minimumCollectionsToRunTogether = Math.max(
                 1,
                 Math.floor(sourceCollections.length / this.concurrentRunners)
@@ -154,12 +174,16 @@ class UpdateCollectionsRunner {
             this.adminLogger.logInfo(
                 `===== Total collection batches created: ${collectionNameBatches.length}`
             );
+
+            // Process each collection batch in parallel
             const processingBatch = collectionNameBatches.map(async (collectionNameBatch) => {
                 let results = {};
                 for (const collection of collectionNameBatch) {
                     this.adminLogger.logInfo(`========= Iterating through ${collection} =========`);
-                    let updatedCount = 0;
-                    let skippedCount = 0;
+                    let updatedCount = 0; // Keeps track of the total updated documents
+                    let skippedCount = 0; // Keeps track of documents that are skipped as they don't match the requirements.
+                    let lastProcessedId = null; // For each collect help in keeping track of the last id processed.
+                    let totalDocumentsFound = 0; // For each collection in source db counts the total document that has been visited.
 
                     if (
                         !this.readOnlyCertainCollections &&
@@ -182,16 +206,27 @@ class UpdateCollectionsRunner {
                         );
                         continue;
                     }
+                    // Fetching the collection from the database for both source and target
                     const sourceDatabaseCollection = sourceDatabase.collection(collection);
                     const targetDatabaseCollection = targetDatabase.collection(collection);
 
+                    // Cursor options. As we are also provide _idAbove we need to get results in sorted manner
+                    const cursorOptions = {
+                        batchSize: this.readBatchSize,
+                        sort: { _id: 1 },
+                    };
+
+                    // If _idAbove is provided fetch all documents having _id greater than this._idAbove
+                    const query = this._idAbove
+                        ? { _id: { $gt: new ObjectId(this._idAbove) } }
+                        : {};
+
                     // Projection is used so that we don't fetch _id. Thus preventing it from being updated while updating document.
                     // Returns a list of documents from sourceDatabaseCollection collection with specified batch size
-                    const cursor = sourceDatabaseCollection
-                        .find({}, { $sort: { _id: 1 } })
-                        .batchSize(this.readBatchSize);
+                    const cursor = sourceDatabaseCollection.find(query, cursorOptions);
                     while (await cursor.hasNext()) {
                         const sourceDocument = await cursor.next();
+                        totalDocumentsFound += 1;
                         // Fetching document from active db having same id.
                         const targetDocument = await targetDatabaseCollection.findOne({
                             _id: sourceDocument._id,
@@ -206,7 +241,7 @@ class UpdateCollectionsRunner {
                             );
                             continue;
                         }
-                        //  Active (Source)db lastUpdated <  this.updatedAfter and targetDatabase lastUpdate > fhirDb lastUpdate
+
                         if (
                             targetDocument &&
                             targetDocument.meta.lastUpdated <= this.updatedAfter &&
@@ -219,12 +254,15 @@ class UpdateCollectionsRunner {
                             skippedCount++;
                             continue;
                         }
+                        // Updating the document in targetDatabase.
                         const result = await targetDatabaseCollection.updateOne(
                             { _id: sourceDocument._id },
                             {
                                 $set: sourceDocument,
                             }
                         );
+                        // Keeping track of the last updated id
+                        lastProcessedId = sourceDocument._id;
                         updatedCount += result.modifiedCount;
                     }
                     this.adminLogger.logInfo(
@@ -234,15 +272,19 @@ class UpdateCollectionsRunner {
                     results[collection] = {
                         updatedCount: updatedCount,
                         skippedCount: skippedCount,
+                        lastProcessedId: lastProcessedId,
+                        totalDocumentsFound: totalDocumentsFound
                     };
                 }
                 return results;
             });
+
             const results = await Promise.all(processingBatch);
+            // Creating an object that logs the collection name, total updated, skipped and lastUpdatedId for the document
             const mergedObject = results.reduce((acc, obj) => Object.assign(acc, obj), {});
             this.adminLogger.logInfo(mergedObject);
         } catch (e) {
-            this.adminLogger.logError(e);
+            this.adminLogger.logError(`Error: ${e}`);
         } finally {
             await this.mongoDatabaseManager.disconnectClientAsync(targetClient);
             await this.mongoDatabaseManager.disconnectClientAsync(sourceClient);
