@@ -230,6 +230,7 @@ class UpdateCollectionsRunner {
                     this.adminLogger.logInfo(
                         `===== For ${collection} total updated documents: ${updatedCount} and total documents skipped: ${skippedCount} `
                     );
+                    // eslint-disable-next-line security/detect-object-injection
                     results[collection] = {
                         updatedCount: updatedCount,
                         skippedCount: skippedCount,
