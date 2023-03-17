@@ -20,3 +20,4 @@ process.env.ENABLE_EVENTS_KAFKA = '0';
 process.env.SET_INDEX_HINTS = '0';
 process.env.PARTITION_RESOURCES = 'AuditEvent';
 process.env.LOGLEVEL = 'TRACE';
+process.env.USE_FHIR_CONSENT_AUTHORIZATION = '0';

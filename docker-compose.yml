@@ -58,6 +58,7 @@ services:
             VALIDATE_SCHEMA: "1"
             PERSON_MATCHING_SERVICE_URL: "https://person-matching.dev.bwell.zone/$$match"
             WHITELIST: "https://embeddable-sandbox.cdn.apollographql.com"
+            USE_FHIR_CONSENT_AUTHORIZATION: '0'
         ports:
             - '3000:3000'
         volumes:

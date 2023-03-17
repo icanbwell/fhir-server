@@ -10,6 +10,8 @@ const {logDebug} = require('../operations/common/logging');
 const {isTrue} = require('../utils/isTrue');
 const async = require('async');
 const superagent = require('superagent');
+const {mongoConfig} = require('../config');
+const {ConsentAuthorization} = require('../utils/consentAuthorization');
 
 /**
  * Retrieve jwks for URL
@@ -61,7 +63,7 @@ const getExternalJwksAsync = async () => {
  * @param done
  * @return {*}
  */
-const verify = (jwt_payload, done) => {
+const verify = async(jwt_payload, done) => {
     if (jwt_payload) {
         /**
          * @type {boolean}
@@ -115,6 +117,19 @@ const verify = (jwt_payload, done) => {
             const personIdFromJwtToken = jwt_payload['custom:bwell_fhir_person_id'];
             if (personIdFromJwtToken) {
                 context['personIdFromJwtToken'] = personIdFromJwtToken;
+            }
+        }
+
+        var scopes = scope.split(' ');
+        var consentScope = scopes.find(s => s.indexOf('consent/') !== -1);
+        if (isTrue(env.USE_FHIR_CONSENT_AUTHORIZATION) && consentScope) {
+            var group = consentScope.replace('consent/', '').replace('.*', '');
+            var consentAuthorization = new ConsentAuthorization(mongoConfig);
+            var consentedPatientIds = await consentAuthorization.authorize(group);
+            if (context['patientIdsFromJwtToken'] !== undefined) {
+                context['patientIdsFromJwtToken'].concat(consentedPatientIds);
+            } else {
+                context['patientIdsFromJwtToken'] = consentedPatientIds;
             }
         }
 
