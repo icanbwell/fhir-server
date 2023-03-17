@@ -217,9 +217,7 @@ class UpdateCollectionsRunner {
                     };
 
                     // If _idAbove is provided fetch all documents having _id greater than this._idAbove
-                    const query = this._idAbove
-                        ? { _id: { $gt: new ObjectId(this._idAbove) } }
-                        : {};
+                    const query = this._idAbove ? { _id: { $gt: new ObjectId(this._idAbove) } } : {};
 
                     // Projection is used so that we don't fetch _id. Thus preventing it from being updated while updating document.
                     // Returns a list of documents from sourceDatabaseCollection collection with specified batch size
