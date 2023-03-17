@@ -25,6 +25,7 @@ class UpdateCollectionsRunner {
         updatedAfter,
         readBatchSize,
         writeBatchSize,
+        concurrentRunners,
         readOnlyCertainCollections,
         excludeCollection,
         adminLogger,
@@ -44,6 +45,11 @@ class UpdateCollectionsRunner {
          * @type {number}
          */
         this.writeBatchSize = writeBatchSize;
+
+        /**
+         * @type {number}
+         */
+        this.concurrentRunners = concurrentRunners;
 
         /**
          * @type {object|string|undefined}
@@ -132,84 +138,113 @@ class UpdateCollectionsRunner {
             this.adminLogger.logInfo(
                 `Total collections present in ${sourceClusterConfig.db_name}: ${sourceCollections.length}`
             );
-            for (const collection of sourceCollections) {
-                this.adminLogger.logInfo(`========= Iterating through ${collection} =========`);
-                let updatedCount = 0;
-                let skippedCount = 0;
 
-                if (
-                    !this.readOnlyCertainCollections &&
-                    this.excludeCollection &&
-                    this.excludeCollection.includes(collection)
-                ) {
-                    // As the collection is to be excluded we move to the next collection
-                    this.adminLogger.logInfo(
-                        `${collection} is being excluded from further data transfer`
-                    );
-                    continue;
-                }
-                if (
-                    this.readOnlyCertainCollections &&
-                    !this.readOnlyCertainCollections.includes(collection)
-                ) {
-                    // As we need to iterate only a few collection we skip collections that are not present in the list.
-                    this.adminLogger.logInfo(
-                        `Omitting ${collection} as it is not present in the list of collections to be iterated`
-                    );
-                    continue;
-                }
-                const sourceDatabaseCollection = sourceDatabase.collection(collection);
-                const targetDatabaseCollection = targetDatabase.collection(collection);
-
-                // Projection is used so that we don't fetch _id. Thus preventing it from being updated while updating document.
-                // Returns a list of documents from sourceDatabaseCollection collection with specified batch size
-                const cursor = sourceDatabaseCollection.find().batchSize(this.readBatchSize);
-                while (await cursor.hasNext()) {
-                    const sourceDocument = await cursor.next();
-                    // Fetching document from active db having same id.
-                    const targetDocument = await targetDatabaseCollection.findOne({
-                        _id: sourceDocument._id,
-                    });
-                    // Skip target/source documents in which lastUpdated is not present.
-                    if (
-                        targetDocument?.meta?.lastUpdated === undefined ||
-                        sourceDocument?.meta?.lastUpdated === undefined
-                    ) {
-                        this.adminLogger.logInfo(
-                            `Document in ${collection} with id:${sourceDocument.id} skipped as the targetDocument or sourceDocument is missing lastUpdated`
-                        );
-                        continue;
-                    }
-                    //  Active (Source)db lastUpdated <  this.updatedAfter and targetDatabase lastUpdate > fhirDb lastUpdate
-                    if (
-                        targetDocument &&
-                        targetDocument.meta.lastUpdated <= this.updatedAfter &&
-                        targetDocument.meta.lastUpdated > sourceDocument.meta.lastUpdated
-                    ) {
-                        // The document already exists in fhir and has been updated more recently than updatedAfter
-                        this.adminLogger.logInfo(
-                            `Document in ${collection} with id:${sourceDocument.id} found in target db but omitting as lastUpdated > ${this.updatedAfter}`
-                        );
-                        skippedCount++;
-                        continue;
-                    }
-                    const result = await targetDatabaseCollection.updateOne(
-                        { _id: sourceDocument._id },
-                        {
-                            $set: sourceDocument,
-                        }
-                    );
-                    updatedCount += result.modifiedCount;
-                }
-                this.adminLogger.logInfo(
-                    `===== For ${collection} total updated documents: ${updatedCount} and total documents skipped: ${skippedCount} `
+            // Creating batches of collections depending on the concurrency parameter passed.
+            let collectionNameBatches = [];
+            let minimumCollectionsToRunTogether = Math.max(
+                1,
+                Math.floor(sourceCollections.length / this.concurrentRunners)
+            );
+            for (let i = 0; i < sourceCollections.length; i = i + minimumCollectionsToRunTogether) {
+                collectionNameBatches.push(
+                    sourceCollections.slice(i, i + minimumCollectionsToRunTogether)
                 );
             }
+
+            this.adminLogger.logInfo(
+                `===== Total collection batches created: ${collectionNameBatches.length}`
+            );
+            const processingBatch = collectionNameBatches.map(async (collectionNameBatch) => {
+                let results = {};
+                for (const collection of collectionNameBatch) {
+                    this.adminLogger.logInfo(`========= Iterating through ${collection} =========`);
+                    let updatedCount = 0;
+                    let skippedCount = 0;
+
+                    if (
+                        !this.readOnlyCertainCollections &&
+                        this.excludeCollection &&
+                        this.excludeCollection.includes(collection)
+                    ) {
+                        // As the collection is to be excluded we move to the next collection
+                        this.adminLogger.logInfo(
+                            `${collection} is being excluded from further data transfer`
+                        );
+                        continue;
+                    }
+                    if (
+                        this.readOnlyCertainCollections &&
+                        !this.readOnlyCertainCollections.includes(collection)
+                    ) {
+                        // As we need to iterate only a few collection we skip collections that are not present in the list.
+                        this.adminLogger.logInfo(
+                            `Omitting ${collection} as it is not present in the list of collections to be iterated`
+                        );
+                        continue;
+                    }
+                    const sourceDatabaseCollection = sourceDatabase.collection(collection);
+                    const targetDatabaseCollection = targetDatabase.collection(collection);
+
+                    // Projection is used so that we don't fetch _id. Thus preventing it from being updated while updating document.
+                    // Returns a list of documents from sourceDatabaseCollection collection with specified batch size
+                    const cursor = sourceDatabaseCollection
+                        .find({}, { $sort: { _id: 1 } })
+                        .batchSize(this.readBatchSize);
+                    while (await cursor.hasNext()) {
+                        const sourceDocument = await cursor.next();
+                        // Fetching document from active db having same id.
+                        const targetDocument = await targetDatabaseCollection.findOne({
+                            _id: sourceDocument._id,
+                        });
+                        // Skip target/source documents in which lastUpdated is not present.
+                        if (
+                            targetDocument?.meta?.lastUpdated === undefined ||
+                            sourceDocument?.meta?.lastUpdated === undefined
+                        ) {
+                            this.adminLogger.logInfo(
+                                `Document in ${collection} with id:${sourceDocument.id} skipped as the targetDocument or sourceDocument is missing lastUpdated`
+                            );
+                            continue;
+                        }
+                        //  Active (Source)db lastUpdated <  this.updatedAfter and targetDatabase lastUpdate > fhirDb lastUpdate
+                        if (
+                            targetDocument &&
+                            targetDocument.meta.lastUpdated <= this.updatedAfter &&
+                            targetDocument.meta.lastUpdated > sourceDocument.meta.lastUpdated
+                        ) {
+                            // The document already exists in fhir and has been updated more recently than updatedAfter
+                            this.adminLogger.logInfo(
+                                `Document in ${collection} with id:${sourceDocument.id} found in target db but omitting as lastUpdated > ${this.updatedAfter}`
+                            );
+                            skippedCount++;
+                            continue;
+                        }
+                        const result = await targetDatabaseCollection.updateOne(
+                            { _id: sourceDocument._id },
+                            {
+                                $set: sourceDocument,
+                            }
+                        );
+                        updatedCount += result.modifiedCount;
+                    }
+                    this.adminLogger.logInfo(
+                        `===== For ${collection} total updated documents: ${updatedCount} and total documents skipped: ${skippedCount} `
+                    );
+                    results[collection] = {
+                        updatedCount: updatedCount,
+                        skippedCount: skippedCount,
+                    };
+                }
+                return results;
+            });
+            const results = await Promise.all(processingBatch);
+            const mergedObject = results.reduce((acc, obj) => Object.assign(acc, obj), {});
+            this.adminLogger.logInfo(mergedObject);
         } catch (e) {
-            this.adminLogger.logError('ERROR', { error: e });
+            this.adminLogger.logError(e);
         } finally {
-            await targetClient.close();
-            await sourceClient.close();
+            await this.mongoDatabaseManager.disconnectClientAsync(targetClient);
+            await this.mongoDatabaseManager.disconnectClientAsync(sourceClient);
             this.adminLogger.logInfo('Closed connectinon for both the cluster');
             this.adminLogger.logInfo('Finished Script');
         }
