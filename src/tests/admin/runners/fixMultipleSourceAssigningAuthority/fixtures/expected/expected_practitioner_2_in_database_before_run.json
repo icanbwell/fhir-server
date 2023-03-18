@@ -1,0 +1,268 @@
+{
+  "resourceType": "Practitioner",
+  "id": "1083620462",
+  "meta": {
+    "versionId": "3",
+    "lastUpdated": "2023-02-25T15:29:40.000Z",
+    "source": "https://www.vaeagle.com/rx_claims",
+    "security": [
+      {
+        "system": "https://www.icanbwell.com/owner",
+        "code": "lnf"
+      },
+      {
+        "system": "https://www.icanbwell.com/access",
+        "code": "lnf"
+      },
+      {
+        "system": "https://www.icanbwell.com/access",
+        "code": "boon-chapman"
+      },
+      {
+        "system": "https://www.icanbwell.com/vendor",
+        "code": "boon-chapman"
+      },
+      {
+        "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+        "code": "lnf"
+      },
+      {
+        "system": "https://www.icanbwell.com/owner",
+        "code": "honest"
+      },
+      {
+        "system": "https://www.icanbwell.com/access",
+        "code": "honest"
+      },
+      {
+        "system": "https://www.icanbwell.com/vendor",
+        "code": "convergent"
+      },
+      {
+        "system": "https://www.icanbwell.com/access",
+        "code": "convergent"
+      },
+      {
+        "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+        "code": "honest"
+      },
+      {
+        "system": "https://www.icanbwell.com/owner",
+        "code": "thedacare"
+      },
+      {
+        "system": "https://www.icanbwell.com/access",
+        "code": "thedacare"
+      },
+      {
+        "system": "https://www.icanbwell.com/access",
+        "code": "healthpartners"
+      },
+      {
+        "system": "https://www.icanbwell.com/vendor",
+        "code": "healthpartners"
+      },
+      {
+        "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+        "code": "thedacare"
+      }
+    ]
+  },
+  "identifier": [
+    {
+      "id": "npi",
+      "extension": [
+        {
+          "id": "VAEagle-client",
+          "url": "https://www.icanbwell.com/client",
+          "valueCode": "VAEagle"
+        },
+        {
+          "id": "healthpartners-client",
+          "url": "https://www.icanbwell.com/client",
+          "valueCode": "healthpartners"
+        }
+      ],
+      "type": {
+        "coding": [
+          {
+            "id": "type-npi",
+            "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+            "code": "NPI"
+          },
+          {
+            "id": "type-code",
+            "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+            "code": "NPI"
+          }
+        ]
+      },
+      "system": "http://hl7.org/fhir/sid/us-npi",
+      "value": "1083620462"
+    },
+    {
+      "id": "sourceId",
+      "system": "https://www.icanbwell.com/sourceId",
+      "value": "1083620462"
+    },
+    {
+      "id": "uuid",
+      "system": "https://www.icanbwell.com/uuid",
+      "value": "5a14dee5-f6e3-5dd1-ab17-89b18c26223a"
+    },
+    {
+      "id": "NPI",
+      "extension": [
+        {
+          "id": "honest-client",
+          "url": "https://www.icanbwell.com/client",
+          "valueCode": "honest"
+        }
+      ],
+      "type": {
+        "coding": [
+          {
+            "id": "NPI-type",
+            "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+            "code": "NPI"
+          }
+        ]
+      },
+      "system": "http://hl7.org/fhir/sid/us-npi",
+      "value": "1083620462"
+    },
+    {
+      "id": "practitioner-external-id",
+      "extension": [
+        {
+          "id": "honest-client",
+          "url": "https://www.icanbwell.com/client",
+          "valueCode": "honest"
+        }
+      ],
+      "use": "usual",
+      "type": {
+        "coding": [
+          {
+            "id": "external-type",
+            "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+            "code": "Practitioner Id"
+          }
+        ]
+      },
+      "system": "https://convergent-pd.com",
+      "value": "379a1c57de832f7064541f520744139e18d42facf66a792a4d385b8e6ba26a23"
+    },
+    {
+      "id": "practitioner-internal-primary-key",
+      "extension": [
+        {
+          "id": "honest-client",
+          "url": "https://www.icanbwell.com/client",
+          "valueCode": "honest"
+        }
+      ],
+      "use": "usual",
+      "type": {
+        "coding": [
+          {
+            "id": "internal-type",
+            "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+            "code": "Practitioner Internal PK"
+          }
+        ]
+      },
+      "system": "https://convergent-pd.com",
+      "value": "379a1c57de832f7064541f520744139e18d42facf66a792a4d385b8e6ba26a23"
+    },
+    {
+      "id": "provider-id",
+      "extension": [
+        {
+          "id": "healthpartners-client",
+          "url": "https://www.icanbwell.com/client",
+          "valueCode": "healthpartners"
+        }
+      ],
+      "type": {
+        "coding": [
+          {
+            "id": "type-code",
+            "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+            "code": "PRN"
+          }
+        ]
+      },
+      "value": "N7326298"
+    }
+  ],
+  "active": true,
+  "name": [
+    {
+      "id": "honest-name",
+      "extension": [
+        {
+          "id": "honest-client",
+          "url": "https://www.icanbwell.com/client",
+          "valueCode": "honest"
+        }
+      ],
+      "use": "usual",
+      "text": "KEVIN LOPEZ-SHIRLEY",
+      "family": "LOPEZ-SHIRLEY",
+      "given": [
+        "KEVIN"
+      ]
+    },
+    {
+      "id": "TC-HP-name",
+      "extension": [
+        {
+          "id": "healthpartners-client",
+          "url": "https://www.icanbwell.com/client",
+          "valueCode": "healthpartners"
+        }
+      ],
+      "use": "usual",
+      "text": "Kevin A Lopez-Shirley",
+      "family": "Lopez-Shirley",
+      "given": [
+        "Kevin",
+        "A"
+      ]
+    }
+  ],
+  "gender": "male",
+  "qualification": [
+    {
+      "id": "honest-qualification-1",
+      "extension": [
+        {
+          "id": "honest-client",
+          "url": "https://www.icanbwell.com/client",
+          "valueCode": "honest"
+        }
+      ],
+      "code": {
+        "coding": [
+          {
+            "id": "honest-coding",
+            "system": "http://terminology.hl7.org/ValueSet/v2-2.7-0360",
+            "code": "MD"
+          }
+        ]
+      }
+    }
+  ],
+  "_access": {
+    "lnf": 1,
+    "boon-chapman": 1,
+    "honest": 1,
+    "convergent": 1,
+    "thedacare": 1,
+    "healthpartners": 1
+  },
+  "_sourceAssigningAuthority": "lnf",
+  "_uuid": "5a14dee5-f6e3-5dd1-ab17-89b18c26223a",
+  "_sourceId": "1083620462"
+}

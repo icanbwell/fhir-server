@@ -1,0 +1,238 @@
+{
+  "id": "b5eea5f7-54ee-4a59-8ab3-003a7b4fbed2",
+  "resource": {
+    "resourceType": "Practitioner",
+    "id": "1003000126",
+    "meta": {
+      "versionId": "4",
+      "lastUpdated": "2023-02-25T14:44:51.000Z",
+      "source": "https://www.healthpartners.com/providers",
+      "security": [
+        {
+          "system": "https://www.icanbwell.com/owner",
+          "code": "thedacare"
+        },
+        {
+          "system": "https://www.icanbwell.com/access",
+          "code": "thedacare"
+        },
+        {
+          "system": "https://www.icanbwell.com/access",
+          "code": "healthpartners"
+        },
+        {
+          "system": "https://www.icanbwell.com/vendor",
+          "code": "healthpartners"
+        },
+        {
+          "system": "https://www.icanbwell.com/owner",
+          "code": "nppes"
+        },
+        {
+          "system": "https://www.icanbwell.com/access",
+          "code": "nppes"
+        },
+        {
+          "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+          "code": "thedacare"
+        },
+        {
+          "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+          "code": "nppes"
+        }
+      ]
+    },
+    "identifier": [
+      {
+        "extension": [
+          {
+            "id": "hpartners-client",
+            "url": "https://www.icanbwell.com/client",
+            "valueCode": "hpartners"
+          }
+        ],
+        "type": {
+          "coding": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+              "code": "PRN"
+            }
+          ]
+        },
+        "value": "N26226931"
+      },
+      {
+        "id": "nppes-1003000126",
+        "extension": [
+          {
+            "id": "nppes-client",
+            "url": "https://www.icanbwell.com/client",
+            "valueCode": "nppes"
+          }
+        ],
+        "use": "official",
+        "type": {
+          "coding": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+              "code": "NPI"
+            }
+          ]
+        },
+        "system": "http://hl7.org/fhir/sid/us-npi",
+        "value": "1003000126"
+      },
+      {
+        "id": "provider-id",
+        "extension": [
+          {
+            "id": "healthpartners-client",
+            "url": "https://www.icanbwell.com/client",
+            "valueCode": "healthpartners"
+          }
+        ],
+        "type": {
+          "coding": [
+            {
+              "id": "type-code",
+              "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+              "code": "PRN"
+            }
+          ]
+        },
+        "value": "N26226931"
+      },
+      {
+        "id": "npi",
+        "extension": [
+          {
+            "id": "healthpartners-client",
+            "url": "https://www.icanbwell.com/client",
+            "valueCode": "healthpartners"
+          }
+        ],
+        "type": {
+          "coding": [
+            {
+              "id": "type-code",
+              "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+              "code": "NPI"
+            }
+          ]
+        },
+        "value": "1003000126"
+      },
+      {
+        "id": "sourceId",
+        "system": "https://www.icanbwell.com/sourceId",
+        "value": "1003000126"
+      },
+      {
+        "id": "uuid",
+        "system": "https://www.icanbwell.com/uuid",
+        "value": "53ee8ac3-ea5e-52e4-95c1-b2a358e88c4c"
+      }
+    ],
+    "active": true,
+    "name": [
+      {
+        "id": "nppes-name",
+        "extension": [
+          {
+            "id": "nppes-client",
+            "url": "https://www.icanbwell.com/client",
+            "valueCode": "nppes"
+          }
+        ],
+        "use": "official",
+        "text": "ARDALAN ENKESHAFI",
+        "family": "ENKESHAFI",
+        "given": [
+          "ARDALAN"
+        ],
+        "suffix": [
+          "M.D."
+        ]
+      },
+      {
+        "id": "TC-HP-name",
+        "extension": [
+          {
+            "id": "healthpartners-client",
+            "url": "https://www.icanbwell.com/client",
+            "valueCode": "healthpartners"
+          }
+        ],
+        "use": "usual",
+        "family": "Enkeshafi",
+        "given": [
+          "Ardalan"
+        ]
+      }
+    ],
+    "telecom": [
+      {
+        "id": "nppes-phone-number",
+        "extension": [
+          {
+            "id": "nppes-client",
+            "url": "https://www.icanbwell.com/client",
+            "valueCode": "nppes"
+          }
+        ],
+        "system": "phone",
+        "value": "4436026207",
+        "use": "work",
+        "rank": 1
+      },
+      {
+        "id": "nppes-fax-number",
+        "extension": [
+          {
+            "id": "nppes-client",
+            "url": "https://www.icanbwell.com/client",
+            "valueCode": "nppes"
+          }
+        ],
+        "system": "fax",
+        "value": "5402245684",
+        "use": "work",
+        "rank": 2
+      }
+    ],
+    "address": [
+      {
+        "id": "nppes-address",
+        "extension": [
+          {
+            "id": "nppes-client",
+            "url": "https://www.icanbwell.com/client",
+            "valueCode": "nppes"
+          }
+        ],
+        "use": "billing",
+        "type": "postal",
+        "line": [
+          "6410 ROCKLEDGE DR STE 304"
+        ],
+        "city": "BETHESDA",
+        "state": "MD",
+        "postalCode": "208171841"
+      }
+    ],
+    "gender": "male",
+    "_access": {
+      "thedacare": 1,
+      "healthpartners": 1,
+      "nppes": 1
+    },
+    "_sourceAssigningAuthority": "thedacare",
+    "_uuid": "53ee8ac3-ea5e-52e4-95c1-b2a358e88c4c",
+    "_sourceId": "1003000126"
+  },
+  "request": {
+    "id": "8edbda21-82ee-438f-9803-e6352de7b1e4",
+    "method": "POST",
+    "url": "/4_0_0/Patient/b5eea5f7-54ee-4a59-8ab3-003a7b4fbed2"
+  }
+}
