@@ -4,6 +4,7 @@ const { MongoCollectionManager } = require('../../utils/mongoCollectionManager')
 const { MongoDatabaseManager } = require('../../utils/mongoDatabaseManager');
 const { AdminLogger } = require('../adminLogger');
 const { ObjectId } = require('mongodb');
+const env = require('var');
 
 /**
  * @classdesc Copies documents from one collection into the other collection in different clusters
@@ -13,40 +14,31 @@ class UpdateCollectionsRunner {
      * Constructor
      * @param {MongoDatabaseManager} mongoDatabaseManager
      * @param {MongoCollectionManager} mongoCollectionManager
-     * @param {moment.Moment} updatedAfter
+     * @param {moment.Moment} updatedBefore
      * @param {number} readBatchSize
-     * @param {number} writeBatchSize
-     * @param {Object|string|undefined} readOnlyCertainCollections
-     * @param {Object|string|undefined} excludeCollection
+     * @param {Object|string|undefined} collections
      * @param {AdminLogger} adminLogger
      */
     constructor({
         mongoDatabaseManager,
         mongoCollectionManager,
-        updatedAfter,
+        updatedBefore,
         readBatchSize,
-        writeBatchSize,
         concurrentRunners,
         _idAbove,
-        readOnlyCertainCollections,
-        excludeCollection,
+        collections,
         adminLogger,
     }) {
         /**
          * @type {moment.Moment}
          */
-        this.updatedAfter = updatedAfter;
-        assertTypeEquals(updatedAfter, moment);
+        this.updatedBefore = updatedBefore;
+        assertTypeEquals(updatedBefore, moment);
 
         /**
          * @type {number}
          */
         this.readBatchSize = readBatchSize;
-
-        /**
-         * @type {number}
-         */
-        this.writeBatchSize = writeBatchSize;
 
         /**
          * @type {number}
@@ -61,12 +53,7 @@ class UpdateCollectionsRunner {
         /**
          * @type {object|string|undefined}
          */
-        this.readOnlyCertainCollections = readOnlyCertainCollections;
-
-        /**
-         * @type {object|string|undefined}
-         */
-        this.excludeCollection = excludeCollection;
+        this.collections = collections;
 
         /**
          * @type {MongoDatabaseManager}
@@ -92,11 +79,8 @@ class UpdateCollectionsRunner {
      * @returns {Object}
      */
     getTargetClusterConfig() {
-        // const mongoUrl = encodeURI(`mongodb+srv://${env.MONGO_USERNAME}:${env.MONGO_PASSWORD}@`)
-        // const db_name = "cl-dev-fhir-pl-0.vpsmx.mongodb.net"
-
-        const mongoUrl = encodeURI('mongodb://localhost:27017/');
-        const db_name = 'fhir';
+        const mongoUrl = encodeURI(env.MONGO_URL);
+        const db_name = env.TARGET_DB_NAME;
         const options = {
             retryWrites: true,
             w: 'majority',
@@ -109,11 +93,8 @@ class UpdateCollectionsRunner {
      * @returns {Object}
      */
     getSourceClusterConfig() {
-        // const mongoUrl = encodeURI(`mongodb+srv://${env.MONGO_USERNAME}:${env.MONGO_PASSWORD}`)
-        // const db_name = "@cl-dev-fhir-v3-pl-0.vpsmx.mongodb.net"
-
-        const mongoUrl = encodeURI('mongodb://localhost:27017/');
-        const db_name = 'fhir_v3';
+        const mongoUrl = encodeURI(env.MONGO_URL);
+        const db_name = env.SOURCE_DB_NAME;
         const options = {
             retryWrites: true,
             w: 'majority',
@@ -124,13 +105,13 @@ class UpdateCollectionsRunner {
      * Runs a loop to process all the documents.
      */
     async processAsync() {
-        // If idabove is to be used and but readOnlyCertainCollections is not provided or readOnlyCertainCollections contains multiple values return
+        // If idabove is to be used and but collections is not provided or collections contains multiple values return
         if (
             this._idAbove &&
-            (!this.readOnlyCertainCollections || this.readOnlyCertainCollections.length > 1)
+            (!this.collections || this.collections.length > 1)
         ) {
             this.adminLogger.logError(
-                'To support _idAbove provide a single collection name under readOnlyCertainCollections param'
+                'To support _idAbove provide a single collection name under collections param'
             );
             return;
         }
@@ -186,19 +167,8 @@ class UpdateCollectionsRunner {
                     let totalDocumentsFound = 0; // For each collection in source db counts the total document that has been visited.
 
                     if (
-                        !this.readOnlyCertainCollections &&
-                        this.excludeCollection &&
-                        this.excludeCollection.includes(collection)
-                    ) {
-                        // As the collection is to be excluded we move to the next collection
-                        this.adminLogger.logInfo(
-                            `${collection} is being excluded from further data transfer`
-                        );
-                        continue;
-                    }
-                    if (
-                        this.readOnlyCertainCollections &&
-                        !this.readOnlyCertainCollections.includes(collection)
+                        this.collections &&
+                        !this.collections.includes(collection)
                     ) {
                         // As we need to iterate only a few collection we skip collections that are not present in the list.
                         this.adminLogger.logInfo(
@@ -223,6 +193,7 @@ class UpdateCollectionsRunner {
                     // Returns a list of documents from sourceDatabaseCollection collection with specified batch size
                     const cursor = sourceDatabaseCollection.find(query, cursorOptions);
                     while (await cursor.hasNext()) {
+                        let result;
                         const sourceDocument = await cursor.next();
                         totalDocumentsFound += 1;
                         // Fetching document from active db having same id.
@@ -239,26 +210,27 @@ class UpdateCollectionsRunner {
                             );
                             continue;
                         }
-
                         if (
                             targetDocument &&
-                            targetDocument.meta.lastUpdated <= this.updatedAfter &&
-                            targetDocument.meta.lastUpdated > sourceDocument.meta.lastUpdated
+                            targetDocument.meta.lastUpdated < this.updatedBefore &&
+                            targetDocument.meta.lastUpdated < sourceDocument.meta.lastUpdated
                         ) {
-                            // The document already exists in fhir and has been updated more recently than updatedAfter
+                            // Updating the document in targetDatabase.
+                            result = await targetDatabaseCollection.updateOne(
+                                { _id: sourceDocument._id },
+                                {
+                                    $set: sourceDocument,
+                                }
+                            );
+                        } else {
+                            // The document already exists in fhir and has been updated more recently than updatedBefore
                             this.adminLogger.logInfo(
-                                `Document in ${collection} with id:${sourceDocument.id} found in target db but omitting as lastUpdated > ${this.updatedAfter}`
+                                `Document in ${collection} with id:${sourceDocument.id} found in target db but omitting as lastUpdated > ${this.updatedBefore}`
                             );
                             skippedCount++;
                             continue;
                         }
-                        // Updating the document in targetDatabase.
-                        const result = await targetDatabaseCollection.updateOne(
-                            { _id: sourceDocument._id },
-                            {
-                                $set: sourceDocument,
-                            }
-                        );
+
                         // Keeping track of the last updated id
                         lastProcessedId = sourceDocument._id;
                         updatedCount += result.modifiedCount;
