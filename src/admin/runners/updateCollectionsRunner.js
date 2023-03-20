@@ -210,6 +210,12 @@ class UpdateCollectionsRunner {
                             );
                             continue;
                         }
+                        if( !(targetDocument.meta.lastUpdated instanceof Date)) {
+                            targetDocument.meta.lastUpdated = moment(targetDocument.meta.lastUpdated).format("YYYY-MM-DDTHH:mm:ss.SSSZ")
+                        }
+                        if( !(sourceDocument.meta.lastUpdated instanceof Date)) {
+                            sourceDocument.meta.lastUpdated = moment(targetDocument.meta.lastUpdated).format("YYYY-MM-DDTHH:mm:ss.SSSZ")
+                        }
                         if (
                             targetDocument &&
                             targetDocument.meta.lastUpdated < this.updatedBefore &&
