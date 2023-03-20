@@ -120,7 +120,7 @@ const verify = async(jwt_payload, done) => {
             }
         }
 
-        var scopes = scope.split(' ');
+        var scopes = scope ? scope.split(' ') : [];
         var consentScope = scopes.find(s => s.indexOf('consent/') !== -1);
         if (isTrue(env.USE_FHIR_CONSENT_AUTHORIZATION) && consentScope) {
             var group = consentScope.replace('consent/', '').replace('.*', '');
