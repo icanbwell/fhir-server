@@ -81,7 +81,7 @@ class UpdateCollectionsRunner {
         const mongoUrl = `mongodb+srv://${process.env.TARGET_CLUSTER_USERNAME}:${process.env.TARGET_CLUSTER_PASSWORD}@${process.env.TARGET_CLUSTER_MONGO_URL}`;
         this.adminLogger.logInfo(`Connecting to target cluster with mongo url: ${mongoUrl}`);
         const db_name = process.env.TARGET_DB_NAME;
-        this.adminLogger.logInfo(`The source database to be used is: ${db_name}`);
+        this.adminLogger.logInfo(`The target database to be used is: ${db_name}`);
         const options = {
             retryWrites: true,
             w: 'majority',
