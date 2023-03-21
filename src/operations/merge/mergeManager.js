@@ -570,7 +570,6 @@ class MergeManager {
         try {
             assertTypeEquals(resourceToMerge, Resource);
             await this.preSaveManager.preSaveAsync(resourceToMerge);
-
             // Insert/update our resource record
             await this.databaseBulkInserter.insertOneAsync({
                     requestId,
