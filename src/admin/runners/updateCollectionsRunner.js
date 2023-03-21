@@ -173,21 +173,9 @@ class UpdateCollectionsRunner {
                     let lastProcessedId = null; // For each collect help in keeping track of the last id processed.
                     let totalDocumentsFound = 0; // For each collection in source db counts the total document that has been visited.
 
-                    if (
-                        this.collections &&
-                        !this.collections.includes(collection)
-                    ) {
-                        // As we need to iterate only a few collection we skip collections that are not present in the list.
-                        this.adminLogger.logInfo(
-                            `Omitting ${collection} as it is not present in the list of collections to be iterated`
-                        );
-                        continue;
-                    }
                     // Fetching the collection from the database for both source and target
                     const sourceDatabaseCollection = sourceDatabase.collection(collection);
                     const targetDatabaseCollection = targetDatabase.collection(collection);
-
-                    // Add the extra data here.
 
                     // Cursor options. As we are also provide _idAbove we need to get results in sorted manner
                     const cursorOptions = {

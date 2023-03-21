@@ -61,6 +61,9 @@ async function main() {
 /**
  * To run this:
  * nvm use 18.14.2
+ * required env variables
+ * TARGET_CLUSTER_USERNAME, TARGET_CLUSTER_PASSWORD, TARGET_CLUSTER_MONGO_URL, TARGET_DB_NAME
+ * SOURCE_CLUSTER_USERNAME, SOURCE_CLUSTER_PASSWORD, SOURCE_CLUSTER_MONGO_URL, SOURCE_DB_NAME
  * node src/admin/scripts/updateCollections.js --updatedBefore=2023-03-14 --readbatchSize=10000 --concurrentRunners=5 --_idAbove="1"
  * node src/admin/scripts/updateCollections.js --updatedBefore=2023-03-14 --collections=Task_4_0_0
  */
