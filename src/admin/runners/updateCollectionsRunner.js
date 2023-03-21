@@ -78,8 +78,10 @@ class UpdateCollectionsRunner {
      * @returns {Object}
      */
     getTargetClusterConfig() {
-        const mongoUrl = encodeURI(process.env.TARGET_CLUSTER_MONGO_URL);
+        const mongoUrl = `mongodb+srv://${process.env.TARGET_CLUSTER_USERNAME}:${process.env.TARGET_CLUSTER_PASSWORD}@${process.env.TARGET_CLUSTER_MONGO_URL}`;
+        this.adminLogger.logInfo(`Connecting to target cluster with mongo url: ${mongoUrl}`);
         const db_name = process.env.TARGET_DB_NAME;
+        this.adminLogger.logInfo(`The source database to be used is: ${db_name}`);
         const options = {
             retryWrites: true,
             w: 'majority',
@@ -92,8 +94,10 @@ class UpdateCollectionsRunner {
      * @returns {Object}
      */
     getSourceClusterConfig() {
-        const mongoUrl = encodeURI(process.env.SOURCE_CLUSTER_MONGO_URL);
+        const mongoUrl = `mongodb+srv://${process.env.SOURCE_CLUSTER_USERNAME}:${process.env.SOURCE_CLUSTER_PASSWORD}@${process.env.SOURCE_CLUSTER_MONGO_URL}`;
+        this.adminLogger.logInfo(`Connecting to source cluster with mongo url: ${mongoUrl}`);
         const db_name = process.env.SOURCE_DB_NAME;
+        this.adminLogger.logInfo(`The source database to be used is: ${db_name}`);
         const options = {
             retryWrites: true,
             w: 'majority',
