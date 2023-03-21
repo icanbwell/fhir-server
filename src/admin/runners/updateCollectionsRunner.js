@@ -4,7 +4,6 @@ const { MongoCollectionManager } = require('../../utils/mongoCollectionManager')
 const { MongoDatabaseManager } = require('../../utils/mongoDatabaseManager');
 const { AdminLogger } = require('../adminLogger');
 const { ObjectId } = require('mongodb');
-const env = require('var');
 
 /**
  * @classdesc Copies documents from one collection into the other collection in different clusters
@@ -79,8 +78,8 @@ class UpdateCollectionsRunner {
      * @returns {Object}
      */
     getTargetClusterConfig() {
-        const mongoUrl = encodeURI(env.TARGET_CLUSTER_MONGO_URL);
-        const db_name = env.TARGET_DB_NAME;
+        const mongoUrl = encodeURI(process.env.TARGET_CLUSTER_MONGO_URL);
+        const db_name = process.env.TARGET_DB_NAME;
         const options = {
             retryWrites: true,
             w: 'majority',
@@ -93,8 +92,8 @@ class UpdateCollectionsRunner {
      * @returns {Object}
      */
     getSourceClusterConfig() {
-        const mongoUrl = encodeURI(env.SOURCE_CLUSTER_MONGO_URL);
-        const db_name = env.SOURCE_DB_NAME;
+        const mongoUrl = encodeURI(process.env.SOURCE_CLUSTER_MONGO_URL);
+        const db_name = process.env.SOURCE_DB_NAME;
         const options = {
             retryWrites: true,
             w: 'majority',
@@ -215,10 +214,10 @@ class UpdateCollectionsRunner {
                         let sourceLastUpdated = sourceDocument.meta.lastUpdated;
 
                         if (!(targetLastUpdated instanceof Date)) {
-                            targetLastUpdated = moment(targetLastUpdated).format('YYYY-MM-DDTHH:mm:ss.SSSZ');
+                            targetLastUpdated = moment(targetLastUpdated).format('YYYY-MM-DDTHH:mm:ssZ');
                         }
                         if (!(sourceLastUpdated instanceof Date)) {
-                            sourceLastUpdated = moment(sourceLastUpdated).format('YYYY-MM-DDTHH:mm:ss.SSSZ');
+                            sourceLastUpdated = moment(sourceLastUpdated).format('YYYY-MM-DDTHH:mm:ssZ');
                         }
 
                         if (
