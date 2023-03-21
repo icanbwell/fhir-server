@@ -79,7 +79,7 @@ class UpdateCollectionsRunner {
      * @returns {Object}
      */
     getTargetClusterConfig() {
-        const mongoUrl = encodeURI(env.MONGO_URL);
+        const mongoUrl = encodeURI(env.TARGET_CLUSTER_MONGO_URL);
         const db_name = env.TARGET_DB_NAME;
         const options = {
             retryWrites: true,
@@ -93,7 +93,7 @@ class UpdateCollectionsRunner {
      * @returns {Object}
      */
     getSourceClusterConfig() {
-        const mongoUrl = encodeURI(env.MONGO_URL);
+        const mongoUrl = encodeURI(env.SOURCE_CLUSTER_MONGO_URL);
         const db_name = env.SOURCE_DB_NAME;
         const options = {
             retryWrites: true,
@@ -210,16 +210,21 @@ class UpdateCollectionsRunner {
                             );
                             continue;
                         }
-                        if (!(targetDocument.meta.lastUpdated instanceof Date)) {
-                            targetDocument.meta.lastUpdated = moment(targetDocument.meta.lastUpdated).format('YYYY-MM-DDTHH:mm:ss.SSSZ');
+                        // Storing the mast updated for target and source in a variable. and updating it if required
+                        let targetLastUpdated = targetDocument.meta.lastUpdated;
+                        let sourceLastUpdated = sourceDocument.meta.lastUpdated;
+
+                        if (!(targetLastUpdated instanceof Date)) {
+                            targetLastUpdated = moment(targetLastUpdated).format('YYYY-MM-DDTHH:mm:ss.SSSZ');
                         }
-                        if (!(sourceDocument.meta.lastUpdated instanceof Date)) {
-                            sourceDocument.meta.lastUpdated = moment(targetDocument.meta.lastUpdated).format('YYYY-MM-DDTHH:mm:ss.SSSZ');
+                        if (!(sourceLastUpdated instanceof Date)) {
+                            sourceLastUpdated = moment(sourceLastUpdated).format('YYYY-MM-DDTHH:mm:ss.SSSZ');
                         }
+
                         if (
                             targetDocument &&
-                            targetDocument.meta.lastUpdated < this.updatedBefore &&
-                            targetDocument.meta.lastUpdated < sourceDocument.meta.lastUpdated
+                            targetLastUpdated < this.updatedBefore &&
+                            targetLastUpdated < sourceLastUpdated
                         ) {
                             // Updating the document in targetDatabase.
                             result = await targetDatabaseCollection.updateOne(
