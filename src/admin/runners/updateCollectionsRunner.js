@@ -26,6 +26,7 @@ class UpdateCollectionsRunner {
         concurrentRunners,
         _idAbove,
         collections,
+        startWithCollection,
         adminLogger,
     }) {
         /**
@@ -50,9 +51,14 @@ class UpdateCollectionsRunner {
         this._idAbove = _idAbove;
 
         /**
-         * @type {object|string|undefined}
+         * @type {string|undefined}
          */
         this.collections = collections;
+
+        /**
+         * @type {object|string|undefined}
+         */
+        this.startWithCollection = startWithCollection;
 
         /**
          * @type {MongoDatabaseManager}
@@ -78,9 +84,11 @@ class UpdateCollectionsRunner {
      * @returns {Object}
      */
     getTargetClusterConfig() {
-        const mongoUrl = encodeURI(`mongodb+srv://${process.env.TARGET_CLUSTER_USERNAME}:${process.env.TARGET_CLUSTER_PASSWORD}@${process.env.TARGET_CLUSTER_MONGO_URL}`);
-        const db_name = process.env.TARGET_DB_NAME;
-        this.adminLogger.logInfo(`Connecting to target cluster with mongo url: ${process.env.TARGET_CLUSTER_MONGO_URL} and db_name: ${db_name}`);
+        const mongoUrl = encodeURI('mongodb://localhost:27017');
+        const db_name = 'fhir';
+        this.adminLogger.logInfo(
+            `Connecting to target cluster with mongo url: ${process.env.TARGET_CLUSTER_MONGO_URL} and db_name: ${db_name}`
+        );
         const options = {
             retryWrites: true,
             w: 'majority',
@@ -93,9 +101,11 @@ class UpdateCollectionsRunner {
      * @returns {Object}
      */
     getSourceClusterConfig() {
-        const mongoUrl = encodeURI(`mongodb+srv://${process.env.SOURCE_CLUSTER_USERNAME}:${process.env.SOURCE_CLUSTER_PASSWORD}@${process.env.SOURCE_CLUSTER_MONGO_URL}`);
-        const db_name = process.env.SOURCE_DB_NAME;
-        this.adminLogger.logInfo(`Connecting to target cluster with mongo url: ${process.env.SOURCE_CLUSTER_MONGO_URL} and db_name: ${db_name}`);
+        const mongoUrl = encodeURI('mongodb://localhost:27017');
+        const db_name = 'fhir_v3';
+        this.adminLogger.logInfo(
+            `Connecting to target cluster with mongo url: ${process.env.SOURCE_CLUSTER_MONGO_URL} and db_name: ${db_name}`
+        );
         const options = {
             retryWrites: true,
             w: 'majority',
@@ -108,10 +118,7 @@ class UpdateCollectionsRunner {
      */
     async processAsync() {
         // If idabove is to be used and but collections is not provided or collections contains multiple values return
-        if (
-            this._idAbove &&
-            (!this.collections || this.collections.length > 1)
-        ) {
+        if (this._idAbove && (!this.collections || this.collections.length > 1)) {
             this.adminLogger.logError(
                 'To support _idAbove provide a single collection name under collections param'
             );
@@ -140,11 +147,16 @@ class UpdateCollectionsRunner {
 
             if (this.collections) {
                 // If collections is specified filter out the collections that needs to be iterated.
-                sourceCollections = sourceCollections.filter(collection => this.collections.includes(collection));
+                sourceCollections = sourceCollections.filter((collection) =>
+                    this.collections.includes(collection)
+                );
             }
-            this.adminLogger.logInfo(
-                `Total filtered collections are ${sourceCollections}`
-            );
+            sourceCollections.sort();
+            if (this.startWithCollection) {
+                const indexToSplice = sourceCollections.indexOf(this.startWithCollection) !== -1 ? sourceCollections.indexOf(this.startWithCollection) : 0;
+                sourceCollections = sourceCollections.splice(indexToSplice);
+            }
+            this.adminLogger.logInfo(`The list of collections are:  ${sourceCollections}`);
 
             // Creating batches of collections depending on the concurrency parameter passed.
             let collectionNameBatches = [];
@@ -171,11 +183,18 @@ class UpdateCollectionsRunner {
                     let updatedCount = 0; // Keeps track of the total updated documents
                     let skippedCount = 0; // Keeps track of documents that are skipped as they don't match the requirements.
                     let lastProcessedId = null; // For each collect help in keeping track of the last id processed.
-                    let totalDocumentsFound = 0; // For each collection in source db counts the total document that has been visited.
+                    let sourceMissingLastUpdated = 0; // Keeps tranch of source document that doesn't have lastUpdated.
+                    let targetMissingLastUpdated = 0; // Keeps track of target document that doesn't have last updated.
 
                     // Fetching the collection from the database for both source and target
                     const sourceDatabaseCollection = sourceDatabase.collection(collection);
                     const targetDatabaseCollection = targetDatabase.collection(collection);
+
+                    const totalTargetDocuments = await targetDatabaseCollection.count();
+                    const totalSourceDocuments = await sourceDatabaseCollection.count();
+                    this.adminLogger.logInfo(
+                        `For ${collection} the total documents in target collection: ${totalTargetDocuments} and source collection: ${totalSourceDocuments}`
+                    );
 
                     // Cursor options. As we are also provide _idAbove we need to get results in sorted manner
                     const cursorOptions = {
@@ -192,66 +211,72 @@ class UpdateCollectionsRunner {
                     while (await cursor.hasNext()) {
                         let result;
                         const sourceDocument = await cursor.next();
-                        totalDocumentsFound += 1;
+
                         // Fetching document from active db having same id.
                         const targetDocument = await targetDatabaseCollection.findOne({
                             _id: sourceDocument._id,
                         });
-                        // Skip target/source documents in which lastUpdated is not present.
-                        if (
-                            targetDocument?.meta?.lastUpdated === undefined ||
+                        // Skip target documents in which lastUpdated is not present.
+                        if (targetDocument?.meta?.lastUpdated === undefined) {
+                            targetMissingLastUpdated += 1;
+                            continue;
+                        } else if (
+                            //Skip source documents in which lastUpdated is not present.
                             sourceDocument?.meta?.lastUpdated === undefined
                         ) {
-                            this.adminLogger.logInfo(
-                                `Document in ${collection} with id:${sourceDocument.id} skipped as the targetDocument or sourceDocument is missing lastUpdated`
-                            );
+                            sourceMissingLastUpdated += 1;
                             continue;
                         }
+
                         // Storing the mast updated for target and source in a variable. and updating it if required
                         let targetLastUpdated = targetDocument.meta.lastUpdated;
                         let sourceLastUpdated = sourceDocument.meta.lastUpdated;
 
                         if (!(targetLastUpdated instanceof Date)) {
-                            targetLastUpdated = moment(targetLastUpdated).format('YYYY-MM-DDTHH:mm:ssZ');
+                            targetLastUpdated =
+                                moment(targetLastUpdated).format('YYYY-MM-DDTHH:mm:ssZ');
                         }
                         if (!(sourceLastUpdated instanceof Date)) {
-                            sourceLastUpdated = moment(sourceLastUpdated).format('YYYY-MM-DDTHH:mm:ssZ');
+                            sourceLastUpdated =
+                                moment(sourceLastUpdated).format('YYYY-MM-DDTHH:mm:ssZ');
                         }
 
-                        if (
-                            targetDocument &&
-                            targetLastUpdated < this.updatedBefore &&
-                            targetLastUpdated < sourceLastUpdated
-                        ) {
-                            // Updating the document in targetDatabase.
-                            result = await targetDatabaseCollection.updateOne(
-                                { _id: sourceDocument._id },
-                                {
-                                    $set: sourceDocument,
-                                }
-                            );
-                        } else {
-                            // The document already exists in fhir and has been updated more recently than updatedBefore
-                            this.adminLogger.logInfo(
-                                `Document in ${collection} with id:${sourceDocument.id} found in target db but omitting as lastUpdated > ${this.updatedBefore}`
-                            );
-                            skippedCount++;
-                            continue;
-                        }
+                        try {
+                            if (
+                                targetDocument &&
+                                targetLastUpdated < this.updatedBefore &&
+                                targetLastUpdated < sourceLastUpdated
+                            ) {
+                                // Updating the document in targetDatabase.
+                                result = await targetDatabaseCollection.updateOne(
+                                    { _id: sourceDocument._id },
+                                    {
+                                        $set: sourceDocument,
+                                    }
+                                );
+                            } else {
+                                // The document already exists in fhir and has been updated more recently than updatedBefore
+                                skippedCount++;
+                                continue;
+                            }
 
-                        // Keeping track of the last updated id
-                        lastProcessedId = sourceDocument._id;
-                        updatedCount += result.modifiedCount;
+                            // Keeping track of the last updated id
+                            lastProcessedId = sourceDocument._id;
+                            updatedCount += result.modifiedCount;
+                        } catch (error) {
+                            this.adminLogger.logError(
+                                `Error while updating document with id ${targetDocument._id}. Error Message: ${error}`
+                            );
+                        }
                     }
                     this.adminLogger.logInfo(
-                        `===== For ${collection} total updated documents: ${updatedCount} and total documents skipped: ${skippedCount} `
+                        `===== For ${collection} total updated documents: ${updatedCount} and total documents skipped: ${skippedCount}. The source documents that have a missing lastUpdated value: ${sourceMissingLastUpdated} and target documents that have missing lastUpdated value are: ${targetMissingLastUpdated} `
                     );
                     // eslint-disable-next-line security/detect-object-injection
                     results[collection] = {
                         updatedCount: updatedCount,
                         skippedCount: skippedCount,
                         lastProcessedId: lastProcessedId,
-                        totalDocumentsFound: totalDocumentsFound
                     };
                 }
                 return results;
@@ -261,8 +286,8 @@ class UpdateCollectionsRunner {
             // Creating an object that logs the collection name, total updated, skipped and lastUpdatedId for the document
             const mergedObject = results.reduce((acc, obj) => Object.assign(acc, obj), {});
             this.adminLogger.logInfo(mergedObject);
-        } catch (e) {
-            this.adminLogger.logError(`Error: ${e}`);
+        } catch (error) {
+            this.adminLogger.logError(`Error: ${error}`);
         } finally {
             await this.mongoDatabaseManager.disconnectClientAsync(targetClient);
             await this.mongoDatabaseManager.disconnectClientAsync(sourceClient);

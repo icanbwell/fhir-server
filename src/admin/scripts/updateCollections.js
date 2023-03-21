@@ -26,6 +26,7 @@ async function main() {
     const concurrentRunners = parameters.concurrentRunners || 1;
     const _idAbove = parameters._idAbove ? String(parameters._idAbove) : undefined;
     const collections = parameters.collections ? parameters.collections.split(',') : undefined;
+    const startWithCollection = parameters.startWithCollection || undefined;
     console.log(`Running script to update data with last_updated greater than ${updatedBefore}`);
 
     // set up all the standard services in the container
@@ -44,6 +45,7 @@ async function main() {
                 concurrentRunners,
                 _idAbove,
                 collections,
+                startWithCollection,
                 adminLogger: new AdminLogger(),
             })
     );
@@ -64,7 +66,7 @@ async function main() {
  * required env variables
  * TARGET_CLUSTER_USERNAME, TARGET_CLUSTER_PASSWORD, TARGET_CLUSTER_MONGO_URL, TARGET_DB_NAME
  * SOURCE_CLUSTER_USERNAME, SOURCE_CLUSTER_PASSWORD, SOURCE_CLUSTER_MONGO_URL, SOURCE_DB_NAME
- * node src/admin/scripts/updateCollections.js --updatedBefore=2023-03-14 --readbatchSize=10000 --concurrentRunners=5 --_idAbove="1"
+ * node src/admin/scripts/updateCollections.js --updatedBefore=2023-03-14 --readbatchSize=10000 --concurrentRunners=5 --_idAbove="1" --startWithCollection="Task_4_0_0"
  * node src/admin/scripts/updateCollections.js --updatedBefore=2023-03-14 --collections=Task_4_0_0
  */
 main().catch((reason) => {
