@@ -138,7 +138,7 @@ function createApp({fnCreateContainer, trackMetrics}) {
 
     app.get('/live', (req, res) => handleMemoryCheck(req, res));
 
-    app.get('/ready', (req, res) => handleMemoryCheck(req, res, -5));
+    app.get('/ready', (req, res) => handleMemoryCheck(req, res));
 
     app.get('/version', handleVersion);
     app.get('/logout', handleLogout);
