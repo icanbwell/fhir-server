@@ -8,7 +8,7 @@ const { PRACTITIONER_SOURCE_OWNER_MAP } = require('../runners/constants');
 const { SecurityTagSystem } = require('../../utils/securityTagSystem');
 
 function fixPractitionerResource(resource) {
-    let security = resource.meta.security;
+    let security = resource.meta.security || [];
     const sourceAssigningAuthorities = security.filter(s => s.system === SecurityTagSystem.sourceAssigningAuthority);
     const owners = security.filter(s => s.system === SecurityTagSystem.owner);
     const securityWithoutOriginalOwnersAndAuthority = security.filter(
@@ -33,7 +33,7 @@ function fixPractitionerResource(resource) {
         }
         resource.meta.security = securityWithoutOriginalOwnersAndAuthority;
 
-        let identifier = resource.identifier;
+        let identifier = resource.identifier || [];
         resource.identifier = identifier.filter(i => i.system !== IdentifierSystem.uuid);
 
         delete resource._uuid;
