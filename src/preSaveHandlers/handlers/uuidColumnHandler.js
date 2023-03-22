@@ -68,12 +68,17 @@ class UuidColumnHandler extends PreSaveHandler {
                     }
                 )
             );
-        } else if (resource.identifier && // uuid exists but is wrong
+        } else if ( // uuid exists but is wrong
+            resource.identifier &&
             Array.isArray(resource.identifier) &&
-            resource.identifier.some(s => s.system === IdentifierSystem.uuid)) {
+            resource.identifier.some(s => s.system === IdentifierSystem.uuid)
+        ) {
             const currentUuidResource = resource.identifier.find(s => s.system === IdentifierSystem.uuid);
-            currentUuidResource.id = 'uuid';
-            currentUuidResource.value = resource._uuid;
+            const regexExp = /^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$/gi;
+            if (!regexExp.test(currentUuidResource.value)) {
+                currentUuidResource.id = 'uuid';
+                currentUuidResource.value = resource._uuid;
+            }
         } else if (!resource.identifier && Object.hasOwn(resource, 'identifier')) {
             resource.identifier = [
                 new Identifier(
