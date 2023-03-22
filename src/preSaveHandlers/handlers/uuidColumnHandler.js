@@ -51,7 +51,7 @@ class UuidColumnHandler extends PreSaveHandler {
                 const idPlusSourceAssigningAuthority = resource.id + '|' + sourceAssigningAuthorityCodes[0];
                 resource._uuid = `${generateUUIDv5(idPlusSourceAssigningAuthority)}`;
             } else {
-                resource._uuid = generateUUIDv5(resource.id);
+                resource._uuid = resource._uuid ? resource._uuid : generateUUIDv5(resource.id);
             }
         }
 
