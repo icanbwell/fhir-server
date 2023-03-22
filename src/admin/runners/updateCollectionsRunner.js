@@ -84,8 +84,8 @@ class UpdateCollectionsRunner {
      * @returns {Object}
      */
     getTargetClusterConfig() {
-        const mongoUrl = encodeURI('mongodb://localhost:27017');
-        const db_name = 'fhir';
+        const mongoUrl = encodeURI(`mongodb+srv://${process.env.TARGET_CLUSTER_USERNAME}:${process.env.TARGET_CLUSTER_PASSWORD}@${process.env.TARGET_CLUSTER_MONGO_URL}`);
+        const db_name = process.env.TARGET_DB_NAME;
         this.adminLogger.logInfo(
             `Connecting to target cluster with mongo url: ${process.env.TARGET_CLUSTER_MONGO_URL} and db_name: ${db_name}`
         );
@@ -101,8 +101,8 @@ class UpdateCollectionsRunner {
      * @returns {Object}
      */
     getSourceClusterConfig() {
-        const mongoUrl = encodeURI('mongodb://localhost:27017');
-        const db_name = 'fhir_v3';
+        const mongoUrl = encodeURI(`mongodb+srv://${process.env.SOURCE_CLUSTER_USERNAME}:${process.env.SOURCE_CLUSTER_PASSWORD}@${process.env.SOURCE_CLUSTER_MONGO_URL}`);
+        const db_name = process.env.SOURCE_DB_NAME;
         this.adminLogger.logInfo(
             `Connecting to target cluster with mongo url: ${process.env.SOURCE_CLUSTER_MONGO_URL} and db_name: ${db_name}`
         );
