@@ -185,6 +185,9 @@ class UpdateCollectionsRunner {
                     let lastProcessedId = null; // For each collect help in keeping track of the last id processed.
                     let sourceMissingLastUpdated = 0; // Keeps tranch of source document that doesn't have lastUpdated.
                     let targetMissingLastUpdated = 0; // Keeps track of target document that doesn't have last updated.
+                    let totalProcessedDoc = 0; // Keep tracks of the total processed id.
+                    let targetLastUpdatedGreaterThanUpdatedBefore = 0; // Keeps tracks of the documnet that is skipped and target last update is greater than updated before.
+                    let targetLastUpdatedGreaterThanSource = 0; // Keeps tracks of the documents that is skipped and target last update is greater tha source last update
 
                     // Fetching the collection from the database for both source and target
                     const sourceDatabaseCollection = sourceDatabase.collection(collection);
@@ -210,6 +213,7 @@ class UpdateCollectionsRunner {
                     const cursor = sourceDatabaseCollection.find(query, cursorOptions);
                     while (await cursor.hasNext()) {
                         let result;
+                        totalProcessedDoc += 1;
                         const sourceDocument = await cursor.next();
 
                         // Fetching document from active db having same id.
@@ -239,6 +243,14 @@ class UpdateCollectionsRunner {
                         if (!(sourceLastUpdated instanceof Date)) {
                             sourceLastUpdated =
                                 moment(sourceLastUpdated).format('YYYY-MM-DDTHH:mm:ssZ');
+                        }
+
+                        if (targetLastUpdated > this.updatedBefore) {
+                            targetLastUpdatedGreaterThanUpdatedBefore += 1;
+                            continue;
+                        } else if ( targetLastUpdated > sourceLastUpdated ) {
+                            targetLastUpdatedGreaterThanSource += 1;
+                            continue;
                         }
 
                         try {
@@ -277,6 +289,13 @@ class UpdateCollectionsRunner {
                         updatedCount: updatedCount,
                         skippedCount: skippedCount,
                         lastProcessedId: lastProcessedId,
+                        totalProcessedDocuments: totalProcessedDoc,
+                        sourceMissingLastUpdated: sourceMissingLastUpdated,
+                        targetMissingLastUpdated: targetMissingLastUpdated,
+                        totalTargetDocuments: totalTargetDocuments,
+                        totalSourceDocuments: totalSourceDocuments,
+                        targetLastUpdatedGreaterThanSource: targetLastUpdatedGreaterThanSource,
+                        [`targetLastUpdatedGreaterThan_${moment(this.updatedBefore).format('DD/MM/YYYY')}`]: targetLastUpdatedGreaterThanUpdatedBefore
                     };
                 }
                 return results;
