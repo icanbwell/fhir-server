@@ -27,6 +27,7 @@ class UpdateCollectionsRunner {
         _idAbove,
         collections,
         startWithCollection,
+        skipHistoryCollections,
         adminLogger,
     }) {
         /**
@@ -61,6 +62,11 @@ class UpdateCollectionsRunner {
         this.startWithCollection = startWithCollection;
 
         /**
+         * @type {boolean}
+         */
+        this.skipHistoryCollections = skipHistoryCollections;
+
+        /**
          * @type {MongoDatabaseManager}
          */
         this.mongoDatabaseManager = mongoDatabaseManager;
@@ -90,8 +96,13 @@ class UpdateCollectionsRunner {
             `Connecting to target cluster with mongo url: ${process.env.TARGET_CLUSTER_MONGO_URL} and db_name: ${db_name}`
         );
         const options = {
+            readPreference: 'secondaryPreferred',
+            // https://www.mongodb.com/docs/drivers/node/current/fundamentals/connection/connection-options/
             retryWrites: true,
             w: 'majority',
+            connectTimeoutMS: 0,
+            maxIdleTimeMS: 0,
+            serverSelectionTimeoutMS: 600000 // Wait for 60 seconds before server selection is complete.
         };
         return { connection: mongoUrl, db_name: db_name, options: options };
     }
@@ -107,10 +118,38 @@ class UpdateCollectionsRunner {
             `Connecting to target cluster with mongo url: ${process.env.SOURCE_CLUSTER_MONGO_URL} and db_name: ${db_name}`
         );
         const options = {
-            retryWrites: true,
-            w: 'majority',
+            readPreference: 'secondaryPreferred',
+            // https://www.mongodb.com/docs/drivers/node/current/fundamentals/connection/connection-options/
+            connectTimeoutMS: 0,
+            maxIdleTimeMS: 0,
+            serverSelectionTimeoutMS: 600000 // Wait for 60 seconds before server selection is complete.
         };
         return { connection: mongoUrl, db_name: db_name, options: options };
+    }
+
+    /**
+     * @description given an array of collection filters out only the required ones.
+     * @param {Array} collectionList
+     * @return {Array}
+     */
+    getListOfCollections(collectionList) {
+        let collectionNames = [];
+        for (const collection of collectionList) {
+            // If the collection of type view, we can skip it
+            if (collection.type !== 'collection') {
+                continue;
+            }
+            // If the list of collection is mentioned verify the collection name is in the list of collections passed
+            if (this.collections && !this.collections.includes(collection.name)) {
+                continue;
+            }
+            // If history collections are to be skipped
+            if (this.skipHistoryCollections && collection.name.endsWith('_History')) {
+                continue;
+            }
+            collectionNames.push(collection.name);
+        }
+        return collectionNames;
     }
 
     /**
@@ -131,8 +170,10 @@ class UpdateCollectionsRunner {
         let targetClient, sourceClient;
 
         try {
-            // Creating a connection between the cluster and the application
+            // Creating a connection between the target cluster and the application
             targetClient = await this.mongoDatabaseManager.createClientAsync(targetClusterConfig);
+
+            // Creating a connection between the target cluster and the application
             sourceClient = await this.mongoDatabaseManager.createClientAsync(sourceClusterConfig);
 
             this.adminLogger.logInfo('Client connected successfully to both the clusters.');
@@ -141,16 +182,9 @@ class UpdateCollectionsRunner {
             const sourceDatabase = sourceClient.db(sourceClusterConfig.db_name);
 
             // Fetch all the collection names for the source database.
-            let sourceCollections = await this.mongoCollectionManager.getAllCollectionNames({
-                db: sourceDatabase,
-            });
+            let sourceCollectionAndViews = await sourceDatabase.listCollections().toArray();
 
-            if (this.collections) {
-                // If collections is specified filter out the collections that needs to be iterated.
-                sourceCollections = sourceCollections.filter((collection) =>
-                    this.collections.includes(collection)
-                );
-            }
+            let sourceCollections = this.getListOfCollections(sourceCollectionAndViews);
             sourceCollections.sort();
             if (this.startWithCollection) {
                 const indexToSplice = sourceCollections.indexOf(this.startWithCollection) !== -1 ? sourceCollections.indexOf(this.startWithCollection) : 0;
@@ -193,8 +227,10 @@ class UpdateCollectionsRunner {
                     const sourceDatabaseCollection = sourceDatabase.collection(collection);
                     const targetDatabaseCollection = targetDatabase.collection(collection);
 
-                    const totalTargetDocuments = await targetDatabaseCollection.count();
-                    const totalSourceDocuments = await sourceDatabaseCollection.count();
+                    const totalTargetDocuments = await targetDatabaseCollection.countDocuments();
+                    const totalSourceDocuments = await sourceDatabaseCollection.countDocuments();
+                    const sourceDocumentsMissingLastUpdated = await sourceDatabaseCollection.find({'meta.lastUpdated': { $exists: false}}).countDocuments();
+
                     this.adminLogger.logInfo(
                         `For ${collection} the total documents in target collection: ${totalTargetDocuments} and source collection: ${totalSourceDocuments}`
                     );
@@ -205,8 +241,8 @@ class UpdateCollectionsRunner {
                         sort: { _id: 1 },
                     };
 
-                    // If _idAbove is provided fetch all documents having _id greater than this._idAbove
-                    const query = this._idAbove ? { _id: { $gt: new ObjectId(this._idAbove) } } : {};
+                    // If _idAbove is provided fetch all documents having _id greater than this._idAbove or fetch all documents that have a value for lastUpdated.
+                    const query = this._idAbove ? { _id: { $gt: new ObjectId(this._idAbove) } } : {'meta.lastUpdated': { $exists: true}};
 
                     // Projection is used so that we don't fetch _id. Thus preventing it from being updated while updating document.
                     // Returns a list of documents from sourceDatabaseCollection collection with specified batch size
@@ -223,12 +259,6 @@ class UpdateCollectionsRunner {
                         // Skip target documents in which lastUpdated is not present.
                         if (targetDocument?.meta?.lastUpdated === undefined) {
                             targetMissingLastUpdated += 1;
-                            continue;
-                        } else if (
-                            //Skip source documents in which lastUpdated is not present.
-                            sourceDocument?.meta?.lastUpdated === undefined
-                        ) {
-                            sourceMissingLastUpdated += 1;
                             continue;
                         }
 
@@ -286,16 +316,16 @@ class UpdateCollectionsRunner {
                     );
                     // eslint-disable-next-line security/detect-object-injection
                     results[collection] = {
-                        updatedCount: updatedCount,
-                        skippedCount: skippedCount,
-                        lastProcessedId: lastProcessedId,
                         totalProcessedDocuments: totalProcessedDoc,
-                        sourceMissingLastUpdated: sourceMissingLastUpdated,
+                        sourceMissingLastUpdated: sourceDocumentsMissingLastUpdated,
                         targetMissingLastUpdated: targetMissingLastUpdated,
                         totalTargetDocuments: totalTargetDocuments,
                         totalSourceDocuments: totalSourceDocuments,
                         targetLastUpdatedGreaterThanSource: targetLastUpdatedGreaterThanSource,
-                        [`targetLastUpdatedGreaterThan_${moment(this.updatedBefore).format('DD/MM/YYYY')}`]: targetLastUpdatedGreaterThanUpdatedBefore
+                        [`targetLastUpdatedGreaterThan_${moment(this.updatedBefore).format('DD/MM/YYYY')}`]: targetLastUpdatedGreaterThanUpdatedBefore,
+                        updatedCount: updatedCount,
+                        skippedCount: skippedCount,
+                        lastProcessedId: lastProcessedId
                     };
                 }
                 return results;
