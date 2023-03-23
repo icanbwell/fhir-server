@@ -1,0 +1,209 @@
+{
+  "_id": "Theda-1003000126-ThedaCare-Employee-Health-Plan-N44549770",
+  "resourceType": "PractitionerRole",
+  "id": "Theda-1003000126-ThedaCare-Employee-Health-Plan-N44549770",
+  "meta": {
+    "versionId": "2",
+    "lastUpdated": "2023-02-24T23:58:17.000Z",
+    "source": "https://www.healthpartners.com/provider",
+    "security": [
+      {
+        "system": "https://www.icanbwell.com/owner",
+        "code": "thedacare"
+      },
+      {
+        "system": "https://www.icanbwell.com/access",
+        "code": "thedacare"
+      },
+      {
+        "system": "https://www.icanbwell.com/access",
+        "code": "healthpartners"
+      },
+      {
+        "system": "https://www.icanbwell.com/vendor",
+        "code": "healthpartners"
+      },
+      {
+        "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+        "code": "thedacare"
+      }
+    ]
+  },
+  "extension": [
+    {
+      "id": "insurance-plan",
+      "extension": [
+        {
+          "id": "tc-ins",
+          "url": "plan",
+          "valueReference": {
+            "extension": [
+              {
+                "id": "sourceId",
+                "url": "https://www.icanbwell.com/sourceId",
+                "valueString": "InsurancePlan/Theda-ThedaCare-Employee-Health-Plan"
+              },
+              {
+                "id": "uuid",
+                "url": "https://www.icanbwell.com/uuid",
+                "valueString": "InsurancePlan/0ef5f76f-d79e-5aca-b024-d7a60da501bf"
+              },
+              {
+                "id": "sourceAssigningAuthority",
+                "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                "valueString": "thedacare"
+              }
+            ],
+            "reference": "InsurancePlan/Theda-ThedaCare-Employee-Health-Plan",
+            "_sourceAssigningAuthority": "thedacare",
+            "_uuid": "InsurancePlan/0ef5f76f-d79e-5aca-b024-d7a60da501bf",
+            "_sourceId": "InsurancePlan/Theda-ThedaCare-Employee-Health-Plan"
+          }
+        }
+      ],
+      "url": "https://raw.githubusercontent.com/imranq2/SparkAutoMapper.FHIR/main/StructureDefinition/insurance_plan"
+    },
+    {
+      "id": "network-reference",
+      "url": "http://hl7.org/fhir/us/davinci-pdex-plan-net/StructureDefinition/network-reference",
+      "valueReference": {
+        "extension": [
+          {
+            "id": "sourceId",
+            "url": "https://www.icanbwell.com/sourceId",
+            "valueString": "Organization/Theda-Network-Tier2"
+          },
+          {
+            "id": "uuid",
+            "url": "https://www.icanbwell.com/uuid",
+            "valueString": "Organization/42dfd98f-377c-5f2b-a78e-89a9d52ce76b"
+          },
+          {
+            "id": "sourceAssigningAuthority",
+            "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+            "valueString": "thedacare"
+          }
+        ],
+        "reference": "Organization/Theda-Network-Tier2",
+        "_sourceAssigningAuthority": "thedacare",
+        "_uuid": "Organization/42dfd98f-377c-5f2b-a78e-89a9d52ce76b",
+        "_sourceId": "Organization/Theda-Network-Tier2"
+      }
+    },
+    {
+      "id": "new-patients-1",
+      "extension": [
+        {
+          "id": "acceptingpatients",
+          "url": "acceptingPatients",
+          "valueCodeableConcept": {
+            "coding": [
+              {
+                "system": "https://build.fhir.org/ig/HL7/davinci-pdex-plan-net/CodeSystem-AcceptingPatientsCS.html",
+                "code": "newpt"
+              }
+            ]
+          }
+        }
+      ],
+      "url": "http://hl7.org/fhir/us/davinci-pdex-plan-net/StructureDefinition/newpatients"
+    }
+  ],
+  "identifier": [
+    {
+      "use": "usual",
+      "type": {
+        "coding": [
+          {
+            "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+            "code": "RI"
+          }
+        ]
+      },
+      "system": "https://www.icanbwell.com",
+      "value": "Theda-1003000126-ThedaCare-Employee-Health-Plan-N44549770"
+    },
+    {
+      "id": "sourceId",
+      "system": "https://www.icanbwell.com/sourceId",
+      "value": "Theda-1003000126-ThedaCare-Employee-Health-Plan-N44549770"
+    },
+    {
+      "id": "uuid",
+      "system": "https://www.icanbwell.com/uuid",
+      "value": "0bca87f3-35c2-5f4c-bc74-fa8d77cbc25e"
+    }
+  ],
+  "active": true,
+  "period": {
+    "start": "2019-03-08T00:00:00.000Z",
+    "end": "9999-12-21T00:00:00.000Z"
+  },
+  "practitioner": {
+    "extension": [
+      {
+        "id": "sourceId",
+        "url": "https://www.icanbwell.com/sourceId",
+        "valueString": "Practitioner/1003000126"
+      },
+      {
+        "id": "uuid",
+        "url": "https://www.icanbwell.com/uuid",
+        "valueString": "Practitioner/53ee8ac3-ea5e-52e4-95c1-b2a358e88c4c"
+      },
+      {
+        "id": "sourceAssigningAuthority",
+        "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+        "valueString": "thedacare"
+      }
+    ],
+    "reference": "Practitioner/1003000126",
+    "_sourceAssigningAuthority": "thedacare",
+    "_uuid": "Practitioner/53ee8ac3-ea5e-52e4-95c1-b2a358e88c4c",
+    "_sourceId": "Practitioner/1003000126"
+  },
+  "specialty": [
+    {
+      "coding": [
+        {
+          "system": "https://www.healthpartners.com/specialty",
+          "code": "PS75",
+          "display": "Internal Medicine"
+        }
+      ],
+      "text": "Internal Medicine"
+    }
+  ],
+  "location": [
+    {
+      "extension": [
+        {
+          "id": "sourceId",
+          "url": "https://www.icanbwell.com/sourceId",
+          "valueString": "Location/TC-HP-N44549770"
+        },
+        {
+          "id": "uuid",
+          "url": "https://www.icanbwell.com/uuid",
+          "valueString": "Location/b2304e94-9d76-554e-9b37-4149500e0888"
+        },
+        {
+          "id": "sourceAssigningAuthority",
+          "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+          "valueString": "thedacare"
+        }
+      ],
+      "reference": "Location/TC-HP-N44549770",
+      "_sourceAssigningAuthority": "thedacare",
+      "_uuid": "Location/b2304e94-9d76-554e-9b37-4149500e0888",
+      "_sourceId": "Location/TC-HP-N44549770"
+    }
+  ],
+  "_access": {
+    "thedacare": 1,
+    "healthpartners": 1
+  },
+  "_sourceAssigningAuthority": "thedacare",
+  "_uuid": "0bca87f3-35c2-5f4c-bc74-fa8d77cbc25e",
+  "_sourceId": "Theda-1003000126-ThedaCare-Employee-Health-Plan-N44549770"
+}

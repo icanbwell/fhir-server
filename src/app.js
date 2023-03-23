@@ -26,6 +26,7 @@ const {handleStats} = require('./routeHandlers/stats');
 const {handleSmartConfiguration} = require('./routeHandlers/smartConfiguration');
 const {isTrue} = require('./utils/isTrue');
 const cookieParser = require('cookie-parser');
+const { handleMemoryCheck } = require('./routeHandlers/memoryChecker');
 const {handleAdmin} = require('./routeHandlers/admin');
 const {json} = require('body-parser');
 
@@ -134,6 +135,11 @@ function createApp({fnCreateContainer, trackMetrics}) {
     app.get('/health', (req, res) => handleHealthCheck(
         fnCreateContainer, req, res
     ));
+
+    app.get('/live', (req, res) => handleMemoryCheck(req, res));
+
+    app.get('/ready', (req, res) => handleMemoryCheck(req, res));
+
     app.get('/version', handleVersion);
     app.get('/logout', handleLogout);
     app.get('/logout_action', (req, res) => {

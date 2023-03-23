@@ -316,13 +316,13 @@ class UpdateCollectionsRunner {
                     );
                     // eslint-disable-next-line security/detect-object-injection
                     results[collection] = {
+                        totalSourceDocuments: totalSourceDocuments,
+                        totalTargetDocuments: totalTargetDocuments,
                         totalProcessedDocuments: totalProcessedDoc,
                         sourceMissingLastUpdated: sourceDocumentsMissingLastUpdated,
                         targetMissingLastUpdated: targetMissingLastUpdated,
-                        totalTargetDocuments: totalTargetDocuments,
-                        totalSourceDocuments: totalSourceDocuments,
                         targetLastUpdatedGreaterThanSource: targetLastUpdatedGreaterThanSource,
-                        [`targetLastUpdatedGreaterThan_${moment(this.updatedBefore).format('DD/MM/YYYY')}`]: targetLastUpdatedGreaterThanUpdatedBefore,
+                        [`targetLastUpdatedGreaterThan_${moment(this.updatedBefore).format('YYYY-MM-DD')}`]: targetLastUpdatedGreaterThanUpdatedBefore,
                         updatedCount: updatedCount,
                         skippedCount: skippedCount,
                         lastProcessedId: lastProcessedId
