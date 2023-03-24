@@ -53,6 +53,7 @@ async function main() {
  * To run this:
  * nvm use 18.14.2
  * required env variables
+ * MONGO_DB_NAME, MONGO_URL
  * node src/admin/scripts/databaseStats.js --collection="Task_4_0_0,Patient_4_0_0"
  */
 main().catch((reason) => {
