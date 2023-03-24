@@ -24,7 +24,15 @@ class AdminLogManager {
         if (env.LOG_ELASTIC_SEARCH_USERNAME !== undefined && env.LOG_ELASTIC_SEARCH_PASSWORD !== undefined) {
             node = node.replace('https://', `https://${env.LOG_ELASTIC_SEARCH_USERNAME}:${env.LOG_ELASTIC_SEARCH_PASSWORD}@`);
         } else {
-            const {username, password} = await getElasticSearchParameterAsync(env.ENV);
+            let username, password;
+            if (env.ELASTIC_SEARCH_USERNAME && env.ELASTIC_SEARCH_PASSWORD) {
+                username = env.ELASTIC_SEARCH_USERNAME;
+                password = env.ELASTIC_SEARCH_PASSWORD;
+            } else {
+                const esCreds = await getElasticSearchParameterAsync(env.ENV);
+                username = esCreds.username;
+                password = esCreds.password;
+            }
             assertIsValid(username);
             assertIsValid(typeof username === 'string');
             assertIsValid(password);
