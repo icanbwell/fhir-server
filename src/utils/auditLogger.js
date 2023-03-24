@@ -16,6 +16,11 @@ const {logError} = require('../operations/common/logging');
 const AuditEvent = require('../fhir/classes/4_0_0/resources/auditEvent');
 const Meta = require('../fhir/classes/4_0_0/complex_types/meta');
 const Coding = require('../fhir/classes/4_0_0/complex_types/coding');
+const Reference = require('../fhir/classes/4_0_0/complex_types/reference');
+const AuditEventAgent = require('../fhir/classes/4_0_0/backbone_elements/auditEventAgent');
+const AuditEventSource = require('../fhir/classes/4_0_0/backbone_elements/auditEventSource');
+const AuditEventEntity = require('../fhir/classes/4_0_0/backbone_elements/auditEventEntity');
+const AuditEventNetwork = require('../fhir/classes/4_0_0/backbone_elements/auditEventNetwork');
 
 class AuditLogger {
     /**
@@ -58,7 +63,7 @@ class AuditLogger {
 
     /**
      * Create an AuditEntry resource
-     * @param {import('./fhirRequestInfo').FhirRequestInfo} requestInfo
+     * @param {FhirRequestInfo} requestInfo
      * @param {string} resourceType
      * @param {string} operation
      * @param {Object} cleanedArgs
@@ -99,31 +104,38 @@ class AuditLogger {
                 ]
             }),
             recorded: new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ssZ')),
-            type: {
+            type: new Coding({
                 system: 'http://dicom.nema.org/resources/ontology/DCM',
-                code: 110112,
+                code: '110112',
                 display: 'Query'
-            },
+            }),
             agent: [
-                {
-                    who: {
+                new AuditEventAgent({
+                    who: new Reference({
                         reference: `Person/${requestInfo.user}`
-                    },
+                    }),
                     altId: requestInfo.scope,
                     requestor: true,
                     name: requestInfo.user,
-                    network: {
+                    network: new AuditEventNetwork({
                         address: requestInfo.remoteIPAddress,
-                        type: 2
-                    }
-                }
+                        type: '2'
+                    })
+                })
             ],
+            source: new AuditEventSource({
+                observer: new Reference(
+                    {
+                        reference: `Person/${requestInfo.user}`
+                    }
+                )
+            }),
             action: operationCodeMapping[`${operation}`],
             entity: ids.slice(0, maxNumberOfIds).map((resourceId, index) => {
-                return {
-                    what: {
+                return new AuditEventEntity({
+                    what: new Reference({
                         reference: `${resourceType}/${resourceId}`
-                    },
+                    }),
                     detail: index === 0 ?
                         Object.entries(cleanedArgs).filter(([_, value]) => typeof value === 'string').map(([key, value], _) => {
                             return {
@@ -131,7 +143,7 @@ class AuditLogger {
                                 valueString: value
                             };
                         }) : null
-                };
+                });
             })
         });
 
@@ -140,12 +152,13 @@ class AuditLogger {
 
     /**
      * logs an entry for audit
-     * @param {import('./fhirRequestInfo').FhirRequestInfo} requestInfo
+     * @param {FhirRequestInfo} requestInfo
      * @param {string} resourceType
      * @param {string} base_version
      * @param {string} operation
      * @param {Object} args
      * @param {string[]} ids
+     * @return {Promise<void>}
      */
     async logAuditEntryAsync(
         {

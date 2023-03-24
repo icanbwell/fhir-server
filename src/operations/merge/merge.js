@@ -20,7 +20,7 @@ const Bundle = require('../../fhir/classes/4_0_0/resources/bundle');
 const Parameters = require('../../fhir/classes/4_0_0/resources/parameters');
 const {ResourceValidator} = require('../common/resourceValidator');
 const {getCircularReplacer} = require('../../utils/getCircularReplacer');
-const {ParsedArgs} = require('../query/parsedArgsItem');
+const {ParsedArgs} = require('../query/parsedArgs');
 const {MergeResultEntry} = require('../common/mergeResultEntry');
 const {PreSaveManager} = require('../../preSaveHandlers/preSave');
 const async = require('async');
@@ -170,7 +170,7 @@ class MergeOperation {
      * @param {string} resourceType
      * @returns {Promise<MergeResultEntry[]> | Promise<MergeResultEntry>| Promise<Resource>}
      */
-    async merge({requestInfo, parsedArgs, resourceType}) {
+    async mergeAsync({requestInfo, parsedArgs, resourceType}) {
         assertIsValid(requestInfo !== undefined);
         assertIsValid(resourceType !== undefined);
         assertTypeEquals(parsedArgs, ParsedArgs);

@@ -23,7 +23,7 @@ class SearchOperation {
      * @param {boolean} filter
      * @return {Promise<Resource[] | {entry:{resource: Resource}[]}>} array of resources or a bundle
      */
-    async search(
+    async searchAsync(
         requestInfo, args, resourceType,
         filter = true
     ) {

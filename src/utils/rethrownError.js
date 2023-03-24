@@ -12,10 +12,11 @@ class RethrownError extends Error {
      * @param {string|undefined} [source]
      */
     constructor({message, error, args, source}) {
+        super(!message && error && error.message ? error.message : message);
+
         if (!message && error && error.message) {
             message = error.message;
         }
-        super(message);
         this.name = this.constructor.name;
         if (!error) {
             throw new Error('RethrownError requires a message and error');
@@ -46,9 +47,11 @@ class RethrownError extends Error {
         Error.captureStackTrace(this, this.constructor);
         var oldStackDescriptor = Object.getOwnPropertyDescriptor(this, 'stack');
         var stackDescriptor = this.buildStackDescriptor(oldStackDescriptor, error);
-        Object.defineProperty(this, 'stack', stackDescriptor);
+        this.stack = typeof stackDescriptor === 'function' ? stackDescriptor.get() : stackDescriptor.value;
         if (this.issue) {
-            this.issue.forEach(i => {i.diagnostics = env.IS_PRODUCTION ? this.message : this.stack;});
+            this.issue.forEach(i => {
+                i.diagnostics = env.IS_PRODUCTION ? this.message : this.stack;
+            });
         }
     }
 

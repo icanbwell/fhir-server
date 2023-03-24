@@ -480,9 +480,9 @@ describe('patient Tests', () => {
             expect(resp).toHaveStatusOk();
             // clear out the lastUpdated column since that changes
             let body = resp.body;
-            logInfo('------- response graphql ------------');
+            logInfo('------- response graphql ------------', {});
             logInfo('', {'resp': resp.body});
-            logInfo('------- end response graphql  ------------');
+            logInfo('------- end response graphql  ------------', {});
             expect(body.errors).toBeUndefined();
             expect(body.data.allergyIntolerance.entry).toBeDefined();
             expect(body.data.allergyIntolerance.entry.length).toBe(1);

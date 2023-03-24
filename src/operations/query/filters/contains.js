@@ -5,35 +5,64 @@
  * @returns {string}
  */
 const {escapeRegExp} = require('../../../utils/regexEscaper');
+const {BaseFilter} = require('./baseFilter');
+const {
+    tokenQueryContainsBuilder
+} = require('../../../utils/querybuilder.util');
 
 /**
  * filters by contains
  * https://www.hl7.org/fhir/search.html#string
- * @param {SearchParameterDefinition} propertyObj
- * @param {string} queryParameterValue
- * @param {Set} columns
- * @return {import('mongodb').Filter<import('mongodb').DefaultSchema>[]}
  */
-function filterByContains({propertyObj, queryParameterValue, columns}) {
+class FilterByContains extends BaseFilter {
     /**
-     * @type {Object[]}
+     * @param {string} field
+     * @param {string} value
+     * @return {import('mongodb').Filter<import('mongodb').DefaultSchema>|import('mongodb').Filter<import('mongodb').DefaultSchema>[]}
      */
-    const and_segments = [];
-    and_segments.push({
-        '$or': Array.from(columns).map(c => {
-            return {
-                [c]:
-                    {
-                        $regex: escapeRegExp(queryParameterValue),
-                        $options: 'i',
-                    },
-            };
-        })
-    });
-    columns.add(`${propertyObj.field}`);
-    return and_segments;
+    filterByItem(field, value) {
+        if (this.propertyObj.type === 'token') {
+            switch (this.propertyObj.fieldType) {
+                // https://hl7.org/fhir/search.html#token
+                case 'Coding':
+                    return tokenQueryContainsBuilder(
+                        {
+                            target: value,
+                            type: 'code',
+                            field: this.fieldMapper.getFieldName(field)
+                        }
+                    );
+
+                case 'CodeableConcept':
+                    return tokenQueryContainsBuilder(
+                        {
+                            target: value,
+                            type: 'code',
+                            field: this.fieldMapper.getFieldName(`${field}.coding`)
+                        }
+                    );
+
+                case 'Identifier':
+                    return tokenQueryContainsBuilder(
+                        {
+                            target: value,
+                            type: 'value',
+                            field: this.fieldMapper.getFieldName(field)
+                        }
+                    );
+            }
+        }
+        // Not a token so process like a string
+        return {
+            [this.fieldMapper.getFieldName(field)]:
+                {
+                    $regex: escapeRegExp(value),
+                    $options: 'i',
+                }
+        };
+    }
 }
 
 module.exports = {
-    filterByContains
+    FilterByContains
 };

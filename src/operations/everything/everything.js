@@ -9,7 +9,7 @@ const {GraphOperation} = require('../graph/graph');
 const {ScopesValidator} = require('../security/scopesValidator');
 const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
 const {FhirLoggingManager} = require('../common/fhirLoggingManager');
-const {ParsedArgs} = require('../query/parsedArgsItem');
+const {ParsedArgs} = require('../query/parsedArgs');
 
 class EverythingOperation {
     /**
@@ -52,7 +52,7 @@ class EverythingOperation {
      * @param {BaseResponseStreamer|undefined} [responseStreamer]
      * @return {Promise<Bundle>}
      */
-    async everything({requestInfo, res, parsedArgs, resourceType, responseStreamer}) {
+    async everythingAsync({requestInfo, res, parsedArgs, resourceType, responseStreamer}) {
         assertIsValid(requestInfo !== undefined, 'requestInfo is undefined');
         assertIsValid(res !== undefined, 'res is undefined');
         assertIsValid(resourceType !== undefined, 'resourceType is undefined');

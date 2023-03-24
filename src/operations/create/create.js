@@ -16,7 +16,7 @@ const {ResourceValidator} = require('../common/resourceValidator');
 const {isTrue} = require('../../utils/isTrue');
 const {DatabaseBulkInserter} = require('../../dataLayer/databaseBulkInserter');
 const {getCircularReplacer} = require('../../utils/getCircularReplacer');
-const {ParsedArgs} = require('../query/parsedArgsItem');
+const {ParsedArgs} = require('../query/parsedArgs');
 const {SecurityTagSystem} = require('../../utils/securityTagSystem');
 const {ConfigManager} = require('../../utils/configManager');
 const {FhirResourceCreator} = require('../../fhir/fhirResourceCreator');
@@ -105,7 +105,7 @@ class CreateOperation {
      * @returns {Resource}
      */
     // eslint-disable-next-line no-unused-vars
-    async create({requestInfo, parsedArgs, path, resourceType}) {
+    async createAsync({requestInfo, parsedArgs, path, resourceType}) {
         assertIsValid(requestInfo !== undefined);
         assertIsValid(resourceType !== undefined);
         assertTypeEquals(parsedArgs, ParsedArgs);

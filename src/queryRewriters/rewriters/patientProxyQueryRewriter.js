@@ -2,6 +2,7 @@ const async = require('async');
 const {QueryRewriter} = require('./queryRewriter');
 const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
 const {PersonToPatientIdsExpander} = require('../../utils/personToPatientIdsExpander');
+const {QueryParameterValue} = require('../../operations/query/queryParameterValue');
 
 const patientReferencePrefix = 'Patient/';
 const personProxyPrefix = 'person.';
@@ -38,16 +39,18 @@ class PatientProxyQueryRewriter extends QueryRewriter {
     async rewriteArgsAsync({base_version, parsedArgs, resourceType}) {
         assertIsValid(resourceType);
         assertIsValid(base_version);
+        // const foo = undefined[1];
+
         for (const parsedArg of parsedArgs.parsedArgItems) {
             if (resourceType === 'Patient') {
                 if (parsedArg.queryParameter === 'id' || parsedArg.queryParameter === '_id') {
-                    const queryParameterValues = parsedArg.queryParameterValues;
-                    if (queryParameterValues.length > 0) {
+                    const queryParameterValues = parsedArg.queryParameterValue.values;
+                    if (queryParameterValues && queryParameterValues.length > 0) {
                         if (queryParameterValues.some(
                             a => a.startsWith(personProxyPrefix) ||
                                 a.startsWith(patientReferencePlusPersonProxyPrefix))
                         ) {
-                            parsedArg.queryParameterValue = await async.flatMapSeries(
+                            const patientProxyIds = await async.flatMapSeries(
                                 queryParameterValues,
                                 async a => a.startsWith(personProxyPrefix) ||
                                 a.startsWith(patientReferencePlusPersonProxyPrefix) ?
@@ -58,17 +61,21 @@ class PatientProxyQueryRewriter extends QueryRewriter {
                                             includePatientPrefix: false
                                         }) : a
                             );
+                            parsedArg.queryParameterValue = new QueryParameterValue({
+                                value: patientProxyIds,
+                                operator: '$or'
+                            });
                         }
                     }
                 }
             } else { // resourceType other than Patient
-                const queryParameterValues = parsedArg.queryParameterValues;
-                if (queryParameterValues.length > 0) {
+                const queryParameterValues = parsedArg.queryParameterValue.values;
+                if (queryParameterValues && queryParameterValues.length > 0) {
                     if (queryParameterValues.some(
                         a => typeof a === 'string' &&
                             a.startsWith(patientReferencePlusPersonProxyPrefix))) {
                         // replace with patient ids from person
-                        parsedArg.queryParameterValue = await async.flatMapSeries(
+                        const patientProxyIds = await async.flatMapSeries(
                             queryParameterValues,
                             async a => a.startsWith(patientReferencePlusPersonProxyPrefix) ?
                                 await this.personToPatientIdsExpander.getPatientProxyIdsAsync(
@@ -77,6 +84,10 @@ class PatientProxyQueryRewriter extends QueryRewriter {
                                         id: a, includePatientPrefix: true
                                     }) : a
                         );
+                        parsedArg.queryParameterValue = new QueryParameterValue({
+                            value: patientProxyIds,
+                            operator: '$or'
+                        });
                     }
                 }
             }

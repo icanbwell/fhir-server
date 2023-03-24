@@ -1,7 +1,7 @@
 const {logWarn} = require('../../operations/common/logging');
 const async = require('async');
 const DataLoader = require('dataloader');
-const { REFERENCE_EXTENSION_DATA_MAP } = require('../../constants');
+const {REFERENCE_EXTENSION_DATA_MAP} = require('../../constants');
 const {groupByLambda} = require('../../utils/list.util');
 const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
 const {R4ArgsParser} = require('../../operations/query/r4ArgsParser');
@@ -111,7 +111,6 @@ class FhirDataSource {
      * @return {Promise<(Resource|null)[]>}>}
      */
     async getResourcesInBatch({keys, requestInfo, args}) {
-        console.log(`getResourcesInBatch start: ${keys.join(',')}`);
         // separate by resourceType
         /**
          * Each field in the object is the key
@@ -144,13 +143,12 @@ class FhirDataSource {
                         .filter((r) => r !== null);
                     const args1 = {
                         base_version: '4_0_0',
-                        id: idsOfReference,
+                        id: idsOfReference.join(','),
                         _bundle: '1',
                         ...args,
                     };
-                    console.log(`getResourcesInBatch ask: ${resourceType} ${idsOfReference.join(',')}`);
 
-                    const bundle = await this.searchBundleOperation.searchBundle(
+                    const bundle = await this.searchBundleOperation.searchBundleAsync(
                         {
                             requestInfo,
                             resourceType,
@@ -164,7 +162,6 @@ class FhirDataSource {
                             useAggregationPipeline: false
                         }
                     );
-                    console.log(`getResourcesInBatch got:  ${resourceType} ${idsOfReference.join(',')}`);
 
                     return this.unBundle(bundle);
                 }
@@ -172,7 +169,6 @@ class FhirDataSource {
             keys
         );
 
-        console.log(`getResourcesInBatch end: ${keys.join(',')}`);
         return results;
     }
 
@@ -211,8 +207,12 @@ class FhirDataSource {
         if (!reference) {
             return null;
         }
-        if (!reference.reference){
-            return this.enrichResourceWithReferenceData({}, reference);
+        if (!reference.reference) {
+            let possibleResourceType = reference.type;
+            if (!possibleResourceType && info.returnType && info.returnType._types && info.returnType._types.length > 0) {
+                possibleResourceType = info.returnType._types[0].name;
+            }
+            return this.enrichResourceWithReferenceData({}, reference, possibleResourceType);
         }
         const {
             /** @type {string} **/
@@ -224,7 +224,7 @@ class FhirDataSource {
             this.createDataLoader(args);
             // noinspection JSValidateTypes
             let resource = await this.dataLoader.load(ResourceWithId.getReferenceKey(resourceType, id));
-            resource = this.enrichResourceWithReferenceData(resource, reference);
+            resource = this.enrichResourceWithReferenceData(resource, reference, resourceType);
             return resource;
         } catch (e) {
             if (e.name === 'NotFound') {
@@ -282,7 +282,7 @@ class FhirDataSource {
             ...args
         };
         return this.unBundle(
-            await this.searchBundleOperation.searchBundle(
+            await this.searchBundleOperation.searchBundleAsync(
                 {
                     requestInfo: context.fhirRequestInfo,
                     resourceType,
@@ -318,7 +318,7 @@ class FhirDataSource {
             _bundle: '1',
             ...args
         };
-        const bundle = await this.searchBundleOperation.searchBundle(
+        const bundle = await this.searchBundleOperation.searchBundleAsync(
             {
                 requestInfo: context.fhirRequestInfo,
                 resourceType,
@@ -427,7 +427,12 @@ class FhirDataSource {
         /**
          * @type {ParsedArgs}
          */
-        let parsedArgs = this.r4ArgsParser.parseArgs({resourceType, args});
+        let parsedArgs = this.r4ArgsParser.parseArgs(
+            {
+                resourceType, args,
+                useOrFilterForArrays: true // in GraphQL we get arrays where we want to OR between the elements
+            }
+        );
         // see if any query rewriters want to rewrite the args
         parsedArgs = await this.queryRewriterManager.rewriteArgsAsync(
             {
@@ -445,9 +450,10 @@ class FhirDataSource {
      * This is useful when no resource is resolved and the client needs display data in graphql response.
      * @param resolvedResource
      * @param reference
+     * @param resourceType
      * @returns {{extension}|*|{}}
      */
-    enrichResourceWithReferenceData(resolvedResource, reference) {
+    enrichResourceWithReferenceData(resolvedResource, reference, resourceType) {
         let resource = resolvedResource;
         const dataToEnrich = ['display', 'type'];
         const dataExtensionMap = REFERENCE_EXTENSION_DATA_MAP;
@@ -455,7 +461,7 @@ class FhirDataSource {
             let extension = (resource && resource.extension) || [];
             dataToEnrich.forEach(dataKey => {
                 if (reference[`${dataKey}`]) {
-                    const extensionData = { ...dataExtensionMap[`${dataKey}`] };
+                    const extensionData = {...dataExtensionMap[`${dataKey}`]};
                     extensionData[extensionData['valueKey']] = reference[`${dataKey}`];
                     delete extensionData['valueKey'];
                     extension.push(extensionData);
@@ -463,6 +469,9 @@ class FhirDataSource {
             });
             resource = resource || {};
             resource.extension = extension;
+            if (!resource.resourceType) {
+                resource.resourceType = resourceType;
+            }
         }
         return resource;
     }

@@ -1,9 +1,11 @@
 // test file
 const task1Resource = require('./fixtures/Task/task1.json');
 const task2Resource = require('./fixtures/Task/task2.json');
+const task3Resource = require('./fixtures/Task/task3.json');
 
 // expected
-const expectedTaskResources = require('./fixtures/expected/expected_Task.json');
+const expectedTaskResourcesOr = require('./fixtures/expected/expected_Task_for_OR.json');
+const expectedTaskResourcesAnd = require('./fixtures/expected/expected_Task_for_AND.json');
 
 const {
     commonBeforeEach,
@@ -23,7 +25,7 @@ describe('Multiple codes for task Ttests', () => {
     });
 
     describe('Task search_by_multiple_codes.js Tests', () => {
-        test('Searching task with multiple codes work', async () => {
+        test('Searching task with multiple codes (combined by OR) work', async () => {
             const request = await createTestRequest();
             // ARRANGE
             // add the resources to FHIR server
@@ -41,6 +43,13 @@ describe('Multiple codes for task Ttests', () => {
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveMergeResponse({created: true});
 
+            resp = await request
+                .post('/4_0_0/Task/1/$merge?validate=true')
+                .send(task3Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
+
             // ACT & ASSERT
             // search by token system and code and make sure we get the right task back
             resp = await request
@@ -48,7 +57,42 @@ describe('Multiple codes for task Ttests', () => {
                 .set(getHeaders())
                 .expect(200);
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse(expectedTaskResources);
+            expect(resp).toHaveResponse(expectedTaskResourcesOr);
+        });
+
+        test('Searching task with multiple codes (combined by AND) work', async () => {
+            const request = await createTestRequest();
+            // ARRANGE
+            // add the resources to FHIR server
+            let resp = await request
+                .post('/4_0_0/Task/1/$merge?validate=true')
+                .send(task1Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
+
+            resp = await request
+                .post('/4_0_0/Task/1/$merge?validate=true')
+                .send(task2Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
+
+            resp = await request
+                .post('/4_0_0/Task/1/$merge?validate=true')
+                .send(task3Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
+
+            // ACT & ASSERT
+            // search by token system and code and make sure we get the right task back
+            resp = await request
+                .get('/4_0_0/Task/?code=health-activity&code=education&_bundle=1&_debug=1')
+                .set(getHeaders())
+                .expect(200);
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedTaskResourcesAnd);
         });
     });
 });

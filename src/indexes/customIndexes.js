@@ -118,6 +118,16 @@ module.exports = {
                     // unique: true,
                     name: 'id_1'
                 }
+            },
+            {
+                keys: {
+                    'resource._uuid': 1,
+                    'resource.meta.versionId': 1
+                },
+                options: {
+                    // unique: true,
+                    name: 'resource_by_uuid'
+                }
             }
         ],
         'AuditEvent_4_0_0': [
@@ -281,6 +291,17 @@ module.exports = {
                 },
                 options: {
                     name: 'patient.reference_uuid'
+                }
+            }
+        ],
+        'HealthcareService_4_0_0': [
+            {
+                keys: {
+                    'providedBy._uuid': 1,
+                    '_sourceId': 1,
+                },
+                options: {
+                    name: 'providedBy.reference_1'
                 }
             }
         ],
@@ -572,7 +593,16 @@ module.exports = {
                 options: {
                     name: 'location.reference_uuid'
                 }
-            }
+            },
+            {
+                keys: {
+                    '_access.medstar': 1,
+                    '_uuid': 1,
+                },
+                options: {
+                    name: 'security._access_medstar_1_uuid_1',
+                }
+            },
         ],
         'QuestionnaireResponse_4_0_0': [
             {

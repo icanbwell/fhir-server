@@ -7,6 +7,10 @@
             {
               "code": "health-activity",
               "system": "https://www.icanbwell.com/activityType"
+            },
+            {
+              "code": "education",
+              "system": "https://www.icanbwell.com/activityTopic"
             }
           ]
         },
@@ -84,101 +88,12 @@
         "resourceType": "Task",
         "status": "ready"
       }
-    },
-    {
-      "resource": {
-        "code": {
-          "coding": [
-            {
-              "code": "care-need",
-              "system": "https://www.icanbwell.com/activityType"
-            }
-          ]
-        },
-        "extension": [
-          {
-            "url": "https://www.icanbwell.com/activityRedirectUrl",
-            "valueString": "/find-a-doctor/"
-          },
-          {
-            "url": "https://www.icanbwell.com/activityContentId",
-            "valueString": "1bcc972e-0e9b-11ed-a121-f239354a0b36"
-          },
-          {
-            "url": "https://www.icanbwell.com/activityPoints",
-            "valueInteger": 800
-          },
-          {
-            "url": "https://www.icanbwell.com/activityCompletionMethod",
-            "valueString": "Manual"
-          },
-          {
-            "url": "https://www.icanbwell.com/contentButtonText",
-            "valueString": "Complete"
-          }
-        ],
-        "for": {
-          "display": "Test Test2",
-          "extension": [
-            {
-              "id": "sourceId",
-              "url": "https://www.icanbwell.com/sourceId",
-              "valueString": "Patient/bd327f5d-adcb-4c90-b407-14ccf564c511"
-            },
-            {
-              "id": "uuid",
-              "url": "https://www.icanbwell.com/uuid",
-              "valueString": "Patient/bd327f5d-adcb-4c90-b407-14ccf564c511"
-            },
-            {
-              "id": "sourceAssigningAuthority",
-              "url": "https://www.icanbwell.com/sourceAssigningAuthority",
-              "valueString": "bwell"
-            }
-          ],
-          "reference": "Patient/bd327f5d-adcb-4c90-b407-14ccf564c511"
-        },
-        "id": "ecce3022-1662-4ce7-b819-3c4b66e29947",
-        "identifier": [
-          {
-            "id": "sourceId",
-            "system": "https://www.icanbwell.com/sourceId",
-            "value": "ecce3022-1662-4ce7-b819-3c4b66e29947"
-          },
-          {
-            "id": "uuid",
-            "system": "https://www.icanbwell.com/uuid",
-            "value": "ecce3022-1662-4ce7-b819-3c4b66e29947"
-          }
-        ],
-        "instantiatesCanonical": "https://fhir.dev-ue1.bwell.zone/4_0_0/ActivityDefinition/545110b2-d9af-4f15-b978-417ceb27db36",
-        "meta": {
-          "security": [
-            {
-              "code": "bwell",
-              "system": "https://www.icanbwell.com/access"
-            },
-            {
-              "code": "bwell",
-              "system": "https://www.icanbwell.com/owner"
-            },
-            {
-              "code": "bwell",
-              "system": "https://www.icanbwell.com/sourceAssigningAuthority"
-            }
-          ],
-          "source": "bwell",
-          "versionId": "1"
-        },
-        "resourceType": "Task",
-        "status": "completed"
-      }
     }
   ],
   "meta": {
     "tag": [
       {
-        "display": "db.Task_4_0_0.find({'$or':[{'code.coding.code':'health-activity'},{'code.coding.code':'care-need'}]}, {}).sort({'id':1}).limit(100)",
+        "display": "db.Task_4_0_0.find({'$and':[{'code.coding.code':'health-activity'},{'code.coding.code':'education'}]}, {}).sort({'id':1}).limit(100)",
         "system": "https://www.icanbwell.com/query"
       },
       {
@@ -190,7 +105,7 @@
         "system": "https://www.icanbwell.com/queryOptions"
       },
       {
-        "display": "['code.coding.system','code.coding.code','id']",
+        "display": "['code.coding.code','id']",
         "system": "https://www.icanbwell.com/queryFields"
       },
       {

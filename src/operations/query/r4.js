@@ -1,31 +1,25 @@
 const {fhirFilterTypes} = require('./customQueries');
-const {filterById} = require('./filters/id');
-const {filterByString} = require('./filters/string');
-const {filterByUri} = require('./filters/uri');
-const {filterByDateTime} = require('./filters/dateTime');
-const {filterByToken} = require('./filters/token');
-const {filterByReference} = require('./filters/reference');
-const {filterByMissing} = require('./filters/missing');
-const {filterByContains} = require('./filters/contains');
-const {filterByAbove, filterByBelow} = require('./filters/aboveAndBelow');
-const {filterByPartialText} = require('./filters/partialText');
-const {filterByCanonical} = require('./filters/canonical');
-const {filterBySecurityTag} = require('./filters/securityTag');
+const {FilterByString} = require('./filters/string');
+const {FilterByUri} = require('./filters/uri');
+const {FilterByDateTime} = require('./filters/dateTime');
+const {FilterByToken} = require('./filters/token');
+const {FilterByReference} = require('./filters/reference');
+const {FilterByCanonical} = require('./filters/canonical');
+const {FilterBySecurityTag} = require('./filters/securityTag');
 const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
 const {ConfigManager} = require('../../utils/configManager');
 const {AccessIndexManager} = require('../common/accessIndexManager');
 const {R4ArgsParser} = require('./r4ArgsParser');
-const {removeDuplicatesWithLambda} = require('../../utils/list.util');
-const {ParsedArgs} = require('./parsedArgsItem');
-
-function isUrl(queryParameterValue) {
-    return typeof queryParameterValue === 'string' &&
-        (
-            queryParameterValue.startsWith('http://') ||
-            queryParameterValue.startsWith('https://') ||
-            queryParameterValue.startsWith('ftp://')
-        );
-}
+const {ParsedArgs} = require('./parsedArgs');
+const {FieldMapper} = require('./filters/fieldMapper');
+const {FilterByMissing} = require('./filters/missing');
+const {FilterByContains} = require('./filters/contains');
+const {FilterByAbove, FilterByBelow} = require('./filters/aboveAndBelow');
+const {FilterByPartialText} = require('./filters/partialText');
+const {FilterById} = require('./filters/id');
+const {MongoQuerySimplifier} = require('../../utils/mongoQuerySimplifier');
+const {FilterParameters} = require('./filters/filterParameters');
+const {UrlParser} = require('../../utils/urlParser');
 
 class R4SearchQueryCreator {
     /**
@@ -67,12 +61,7 @@ class R4SearchQueryCreator {
     buildR4SearchQuery({resourceType, parsedArgs, useHistoryTable}) {
         assertIsValid(resourceType);
         assertTypeEquals(parsedArgs, ParsedArgs);
-        /**
-         * list of columns used in the query
-         * this is used to pick index hints
-         * @type {Set}
-         */
-        let totalColumns = new Set();
+
         /**
          * and segments
          * these are combined to create the query
@@ -82,43 +71,52 @@ class R4SearchQueryCreator {
 
         for (const /** @type {ParsedArgsItem} */ parsedArg of parsedArgs.parsedArgItems) {
             if (parsedArg.queryParameterValue && parsedArg.propertyObj) {
+                /**
+                 * @type {FieldMapper}
+                 */
+                const fieldMapper = new FieldMapper(
+                    {
+                        enableGlobalIdSupport: this.configManager.enableGlobalIdSupport,
+                        useHistoryTable: useHistoryTable
+                    }
+                );
+                /**
+                 * @type {FilterParameters}
+                 */
+                const filterParameters = new FilterParameters(
+                    {
+                        parsedArg,
+                        propertyObj: parsedArg.propertyObj,
+                        fnUseAccessIndex: (accessCode) =>
+                            this.configManager.useAccessIndex &&
+                            this.accessIndexManager.resourceHasAccessIndexForAccessCodes({
+                                resourceType,
+                                accessCodes: [accessCode]
+                            }),
+                        fieldMapper,
+                        resourceType,
+                        enableGlobalIdSupport: this.configManager.enableGlobalIdSupport
+                    });
+
                 let {
-                    /** @type {Set} */
-                    columns,
                     /** @type {import('mongodb').Filter<import('mongodb').DefaultSchema>[]} */
                     andSegments
                 } = this.getColumnsAndSegmentsForParameterType({
-                    resourceType,
-                    queryParameter: parsedArg.queryParameter,
-                    queryParameterValue: parsedArg.queryParameterValue,
-                    propertyObj: parsedArg.propertyObj,
-                    enableGlobalIdSupport: this.configManager.enableGlobalIdSupport,
                     parsedArg,
-                    useHistoryTable
+                    filterParameters
                 });
 
                 // replace andSegments according to modifiers
                 if (parsedArg.modifiers.includes('missing')) {
-                    andSegments = filterByMissing({
-                        queryParameterValue: parsedArg.queryParameterValue, propertyObj: parsedArg.propertyObj, columns
-                    });
+                    andSegments = new FilterByMissing(filterParameters).filter();
                 } else if (parsedArg.modifiers.includes('contains')) {
-                    andSegments = filterByContains({
-                        propertyObj: parsedArg.propertyObj, queryParameterValue: parsedArg.queryParameterValue, columns
-                    });
+                    andSegments = new FilterByContains(filterParameters).filter();
                 } else if (parsedArg.modifiers.includes('above')) {
-                    andSegments = filterByAbove({
-                        propertyObj: parsedArg.propertyObj, queryParameterValue: parsedArg.queryParameterValue, columns
-                    });
+                    andSegments = new FilterByAbove(filterParameters).filter();
                 } else if (parsedArg.modifiers.includes('below')) {
-                    andSegments = filterByBelow({
-                        propertyObj: parsedArg.propertyObj, queryParameterValue: parsedArg.queryParameterValue, columns
-                    });
+                    andSegments = new FilterByBelow(filterParameters).filter();
                 } else if (parsedArg.modifiers.includes('text')) {
-                    columns = new Set(); // text overrides datatype column logic
-                    andSegments = filterByPartialText({
-                        queryParameterValue: parsedArg.queryParameterValue, propertyObj: parsedArg.propertyObj, columns,
-                    });
+                    andSegments = new FilterByPartialText(filterParameters).filter();
                 }
 
                 // apply negation according to not modifier and add to final collection
@@ -126,10 +124,6 @@ class R4SearchQueryCreator {
                     andSegments.forEach(q => totalAndSegments.push({$nor: [q]}));
                 } else {
                     andSegments.forEach(q => totalAndSegments.push(q));
-                }
-
-                for (const column of columns) {
-                    totalColumns.add(column);
                 }
             }
         }
@@ -145,7 +139,14 @@ class R4SearchQueryCreator {
             query.$and = totalAndSegments;
         }
 
-        query = this.simplifyFilter({filter: query});
+        query = MongoQuerySimplifier.simplifyFilter({filter: query});
+
+        /**
+         * list of columns used in the query
+         * this is used to pick index hints
+         * @type {Set}
+         */
+        const totalColumns = MongoQuerySimplifier.findColumnsInFilter({filter: query});
 
         return {
             query: query,
@@ -155,32 +156,19 @@ class R4SearchQueryCreator {
 
     /**
      * Builds a set of columns and list of segments to apply for a particular query parameter
-     * @param {string} resourceType
-     * @param {string} queryParameter
-     * @param {string|string[]} queryParameterValue
-     * @param {SearchParameterDefinition} propertyObj
-     * @param {boolean} enableGlobalIdSupport
      * @param {ParsedArgsItem} parsedArg
-     * @param {boolean|undefined} useHistoryTable
-     * @returns {{columns: Set, andSegments: import('mongodb').Filter<import('mongodb').DefaultSchema>[]}} columns and andSegments for query parameter
+     * @param {FilterParameters} filterParameters
+     * @returns {{andSegments: import('mongodb').Filter<import('mongodb').DefaultSchema>[]}} columns and andSegments for query parameter
      */
     getColumnsAndSegmentsForParameterType(
         {
-            resourceType,
-            queryParameter,
-            queryParameterValue,
-            propertyObj,
-            enableGlobalIdSupport,
             parsedArg,
-            useHistoryTable
+            filterParameters
         }
     ) {
-        /**
-         * list of columns used in the query for this parameter
-         * this is used to pick index hints
-         * @type {Set}
-         */
-        let columns = new Set();
+        const queryParameter = parsedArg.queryParameter;
+        const queryParameterValue = parsedArg.queryParameterValue;
+        const propertyObj = parsedArg.propertyObj;
 
         /**
          * and segments
@@ -193,65 +181,33 @@ class R4SearchQueryCreator {
         // get the set of columns required for the query
         if (queryParameter === '_id') {
             // handle id differently since it is a token, but we want to do exact match
-            andSegments = filterById({
-                queryParameterValue, propertyObj, columns,
-                enableGlobalIdSupport,
-                useHistoryTable
-            });
+            andSegments = new FilterById(filterParameters).filter();
         } else if (propertyObj) {
             switch (propertyObj.type) {
                 case fhirFilterTypes.string:
-                    andSegments = filterByString({
-                        queryParameterValue, propertyObj, columns
-                    });
+                    andSegments = new FilterByString(filterParameters).filter();
                     break;
                 case fhirFilterTypes.uri:
-                    andSegments = filterByUri({
-                        propertyObj, queryParameterValue, columns
-                    });
+                    andSegments = new FilterByUri(filterParameters).filter();
                     break;
                 case fhirFilterTypes.dateTime:
                 case fhirFilterTypes.date:
                 case fhirFilterTypes.period:
                 case fhirFilterTypes.instant:
-                    andSegments = filterByDateTime(
-                        {
-                            queryParameterValue,
-                            propertyObj,
-                            resourceType,
-                            columns
-                        }
-                    );
+                    andSegments = new FilterByDateTime(filterParameters).filter();
                     break;
                 case fhirFilterTypes.token:
-                    if (propertyObj.field === 'meta.security') {
-                        andSegments = filterBySecurityTag({
-                            queryParameterValue, propertyObj, columns,
-                            fnUseAccessIndex: (accessCode) =>
-                                this.configManager.useAccessIndex &&
-                                this.accessIndexManager.resourceHasAccessIndexForAccessCodes({
-                                    resourceType,
-                                    accessCodes: [accessCode]
-                                })
-                        });
+                    if (propertyObj.firstField === 'meta.security') {
+                        andSegments = new FilterBySecurityTag(filterParameters).filter();
                     } else {
-                        andSegments = filterByToken({
-                            queryParameterValue, propertyObj, columns
-                        });
+                        andSegments = new FilterByToken(filterParameters).filter();
                     }
                     break;
                 case fhirFilterTypes.reference:
-                    if (isUrl(queryParameterValue)) {
-                        andSegments = filterByCanonical({
-                            propertyObj, queryParameterValue, columns
-                        });
+                    if (queryParameterValue.values && queryParameterValue.values.every(v => UrlParser.isUrl(v))) {
+                        andSegments = new FilterByCanonical(filterParameters).filter();
                     } else {
-                        andSegments = filterByReference(
-                            {
-                                parsedArg,
-                                columns,
-                            }
-                        );
+                        andSegments = new FilterByReference(filterParameters).filter();
                     }
                     break;
                 default:
@@ -259,57 +215,8 @@ class R4SearchQueryCreator {
             }
         }
 
-        return {columns, andSegments};
+        return {andSegments};
     }
-
-    /**
-     * simplifies the filter by removing duplicate segments and $or statements with just one child
-     * @param {import('mongodb').Filter<import('mongodb').DefaultSchema>} filter
-     * @return {import('mongodb').Filter<import('mongodb').DefaultSchema>}
-     */
-    simplifyFilter({filter}) {
-        // simplify $or
-        if (filter.$or && filter.$or.length > 1) {
-            filter.$or = removeDuplicatesWithLambda(filter.$or,
-                (a, b) => JSON.stringify(a) === JSON.stringify(b)
-            );
-        }
-        if (filter.$or && filter.$or.length > 0) {
-            filter.$or = filter.$or.map(f => this.simplifyFilter({filter: f}));
-        }
-        if (filter.$or && filter.$or.length === 1) {
-            filter = filter.$or[0];
-        }
-        // simplify $nor
-        if (filter.$nor && filter.$nor.length > 1) {
-            filter.$nor = removeDuplicatesWithLambda(filter.$nor,
-                (a, b) => JSON.stringify(a) === JSON.stringify(b)
-            );
-        }
-        if (filter.$nor && filter.$nor.length > 0) {
-            filter.$nor = filter.$nor.map(f => this.simplifyFilter({filter: f}));
-        }
-        // simplify $and
-        if (filter.$and && filter.$and.length > 1) {
-            filter.$and = removeDuplicatesWithLambda(filter.$and,
-                (a, b) => JSON.stringify(a) === JSON.stringify(b)
-            );
-        }
-        if (filter.$and && filter.$and.length > 0) {
-            filter.$and = filter.$and.map(f => this.simplifyFilter({filter: f}));
-        }
-        if (filter.$and && filter.$and.length === 1) {
-            filter = filter.$and[0];
-        }
-        // simplify $in
-        if (filter.$in && filter.$in.length === 1) {
-            filter = filter.$in[0];
-        }
-
-        return filter;
-    }
-
-
 }
 
 module.exports = {

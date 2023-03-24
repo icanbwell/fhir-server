@@ -8,7 +8,7 @@ const OperationOutcomeIssue = require('../../fhir/classes/4_0_0/backbone_element
 const CodeableConcept = require('../../fhir/classes/4_0_0/complex_types/codeableConcept');
 const {ResourceValidator} = require('../common/resourceValidator');
 const moment = require('moment-timezone');
-const {ParsedArgs} = require('../query/parsedArgsItem');
+const {ParsedArgs} = require('../query/parsedArgs');
 const {SecurityTagSystem} = require('../../utils/securityTagSystem');
 const {FhirResourceCreator} = require('../../fhir/fhirResourceCreator');
 
@@ -49,7 +49,7 @@ class ValidateOperation {
      * @param {string} resourceType
      * @returns {Promise<Resource>}
      */
-    async validate({requestInfo, parsedArgs, resourceType}) {
+    async validateAsync({requestInfo, parsedArgs, resourceType}) {
         assertIsValid(requestInfo !== undefined);
         assertIsValid(resourceType !== undefined);
         assertTypeEquals(parsedArgs, ParsedArgs);

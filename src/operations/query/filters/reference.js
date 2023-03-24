@@ -1,126 +1,153 @@
-const {referenceQueryBuilderOptimized} = require('../../../utils/querybuilder.util');
-const {getIndexHints} = require('../../common/getIndexHints');
-const {isUuid} = require('../../../utils/uid.util');
+const {BaseFilter} = require('./baseFilter');
+const {ReferenceParser} = require('../../../utils/referenceParser');
+const {groupByLambda} = require('../../../utils/list.util');
 
 /**
- * Get reference id filter
- * @param {[string]} fields
- * @param {[ParsedReferenceItem]} references
- * @param {string} idField
- * @returns {*}
- */
-function getIdFilter(fields, references, idField){
-    return fields.flatMap(
-        field1 => {
-            const field = `${field1}.${idField}`;
-            const query = references.map(reference =>
-                referenceQueryBuilderOptimized({
-                        target_type: reference.resourceType,
-                        target: reference.id,
-                        field: field,
-                        sourceAssigningAuthorityField: `${field1}._sourceAssigningAuthority`,
-                    },
-                ),
-            );
-            let res = [];
-            const directFieldFilterLength = query.filter(q => q[`${field}`]).length;
-            if ( directFieldFilterLength > 1) {
-                res.push(
-                    {
-                        [`${field}`]: {
-                            '$in': query.map(q => q[`${field}`]),
-                        },
-                    },
-                );
-            } else if (directFieldFilterLength === 1){
-                res.push(
-                    {
-                        [`${field}`]: query.map(q => q[`${field}`])[0],
-                    },
-                );
-            }
-            query.filter(q => !q[`${field}`]).forEach(q => res.push(q));
-            return res;
-        },
-    );
-}
-
-/**
- * Filters by reference
+ * @classdesc Filters by reference
  * https://www.hl7.org/fhir/search.html#reference
- * @param {ParsedArgsItem} parsedArg
- * @param {Set} columns
- * @return {import('mongodb').Filter<import('mongodb').DefaultSchema>[]}
  */
-function filterByReference({parsedArg, columns}) {
-    /**
-     * @type {Object[]}
-     */
-    const and_segments = [];
-    const propertyObj = parsedArg.propertyObj;
-
-
-    const fields = propertyObj.fields && Array.isArray(propertyObj.fields) ?
-        propertyObj.fields :
-        [propertyObj.field];
+class FilterByReference extends BaseFilter {
 
     /**
-     * @type {import('mongodb').Filter<import('mongodb').DefaultSchema>}
+     * Get references
+     * @param {string[]} targets
+     * @param {string} reference
+     * @return {string[]}
      */
-    let filter;
-    /**
-     * @type {boolean}
-     */
-    const allReferencesAreUuids = parsedArg.references.every(reference => isUuid(reference.id));
-    /**
-     * @type {boolean}
-     */
-    const noReferencesAreUuids = !parsedArg.references.some(reference => isUuid(reference.id));
-    if (allReferencesAreUuids) {
-        //optimize by looking only in _uuid field
-        filter = {
-            $or: getIdFilter(fields, parsedArg.references, '_uuid'),
-        };
-    } else if (noReferencesAreUuids) {
-        filter = {
-            $or:
-                getIdFilter(fields, parsedArg.references, '_sourceId'),
-        };
-    } else {
-        // there is a mix of uuids and ids so we have to look in both fields
-        filter = {
-            $or: propertyObj.target.flatMap(target =>
-                fields.flatMap((field1) =>
-                    parsedArg.references.flatMap(reference =>
-                        [
-                            referenceQueryBuilderOptimized({
-                                    target_type: reference.resourceType || target,
-                                    target: reference.id,
-                                    field: `${field1}._sourceId`,
-                                    sourceAssigningAuthorityField: `${field1}._sourceAssigningAuthority`
-                                }
-                            ),
-                            referenceQueryBuilderOptimized({
-                                    target_type: reference.resourceType || target,
-                                    target: reference.id,
-                                    field: `${field1}._uuid`,
-                                    sourceAssigningAuthorityField: `${field1}._sourceAssigningAuthority`
-                                }
-                            )
-                        ]
-                    )
+    getReferences({targets, reference}) {
+        const {resourceType, id} = ReferenceParser.parseReference(reference);
+        if (resourceType) {
+            return [
+                ReferenceParser.createReference(
+                    {
+                        resourceType: resourceType, id: id // do not set sourceAssigningAuthority since we set that as a separate $and clause
+                    }
                 )
-            ),
-        };
+            ];
+        } else {
+            return targets.map(
+                t => ReferenceParser.createReference(
+                    {
+                        resourceType: t, id: id // do not set sourceAssigningAuthority since we set that as a separate $and clause
+                    }
+                )
+            );
+        }
     }
 
-    if (filter) {
+    /**
+     * filter function that calls filterByItem for each field and each value supplied
+     * @return {import('mongodb').Filter<import('mongodb').DefaultSchema>[]}
+     */
+    filter() {
+        /**
+         * @type {Object[]}
+         */
+        const and_segments = [];
+
+        if (!this.parsedArg.queryParameterValue.values || this.parsedArg.queryParameterValue.values.length === 0) {
+            return and_segments;
+        }
+
+        const filters = [];
+
+        // separate uuids and ids
+        const uuidReferences = this.parsedArg.queryParameterValue.values.filter(r => ReferenceParser.isUuidReference(r));
+
+        if (uuidReferences.length > 0) {
+            // process uuids first
+            const uuidFilters = [];
+            for (const field of this.propertyObj.fields) {
+                uuidFilters.push(
+                    {
+                        [`${field}._uuid`]: {
+                            '$in': uuidReferences.flatMap(
+                                r => this.getReferences(
+                                    {
+                                        targets: this.propertyObj.target,
+                                        reference: r
+                                    }
+                                )
+                            )
+                        }
+                    }
+                );
+
+                if (uuidFilters.length > 0) {
+                    filters.push({
+                        '$or': uuidFilters
+                    });
+                }
+            }
+        }
+        // process ids next
+        const idReferences = this.parsedArg.queryParameterValue.values.filter(r => !ReferenceParser.isUuidReference(r));
+        if (idReferences.length > 0) {
+            const idFilters = [];
+            for (const field of this.propertyObj.fields) {
+                const idReferencesWithSourceAssigningAuthority = idReferences.filter(r => ReferenceParser.getSourceAssigningAuthority(r));
+                const idReferencesWithoutSourceAssigningAuthority = idReferences.filter(r => !ReferenceParser.getSourceAssigningAuthority(r));
+                if (idReferencesWithSourceAssigningAuthority.length > 0) {
+                    // group by sourceAssigningAuthority
+                    const idReferencesWithResourceTypeAndSourceAssigningAuthorityGroups = groupByLambda(
+                        idReferencesWithSourceAssigningAuthority,
+                        r => ReferenceParser.getSourceAssigningAuthority(r)
+                    );
+                    for (
+                        const [sourceAssigningAuthority, references]
+                        of Object.entries(idReferencesWithResourceTypeAndSourceAssigningAuthorityGroups)
+                        ) {
+                        idFilters.push(
+                            {
+                                '$and': [
+                                    {
+                                        [`${field}._sourceAssigningAuthority`]: sourceAssigningAuthority
+                                    },
+                                    {
+                                        [`${field}._sourceId`]: {
+                                            '$in': references.flatMap(
+                                                r => this.getReferences({
+                                                    targets: this.propertyObj.target,
+                                                    reference: r
+                                                })
+                                            )
+                                        }
+                                    }
+                                ]
+                            }
+                        );
+                    }
+                }
+                if (idReferencesWithoutSourceAssigningAuthority.length > 0) {
+                    idFilters.push(
+                        {
+                            [`${field}._sourceId`]: {
+                                '$in': idReferencesWithoutSourceAssigningAuthority.flatMap(
+                                    r => this.getReferences({
+                                        targets: this.propertyObj.target,
+                                        reference: r
+                                    })
+                                )
+                            }
+                        }
+                    );
+                }
+            }
+            if (idFilters.length > 0) {
+                filters.push({
+                    '$or': idFilters
+                });
+            }
+        }
+        const filter = {
+            '$or': filters
+        };
         and_segments.push(filter);
+        return and_segments;
     }
-    getIndexHints(columns, propertyObj, 'reference');
-    return and_segments;
 }
+
 
 module.exports = {
-    filterByReference
+    FilterByReference
 };

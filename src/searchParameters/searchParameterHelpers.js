@@ -1,4 +1,4 @@
-const { searchParameterQueries } = require('./searchParameters');
+const {searchParameterQueries} = require('./searchParameters');
 
 /**
  * Returns the field in resource corresponding to search parameter
@@ -11,7 +11,7 @@ function getFieldNameForSearchParameter(searchResourceType, searchParameterName)
         if (resourceType === searchResourceType || resourceType === 'Resource') {
             for (const [queryParameter, propertyObj] of Object.entries(resourceObj)) {
                 if (queryParameter === searchParameterName) {
-                    return propertyObj.field;
+                    return propertyObj.firstField;
                 }
             }
         }

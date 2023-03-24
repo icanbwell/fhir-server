@@ -51,21 +51,24 @@ class ResourcePreparer {
      */
     selectSpecificElements({parsedArgs, element, resourceType}) {
         /**
-         * @type {string[]}
+         * @type {string[]|null}
          */
-        const properties_to_return_list = parsedArgs.get('_elements').queryParameterValues;
+        const properties_to_return_list = parsedArgs.get('_elements').queryParameterValue.values;
         /**
          * @type {Resource}
          */
         const element_to_return = element.create({});
-        /**
-         * @type {string}
-         */
-        for (const property of properties_to_return_list) {
-            if (property in element_to_return) {
-                element_to_return[`${property}`] = element[`${property}`];
+        if (properties_to_return_list){
+            /**
+             * @type {string}
+             */
+            for (const property of properties_to_return_list) {
+                if (property in element_to_return) {
+                    element_to_return[`${property}`] = element[`${property}`];
+                }
             }
         }
+
         // this is a hack for the CQL Evaluator since it does not request these fields but expects them
         if (resourceType === 'Library') {
             element_to_return['id'] = element['id'];

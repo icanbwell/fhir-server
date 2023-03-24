@@ -6,6 +6,10 @@
  * @property {number} convertedIds
  * @property {number} nModified
  * @property {number} nUpserted
+ * @property {number} numScanned
+ * @property {number} numOperations
+ * @property {number} numberWritten
+ * @property {number} numberOfDocumentsToCopy
  */
 
 const {assertTypeEquals} = require('../../utils/assertType');
@@ -63,7 +67,11 @@ class BaseScriptRunner {
             skippedIdsForMissingAccessTags: 0,
             convertedIds: 0,
             nModified: 0,
-            nUpserted: 0
+            nUpserted: 0,
+            numScanned: 0,
+            numOperations: 0,
+            numberWritten: 0,
+            numberOfDocumentsToCopy: 0
         };
     }
 

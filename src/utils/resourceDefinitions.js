@@ -34,6 +34,11 @@ const resourceDefinitions = [
         url: 'https://www.hl7.org/fhir/careteam.html'
     },
     {
+        name: 'Communication',
+        description: 'An occurrence of information being transmitted; e.g. an alert that was sent to a responsible provider, a public health agency that was notified about a reportable condition.',
+        url: 'https://hl7.org/FHIR/communication.html'
+    },
+    {
         name: 'Condition',
         description: 'A clinical condition, problem, diagnosis, or other event, situation, issue, or clinical concept that has risen to a level of concern.',
         url: 'https://www.hl7.org/fhir/condition.html'
@@ -84,11 +89,6 @@ const resourceDefinitions = [
         url: 'http://hl7.org/fhir/R4/location.html'
     },
     {
-        name: 'Medication',
-        description: 'This resource is primarily used for the identification and definition of a medication for the purposes of prescribing, dispensing, and administering a medication as well as for making statements about medication use.',
-        url: 'https://www.hl7.org/fhir/medication.html'
-    },
-    {
         name: 'Measure',
         description: 'The Measure resource represents a structured, computable definition of a health-related measure such as a clinical quality measure, public health indicator, or population analytics measure.',
         url: 'http://www.hl7.org/fhir/measure.html'
@@ -97,6 +97,21 @@ const resourceDefinitions = [
         name: 'MeasureReport',
         description: 'The MeasureReport resource contains the results of the calculation of a measure; and optionally a reference to the resources involved in that calculation.',
         url: 'https://www.hl7.org/fhir/measurereport.html'
+    },
+    {
+        name: 'Medication',
+        description: 'This resource is primarily used for the identification and definition of a medication for the purposes of prescribing, dispensing, and administering a medication as well as for making statements about medication use.',
+        url: 'https://www.hl7.org/fhir/medication.html'
+    },
+    {
+        name: 'MedicationAdministration',
+        description: 'Describes the event of a patient consuming or otherwise being administered a medication. This may be as simple as swallowing a tablet or it may be a long running infusion. Related resources tie this event to the authorizing prescription, and the specific encounter between patient and health care practitioner.',
+        url: 'https://hl7.org/FHIR/medicationadministration.html'
+    },
+    {
+        name: 'MedicationDispense',
+        description: 'Indicates that a medication product is to be or has been dispensed for a named person/patient. This includes a description of the medication product (supply) provided and the instructions for administering the medication. The medication dispense is the result of a pharmacy system responding to a medication order.',
+        url: 'https://hl7.org/FHIR/medicationdispense.html'
     },
     {
         name: 'MedicationRequest',

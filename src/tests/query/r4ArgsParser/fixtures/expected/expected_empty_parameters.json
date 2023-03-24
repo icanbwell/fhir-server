@@ -1,0 +1,55 @@
+{
+  "base_version": "4_0_0",
+  "parsedArgItems": [
+    {
+      "queryParameter": "base_version",
+      "queryParameterValue": {
+        "operator": "$and",
+        "value": "4_0_0",
+        "values": [
+          "4_0_0"
+        ]
+      }
+    },
+    {
+      "propertyObj": {
+        "description": "Multiple Resources: * [Patient](patient.html): A portion of the given name of the patient* [Practitioner](practitioner.html): A portion of the given name* [Person](person.html): A portion of the given name of the person",
+        "field": "name.given",
+        "type": "string"
+      },
+      "queryParameter": "given",
+      "queryParameterValue": {
+        "operator": "$and",
+        "value": "DONOTUSE",
+        "values": [
+          "DONOTUSE"
+        ]
+      }
+    },
+    {
+      "propertyObj": {
+        "description": "Multiple Resources: * [Patient](patient.html): A portion of the family name of the patient* [Practitioner](practitioner.html): A portion of the family name* [Person](person.html): A portion of the family name of the person",
+        "field": "name.family",
+        "type": "string"
+      },
+      "queryParameter": "family",
+      "queryParameterValue": {
+        "operator": "$and",
+        "value": "HIEMASTERONE",
+        "values": [
+          "HIEMASTERONE"
+        ]
+      }
+    },
+    {
+      "queryParameter": "_count",
+      "queryParameterValue": {
+        "operator": "$and",
+        "value": "100",
+        "values": [
+          "100"
+        ]
+      }
+    }
+  ]
+}

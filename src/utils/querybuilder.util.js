@@ -5,6 +5,8 @@
 
 const moment = require('moment-timezone');
 const {escapeRegExp} = require('./regexEscaper');
+const {UrlParser} = require('./urlParser');
+const {ReferenceParser} = require('./referenceParser');
 /**
  * @name stringQueryBuilder
  * @description builds mongo default query for string inputs, no modifiers
@@ -165,6 +167,89 @@ const tokenQueryBuilder = function ({target, type, field, required, exists_flag}
 };
 
 /**
+ * @name tokenQueryContainsBuilder
+ * @param {?string} target what we are searching for
+ * @param {string} type codeable concepts use a code field and identifiers use a value
+ * @param {string} field path to system and value from field
+ * @param {string|undefined} [required] the required system if specified
+ * @param {boolean|undefined} [exists_flag] whether to check for existence
+ * @return {JSON} queryBuilder
+ * Using to assign a single variable:
+ *      const queryBuilder = tokenQueryBuilder(identifier, 'value', 'identifier');
+ for (const i in queryBuilder) {
+			 query[i] = queryBuilder[i];
+		}
+ * Use in an or query
+ *      query.$or = [tokenQueryBuilder(identifier, 'value', 'identifier'), tokenQueryBuilder(type, 'code', 'type.coding')];
+ */
+const tokenQueryContainsBuilder = function ({target, type, field, required, exists_flag}) {
+    let queryBuilder = {};
+    let system = '';
+    let value;
+
+    if (target === null || exists_flag === false) {
+        queryBuilder[`${field}`] = {$exists: false};
+        return queryBuilder;
+    }
+    if (exists_flag === true) {
+        queryBuilder[`${field}`] = {$exists: true};
+        return queryBuilder;
+    }
+
+    if (target.includes('|')) {
+        [system, value] = target.split('|');
+
+    } else {
+        value = target;
+    }
+
+    if (required) {
+        system = required;
+    }
+
+    const queryBuilderElementMatch = {};
+    if (system) {
+        queryBuilder[`${field}.system`] = {
+            $regex: escapeRegExp(system),
+            $options: 'i',
+        };
+        queryBuilderElementMatch['system'] = {
+            $regex: escapeRegExp(system),
+            $options: 'i',
+        };
+    }
+
+    if (value) {
+        if (value.includes(',')) {
+            const values = value.split(',');
+            queryBuilder[`${field}.${type}`] = {
+                $regex: values.map(v => escapeRegExp(v)).join('|'),
+                $options: 'i',
+            };
+            queryBuilderElementMatch[`${type}`] = {
+                $regex: values.map(v => escapeRegExp(v)).join('|'),
+                $options: 'i',
+            };
+        } else {
+            queryBuilder[`${field}.${type}`] = {
+                $regex: escapeRegExp(value),
+                $options: 'i',
+            };
+            queryBuilderElementMatch[`${type}`] = {
+                $regex: escapeRegExp(value),
+                $options: 'i',
+            };
+        }
+    }
+
+    if (system && value) {
+        // $elemMatch so we match on BOTH system and value in the same array element
+        queryBuilder = {};
+        queryBuilder[`${field}`] = {$elemMatch: queryBuilderElementMatch};
+    }
+    return queryBuilder;
+};
+/**
  * @name exactMatchQueryBuilder
  * @param {string|boolean|null} target what we are searching for
  * @param {string} field path to system and value from field
@@ -275,6 +360,7 @@ const referenceQueryBuilder = function ({target_type, target, field, exists_flag
  * @param {string} target_type
  * @param {string} target
  * @param {string} field
+ * @param {string|undefined} sourceAssigningAuthority
  * @param {string|undefined} sourceAssigningAuthorityField
  * @param {boolean|undefined} [exists_flag]
  * @return {JSON} queryBuilder
@@ -284,6 +370,7 @@ const referenceQueryBuilderOptimized = function (
         target_type,
         target,
         field,
+        sourceAssigningAuthority,
         sourceAssigningAuthorityField,
         exists_flag
     }
@@ -299,18 +386,17 @@ const referenceQueryBuilderOptimized = function (
         return queryBuilder;
     }
     if (target_type && target) {
-        const targetPlusSourceAssigningAuthority = target.split('|');
-        if (targetPlusSourceAssigningAuthority.length > 1) {
+        if (sourceAssigningAuthority) {
             queryBuilder['$and'] = [
                 {
-                    [`${sourceAssigningAuthorityField}`]: targetPlusSourceAssigningAuthority[1]
+                    [`${sourceAssigningAuthorityField}`]: sourceAssigningAuthority
                 },
                 {
-                    [`${field}`]: `${target_type}/${targetPlusSourceAssigningAuthority[0]}`
+                    [`${field}`]: UrlParser.isUrl(target) ? target : `${target_type}/${target}`
                 }
             ];
         } else {
-            queryBuilder[`${field}`] = `${target_type}/${target}`;
+            queryBuilder[`${field}`] = UrlParser.isUrl(target) ? target : `${target_type}/${target}`;
         }
         return queryBuilder;
     }
@@ -328,20 +414,20 @@ const referenceQueryBuilderOptimized = function (
         const fullResourceTypeAndIdList = [];
         for (const searchItem of searchItems) {
             if (searchItem.includes('/')) {
-                const [type, id] = searchItem.split('/');
-                fullResourceTypeAndIdList.push(`${type}/${id}`);
+                const {resourceType, id} = ReferenceParser.parseReference(searchItem);
+                fullResourceTypeAndIdList.push(`${resourceType}/${id}`);
             } else {
                 fullResourceTypeAndIdList.push(`${target_type}/${searchItem}`);
             }
         }
         queryBuilder[`${field}`] = {$in: fullResourceTypeAndIdList.map(s => `${s}`)};
     } else if (target.includes('/')) {
-        const [type, id] = target.split('/');
+        const {resourceType, id} = ReferenceParser.parseReference(target);
         if (id.includes(',')) {
             const idList = id.split(',');
-            queryBuilder[`${field}`] = {$in: idList.map(i => `${type}/${i}`)};
+            queryBuilder[`${field}`] = {$in: idList.map(i => `${resourceType}/${i}`)};
         } else {
-            queryBuilder[`${field}`] = `${type}/${id}`;
+            queryBuilder[`${field}`] = `${resourceType}/${id}`;
         }
     }
     // target = id The type may be there so we need to check the end of the field for the id
@@ -1050,5 +1136,6 @@ module.exports = {
     dateQueryBuilderNative,
     datetimePeriodQueryBuilder,
     partialTextQueryBuilder,
-    exactMatchQueryBuilder
+    exactMatchQueryBuilder,
+    tokenQueryContainsBuilder
 };

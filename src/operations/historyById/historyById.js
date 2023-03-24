@@ -12,7 +12,7 @@ const {SearchManager} = require('../search/searchManager');
 const {isTrue} = require('../../utils/isTrue');
 const BundleEntry = require('../../fhir/classes/4_0_0/backbone_elements/bundleEntry');
 const {ResourceManager} = require('../common/resourceManager');
-const {ParsedArgs} = require('../query/parsedArgsItem');
+const {ParsedArgs} = require('../query/parsedArgs');
 const {QueryItem} = require('../graph/queryItem');
 
 class HistoryByIdOperation {
@@ -98,7 +98,7 @@ class HistoryByIdOperation {
      * @param {ParsedArgs} parsedArgs
      * @param {string} resourceType
      */
-    async historyById({requestInfo, parsedArgs, resourceType}) {
+    async historyByIdAsync({requestInfo, parsedArgs, resourceType}) {
         assertIsValid(requestInfo !== undefined);
         assertIsValid(resourceType !== undefined);
         assertTypeEquals(parsedArgs, ParsedArgs);

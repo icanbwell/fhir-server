@@ -1,7 +1,7 @@
 const {EnrichmentProvider} = require('./enrichmentProvider');
 const {getFirstResourceOrNull} = require('../../utils/list.util');
 const {assertTypeEquals} = require('../../utils/assertType');
-const {ParsedArgs} = require('../../operations/query/parsedArgsItem');
+const {ParsedArgs} = require('../../operations/query/parsedArgs');
 
 class ProxyPatientReferenceEnrichmentProvider extends EnrichmentProvider {
     /**
@@ -23,8 +23,9 @@ class ProxyPatientReferenceEnrichmentProvider extends EnrichmentProvider {
                 /**
                  * @type {string[]}
                  */
-                const proxyPatientIds = parsedArgsItem.queryParameterValues.map(
-                    a => a.startsWith('Patient/') ? a : `Patient/${a}`);
+                const proxyPatientIds = parsedArgsItem.queryParameterValue.values ?
+                    parsedArgsItem.queryParameterValue.values.map(
+                        a => a.startsWith('Patient/') ? a : `Patient/${a}`) : [];
                 for (const resource of resources) {
                     await resource.updateReferencesAsync({
                         fnUpdateReferenceAsync: async (reference) => {
@@ -69,15 +70,17 @@ class ProxyPatientReferenceEnrichmentProvider extends EnrichmentProvider {
                  */
                 const key = parsedArgsItem.queryParameter;
                 /**
-                 * @type {string[]}
+                 * @type {string[]|null}
                  */
-                const values = parsedArgsItem.queryParameterValues;
-                for (const value of values) {
-                    if (value && typeof value === 'string' &&
-                        (value.startsWith('Patient/person.') || value.startsWith('person.'))
-                    ) {
-                        proxyPatientPersonId = value;
-                        proxyPatientPersonIdKey = key;
+                const values = parsedArgsItem.queryParameterValue.values;
+                if (values) {
+                    for (const value of values) {
+                        if (value && typeof value === 'string' &&
+                            (value.startsWith('Patient/person.') || value.startsWith('person.'))
+                        ) {
+                            proxyPatientPersonId = value;
+                            proxyPatientPersonIdKey = key;
+                        }
                     }
                 }
             }

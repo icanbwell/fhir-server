@@ -228,7 +228,7 @@ class SearchManager {
             return {base_version, query, columns};
         } catch (e) {
             throw new RethrownError({
-                    message: 'Error in constructQueryAsync()',
+                    message: 'Error in constructQueryAsync(): ' + (e.message || ''),
                     error: e,
                     args: {
                         user, scope,
@@ -569,8 +569,8 @@ class SearchManager {
         /**
          * @type {string[]}
          */
-        const properties_to_return_list = parsedArgs.get('_elements').queryParameterValues;
-        if (properties_to_return_list.length > 0) {
+        const properties_to_return_list = parsedArgs.get('_elements').queryParameterValue.values;
+        if (properties_to_return_list && properties_to_return_list.length > 0) {
             /**
              * @type {import('mongodb').Document}
              */
@@ -649,8 +649,8 @@ class SearchManager {
         /**
          * @type {string[]}
          */
-        const sort_properties_list = parsedArgs.get('_sort').queryParameterValues;
-        if (sort_properties_list.length > 0) {
+        const sort_properties_list = parsedArgs.get('_sort').queryParameterValue.values;
+        if (sort_properties_list && sort_properties_list.length > 0) {
             /**
              * @type {import('mongodb').Sort}
              */

@@ -6,7 +6,7 @@ const {ValueSetManager} = require('../../utils/valueSet.util');
 const {ScopesManager} = require('../security/scopesManager');
 const {FhirLoggingManager} = require('../common/fhirLoggingManager');
 const {ScopesValidator} = require('../security/scopesValidator');
-const {ParsedArgs} = require('../query/parsedArgsItem');
+const {ParsedArgs} = require('../query/parsedArgs');
 
 class ExpandOperation {
     /**
@@ -69,7 +69,7 @@ class ExpandOperation {
      * @param {string} resourceType
      * @return {Resource}
      */
-    async expand({requestInfo, parsedArgs, resourceType}) {
+    async expandAsync({requestInfo, parsedArgs, resourceType}) {
         assertIsValid(requestInfo !== undefined);
         assertIsValid(resourceType !== undefined);
         assertTypeEquals(parsedArgs, ParsedArgs);

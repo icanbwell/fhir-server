@@ -263,11 +263,11 @@
   "meta": {
     "tag": [
       {
-        "display": "db.AuditEvent_4_0_0_2021_09.find({'$and':[{'recorded':{'$lt':ISODate('2021-09-22T00:00:00.000Z')}},{'recorded':{'$gte':ISODate('2021-09-19T00:00:00.000Z')}},{'_access.medstar':1}]}, {}).sort({'id':1}).limit(2)",
+        "display": "db.AuditEvent_4_0_0_2021_09.find({'$and':[{'_access.medstar':1},{'recorded':{'$lt':ISODate('2021-09-22T00:00:00.000Z')}},{'recorded':{'$gte':ISODate('2021-09-19T00:00:00.000Z')}}]}, {}).sort({'id':1}).limit(2)",
         "system": "https://www.icanbwell.com/query"
       },
       {
-        "code": "AuditEvent_4_0_0_2023_02",
+        "code": "AuditEvent_4_0_0_2023_03",
         "system": "https://www.icanbwell.com/queryCollection"
       },
       {
@@ -275,7 +275,7 @@
         "system": "https://www.icanbwell.com/queryOptions"
       },
       {
-        "display": "['recorded','_access.medstar','id']",
+        "display": "['_access.medstar','recorded','id']",
         "system": "https://www.icanbwell.com/queryFields"
       },
       {

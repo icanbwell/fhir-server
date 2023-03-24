@@ -17,6 +17,21 @@ const graphDefinitionResource = require('./fixtures/graph/my_graph.json');
 const expectedGraphWithoutProxyPatient = require('./fixtures/expected/expected_graph_without_proxy_patient.json');
 const expectedGraphWithProxyPatient = require('./fixtures/expected/expected_graph_with_proxy_patient.json');
 const patient1Resource = require('./fixtures/Patient/patient1.json');
+const {ConfigManager} = require('../../../utils/configManager');
+
+class MockConfigManager extends ConfigManager {
+    get enableGlobalIdSupport() {
+        return true;
+    }
+
+    get enableReturnBundle() {
+        return true;
+    }
+
+    get supportLegacyIds() {
+        return false;
+    }
+}
 
 describe('UpdateReferences Tests', () => {
     beforeEach(async () => {
@@ -29,7 +44,10 @@ describe('UpdateReferences Tests', () => {
 
     describe('Observation updateReferences Tests', () => {
         test('updateReferences function works', async () => {
-            const request = await createTestRequest();
+            const request = await createTestRequest((c) => {
+                c.register('configManager', () => new MockConfigManager());
+                return c;
+            });
             let resp = await request
                 .get('/4_0_0/Observation')
                 .set(getHeaders());
@@ -62,7 +80,10 @@ describe('UpdateReferences Tests', () => {
             expect(observation.toJSON()).toStrictEqual(expectedObservationResources);
         });
         test('updateReferences works via GET without proxy patient', async () => {
-            const request = await createTestRequest();
+            const request = await createTestRequest((c) => {
+                c.register('configManager', () => new MockConfigManager());
+                return c;
+            });
 
             let resp = await request
                 .post('/4_0_0/Person/1/$merge?validate=true')
@@ -92,13 +113,16 @@ describe('UpdateReferences Tests', () => {
             expect(resp).toHaveResponse(expectedObservationWithoutProxyPatientResources.entry[0].resource);
 
             resp = await request
-                .get('/4_0_0/Observation/?_bundle=1&patient=Patient/00100000000')
+                .get('/4_0_0/Observation/?_bundle=1&patient=Patient/00100000000&_debug=1')
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedObservationWithoutProxyPatientResources);
         });
         test('updateReferences works via GET with proxy patient', async () => {
-            const request = await createTestRequest();
+            const request = await createTestRequest((c) => {
+                c.register('configManager', () => new MockConfigManager());
+                return c;
+            });
 
             let resp = await request
                 .post('/4_0_0/Person/1/$merge?validate=true')
@@ -122,7 +146,7 @@ describe('UpdateReferences Tests', () => {
             expect(resp).toHaveMergeResponse({created: true});
 
             resp = await request
-                .get('/4_0_0/Observation/?_bundle=1&patient=Patient/00100000000')
+                .get('/4_0_0/Observation/?_bundle=1&patient=Patient/00100000000&_debug=1')
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedObservationWithoutProxyPatientResources);
@@ -134,7 +158,10 @@ describe('UpdateReferences Tests', () => {
             expect(resp).toHaveResponse(expectedObservationWithProxyPatientResources);
         });
         test('updateReferences works via $graph without proxy patient', async () => {
-            const request = await createTestRequest();
+            const request = await createTestRequest((c) => {
+                c.register('configManager', () => new MockConfigManager());
+                return c;
+            });
 
             let resp = await request
                 .post('/4_0_0/Person/1/$merge?validate=true')
@@ -165,7 +192,7 @@ describe('UpdateReferences Tests', () => {
             expect(resp).toHaveMergeResponse({created: true});
 
             resp = await request
-                .post('/4_0_0/Patient/$graph?id=00100000000')
+                .post('/4_0_0/Patient/$graph?id=00100000000&_debug=1')
                 .set(getHeaders())
                 .send(graphDefinitionResource);
 
@@ -173,7 +200,10 @@ describe('UpdateReferences Tests', () => {
             expect(resp).toHaveResponse(expectedGraphWithoutProxyPatient);
         });
         test('updateReferences works via $graph with proxy patient', async () => {
-            const request = await createTestRequest();
+            const request = await createTestRequest((c) => {
+                c.register('configManager', () => new MockConfigManager());
+                return c;
+            });
 
             let resp = await request
                 .post('/4_0_0/Person/1/$merge?validate=true')

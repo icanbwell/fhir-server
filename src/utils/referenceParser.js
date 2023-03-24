@@ -1,4 +1,5 @@
 const {isUuid} = require('./uid.util');
+const {UrlParser} = require('./urlParser');
 
 class ReferenceParser {
     /**
@@ -8,6 +9,9 @@ class ReferenceParser {
      * @return {{ resourceType: string|undefined, id: string, sourceAssigningAuthority: string|undefined}}
      */
     static parseReference(reference) {
+        if (UrlParser.isUrl(reference)) { // is a url so don't try to parse
+            return {id: reference};
+        }
         const parts = reference.split('/');
         let resourceType;
         let id;
@@ -48,6 +52,37 @@ class ReferenceParser {
         }
         return reference;
     }
+
+    /**
+     * whether this reference is a uuid reference
+     * @param reference
+     * @return {boolean}
+     */
+    static isUuidReference(reference) {
+        const {id} = ReferenceParser.parseReference(reference);
+        return isUuid(id);
+    }
+
+    /**
+     * returns resourceType from reference
+     * @param {string} reference
+     * @return {string|undefined}
+     */
+    static getResourceType(reference) {
+        const {resourceType} = ReferenceParser.parseReference(reference);
+        return resourceType;
+    }
+
+    /**
+     * returns sourceAssigningAuthority from reference
+     * @param {string} reference
+     * @return {string|undefined}
+     */
+    static getSourceAssigningAuthority(reference) {
+        const {sourceAssigningAuthority} = ReferenceParser.parseReference(reference);
+        return sourceAssigningAuthority;
+    }
+
 }
 
 module.exports = {

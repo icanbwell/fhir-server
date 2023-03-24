@@ -53,8 +53,18 @@ class KafkaClient {
         const config = {
             clientId: clientId,
             brokers: brokers,
+            // Timeout in ms for authentication requests
+            authenticationTimeout: 60000,
             ssl: ssl,
-            sasl: sasl
+            sasl: sasl,
+            // connectionTimeout in milliseconds(10 seconds), to wait for a successful connection
+            connectionTimeout: 10000,
+            retry: {
+                // initialRetryTime in ms to wait before retrying. Used in randomization function
+                initialRetryTime: 500,
+                // Number of times to retry before raising an error.
+                retries: 3
+            }
         };
         /**
          * @type {import('kafkajs').Kafka}

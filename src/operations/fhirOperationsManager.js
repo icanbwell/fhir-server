@@ -24,12 +24,6 @@ const contentType = require('content-type');
 const {QueryRewriterManager} = require('../queryRewriters/queryRewriterManager');
 const {R4ArgsParser} = require('./query/r4ArgsParser');
 
-// This is needed for JSON.stringify() can handle regex
-// https://stackoverflow.com/questions/12075927/serialization-of-regexp
-// eslint-disable-next-line no-extend-native
-// Object.defineProperty(RegExp.prototype, 'toJSON', {
-//     value: RegExp.prototype.toString
-// });
 
 class FhirOperationsManager {
     /**
@@ -308,7 +302,7 @@ class FhirOperationsManager {
                 args: combined_args, resourceType, headers: req.headers
             }
         );
-        return this.searchBundleOperation.searchBundle(
+        return await this.searchBundleOperation.searchBundleAsync(
             {
                 requestInfo: this.getRequestInfo(req),
                 parsedArgs,
@@ -341,7 +335,7 @@ class FhirOperationsManager {
                 args: combined_args, resourceType, headers: req.headers
             }
         );
-        return this.searchStreamingOperation.searchStreaming(
+        return await this.searchStreamingOperation.searchStreamingAsync(
             {
                 requestInfo: this.getRequestInfo(req),
                 res,
@@ -369,7 +363,7 @@ class FhirOperationsManager {
                 args: combined_args, resourceType, headers: req.headers
             }
         );
-        return this.searchByIdOperation.searchById(
+        return await this.searchByIdOperation.searchByIdAsync(
             {
                 requestInfo: this.getRequestInfo(req),
                 parsedArgs,
@@ -402,7 +396,7 @@ class FhirOperationsManager {
             args: combined_args, resourceType, headers: req.headers
         });
 
-        return this.createOperation.create(
+        return await this.createOperation.createAsync(
             {
                 requestInfo: this.getRequestInfo(req),
                 parsedArgs,
@@ -431,7 +425,7 @@ class FhirOperationsManager {
                 args: combined_args, resourceType, headers: req.headers
             }
         );
-        return this.updateOperation.update(
+        return await this.updateOperation.updateAsync(
             {
                 requestInfo: this.getRequestInfo(req),
                 parsedArgs,
@@ -460,7 +454,7 @@ class FhirOperationsManager {
                 args: combined_args, resourceType, headers: req.headers
             }
         );
-        return this.mergeOperation.merge(
+        return await this.mergeOperation.mergeAsync(
             {
                 requestInfo: this.getRequestInfo(req),
                 parsedArgs,
@@ -501,7 +495,7 @@ class FhirOperationsManager {
             /**
              * @type {Bundle}
              */
-            const result = await this.everythingOperation.everything(
+            const result = await await this.everythingOperation.everythingAsync(
                 {
                     requestInfo: this.getRequestInfo(req),
                     res,
@@ -548,7 +542,7 @@ class FhirOperationsManager {
                 args: combined_args, resourceType, headers: req.headers
             }
         );
-        return this.removeOperation.remove(
+        return await this.removeOperation.removeAsync(
             {
                 requestInfo: this.getRequestInfo(req),
                 parsedArgs,
@@ -576,7 +570,7 @@ class FhirOperationsManager {
                 args: combined_args, resourceType, headers: req.headers
             }
         );
-        return this.removeOperation.remove(
+        return await this.removeOperation.removeAsync(
             {
                 requestInfo: this.getRequestInfo(req),
                 parsedArgs,
@@ -605,7 +599,7 @@ class FhirOperationsManager {
                 args: combined_args, resourceType, headers: req.headers
             }
         );
-        return this.searchByVersionIdOperation.searchByVersionId(
+        return await this.searchByVersionIdOperation.searchByVersionIdAsync(
             {
                 requestInfo: this.getRequestInfo(req),
                 parsedArgs,
@@ -635,7 +629,7 @@ class FhirOperationsManager {
             }
         );
 
-        return this.historyOperation.history(
+        return await this.historyOperation.historyAsync(
             {
                 requestInfo: this.getRequestInfo(req),
                 parsedArgs,
@@ -664,7 +658,7 @@ class FhirOperationsManager {
                 args: combined_args, resourceType, headers: req.headers
             }
         );
-        return this.historyByIdOperation.historyById(
+        return await this.historyByIdOperation.historyByIdAsync(
             {
                 requestInfo: this.getRequestInfo(req),
                 parsedArgs,
@@ -693,7 +687,7 @@ class FhirOperationsManager {
                 args: combined_args, resourceType, headers: req.headers
             }
         );
-        return this.patchOperation.patch(
+        return await this.patchOperation.patchAsync(
             {
                 requestInfo: this.getRequestInfo(req),
                 parsedArgs,
@@ -721,7 +715,7 @@ class FhirOperationsManager {
                 args: combined_args, resourceType, headers: req.headers
             }
         );
-        return this.validateOperation.validate(
+        return await this.validateOperation.validateAsync(
             {
                 requestInfo: this.getRequestInfo(req),
                 parsedArgs,
@@ -808,7 +802,7 @@ class FhirOperationsManager {
             }
         );
 
-        return this.expandOperation.expand(
+        return await this.expandOperation.expandAsync(
             {
                 requestInfo: this.getRequestInfo(req),
                 parsedArgs,

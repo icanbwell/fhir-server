@@ -15,7 +15,7 @@ const {ScopesValidator} = require('../security/scopesValidator');
 const {BundleManager} = require('../common/bundleManager');
 const {ConfigManager} = require('../../utils/configManager');
 const {BadRequestError} = require('../../utils/httpErrors');
-const {ParsedArgs} = require('../query/parsedArgsItem');
+const {ParsedArgs} = require('../query/parsedArgs');
 const {QueryItem} = require('../graph/queryItem');
 
 class SearchBundleOperation {
@@ -97,7 +97,7 @@ class SearchBundleOperation {
      * @param {boolean} useAggregationPipeline
      * @return {Promise<Bundle>} array of resources or a bundle
      */
-    async searchBundle(
+    async searchBundleAsync(
         {requestInfo, parsedArgs, resourceType, useAggregationPipeline}
     ) {
         assertIsValid(requestInfo !== undefined);

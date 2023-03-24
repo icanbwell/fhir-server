@@ -387,7 +387,7 @@
         "system": "https://www.icanbwell.com/queryOptions"
       },
       {
-        "display": "['subject.reference','subject','id']",
+        "display": "['subject','id']",
         "system": "https://www.icanbwell.com/queryFields"
       },
       {

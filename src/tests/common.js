@@ -58,7 +58,7 @@ module.exports.createTestServer = async () => {
 };
 
 /**
- * @param {(SimpleContainer) => SimpleContainer} [fnUpdateContainer]
+ * @param {(SimpleContainer) => SimpleContainer|undefined} [fnUpdateContainer]
  * @return {import('supertest').Test}
  */
 module.exports.createTestRequest = async (fnUpdateContainer) => {

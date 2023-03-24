@@ -18,6 +18,15 @@ class MemoryManager {
 
         return `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))} ${size}`;
     }
+
+    /**
+     * returns memory used as a string
+     * @return {string}
+     */
+    get memoryUsed() {
+        const memoryUsage = process.memoryUsage();
+        return this.formatBytes(memoryUsage.rss);
+    }
 }
 
 module.exports = {
