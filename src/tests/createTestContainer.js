@@ -15,7 +15,8 @@ const createTestContainer = function (fnUpdateContainer) {
     // update any values here
     container.register('kafkaClientFactory', (c) => new MockKafkaClientFactory(
         {
-            configManager: c.configManager
+            configManager: c.configManager,
+            secretsManager: c.awsSecretsManager
         }));
     container.register('mongoDatabaseManager', () => new TestMongoDatabaseManager());
 

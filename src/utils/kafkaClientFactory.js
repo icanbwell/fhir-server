@@ -1,19 +1,25 @@
 const env = require('var');
 const {KafkaClient} = require('./kafkaClient');
 const {assertTypeEquals} = require('./assertType');
+const {AwsSecretsManager} = require('./awsSecretsManager');
 const {ConfigManager} = require('./configManager');
 const {DummyKafkaClient} = require('./dummyKafkaClient');
 
 class KafkaClientFactory {
     /**
      * constructor
+     * @param {AwsSecretsManager} secretsManager
      * @param {ConfigManager} configManager
      */
     constructor(
         {
+            secretsManager,
             configManager
         }
     ) {
+        this.secretsManager = secretsManager;
+        assertTypeEquals(secretsManager, AwsSecretsManager);
+
         this.configManager = configManager;
         assertTypeEquals(configManager, ConfigManager);
 
