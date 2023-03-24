@@ -68,7 +68,7 @@ async function main() {
  * TARGET_CLUSTER_USERNAME, TARGET_CLUSTER_PASSWORD, TARGET_CLUSTER_MONGO_URL, TARGET_DB_NAME
  * SOURCE_CLUSTER_USERNAME, SOURCE_CLUSTER_PASSWORD, SOURCE_CLUSTER_MONGO_URL, SOURCE_DB_NAME
  * node src/admin/scripts/updateCollections.js --updatedBefore=2023-03-14 --readbatchSize=10000 --concurrentRunners=5 --_idAbove="1" --startWithCollection="Task_4_0_0"
- * node src/admin/scripts/updateCollections.js --updatedBefore=2023-03-14 --collections=Task_4_0_0 --skipHistoryCollection
+ * node src/admin/scripts/updateCollections.js --updatedBefore=2023-03-14 --collections=Task_4_0_0 --skipHistoryCollections
  */
 main().catch((reason) => {
     console.error(reason);

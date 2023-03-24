@@ -229,7 +229,7 @@ class UpdateCollectionsRunner {
 
                     const totalTargetDocuments = await targetDatabaseCollection.countDocuments();
                     const totalSourceDocuments = await sourceDatabaseCollection.countDocuments();
-                    const sourceDocumentsMissingLastUpdated = await sourceDatabaseCollection.find({'meta.lastUpdated': { $exists: false}}).countDocuments();
+                    const sourceDocumentsMissingLastUpdated = await sourceDatabaseCollection.find({'meta.lastUpdated': { $exists: false}}).count();
 
                     this.adminLogger.logInfo(
                         `For ${collection} the total documents in target collection: ${totalTargetDocuments} and source collection: ${totalSourceDocuments}`
