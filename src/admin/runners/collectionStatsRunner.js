@@ -51,7 +51,7 @@ class CollectionStats extends BaseScriptRunner {
         this.adminLogger.logInfo(`The list of collections are: ${filteredCollections}`);
         try {
             let result = {};
-            const db = await this.mongoDatabaseManager.getClientDbAsync()
+            const db = await this.mongoDatabaseManager.getClientDbAsync();
             for (const collection of filteredCollections) {
                 const [mainCollection, historyCollection] = collection.length === 2 ? collection : [collection[0], null];
                 const databaseCollectionMain = db.collection(mainCollection);
