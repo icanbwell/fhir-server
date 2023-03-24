@@ -96,7 +96,6 @@ class UpdateCollectionsRunner {
             `Connecting to target cluster with mongo url: ${process.env.TARGET_CLUSTER_MONGO_URL} and db_name: ${db_name}`
         );
         const options = {
-            readPreference: 'secondaryPreferred',
             // https://www.mongodb.com/docs/drivers/node/current/fundamentals/connection/connection-options/
             retryWrites: true,
             w: 'majority',
@@ -118,7 +117,6 @@ class UpdateCollectionsRunner {
             `Connecting to target cluster with mongo url: ${process.env.SOURCE_CLUSTER_MONGO_URL} and db_name: ${db_name}`
         );
         const options = {
-            readPreference: 'secondaryPreferred',
             // https://www.mongodb.com/docs/drivers/node/current/fundamentals/connection/connection-options/
             connectTimeoutMS: 0,
             maxIdleTimeMS: 0,
