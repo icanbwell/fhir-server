@@ -39,10 +39,6 @@ class MockConfigManager extends ConfigManager {
         return true;
     }
 
-    get kafkaAwsSecretName() {
-        return 'foo';
-    }
-
     get kafkaClientId() {
         return 'kafka_client_id';
     }
@@ -90,8 +86,8 @@ describe('kafkaClientFactory Tests', () => {
                 'sasl': {
                     'mechanism': 'aws',
                     'authorizationIdentity': null,
-                    'username': 'msk_user_dev_ue1',
-                    'password': 'foo;ar',
+                    'username': undefined,
+                    'password': undefined,
                     'accessKeyId': null,
                     'secretAccessKey': null
                 }
