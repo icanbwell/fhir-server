@@ -47,7 +47,7 @@ class KafkaClientFactory {
             accessKeyId: this.configManager.kafkaAccessKeyId || null,
             secretAccessKey: this.configManager.kafkaAccessKeySecret || null
         } : null;
-        if (this.configManager.kafkaUseSasl) {
+        if (this.configManager.kafkaUseSasl && this.configManager.kafkaAwsSecretName) {
             if (!this.userName || !this.password) {
                 this.userName = env.KAFKA_SASL_USERNAME;
                 this.password = env.KAFKA_SASL_PASSWORD;

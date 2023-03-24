@@ -74,6 +74,14 @@ class ConfigManager {
     }
 
     /**
+     * name of secret to use to get kafka auth
+     * @return {string|null}
+     */
+    get kafkaAwsSecretName() {
+        return env.KAFKA_SASL_AWS_SECRET || null;
+    }
+
+    /**
      * username for kafka auth
      * @return {string|null}
      */
