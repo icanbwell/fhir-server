@@ -83,10 +83,9 @@ class BaseScriptRunner {
      * gets all collection names
      * @param {boolean} useAuditDatabase
      * @param {boolean|undefined} [includeHistoryCollections]
-     * @param {boolean} [disconnectClient]
      * @returns {Promise<string[]>}
      */
-    async getAllCollectionNamesAsync({useAuditDatabase, includeHistoryCollections, disconnectClient = true}) {
+    async getAllCollectionNamesAsync({useAuditDatabase, includeHistoryCollections}) {
         const config = useAuditDatabase ?
             await this.mongoDatabaseManager.getAuditConfigAsync() :
             await this.mongoDatabaseManager.getClientConfigAsync();
@@ -106,12 +105,8 @@ class BaseScriptRunner {
         if (!includeHistoryCollections) {
             collectionNames = collectionNames.filter(c => !c.includes('_History'));
         }
-        if (disconnectClient) {
-            await this.mongoDatabaseManager.disconnectClientAsync(client);
-            return collectionNames;
-        }
-        // Make sure to close the connection in the script were disconnectClient is sent as false.
-        return [collectionNames, client, db];
+        await this.mongoDatabaseManager.disconnectClientAsync(client);
+        return collectionNames;
     }
 }
 

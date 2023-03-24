@@ -43,15 +43,15 @@ class CollectionStats extends BaseScriptRunner {
     }
 
     async processAsync() {
-        const [collectionNames, client, db] = await this.getAllCollectionNamesAsync({
+        const collectionNames = await this.getAllCollectionNamesAsync({
             useAuditDatabase: false,
             includeHistoryCollections: true,
-            disconnectClient: false,
         });
         const filteredCollections = this.collections ? this.filterCollections(collectionNames) : collectionNames;
         this.adminLogger.logInfo(`The list of collections are: ${filteredCollections}`);
         try {
             let result = {};
+            const db = await this.mongoDatabaseManager.getClientDbAsync()
             for (const collection of filteredCollections) {
                 const [mainCollection, historyCollection] = collection.length === 2 ? collection : [collection[0], null];
                 const databaseCollectionMain = db.collection(mainCollection);
@@ -73,7 +73,6 @@ class CollectionStats extends BaseScriptRunner {
         } catch (error) {
             this.adminLogger.logError(`Error: ${error}`);
         } finally {
-            await this.mongoDatabaseManager.disconnectClientAsync(client);
             this.adminLogger.logInfo('Connection Closed.');
         }
     }
