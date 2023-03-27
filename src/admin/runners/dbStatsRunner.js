@@ -35,7 +35,9 @@ class DatabaseStats extends BaseScriptRunner {
     validateCollections(collectionNames) {
         let validCollections = [];
         for (let collection of collectionNames) {
+            // Skip collections which are of type views or collection whose name contains 'system.
             if (collection.type !== 'collection' || collection.name.indexOf('system.') !== -1) {
+                this.adminLogger.logInfo(`${collection} is an invalid collection`);
                 continue;
             }
             validCollections.push(collection.name);
@@ -53,8 +55,10 @@ class DatabaseStats extends BaseScriptRunner {
         const listOfCollections = this.collections ? this.collections : collectionNames;
         for ( let collection of collectionNames) {
             let groupedCollection = [];
+            // If the collection is to included and also has a history table add it to the list of collections.
             if (listOfCollections.includes(collection) && !collection.endsWith('_History')) {
                 groupedCollection.push(collection);
+                // The history collection is present or not.
                 if (collectionNames.includes(`${collection}_History`)) {
                     groupedCollection.push(`${collection}_History`);
                 }
@@ -70,21 +74,33 @@ class DatabaseStats extends BaseScriptRunner {
         const collectionNames = await db.listCollections().toArray();
         const validCollections = this.validateCollections(collectionNames);
         const filteredCollections = this.filterCollections(validCollections);
+        this.adminLogger.logInfo(`The list of collections are: ${filteredCollections}`);
         let totalMainDocuments = 0;
         let totalHistoryDocuments = 0;
         try {
             let result = {};
             for (const collection of filteredCollections) {
+                // Processing both the main and history collections together
                 const [mainCollection, historyCollection] = collection.length === 2 ? [collection[0], collection[1]] : [collection[0], null];
+                this.adminLogger.logInfo(
+                    `===== Processing ${mainCollection} ${historyCollection ? `and its history collection ${historyCollection}.` : '.'} =====`
+                );
                 const databaseCollectionMain = db.collection(mainCollection);
                 const databaseCollectionHistory = historyCollection ? db.collection(historyCollection) : null;
 
+                // count the total documents of the main and target db.
                 const [documntsInMainDb, documentsInHistoryDb] = await Promise.all([
                   databaseCollectionMain.countDocuments(),
                   databaseCollectionHistory ? databaseCollectionHistory.countDocuments() : 0
                 ]);
 
+                this.adminLogger.logInfo(
+                    `For ${mainCollection} we have ${documntsInMainDb} documents${historyCollection ? `. The history collection contains ${documentsInHistoryDb}.` : ''}`
+                );
+
+                // Keep track of the total documents processed in main db
                 totalMainDocuments += documntsInMainDb;
+                // Keep tracks of the total socuments processed in history db.
                 totalHistoryDocuments += documentsInHistoryDb;
                 // eslint-disable-next-line security/detect-object-injection
                 result[mainCollection] = {

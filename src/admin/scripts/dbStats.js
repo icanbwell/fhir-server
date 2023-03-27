@@ -20,8 +20,9 @@ async function main() {
      * @type {Object}
      */
     const parameters = CommandLineParser.parseCommandLine();
+    const adminLogger = new AdminLogger();
     const collections = parameters.collections ? parameters.collections.split(',') : undefined;
-    console.log('Running script to checks stats of databases. \n 1. Total no. of Documents \n 2. Total no. of Documents in history table');
+    adminLogger.logInfo('Running script to checks stats of databases -> total no. of documents, total no. of Documents in history table');
 
     // set up all the standard services in the container
     const container = createContainer();
@@ -35,7 +36,7 @@ async function main() {
                 mongoDatabaseManager: c.mongoDatabaseManager,
                 mongoCollectionManager: c.mongoCollectionManager,
                 collections,
-                adminLogger: new AdminLogger(),
+                adminLogger: adminLogger,
             })
     );
 
@@ -45,7 +46,7 @@ async function main() {
     const processDatabaseStats = container.processDatabaseStats;
     await processDatabaseStats.processAsync();
 
-    console.log('Exiting process');
+    adminLogger.logInfo('Exiting process');
     process.exit(0);
 }
 
