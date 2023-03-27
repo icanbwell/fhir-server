@@ -7,7 +7,7 @@ dotenv.config({
 });
 const { logInfo } = require('../../operations/common/logging');
 const { createContainer } = require('../../createContainer');
-const { CollectionStats } = require('../runners/collectionStatsRunner.js');
+const { DatabaseStats } = require('../runners/dbStatsRunner.js');
 const { CommandLineParser } = require('./commandLineParser');
 const { AdminLogger } = require('../adminLogger');
 
@@ -29,9 +29,9 @@ async function main() {
     logInfo('Parameters', { parameters });
     // now add our class
     container.register(
-        'processCollectionStats',
+        'processDatabaseStats',
         (c) =>
-            new CollectionStats({
+            new DatabaseStats({
                 mongoDatabaseManager: c.mongoDatabaseManager,
                 mongoCollectionManager: c.mongoCollectionManager,
                 collections,
@@ -42,8 +42,8 @@ async function main() {
     /**
      * @type {PartitionAuditEventRunner}
      */
-    const processCollectionStats = container.processCollectionStats;
-    await processCollectionStats.processAsync();
+    const processDatabaseStats = container.processDatabaseStats;
+    await processDatabaseStats.processAsync();
 
     console.log('Exiting process');
     process.exit(0);
@@ -54,7 +54,7 @@ async function main() {
  * nvm use 18.14.2
  * required env variables
  * MONGO_DB_NAME, MONGO_URL
- * node src/admin/scripts/collectionStats.js --collections="Task_4_0_0,Patient_4_0_0"
+ * node src/admin/scripts/dbStats.js --collections="Task_4_0_0,Patient_4_0_0"
  */
 main().catch((reason) => {
     console.error(reason);

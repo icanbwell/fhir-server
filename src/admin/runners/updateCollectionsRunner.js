@@ -134,7 +134,7 @@ class UpdateCollectionsRunner {
         let collectionNames = [];
         for (const collection of collectionList) {
             // If the collection of type view, system. or any other type, we can skip it
-            if (collection.type !== 'collection') {
+            if (collection.type !== 'collection' || collection.name.indexOf('system.') !== -1) {
                 continue;
             }
             // If the list of collection is mentioned verify the collection name is in the list of collections passed
