@@ -51,9 +51,10 @@ class CollectionStats extends BaseScriptRunner {
         this.adminLogger.logInfo(`The list of collections are: ${filteredCollections}`);
         try {
             let result = {};
+            let log;
             const db = await this.mongoDatabaseManager.getClientDbAsync();
             for (const collection of filteredCollections) {
-                const [mainCollection, historyCollection] = collection.length === 2 ? collection : [collection[0], null];
+                const [mainCollection, historyCollection] = this.collections ? collection.length === 2 ? collection : [collection[0], null] : [collection, null];
                 const databaseCollectionMain = db.collection(mainCollection);
                 const databaseCollectionHistory = historyCollection ? db.collection(historyCollection) : null;
 
@@ -61,7 +62,10 @@ class CollectionStats extends BaseScriptRunner {
                   databaseCollectionMain.countDocuments(),
                   databaseCollectionHistory ? databaseCollectionHistory.countDocuments() : 'Not Present'
                 ]);
-                this.adminLogger.logInfo(`For ${mainCollection} we have ${documntsInMainDb} documents${historyCollection ? `. The history collection contains ${documentsInHistoryDb}.` : ''}`);
+                log = this.collections ?
+                    `For ${mainCollection} we have ${documntsInMainDb} documents${historyCollection ? `. The history collection contains ${documentsInHistoryDb}.` : ''}` :
+                    `For ${mainCollection} we have ${documntsInMainDb} documents`;
+                this.adminLogger.logInfo(log);
 
                 // eslint-disable-next-line security/detect-object-injection
                 result[mainCollection] = {
