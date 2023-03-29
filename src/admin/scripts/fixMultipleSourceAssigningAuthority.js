@@ -50,11 +50,13 @@ async function main() {
                 beforeLastUpdatedDate,
                 useAuditDatabase: parameters.audit ? true : false,
                 includeHistoryCollections: parameters.includeHistoryCollections ? true : false,
+                fixMultipleOwners: parameters.fixMultipleOwners ? true : false,
                 adminLogger: new AdminLogger(),
                 mongoDatabaseManager: c.mongoDatabaseManager,
                 preSaveManager: c.preSaveManager,
                 startFromCollection: parameters.startFromCollection,
-                limit: parameters.limit
+                limit: parameters.limit,
+                skip: parameters.skip
             }
         )
     );
@@ -73,9 +75,9 @@ async function main() {
  * To run this:
  * nvm use 18.14.2
  * node src/admin/scripts/fixMultipleSourceAssigningAuthority.js --collections=Practitioner_4_0_0 --batchSize=10000
- * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/fixMultipleSourceAssigningAuthority.js --collections=all --batchSize=10000
+ * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/fixMultipleSourceAssigningAuthority.js --collections=all --batchSize=10000 --fixMultipleOwners
  * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/fixMultipleSourceAssigningAuthority.js --collections=all --batchSize=10000 --startFromCollection Practitioner_4_0_0
- * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/fixMultipleSourceAssigningAuthority.js --collections=all --batchSize=10000 --startFromCollection Practitioner_4_0_0 --limit 10
+ * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/fixMultipleSourceAssigningAuthority.js --collections=all --batchSize=10000 --startFromCollection Practitioner_4_0_0 --limit 10 --skip 10
  * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/fixMultipleSourceAssigningAuthority.js --collections=all --batchSize=10000 --includeHistoryCollections
  * node src/admin/scripts/fixMultipleSourceAssigningAuthority.js --collections=Account_4_0_0 --batchSize=10000
  * src/admin/scripts/fixMultipleSourceAssigningAuthority.js --collections=all --audit --batchSize=10000
