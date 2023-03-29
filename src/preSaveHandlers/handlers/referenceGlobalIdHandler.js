@@ -100,6 +100,8 @@ class ReferenceGlobalIdHandler extends PreSaveHandler {
             const parts = referenceId.split('|');
             referenceId = parts[0];
             sourceAssigningAuthority = parts[1];
+        } else if (reference._sourceAssigningAuthority){
+            sourceAssigningAuthority = reference._sourceAssigningAuthority;
         }
 
         // see if we need to create a uuid

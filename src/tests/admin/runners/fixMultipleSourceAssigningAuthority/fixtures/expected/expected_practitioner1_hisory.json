@@ -9,6 +9,10 @@
       "source": "https://www.healthpartners.com/providers",
       "security": [
         {
+          "system": "https://www.icanbwell.com/owner",
+          "code": "thedacare"
+        },
+        {
           "system": "https://www.icanbwell.com/access",
           "code": "thedacare"
         },
@@ -21,11 +25,11 @@
           "code": "healthpartners"
         },
         {
-          "system": "https://www.icanbwell.com/access",
+          "system": "https://www.icanbwell.com/owner",
           "code": "nppes"
         },
         {
-          "system": "https://www.icanbwell.com/owner",
+          "system": "https://www.icanbwell.com/access",
           "code": "nppes"
         },
         {

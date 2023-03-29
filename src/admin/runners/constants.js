@@ -27,4 +27,6 @@ module.exports = {
         'https://npiregistry.cms.hhs.gov': 'nppes',
         'https://www.boonchapman.com/medical_claims': 'lnf',
     },
+    NPPES: 'nppes',
+    NPI_SYSTEM: 'http://hl7.org/fhir/sid/us-npi'
 };

@@ -4,7 +4,6 @@ const { PreSaveManager } = require('../../preSaveHandlers/preSave');
 const deepEqual = require('fast-deep-equal');
 const moment = require('moment-timezone');
 const { fixMultipleAuthorities } = require('../utils/fixMultipleSourceAssigningAuthority');
-const { SecurityTagSystem } = require('../../utils/securityTagSystem');
 const { FhirResourceCreator } = require('../../fhir/fhirResourceCreator');
 
 /**
@@ -22,8 +21,10 @@ class FixMultipleSourceAssigningAuthorityRunner extends BaseBulkOperationRunner 
      * @param {MongoDatabaseManager} mongoDatabaseManager
      * @param {PreSaveManager} preSaveManager
      * @param {boolean|undefined} [includeHistoryCollections]
+     * @param {boolean|undefined} fixMultipleOwners
      * @param {string|undefined} [startFromCollection]
      * @param {number|undefined} [limit]
+     * * @param {number|undefined} [skip]
      */
     constructor(
         {
@@ -36,8 +37,10 @@ class FixMultipleSourceAssigningAuthorityRunner extends BaseBulkOperationRunner 
             mongoDatabaseManager,
             preSaveManager,
             includeHistoryCollections,
+            fixMultipleOwners,
             startFromCollection,
             limit,
+            skip,
         }) {
         super({
             mongoCollectionManager,
@@ -73,6 +76,12 @@ class FixMultipleSourceAssigningAuthorityRunner extends BaseBulkOperationRunner 
         this.includeHistoryCollections = includeHistoryCollections;
 
         /**
+         * @type {boolean}
+         * @type {boolean|undefined}
+         */
+        this.fixMultipleOwners = fixMultipleOwners;
+
+        /**
          * @type {string|undefined}
          */
         this.startFromCollection = startFromCollection;
@@ -81,6 +90,11 @@ class FixMultipleSourceAssigningAuthorityRunner extends BaseBulkOperationRunner 
          * @type {number|undefined}
          */
         this.limit = limit;
+
+        /**
+         * @type {number|undefined}
+         */
+        this.skip = skip;
     }
 
     /**
@@ -99,7 +113,7 @@ class FixMultipleSourceAssigningAuthorityRunner extends BaseBulkOperationRunner 
          */
         const currentResource = FhirResourceCreator.create(doc);
         let resource = currentResource.clone();
-        resource = fixMultipleAuthorities(resource);
+        resource = fixMultipleAuthorities(resource, this.fixMultipleOwners);
         /**
          * @type {Resource}
          */
@@ -166,45 +180,6 @@ class FixMultipleSourceAssigningAuthorityRunner extends BaseBulkOperationRunner 
                     },
                 } : {};
 
-                // Get ids of documents that have multiple owners/sourceAssigningAuthority.
-                const db = await this.mongoDatabaseManager.getDatabaseForResourceAsync(
-                    {
-                        resourceType: this._resourceType,
-                    });
-                const dbCollection = await this.mongoCollectionManager.getOrCreateCollectionAsync({
-                    db,
-                    collectionName,
-                });
-                const result = await dbCollection.aggregate([
-                    {
-                        '$unwind': {
-                            'path': '$meta.security',
-                        },
-                    },
-                    {
-                        '$match': {
-                            'meta.security.system': `${SecurityTagSystem.sourceAssigningAuthority}`,
-                        },
-                    },
-                    {
-                        '$group': {
-                            _id: '$_id',
-                            count: { $count: {} },
-                        },
-                    },
-                    {
-                        '$match': {
-                            'count': {
-                                $gte: 2,
-                            },
-                        },
-                    },
-                    {
-                        $project: { array: true },
-                    },
-                ], { allowDiskUse: true }).toArray();
-
-                const idList = result.map(obj => obj._id);
                 try {
                     await this.runForQueryBatchesAsync(
                         {
@@ -221,8 +196,7 @@ class FixMultipleSourceAssigningAuthorityRunner extends BaseBulkOperationRunner 
                             batchSize: this.batchSize,
                             skipExistingIds: false,
                             limit: this.limit,
-                            filterToIdProperty: '_id',
-                            filterToIds: idList,
+                            skip: this.skip
                         },
                     );
                 } catch (e) {
