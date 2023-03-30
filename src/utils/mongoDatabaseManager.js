@@ -1,4 +1,4 @@
-const {mongoConfig, auditEventMongoConfig} = require('../config');
+const {mongoConfig, auditEventMongoConfig, auditEventReadOnlyMongoConfig} = require('../config');
 const {isTrue} = require('./isTrue');
 const env = require('var');
 const {logSystemEventAsync, logInfo, logError} = require('../operations/common/logging');
@@ -20,6 +20,12 @@ let clientDb = null;
  * @type {import('mongodb').Db}
  */
 let auditClientDb = null;
+
+/**
+ * client db
+ * @type {import('mongodb').Db}
+ */
+let auditReadOnlyClientDb = null;
 
 class MongoDatabaseManager {
     /**
@@ -45,13 +51,33 @@ class MongoDatabaseManager {
     }
 
     /**
-     * Gets db for resource type
-     * @param {string} resourceType
+     * Gets audit event read only db
      * @returns {Promise<import('mongodb').Db>}
      */
-    async getDatabaseForResourceAsync({resourceType}) {
-        return (resourceType === 'AuditEvent') ?
-            (await this.getAuditDbAsync()) : (await this.getClientDbAsync());
+    async getAuditReadOnlyDbAsync() {
+        if (!auditReadOnlyClientDb) {
+            await this.connectAsync();
+        }
+        return auditReadOnlyClientDb;
+    }
+
+    /**
+     * Gets db for resource type
+     * @param {string} resourceType
+     * @param {Object} extraInfo
+     * @returns {Promise<import('mongodb').Db>}
+     */
+    async getDatabaseForResourceAsync({resourceType, extraInfo = {}}) {
+        const searchOperationNames = ['search', 'searchStreaming', 'searchById'];
+        if (resourceType === 'AuditEvent') {
+            if (searchOperationNames.includes(extraInfo.currentOperationName)) {
+                console.log('await this.getAuditReadOnlyDbAsync()');
+                console.log(await this.getAuditReadOnlyDbAsync());
+                return await this.getAuditReadOnlyDbAsync();
+            }
+            return await this.getAuditDbAsync();
+        }
+        return await this.getClientDbAsync();
     }
 
     async getClientConfigAsync() {
@@ -60,6 +86,11 @@ class MongoDatabaseManager {
 
     async getAuditConfigAsync() {
         return auditEventMongoConfig;
+    }
+
+    async getAuditReadOnlyConfigAsync() {
+        console.log(auditEventReadOnlyMongoConfig);
+        return auditEventReadOnlyMongoConfig;
     }
 
     /**
@@ -135,6 +166,11 @@ class MongoDatabaseManager {
         const auditConfig = await this.getAuditConfigAsync();
         const auditEventClient = await this.createClientAsync(auditConfig);
         auditClientDb = auditEventClient.db(auditConfig.db_name);
+
+        const auditReadOnlyConfig = await this.getAuditReadOnlyConfigAsync();
+        console.log(auditReadOnlyConfig, 'auditReadOnlyConfig');
+        const auditEventReadOnlyClient = await this.createClientAsync(auditReadOnlyConfig);
+        auditReadOnlyClientDb = auditEventReadOnlyClient.db(auditReadOnlyConfig.db_name);
     }
 
     /**

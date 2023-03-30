@@ -104,6 +104,9 @@ class SearchByIdOperation {
         assertIsValid(resourceType !== undefined);
         assertTypeEquals(parsedArgs, ParsedArgs);
         const currentOperationName = 'searchById';
+        const extraInfo = {
+            currentOperationName: currentOperationName
+        };
         /**
          * @type {number}
          */
@@ -173,7 +176,7 @@ class SearchByIdOperation {
             /**
              * @type {DatabasePartitionedCursor}
              */
-            const cursor = await databaseQueryManager.findAsync({query});
+            const cursor = await databaseQueryManager.findAsync({query, extraInfo});
             // we can convert to array since we don't expect to be many resources that have same id
             /**
              * @type {Resource[]}

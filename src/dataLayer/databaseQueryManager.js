@@ -169,14 +169,15 @@ class DatabaseQueryManager {
      * Returns a DatabasePartitionedCursor by executing the query
      * @param {import('mongodb').Filter<import('mongodb').DefaultSchema>} query
      * @param {import('mongodb').FindOptions<import('mongodb').DefaultSchema>} options
+     * @param {Object} extraInfo
      * @return {DatabasePartitionedCursor}
      */
-    async findAsync({query, options = null}) {
+    async findAsync({query, options = null, extraInfo = {}}) {
         try {
             /**
              * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>[]}
              */
-            const collections = await this.resourceLocator.getOrCreateCollectionsForQueryAsync({query});
+            const collections = await this.resourceLocator.getOrCreateCollectionsForQueryAsync({query, extraInfo});
             /**
              * @type {CursorInfo[]}
              */
@@ -205,14 +206,15 @@ class DatabaseQueryManager {
      * @param {import('mongodb').Filter<import('mongodb').DefaultSchema>} query
      * @param projection
      * @param {import('mongodb').FindOptions<import('mongodb').DefaultSchema>} options
+     * @param {Object} extraInfo
      * @return {DatabasePartitionedCursor}
      */
-    async findUsingAggregationAsync({query, projection, options = null}) {
+    async findUsingAggregationAsync({query, projection, options = null, extraInfo = {}}) {
         try {
             /**
              * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>[]}
              */
-            const collections = await this.resourceLocator.getOrCreateCollectionsForQueryAsync({query});
+            const collections = await this.resourceLocator.getOrCreateCollectionsForQueryAsync({query, extraInfo});
             /**
              * @type {CursorInfo[]}
              */

@@ -102,6 +102,9 @@ class SearchStreamingOperation {
         {requestInfo, res, parsedArgs, resourceType}) {
         assertTypeEquals(parsedArgs, ParsedArgs);
         const currentOperationName = 'searchStreaming';
+        const extraInfo = {
+            currentOperationName: currentOperationName
+        };
         // Start the FHIR request timer, saving a reference to the returned method
         const timer = fhirRequestTimer.startTimer();
         /**
@@ -229,7 +232,8 @@ class SearchStreamingOperation {
                 {
                     resourceType, base_version,
                     parsedArgs, columns, options, query,
-                    maxMongoTimeMS, user, isStreaming: true, useAccessIndex
+                    maxMongoTimeMS, user, isStreaming: true, useAccessIndex,
+                    extraInfo
                 }
             );
             /**

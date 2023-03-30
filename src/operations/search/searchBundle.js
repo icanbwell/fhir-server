@@ -104,6 +104,9 @@ class SearchBundleOperation {
         assertIsValid(resourceType !== undefined);
         assertTypeEquals(parsedArgs, ParsedArgs);
         const currentOperationName = 'search';
+        const extraInfo = {
+            currentOperationName: currentOperationName
+        };
         // Start the FHIR request timer, saving a reference to the returned method
         const timer = fhirRequestTimer.startTimer();
         /**
@@ -222,7 +225,8 @@ class SearchBundleOperation {
                     columns, options, query,
                     maxMongoTimeMS, user, isStreaming: false, useAccessIndex,
                     parsedArgs,
-                    useAggregationPipeline
+                    useAggregationPipeline,
+                    extraInfo
                 });
             /**
              * @type {Set}

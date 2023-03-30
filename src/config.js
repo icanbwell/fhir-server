@@ -79,6 +79,36 @@ if (env.AUDIT_EVENT_MONGO_URL) {
     auditEventMongoConfig = mongoConfig;
 }
 
+/**
+ * @name mongoConfig
+ * @summary Configurations for our Mongo instance
+ * @type {{connection: string, db_name: string, options: import('mongodb').MongoClientOptions }}
+ */
+let auditEventReadOnlyMongoConfig;
+
+if (env.AUDIT_EVENT_ONLINE_ARCHIVE_CLUSTER_MONGO_URL) {
+    let auditEventReadOnlyMongoUrl = env.AUDIT_EVENT_ONLINE_ARCHIVE_CLUSTER_MONGO_URL;
+    if (env.AUDIT_EVENT_ONLINE_ARCHIVE_MONGO_USERNAME !== undefined) {
+        auditEventReadOnlyMongoUrl = auditEventReadOnlyMongoUrl.replace(
+            'mongodb://',
+            `mongodb://${env.AUDIT_EVENT_ONLINE_ARCHIVE_MONGO_USERNAME}:${env.AUDIT_EVENT_ONLINE_ARCHIVE_MONGO_PASSWORD}@`
+        );
+        auditEventReadOnlyMongoUrl = auditEventReadOnlyMongoUrl.replace(
+            'mongodb+srv://',
+            `mongodb+srv://${env.AUDIT_EVENT_ONLINE_ARCHIVE_MONGO_USERNAME}:${env.AUDIT_EVENT_ONLINE_ARCHIVE_MONGO_USERNAME}@`
+        );
+    }
+    // url-encode the url
+    auditEventReadOnlyMongoUrl = auditEventReadOnlyMongoUrl ? encodeURI(auditEventReadOnlyMongoUrl) : auditEventReadOnlyMongoUrl;
+    auditEventMongoConfig = {
+        connection: auditEventReadOnlyMongoUrl,
+        db_name: String(env.AUDIT_EVENT_MONGO_DB_NAME),
+        options: options,
+    };
+} else {
+    auditEventReadOnlyMongoConfig = mongoConfig;
+}
+
 // Set up whitelist
 let whitelist_env = (env.WHITELIST && env.WHITELIST.split(',').map((host) => host.trim())) || false;
 
@@ -165,4 +195,5 @@ module.exports = {
     fhirServerConfig,
     mongoConfig,
     auditEventMongoConfig,
+    auditEventReadOnlyMongoConfig,
 };

@@ -151,13 +151,15 @@ class ResourceLocator {
 
     /**
      * Gets the database connection for the given collection
+     * @param {Object} [extraInfo]
      * @returns {Promise<import('mongodb').Db>}
      */
-    async getDatabaseConnectionAsync() {
+    async getDatabaseConnectionAsync(extraInfo = {}) {
         // noinspection JSValidateTypes
         return await this.mongoDatabaseManager.getDatabaseForResourceAsync(
             {
-                resourceType: this._resourceType
+                resourceType: this._resourceType,
+                extraInfo
             });
     }
 
@@ -213,9 +215,10 @@ class ResourceLocator {
     /**
      * Gets all the collections for this resourceType.  If collections do not exist then they are created.
      * @param {import('mongodb').Filter<import('mongodb').DefaultSchema>} query
+     * @param {Object} extraInfo
      * @return {Promise<import('mongodb').Collection<import('mongodb').DefaultSchema>[]>}
      */
-    async getOrCreateCollectionsForQueryAsync({query}) {
+    async getOrCreateCollectionsForQueryAsync({query, extraInfo = {}}) {
         /**
          * @type {string[]}
          */
@@ -224,7 +227,7 @@ class ResourceLocator {
          * mongo db connection
          * @type {import('mongodb').Db}
          */
-        const db = await this.getDatabaseConnectionAsync();
+        const db = await this.getDatabaseConnectionAsync(extraInfo);
         return async.map(collectionNames,
             async collectionName => await this.mongoCollectionManager.getOrCreateCollectionAsync(
                 {db, collectionName}));
