@@ -71,8 +71,6 @@ class MongoDatabaseManager {
         const searchOperationNames = ['search', 'searchStreaming', 'searchById'];
         if (resourceType === 'AuditEvent') {
             if (searchOperationNames.includes(extraInfo.currentOperationName)) {
-                console.log('await this.getAuditReadOnlyDbAsync()');
-                console.log(await this.getAuditReadOnlyDbAsync());
                 return await this.getAuditReadOnlyDbAsync();
             }
             return await this.getAuditDbAsync();
@@ -89,7 +87,6 @@ class MongoDatabaseManager {
     }
 
     async getAuditReadOnlyConfigAsync() {
-        console.log(auditEventReadOnlyMongoConfig);
         return auditEventReadOnlyMongoConfig;
     }
 
@@ -168,7 +165,6 @@ class MongoDatabaseManager {
         auditClientDb = auditEventClient.db(auditConfig.db_name);
 
         const auditReadOnlyConfig = await this.getAuditReadOnlyConfigAsync();
-        console.log(auditReadOnlyConfig, 'auditReadOnlyConfig');
         const auditEventReadOnlyClient = await this.createClientAsync(auditReadOnlyConfig);
         auditReadOnlyClientDb = auditEventReadOnlyClient.db(auditReadOnlyConfig.db_name);
     }
