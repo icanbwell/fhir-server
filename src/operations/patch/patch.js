@@ -140,8 +140,9 @@ class PatchOperation {
             }
             // Validate the patch
             let errors = validate(patchContent, foundResource);
-            if (errors && Object.keys(errors).length > 0) {
-                throw new BadRequestError(errors[0]);
+            if (errors) {
+                const error = Array.isArray(errors) && errors.length && errors.find(e => !!e) ? errors.find(e => !!e) : errors;
+                throw new BadRequestError(error);
             }
             // Make the changes indicated in the patch
             /**
