@@ -447,7 +447,7 @@ class SearchManager {
                 {resourceType, base_version});
             const collectionNamesForQueryForResourceType = await resourceLocator.getCollectionNamesForQueryAsync(
                 {
-                    query
+                    query, extraInfo
                 });
             const __ret = this.setIndexHint(
                 {

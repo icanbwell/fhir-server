@@ -79,14 +79,16 @@ class ResourceLocator {
     /**
      * returns all the collection names for resourceType
      * @param {import('mongodb').Filter<import('mongodb').DefaultSchema>} query
+     * @param {Object} [extraInfo]
      * @returns {Promise<string[]>}
      */
-    async getCollectionNamesForQueryAsync({query}) {
+    async getCollectionNamesForQueryAsync({query, extraInfo = {}}) {
         assertIsValid(!this._resourceType.endsWith('4_0_0'), `resourceType ${this._resourceType} has an invalid postfix`);
         return await this.partitioningManager.getPartitionNamesByQueryAsync({
             resourceType: this._resourceType,
             base_version: this._base_version,
-            query
+            query,
+            extraInfo
         });
     }
 
@@ -222,7 +224,7 @@ class ResourceLocator {
         /**
          * @type {string[]}
          */
-        const collectionNames = await this.getCollectionNamesForQueryAsync({query});
+        const collectionNames = await this.getCollectionNamesForQueryAsync({query, extraInfo});
         /**
          * mongo db connection
          * @type {import('mongodb').Db}

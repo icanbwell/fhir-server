@@ -49,7 +49,7 @@ class PartitioningManager {
     /**
      * @return {Promise<void>}
      */
-    async loadPartitionsFromDatabaseAsync() {
+    async loadPartitionsFromDatabaseAsync(extraInfo = {}) {
         // if cache is still valid then just return
         if (this.partitionCacheLastLoaded &&
             this.partitionCacheLastLoaded.diff(moment.utc(), 'day') === 0) {
@@ -69,7 +69,7 @@ class PartitioningManager {
                 /**
                  * @type {import('mongodb').Db}
                  */
-                const connection = await this.getDatabaseConnectionAsync({resourceType});
+                const connection = await this.getDatabaseConnectionAsync({resourceType, extraInfo});
 
                 /**
                  * @type {string[]}
@@ -143,8 +143,8 @@ class PartitioningManager {
      * @param {string} resourceType
      * @returns {Promise<import('mongodb').Db>}
      */
-    async getDatabaseConnectionAsync({resourceType}) {
-        return await this.mongoDatabaseManager.getDatabaseForResourceAsync({resourceType});
+    async getDatabaseConnectionAsync({resourceType, extraInfo = {}}) {
+        return await this.mongoDatabaseManager.getDatabaseForResourceAsync({resourceType, extraInfo});
     }
 
     /**
@@ -241,10 +241,10 @@ class PartitioningManager {
      * @param {import('mongodb').Filter<import('mongodb').DefaultSchema>} [query]
      * @returns {Promise<string[]>}
      */
-    async getPartitionNamesByQueryAsync({resourceType, base_version, query}) {
+    async getPartitionNamesByQueryAsync({resourceType, base_version, query, extraInfo = {}}) {
         assertIsValid(!resourceType.endsWith('4_0_0'), `resourceType ${resourceType} has an invalid postfix`);
 
-        await this.loadPartitionsFromDatabaseAsync();
+        await this.loadPartitionsFromDatabaseAsync(extraInfo);
 
         const resourceWithBaseVersion = `${resourceType}_${base_version}`;
 
