@@ -39,9 +39,11 @@ result = client['fhir']['Person_4_0_0'].aggregate([
     }
 ])
 
+idList = []
 for res in result:
     _id = res["_id"]
     doc = client['fhir']['Person_4_0_0'].find_one({'_id': _id})
+    idList.append(doc['id'])
     # meta.security
     meta_security_list = doc['meta']['security']
     for index, meta_security in  enumerate(meta_security_list):
@@ -58,3 +60,4 @@ for res in result:
     # Print the updated document
     print(client['fhir']['Person_4_0_0'].find_one({'_id': _id}))
 
+print('ID List:', ','.join(idList))
