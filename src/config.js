@@ -102,7 +102,7 @@ if (env.AUDIT_EVENT_ONLINE_ARCHIVE_CLUSTER_MONGO_URL) {
         options: options,
     };
 } else {
-    auditEventReadOnlyMongoConfig = mongoConfig;
+    auditEventReadOnlyMongoConfig = auditEventMongoConfig;
 }
 
 // Set up whitelist
