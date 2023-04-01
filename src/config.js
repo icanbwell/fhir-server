@@ -100,9 +100,9 @@ if (env.AUDIT_EVENT_ONLINE_ARCHIVE_CLUSTER_MONGO_URL) {
     }
     // url-encode the url
     auditEventReadOnlyMongoUrl = auditEventReadOnlyMongoUrl ? encodeURI(auditEventReadOnlyMongoUrl) : auditEventReadOnlyMongoUrl;
-    auditEventMongoConfig = {
+    auditEventReadOnlyMongoConfig = {
         connection: auditEventReadOnlyMongoUrl,
-        db_name: String(env.AUDIT_EVENT_MONGO_DB_NAME),
+        db_name: String(env.AUDIT_EVENT_ONLINE_ARCHIVE_MONGO_DB_NAME),
         options: options,
     };
 } else {
