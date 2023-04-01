@@ -95,7 +95,7 @@ if (env.AUDIT_EVENT_ONLINE_ARCHIVE_CLUSTER_MONGO_URL) {
         );
         auditEventReadOnlyMongoUrl = auditEventReadOnlyMongoUrl.replace(
             'mongodb+srv://',
-            `mongodb+srv://${env.AUDIT_EVENT_ONLINE_ARCHIVE_MONGO_USERNAME}:${env.AUDIT_EVENT_ONLINE_ARCHIVE_MONGO_USERNAME}@`
+            `mongodb+srv://${env.AUDIT_EVENT_ONLINE_ARCHIVE_MONGO_USERNAME}:${env.AUDIT_EVENT_ONLINE_ARCHIVE_MONGO_PASSWORD}@`
         );
     }
     // url-encode the url
