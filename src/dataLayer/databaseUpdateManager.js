@@ -101,9 +101,10 @@ class DatabaseUpdateManager {
      * Inserts a resource into the database
      * Return value of null means no replacement was necessary since the data in the db is the same
      * @param {Resource} doc
+     * @param {Boolean} [smartMerge]
      * @return {Promise<{savedResource: Resource|null, patches: MergePatchEntry[]|null}>}
      */
-    async replaceOneAsync({doc}) {
+    async replaceOneAsync({doc, smartMerge = true}) {
         const originalDoc = doc.clone();
         doc = await this.preSaveManager.preSaveAsync(doc);
         /**
@@ -151,7 +152,8 @@ class DatabaseUpdateManager {
             let {updatedResource, patches} = await this.resourceMerger.mergeResourceAsync(
                 {
                     currentResource: resourceInDatabase,
-                    resourceToMerge: doc
+                    resourceToMerge: doc,
+                    smartMerge: smartMerge
                 }
             );
             if (!updatedResource) {
