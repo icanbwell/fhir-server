@@ -167,7 +167,8 @@ class AdminPersonPatientLinkManager {
                 base_version: base_version
             });
             await databaseUpdateManager.replaceOneAsync({
-                doc: bwellPerson
+                doc: bwellPerson,
+                smartMerge: false,
             });
 
             return {
