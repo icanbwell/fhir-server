@@ -1,5 +1,5 @@
 // test file
-const personResource = require('./fixtures/person1.json');
+const personResource = require('./fixtures/person.json');
 
 // expected
 const expectedPersonResources = require('./fixtures/expected/expectedPerson.json');
