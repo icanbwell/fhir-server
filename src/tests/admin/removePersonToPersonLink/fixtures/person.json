@@ -67,12 +67,18 @@
       "postalCode": "78703"
       }
   ],
-  "link": [
-      {
-      "target": {
-          "reference": "Person/a58e50292d79469691d3048e787434cc",
-          "type": "Person"
-      }
-      }
-  ]
+  "link": [{
+    "target": {
+        "reference": "Person/a58e50292d79469691d3048e787434cc",
+        "type": "Person"
+    },
+    "assurance": "level4"
+  },
+  {
+    "target": {
+        "reference": "Patient/26a2b5508f6840a1b4c5f67d38360060",
+        "type": "Patient"
+    },
+    "assurance": "level4"
+  }]
 }
