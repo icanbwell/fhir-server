@@ -20,6 +20,15 @@ class TestMongoDatabaseManager extends MongoDatabaseManager {
         };
     }
 
+    async getAuditReadOnlyConfigAsync() {
+        const mongoUrl = await getMongoUrlAsync();
+        return {
+            connection: mongoUrl,
+            db_name: 'audit-event',
+            options: {}
+        };
+    }
+
     async dropDatabasesAsync() {
         const db = await this.getClientDbAsync();
         await db.dropDatabase();

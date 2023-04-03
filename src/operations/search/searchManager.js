@@ -257,6 +257,7 @@ class SearchManager {
      * @param {boolean} isStreaming
      * @param {boolean} useAccessIndex
      * @param {boolean} useAggregationPipeline
+     * @param {Object} extraInfo
      * @returns {Promise<GetCursorResult>}
      */
     async getCursorForQueryAsync(
@@ -271,7 +272,8 @@ class SearchManager {
             user,
             isStreaming,
             useAccessIndex,
-            useAggregationPipeline = false
+            useAggregationPipeline = false,
+            extraInfo
         }
     ) {
         // if _elements=x,y,z is in url parameters then restrict mongo query to project only those fields
@@ -405,9 +407,10 @@ class SearchManager {
                 query,
                 projection,
                 options,
+                extraInfo
             });
         } else {
-            cursorQuery = await databaseQueryManager.findAsync({query, options});
+            cursorQuery = await databaseQueryManager.findAsync({query, options, extraInfo});
         }
 
         if (isStreaming) {
@@ -444,7 +447,7 @@ class SearchManager {
                 {resourceType, base_version});
             const collectionNamesForQueryForResourceType = await resourceLocator.getCollectionNamesForQueryAsync(
                 {
-                    query
+                    query, extraInfo
                 });
             const __ret = this.setIndexHint(
                 {
