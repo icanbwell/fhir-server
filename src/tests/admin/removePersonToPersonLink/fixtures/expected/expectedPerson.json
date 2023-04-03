@@ -1,0 +1,61 @@
+{
+	"resourceType": "Person",
+	"id": "aba5bcf41cf64435839cf0568c121843",
+	"meta": {
+		"versionId": "2",
+		"lastUpdated": "2023-04-03T10:41:40.000Z",
+		"source": "medstar",
+		"profile": ["http://hl7.org/fhir/us/core/StructureDefinition/us-core-person"],
+		"security": [{
+			"system": "https://www.icanbwell.com/access",
+			"code": "bwell"
+		}, {
+			"system": "https://www.icanbwell.com/owner",
+			"code": "bwell"
+		}, {
+			"system": "https://www.icanbwell.com/sourceAssigningAuthority",
+			"code": "bwell"
+		}]
+	},
+	"identifier": [{
+		"type": {
+			"coding": [{
+				"system": "https://www.icanbwell.com",
+				"code": "FHIR_id",
+				"display": "bWell FHIR id"
+			}]
+		},
+		"system": "https://www.icanbwell.com",
+		"value": "bwell-aba5bcf41cf64435839cf0568c121843"
+	}, {
+		"id": "sourceId",
+		"system": "https://www.icanbwell.com/sourceId",
+		"value": "aba5bcf41cf64435839cf0568c121843"
+	}, {
+		"id": "uuid",
+		"system": "https://www.icanbwell.com/uuid",
+		"value": "849cb4f0-033b-5d6e-a614-9bbbbb3ba11e"
+	}],
+	"name": [{
+		"use": "official",
+		"family": "essnhlmvgt",
+		"given": ["Sweetie"]
+	}],
+	"telecom": [{
+		"system": "phone",
+		"value": "+15125550156",
+		"use": "home"
+	}, {
+		"system": "email",
+		"value": "bwell+62365zoakm@mailinator.com",
+		"use": "home"
+	}],
+	"gender": "male",
+	"birthDate": "1991-09-10",
+	"address": [{
+		"line": ["801 W 5th St"],
+		"city": "Austin",
+		"state": "TX",
+		"postalCode": "78703"
+	}]
+}
