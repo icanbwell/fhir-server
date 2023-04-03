@@ -22,8 +22,8 @@ filter = {
     }
 }
 # bwell master persion don't have Patient respurce
-# count = client['fhir']['Person_4_0_0'].count_documents(filter)
-# print(f'bwell master Person without patient: {count}')
+count = client['fhir']['Person_4_0_0'].count_documents(filter)
+print(f'bwell master Person without patient: {count}')
 profile_filter = {
     'link': {
         '$not': {
@@ -45,8 +45,8 @@ profile_filter = {
     }
 }
 # bwell master persion don't have Patient respurce but with profileid tag
-# profile_filter_count = client['fhir']['Person_4_0_0'].count_documents(profile_filter)
-# print(f'bwell master Person without patient but with profileid: {profile_filter_count}')
+profile_filter_count = client['fhir']['Person_4_0_0'].count_documents(profile_filter)
+print(f'bwell master Person without patient but with profileid: {profile_filter_count}')
 duplicate_profile_filter = [
     {
         '$match': {
@@ -79,7 +79,7 @@ duplicate_profile_filter = [
         }
     }, {
         '$group': {
-            '_id': '$_id', 
+            '_id': {'value': "$identifier.value"}, 
             'count': {
                 '$count': {}
             }
