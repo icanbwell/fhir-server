@@ -1,0 +1,224 @@
+{
+  "_id": "dc3ecb17526a4363bd2f8359daa8f070",
+  "resourceType": "Person",
+  "id": "dc3ecb17526a4363bd2f8359daa8f070",
+  "meta": {
+    "versionId": "694",
+    "lastUpdated": "2023-03-07T01:37:49.000Z",
+    "source": "https://icanbwell.com",
+    "security": [
+      {
+        "system": "https://www.icanbwell.com/access",
+        "code": "bwell"
+      },
+      {
+        "system": "https://www.icanbwell.com/owner",
+        "code": "bwell"
+      },
+      {
+        "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+        "code": "bwell"
+      }
+    ]
+  },
+  "identifier": [
+    {
+      "type": {
+        "coding": [
+          {
+            "system": "https://www.icanbwell.com",
+            "code": "FHIR_id",
+            "display": "bWell FHIR id"
+          }
+        ]
+      },
+      "system": "https://www.icanbwell.com",
+      "value": "bwell-dc3ecb17526a4363bd2f8359daa8f070"
+    },
+    {
+      "type": {
+        "coding": [
+          {
+            "system": "https://www.icanbwell.com",
+            "code": "user_id",
+            "display": "bWell App user_id"
+          }
+        ]
+      },
+      "system": "https://www.icanbwell.com",
+      "value": "11494121"
+    },
+    {
+      "type": {
+        "coding": [
+          {
+            "system": "https://www.icanbwell.com",
+            "code": "member_id",
+            "display": "bWell App member_id"
+          }
+        ]
+      },
+      "system": "https://www.icanbwell.com",
+      "value": "RSi4nog"
+    },
+    {
+      "id": "sourceId",
+      "system": "https://www.icanbwell.com/sourceId",
+      "value": "dc3ecb17526a4363bd2f8359daa8f070"
+    },
+    {
+      "id": "uuid",
+      "system": "https://www.icanbwell.com/uuid",
+      "value": "dfe2e9aa-8206-53f1-9544-0c49b5fa3bd7"
+    }
+  ],
+  "name": [
+    {
+      "use": "official",
+      "text": "Sweetie hfqcngkxht",
+      "family": "hfqcngkxht",
+      "given": [
+        "Sweetie"
+      ]
+    }
+  ],
+  "telecom": [
+    {
+      "system": "phone",
+      "value": "+15125550156"
+    },
+    {
+      "system": "email",
+      "value": "bwell+12618uhjru@mailinator.com"
+    }
+  ],
+  "gender": "male",
+  "birthDate": "1991-09-10",
+  "address": [
+    {
+      "line": [
+        "801 W 5th St"
+      ],
+      "city": "Austin",
+      "state": "TX",
+      "postalCode": "78703"
+    }
+  ],
+  "active": true,
+  "link": [
+    {
+      "target": {
+        "extension": [
+          {
+            "id": "sourceId",
+            "url": "https://www.icanbwell.com/sourceId",
+            "valueString": "Person/e64be3b5bff2489592c248de459a1cf9"
+          },
+          {
+            "id": "uuid",
+            "url": "https://www.icanbwell.com/uuid",
+            "valueString": "Person/095f0748-aacb-55e4-8862-6d9a1c6dbe2c"
+          },
+          {
+            "id": "sourceAssigningAuthority",
+            "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+            "valueString": "unitypoint"
+          }
+        ],
+        "reference": "Person/e64be3b5bff2489592c248de459a1cf9|unitypoint",
+        "type": "Person",
+        "_sourceAssigningAuthority": "unitypoint",
+        "_uuid": "Person/095f0748-aacb-55e4-8862-6d9a1c6dbe2c",
+        "_sourceId": "Person/e64be3b5bff2489592c248de459a1cf9"
+      },
+      "assurance": "level4"
+    },
+    {
+      "target": {
+        "extension": [
+          {
+            "id": "sourceId",
+            "url": "https://www.icanbwell.com/sourceId",
+            "valueString": "Person/af921f41390947fca1b5e3b478ae50a3"
+          },
+          {
+            "id": "uuid",
+            "url": "https://www.icanbwell.com/uuid",
+            "valueString": "Person/0eab7145-1afd-504f-996c-d92b18368ed8"
+          },
+          {
+            "id": "sourceAssigningAuthority",
+            "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+            "valueString": "unitypoint"
+          }
+        ],
+        "reference": "Person/af921f41390947fca1b5e3b478ae50a3|unitypoint",
+        "type": "Person",
+        "_sourceAssigningAuthority": "unitypoint",
+        "_uuid": "Person/0eab7145-1afd-504f-996c-d92b18368ed8",
+        "_sourceId": "Person/af921f41390947fca1b5e3b478ae50a3"
+      },
+      "assurance": "level4"
+    },
+    {
+      "target": {
+        "extension": [
+          {
+            "id": "sourceId",
+            "url": "https://www.icanbwell.com/sourceId",
+            "valueString": "Patient/123"
+          },
+          {
+            "id": "uuid",
+            "url": "https://www.icanbwell.com/uuid",
+            "valueString": "Patient/73e3235f-e3cd-586f-85a6-9872386b672c"
+          },
+          {
+            "id": "sourceAssigningAuthority",
+            "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+            "valueString": "healthsystem1"
+          }
+        ],
+        "reference": "Patient/123|healthsystem1",
+        "type": "Patient",
+        "_sourceAssigningAuthority": "healthsystem1",
+        "_uuid": "Patient/73e3235f-e3cd-586f-85a6-9872386b672c",
+        "_sourceId": "Patient/123"
+      },
+      "assurance": "level4"
+    },
+    {
+      "target": {
+        "extension": [
+          {
+            "id": "sourceId",
+            "url": "https://www.icanbwell.com/sourceId",
+            "valueString": "Person/c7fb5507169f43f7abcd9e7d8b7fa69a"
+          },
+          {
+            "id": "uuid",
+            "url": "https://www.icanbwell.com/uuid",
+            "valueString": "Person/8b8c4dab-f94c-5805-9729-68053a51ee8e"
+          },
+          {
+            "id": "sourceAssigningAuthority",
+            "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+            "valueString": "unitypoint"
+          }
+        ],
+        "reference": "Person/c7fb5507169f43f7abcd9e7d8b7fa69a|unitypoint",
+        "type": "Person",
+        "_sourceAssigningAuthority": "unitypoint",
+        "_uuid": "Person/8b8c4dab-f94c-5805-9729-68053a51ee8e",
+        "_sourceId": "Person/c7fb5507169f43f7abcd9e7d8b7fa69a"
+      },
+      "assurance": "level4"
+    }
+  ],
+  "_access": {
+    "bwell": 1
+  },
+  "_sourceAssigningAuthority": "bwell",
+  "_uuid": "dfe2e9aa-8206-53f1-9544-0c49b5fa3bd7",
+  "_sourceId": "dc3ecb17526a4363bd2f8359daa8f070"
+}
