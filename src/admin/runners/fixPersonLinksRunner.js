@@ -127,6 +127,32 @@ class FixPersonLinksRunner extends BaseBulkOperationRunner {
         }
         let newLinks = [];
 
+        /**
+         * @type {ResourceLocator}
+         */
+        const resourceLocator = this.resourceLocatorFactory.createResourceLocator({
+            resourceType: 'Person',
+            base_version: VERSIONS['4_0_0'],
+        });
+        /**
+         * @type {string}
+         */
+        const referenceCollectionName = await resourceLocator.getFirstCollectionNameForQueryDebugOnlyAsync(
+            {
+                query: {},
+            },
+        );
+
+        // first check in cache
+        /**
+         * @type {Map<string, {_uuid: (string|null), _sourceId: (string|null), _sourceAssigningAuthority: (string|null)}>}
+         */
+        const cache = this.getCacheForResourceType(
+            {
+                collectionName: referenceCollectionName,
+            },
+        );
+
         for (const link of originalLinks) {
             const reference = link.target;
             if ((reference.reference && reference.reference.indexOf('Person/') === -1) || (reference.type && reference.type !== 'Person')) {
@@ -152,31 +178,6 @@ class FixPersonLinksRunner extends BaseBulkOperationRunner {
                 }
 
                 // find collection for resource
-                /**
-                 * @type {ResourceLocator}
-                 */
-                const resourceLocator = this.resourceLocatorFactory.createResourceLocator({
-                    resourceType,
-                    base_version: VERSIONS['4_0_0'],
-                });
-                /**
-                 * @type {string}
-                 */
-                const referenceCollectionName = await resourceLocator.getFirstCollectionNameForQueryDebugOnlyAsync(
-                    {
-                        query: {},
-                    },
-                );
-
-                // first check in cache
-                /**
-                 * @type {Map<string, {_uuid: (string|null), _sourceId: (string|null), _sourceAssigningAuthority: (string|null)}>}
-                 */
-                const cache = this.getCacheForResourceType(
-                    {
-                        collectionName: referenceCollectionName,
-                    },
-                );
                 if (uuid) {
                     if (cache.has(uuid)) {
                         const linkedResource = cache.get(uuid);
