@@ -87,14 +87,14 @@ for doc in person_docs:
     if is_updated:
         # Updated doc
         doc['meta']['security'] = [owner, access, sourceAssigningAuthority]
-        print("Updated Doc")
-        print(doc)
-        print("End Updated Doc")
+        # print("Updated Doc")
+        # print(doc)
+        # print("End Updated Doc")
         # Remove _id for doc
         del doc['_id']
-        # client['fhir']['Person_4_0_0'].update_one({'_id': _id}, {'$set': doc})
+        client['fhir']['Person_4_0_0'].update_one({'_id': _id}, {'$set': doc})
         # Print the updated document
-        print(client['fhir']['Person_4_0_0'].find_one({'_id': _id}))
+        # print(client['fhir']['Person_4_0_0'].find_one({'_id': _id}))
         idList.append(doc_id)
 
 print('ID List:', ','.join(idList))
