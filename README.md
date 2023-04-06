@@ -69,13 +69,13 @@ To deploy this code:
 
 b.well has automated deployment set up. After the docker image is built and pushed:
 
-For environments other than dev:
+For environments other than [dev, client-sandbox]:
 1. Update the version number in https://github.com/icanbwell/helm.helix-service/blob/main/configs/fhir-server.common.yaml and commit to master branch
 2. Run the GitHub Action for the appropriate environment: https://github.com/icanbwell/helm.helix-service/actions
 
 This is also where you can set environment variables that are common to all environments. To set environment variables for just one environment update the fhir-server.prod.yaml, fhir-server.staging.yaml or fhir-server.dev.yaml.
 
-For dev environment:
+For [dev, client-sandbox] environments:
 1. Run the GitHub Action for the appropriate environment: https://github.com/icanbwell/helm.helix-service/actions and input the version number to deploy
 
 To set environment variables for dev environment update the dev-ue1.values.yaml in https://github.com/icanbwell/helm.helix-service/tree/main/.helm/fhir-server
