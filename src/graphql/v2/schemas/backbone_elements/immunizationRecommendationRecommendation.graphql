@@ -2,6 +2,7 @@
 # import Extension from "../extensions/extension.graphql"
 # import CodeableConcept from "../complex_types/codeableConcept.graphql"
 # import ImmunizationRecommendationDateCriterion from "../backbone_elements/immunizationRecommendationDateCriterion.graphql"
+# import positiveInt from "../simple_types/int.graphql"
 # import Immunization from "../resources/immunization.graphql"
 # import ImmunizationEvaluation from "../resources/immunizationEvaluation.graphql"
 

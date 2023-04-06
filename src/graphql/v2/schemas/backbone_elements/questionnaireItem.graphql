@@ -4,6 +4,7 @@
 # import Coding from "../complex_types/coding.graphql"
 # import code from "../simple_types/code.graphql"
 # import QuestionnaireEnableWhen from "../backbone_elements/questionnaireEnableWhen.graphql"
+# import integer from "../simple_types/int.graphql"
 # import canonical from "../simple_types/canonical.graphql"
 # import QuestionnaireAnswerOption from "../backbone_elements/questionnaireAnswerOption.graphql"
 # import QuestionnaireInitial from "../backbone_elements/questionnaireInitial.graphql"

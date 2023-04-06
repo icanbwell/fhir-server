@@ -7,6 +7,7 @@
 # import ResourceContainer from "../simple_types/resourceContainer.graphql"
 # import Extension from "../extensions/extension.graphql"
 # import CodeableConcept from "../complex_types/codeableConcept.graphql"
+# import integer from "../simple_types/int.graphql"
 # import SubstanceProteinSubunit from "../backbone_elements/substanceProteinSubunit.graphql"
 
 
