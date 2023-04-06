@@ -177,6 +177,7 @@ async function handleAdmin(
                          */
                         const adminPersonPatientLinkManager = container.adminPersonPatientLinkManager;
                         const json = await adminPersonPatientLinkManager.deletePersonAsync({
+                            req: req,
                             requestId: req.id,
                             personId
                         });
@@ -197,6 +198,7 @@ async function handleAdmin(
                          */
                         const adminPersonPatientLinkManager = container.adminPersonPatientLinkManager;
                         const json = await adminPersonPatientLinkManager.createPersonToPersonLinkAsync({
+                            req: req,
                             bwellPersonId,
                             externalPersonId
                         });
@@ -217,6 +219,7 @@ async function handleAdmin(
                          */
                         const adminPersonPatientLinkManager = container.adminPersonPatientLinkManager;
                         const json = await adminPersonPatientLinkManager.removePersonToPersonLinkAsync({
+                            req: req,
                             bwellPersonId,
                             externalPersonId
                         });
@@ -237,6 +240,7 @@ async function handleAdmin(
                          */
                         const adminPersonPatientLinkManager = container.adminPersonPatientLinkManager;
                         const json = await adminPersonPatientLinkManager.createPersonToPatientLinkAsync({
+                            req: req,
                             externalPersonId,
                             patientId
                         });

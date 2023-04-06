@@ -2,6 +2,8 @@
  * This class manages inserts and updates to the database
  */
 const {assertTypeEquals} = require('../utils/assertType');
+const BundleEntry = require('../fhir/classes/4_0_0/backbone_elements/bundleEntry');
+const BundleRequest = require('../fhir/classes/4_0_0/backbone_elements/bundleRequest');
 const {ResourceLocatorFactory} = require('../operations/common/resourceLocatorFactory');
 const {RethrownError} = require('../utils/rethrownError');
 const {ResourceMerger} = require('../operations/common/resourceMerger');
@@ -265,6 +267,34 @@ class DatabaseUpdateManager {
                 }
             });
         }
+    }
+
+    /**
+     * Inserts a history collection for a resource
+     * @param {string} requestId
+     * @param {string} method
+     * @param {Resource} doc
+     */
+    async postSaveAsync(
+        {
+            requestId,
+            method,
+            doc,
+        }
+    ) {
+        const historyCollectionName = await this.resourceLocator.getHistoryCollectionNameAsync(doc);
+        const historyCollection = await this.resourceLocator.getOrCreateCollectionAsync(historyCollectionName);
+        await historyCollection.insertOne(new BundleEntry({
+            id: doc.id,
+            resource: doc.toJSONInternal(),
+            request: new BundleRequest(
+                {
+                    id: requestId,
+                    method: method,
+                    url: `${this._base_version}/${doc.resourceType}/${doc._uuid}`
+                }
+            )
+        }));
     }
 }
 

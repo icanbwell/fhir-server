@@ -592,7 +592,8 @@ const createContainer = function () {
 
     container.register('adminPersonPatientLinkManager', (c) => new AdminPersonPatientLinkManager({
         databaseQueryFactory: c.databaseQueryFactory,
-        databaseUpdateFactory: c.databaseUpdateFactory
+        databaseUpdateFactory: c.databaseUpdateFactory,
+        fhirOperationsManager: c.fhirOperationsManager
     }));
 
     container.register('bwellPersonFinder', (c) => new BwellPersonFinder({
