@@ -272,6 +272,7 @@ function createApp({fnCreateContainer, trackMetrics}) {
         createFhirApp(fnCreateContainer, app);
     }
     app.locals.currentYear = new Date().getFullYear();
+    app.locals.deployEnvironment = env.ENVIRONMENT;
 
     // enables access to reverse proxy information
     // https://expressjs.com/en/guide/behind-proxies.html
