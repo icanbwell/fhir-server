@@ -87,7 +87,7 @@ for doc in person_docs:
                 print(doc_id, 'copied access to owner', access['code'])
                 owner['code'] = access['code']
                 if 'display' in owner:
-                    owner['owner'] = access['code']
+                    owner['display'] = access['code']
                 is_updated = True
             if access['code'] != sourceAssigningAuthority['code']:
                 print(doc_id, 'copied access to sourceAssigningAuthority', access['code'])
