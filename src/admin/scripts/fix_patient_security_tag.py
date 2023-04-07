@@ -94,7 +94,7 @@ for doc in person_docs:
                 sourceAssigningAuthority['code'] = access['code']
                 is_updated = True
                 
-            if is_updated:
+            if is_updated and owner and access and sourceAssigningAuthority:
                 # Updated doc
                 patient['meta']['security'] =  [owner, access, sourceAssigningAuthority]
                 print("Updated patient")
