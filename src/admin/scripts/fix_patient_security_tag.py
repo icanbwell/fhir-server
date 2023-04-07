@@ -97,12 +97,12 @@ for doc in person_docs:
             if is_updated and owner and access and sourceAssigningAuthority:
                 # Updated doc
                 patient['meta']['security'] =  [owner, access, sourceAssigningAuthority]
-                print("Updated patient")
-                print(patient)
-                print("End Updated patient")
-                # Remove _id for patient
+                # print("Updated patient")
+                # print(patient)
+                # print("End Updated patient")
+                # # Remove _id for patient
                 del patient['_id']
-                # client['fhir']['Patient_4_0_0'].update_one({'_id': _id}, {'$set': patient})
+                client['fhir']['Patient_4_0_0'].update_one({'_id': _id}, {'$set': patient})
                 idList.append(doc_id)
 
 print('ID List:', ','.join(idList))
