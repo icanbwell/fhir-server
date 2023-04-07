@@ -2,6 +2,7 @@
 # import Extension from "../extensions/extension.graphql"
 # import uri from "../simple_types/uri.graphql"
 # import dateTime from "../simple_types/dateTime.graphql"
+# import integer from "../simple_types/int.graphql"
 # import ValueSetParameter from "../backbone_elements/valueSetParameter.graphql"
 # import ValueSetContains from "../backbone_elements/valueSetContains.graphql"
 

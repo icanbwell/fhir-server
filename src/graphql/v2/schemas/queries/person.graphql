@@ -90,10 +90,20 @@ extend type Query {
         """
         email: SearchToken
         """
+        family (FHIR type: string)
+        Multiple Resources: * [Patient](patient.html): A portion of the family name of the patient* [Practitioner](practitioner.html): A portion of the family name* [Person](person.html): A portion of the family name of the person
+        """
+        family: SearchString
+        """
         gender (FHIR type: token)
         Multiple Resources: * [Patient](patient.html): Gender of the patient* [Person](person.html): The gender of the person* [Practitioner](practitioner.html): Gender of the practitioner* [RelatedPerson](relatedperson.html): Gender of the related person
         """
         gender: SearchToken
+        """
+        given (FHIR type: string)
+        Multiple Resources: * [Patient](patient.html): A portion of the given name of the patient* [Practitioner](practitioner.html): A portion of the given name* [Person](person.html): A portion of the given name of the person
+        """
+        given: SearchString
         """
         identifier (FHIR type: token)
         A person Identifier
