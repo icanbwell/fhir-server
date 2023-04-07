@@ -50,14 +50,12 @@ for doc in person_docs:
             for index, meta_security in  enumerate(meta_security_list):
                 if meta_security['system'] == 'https://www.icanbwell.com/owner':
                     if owner:
+                        is_updated = True
                         if owner['code'] ==  meta_security['code']:
                             # Duplicate owner
                             print(doc_id, ': Duplicate owner', meta_security['code'])
-                            is_updated = True
                         else:
-                            is_updated = True
                             print(doc_id, ': Multiple owner', meta_security['code'])
-                            break
                     else:
                         owner = meta_security
                 
@@ -98,12 +96,12 @@ for doc in person_docs:
             if is_updated and owner and access and sourceAssigningAuthority:
                 # Updated doc
                 patient['meta']['security'] =  [owner, access, sourceAssigningAuthority]
-                # print("Updated patient")
-                # print(patient)
-                # print("End Updated patient")
-                # # Remove _id for patient
+                print("Updated patient")
+                print(patient)
+                print("End Updated patient")
+                # Remove _id for patient
                 del patient['_id']
-                client['fhir']['Patient_4_0_0'].update_one({'_id': _id}, {'$set': patient})
+                # client['fhir']['Patient_4_0_0'].update_one({'_id': _id}, {'$set': patient})
                 idList.append(doc_id)
 
 print('ID List:', ','.join(idList))
