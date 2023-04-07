@@ -55,6 +55,7 @@ for doc in person_docs:
                             print(doc_id, ': Duplicate owner', meta_security['code'])
                             is_updated = True
                         else:
+                            is_updated = True
                             print(doc_id, ': Multiple owner', meta_security['code'])
                             break
                     else:
