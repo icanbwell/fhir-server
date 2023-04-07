@@ -96,10 +96,10 @@ for doc in person_docs:
             if is_updated:
                 # Updated doc
                 patient['meta']['security'] =  meta_security_list #[owner, access, sourceAssigningAuthority]
-                # print("Updated patient")
-                # print(patient)
-                # print("End Updated patient")
-                # # Remove _id for patient
+                print("Updated patient")
+                print(patient)
+                print("End Updated patient")
+                # Remove _id for patient
                 del patient['_id']
                 # client['fhir']['Patient_4_0_0'].update_one({'_id': _id}, {'$set': patient})
                 idList.append(doc_id)
