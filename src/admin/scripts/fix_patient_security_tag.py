@@ -48,41 +48,41 @@ for doc in person_docs:
             sourceAssigningAuthority = None
             is_updated = False
             for index, meta_security in  enumerate(meta_security_list):
-                if meta_security['system'] == 'https://www.icanbwell.com/owner':
-                    if owner:
-                        if owner['code'] ==  meta_security['code']:
-                            # Duplicate owner
-                            print(doc_id, ': Duplicate owner', meta_security['code'])
-                            del meta_security_list[index]
+                # if meta_security['system'] == 'https://www.icanbwell.com/owner':
+                #     if owner:
+                #         if owner['code'] ==  meta_security['code']:
+                #             # Duplicate owner
+                #             print(doc_id, ': Duplicate owner', meta_security['code'])
+                #             del meta_security_list[index]
+                #             is_updated = True
+                #         else:
+                #             print(doc_id, ': Multiple owner', meta_security['code'])
+                #             break
+                #     else:
+                #         owner = meta_security
+                
+                if meta_security['system'] == 'https://www.icanbwell.com/access':
+                    if access:
+                        if access['code'] ==  meta_security['code']:
+                            # Duplicate access
+                            print(doc_id, ': Duplicate access', meta_security['code'])
                             is_updated = True
                         else:
-                            print(doc_id, ': Multiple owner', meta_security['code'])
+                            print(doc_id, ': Multiple access', meta_security['code'])
                             break
                     else:
-                        owner = meta_security
-                
-                # if meta_security['system'] == 'https://www.icanbwell.com/access':
-                #     if access:
-                #         if access['code'] ==  meta_security['code']:
-                #             # Duplicate access
-                #             print(doc_id, ': Duplicate access', meta_security['code'])
-                #             is_updated = True
-                #         else:
-                #             print(doc_id, ': Multiple access', meta_security['code'])
-                #             break
-                #     else:
-                #         access = meta_security
-                # if meta_security['system'] == 'https://www.icanbwell.com/sourceAssigningAuthority':
-                #     if sourceAssigningAuthority:
-                #         if access['code'] ==  meta_security['code']:
-                #             # Duplicate sourceAssigningAuthority
-                #             print(doc_id, ': Duplicate sourceAssigningAuthority', meta_security['code'])
-                #             is_updated = True
-                #         else:
-                #             print(doc_id, ': Multiple sourceAssigningAuthority', meta_security['code'])
-                #             break
-                #     else:
-                #         sourceAssigningAuthority = meta_security
+                        access = meta_security
+                if meta_security['system'] == 'https://www.icanbwell.com/sourceAssigningAuthority':
+                    if sourceAssigningAuthority:
+                        if access['code'] ==  meta_security['code']:
+                            # Duplicate sourceAssigningAuthority
+                            print(doc_id, ': Duplicate sourceAssigningAuthority', meta_security['code'])
+                            is_updated = True
+                        else:
+                            print(doc_id, ': Multiple sourceAssigningAuthority', meta_security['code'])
+                            break
+                    else:
+                        sourceAssigningAuthority = meta_security
 
             # if access['code'] != owner['code']:
             #     print(doc_id, 'copied access to owner', access['code'])
@@ -93,16 +93,16 @@ for doc in person_docs:
             #     sourceAssigningAuthority['code'] = access['code']
             #     is_updated = True
                 
-            if is_updated:
-                # Updated doc
-                patient['meta']['security'] =  meta_security_list #[owner, access, sourceAssigningAuthority]
-                # print("Updated patient")
-                # print(patient)
-                # print("End Updated patient")
-                # Remove _id for patient
-                del patient['_id']
-                client['fhir']['Patient_4_0_0'].update_one({'_id': _id}, {'$set': patient})
-                idList.append(doc_id)
+            # if is_updated:
+            #     # Updated doc
+            #     patient['meta']['security'] =  meta_security_list #[owner, access, sourceAssigningAuthority]
+            #     # print("Updated patient")
+            #     # print(patient)
+            #     # print("End Updated patient")
+            #     # Remove _id for patient
+            #     del patient['_id']
+            #     client['fhir']['Patient_4_0_0'].update_one({'_id': _id}, {'$set': patient})
+            #     idList.append(doc_id)
 
 print('ID List:', ','.join(idList))
 
