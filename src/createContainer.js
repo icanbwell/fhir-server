@@ -4,6 +4,7 @@ const {ChangeEventProducer} = require('./utils/changeEventProducer');
 const {ResourceManager} = require('./operations/common/resourceManager');
 const {DatabaseBulkInserter} = require('./dataLayer/databaseBulkInserter');
 const {DatabaseBulkLoader} = require('./dataLayer/databaseBulkLoader');
+const {DatabaseAttachmentManager} = require('./dataLayer/databaseAttachmentManager');
 const {PostRequestProcessor} = require('./utils/postRequestProcessor');
 const {AuditLogger} = require('./utils/auditLogger');
 const {ErrorReporter} = require('./utils/slack.logger');
@@ -423,7 +424,8 @@ const createContainer = function () {
             bundleManager: c.bundleManager,
             resourceLocatorFactory: c.resourceLocatorFactory,
             resourceValidator: c.resourceValidator,
-            preSaveManager: c.preSaveManager
+            preSaveManager: c.preSaveManager,
+            databaseAttachmentManager: c.databaseAttachmentManager
         }
     ));
     container.register('everythingOperation', (c) => new EverythingOperation({
@@ -516,6 +518,12 @@ const createContainer = function () {
             fhirLoggingManager: c.fhirLoggingManager,
             scopesValidator: c.scopesValidator,
             enrichmentManager: c.enrichmentManager
+        }
+    ));
+
+    container.register('databaseAttachmentManager', (c) => new DatabaseAttachmentManager(
+        {
+            mongoDatabaseManager: c.mongoDatabaseManager
         }
     ));
 

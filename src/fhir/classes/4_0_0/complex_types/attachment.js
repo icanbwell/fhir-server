@@ -24,6 +24,7 @@ class Attachment extends Element {
      * @param {base64Binary|undefined} [hash],
      * @param {String|undefined} [title],
      * @param {dateTime|undefined} [creation],
+     * @param {string|undefined} [_file_id],
     */
     constructor(
         {
@@ -37,6 +38,7 @@ class Attachment extends Element {
             hash,
             title,
             creation,
+            _file_id,
         }
     ) {
         super({});
@@ -233,6 +235,20 @@ class Attachment extends Element {
             }
         });
 
+        /**
+         * @description _file_id
+         * @property {string|undefined}
+         */
+        Object.defineProperty(this, '_file_id', {
+            // https://www.w3schools.com/js/js_object_es5.asp
+            enumerable: true,
+            configurable: true,
+            get: () => this.__data._file_id,
+            set: valueProvided => {
+                this.__data._file_id = valueProvided;
+            }
+        });
+
 
 
 
@@ -248,6 +264,7 @@ class Attachment extends Element {
             hash,
             title,
             creation,
+            _file_id,
         });
 
     }
@@ -272,6 +289,7 @@ class Attachment extends Element {
             hash: this.hash,
             title: this.title,
             creation: this.creation,
+            _file_id: this._file_id,
         });
     }
 
@@ -301,6 +319,7 @@ class Attachment extends Element {
             hash: this.hash,
             title: this.title,
             creation: this.creation,
+            _file_id: this._file_id,
         };
 
 
