@@ -19,6 +19,7 @@
 # import Timing from "../backbone_elements/timing.graphql"
 # import instant from "../simple_types/instant.graphql"
 # import Quantity from "../complex_types/quantity.graphql"
+# import integer from "../simple_types/int.graphql"
 # import Range from "../complex_types/range.graphql"
 # import Ratio from "../complex_types/ratio.graphql"
 # import SampledData from "../complex_types/sampledData.graphql"
