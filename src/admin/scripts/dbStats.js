@@ -1,5 +1,3 @@
-// load config from .env.  Should be first thing so env vars are available to rest of the code
-const path = require('path');
 const { logInfo } = require('../../operations/common/logging');
 const { createContainer } = require('../../createContainer');
 const { DatabaseStats } = require('../runners/dbStatsRunner.js');
