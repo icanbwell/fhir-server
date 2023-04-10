@@ -357,6 +357,8 @@ class MergeOperation {
             resourcesIncomingArray =
                 await this.databaseAttachmentManager.transformAttachments(resourcesIncomingArray);
 
+            resourcesIncomingArray = FhirResourceCreator.createArray(resourcesIncomingArray);
+
             // Load the resources from the database
             await this.databaseBulkLoader.loadResourcesAsync(
                 {

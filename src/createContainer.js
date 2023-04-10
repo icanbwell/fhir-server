@@ -523,7 +523,8 @@ const createContainer = function () {
 
     container.register('databaseAttachmentManager', (c) => new DatabaseAttachmentManager(
         {
-            mongoDatabaseManager: c.mongoDatabaseManager
+            mongoDatabaseManager: c.mongoDatabaseManager,
+            configManager: c.configManager
         }
     ));
 

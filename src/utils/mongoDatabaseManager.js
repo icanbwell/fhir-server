@@ -2,7 +2,7 @@ const {mongoConfig, auditEventMongoConfig, auditEventReadOnlyMongoConfig} = requ
 const {isTrue} = require('./isTrue');
 const env = require('var');
 const {logSystemEventAsync, logInfo, logError} = require('../operations/common/logging');
-const {MongoClient} = require('mongodb');
+const {MongoClient, GridFSBucket} = require('mongodb');
 
 /**
  * client connection
@@ -26,6 +26,12 @@ let auditClientDb = null;
  * @type {import('mongodb').Db}
  */
 let auditReadOnlyClientDb = null;
+
+/**
+ * gridFs bucket
+ * @type {import('mongodb').GridFSBucket}
+*/
+let gridFSBucket = null;
 
 class MongoDatabaseManager {
     /**
@@ -76,6 +82,17 @@ class MongoDatabaseManager {
             return await this.getAuditDbAsync();
         }
         return await this.getClientDbAsync();
+    }
+
+    /**
+     * Gets GridFs Bucket
+     * @returns {Promise<import('mongodb').GridFSBucket>}
+     */
+    async getGridFsBucket() {
+        if (!gridFSBucket) {
+            gridFSBucket = new GridFSBucket(await this.getClientDbAsync());
+        }
+        return gridFSBucket;
     }
 
     async getClientConfigAsync() {

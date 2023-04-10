@@ -1,60 +1,55 @@
-const mongodb = require('mongodb');
-var Readable = require('stream').Readable;
-const env = require('var');
+const Readable = require('stream').Readable;
 
-const Attachment = require('../fhir/classes/4_0_0/complex_types/attachment');
 const { assertTypeEquals } = require('../utils/assertType');
 const { MongoDatabaseManager } = require('../utils/mongoDatabaseManager');
+const { ConfigManager } = require('../utils/configManager');
+const Attachment = require('../fhir/classes/4_0_0/complex_types/attachment');
 
-
+/**
+ * @classdesc This class handles attachments with Mongodb GridFS i.e. converts attachment.data
+ * @classdesc to attachment._file_id and restores the attachment._file_id to attachment.data
+*/
 class DatabaseAttachmentManager {
     /**
+     * constructor
      * @param {MongoDatabaseManager} mongoDatabaseManager
+     * @param {ConfigManager} configManager
     */
-    constructor({mongoDatabaseManager}) {
+    constructor({mongoDatabaseManager, configManager}) {
         /**
          * @type {MongoDatabaseManager}
         */
         this.mongoDatabaseManager = mongoDatabaseManager;
         assertTypeEquals(mongoDatabaseManager, MongoDatabaseManager);
+
+        /**
+         * @type {ConfigManager}
+        */
+        this.configManager = configManager;
+        assertTypeEquals(configManager, ConfigManager);
     }
 
     /**
-     * Checks if the obj is of type attachment or not
-     * @param {any} obj
-    */
-    isAttachment(obj) {
-        return obj instanceof Attachment;
-    }
-
-    /**
-     * Checks the type of resources and passes them to changeAttachmentWithGridFS
-     * to change attachments
+     * Checks if GridFs is applicable on the resource and if applicable applies GridFs
      * @param {Resource[]|Resource} resources
     */
     async transformAttachments(resources) {
-        const resourceTypeForGridFS = env.GRIDFS_RESOURCES.split(',');
-        const db = await this.mongoDatabaseManager.getClientDbAsync();
-        const gridFSBucket = new mongodb.GridFSBucket(db);
-        if (resources instanceof Array) {
+        const enabledGridFsResources = this.configManager.enabledGridFsResources;
+        if (Array.isArray(resources)) {
             for (let resourceIndex = 0; resourceIndex < resources.length; resourceIndex++) {
-                for (let resourceType of resourceTypeForGridFS) {
-                    if (resources[parseInt(resourceIndex)].resourceType === resourceType) {
-                        resources[parseInt(resourceIndex)] = await this.changeAttachmentWithGridFS(
-                            resources[parseInt(resourceIndex)], gridFSBucket
+                const resource = resources[parseInt(resourceIndex)];
+                if (enabledGridFsResources.includes(resource.resourceType)) {
+                    resources[parseInt(resourceIndex)] =
+                        await this.changeAttachmentWithGridFS(
+                            resource,
+                            resource.id,
+                            resourceIndex
                         );
-                    }
                 }
             }
         }
-        else {
-            resourceTypeForGridFS.forEach(async resourceType => {
-                if (resources.resourceType === resourceType) {
-                    resources = await this.changeAttachmentWithGridFS(
-                        resources, gridFSBucket
-                    );
-                }
-            });
+        else if (enabledGridFsResources.includes(resources.resourceType)) {
+            resources = await this.changeAttachmentWithGridFS(resources, resources.id);
         }
         return resources;
     }
@@ -62,19 +57,40 @@ class DatabaseAttachmentManager {
     /**
      * Converts the data field in attachments to _file_id returned by GridFS
      * @param {Object} resource
-     * @param {mongodb.GridFSBucket} gridFSBucket
     */
-    async changeAttachmentWithGridFS(resource, gridFSBucket) {
-        for (let attachmentIndex = 0; attachmentIndex < resource.content.length; attachmentIndex++) {
-            let buffer = Buffer.from(resource.content[parseInt(attachmentIndex)].attachment.data);
-            let stream = new Readable();
-            stream.push(buffer);
-            stream.push(null);
-            let gridFSResult = stream.pipe(gridFSBucket.openUploadStream(resource.id));
-            resource.content[parseInt(attachmentIndex)].attachment._file_id = gridFSResult.id.toString();
-            delete resource.content[parseInt(attachmentIndex)].attachment.data;
+    async changeAttachmentWithGridFS(resource, resourceId, index = 0) {
+        if (!resource) {
+            return resource;
         }
-        return resource;
+        if (resource instanceof Attachment) {
+            const gridFSBucket = await this.mongoDatabaseManager.getGridFsBucket();
+            if (resource.data) {
+                const buffer = Buffer.from(resource.data);
+                const stream = new Readable();
+                stream.push(buffer);
+                stream.push(null);
+                const gridFSResult = stream.pipe(gridFSBucket.openUploadStream(
+                    `${resourceId}_${index}`,
+                    {
+                        metadata: { resourceId: resourceId }
+                    }
+                ));
+                resource._file_id = gridFSResult.id.toString();
+                delete resource.data;
+            }
+            return resource;
+        }
+        let newResource = resource;
+        if (resource instanceof Object || Array.isArray(resource)) {
+            newResource = Array.isArray(resource) ? [] : {};
+            for (const key in resource) {
+                if (resource[String(key)]) {
+                    newResource[String(key)] =
+                        await this.changeAttachmentWithGridFS(resource[String(key)], resourceId, index);
+                }
+            }
+        }
+        return newResource;
     }
 
     /**
