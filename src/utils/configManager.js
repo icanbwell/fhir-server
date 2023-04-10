@@ -270,6 +270,14 @@ class ConfigManager {
     get graphBatchSize(){
         return env.GRAPH_BATCH_SIZE || 10;
     }
+
+    /**
+     * returns enabled gridFs resources list
+     * @returns {string[]}
+     */
+    get enabledGridFsResources() {
+        return env.GRIDFS_RESOURCES.split(',');
+    }
 }
 
 module.exports = {
