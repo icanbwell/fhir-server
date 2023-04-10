@@ -170,7 +170,8 @@
     "winston": "^3.8.2",
     "winston-elasticsearch": "^0.17.2",
     "winston-transport": "^4.5.0",
-    "xss": "^1.0.14"
+    "xss": "^1.0.14",
+    "yargs": "^17.7.1"
   },
   "devDependencies": {
     "@jest/globals": "^29.5.0",
