@@ -13,6 +13,7 @@
 # import Organization from "../resources/organization.graphql"
 # import Period from "../complex_types/period.graphql"
 # import CoverageClass from "../backbone_elements/coverageClass.graphql"
+# import positiveInt from "../simple_types/int.graphql"
 # import CoverageCostToBeneficiary from "../backbone_elements/coverageCostToBeneficiary.graphql"
 
 union CoveragePolicyHolder = Patient | RelatedPerson | Organization

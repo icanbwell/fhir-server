@@ -13,6 +13,7 @@
 # import dateTime from "../simple_types/dateTime.graphql"
 # import Address from "../complex_types/address.graphql"
 # import CodeableConcept from "../complex_types/codeableConcept.graphql"
+# import integer from "../simple_types/int.graphql"
 # import Attachment from "../complex_types/attachment.graphql"
 # import PatientContact from "../backbone_elements/patientContact.graphql"
 # import PatientCommunication from "../backbone_elements/patientCommunication.graphql"

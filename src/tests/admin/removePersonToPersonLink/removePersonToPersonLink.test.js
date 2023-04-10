@@ -44,6 +44,14 @@ describe('Person Tests', () => {
             // The link is removed from the person resource.
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedPersonResources);
+
+            // Expect the history collection to be created
+            resp = await request.get('/4_0_0/Person/aba5bcf41cf64435839cf0568c121843/_history/2').set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveStatusCode(200);
+            // The history collection is created.
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedPersonResources);
         });
     });
 });

@@ -13,6 +13,7 @@
 # import dateTime from "../simple_types/dateTime.graphql"
 # import Period from "../complex_types/period.graphql"
 # import instant from "../simple_types/instant.graphql"
+# import positiveInt from "../simple_types/int.graphql"
 # import decimal from "../simple_types/decimal.graphql"
 # import Attachment from "../complex_types/attachment.graphql"
 # import Annotation from "../complex_types/annotation.graphql"

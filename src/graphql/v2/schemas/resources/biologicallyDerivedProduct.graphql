@@ -9,6 +9,7 @@
 # import Identifier from "../complex_types/identifier.graphql"
 # import CodeableConcept from "../complex_types/codeableConcept.graphql"
 # import ServiceRequest from "../resources/serviceRequest.graphql"
+# import integer from "../simple_types/int.graphql"
 # import BiologicallyDerivedProductCollection from "../backbone_elements/biologicallyDerivedProductCollection.graphql"
 # import BiologicallyDerivedProductProcessing from "../backbone_elements/biologicallyDerivedProductProcessing.graphql"
 # import BiologicallyDerivedProductManipulation from "../backbone_elements/biologicallyDerivedProductManipulation.graphql"
