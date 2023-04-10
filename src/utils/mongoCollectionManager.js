@@ -55,7 +55,7 @@ class MongoCollectionManager {
     }
 
     /**
-     * Gets or creates a collection
+     * Returns the list of all collection names specific to a db
      * @param {import('mongodb').Db} db
      * @return {Promise<string[]>}
      */
