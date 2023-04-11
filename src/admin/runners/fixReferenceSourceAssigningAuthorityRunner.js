@@ -13,6 +13,7 @@ const {MongoJsonPatchHelper} = require('../../utils/mongoJsonPatchHelper');
 const {ResourceMerger} = require('../../operations/common/resourceMerger');
 const {RethrownError} = require('../../utils/rethrownError');
 const {mongoQueryStringify} = require('../../utils/mongoQueryStringify');
+const { ObjectId } = require('mongodb');
 
 
 /**
@@ -577,7 +578,7 @@ class FixReferenceSourceAssigningAuthorityRunner extends BaseBulkOperationRunner
                                 query,
                                 {
                                     _id: {
-                                        $gte: this.startFromId
+                                        $gte: new ObjectId(this.startFromId)
                                     }
                                 }
                             ]
@@ -585,7 +586,7 @@ class FixReferenceSourceAssigningAuthorityRunner extends BaseBulkOperationRunner
                     } else {
                         query = {
                             _id: {
-                                $gte: this.startFromId
+                                $gte: new ObjectId(this.startFromId)
                             }
                         };
                     }
