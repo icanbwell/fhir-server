@@ -12,7 +12,7 @@ describe('GridFS update tests', () => {
     });
 
     describe('GridFS updation', () => {
-        test("_file_id doesn't in db works", async () => {
+        test("_file_id doesn't change in db", async () => {
             const request = await createTestRequest();
             // add the resources to FHIR server
             let resp = await request
