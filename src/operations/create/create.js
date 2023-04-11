@@ -20,6 +20,7 @@ const {ParsedArgs} = require('../query/parsedArgs');
 const {SecurityTagSystem} = require('../../utils/securityTagSystem');
 const {ConfigManager} = require('../../utils/configManager');
 const {FhirResourceCreator} = require('../../fhir/fhirResourceCreator');
+const { DatabaseAttachmentManager } = require('../../dataLayer/databaseAttachmentManager');
 
 class CreateOperation {
     /**
@@ -33,6 +34,7 @@ class CreateOperation {
      * @param {ResourceValidator} resourceValidator
      * @param {DatabaseBulkInserter} databaseBulkInserter
      * @param {ConfigManager} configManager
+     * @param {DatabaseAttachmentManager} databaseAttachmentManager
      */
     constructor(
         {
@@ -44,7 +46,8 @@ class CreateOperation {
             scopesValidator,
             resourceValidator,
             databaseBulkInserter,
-            configManager
+            configManager,
+            databaseAttachmentManager
         }
     ) {
         /**
@@ -94,6 +97,12 @@ class CreateOperation {
          */
         this.configManager = configManager;
         assertTypeEquals(configManager, ConfigManager);
+
+        /**
+         * @type {DatabaseAttachmentManager}
+         */
+        this.databaseAttachmentManager = databaseAttachmentManager;
+        assertTypeEquals(databaseAttachmentManager, DatabaseAttachmentManager);
     }
 
     /**
@@ -159,7 +168,7 @@ class CreateOperation {
         /**
          * @type {Resource}
          */
-        const resource = FhirResourceCreator.createByResourceType(resource_incoming, resourceType);
+        let resource = FhirResourceCreator.createByResourceType(resource_incoming, resourceType);
 
         if (env.VALIDATE_SCHEMA || parsedArgs['_validate']) {
             /**
@@ -192,6 +201,10 @@ class CreateOperation {
                 throw notValidatedError;
             }
         }
+
+        resource = await this.databaseAttachmentManager.transformAttachments(resource);
+
+        resource = FhirResourceCreator.createByResourceType(resource, resourceType);
 
         try {
             // Get current record

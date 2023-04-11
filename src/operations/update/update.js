@@ -20,6 +20,7 @@ const {getCircularReplacer} = require('../../utils/getCircularReplacer');
 const {ParsedArgs} = require('../query/parsedArgs');
 const {ConfigManager} = require('../../utils/configManager');
 const {FhirResourceCreator} = require('../../fhir/fhirResourceCreator');
+const { DatabaseAttachmentManager } = require('../../dataLayer/databaseAttachmentManager');
 
 /**
  * Update Operation
@@ -38,6 +39,7 @@ class UpdateOperation {
      * @param {DatabaseBulkInserter} databaseBulkInserter
      * @param {ResourceMerger} resourceMerger
      * @param {ConfigManager} configManager
+     * @param {DatabaseAttachmentManager} databaseAttachmentManager
      */
     constructor(
         {
@@ -51,7 +53,8 @@ class UpdateOperation {
             resourceValidator,
             databaseBulkInserter,
             resourceMerger,
-            configManager
+            configManager,
+            databaseAttachmentManager
         }
     ) {
         /**
@@ -111,6 +114,12 @@ class UpdateOperation {
          */
         this.configManager = configManager;
         assertTypeEquals(configManager, ConfigManager);
+
+        /**
+         * @type {DatabaseAttachmentManager}
+         */
+        this.databaseAttachmentManager = databaseAttachmentManager;
+        assertTypeEquals(databaseAttachmentManager, DatabaseAttachmentManager);
     }
 
     /**
@@ -207,6 +216,10 @@ class UpdateOperation {
                 throw new NotValidatedError(validationOperationOutcome);
             }
         }
+
+        resource_incoming = await this.databaseAttachmentManager.transformAttachments(resource_incoming);
+
+        resource_incoming = FhirResourceCreator.createByResourceType(resource_incoming, resourceType);
 
         try {
             // Get current record

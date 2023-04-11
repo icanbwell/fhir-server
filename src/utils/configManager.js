@@ -276,7 +276,7 @@ class ConfigManager {
      * @returns {string[]}
      */
     get enabledGridFsResources() {
-        return env.GRIDFS_RESOURCES.split(',');
+        return env.GRIDFS_RESOURCES ? env.GRIDFS_RESOURCES.split(',') : [];
     }
 }
 
