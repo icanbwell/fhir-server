@@ -1,8 +1,8 @@
 const {commonBeforeEach, commonAfterEach, createTestRequest, getHeaders} = require('../../common');
-// const { createTestContainer } = require('../../createTestContainer');
-const { TestMongoDatabaseManager } = require('../../testMongoDatabaseManager');
+const { createTestContainer } = require('../../createTestContainer');
 
-const documentReferenceData = require('./fixtures/document_reference/document_reference.json');
+const documentReference1Data = require('./fixtures/document_reference/document_reference1.json');
+const documentReference2Data = require('./fixtures/document_reference/document_reference2.json');
 const updatedDocumentReferenceData = require('./fixtures/document_reference/updated_document_reference.json');
 const expectedCreateResponse = require('./fixtures/expected/create_response.json');
 const expectedUpdateResponse = require('./fixtures/expected/update_response.json');
@@ -24,19 +24,18 @@ describe('GridFS merge tests', () => {
             // add the resources to FHIR server
             let resp = await request
                 .post('/4_0_0/DocumentReference/$merge')
-                .send(documentReferenceData)
+                .send(documentReference1Data)
                 .set(getHeaders())
                 .expect(200);
 
             expect(resp).toHaveMergeResponse(expectedCreateResponse);
 
-            // const container = createTestContainer();
+            const container = createTestContainer();
 
             /**
              * @type {MongoDatabaseManager}
              */
-            // const mongoDatabaseManager = container.mongoDatabaseManager;
-            const mongoDatabaseManager = new TestMongoDatabaseManager();
+            const mongoDatabaseManager = container.mongoDatabaseManager;
             /**
              * mongo connection
              * @type {import('mongodb').Db}
@@ -61,6 +60,18 @@ describe('GridFS merge tests', () => {
                 .expect(200);
 
             expect(resp).toHaveMergeResponse(expectedUpdateResponse);
+        });
+
+        test('_file_id not stored in db works', async () => {
+            const request = await createTestRequest();
+            // add the resources to FHIR server
+            let resp = await request
+                .post('/4_0_0/DocumentReference/$merge')
+                .send(documentReference2Data)
+                .set(getHeaders())
+                .expect(200);
+
+            expect(resp).toHaveMergeResponse(expectedCreateResponse);
         });
     });
 });

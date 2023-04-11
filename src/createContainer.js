@@ -388,7 +388,8 @@ const createContainer = function () {
                 scopesValidator: c.scopesValidator,
                 resourceValidator: c.resourceValidator,
                 databaseBulkInserter: c.databaseBulkInserter,
-                configManager: c.configManager
+                configManager: c.configManager,
+                databaseAttachmentManager: c.databaseAttachmentManager
             }
         )
     );
@@ -406,7 +407,8 @@ const createContainer = function () {
                 resourceLocatorFactory: c.resourceLocatorFactory,
                 databaseBulkInserter: c.databaseBulkInserter,
                 resourceMerger: c.resourceMerger,
-                configManager: c.configManager
+                configManager: c.configManager,
+                databaseAttachmentManager: c.databaseAttachmentManager
             }
         )
     );
