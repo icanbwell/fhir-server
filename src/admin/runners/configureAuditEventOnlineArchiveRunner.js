@@ -51,7 +51,7 @@ class ConfigureAuditEventOnlineArchiveRunner extends BaseScriptRunner {
         try {
             // Using superagent to make a post request to create a collection
             superagent
-                .post(`${env.AUDIT_EVENT_ONLINE_ARCHIVE}/groups/${env.AUDIT_EVENT_ONLINE_ARCHIVE_GROUPID}/clusters/${env.AUDIT_EVENT_ONLINE_ARCHIVE_CLUSTER_NAME}/onlineArchives`)
+                .post(`https://cloud.mongodb.com/api/atlas/v1.0/groups/${env.AUDIT_EVENT_ONLINE_ARCHIVE_GROUPID}/clusters/${env.AUDIT_EVENT_ONLINE_ARCHIVE_CLUSTER_NAME}/onlineArchives`)
                 .send(data)
                 .set(headers)
                 .then(res => {
