@@ -29,6 +29,7 @@ const cookieParser = require('cookie-parser');
 const { handleMemoryCheck } = require('./routeHandlers/memoryChecker');
 const {handleAdmin} = require('./routeHandlers/admin');
 const {json} = require('body-parser');
+const { getImageVersion } = require('./utils/getImageVersion');
 
 /**
  * Creates the FHIR app
@@ -273,6 +274,7 @@ function createApp({fnCreateContainer, trackMetrics}) {
     }
     app.locals.currentYear = new Date().getFullYear();
     app.locals.deployEnvironment = env.ENVIRONMENT;
+    app.locals.deployVersion = getImageVersion();
 
     // enables access to reverse proxy information
     // https://expressjs.com/en/guide/behind-proxies.html
