@@ -36,15 +36,18 @@ class DatabaseAttachmentManager {
     async transformAttachments(resources) {
         const enabledGridFsResources = this.configManager.enabledGridFsResources;
         if (Array.isArray(resources)) {
-            resources.forEach((resource, index) => {
-                if (enabledGridFsResources.includes(resource.resourceType)) {
-                    resource = this.changeAttachmentWithGridFS(
-                        resource,
-                        {resource_uuid: resource._uuid, resource_sourceId: resource._sourceId},
-                        index
+            for (let resourceIndex = 0; resourceIndex < resources.length; resourceIndex++) {
+                if (enabledGridFsResources.includes(resources[parseInt(resourceIndex)].resourceType)) {
+                    resources[parseInt(resourceIndex)] = await this.changeAttachmentWithGridFS(
+                        resources[parseInt(resourceIndex)],
+                        {
+                            resource_uuid: resources[parseInt(resourceIndex)]._uuid,
+                            resource_sourceId: resources[parseInt(resourceIndex)]._sourceId
+                        },
+                        resourceIndex
                     );
                 }
-            });
+            }
         }
         else if (enabledGridFsResources.includes(resources.resourceType)) {
             resources = await this.changeAttachmentWithGridFS(
