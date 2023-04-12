@@ -168,46 +168,23 @@ def main() -> int:
                 template = Template(
                     template_contents, trim_blocks=True, lstrip_blocks=True
                 )
-                if entity_file_name == 'Attachment':
-                    result = template.render(
-                        fhir_entity=fhir_entity,
-                        extra_properties_for_reference=[
-                            {
-                                "name": "_sourceAssigningAuthority",
-                                "type": "string"
-                            },
-                            {
-                                "name": "_uuid",
-                                "type": "string"
-                            },
-                            {
-                                "name": "_sourceId",
-                                "type": "string"
-                            },
-                            {
-                                "name": "_file_id",
-                                "type": "string"
-                            }
-                        ]
-                    )
-                else:
-                    result = template.render(
-                        fhir_entity=fhir_entity,
-                        extra_properties_for_reference=[
-                            {
-                                "name": "_sourceAssigningAuthority",
-                                "type": "string"
-                            },
-                            {
-                                "name": "_uuid",
-                                "type": "string"
-                            },
-                            {
-                                "name": "_sourceId",
-                                "type": "string"
-                            }
-                        ]
-                    )
+                result = template.render(
+                    fhir_entity=fhir_entity,
+                    extra_properties_for_reference=[
+                        {
+                            "name": "_sourceAssigningAuthority",
+                            "type": "string"
+                        },
+                        {
+                            "name": "_uuid",
+                            "type": "string"
+                        },
+                        {
+                            "name": "_sourceId",
+                            "type": "string"
+                        }
+                    ]
+                )
             if not path.exists(file_path):
                 with open(file_path, "w") as file2:
                     file2.write(result)
@@ -223,6 +200,12 @@ def main() -> int:
                 )
                 result = template.render(
                     fhir_entity=fhir_entity,
+                    extra_properties_for_reference=[
+                        {
+                            "name": "_file_id",
+                            "type": "string"
+                        }
+                    ] if entity_file_name == 'Attachment' else []
                 )
 
             if not path.exists(file_path):

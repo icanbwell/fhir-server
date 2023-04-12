@@ -14,6 +14,7 @@ const {getCircularReplacer} = require('../../utils/getCircularReplacer');
 const {fhirContentTypes} = require('../../utils/contentTypes');
 const {ParsedArgs} = require('../query/parsedArgs');
 const {FhirResourceCreator} = require('../../fhir/fhirResourceCreator');
+const { DatabaseAttachmentManager } = require('../../dataLayer/databaseAttachmentManager');
 
 class PatchOperation {
     /**
@@ -24,6 +25,7 @@ class PatchOperation {
      * @param {FhirLoggingManager} fhirLoggingManager
      * @param {ScopesValidator} scopesValidator
      * @param {DatabaseBulkInserter} databaseBulkInserter
+     * @param {DatabaseAttachmentManager} databaseAttachmentManager
      */
     constructor(
         {
@@ -32,7 +34,8 @@ class PatchOperation {
             postRequestProcessor,
             fhirLoggingManager,
             scopesValidator,
-            databaseBulkInserter
+            databaseBulkInserter,
+            databaseAttachmentManager
         }
     ) {
         /**
@@ -65,6 +68,11 @@ class PatchOperation {
          */
         this.databaseBulkInserter = databaseBulkInserter;
         assertTypeEquals(databaseBulkInserter, DatabaseBulkInserter);
+        /**
+         * @type {DatabaseAttachmentManager}
+         */
+        this.databaseAttachmentManager = databaseAttachmentManager;
+        assertTypeEquals(databaseAttachmentManager, DatabaseAttachmentManager);
     }
 
     /**
@@ -168,6 +176,10 @@ class PatchOperation {
                     'Unable to patch resource. Missing either foundResource, metadata or metadata source.'
                 ));
             }
+
+            resource = await this.databaseAttachmentManager.transformAttachments(resource);
+
+            resource = FhirResourceCreator.createByResourceType(resource, resourceType);
 
             // Same as update from this point on
             // Insert/update our resource record
