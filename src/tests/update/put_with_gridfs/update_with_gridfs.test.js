@@ -21,6 +21,8 @@ describe('GridFS update tests', () => {
                 .set(getHeaders())
                 .expect(200);
 
+            expect(resp).toHaveMergeResponse({ created: true });
+
             resp = await request
                 .put(`/4_0_0/DocumentReference/${resp.id}`)
                 .send(updatedDocumentReferenceData)

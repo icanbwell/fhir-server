@@ -32,7 +32,7 @@ describe('GridFs Patch Test', () => {
             expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
-                .patch('/4_0_0/DocumentReference/1')
+                .patch(`/4_0_0/DocumentReference/${resp._body.id}`)
                 .send(patch1)
                 .set(getHeadersJsonPatch())
                 .expect(200);
@@ -53,7 +53,7 @@ describe('GridFs Patch Test', () => {
             expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
-                .patch('/4_0_0/DocumentReference/1')
+                .patch(`/4_0_0/DocumentReference/${resp._body.id}`)
                 .send(patch2)
                 .set(getHeadersJsonPatch())
                 .expect(200);
