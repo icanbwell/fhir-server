@@ -354,11 +354,8 @@ class MergeOperation {
                 async resource => await this.preSaveManager.preSaveAsync(resource)
             );
 
-            console.log('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>', resourcesIncomingArray);
             resourcesIncomingArray =
                 await this.databaseAttachmentManager.transformAttachments(resourcesIncomingArray);
-
-            console.log('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>', resourcesIncomingArray);
 
             // Load the resources from the database
             await this.databaseBulkLoader.loadResourcesAsync(
