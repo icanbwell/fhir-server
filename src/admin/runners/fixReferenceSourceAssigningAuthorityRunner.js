@@ -7,12 +7,14 @@ const {DatabaseQueryFactory} = require('../../dataLayer/databaseQueryFactory');
 const {generateUUIDv5} = require('../../utils/uid.util');
 const deepEqual = require('fast-deep-equal');
 const moment = require('moment-timezone');
+const { isValidMongoObjectId } = require('../../utils/mongoIdValidator');
 const {ResourceLocatorFactory} = require('../../operations/common/resourceLocatorFactory');
 const {FhirResourceCreator} = require('../../fhir/fhirResourceCreator');
 const {MongoJsonPatchHelper} = require('../../utils/mongoJsonPatchHelper');
 const {ResourceMerger} = require('../../operations/common/resourceMerger');
 const {RethrownError} = require('../../utils/rethrownError');
 const {mongoQueryStringify} = require('../../utils/mongoQueryStringify');
+const { ObjectId } = require('mongodb');
 
 
 /**
@@ -570,6 +572,7 @@ class FixReferenceSourceAssigningAuthorityRunner extends BaseBulkOperationRunner
                     getFilter(this.filterToRecordsWithFields);
 
                 if (this.startFromId) {
+                    const startId = isValidMongoObjectId(this.startFromId) ? new ObjectId(this.startFromId) : this.startFromId;
                     if (Object.keys(query) > 0) {
                         // noinspection JSValidateTypes
                         query = {
@@ -577,7 +580,7 @@ class FixReferenceSourceAssigningAuthorityRunner extends BaseBulkOperationRunner
                                 query,
                                 {
                                     _id: {
-                                        $gte: this.startFromId
+                                        $gte: startId
                                     }
                                 }
                             ]
@@ -585,7 +588,7 @@ class FixReferenceSourceAssigningAuthorityRunner extends BaseBulkOperationRunner
                     } else {
                         query = {
                             _id: {
-                                $gte: this.startFromId
+                                $gte: startId
                             }
                         };
                     }
