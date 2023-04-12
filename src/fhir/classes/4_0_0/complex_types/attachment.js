@@ -24,7 +24,7 @@ class Attachment extends Element {
      * @param {base64Binary|undefined} [hash],
      * @param {String|undefined} [title],
      * @param {dateTime|undefined} [creation],
-     * @param {string|undefined} [_file_id],
+     * @param {string|undefined} [_file_id]
     */
     constructor(
         {
@@ -235,6 +235,7 @@ class Attachment extends Element {
             }
         });
 
+
         /**
          * @description _file_id
          * @property {string|undefined}
@@ -248,8 +249,6 @@ class Attachment extends Element {
                 this.__data._file_id = valueProvided;
             }
         });
-
-
 
 
         // --- Now copy properties from passed in object ----
@@ -289,7 +288,6 @@ class Attachment extends Element {
             hash: this.hash,
             title: this.title,
             creation: this.creation,
-            _file_id: this._file_id,
         });
     }
 
@@ -319,10 +317,12 @@ class Attachment extends Element {
             hash: this.hash,
             title: this.title,
             creation: this.creation,
-            _file_id: this._file_id,
         };
 
 
+        if (this._file_id) {
+            json._file_id = this._file_id;
+        }
 
         return removeNull(json);
     }
