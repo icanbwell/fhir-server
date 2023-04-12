@@ -204,8 +204,6 @@ class CreateOperation {
 
         resource = await this.databaseAttachmentManager.transformAttachments(resource);
 
-        resource = FhirResourceCreator.createByResourceType(resource, resourceType);
-
         try {
             // Get current record
 

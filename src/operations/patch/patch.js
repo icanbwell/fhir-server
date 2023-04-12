@@ -179,8 +179,6 @@ class PatchOperation {
 
             resource = await this.databaseAttachmentManager.transformAttachments(resource);
 
-            resource = FhirResourceCreator.createByResourceType(resource, resourceType);
-
             // Same as update from this point on
             // Insert/update our resource record
             await this.databaseBulkInserter.replaceOneAsync(

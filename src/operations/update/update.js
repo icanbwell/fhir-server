@@ -219,8 +219,6 @@ class UpdateOperation {
 
         resource_incoming = await this.databaseAttachmentManager.transformAttachments(resource_incoming);
 
-        resource_incoming = FhirResourceCreator.createByResourceType(resource_incoming, resourceType);
-
         try {
             // Get current record
             const databaseQueryManager = this.databaseQueryFactory.createQuery(

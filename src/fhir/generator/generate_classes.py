@@ -183,7 +183,13 @@ def main() -> int:
                             "name": "_sourceId",
                             "type": "string"
                         }
-                    ]
+                    ],
+                    extra_properties=[
+                        {
+                            "name": "_file_id",
+                            "type": "string"
+                        }
+                    ] if entity_file_name == "attachment" else []
                 )
             if not path.exists(file_path):
                 with open(file_path, "w") as file2:
@@ -200,12 +206,6 @@ def main() -> int:
                 )
                 result = template.render(
                     fhir_entity=fhir_entity,
-                    extra_properties_for_reference=[
-                        {
-                            "name": "_file_id",
-                            "type": "string"
-                        }
-                    ] if entity_file_name == 'Attachment' else []
                 )
 
             if not path.exists(file_path):
