@@ -493,7 +493,8 @@ const createContainer = function () {
             postRequestProcessor: c.postRequestProcessor,
             fhirLoggingManager: c.fhirLoggingManager,
             scopesValidator: c.scopesValidator,
-            databaseBulkInserter: c.databaseBulkInserter
+            databaseBulkInserter: c.databaseBulkInserter,
+            databaseAttachmentManager: c.databaseAttachmentManager
         }
     ));
     container.register('validateOperation', (c) => new ValidateOperation(
