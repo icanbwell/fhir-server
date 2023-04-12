@@ -374,11 +374,9 @@ class {{ fhir_entity.cleaned_name }} extends Element {
             {{ property.name -}}: this.{{ property.name -}},
     {% endif %}
 {% endfor %}
-    {% for extra_property in extra_properties %}
-        {% if extra_property.name == "_file_id" %}
+        {% for extra_property in extra_properties %}
             {{ extra_property.name -}}: this.{{ extra_property.name -}},
-        {% endif %}
-    {% endfor %}
+        {% endfor %}
         });
     }
 
