@@ -288,6 +288,7 @@ class Attachment extends Element {
             hash: this.hash,
             title: this.title,
             creation: this.creation,
+            _file_id: this._file_id,
         });
     }
 
