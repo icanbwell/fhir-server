@@ -1,6 +1,6 @@
 const {BaseScriptRunner} = require('./baseScriptRunner');
 const env = require('var');
-const superagent = require('superagent');
+const request = require('request');
 
 class ConfigureAuditEventOnlineArchiveRunner extends BaseScriptRunner {
     constructor({
@@ -34,32 +34,43 @@ class ConfigureAuditEventOnlineArchiveRunner extends BaseScriptRunner {
      * @description Makes an api call to mongo to create an online archive.
      * @param {Object} config
      * @param {string} collectionName
+     * @return {Promise}
      */
-    async createCollection({config, collectionName}) {
+    createCollection({config, collectionName}) {
         const data = {
-            'collname': collectionName,
+            'collName': collectionName,
             'dbName': config.db_name,
             'criteria': {
                 'type': 'DATE',
                 'dateField': 'recorded',
+                'dateFormat': 'ISODATE',
+                'expireAfterDays': 90,
             }
         };
         const headers = {
-            'Content-Type': 'application/json',
-            'apiKey': env.AUDIT_EVENT_API_KEY,
+            'Content-Type': 'application/json'
         };
-        try {
-            // Using superagent to make a post request to create a collection
-            superagent
-                .post(`https://cloud.mongodb.com/api/atlas/v1.0/groups/${env.AUDIT_EVENT_ONLINE_ARCHIVE_GROUPID}/clusters/${env.AUDIT_EVENT_ONLINE_ARCHIVE_CLUSTER_NAME}/onlineArchives`)
-                .send(data)
-                .set(headers)
-                .then(res => {
-                    this.adminLogger.logInfo(res);
-                });
-        } catch (error) {
-            this.adminLogger.logError(error);
-        }
+        const options = {
+            method: 'POST',
+            url: `https://cloud.mongodb.com/api/atlas/v1.0/groups/${env.AUDIT_EVENT_ONLINE_ARCHIVE_GROUPID}/clusters/${env.AUDIT_EVENT_ONLINE_ARCHIVE_CLUSTER_NAME}/onlineArchives`,
+            auth: {
+                user: env.PUBLIC_KEY,
+                pass: env.PRIVATE_KEY,
+                sendImmediately: false
+            },
+            headers: headers,
+            json: data
+        };
+        return new Promise((resolve, reject) => {
+            // eslint-disable-next-line no-unused-vars
+            request(options, (error, response, body) => {
+                if (response.statusCode !== 200) {
+                    reject(response);
+                } else {
+                    resolve(response);
+                }
+            });
+        });
     }
 
     /**
@@ -80,12 +91,19 @@ class ConfigureAuditEventOnlineArchiveRunner extends BaseScriptRunner {
             await this.mongoCollectionManager.getAllCollectionNames({db: auditEventDatabase});
         this.adminLogger.logInfo(`The list of collections to be created on audit event online archive are ${collectionNames}`);
 
-        await Promise.all(collectionNames.map(async (collectionName) => {
+        for (const collectionName of collectionNames) {
             await this.createCollection({
                 config: auditEventConfig,
                 collectionName: collectionName
+            }).then((resp) => {
+                this.adminLogger.logInfo(`Collection ${collectionName} created`);
+                this.adminLogger.logInfo(`The payload returned is ${JSON.stringify(resp.body)}`);
+            }).catch((resp) => {
+                this.adminLogger.logError(`Failed to create collection ${collectionName}.`);
+                this.adminLogger.logError(`Error status code ${resp.statusCode}`);
+                this.adminLogger.logError(`The payload returned is ${JSON.stringify(resp.body)}`);
             });
-        }));
+        }
     }
 }
 

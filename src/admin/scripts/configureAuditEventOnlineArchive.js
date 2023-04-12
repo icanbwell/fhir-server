@@ -49,7 +49,7 @@ async function main() {
  * nvm use 18.14.2
  * required env variables
  * for audit event cluster - AUDIT_EVENT_MONGO_URL, AUDIT_EVENT_MONGO_DB_NAME
- * for audit event online archive cluster - AUDIT_EVENT_ONLINE_ARCHIVE_CLUSTER_MONGO_URL, AUDIT_EVENT_MONGO_DB_NAME
+ * AUDIT_EVENT_ONLINE_ARCHIVE_GROUPID, AUDIT_EVENT_ONLINE_ARCHIVE_CLUSTER_NAME, PRIVATE_KEY, PUBLIC_KEY
  * node src/admin/scripts/configureAuditEventOnlineArchive.js
  * node src/admin/scripts/configureAuditEventOnlineArchive.js --collections="Task_4_0_0,Patient_4_0_0"
  */
