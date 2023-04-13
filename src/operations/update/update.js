@@ -217,7 +217,6 @@ class UpdateOperation {
             }
         }
 
-        resource_incoming = await this.databaseAttachmentManager.transformAttachments(resource_incoming);
 
         try {
             // Get current record
@@ -263,6 +262,8 @@ class UpdateOperation {
                     if (this.configManager.requireMetaSourceTags && (!doc.meta || !doc.meta.source)) {
                         throw new BadRequestError(new Error('Unable to update resource. Missing either metadata or metadata source.'));
                     }
+                    doc = await this.databaseAttachmentManager.transformAttachments(doc);
+
                     await this.databaseBulkInserter.replaceOneAsync(
                         {
                             requestId, resourceType, doc,
@@ -304,7 +305,8 @@ class UpdateOperation {
                     resource_incoming.meta['lastUpdated'] = new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ssZ'));
                 }
 
-                doc = resource_incoming;
+                doc = await this.databaseAttachmentManager.transformAttachments(resource_incoming);
+
                 await this.databaseBulkInserter.insertOneAsync({requestId, resourceType, doc});
             }
 
