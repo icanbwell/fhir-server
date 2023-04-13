@@ -539,6 +539,13 @@ const createContainer = function () {
         }
     ));
 
+    container.register('databaseAttachmentManager', (c) => new DatabaseAttachmentManager(
+        {
+            mongoDatabaseManager: c.mongoDatabaseManager,
+            configManager: c.configManager
+        }
+    ));
+
     // now register the routing for fhir
     container.register('fhirOperationsManager', (c) => new FhirOperationsManager(
             {

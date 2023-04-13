@@ -21,4 +21,4 @@ process.env.ENABLE_KAFKA_HEALTHCHECK = '0';
 process.env.SET_INDEX_HINTS = '0';
 process.env.PARTITION_RESOURCES = 'AuditEvent';
 process.env.LOGLEVEL = 'TRACE';
-process.env.GRIDFS_RESOURCES = 'DocumentReference,Person,Patient';
+process.env.GRIDFS_RESOURCES = 'DocumentReference';
