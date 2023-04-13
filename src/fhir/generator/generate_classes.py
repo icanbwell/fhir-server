@@ -168,6 +168,12 @@ def main() -> int:
                 template = Template(
                     template_contents, trim_blocks=True, lstrip_blocks=True
                 )
+                extra_properties = [
+                    {
+                        "name": "_file_id",
+                        "type": "string"
+                    }
+                ] if entity_file_name == "attachment" else []
                 result = template.render(
                     fhir_entity=fhir_entity,
                     extra_properties_for_reference=[
@@ -184,12 +190,8 @@ def main() -> int:
                             "type": "string"
                         }
                     ],
-                    extra_properties=[
-                        {
-                            "name": "_file_id",
-                            "type": "string"
-                        }
-                    ] if entity_file_name == "attachment" else []
+                    extra_properties=extra_properties,
+                    extra_properties_for_json=extra_properties
                 )
             if not path.exists(file_path):
                 with open(file_path, "w") as file2:
