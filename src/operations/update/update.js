@@ -20,6 +20,7 @@ const {getCircularReplacer} = require('../../utils/getCircularReplacer');
 const {ParsedArgs} = require('../query/parsedArgs');
 const {ConfigManager} = require('../../utils/configManager');
 const {FhirResourceCreator} = require('../../fhir/fhirResourceCreator');
+const { DatabaseAttachmentManager } = require('../../dataLayer/databaseAttachmentManager');
 
 /**
  * Update Operation
@@ -38,6 +39,7 @@ class UpdateOperation {
      * @param {DatabaseBulkInserter} databaseBulkInserter
      * @param {ResourceMerger} resourceMerger
      * @param {ConfigManager} configManager
+     * @param {DatabaseAttachmentManager} databaseAttachmentManager
      */
     constructor(
         {
@@ -51,7 +53,8 @@ class UpdateOperation {
             resourceValidator,
             databaseBulkInserter,
             resourceMerger,
-            configManager
+            configManager,
+            databaseAttachmentManager
         }
     ) {
         /**
@@ -111,6 +114,12 @@ class UpdateOperation {
          */
         this.configManager = configManager;
         assertTypeEquals(configManager, ConfigManager);
+
+        /**
+         * @type {DatabaseAttachmentManager}
+         */
+        this.databaseAttachmentManager = databaseAttachmentManager;
+        assertTypeEquals(databaseAttachmentManager, DatabaseAttachmentManager);
     }
 
     /**
@@ -208,6 +217,7 @@ class UpdateOperation {
             }
         }
 
+
         try {
             // Get current record
             const databaseQueryManager = this.databaseQueryFactory.createQuery(
@@ -252,6 +262,8 @@ class UpdateOperation {
                     if (this.configManager.requireMetaSourceTags && (!doc.meta || !doc.meta.source)) {
                         throw new BadRequestError(new Error('Unable to update resource. Missing either metadata or metadata source.'));
                     }
+                    doc = await this.databaseAttachmentManager.transformAttachments(doc);
+
                     await this.databaseBulkInserter.replaceOneAsync(
                         {
                             requestId, resourceType, doc,
@@ -293,7 +305,8 @@ class UpdateOperation {
                     resource_incoming.meta['lastUpdated'] = new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ssZ'));
                 }
 
-                doc = resource_incoming;
+                doc = await this.databaseAttachmentManager.transformAttachments(resource_incoming);
+
                 await this.databaseBulkInserter.insertOneAsync({requestId, resourceType, doc});
             }
 
