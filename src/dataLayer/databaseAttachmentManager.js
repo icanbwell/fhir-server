@@ -38,22 +38,31 @@ class DatabaseAttachmentManager {
         if (Array.isArray(resources)) {
             for (let resourceIndex = 0; resourceIndex < resources.length; resourceIndex++) {
                 if (enabledGridFsResources.includes(resources[resourceIndex].resourceType)) {
+                    let metadata = {};
+                    if (resources[resourceIndex]._uuid) {
+                        metadata['resource_uuid'] = resources[resourceIndex]._uuid;
+                    }
+                    if (resources[resourceIndex]._sourceId) {
+                        metadata['resource_sourceId'] = resources[resourceIndex]._sourceId;
+                    }
                     resources[resourceIndex] = await this.changeAttachmentWithGridFS(
                         resources[resourceIndex],
-                        {
-                            resource_uuid: resources[resourceIndex]._uuid,
-                            resource_sourceId: resources[resourceIndex]._sourceId
-                        },
+                        metadata,
+                        resources[resourceIndex].id,
                         resourceIndex
                     );
                 }
             }
         }
         else if (enabledGridFsResources.includes(resources.resourceType)) {
-            resources = await this.changeAttachmentWithGridFS(
-                resources,
-                {resource_uuid: resources._uuid, resource_sourceId: resources._sourceId}
-            );
+            let metadata = {};
+            if (resources._uuid) {
+                metadata['resource_uuid'] = resources._uuid;
+            }
+            if (resources._sourceId) {
+                metadata['resource_sourceId'] = resources._sourceId;
+            }
+            resources = await this.changeAttachmentWithGridFS(resources, metadata, resources.id);
         }
         return resources;
     }
@@ -64,7 +73,7 @@ class DatabaseAttachmentManager {
      * @param {Object} metadata
      * @param {number|string} index
     */
-    async changeAttachmentWithGridFS(resource, metadata, index = 0) {
+    async changeAttachmentWithGridFS(resource, metadata, resourceId, index = 0) {
         if (!resource) {
             return resource;
         }
@@ -76,7 +85,7 @@ class DatabaseAttachmentManager {
                 stream.push(buffer);
                 stream.push(null);
                 const gridFSResult = stream.pipe(gridFSBucket.openUploadStream(
-                    `${metadata.resource_sourceId}_${index}`, { metadata }
+                    `${resourceId}_${index}`, { metadata }
                 ));
                 resource._file_id = gridFSResult.id.toString();
                 delete resource.data;
@@ -87,7 +96,10 @@ class DatabaseAttachmentManager {
             for (const key in resource) {
                 if (Object.getOwnPropertyDescriptor(resource, key).writable !== false) {
                     resource[String(key)] = await this.changeAttachmentWithGridFS(
-                        resource[String(key)], metadata, Array.isArray(resource) ? key : index
+                        resource[String(key)],
+                        metadata,
+                        resourceId,
+                        Array.isArray(resource) ? key : index
                     );
                 }
             }
