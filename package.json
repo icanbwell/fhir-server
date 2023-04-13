@@ -109,7 +109,7 @@
     "@aws-sdk/client-ssm": "^3.306.0",
     "@aws-sdk/client-sts": "^3.292.0",
     "@elastic/elasticsearch": "^8.6.0",
-    "@graphql-eslint/eslint-plugin": "^3.16.1",
+    "@graphql-eslint/eslint-plugin": "^3.16.2",
     "@graphql-tools/graphql-file-loader": "^7.5.16",
     "@graphql-tools/load": "^7.8.13",
     "@graphql-tools/load-files": "^6.6.1",
