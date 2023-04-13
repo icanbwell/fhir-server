@@ -26,6 +26,7 @@ const {PreSaveManager} = require('../../preSaveHandlers/preSave');
 const async = require('async');
 const {QueryItem} = require('../graph/queryItem');
 const {FhirResourceCreator} = require('../../fhir/fhirResourceCreator');
+const { DatabaseAttachmentManager } = require('../../dataLayer/databaseAttachmentManager');
 
 class MergeOperation {
     /**
@@ -42,6 +43,7 @@ class MergeOperation {
      * @param {ResourceLocatorFactory} resourceLocatorFactory
      * @param {ResourceValidator} resourceValidator
      * @param {PreSaveManager} preSaveManager
+     * @param {DatabaseAttachmentManager} databaseAttachmentManager
      */
     constructor(
         {
@@ -57,7 +59,8 @@ class MergeOperation {
             bundleManager,
             resourceLocatorFactory,
             resourceValidator,
-            preSaveManager
+            preSaveManager,
+            databaseAttachmentManager
         }
     ) {
         /**
@@ -128,6 +131,12 @@ class MergeOperation {
          */
         this.preSaveManager = preSaveManager;
         assertTypeEquals(preSaveManager, PreSaveManager);
+
+        /**
+         * @type {DatabaseAttachmentManager}
+         */
+        this.databaseAttachmentManager = databaseAttachmentManager;
+        assertTypeEquals(databaseAttachmentManager, DatabaseAttachmentManager);
     }
 
     /**
@@ -344,6 +353,9 @@ class MergeOperation {
                 resourcesIncomingArray,
                 async resource => await this.preSaveManager.preSaveAsync(resource)
             );
+
+            resourcesIncomingArray =
+                await this.databaseAttachmentManager.transformAttachments(resourcesIncomingArray);
 
             // Load the resources from the database
             await this.databaseBulkLoader.loadResourcesAsync(
