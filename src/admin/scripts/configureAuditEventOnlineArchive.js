@@ -1,10 +1,3 @@
-// load config from .env.  Should be first thing so env vars are available to rest of the code
-const path = require('path');
-const dotenv = require('dotenv');
-const pathToEnv = path.resolve(__dirname, '.env');
-dotenv.config({
-    path: pathToEnv,
-});
 const { createContainer } = require('../../createContainer');
 const { CommandLineParser } = require('./commandLineParser');
 const { ConfigureAuditEventOnlineArchiveRunner } = require('../runners/configureAuditEventOnlineArchiveRunner.js');
@@ -49,7 +42,7 @@ async function main() {
  * nvm use 18.14.2
  * required env variables
  * for audit event cluster - AUDIT_EVENT_MONGO_URL, AUDIT_EVENT_MONGO_DB_NAME
- * AUDIT_EVENT_ONLINE_ARCHIVE_GROUPID, AUDIT_EVENT_ONLINE_ARCHIVE_CLUSTER_NAME, PRIVATE_KEY, PUBLIC_KEY
+ * CREATE_AUDIT_EVENT_ONLINE_ARCHIVE_ENDPOINT, ONLINE_ARCHIVE_AUTHENTICATION_PUBLIC_KEY, ONLINE_ARCHIVE_AUTHENTICATION_PRIVATE_KEY
  * node src/admin/scripts/configureAuditEventOnlineArchive.js
  * node src/admin/scripts/configureAuditEventOnlineArchive.js --collections="Task_4_0_0,Patient_4_0_0"
  */
