@@ -52,7 +52,7 @@ class ConfigureAuditEventOnlineArchiveRunner extends BaseScriptRunner {
         };
         const options = {
             method: 'POST',
-            url: env.CREATE_AUDIT_EVENT_ONLINE_ARCHIVE_ENDPOINT,
+            url: env.AUDIT_EVENT_ONLINE_ARCHIVE_MANAGEMENT_API,
             auth: {
                 user: env.ONLINE_ARCHIVE_AUTHENTICATION_PUBLIC_KEY,
                 pass: env.ONLINE_ARCHIVE_AUTHENTICATION_PRIVATE_KEY,
