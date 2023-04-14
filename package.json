@@ -155,6 +155,7 @@
     "passport-http-bearer": "^1.0.1",
     "passport-jwt": "^4.0.1",
     "prom-client": "^14.2.0",
+    "request": "^2.88.2",
     "response-time": "^2.3.2",
     "sanitize-filename": "^1.6.3",
     "sanitize-html": "^2.10.0",
@@ -213,7 +214,8 @@
     "prettier": "^2.8.4",
     "supertest": "^6.3.3",
     "typescript": "^4.9.5",
-    "vm2": "^3.9.14"
+    "vm2": "^3.9.14",
+    "yargs": "^17.7.1"
   },
   "private": false,
   "snyk": false
