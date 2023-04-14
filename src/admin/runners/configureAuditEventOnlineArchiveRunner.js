@@ -98,15 +98,12 @@ class ConfigureAuditEventOnlineArchiveRunner extends BaseScriptRunner {
                 config: auditEventConfig,
                 collectionName: collectionName
             }).then((resp) => {
-                this.adminLogger.logInfo(`Collection ${collectionName} created`);
-                this.adminLogger.logInfo(`_id of the created collection - ${resp.body._id}`);
+                this.adminLogger.logInfo(`Collection - ${collectionName} , _id - ${resp.body._id}`);
             }).catch((resp) => {
-                this.adminLogger.logError(`Failed to create collection ${collectionName}.`);
                 if (resp.statusCode === 409) {
-                    this.adminLogger.logError(`${resp.body.errorCode} - ${resp.body.detail}`);
+                    this.adminLogger.logError(`Collection-${collectionName}, Error-${resp.body.errorCode}`);
                 } else {
-                    this.adminLogger.logError(`Error status code ${resp.statusCode}`);
-                    this.adminLogger.logError(`The payload returned is ${JSON.stringify(resp.body)}`);
+                    this.adminLogger.logError(`Collection-${collectionName}, Error-${JSON.stringify(resp.body)}`);
                 }
             });
         }

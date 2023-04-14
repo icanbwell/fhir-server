@@ -18,7 +18,6 @@ async function main() {
 
     // set up all the standard services in the container
     const container = createContainer();
-    adminLogger.logInfo(`Parameters are ${parameters}`);
 
     container.register(
         'processConfigureAuditEventOnlineArchiveRunner',
