@@ -52,10 +52,10 @@ class ConfigureAuditEventOnlineArchiveRunner extends BaseScriptRunner {
         };
         const options = {
             method: 'POST',
-            url: `https://cloud.mongodb.com/api/atlas/v1.0/groups/${env.AUDIT_EVENT_ONLINE_ARCHIVE_GROUPID}/clusters/${env.AUDIT_EVENT_ONLINE_ARCHIVE_CLUSTER_NAME}/onlineArchives`,
+            url: env.CREATE_AUDIT_EVENT_ONLINE_ARCHIVE_ENDPOINT,
             auth: {
-                user: env.PUBLIC_KEY,
-                pass: env.PRIVATE_KEY,
+                user: env.ONLINE_ARCHIVE_AUTHENTICATION_PUBLIC_KEY,
+                pass: env.ONLINE_ARCHIVE_AUTHENTICATION_PRIVATE_KEY,
                 sendImmediately: false
             },
             headers: headers,
@@ -64,10 +64,10 @@ class ConfigureAuditEventOnlineArchiveRunner extends BaseScriptRunner {
         return new Promise((resolve, reject) => {
             // eslint-disable-next-line no-unused-vars
             request(options, (error, response, body) => {
-                if (response.statusCode !== 200) {
-                    reject(response);
-                } else {
+                if (response.statusCode === 200) {
                     resolve(response);
+                } else {
+                    reject(response);
                 }
             });
         });
@@ -86,9 +86,11 @@ class ConfigureAuditEventOnlineArchiveRunner extends BaseScriptRunner {
 
         // If collection name has been passed from shell tha filter only the audit event collections
         // else get all collection names from audit event cluster database.
-        const collectionNames = this.collections ?
-            this.filterAuditEventCollections(this.collections) :
+        const allCollectionNames = this.collections ?
+            this.collections :
             await this.mongoCollectionManager.getAllCollectionNames({db: auditEventDatabase});
+
+        const collectionNames = this.filterAuditEventCollections(allCollectionNames);
         this.adminLogger.logInfo(`The list of collections to be created on audit event online archive are ${collectionNames}`);
 
         for (const collectionName of collectionNames) {
@@ -97,11 +99,15 @@ class ConfigureAuditEventOnlineArchiveRunner extends BaseScriptRunner {
                 collectionName: collectionName
             }).then((resp) => {
                 this.adminLogger.logInfo(`Collection ${collectionName} created`);
-                this.adminLogger.logInfo(`The payload returned is ${JSON.stringify(resp.body)}`);
+                this.adminLogger.logInfo(`_id of the created collection - ${resp.body._id}`);
             }).catch((resp) => {
                 this.adminLogger.logError(`Failed to create collection ${collectionName}.`);
-                this.adminLogger.logError(`Error status code ${resp.statusCode}`);
-                this.adminLogger.logError(`The payload returned is ${JSON.stringify(resp.body)}`);
+                if (resp.statusCode === 409) {
+                    this.adminLogger.logError(`${resp.body.errorCode} - ${resp.body.detail}`);
+                } else {
+                    this.adminLogger.logError(`Error status code ${resp.statusCode}`);
+                    this.adminLogger.logError(`The payload returned is ${JSON.stringify(resp.body)}`);
+                }
             });
         }
     }
