@@ -33,6 +33,7 @@ const GraphDefinition = require('../../fhir/classes/4_0_0/resources/graphDefinit
 const ResourceContainer = require('../../fhir/classes/4_0_0/simple_types/resourceContainer');
 const {sliceIntoChunks} = require('../../utils/list.util');
 const {ResourceIdentifier} = require('../../fhir/resourceIdentifier');
+const { DatabaseAttachmentManager } = require('../../dataLayer/databaseAttachmentManager');
 
 
 /**
@@ -51,6 +52,7 @@ class GraphHelper {
      * @param {SearchManager} searchManager
      * @param {EnrichmentManager} enrichmentManager
      * @param {R4ArgsParser} r4ArgsParser
+     * @param {DatabaseAttachmentManager} databaseAttachmentManager
      */
     constructor({
                     databaseQueryFactory,
@@ -63,7 +65,8 @@ class GraphHelper {
                     r4SearchQueryCreator,
                     searchManager,
                     enrichmentManager,
-                    r4ArgsParser
+                    r4ArgsParser,
+                    databaseAttachmentManager
                 }) {
         /**
          * @type {DatabaseQueryFactory}
@@ -127,6 +130,12 @@ class GraphHelper {
          */
         this.r4ArgsParser = r4ArgsParser;
         assertTypeEquals(r4ArgsParser, R4ArgsParser);
+
+        /**
+         * @type {DatabaseAttachmentManager}
+         */
+        this.databaseAttachmentManager = databaseAttachmentManager;
+        assertTypeEquals(databaseAttachmentManager, DatabaseAttachmentManager);
     }
 
     /**
@@ -330,13 +339,16 @@ class GraphHelper {
                 /**
                  * @type {Resource|null}
                  */
-                const relatedResource = await cursor.next();
+                let relatedResource = await cursor.next();
 
                 if (relatedResource) {
                     // create a class to hold information about this resource
                     /**
                      * @type {ResourceEntityAndContained}
                      */
+                    relatedResource = await this.databaseAttachmentManager.transformAttachments(
+                        relatedResource, false
+                    );
                     const relatedEntityAndContained = new ResourceEntityAndContained({
                         entityId: relatedResource.id,
                         entityUuid: relatedResource._uuid,
@@ -574,8 +586,11 @@ class GraphHelper {
                 /**
                  * @type {Resource|null}
                  */
-                const relatedResourcePropertyCurrent = await cursor.next();
+                let relatedResourcePropertyCurrent = await cursor.next();
                 if (relatedResourcePropertyCurrent) {
+                    relatedResourcePropertyCurrent = await this.databaseAttachmentManager.transformAttachments(
+                        relatedResourcePropertyCurrent, false
+                    );
                     if (filterProperty !== null) {
                         if (relatedResourcePropertyCurrent[`${filterProperty}`] !== filterValue) {
                             continue;
@@ -1262,11 +1277,15 @@ class GraphHelper {
                  * element
                  * @type {Resource|null}
                  */
-                const startResource = await cursor.next();
+                let startResource = await cursor.next();
                 if (startResource) {
                     /**
                      * @type {BundleEntry}
                      */
+
+                    startResource = await this.databaseAttachmentManager.transformAttachments(
+                        startResource, false
+                    );
                     let current_entity = new BundleEntry({
                         id: startResource.id,
                         resource: startResource

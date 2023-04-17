@@ -15,6 +15,7 @@ const {ConfigManager} = require('../../utils/configManager');
 const {getFirstResourceOrNull} = require('../../utils/list.util');
 const {SecurityTagSystem} = require('../../utils/securityTagSystem');
 const {ParsedArgs} = require('../query/parsedArgs');
+const { DatabaseAttachmentManager } = require('../../dataLayer/databaseAttachmentManager');
 
 class SearchByIdOperation {
     /**
@@ -28,6 +29,7 @@ class SearchByIdOperation {
      * @param {ScopesValidator} scopesValidator
      * @param {EnrichmentManager} enrichmentManager
      * @param {ConfigManager} configManager
+     * @param {DatabaseAttachmentManager} databaseAttachmentManager
      */
     constructor(
         {
@@ -39,7 +41,8 @@ class SearchByIdOperation {
             fhirLoggingManager,
             scopesValidator,
             enrichmentManager,
-            configManager
+            configManager,
+            databaseAttachmentManager
         }
     ) {
         /**
@@ -90,6 +93,11 @@ class SearchByIdOperation {
         this.configManager = configManager;
         assertTypeEquals(configManager, ConfigManager);
 
+        /**
+         * @type {DatabaseAttachmentManager}
+         */
+        this.databaseAttachmentManager = databaseAttachmentManager;
+        assertTypeEquals(databaseAttachmentManager, DatabaseAttachmentManager);
     }
 
     /**
@@ -243,6 +251,9 @@ class SearchByIdOperation {
                         startTime,
                         action: currentOperationName
                     });
+
+                resource = await this.databaseAttachmentManager.transformAttachments(resource, false);
+
                 return resource;
             } else {
                 throw new NotFoundError(`Resource not found: ${resourceType}/${id}`);

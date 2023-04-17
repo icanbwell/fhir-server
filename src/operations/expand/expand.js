@@ -7,6 +7,7 @@ const {ScopesManager} = require('../security/scopesManager');
 const {FhirLoggingManager} = require('../common/fhirLoggingManager');
 const {ScopesValidator} = require('../security/scopesValidator');
 const {ParsedArgs} = require('../query/parsedArgs');
+const { DatabaseAttachmentManager } = require('../../dataLayer/databaseAttachmentManager');
 
 class ExpandOperation {
     /**
@@ -17,6 +18,7 @@ class ExpandOperation {
      * @param {FhirLoggingManager} fhirLoggingManager
      * @param {ScopesValidator} scopesValidator
      * @param {EnrichmentManager} enrichmentManager
+     * @param {DatabaseAttachmentManager} databaseAttachmentManager
      */
     constructor(
         {
@@ -25,7 +27,8 @@ class ExpandOperation {
             scopesManager,
             fhirLoggingManager,
             scopesValidator,
-            enrichmentManager
+            enrichmentManager,
+            databaseAttachmentManager
         }
     ) {
         /**
@@ -60,6 +63,12 @@ class ExpandOperation {
          */
         this.enrichmentManager = enrichmentManager;
         assertTypeEquals(enrichmentManager, EnrichmentManager);
+
+        /**
+         * @type {DatabaseAttachmentManager}
+         */
+        this.databaseAttachmentManager = databaseAttachmentManager;
+        assertTypeEquals(databaseAttachmentManager, DatabaseAttachmentManager);
     }
 
     /**
@@ -151,6 +160,10 @@ class ExpandOperation {
                     action: currentOperationName,
                     result: JSON.stringify(resource.toJSON())
                 });
+
+            resource = this.databaseAttachmentManager.transformAttachments(
+                resource, false
+            );
             return resource;
         } else {
             throw new NotFoundError(`Not Found: ${resourceType}.searchById: ${id.toString()}`);

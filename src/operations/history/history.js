@@ -14,6 +14,7 @@ const BundleEntry = require('../../fhir/classes/4_0_0/backbone_elements/bundleEn
 const {ResourceManager} = require('../common/resourceManager');
 const {ParsedArgs} = require('../query/parsedArgs');
 const {QueryItem} = require('../graph/queryItem');
+const { DatabaseAttachmentManager } = require('../../dataLayer/databaseAttachmentManager');
 
 class HistoryOperation {
     /**
@@ -27,6 +28,7 @@ class HistoryOperation {
      * @param {ConfigManager} configManager
      * @param {SearchManager} searchManager
      * @param {ResourceManager} resourceManager
+     * @param {DatabaseAttachmentManager} databaseAttachmentManager
      */
     constructor(
         {
@@ -38,7 +40,8 @@ class HistoryOperation {
             resourceLocatorFactory,
             configManager,
             searchManager,
-            resourceManager
+            resourceManager,
+            databaseAttachmentManager
         }
     ) {
         /**
@@ -90,6 +93,12 @@ class HistoryOperation {
          */
         this.resourceManager = resourceManager;
         assertTypeEquals(resourceManager, ResourceManager);
+
+        /**
+         * @type {DatabaseAttachmentManager}
+         */
+        this.databaseAttachmentManager = databaseAttachmentManager;
+        assertTypeEquals(databaseAttachmentManager, DatabaseAttachmentManager);
     }
 
     /**
@@ -255,6 +264,12 @@ class HistoryOperation {
                 }
             )
         );
+
+        for (let entryIndex = 0; entryIndex < entries.length; entryIndex++) {
+            entries[entryIndex].resource = await this.databaseAttachmentManager.transformAttachments(
+                entries[entryIndex].resource, false
+            );
+        }
 
         // https://hl7.org/fhir/http.html#history
         // The return content is a Bundle with type set to history containing the specified version history,

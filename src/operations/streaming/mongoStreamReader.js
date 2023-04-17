@@ -11,9 +11,10 @@ const {logInfo, logError} = require('../common/logging');
  * Async generator for reading from Mongo
  * @param {DatabasePartitionedCursor} cursor
  * @param {AbortSignal} signal
+ * @param {DatabaseAttachmentManager} databaseAttachmentManager
  * @returns {AsyncGenerator<*, Resource, *>}
  */
-async function* readMongoStreamGenerator({cursor, signal}) {
+async function* readMongoStreamGenerator({cursor, signal, databaseAttachmentManager}) {
     try {
         while (await cursor.hasNext()) {
             if (signal.aborted) {
@@ -29,7 +30,11 @@ async function* readMongoStreamGenerator({cursor, signal}) {
              * element
              * @type {Resource}
              */
-            yield await cursor.next();
+            let resource = await cursor.next();
+            if (databaseAttachmentManager) {
+                resource = await databaseAttachmentManager.transformAttachments(resource, false);
+            }
+            yield resource;
         }
     } catch (e) {
         logError('mongoStreamReader error', {'error': e});
@@ -42,10 +47,11 @@ async function* readMongoStreamGenerator({cursor, signal}) {
  * Creates a readable mongo stream from cursor
  * @param {DatabasePartitionedCursor} cursor
  * @param {AbortSignal} signal
+ * @param {DatabaseAttachmentManager} databaseAttachmentManager
  * @returns {import('stream').Readable}
  */
-const createReadableMongoStream = ({cursor, signal}) => Readable.from(
-    readMongoStreamGenerator({cursor, signal})
+const createReadableMongoStream = ({cursor, signal, databaseAttachmentManager}) => Readable.from(
+    readMongoStreamGenerator({cursor, signal, databaseAttachmentManager})
 );
 
 

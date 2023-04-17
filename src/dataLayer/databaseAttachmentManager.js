@@ -1,4 +1,5 @@
 const Readable = require('stream').Readable;
+const ObjectId = require('mongodb').ObjectId;
 
 const { assertTypeEquals } = require('../utils/assertType');
 const { MongoDatabaseManager } = require('../utils/mongoDatabaseManager');
@@ -30,77 +31,108 @@ class DatabaseAttachmentManager {
     }
 
     /**
-     * Checks if GridFs is applicable on the resource and if applicable applies GridFs
+     * Checks if GridFs is applicable on the resource and
+     * if applicable changes resources based on the create value
      * @param {Resource[]|Resource} resources
     */
-    async transformAttachments(resources) {
+    async transformAttachments(resources, create = true) {
         const enabledGridFsResources = this.configManager.enabledGridFsResources;
         if (Array.isArray(resources)) {
             for (let resourceIndex = 0; resourceIndex < resources.length; resourceIndex++) {
                 if (enabledGridFsResources.includes(resources[resourceIndex].resourceType)) {
                     let metadata = {};
-                    if (resources[resourceIndex]._uuid) {
-                        metadata['resource_uuid'] = resources[resourceIndex]._uuid;
+                    if (create) {
+                        if (resources[resourceIndex]._uuid) {
+                            metadata['resource_uuid'] = resources[resourceIndex]._uuid;
+                        }
+                        if (resources[resourceIndex]._sourceId) {
+                            metadata['resource_sourceId'] = resources[resourceIndex]._sourceId;
+                        }
                     }
-                    if (resources[resourceIndex]._sourceId) {
-                        metadata['resource_sourceId'] = resources[resourceIndex]._sourceId;
-                    }
-                    resources[resourceIndex] = await this.changeAttachmentWithGridFS(
-                        resources[resourceIndex],
+                    resources[resourceIndex] = await this.changeAttachmentWithGridFS({
+                        resource: resources[resourceIndex],
+                        resourceId: resources[resourceIndex].id,
+                        index: resourceIndex,
                         metadata,
-                        resources[resourceIndex].id,
-                        resourceIndex
-                    );
+                        create
+                    });
                 }
             }
         }
         else if (enabledGridFsResources.includes(resources.resourceType)) {
             let metadata = {};
-            if (resources._uuid) {
-                metadata['resource_uuid'] = resources._uuid;
+            if (create) {
+                if (resources._uuid) {
+                    metadata['resource_uuid'] = resources._uuid;
+                }
+                if (resources._sourceId) {
+                    metadata['resource_sourceId'] = resources._sourceId;
+                }
             }
-            if (resources._sourceId) {
-                metadata['resource_sourceId'] = resources._sourceId;
-            }
-            resources = await this.changeAttachmentWithGridFS(resources, metadata, resources.id);
+            resources = await this.changeAttachmentWithGridFS({
+                resource: resources,
+                resourceId: resources.id,
+                metadata,
+                create
+            });
         }
         return resources;
     }
 
     /**
-     * Converts the data field in attachments to _file_id returned by GridFS
+     * Changes attachment with gridFs or restores the attachment based on create value passed
      * @param {Object} resource
      * @param {Object} metadata
-     * @param {number|string} index
+     * @param {Number} resourceId
+     * @param {Boolean} create
+     * @param {Number|String} index
     */
-    async changeAttachmentWithGridFS(resource, metadata, resourceId, index = 0) {
+    async changeAttachmentWithGridFS({resource, resourceId, metadata, index = 0, create = true}) {
         if (!resource) {
             return resource;
         }
         if (resource instanceof Attachment) {
             const gridFSBucket = await this.mongoDatabaseManager.getGridFsBucket();
-            if (resource.data) {
+            if (create && resource.data) {
                 const buffer = Buffer.from(resource.data);
                 const stream = new Readable();
                 stream.push(buffer);
                 stream.push(null);
                 const gridFSResult = stream.pipe(gridFSBucket.openUploadStream(
-                    `${resourceId}_${index}`, { metadata }
+                    `${resourceId}_${index}`
                 ));
                 resource._file_id = gridFSResult.id.toString();
                 delete resource.data;
+            }
+            if (!create && resource._file_id) {
+                const db = await this.mongoDatabaseManager.getClientDbAsync();
+                const chunks = await db.collection('fs.chunks').find({
+                    files_id: new ObjectId(resource._file_id)
+                }).toArray();
+                // to get the chunks in order, n represents the nth chunk
+                chunks.sort((chunk1, chunk2) => chunk1.n - chunk2.n);
+                chunks.forEach((chunk) => {
+                    if (resource.data) {
+                        resource.data += chunk.data.toString();
+                    }
+                    else {
+                        resource.data = chunk.data.toString();
+                    }
+                });
+                delete resource._file_id;
             }
             return resource;
         }
         if (resource instanceof Object || Array.isArray(resource)) {
             for (const key in resource) {
                 if (Object.getOwnPropertyDescriptor(resource, key).writable !== false) {
-                    resource[String(key)] = await this.changeAttachmentWithGridFS(
-                        resource[String(key)],
+                    resource[String(key)] = await this.changeAttachmentWithGridFS({
+                        resource: resource[String(key)],
                         metadata,
                         resourceId,
-                        Array.isArray(resource) ? key : index
-                    );
+                        index: Array.isArray(resource) ? key : index,
+                        create
+                    });
                 }
             }
         }

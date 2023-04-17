@@ -229,6 +229,8 @@ class PatchOperation {
                 }
             });
 
+            resource = await this.databaseAttachmentManager.transformAttachments(resource, false);
+
             return {
                 id: resource.id,
                 created: false,

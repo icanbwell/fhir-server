@@ -255,7 +255,8 @@ const createContainer = function () {
                 configManager: c.configManager,
                 queryRewriterManager: c.queryRewriterManager,
                 personToPatientIdsExpander: c.personToPatientIdsExpander,
-                scopesManager: c.scopesManager
+                scopesManager: c.scopesManager,
+                databaseAttachmentManager: c.databaseAttachmentManager
             }
         )
     );
@@ -330,7 +331,8 @@ const createContainer = function () {
                 r4SearchQueryCreator: c.r4SearchQueryCreator,
                 searchManager: c.searchManager,
                 enrichmentManager: c.enrichmentManager,
-                r4ArgsParser: c.r4ArgsParser
+                r4ArgsParser: c.r4ArgsParser,
+                databaseAttachmentManager: c.databaseAttachmentManager
             }
         )
     );
@@ -348,7 +350,8 @@ const createContainer = function () {
                 fhirLoggingManager: c.fhirLoggingManager,
                 scopesValidator: c.scopesValidator,
                 bundleManager: c.bundleManager,
-                configManager: c.configManager
+                configManager: c.configManager,
+                databaseAttachmentManager: c.databaseAttachmentManager
             }
         )
     );
@@ -375,7 +378,8 @@ const createContainer = function () {
             fhirLoggingManager: c.fhirLoggingManager,
             scopesValidator: c.scopesValidator,
             enrichmentManager: c.enrichmentManager,
-            configManager: c.configManager
+            configManager: c.configManager,
+            databaseAttachmentManager: c.databaseAttachmentManager
         }
     ));
     container.register('createOperation', (c) => new CreateOperation(
@@ -457,7 +461,8 @@ const createContainer = function () {
             scopesValidator: c.scopesValidator,
             enrichmentManager: c.enrichmentManager,
             configManager: c.configManager,
-            searchManager: c.searchManager
+            searchManager: c.searchManager,
+            databaseAttachmentManager: c.databaseAttachmentManager
         }
     ));
     container.register('historyOperation', (c) => new HistoryOperation(
@@ -470,7 +475,8 @@ const createContainer = function () {
             resourceLocatorFactory: c.resourceLocatorFactory,
             configManager: c.configManager,
             searchManager: c.searchManager,
-            resourceManager: c.resourceManager
+            resourceManager: c.resourceManager,
+            databaseAttachmentManager: c.databaseAttachmentManager
         }
     ));
     container.register('historyByIdOperation', (c) => new HistoryByIdOperation(
@@ -483,7 +489,8 @@ const createContainer = function () {
             resourceLocatorFactory: c.resourceLocatorFactory,
             configManager: c.configManager,
             searchManager: c.searchManager,
-            resourceManager: c.resourceManager
+            resourceManager: c.resourceManager,
+            databaseAttachmentManager: c.databaseAttachmentManager
         }
     ));
     container.register('patchOperation', (c) => new PatchOperation(
@@ -520,7 +527,8 @@ const createContainer = function () {
             scopesManager: c.scopesManager,
             fhirLoggingManager: c.fhirLoggingManager,
             scopesValidator: c.scopesValidator,
-            enrichmentManager: c.enrichmentManager
+            enrichmentManager: c.enrichmentManager,
+            databaseAttachmentManager: c.databaseAttachmentManager
         }
     ));
 

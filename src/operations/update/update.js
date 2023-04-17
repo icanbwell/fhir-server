@@ -344,6 +344,8 @@ class UpdateOperation {
                     await this.auditLogger.flushAsync({requestId, currentDate, method});
                 }
 
+                doc = await this.databaseAttachmentManager.transformAttachments(doc, false);
+
                 const result = {
                     id: id,
                     created: mergeResults[0].created,
