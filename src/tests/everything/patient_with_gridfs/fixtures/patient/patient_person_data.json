@@ -1,0 +1,166 @@
+[
+    {
+        "resourceType": "Patient",
+        "id": "1",
+        "meta": {
+            "versionId": "1",
+            "lastUpdated": "2023-04-14T09:00:36.000Z",
+            "source": "https://www.icanbwell.com",
+            "security": [
+                {
+                    "system": "https://www.icanbwell.com/owner",
+                    "code": "bwell-test"
+                },
+                {
+                    "system": "https://www.icanbwell.com/access",
+                    "code": "bwell-test"
+                },
+                {
+                    "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+                    "code": "bwell-test"
+                }
+            ]
+        },
+        "identifier": [
+            {
+                "id": "sourceId",
+                "system": "https://www.icanbwell.com/sourceId",
+                "value": "bfe8153c-5030-4d9a-9e8a-98551a9af323"
+            },
+            {
+                "id": "uuid",
+                "system": "https://www.icanbwell.com/uuid",
+                "value": "bfe8153c-5030-4d9a-9e8a-98551a9af323"
+            }
+        ],
+        "name": [
+            {
+                "text": "Test User",
+                "family": "User",
+                "given": [
+                    "Test"
+                ]
+            }
+        ],
+        "telecom": [
+            {
+                "system": "email",
+                "value": "test_user+postman@icanbwell.com"
+            },
+            {
+                "system": "phone",
+                "value": "8282828282"
+            }
+        ],
+        "gender": "male",
+        "birthDate": "1978-10-19",
+        "address": [
+            {
+                "id": "user-address",
+                "line": [
+                    "70 EAST STREET"
+                ],
+                "city": "Amherst",
+                "state": "MA",
+                "postalCode": "01002"
+            }
+        ],
+        "photo": [
+            {
+                "data": "VGhpcyBpcyBhIHRlc3QgZG9jdW1lbnQgZm9yIHRoZSBHcmlkRlMgYXBpCg=="
+            }
+        ]
+    },
+    {
+        "resourceType": "Person",
+        "id": "941e76f88d151fa2185b71569bf661a7",
+        "meta": {
+            "versionId": "1",
+            "lastUpdated": "2023-04-14T09:00:36.000Z",
+            "source": "https://www.icanbwell.com",
+            "security": [
+                {
+                    "system": "https://www.icanbwell.com/owner",
+                    "code": "bwell-test"
+                },
+                {
+                    "system": "https://www.icanbwell.com/access",
+                    "code": "bwell-test"
+                },
+                {
+                    "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+                    "code": "bwell-test"
+                }
+            ]
+        },
+        "identifier": [
+            {
+                "id": "sourceId",
+                "system": "https://www.icanbwell.com/sourceId",
+                "value": "941e76f88d151fa2185b71569bf661a7"
+            },
+            {
+                "id": "uuid",
+                "system": "https://www.icanbwell.com/uuid",
+                "value": "564d0dfc-a077-5a13-9dc9-44d5dcaa742f"
+            }
+        ],
+        "name": [
+            {
+                "family": "User",
+                "given": [
+                    "Test"
+                ]
+            }
+        ],
+        "telecom": [
+            {
+                "system": "email",
+                "value": "test_user+postman@icanbwell.com"
+            },
+            {
+                "system": "phone",
+                "value": "8282828282"
+            }
+        ],
+        "gender": "male",
+        "birthDate": "1978-10-19",
+        "address": [
+            {
+                "id": "user-address",
+                "line": [
+                    "70 EAST STREET"
+                ],
+                "city": "Amherst",
+                "state": "MA",
+                "postalCode": "01002"
+            }
+        ],
+        "link": [
+            {
+                "target": {
+                    "extension": [
+                        {
+                            "id": "sourceId",
+                            "url": "https://www.icanbwell.com/sourceId",
+                            "valueString": "Patient/bfe8153c-5030-4d9a-9e8a-98551a9af323"
+                        },
+                        {
+                            "id": "uuid",
+                            "url": "https://www.icanbwell.com/uuid",
+                            "valueString": "Patient/bfe8153c-5030-4d9a-9e8a-98551a9af323"
+                        },
+                        {
+                            "id": "sourceAssigningAuthority",
+                            "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                            "valueString": "bwell-test"
+                        }
+                    ],
+                    "reference": "Patient/bfe8153c-5030-4d9a-9e8a-98551a9af323",
+                    "type": "Patient"
+                },
+                "assurance": "level4"
+            }
+        ]
+    }
+]
