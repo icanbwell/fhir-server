@@ -39,7 +39,7 @@ class DatabaseAttachmentManager {
     */
     getMetadata(resource, operation) {
         let metadata = {};
-        if (operation == INSERT) {
+        if (operation === INSERT) {
             if (resource._uuid) {
                 metadata['resource_uuid'] = resource._uuid;
             }
@@ -105,7 +105,7 @@ class DatabaseAttachmentManager {
 
                 case RETRIEVE:
                     return await this.convertFileIdToData(resource, gridFSBucket);
-                
+
                 default:
                     return resource;
             }
@@ -130,6 +130,7 @@ class DatabaseAttachmentManager {
      * changes the attachment.data to attachment._file_id if attachment.data is present
      * @param {Resource} resource
      * @param {String} filename
+     * @param {import('mongodb').GridFSBucket} gridFSBucket
     */
     async convertDataToFileId(resource, filename, gridFSBucket) {
         if (resource.data) {
@@ -147,6 +148,7 @@ class DatabaseAttachmentManager {
     /**
      * changes the attachment._file_id to attachment.data if attachment._file_id is present
      * @param {Resource} resource
+     * @param {import('mongodb').GridFSBucket} gridFSBucket
      * @returns {Promise<Resource>}
     */
     async convertFileIdToData(resource, gridFSBucket) {
