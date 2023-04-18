@@ -2,6 +2,7 @@ const {Readable} = require('stream');
 const env = require('var');
 const {isTrue} = require('../../utils/isTrue');
 const {logInfo, logError} = require('../common/logging');
+const {RETRIEVE} = require('../../constants').GRIDFS;
 
 // https://thenewstack.io/node-js-readable-streams-explained/
 // https://github.com/logdna/tail-file-node/blob/ee0389ba34cb2037de776541f800842bb98df6b3/lib/tail-file.js#L22
@@ -32,9 +33,7 @@ async function* readMongoStreamGenerator({cursor, signal, databaseAttachmentMana
              */
             let resource = await cursor.next();
             if (databaseAttachmentManager) {
-                resource = await databaseAttachmentManager.transformAttachments(
-                    resource, databaseAttachmentManager.convertFileIdToData
-                );
+                resource = await databaseAttachmentManager.transformAttachments(resource, RETRIEVE);
             }
             yield resource;
         }

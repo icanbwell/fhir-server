@@ -14,7 +14,8 @@ const BundleEntry = require('../../fhir/classes/4_0_0/backbone_elements/bundleEn
 const {ResourceManager} = require('../common/resourceManager');
 const {ParsedArgs} = require('../query/parsedArgs');
 const {QueryItem} = require('../graph/queryItem');
-const { DatabaseAttachmentManager } = require('../../dataLayer/databaseAttachmentManager');
+const {DatabaseAttachmentManager} = require('../../dataLayer/databaseAttachmentManager');
+const {RETRIEVE} = require('../../constants').GRIDFS;
 
 class HistoryOperation {
     /**
@@ -236,11 +237,11 @@ class HistoryOperation {
             })) {
                 if (resource.resource) {
                     resource.resource = await this.databaseAttachmentManager.transformAttachments(
-                        resource.resource, this.databaseAttachmentManager.convertFileIdToData
+                        resource.resource, RETRIEVE
                     );
                 } else {
                     resource = await this.databaseAttachmentManager.transformAttachments(
-                        resource, this.databaseAttachmentManager.convertFileIdToData
+                        resource, RETRIEVE
                     );
                 }
                 resources.push(resource);

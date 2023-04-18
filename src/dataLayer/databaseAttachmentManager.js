@@ -5,6 +5,7 @@ const { assertTypeEquals } = require('../utils/assertType');
 const { MongoDatabaseManager } = require('../utils/mongoDatabaseManager');
 const { ConfigManager } = require('../utils/configManager');
 const Attachment = require('../fhir/classes/4_0_0/complex_types/attachment');
+const { INSERT, RETRIEVE } = require('../constants').GRIDFS;
 
 /**
  * @classdesc This class handles attachments with Mongodb GridFS i.e. converts attachment.data
@@ -36,13 +37,16 @@ class DatabaseAttachmentManager {
      * @param {String} operation
      * @returns {Object}
     */
-    getMetadata(resource) {
+    getMetadata(resource, operation) {
         let metadata = {};
-        if (resource._uuid) {
-            metadata['resource_uuid'] = resource._uuid;
-        }
-        if (resource._sourceId) {
-            metadata['resource_sourceId'] = resource._sourceId;
+        if (operation == INSERT) {
+            if (resource._uuid) {
+                metadata['resource_uuid'] = resource._uuid;
+            }
+            if (resource._sourceId) {
+                metadata['resource_sourceId'] = resource._sourceId;
+            }
+            metadata.active = true;
         }
         return metadata;
     }
@@ -51,8 +55,9 @@ class DatabaseAttachmentManager {
      * Checks if GridFs is applicable on the resource and
      * if applicable changes resources based on the create value
      * @param {Resource[]|Resource} resources
+     * @param {String} operation
     */
-    async transformAttachments(resources, operation = this.convertDataToFileId) {
+    async transformAttachments(resources, operation = INSERT) {
         const enabledGridFsResources = this.configManager.enabledGridFsResources;
         if (Array.isArray(resources)) {
             for (let resourceIndex = 0; resourceIndex < resources.length; resourceIndex++) {
@@ -61,7 +66,7 @@ class DatabaseAttachmentManager {
                         resource: resources[parseInt(resourceIndex)],
                         resourceId: resources[parseInt(resourceIndex)].id,
                         index: resourceIndex,
-                        metadata: this.getMetadata(resources[parseInt(resourceIndex)]),
+                        metadata: this.getMetadata(resources[parseInt(resourceIndex)], operation),
                         operation
                     });
                 }
@@ -71,7 +76,7 @@ class DatabaseAttachmentManager {
             resources = await this.changeAttachmentWithGridFS({
                 resource: resources,
                 resourceId: resources.id,
-                metadata: this.getMetadata(resources),
+                metadata: this.getMetadata(resources, operation),
                 operation
             });
         }
@@ -91,7 +96,19 @@ class DatabaseAttachmentManager {
             return resource;
         }
         if (resource instanceof Attachment) {
-            return await (operation.bind(this))(resource, `${resourceId}_${index}`);
+            const gridFSBucket = await this.mongoDatabaseManager.getGridFsBucket();
+            switch (operation) {
+                case INSERT:
+                    return await this.convertDataToFileId(
+                        resource, `${resourceId}_${index}`, gridFSBucket
+                    );
+
+                case RETRIEVE:
+                    return await this.convertFileIdToData(resource, gridFSBucket);
+                
+                default:
+                    return resource;
+            }
         }
         if (resource instanceof Object || Array.isArray(resource)) {
             for (const key in resource) {
@@ -114,9 +131,8 @@ class DatabaseAttachmentManager {
      * @param {Resource} resource
      * @param {String} filename
     */
-    async convertDataToFileId(resource, filename) {
+    async convertDataToFileId(resource, filename, gridFSBucket) {
         if (resource.data) {
-            const gridFSBucket = await this.mongoDatabaseManager.getGridFsBucket();
             const buffer = Buffer.from(resource.data);
             const stream = new Readable();
             stream.push(buffer);
@@ -133,9 +149,7 @@ class DatabaseAttachmentManager {
      * @param {Resource} resource
      * @returns {Promise<Resource>}
     */
-    async convertFileIdToData(resource) {
-        const gridFSBucket = await this.mongoDatabaseManager.getGridFsBucket();
-
+    async convertFileIdToData(resource, gridFSBucket) {
         return new Promise((resolve) => {
             if (resource._file_id) {
                 const downloadStream = gridFSBucket.openDownloadStream(new ObjectId(resource._file_id));

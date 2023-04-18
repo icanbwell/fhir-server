@@ -7,7 +7,8 @@ const {ScopesManager} = require('../security/scopesManager');
 const {FhirLoggingManager} = require('../common/fhirLoggingManager');
 const {ScopesValidator} = require('../security/scopesValidator');
 const {ParsedArgs} = require('../query/parsedArgs');
-const { DatabaseAttachmentManager } = require('../../dataLayer/databaseAttachmentManager');
+const {DatabaseAttachmentManager} = require('../../dataLayer/databaseAttachmentManager');
+const {RETRIEVE} = require('../../constants').GRIDFS;
 
 class ExpandOperation {
     /**
@@ -161,9 +162,8 @@ class ExpandOperation {
                     result: JSON.stringify(resource.toJSON())
                 });
 
-            resource = this.databaseAttachmentManager.transformAttachments(
-                resource, this.databaseAttachmentManager.convertFileIdToData
-            );
+            resource = this.databaseAttachmentManager.transformAttachments(resource, RETRIEVE);
+
             return resource;
         } else {
             throw new NotFoundError(`Not Found: ${resourceType}.searchById: ${id.toString()}`);

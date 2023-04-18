@@ -15,7 +15,8 @@ const {ConfigManager} = require('../../utils/configManager');
 const {getFirstResourceOrNull} = require('../../utils/list.util');
 const {SecurityTagSystem} = require('../../utils/securityTagSystem');
 const {ParsedArgs} = require('../query/parsedArgs');
-const { DatabaseAttachmentManager } = require('../../dataLayer/databaseAttachmentManager');
+const {DatabaseAttachmentManager} = require('../../dataLayer/databaseAttachmentManager');
+const {RETRIEVE} = require('../../constants').GRIDFS;
 
 class SearchByIdOperation {
     /**
@@ -252,9 +253,7 @@ class SearchByIdOperation {
                         action: currentOperationName
                     });
 
-                resource = await this.databaseAttachmentManager.transformAttachments(
-                    resource, this.databaseAttachmentManager.convertFileIdToData
-                );
+                resource = await this.databaseAttachmentManager.transformAttachments(resource, RETRIEVE);
 
                 return resource;
             } else {

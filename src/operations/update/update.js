@@ -20,7 +20,8 @@ const {getCircularReplacer} = require('../../utils/getCircularReplacer');
 const {ParsedArgs} = require('../query/parsedArgs');
 const {ConfigManager} = require('../../utils/configManager');
 const {FhirResourceCreator} = require('../../fhir/fhirResourceCreator');
-const { DatabaseAttachmentManager } = require('../../dataLayer/databaseAttachmentManager');
+const {DatabaseAttachmentManager} = require('../../dataLayer/databaseAttachmentManager');
+const {RETRIEVE} = require('../../constants').GRIDFS;
 
 /**
  * Update Operation
@@ -346,9 +347,7 @@ class UpdateOperation {
                 }
 
                 // changing the attachment._file_id to attachment.data for response
-                doc = await this.databaseAttachmentManager.transformAttachments(
-                    doc, this.databaseAttachmentManager.convertFileIdToData
-                );
+                doc = await this.databaseAttachmentManager.transformAttachments(doc, RETRIEVE);
 
                 const result = {
                     id: id,

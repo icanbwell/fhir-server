@@ -33,7 +33,8 @@ const GraphDefinition = require('../../fhir/classes/4_0_0/resources/graphDefinit
 const ResourceContainer = require('../../fhir/classes/4_0_0/simple_types/resourceContainer');
 const {sliceIntoChunks} = require('../../utils/list.util');
 const {ResourceIdentifier} = require('../../fhir/resourceIdentifier');
-const { DatabaseAttachmentManager } = require('../../dataLayer/databaseAttachmentManager');
+const {DatabaseAttachmentManager} = require('../../dataLayer/databaseAttachmentManager');
+const {RETRIEVE} = require('../../constants').GRIDFS;
 
 
 /**
@@ -347,7 +348,7 @@ class GraphHelper {
                      * @type {ResourceEntityAndContained}
                      */
                     relatedResource = await this.databaseAttachmentManager.transformAttachments(
-                        relatedResource, this.databaseAttachmentManager.convertFileIdToData
+                        relatedResource, RETRIEVE
                     );
                     const relatedEntityAndContained = new ResourceEntityAndContained({
                         entityId: relatedResource.id,
@@ -589,7 +590,7 @@ class GraphHelper {
                 let relatedResourcePropertyCurrent = await cursor.next();
                 if (relatedResourcePropertyCurrent) {
                     relatedResourcePropertyCurrent = await this.databaseAttachmentManager.transformAttachments(
-                        relatedResourcePropertyCurrent, this.databaseAttachmentManager.convertFileIdToData
+                        relatedResourcePropertyCurrent, RETRIEVE
                     );
                     if (filterProperty !== null) {
                         if (relatedResourcePropertyCurrent[`${filterProperty}`] !== filterValue) {
@@ -1284,7 +1285,7 @@ class GraphHelper {
                      */
 
                     startResource = await this.databaseAttachmentManager.transformAttachments(
-                        startResource, this.databaseAttachmentManager.convertFileIdToData
+                        startResource, RETRIEVE
                     );
                     let current_entity = new BundleEntry({
                         id: startResource.id,

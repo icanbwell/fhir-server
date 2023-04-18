@@ -17,7 +17,8 @@ const {ConfigManager} = require('../../utils/configManager');
 const {BadRequestError} = require('../../utils/httpErrors');
 const {ParsedArgs} = require('../query/parsedArgs');
 const {QueryItem} = require('../graph/queryItem');
-const { DatabaseAttachmentManager } = require('../../dataLayer/databaseAttachmentManager');
+const {DatabaseAttachmentManager} = require('../../dataLayer/databaseAttachmentManager');
+const {RETRIEVE} = require('../../constants').GRIDFS;
 
 class SearchBundleOperation {
     /**
@@ -316,9 +317,7 @@ class SearchBundleOperation {
                 }
             }
 
-            resources = await this.databaseAttachmentManager.transformAttachments(
-                resources, this.databaseAttachmentManager.convertFileIdToData
-            );
+            resources = await this.databaseAttachmentManager.transformAttachments(resources, RETRIEVE);
 
             /**
              * @type {number}

@@ -14,7 +14,8 @@ const {getCircularReplacer} = require('../../utils/getCircularReplacer');
 const {fhirContentTypes} = require('../../utils/contentTypes');
 const {ParsedArgs} = require('../query/parsedArgs');
 const {FhirResourceCreator} = require('../../fhir/fhirResourceCreator');
-const { DatabaseAttachmentManager } = require('../../dataLayer/databaseAttachmentManager');
+const {DatabaseAttachmentManager} = require('../../dataLayer/databaseAttachmentManager');
+const {RETRIEVE} = require('../../constants').GRIDFS;
 
 class PatchOperation {
     /**
@@ -231,9 +232,7 @@ class PatchOperation {
             });
 
             // converting attachment._file_id to attachment.data for the response
-            resource = await this.databaseAttachmentManager.transformAttachments(
-                resource, this.databaseAttachmentManager.convertFileIdToData
-            );
+            resource = await this.databaseAttachmentManager.transformAttachments(resource, RETRIEVE);
 
             return {
                 id: resource.id,
