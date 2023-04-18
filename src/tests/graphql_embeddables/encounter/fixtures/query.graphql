@@ -31,11 +31,10 @@ fragment practitionerPhoto on Practitioner {
     }
 }
 
-query Encounter($FHIR_DEFAULT_COUNT: Int, $from_date: date, $to_date: date) {
+query Encounter($FHIR_DEFAULT_COUNT: Int) {
     encounter(
         _sort: ["-period.end", "-period.start"]
         _count: $FHIR_DEFAULT_COUNT
-        date: {values: [{greaterThanOrEqualTo: $from_date}, {lessThanOrEqualTo: $to_date}]}
     ) {
         entry {
             resource {

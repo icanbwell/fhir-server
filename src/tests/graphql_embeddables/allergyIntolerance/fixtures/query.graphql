@@ -12,11 +12,10 @@ fragment MetaTags on Meta {
     }
 }
 
-query Allergies($FHIR_DEFAULT_COUNT: Int, $from_date: date, $to_date: date) {
+query Allergies($FHIR_DEFAULT_COUNT: Int) {
     allergyIntolerance(
         _sort: ["-onsetDateTime", "-onsetPeriod.start", "-onsetPeriod.end"]
         _count: $FHIR_DEFAULT_COUNT
-        date: {values: [{greaterThanOrEqualTo: $from_date}, {lessThanOrEqualTo: $to_date}]}
     ) {
         entry {
             resource {

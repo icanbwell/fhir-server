@@ -120,14 +120,9 @@ fragment StatementOverviewFields on MedicationStatement {
     }
 }
 
-query MedicationList($patient: String, $from_date: date, $to_date: date, $page: Int, $count: Int, $id: [String], $include_request: Boolean = true, $include_statement: Boolean = true, $overview: Boolean = false) {
+query MedicationList($include_request: Boolean = true, $include_statement: Boolean = true, $overview: Boolean = false) {
     medicationRequest(
-        id: $id
-        patient: {value: $patient}
-        authoredon: {values: [{greaterThanOrEqualTo: $from_date}, {lessThanOrEqualTo: $to_date}]}
         _sort: ["-authoredOn"]
-        _count: $count
-        _getpagesoffset: $page
     ) @include(if: $include_request) {
         entry {
             resource {
@@ -160,11 +155,7 @@ query MedicationList($patient: String, $from_date: date, $to_date: date, $page: 
         }
     }
     medicationDispense(
-        id: $id
-        patient: {value: $patient}
         _sort: ["-whenHandedOver"]
-        _count: $count
-        _getpagesoffset: $page
     ) {
         entry {
             resource {
@@ -245,12 +236,7 @@ query MedicationList($patient: String, $from_date: date, $to_date: date, $page: 
         }
     }
     medicationStatement(
-        id: $id
-        patient: {value: $patient}
-        effective: {values: [{greaterThanOrEqualTo: $from_date}, {lessThanOrEqualTo: $to_date}]}
         _sort: ["-effectiveDateTime", "-effectivePeriod.end", "-effectivePeriod.start"]
-        _count: $count
-        _getpagesoffset: $page
     ) @include(if: $include_statement) {
         entry {
             resource {

@@ -30,6 +30,11 @@ const getCodeSystemCodesQueryWithFilter = fs.readFileSync(
     path.resolve(__dirname, './fixtures/query_getcodesystemcodes_with_filter.graphql'),
     'utf8'
 );
+// eslint-disable-next-line security/detect-non-literal-fs-filename
+const getCodeSystemCodesQueryWithFilterWithDefaultValue = fs.readFileSync(
+    path.resolve(__dirname, './fixtures/query_getcodesystemcodes_with_filter_with_default_value.graphql'),
+    'utf8'
+);
 
 const {
     commonBeforeEach,
@@ -363,7 +368,7 @@ describe('GraphQL CodeSystem Tests', () => {
         });
         test('GraphQL Codeset with codes filter throws missing variable values error', async () => {
             const request = await createTestRequest();
-            const graphqlQueryText = getCodeSystemCodesQueryWithFilter.replace(/\\n/g, '');
+            let graphqlQueryText = getCodeSystemCodesQueryWithFilter.replace(/\\n/g, '');
 
             let resp = await request
                 .post('/4_0_0/CodeSystem/1/$merge')
@@ -393,6 +398,19 @@ describe('GraphQL CodeSystem Tests', () => {
                 .send({
                     operationName: null,
                     variables: {'id': ['loinc-consumer']},
+                    query: graphqlQueryText,
+                })
+                .set(getGraphQLHeaders());
+
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedGraphQlWithFilterWithVariableErrorResponse);
+
+            graphqlQueryText = getCodeSystemCodesQueryWithFilterWithDefaultValue.replace(/\\n/g, '');
+            resp = await request
+                .post('/graphqlv2')
+                .send({
+                    operationName: null,
+                    variables: {},
                     query: graphqlQueryText,
                 })
                 .set(getGraphQLHeaders());
