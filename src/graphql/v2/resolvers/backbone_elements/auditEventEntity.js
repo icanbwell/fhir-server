@@ -3,6 +3,11 @@
 
 // noinspection JSUnusedLocalSymbols
 module.exports = {
+    AuditEventEntityWhat: {
+        __resolveType(obj, context, info) {
+            return context.dataApi.resolveType(obj, context, info);
+        },
+    },
     AuditEventEntity: {
         // noinspection JSUnusedLocalSymbols
         // eslint-disable-next-line no-unused-vars

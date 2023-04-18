@@ -3,6 +3,11 @@
 
 // noinspection JSUnusedLocalSymbols
 module.exports = {
+    CarePlanActivityOutcomeReference: {
+        __resolveType(obj, context, info) {
+            return context.dataApi.resolveType(obj, context, info);
+        },
+    },
     CarePlanActivityReference: {
         __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);

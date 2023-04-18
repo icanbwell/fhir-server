@@ -30,6 +30,11 @@ module.exports = {
             return context.dataApi.resolveType(obj, context, info);
         },
     },
+    ObservationFocus: {
+        __resolveType(obj, context, info) {
+            return context.dataApi.resolveType(obj, context, info);
+        },
+    },
     ObservationPerformer: {
         __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);

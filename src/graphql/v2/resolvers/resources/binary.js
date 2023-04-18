@@ -15,6 +15,11 @@ module.exports = {
             );
         }
     },
+    BinarySecurityContext: {
+        __resolveType(obj, context, info) {
+            return context.dataApi.resolveType(obj, context, info);
+        },
+    },
     Binary: {
         // noinspection JSUnusedLocalSymbols
         // eslint-disable-next-line no-unused-vars

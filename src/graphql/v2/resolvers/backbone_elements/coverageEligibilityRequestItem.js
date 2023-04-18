@@ -13,6 +13,11 @@ module.exports = {
             return context.dataApi.resolveType(obj, context, info);
         },
     },
+    CoverageEligibilityRequestItemDetail: {
+        __resolveType(obj, context, info) {
+            return context.dataApi.resolveType(obj, context, info);
+        },
+    },
     CoverageEligibilityRequestItem: {
         // noinspection JSUnusedLocalSymbols
         // eslint-disable-next-line no-unused-vars
