@@ -347,7 +347,7 @@ class GraphHelper {
                      * @type {ResourceEntityAndContained}
                      */
                     relatedResource = await this.databaseAttachmentManager.transformAttachments(
-                        relatedResource, false
+                        relatedResource, this.databaseAttachmentManager.convertFileIdToData
                     );
                     const relatedEntityAndContained = new ResourceEntityAndContained({
                         entityId: relatedResource.id,
@@ -589,7 +589,7 @@ class GraphHelper {
                 let relatedResourcePropertyCurrent = await cursor.next();
                 if (relatedResourcePropertyCurrent) {
                     relatedResourcePropertyCurrent = await this.databaseAttachmentManager.transformAttachments(
-                        relatedResourcePropertyCurrent, false
+                        relatedResourcePropertyCurrent, this.databaseAttachmentManager.convertFileIdToData
                     );
                     if (filterProperty !== null) {
                         if (relatedResourcePropertyCurrent[`${filterProperty}`] !== filterValue) {
@@ -1284,7 +1284,7 @@ class GraphHelper {
                      */
 
                     startResource = await this.databaseAttachmentManager.transformAttachments(
-                        startResource, false
+                        startResource, this.databaseAttachmentManager.convertFileIdToData
                     );
                     let current_entity = new BundleEntry({
                         id: startResource.id,

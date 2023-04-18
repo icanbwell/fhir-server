@@ -252,7 +252,9 @@ class SearchByIdOperation {
                         action: currentOperationName
                     });
 
-                resource = await this.databaseAttachmentManager.transformAttachments(resource, false);
+                resource = await this.databaseAttachmentManager.transformAttachments(
+                    resource, this.databaseAttachmentManager.convertFileIdToData
+                );
 
                 return resource;
             } else {

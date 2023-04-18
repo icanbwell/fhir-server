@@ -225,7 +225,7 @@ class HistoryByIdOperation {
                 if (resource) {
                     if (!resource.resource) { // it is not a bundle entry
                         resource = await this.databaseAttachmentManager.transformAttachments(
-                            resource, false
+                            resource, this.databaseAttachmentManager.convertFileIdToData
                         );
                         bundleEntry = new BundleEntry(
                             {
@@ -237,7 +237,7 @@ class HistoryByIdOperation {
                         );
                     } else {
                         resource.resource = await this.databaseAttachmentManager.transformAttachments(
-                            resource.resource, false
+                            resource.resource, this.databaseAttachmentManager.convertFileIdToData
                         );
                         bundleEntry = resource;
                     }

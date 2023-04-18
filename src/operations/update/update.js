@@ -305,6 +305,7 @@ class UpdateOperation {
                     resource_incoming.meta['lastUpdated'] = new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ssZ'));
                 }
 
+                // changing the attachment.data to attachment._file_id from request
                 doc = await this.databaseAttachmentManager.transformAttachments(resource_incoming);
 
                 await this.databaseBulkInserter.insertOneAsync({requestId, resourceType, doc});
@@ -344,7 +345,10 @@ class UpdateOperation {
                     await this.auditLogger.flushAsync({requestId, currentDate, method});
                 }
 
-                doc = await this.databaseAttachmentManager.transformAttachments(doc, false);
+                // changing the attachment._file_id to attachment.data for response
+                doc = await this.databaseAttachmentManager.transformAttachments(
+                    doc, this.databaseAttachmentManager.convertFileIdToData
+                );
 
                 const result = {
                     id: id,

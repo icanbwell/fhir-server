@@ -31,97 +31,67 @@ class DatabaseAttachmentManager {
     }
 
     /**
+     * creates metadata for the file if apply operation is to be performed
+     * @param {Resource} resource
+     * @param {String} operation
+     * @returns {Object}
+    */
+    getMetadata(resource) {
+        let metadata = {};
+        if (resource._uuid) {
+            metadata['resource_uuid'] = resource._uuid;
+        }
+        if (resource._sourceId) {
+            metadata['resource_sourceId'] = resource._sourceId;
+        }
+        return metadata;
+    }
+
+    /**
      * Checks if GridFs is applicable on the resource and
      * if applicable changes resources based on the create value
      * @param {Resource[]|Resource} resources
     */
-    async transformAttachments(resources, create = true) {
+    async transformAttachments(resources, operation = this.convertDataToFileId) {
         const enabledGridFsResources = this.configManager.enabledGridFsResources;
         if (Array.isArray(resources)) {
             for (let resourceIndex = 0; resourceIndex < resources.length; resourceIndex++) {
-                if (enabledGridFsResources.includes(resources[resourceIndex].resourceType)) {
-                    let metadata = {};
-                    if (create) {
-                        if (resources[resourceIndex]._uuid) {
-                            metadata['resource_uuid'] = resources[resourceIndex]._uuid;
-                        }
-                        if (resources[resourceIndex]._sourceId) {
-                            metadata['resource_sourceId'] = resources[resourceIndex]._sourceId;
-                        }
-                    }
-                    resources[resourceIndex] = await this.changeAttachmentWithGridFS({
-                        resource: resources[resourceIndex],
-                        resourceId: resources[resourceIndex].id,
+                if (enabledGridFsResources.includes(resources[parseInt(resourceIndex)].resourceType)) {
+                    resources[parseInt(resourceIndex)] = await this.changeAttachmentWithGridFS({
+                        resource: resources[parseInt(resourceIndex)],
+                        resourceId: resources[parseInt(resourceIndex)].id,
                         index: resourceIndex,
-                        metadata,
-                        create
+                        metadata: this.getMetadata(resources[parseInt(resourceIndex)]),
+                        operation
                     });
                 }
             }
         }
         else if (enabledGridFsResources.includes(resources.resourceType)) {
-            let metadata = {};
-            if (create) {
-                if (resources._uuid) {
-                    metadata['resource_uuid'] = resources._uuid;
-                }
-                if (resources._sourceId) {
-                    metadata['resource_sourceId'] = resources._sourceId;
-                }
-            }
             resources = await this.changeAttachmentWithGridFS({
                 resource: resources,
                 resourceId: resources.id,
-                metadata,
-                create
+                metadata: this.getMetadata(resources),
+                operation
             });
         }
         return resources;
     }
 
     /**
-     * Changes attachment with gridFs or restores the attachment based on create value passed
+     * finds the attachment in the resource and applies the operation specified
      * @param {Object} resource
      * @param {Object} metadata
      * @param {Number} resourceId
-     * @param {Boolean} create
+     * @param {String} operation
      * @param {Number|String} index
     */
-    async changeAttachmentWithGridFS({resource, resourceId, metadata, index = 0, create = true}) {
+    async changeAttachmentWithGridFS({resource, resourceId, metadata, index = 0, operation = null}) {
         if (!resource) {
             return resource;
         }
         if (resource instanceof Attachment) {
-            const gridFSBucket = await this.mongoDatabaseManager.getGridFsBucket();
-            if (create && resource.data) {
-                const buffer = Buffer.from(resource.data);
-                const stream = new Readable();
-                stream.push(buffer);
-                stream.push(null);
-                const gridFSResult = stream.pipe(gridFSBucket.openUploadStream(
-                    `${resourceId}_${index}`
-                ));
-                resource._file_id = gridFSResult.id.toString();
-                delete resource.data;
-            }
-            if (!create && resource._file_id) {
-                const db = await this.mongoDatabaseManager.getClientDbAsync();
-                const chunks = await db.collection('fs.chunks').find({
-                    files_id: new ObjectId(resource._file_id)
-                }).toArray();
-                // to get the chunks in order, n represents the nth chunk
-                chunks.sort((chunk1, chunk2) => chunk1.n - chunk2.n);
-                chunks.forEach((chunk) => {
-                    if (resource.data) {
-                        resource.data += chunk.data.toString();
-                    }
-                    else {
-                        resource.data = chunk.data.toString();
-                    }
-                });
-                delete resource._file_id;
-            }
-            return resource;
+            return await (operation.bind(this))(resource, `${resourceId}_${index}`);
         }
         if (resource instanceof Object || Array.isArray(resource)) {
             for (const key in resource) {
@@ -131,12 +101,57 @@ class DatabaseAttachmentManager {
                         metadata,
                         resourceId,
                         index: Array.isArray(resource) ? key : index,
-                        create
+                        operation
                     });
                 }
             }
         }
         return resource;
+    }
+
+    /**
+     * changes the attachment.data to attachment._file_id if attachment.data is present
+     * @param {Resource} resource
+     * @param {String} filename
+    */
+    async convertDataToFileId(resource, filename) {
+        if (resource.data) {
+            const gridFSBucket = await this.mongoDatabaseManager.getGridFsBucket();
+            const buffer = Buffer.from(resource.data);
+            const stream = new Readable();
+            stream.push(buffer);
+            stream.push(null);
+            const gridFSResult = stream.pipe(gridFSBucket.openUploadStream(filename));
+            resource._file_id = gridFSResult.id.toString();
+            delete resource.data;
+        }
+        return resource;
+    }
+
+    /**
+     * changes the attachment._file_id to attachment.data if attachment._file_id is present
+     * @param {Resource} resource
+     * @returns {Promise<Resource>}
+    */
+    async convertFileIdToData(resource) {
+        const gridFSBucket = await this.mongoDatabaseManager.getGridFsBucket();
+
+        return new Promise((resolve) => {
+            if (resource._file_id) {
+                const downloadStream = gridFSBucket.openDownloadStream(new ObjectId(resource._file_id));
+
+                downloadStream.on('data', (chunk) => {
+                    resource.data = (resource.data) ? resource.data + chunk.toString() : chunk.toString();
+                });
+
+                downloadStream.on('end', () => {
+                    delete resource._file_id;
+                    resolve(resource);
+                });
+            } else {
+                resolve(resource);
+            }
+        });
     }
 }
 

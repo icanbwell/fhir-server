@@ -162,7 +162,7 @@ class ExpandOperation {
                 });
 
             resource = this.databaseAttachmentManager.transformAttachments(
-                resource, false
+                resource, this.databaseAttachmentManager.convertFileIdToData
             );
             return resource;
         } else {

@@ -177,6 +177,7 @@ class PatchOperation {
                 ));
             }
 
+            // converting attachment.data to attachment._file_id for the response
             resource = await this.databaseAttachmentManager.transformAttachments(resource);
 
             // Same as update from this point on
@@ -229,7 +230,10 @@ class PatchOperation {
                 }
             });
 
-            resource = await this.databaseAttachmentManager.transformAttachments(resource, false);
+            // converting attachment._file_id to attachment.data for the response
+            resource = await this.databaseAttachmentManager.transformAttachments(
+                resource, this.databaseAttachmentManager.convertFileIdToData
+            );
 
             return {
                 id: resource.id,

@@ -316,7 +316,9 @@ class SearchBundleOperation {
                 }
             }
 
-            resources = await this.databaseAttachmentManager.transformAttachments(resources, false);
+            resources = await this.databaseAttachmentManager.transformAttachments(
+                resources, this.databaseAttachmentManager.convertFileIdToData
+            );
 
             /**
              * @type {number}

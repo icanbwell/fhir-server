@@ -196,7 +196,7 @@ class SearchByVersionIdOperation {
                 )[0];
 
                 resource = await this.databaseAttachmentManager.transformAttachments(
-                    resource, false
+                    resource, this.databaseAttachmentManager.convertFileIdToData
                 );
                 await this.fhirLoggingManager.logOperationSuccessAsync(
                     {

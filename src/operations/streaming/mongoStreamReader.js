@@ -32,7 +32,9 @@ async function* readMongoStreamGenerator({cursor, signal, databaseAttachmentMana
              */
             let resource = await cursor.next();
             if (databaseAttachmentManager) {
-                resource = await databaseAttachmentManager.transformAttachments(resource, false);
+                resource = await databaseAttachmentManager.transformAttachments(
+                    resource, databaseAttachmentManager.convertFileIdToData
+                );
             }
             yield resource;
         }

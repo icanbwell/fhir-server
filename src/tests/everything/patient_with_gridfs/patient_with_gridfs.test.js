@@ -13,6 +13,9 @@ describe('GridFS everything tests', () => {
 
     describe('Data retrieval in everything using gridfs works', () => {
         test('data returned and _file_id present in database', async () => {
+            const GRIDFS_RESOURCES = process.env.GRIDFS_RESOURCES;
+            process.env.GRIDFS_RESOURCES = 'Patient';
+
             const request = await createTestRequest();
             // add the resources to FHIR server
             let resp = await request
@@ -57,6 +60,8 @@ describe('GridFS everything tests', () => {
             expect(patient[0].photo[0].data).toBeUndefined();
 
             expect(patient[0].photo[0]._file_id).toBeDefined();
+
+            process.env.GRIDFS_RESOURCES = GRIDFS_RESOURCES;
         });
     });
 });

@@ -227,13 +227,22 @@ class HistoryOperation {
          */
         const resources = [];
         while (await cursor.hasNext()) {
-            const resource = await cursor.next();
+            let resource = await cursor.next();
             if (!resource) {
                 throw new NotFoundError('Resource not found');
             }
             if (this.scopesManager.isAccessToResourceAllowedBySecurityTags({
                 resource: resource, user, scope
             })) {
+                if (resource.resource) {
+                    resource.resource = await this.databaseAttachmentManager.transformAttachments(
+                        resource.resource, this.databaseAttachmentManager.convertFileIdToData
+                    );
+                } else {
+                    resource = await this.databaseAttachmentManager.transformAttachments(
+                        resource, this.databaseAttachmentManager.convertFileIdToData
+                    );
+                }
                 resources.push(resource);
             }
         }
@@ -264,12 +273,6 @@ class HistoryOperation {
                 }
             )
         );
-
-        for (let entryIndex = 0; entryIndex < entries.length; entryIndex++) {
-            entries[entryIndex].resource = await this.databaseAttachmentManager.transformAttachments(
-                entries[entryIndex].resource, false
-            );
-        }
 
         // https://hl7.org/fhir/http.html#history
         // The return content is a Bundle with type set to history containing the specified version history,
