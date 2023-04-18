@@ -78,7 +78,7 @@ class FhirProperty:
     is_extension: bool = False
     is_code: bool = False
     is_complex: bool = False
-    unique_name: Optional[str] = None
+    name_suffix: Optional[str] = None
 
 
 @dataclasses.dataclass
@@ -341,8 +341,13 @@ class FhirXmlSchemaParser:
                         for c in value_sets
                         if c.name == fhir_property.type_
                     ][0]
-                if fhir_entity.cleaned_name == "Contract" and fhir_property.name == "subject":
-                    fhir_property.unique_name = "type"
+                # Consist entity name mapping to property for which we need to add an unique name.
+                update_property_name_map = {
+                    'Contract': 'subject'
+                }
+                if (update_property_name_map.get(fhir_entity.cleaned_name) is not None and 
+                    update_property_name_map.get(fhir_entity.cleaned_name) == fhir_property.name):
+                    fhir_property.name_suffix = "type"
 
         # create list of unique properties
         for fhir_entity in fhir_entities:
@@ -884,6 +889,7 @@ class FhirXmlSchemaParser:
         for resource_container in root_dir.xpath("//xs:complexType[@name='ResourceContainer']", namespaces={"xs": "http://www.w3.org/2001/XMLSchema"}):
             for choice in resource_container.xpath(".//xs:choice/xs:element", namespaces={"xs": "http://www.w3.org/2001/XMLSchema"}):
                 resources_list.append(choice.get("ref"))
+        # List of all resources with Resource as base.
         resources_list.append("Resource")
 
         # first read fhir-all.xsd to get a list of resources
@@ -928,11 +934,14 @@ class FhirXmlSchemaParser:
                             target_resources: List[str] = [
                                 c.split("/")[-1] for c in target_profiles
                             ]
+                            # If target resource is type Reference(Any),
+                            # the target resource will be a list of all resources. 
                             if "Resource" in target_resources:
                                 fhir_reference: FhirReferenceType = FhirReferenceType(
                                     target_resources=resources_list,
                                     path=snapshot_element["path"].get("value"),
                                 )
+                            # Else target resource is the list of allowed references.
                             else :
                                 fhir_reference: FhirReferenceType = FhirReferenceType(
                                     target_resources=target_resources,
