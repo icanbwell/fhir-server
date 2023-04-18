@@ -16,8 +16,8 @@ class ValidateMissingVariableValuesPlugin /*extends ApolloServerPlugin*/ {
             didResolveOperation({ request, document }) {
                 let missingVariables = [];
                 const queryVariables = request.variables;
-                document.definitions.forEach(definition => {
-                    definition.variableDefinitions.forEach(variableDefinition => {
+                (document.definitions || []).forEach(definition => {
+                    (definition.variableDefinitions || []).forEach(variableDefinition => {
                         if (!queryVariables[variableDefinition.variable.name.value]) {
                             missingVariables.push(variableDefinition.variable.name.value);
                         }
