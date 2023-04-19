@@ -343,10 +343,12 @@ class FhirXmlSchemaParser:
                     ][0]
                 # Consist entity name mapping to property for which we need to add an unique name.
                 update_property_name_map = {
-                    'Contract': 'subject'
+                    'Contract': ('subject', )
                 }
-                if (update_property_name_map.get(fhir_entity.cleaned_name) is not None and 
-                    update_property_name_map.get(fhir_entity.cleaned_name) == fhir_property.name):
+                if (
+                    update_property_name_map.get(fhir_entity.cleaned_name) is not None and 
+                    fhir_property.name in update_property_name_map.get(fhir_entity.cleaned_name)
+                ):
                     fhir_property.name_suffix = "type"
 
         # create list of unique properties
