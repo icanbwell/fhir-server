@@ -234,3 +234,7 @@ query {
     }
 }    
 ```
+
+### Enable Strict variable validation
+
+Pass the header `handling=strict` to enable strict variable validation. The FHIR Server will return a validation error if the query variables present in the GraphQL query do not have corresponding values in the request. Default value of the header is `lenient` skipping this validation. This is in addition to [Enabling Strict Validation in Search Requests](https://github.com/icanbwell/fhir-server/blob/master/cheatsheet.md#18-enabling-strict-validation).
