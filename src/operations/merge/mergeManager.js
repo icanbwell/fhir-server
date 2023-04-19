@@ -26,7 +26,8 @@ const {ConfigManager} = require('../../utils/configManager');
 const {SecurityTagSystem} = require('../../utils/securityTagSystem');
 const {MergeResultEntry} = require('../common/mergeResultEntry');
 const {MongoFilterGenerator} = require('../../utils/mongoFilterGenerator');
-
+const {DatabaseAttachmentManager} = require('../../dataLayer/databaseAttachmentManager');
+const {RETRIEVE} = require('../../constants').GRIDFS;
 const Mutex = require('async-mutex').Mutex;
 const mutex = new Mutex();
 
@@ -43,6 +44,7 @@ class MergeManager {
      * @param {PreSaveManager} preSaveManager
      * @param {ConfigManager} configManager
      * @param {MongoFilterGenerator} mongoFilterGenerator
+     * @param {DatabaseAttachmentManager} databaseAttachmentManager
      */
     constructor(
         {
@@ -55,7 +57,8 @@ class MergeManager {
             resourceValidator,
             preSaveManager,
             configManager,
-            mongoFilterGenerator
+            mongoFilterGenerator,
+            databaseAttachmentManager
         }
     ) {
         /**
@@ -113,6 +116,12 @@ class MergeManager {
          */
         this.mongoFilterGenerator = mongoFilterGenerator;
         assertTypeEquals(mongoFilterGenerator, MongoFilterGenerator);
+
+        /**
+         * @type {DatabaseAttachmentManager}
+         */
+        this.databaseAttachmentManager = databaseAttachmentManager;
+        assertTypeEquals(databaseAttachmentManager, DatabaseAttachmentManager);
     }
 
     /**
@@ -329,6 +338,9 @@ class MergeManager {
                 // check if resource was found in database or not
                 if (currentResource && currentResource.meta) {
                     if (currentResource.meta.source || (resourceToMerge && resourceToMerge.meta && resourceToMerge.meta.source)) {
+                        currentResource = await this.databaseAttachmentManager.transformAttachments(
+                            currentResource, RETRIEVE
+                        );
                         await this.mergeExistingAsync(
                             {
                                 resourceToMerge, currentResource, user, scope, currentDate, requestId
@@ -340,6 +352,7 @@ class MergeManager {
                         ));
                     }
                 } else {
+                    resourceToMerge = await this.databaseAttachmentManager.transformAttachments(resourceToMerge);
                     await this.mergeInsertAsync({
                         requestId,
                         resourceToMerge,

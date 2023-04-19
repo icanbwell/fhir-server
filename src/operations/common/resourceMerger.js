@@ -6,6 +6,7 @@ const {assertTypeEquals} = require('../../utils/assertType');
 const {PreSaveManager} = require('../../preSaveHandlers/preSave');
 const {IdentifierSystem} = require('../../utils/identifierSystem');
 const {getFirstElementOrNull} = require('../../utils/list.util');
+const {DatabaseAttachmentManager} = require('../../dataLayer/databaseAttachmentManager');
 
 
 /**
@@ -23,13 +24,20 @@ class ResourceMerger {
     /**
      * constructor
      * @param {PreSaveManager} preSaveManager
+     * @param {DatabaseAttachmentManager} databaseAttachmentManager
      */
-    constructor({preSaveManager}) {
+    constructor({preSaveManager, databaseAttachmentManager}) {
         /**
          * @type {PreSaveManager}
          */
         this.preSaveManager = preSaveManager;
         assertTypeEquals(preSaveManager, PreSaveManager);
+
+        /**
+         * @type {DatabaseAttachmentManager}
+         */
+        this.databaseAttachmentManager = databaseAttachmentManager;
+        assertTypeEquals(databaseAttachmentManager, DatabaseAttachmentManager);
     }
 
     /**
@@ -188,6 +196,10 @@ class ResourceMerger {
         if (!(patched_resource_incoming.meta.security)) {
             patched_resource_incoming.meta.security = meta.security;
         }
+
+        patched_resource_incoming = await this.databaseAttachmentManager.transformAttachments(
+            patched_resource_incoming
+        );
 
         return {
             updatedResource: patched_resource_incoming,
