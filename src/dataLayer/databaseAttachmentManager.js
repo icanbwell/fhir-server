@@ -100,7 +100,7 @@ class DatabaseAttachmentManager {
             switch (operation) {
                 case INSERT:
                     return await this.convertDataToFileId(
-                        resource, `${resourceId}_${index}`, gridFSBucket
+                        resource, `${resourceId}_${index}`, gridFSBucket, metadata
                     );
 
                 case RETRIEVE:
@@ -132,13 +132,13 @@ class DatabaseAttachmentManager {
      * @param {String} filename
      * @param {import('mongodb').GridFSBucket} gridFSBucket
     */
-    async convertDataToFileId(resource, filename, gridFSBucket) {
+    async convertDataToFileId(resource, filename, gridFSBucket, metadata) {
         if (resource.data) {
             const buffer = Buffer.from(resource.data);
             const stream = new Readable();
             stream.push(buffer);
             stream.push(null);
-            const gridFSResult = stream.pipe(gridFSBucket.openUploadStream(filename));
+            const gridFSResult = stream.pipe(gridFSBucket.openUploadStream(filename, {metadata}));
             resource._file_id = gridFSResult.id.toString();
             delete resource.data;
         }
