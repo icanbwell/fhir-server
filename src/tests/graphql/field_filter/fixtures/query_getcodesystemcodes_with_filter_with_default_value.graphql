@@ -1,4 +1,4 @@
-query getCodeSystem($code: [String], $id: [String]){
+query getCodeSystem($code: [String], $id: [String] = ["loinc-consumer"]){
     getCodeSystemCodes(code: $code, id: $id) {
         entry {
             resource {
