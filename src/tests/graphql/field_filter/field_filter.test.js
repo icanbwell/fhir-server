@@ -400,7 +400,7 @@ describe('GraphQL CodeSystem Tests', () => {
                     variables: {'id': ['loinc-consumer']},
                     query: graphqlQueryText,
                 })
-                .set(getGraphQLHeaders());
+                .set({'handling': 'strict', ...getGraphQLHeaders()});
 
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedGraphQlWithFilterWithVariableErrorResponse);
@@ -413,7 +413,7 @@ describe('GraphQL CodeSystem Tests', () => {
                     variables: {},
                     query: graphqlQueryText,
                 })
-                .set(getGraphQLHeaders());
+                .set({'handling': 'strict', ...getGraphQLHeaders()});
 
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedGraphQlWithFilterWithVariableErrorResponse);

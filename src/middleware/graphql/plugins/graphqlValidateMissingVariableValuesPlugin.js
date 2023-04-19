@@ -1,3 +1,4 @@
+const { LENIENT_SEARCH_HANDLING, STRICT_SEARCH_HANDLING } = require('../../../constants');
 const { ApolloServerErrorCode } = require('@apollo/server/errors');
 
 const { GraphQLError } = require('graphql');
@@ -14,19 +15,23 @@ class ValidateMissingVariableValuesPlugin /*extends ApolloServerPlugin*/ {
     async requestDidStart(requestContext1) {
         return {
             didResolveOperation({ request, document }) {
-                let missingVariables = [];
-                const queryVariables = request.variables;
-                (document.definitions || []).forEach(definition => {
-                    (definition.variableDefinitions || []).forEach(variableDefinition => {
-                        if (!queryVariables[variableDefinition.variable.name.value] && !variableDefinition.defaultValue) {
-                            missingVariables.push(variableDefinition.variable.name.value);
-                        }
+                let handlingType = request.http.headers.get('handling');
+                handlingType = handlingType || LENIENT_SEARCH_HANDLING;
+                if (handlingType === STRICT_SEARCH_HANDLING) {
+                    let missingVariables = [];
+                    const queryVariables = request.variables;
+                    (document.definitions || []).forEach(definition => {
+                        (definition.variableDefinitions || []).forEach(variableDefinition => {
+                            if (!queryVariables[variableDefinition.variable.name.value] && !variableDefinition.defaultValue) {
+                                missingVariables.push(variableDefinition.variable.name.value);
+                            }
+                        });
                     });
-                });
-                if (missingVariables.length) {
-                    throw new GraphQLError(`Missing variable values: ${missingVariables.join(',')}`, {
-                        extensions: { code: ApolloServerErrorCode.GRAPHQL_VALIDATION_FAILED },
-                    });
+                    if (missingVariables.length) {
+                        throw new GraphQLError(`Missing variable values: ${missingVariables.join(',')}`, {
+                            extensions: { code: ApolloServerErrorCode.GRAPHQL_VALIDATION_FAILED },
+                        });
+                    }
                 }
             },
             async willSendResponse({ response }) {
