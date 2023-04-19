@@ -3,7 +3,17 @@
 
 // noinspection JSUnusedLocalSymbols
 module.exports = {
+    PaymentReconciliationDetailRequest: {
+        __resolveType(obj, context, info) {
+            return context.dataApi.resolveType(obj, context, info);
+        },
+    },
     PaymentReconciliationDetailSubmitter: {
+        __resolveType(obj, context, info) {
+            return context.dataApi.resolveType(obj, context, info);
+        },
+    },
+    PaymentReconciliationDetailResponse: {
         __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
         },

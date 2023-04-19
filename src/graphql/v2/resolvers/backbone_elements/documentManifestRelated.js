@@ -3,6 +3,11 @@
 
 // noinspection JSUnusedLocalSymbols
 module.exports = {
+    DocumentManifestRelatedRef: {
+        __resolveType(obj, context, info) {
+            return context.dataApi.resolveType(obj, context, info);
+        },
+    },
     DocumentManifestRelated: {
         // noinspection JSUnusedLocalSymbols
         // eslint-disable-next-line no-unused-vars
