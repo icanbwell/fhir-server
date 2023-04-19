@@ -74,7 +74,7 @@ describe('GridFS search tests', () => {
                 .set(getHeaders())
                 .expect(200);
 
-            expect(resp).toHaveMergeResponse({ updated: true });
+            expect(resp).toHaveMergeResponse({ updated: false });
 
             resp = await request
                 .get(`/4_0_0/DocumentReference/${resp._body.id}/_history/1`)

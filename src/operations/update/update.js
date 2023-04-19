@@ -255,7 +255,8 @@ class UpdateOperation {
                 const {updatedResource, patches} = await this.resourceMerger.mergeResourceAsync({
                     currentResource: foundResource,
                     resourceToMerge: resource_incoming,
-                    smartMerge: false
+                    smartMerge: false,
+                    databaseAttachmentManager: this.databaseAttachmentManager,
                 });
                 doc = updatedResource;
                 if (doc) { // if there is a change

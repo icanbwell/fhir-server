@@ -169,7 +169,7 @@ class MergeManager {
          * @type {Resource|null}
          */
         const {updatedResource: patched_resource_incoming, patches} = await this.resourceMerger.mergeResourceAsync(
-            {currentResource, resourceToMerge});
+            {currentResource, resourceToMerge, databaseAttachmentManager: this.databaseAttachmentManager});
 
         if (this.configManager.logAllMerges) {
             await sendToS3('logs',

@@ -28,7 +28,7 @@ describe('GridFS history tests', () => {
                 .set(getHeaders())
                 .expect(200);
 
-            expect(resp).toHaveMergeResponse({ updated: true });
+            expect(resp).toHaveMergeResponse({ updated: false });
 
             resp = await request
                 .get(`/4_0_0/DocumentReference/_history?id=${resp._body.id}`)
@@ -61,7 +61,7 @@ describe('GridFS history tests', () => {
                 .set(getHeaders())
                 .expect(200);
 
-            expect(resp).toHaveMergeResponse({ updated: true });
+            expect(resp).toHaveMergeResponse({ updated: false });
 
             resp = await request
                 .get(`/4_0_0/DocumentReference/${resp._body.id}/_history`)

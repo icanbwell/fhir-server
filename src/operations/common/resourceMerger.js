@@ -6,7 +6,6 @@ const {assertTypeEquals} = require('../../utils/assertType');
 const {PreSaveManager} = require('../../preSaveHandlers/preSave');
 const {IdentifierSystem} = require('../../utils/identifierSystem');
 const {getFirstElementOrNull} = require('../../utils/list.util');
-const {DatabaseAttachmentManager} = require('../../dataLayer/databaseAttachmentManager');
 
 
 /**
@@ -24,20 +23,13 @@ class ResourceMerger {
     /**
      * constructor
      * @param {PreSaveManager} preSaveManager
-     * @param {DatabaseAttachmentManager} databaseAttachmentManager
      */
-    constructor({preSaveManager, databaseAttachmentManager}) {
+    constructor({preSaveManager}) {
         /**
          * @type {PreSaveManager}
          */
         this.preSaveManager = preSaveManager;
         assertTypeEquals(preSaveManager, PreSaveManager);
-
-        /**
-         * @type {DatabaseAttachmentManager}
-         */
-        this.databaseAttachmentManager = databaseAttachmentManager;
-        assertTypeEquals(databaseAttachmentManager, DatabaseAttachmentManager);
     }
 
     /**
@@ -47,6 +39,7 @@ class ResourceMerger {
      * @param {boolean|undefined} [smartMerge]
      * @param {boolean|undefined} [incrementVersion]
      * @param {string[]|undefined} [limitToPaths]
+     * @param {DatabaseAttachmentManager|null} databaseAttachmentManager
      * @returns {{updatedResource:Resource|null, patches: MergePatchEntry[]|null }} resource and patches
      */
     async mergeResourceAsync(
@@ -55,7 +48,8 @@ class ResourceMerger {
             resourceToMerge,
             smartMerge = true,
             incrementVersion = true,
-            limitToPaths
+            limitToPaths,
+            databaseAttachmentManager = null
         }
     ) {
         // create metadata structure if not present
@@ -197,9 +191,11 @@ class ResourceMerger {
             patched_resource_incoming.meta.security = meta.security;
         }
 
-        patched_resource_incoming = await this.databaseAttachmentManager.transformAttachments(
-            patched_resource_incoming
-        );
+        if (databaseAttachmentManager) {
+            patched_resource_incoming = await databaseAttachmentManager.transformAttachments(
+                patched_resource_incoming
+            );
+        }
 
         return {
             updatedResource: patched_resource_incoming,
