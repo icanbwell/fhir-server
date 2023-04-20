@@ -30,6 +30,11 @@ module.exports = {
             return context.dataApi.resolveType(obj, context, info);
         },
     },
+    CarePlanSupportingInfo: {
+        __resolveType(obj, context, info) {
+            return context.dataApi.resolveType(obj, context, info);
+        },
+    },
     CarePlan: {
         // noinspection JSUnusedLocalSymbols
         // eslint-disable-next-line no-unused-vars

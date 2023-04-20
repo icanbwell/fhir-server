@@ -432,7 +432,8 @@ const createContainer = function () {
             bundleManager: c.bundleManager,
             resourceLocatorFactory: c.resourceLocatorFactory,
             resourceValidator: c.resourceValidator,
-            preSaveManager: c.preSaveManager
+            preSaveManager: c.preSaveManager,
+            databaseAttachmentManager: c.databaseAttachmentManager
         }
     ));
     container.register('everythingOperation', (c) => new EverythingOperation({
@@ -530,6 +531,13 @@ const createContainer = function () {
             scopesValidator: c.scopesValidator,
             enrichmentManager: c.enrichmentManager,
             databaseAttachmentManager: c.databaseAttachmentManager
+        }
+    ));
+
+    container.register('databaseAttachmentManager', (c) => new DatabaseAttachmentManager(
+        {
+            mongoDatabaseManager: c.mongoDatabaseManager,
+            configManager: c.configManager
         }
     ));
 

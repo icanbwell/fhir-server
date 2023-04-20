@@ -20,6 +20,7 @@ const {FhirRequestInfo} = require('../../utils/fhirRequestInfo');
 const {generateUUID} = require('../../utils/uid.util');
 const {getAddRequestIdToResponseHeadersPlugin} = require('./plugins/graphqlAddRequestIdToResponseHeadersPlugin');
 const contentType = require('content-type');
+const { getValidateMissingVariableValuesPlugin } = require('./plugins/graphqlValidateMissingVariableValuesPlugin');
 // const {unwrapResolverError} = require('@apollo/server/errors');
 // const {ForbiddenError} = require('../../utils/httpErrors');
 // const {ApolloServerPluginLandingPageLocalDefault} = require('@apollo/server/plugin/landingPage/default');
@@ -73,6 +74,7 @@ const graphql = async (fnCreateContainer) => {
         getApolloServerLoggingPlugin('graphqlv2'),
         getAddRequestIdToResponseHeadersPlugin(),
         // ApolloServerPluginLandingPageDisabled()
+        getValidateMissingVariableValuesPlugin(),
     ];
 
     /**

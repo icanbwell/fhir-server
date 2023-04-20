@@ -15,6 +15,16 @@ module.exports = {
             );
         }
     },
+    DeviceRequestBasedOn: {
+        __resolveType(obj, context, info) {
+            return context.dataApi.resolveType(obj, context, info);
+        },
+    },
+    DeviceRequestPriorRequest: {
+        __resolveType(obj, context, info) {
+            return context.dataApi.resolveType(obj, context, info);
+        },
+    },
     DeviceRequestSubject: {
         __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
@@ -36,6 +46,11 @@ module.exports = {
         },
     },
     DeviceRequestInsurance: {
+        __resolveType(obj, context, info) {
+            return context.dataApi.resolveType(obj, context, info);
+        },
+    },
+    DeviceRequestSupportingInfo: {
         __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
         },

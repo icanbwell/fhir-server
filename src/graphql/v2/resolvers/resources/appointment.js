@@ -20,6 +20,11 @@ module.exports = {
             return context.dataApi.resolveType(obj, context, info);
         },
     },
+    AppointmentSupportingInformation: {
+        __resolveType(obj, context, info) {
+            return context.dataApi.resolveType(obj, context, info);
+        },
+    },
     Appointment: {
         // noinspection JSUnusedLocalSymbols
         // eslint-disable-next-line no-unused-vars

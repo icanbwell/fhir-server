@@ -78,6 +78,7 @@ class FhirProperty:
     is_extension: bool = False
     is_code: bool = False
     is_complex: bool = False
+    name_suffix: Optional[str] = None
 
 
 @dataclasses.dataclass
@@ -340,6 +341,14 @@ class FhirXmlSchemaParser:
                         for c in value_sets
                         if c.name == fhir_property.type_
                     ][0]
+                # Consist entity name mapping to property for which we need to add a suffix name.
+                update_property_name_map = {
+                    'Contract': ({'subject': 'Type'}, )
+                }
+                if update_property_name_map.get(fhir_entity.cleaned_name) is not None:
+                    for resource_property in update_property_name_map.get(fhir_entity.cleaned_name):
+                        if resource_property.get(fhir_property.name) is not None:
+                            fhir_property.name_suffix = resource_property.get(fhir_property.name)
 
         # create list of unique properties
         for fhir_entity in fhir_entities:
@@ -866,6 +875,24 @@ class FhirXmlSchemaParser:
     def get_types_for_references() -> List[FhirReferenceType]:
         data_dir: Path = Path(__file__).parent.joinpath("./")
 
+        # first read fhir-base.xsd to get a list of resources
+        fhir_base_all_resources: Path = (
+            data_dir.joinpath("xsd")
+            .joinpath("definitions.xml")
+            .joinpath("fhir-all-xsd")
+            .joinpath("fhir-base.xsd")
+        )
+
+        with open(fhir_base_all_resources, "rb") as resources_file:
+            file_contents = resources_file.read()
+            root_dir: objectify.ObjectifiedElement = objectify.fromstring(file_contents)
+        resources_list = []
+        for resource_container in root_dir.xpath("//xs:complexType[@name='ResourceContainer']", namespaces={"xs": "http://www.w3.org/2001/XMLSchema"}):
+            for choice in resource_container.xpath(".//xs:choice/xs:element", namespaces={"xs": "http://www.w3.org/2001/XMLSchema"}):
+                resources_list.append(choice.get("ref"))
+        # List of all resources with Resource as base.
+        resources_list.append("Resource")
+
         # first read fhir-all.xsd to get a list of resources
         de_xml_file: Path = (
             data_dir.joinpath("xsd")
@@ -908,10 +935,19 @@ class FhirXmlSchemaParser:
                             target_resources: List[str] = [
                                 c.split("/")[-1] for c in target_profiles
                             ]
-                            fhir_reference: FhirReferenceType = FhirReferenceType(
-                                target_resources=target_resources,
-                                path=snapshot_element["path"].get("value"),
-                            )
+                            # If target resource is type Reference(Any),
+                            # the target resource will be a list of all resources. 
+                            if "Resource" in target_resources:
+                                fhir_reference: FhirReferenceType = FhirReferenceType(
+                                    target_resources=resources_list,
+                                    path=snapshot_element["path"].get("value"),
+                                )
+                            # Else target resource is the list of allowed references.
+                            else :
+                                fhir_reference: FhirReferenceType = FhirReferenceType(
+                                    target_resources=target_resources,
+                                    path=snapshot_element["path"].get("value"),
+                                )
                             fhir_references.append(fhir_reference)
             return fhir_references
 

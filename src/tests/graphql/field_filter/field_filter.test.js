@@ -1,6 +1,7 @@
 const expectedGraphQlWithoutFilterResponse = require('./fixtures/expected_graphql_response_without_filter.json');
 const expectedGraphQlWithFilterResponse = require('./fixtures/expected_graphql_response_with_filter.json');
 const expectedGraphQlWithFilterBinaryResponse = require('./fixtures/expected_graphql_response_with_filter_binary.json');
+const expectedGraphQlWithFilterWithVariableErrorResponse = require('./fixtures/expected_graphql_response_with_filter_missing_variable.json');
 
 const codeSystem1Resource = require('./fixtures/codeSystem1.json');
 const codeSystem1WithBinaryResource = require('./fixtures/codeSystem1WithBinary.json');
@@ -27,6 +28,11 @@ const codeSystemQueryWithFilter = fs.readFileSync(
 // eslint-disable-next-line security/detect-non-literal-fs-filename
 const getCodeSystemCodesQueryWithFilter = fs.readFileSync(
     path.resolve(__dirname, './fixtures/query_getcodesystemcodes_with_filter.graphql'),
+    'utf8'
+);
+// eslint-disable-next-line security/detect-non-literal-fs-filename
+const getCodeSystemCodesQueryWithFilterWithDefaultValue = fs.readFileSync(
+    path.resolve(__dirname, './fixtures/query_getcodesystemcodes_with_filter_with_default_value.graphql'),
     'utf8'
 );
 
@@ -340,12 +346,10 @@ describe('GraphQL CodeSystem Tests', () => {
                 .post('/graphqlv2')
                 .send({
                     operationName: null,
-                    variables: {},
+                    variables: {'code': ['3584-4', 'random'], 'id': ['loinc-consumer']},
                     query: graphqlQueryText,
                 })
                 .set({'X-Request-Id': 'd4c5546f-cd8a-4447-83e0-201f0da08bef', ...getGraphQLHeaders()});
-
-            console.log(resp.body);
 
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedGraphQlWithFilterResponse, r => {
@@ -361,6 +365,58 @@ describe('GraphQL CodeSystem Tests', () => {
 
             // uncomment this to test out timing of events
             // await new Promise(resolve => setTimeout(resolve, 30 * 1000));
+        });
+        test('GraphQL Codeset with codes filter throws missing variable values error', async () => {
+            const request = await createTestRequest();
+            let graphqlQueryText = getCodeSystemCodesQueryWithFilter.replace(/\\n/g, '');
+
+            let resp = await request
+                .post('/4_0_0/CodeSystem/1/$merge')
+                .send(codeSystem1Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse([{created: true}, {created: true}]);
+
+            /**
+             * @type {SimpleContainer}
+             */
+            const testContainer = getTestContainer();
+
+            /**
+             * @type {PostRequestProcessor}
+             */
+            const postRequestProcessor = testContainer.postRequestProcessor;
+            await postRequestProcessor.waitTillAllRequestsDoneAsync({timeoutInSeconds: 20});
+            /**
+             * @type {RequestSpecificCache}
+             */
+            const requestSpecificCache = testContainer.requestSpecificCache;
+            await requestSpecificCache.clearAllAsync();
+
+            resp = await request
+                .post('/graphqlv2')
+                .send({
+                    operationName: null,
+                    variables: {'id': ['loinc-consumer']},
+                    query: graphqlQueryText,
+                })
+                .set({'handling': 'strict', ...getGraphQLHeaders()});
+
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedGraphQlWithFilterWithVariableErrorResponse);
+
+            graphqlQueryText = getCodeSystemCodesQueryWithFilterWithDefaultValue.replace(/\\n/g, '');
+            resp = await request
+                .post('/graphqlv2')
+                .send({
+                    operationName: null,
+                    variables: {},
+                    query: graphqlQueryText,
+                })
+                .set({'handling': 'strict', ...getGraphQLHeaders()});
+
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedGraphQlWithFilterWithVariableErrorResponse);
         });
         test('GraphQL Codeset with filter works with binary data with patient scope', async () => {
             const request = await createTestRequest();
@@ -421,12 +477,10 @@ describe('GraphQL CodeSystem Tests', () => {
                 .post('/graphqlv2')
                 .send({
                     operationName: null,
-                    variables: {},
+                    variables: {'id': ['loinc-consumer'], 'code': ['3584-4', 'random']},
                     query: graphqlQueryText,
                 })
                 .set(getCustomGraphQLHeaders(only_fhir_person_payload));
-
-            console.log(resp.body);
 
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedGraphQlWithFilterBinaryResponse, r => {

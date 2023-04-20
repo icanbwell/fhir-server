@@ -8,6 +8,11 @@ module.exports = {
             return context.dataApi.resolveType(obj, context, info);
         },
     },
+    DocumentReferenceContextRelated: {
+        __resolveType(obj, context, info) {
+            return context.dataApi.resolveType(obj, context, info);
+        },
+    },
     DocumentReferenceContext: {
         // noinspection JSUnusedLocalSymbols
         // eslint-disable-next-line no-unused-vars

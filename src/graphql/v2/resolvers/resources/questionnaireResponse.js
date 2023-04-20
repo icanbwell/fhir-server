@@ -25,6 +25,11 @@ module.exports = {
             return context.dataApi.resolveType(obj, context, info);
         },
     },
+    QuestionnaireResponseSubject: {
+        __resolveType(obj, context, info) {
+            return context.dataApi.resolveType(obj, context, info);
+        },
+    },
     QuestionnaireResponseAuthor: {
         __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);

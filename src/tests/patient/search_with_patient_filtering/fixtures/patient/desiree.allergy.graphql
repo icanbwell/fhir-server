@@ -1,9 +1,6 @@
-query Allergies($patient: String, $FHIR_DEFAULT_COUNT: Int, $from_date: date, $to_date: date) {
+query Allergies {
     allergyIntolerance(
-        patient: { value: $patient }
         _sort: "code.text"
-        _count: $FHIR_DEFAULT_COUNT
-        date: { values: [{ greaterThanOrEqualTo: $from_date }, { lessThanOrEqualTo: $to_date }] }
     ) {
         entry {
             resource {

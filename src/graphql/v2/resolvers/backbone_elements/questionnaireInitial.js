@@ -3,6 +3,11 @@
 
 // noinspection JSUnusedLocalSymbols
 module.exports = {
+    QuestionnaireInitialValueReference: {
+        __resolveType(obj, context, info) {
+            return context.dataApi.resolveType(obj, context, info);
+        },
+    },
     QuestionnaireInitial: {
         // noinspection JSUnusedLocalSymbols
         // eslint-disable-next-line no-unused-vars

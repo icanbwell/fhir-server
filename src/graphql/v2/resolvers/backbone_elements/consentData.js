@@ -3,6 +3,11 @@
 
 // noinspection JSUnusedLocalSymbols
 module.exports = {
+    ConsentDataReference: {
+        __resolveType(obj, context, info) {
+            return context.dataApi.resolveType(obj, context, info);
+        },
+    },
     ConsentData: {
         // noinspection JSUnusedLocalSymbols
         // eslint-disable-next-line no-unused-vars

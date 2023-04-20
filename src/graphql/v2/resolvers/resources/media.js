@@ -20,6 +20,11 @@ module.exports = {
             return context.dataApi.resolveType(obj, context, info);
         },
     },
+    MediaPartOf: {
+        __resolveType(obj, context, info) {
+            return context.dataApi.resolveType(obj, context, info);
+        },
+    },
     MediaSubject: {
         __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);

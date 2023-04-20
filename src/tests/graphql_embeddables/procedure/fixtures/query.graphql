@@ -27,7 +27,7 @@ fragment CodeableConceptFields on CodeableConcept {
         display
     }
 }
-query Procedure($FHIR_DEFAULT_COUNT: Int, $from_date: date, $to_date: date) {
+query Procedure($FHIR_DEFAULT_COUNT: Int) {
     procedure(
         _sort: [
             "-performedDateTime",
@@ -37,16 +37,6 @@ query Procedure($FHIR_DEFAULT_COUNT: Int, $from_date: date, $to_date: date) {
             "-encounter.period.start"
         ]
         _count: $FHIR_DEFAULT_COUNT
-        date: {
-            values: [
-                {
-                    greaterThanOrEqualTo: $from_date
-                },
-                {
-                    lessThanOrEqualTo: $to_date
-                }
-            ]
-        }
     )
     {
         entry {

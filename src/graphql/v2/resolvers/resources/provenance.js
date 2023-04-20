@@ -15,6 +15,11 @@ module.exports = {
             );
         }
     },
+    ProvenanceTarget: {
+        __resolveType(obj, context, info) {
+            return context.dataApi.resolveType(obj, context, info);
+        },
+    },
     Provenance: {
         // noinspection JSUnusedLocalSymbols
         // eslint-disable-next-line no-unused-vars
