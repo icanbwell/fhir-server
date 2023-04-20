@@ -1,5 +1,6 @@
 const { assertTypeEquals } = require('../../utils/assertType');
 const moment = require('moment-timezone');
+const { isValidMongoObjectId } = require('../../utils/mongoIdValidator');
 const { MongoCollectionManager } = require('../../utils/mongoCollectionManager');
 const { MongoDatabaseManager } = require('../../utils/mongoDatabaseManager');
 const { AdminLogger } = require('../adminLogger');
@@ -240,7 +241,8 @@ class UpdateCollectionsRunner {
                     };
 
                     // If _idAbove is provided fetch all documents having _id greater than this._idAbove or fetch all documents that have a value for lastUpdated.
-                    const query = this._idAbove ? { _id: { $gt: new ObjectId(this._idAbove) } } : {'meta.lastUpdated': { $exists: true}};
+                    const startId = isValidMongoObjectId(this._idAbove) ? new ObjectId(this._idAbove) : this._idAbove;
+                    const query = startId ? { _id: { $gt: startId } } : {'meta.lastUpdated': { $exists: true}};
 
                     // Projection is used so that we don't fetch _id. Thus preventing it from being updated while updating document.
                     // Returns a list of documents from sourceDatabaseCollection collection with specified batch size
