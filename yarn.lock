@@ -1674,7 +1674,7 @@
   resolved "https://registry.npmjs.org/@aws-sdk/middleware-stack/-/middleware-stack-3.292.0.tgz"
   integrity sha512-WdQpRkuMysrEwrkByCM1qCn2PPpFGGQ2iXqaFha5RzCdZDlxJni9cVNb6HzWUcgjLEYVTXCmOR9Wxm3CNW44Qg==
   dependencies:
-    tslib "^2.5.0"
+    tslib "^2.3.1"
 
 "@aws-sdk/middleware-stack@3.306.0":
   version "3.306.0"
@@ -2033,7 +2033,7 @@
   resolved "https://registry.npmjs.org/@aws-sdk/types/-/types-3.292.0.tgz"
   integrity sha512-1teYAY2M73UXZxMAxqZxVS2qwXjQh0OWtt7qyLfha0TtIk/fZ1hRwFgxbDCHUFcdNBSOSbKH/ESor90KROXLCQ==
   dependencies:
-    tslib "^2.5.0"
+    tslib "^2.3.1"
 
 "@aws-sdk/types@3.306.0":
   version "3.306.0"
@@ -2205,7 +2205,7 @@
     "@aws-sdk/property-provider" "3.292.0"
     "@aws-sdk/types" "3.292.0"
     bowser "^2.11.0"
-    tslib "^2.5.0"
+    tslib "^2.3.1"
 
 "@aws-sdk/util-defaults-mode-browser@3.306.0":
   version "3.306.0"
@@ -2317,7 +2317,7 @@
   resolved "https://registry.npmjs.org/@aws-sdk/util-middleware/-/util-middleware-3.292.0.tgz"
   integrity sha512-KjhS7flfoBKDxbiBZjLjMvEizXgjfQb7GQEItgzGoI9rfGCmZtvqCcqQQoIlxb8bIzGRggAUHtBGWnlLbpb+GQ==
   dependencies:
-    tslib "^2.5.0"
+    tslib "^2.3.1"
 
 "@aws-sdk/util-middleware@3.306.0":
   version "3.306.0"
@@ -2409,7 +2409,7 @@
   dependencies:
     "@aws-sdk/types" "3.292.0"
     bowser "^2.11.0"
-    tslib "^2.5.0"
+    tslib "^2.3.1"
 
 "@aws-sdk/util-user-agent-browser@3.306.0":
   version "3.306.0"
