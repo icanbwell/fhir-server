@@ -120,7 +120,7 @@ describe('AuditEvent when all is set Tests', () => {
             // ACT & ASSERT
             // search by token system and code and make sure we get the right AuditEvent back
             resp = await request
-                .get('/4_0_0/AuditEvent/?date=lt2021-09-22&date=gt2021-09-19&_bundle=1&_debug=1&_count=2&_getpagesoffset=0&_security=https://www.icanbwell.com/access%7Cmedstar')
+                .get('/4_0_0/AuditEvent/?date=lt2021-09-22&date=ge2021-09-19&_bundle=1&_debug=1&_count=2&_getpagesoffset=0&_security=https://www.icanbwell.com/access%7Cmedstar')
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedAuditEventResourcesAccessIndex);

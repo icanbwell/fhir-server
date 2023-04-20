@@ -61,7 +61,7 @@ class YearMonthPartitioner extends BasePartitioner {
         /**
          * @type {Object[]}
          */
-        const andClauses = query.$and || [];
+        const andClauses = query.$and || query || [];
         /**
          * @type {Object[]}
          */
@@ -114,11 +114,13 @@ class YearMonthPartitioner extends BasePartitioner {
              * @type {{$gt:Date|undefined, $lt: Date|undefined }}
              */
             const value = clauseForDate[`${field}`];
-            if (value.$gt) {
-                greaterThan = moment.utc(value.$gt).isAfter(greaterThan) ? moment.utc(value.$gt) : greaterThan;
+            const dateGreaterThan = value.$gt || value.$gte;
+            if (dateGreaterThan) {
+                greaterThan = moment.utc(dateGreaterThan).isAfter(greaterThan) ? moment.utc(dateGreaterThan) : greaterThan;
             }
-            if (value.$lt) {
-                lessThan = moment.utc(value.$lt).isBefore(lessThan) ? moment.utc(value.$lt) : lessThan;
+            const dateLesserThan = value.$lt || value.$lte;
+            if (dateLesserThan) {
+                lessThan = moment.utc(dateLesserThan).isBefore(lessThan) ? moment.utc(dateLesserThan) : lessThan;
             }
         }
         return { greaterThan, lessThan };
