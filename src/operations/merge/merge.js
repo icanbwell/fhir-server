@@ -354,9 +354,6 @@ class MergeOperation {
                 async resource => await this.preSaveManager.preSaveAsync(resource)
             );
 
-            resourcesIncomingArray =
-                await this.databaseAttachmentManager.transformAttachments(resourcesIncomingArray);
-
             // Load the resources from the database
             await this.databaseBulkLoader.loadResourcesAsync(
                 {

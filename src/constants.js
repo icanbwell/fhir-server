@@ -181,4 +181,8 @@ module.exports = {
             valueKey: 'valueUri',
         },
     },
+    GRIDFS: {
+        INSERT: 'INSERT',
+        RETRIEVE: 'RETRIEVE',
+    }
 };

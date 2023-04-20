@@ -14,6 +14,8 @@ const BundleEntry = require('../../fhir/classes/4_0_0/backbone_elements/bundleEn
 const {ResourceManager} = require('../common/resourceManager');
 const {ParsedArgs} = require('../query/parsedArgs');
 const {QueryItem} = require('../graph/queryItem');
+const {DatabaseAttachmentManager} = require('../../dataLayer/databaseAttachmentManager');
+const {RETRIEVE} = require('../../constants').GRIDFS;
 
 class HistoryByIdOperation {
     /**
@@ -27,6 +29,7 @@ class HistoryByIdOperation {
      * @param {ConfigManager} configManager
      * @param {SearchManager} searchManager
      * @param {ResourceManager} resourceManager
+     * @param {DatabaseAttachmentManager} databaseAttachmentManager
      */
     constructor(
         {
@@ -38,7 +41,8 @@ class HistoryByIdOperation {
             resourceLocatorFactory,
             configManager,
             searchManager,
-            resourceManager
+            resourceManager,
+            databaseAttachmentManager
         }
     ) {
         /**
@@ -90,6 +94,12 @@ class HistoryByIdOperation {
          */
         this.resourceManager = resourceManager;
         assertTypeEquals(resourceManager, ResourceManager);
+
+        /**
+         * @type {DatabaseAttachmentManager}
+         */
+        this.databaseAttachmentManager = databaseAttachmentManager;
+        assertTypeEquals(databaseAttachmentManager, DatabaseAttachmentManager);
     }
 
     /**
@@ -215,6 +225,9 @@ class HistoryByIdOperation {
                 let bundleEntry = null;
                 if (resource) {
                     if (!resource.resource) { // it is not a bundle entry
+                        resource = await this.databaseAttachmentManager.transformAttachments(
+                            resource, RETRIEVE
+                        );
                         bundleEntry = new BundleEntry(
                             {
                                 id: resource.id,
@@ -224,6 +237,9 @@ class HistoryByIdOperation {
                             }
                         );
                     } else {
+                        resource.resource = await this.databaseAttachmentManager.transformAttachments(
+                            resource.resource, RETRIEVE
+                        );
                         bundleEntry = resource;
                     }
                     if (this.scopesManager.isAccessToResourceAllowedBySecurityTags({
