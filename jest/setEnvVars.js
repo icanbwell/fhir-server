@@ -22,3 +22,4 @@ process.env.SET_INDEX_HINTS = '0';
 process.env.PARTITION_RESOURCES = 'AuditEvent';
 process.env.LOGLEVEL = 'TRACE';
 process.env.GRIDFS_RESOURCES = 'DocumentReference';
+process.env.REQUIRED_AUDIT_EVENT_FILTERS = 'date, ';

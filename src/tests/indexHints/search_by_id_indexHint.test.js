@@ -38,7 +38,7 @@ describe('AuditEventReturnIdTests', () => {
             expect(resp).toHaveResourceCount(0);
 
             // first confirm there are no AuditEvent
-            resp = await request.get('/4_0_0/AuditEvent').set(getHeaders()).expect(200);
+            resp = await request.get('/4_0_0/AuditEvent/?date=gt2020-02-02&date=lt2030-02-02').set(getHeaders()).expect(200);
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResourceCount(0);
 
@@ -53,7 +53,7 @@ describe('AuditEventReturnIdTests', () => {
             // now check that we get the right record back
             resp = await request
                 .get(
-                    '/4_0_0/AuditEvent/?_security=https://www.icanbwell.com/access|fake&_lastUpdated=gt2021-06-01&_lastUpdated=lt2031-10-26&_count=10&_getpagesoffset=0&_setIndexHint=1&_debug=1&_bundle=1'
+                    '/4_0_0/AuditEvent/?date=gt2021-06-01&date=lt2031-10-26&_security=https://www.icanbwell.com/access|fake&_count=10&_getpagesoffset=0&_setIndexHint=1&_debug=1&_bundle=1'
                 )
                 .set(getHeaders());
 

@@ -25,7 +25,7 @@ describe('AuditEventRecordedTests', () => {
         test('search by recorded works', async () => {
             const request = await createTestRequest();
             // first confirm there are no AuditEvent
-            let resp = await request.get('/4_0_0/AuditEvent').set(getHeaders());
+            let resp = await request.get('/4_0_0/AuditEvent/?date=gt2020-02-02&date=lt2030-02-02').set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResourceCount(0);
 
@@ -40,7 +40,7 @@ describe('AuditEventRecordedTests', () => {
             // now check that we get the right record back
             resp = await request
                 .get(
-                    '/4_0_0/AuditEvent/?_security=https://www.icanbwell.com/access|fake&_lastUpdated=gt2021-06-01&_lastUpdated=lt2031-10-26&_count=10&_getpagesoffset=0&_setIndexHint=1&_debug=1&date=gt2021-06-01&_bundle=1'
+                    '/4_0_0/AuditEvent/?_security=https://www.icanbwell.com/access|fake&_lastUpdated=gt2021-06-01&_lastUpdated=lt2031-10-26&_count=10&_getpagesoffset=0&_setIndexHint=1&_debug=1&date=gt2021-06-01&date=lt2031-10-26&_bundle=1'
                 )
                 .set(getHeaders());
 
@@ -58,7 +58,7 @@ describe('AuditEventRecordedTests', () => {
             // now check that we get the right record back
             resp = await request
                 .get(
-                    '/4_0_0/AuditEvent/?patient=unitypoint-eG6BUUqleqdRRvJuwSIeJ5WkGK-Y.QGOSDSTDbws1FC43&_bundle=1'
+                    '/4_0_0/AuditEvent/?date=gt2020-02-02&date=lt2031-10-26&patient=unitypoint-eG6BUUqleqdRRvJuwSIeJ5WkGK-Y.QGOSDSTDbws1FC43&_bundle=1'
                 )
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
