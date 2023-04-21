@@ -14,7 +14,6 @@ const {FhirLoggingManager} = require('../common/fhirLoggingManager');
 const {ScopesValidator} = require('../security/scopesValidator');
 const {BundleManager} = require('../common/bundleManager');
 const {ConfigManager} = require('../../utils/configManager');
-const {BadRequestError} = require('../../utils/httpErrors');
 const {ParsedArgs} = require('../query/parsedArgs');
 const {QueryItem} = require('../graph/queryItem');
 
@@ -161,42 +160,7 @@ class SearchBundleOperation {
 
         // check if required filters for AuditEvent are passed
         if (resourceType === 'AuditEvent') {
-            // args must contain one of these
-            const requiredFiltersForAuditEvent = this.configManager.requiredFiltersForAuditEvent;
-            if (requiredFiltersForAuditEvent && requiredFiltersForAuditEvent.length > 0) {
-                if (requiredFiltersForAuditEvent.filter(r => parsedArgs[`${r}`]).length === 0) {
-                    const message = `One of the filters [${requiredFiltersForAuditEvent.join(',')}] are required to query AuditEvent`;
-                    throw new BadRequestError(
-                        {
-                            'message': message,
-                            toString: function () {
-                                return message;
-                            }
-                        }
-                    );
-                }
-            }
-            // Fetching all the parsed arguments for date
-            const dateQueryParameterValues = parsedArgs['date'];
-            const queryParameters = Array.isArray(dateQueryParameterValues) ?
-                dateQueryParameterValues :
-                [dateQueryParameterValues];
-            // Creating a list of operations that is to be conducted on the Audit Event.
-            const operatorsList = new Set(queryParameters.map((date) => date.substring(0, 2)));
-
-            // Verifying lt, gt both operations are passed to reduce the number of db hits on online archive
-            // If eq operation is to be conducted no need to verify if lt and gt are present
-            if (!operatorsList.has('eq') && operatorsList.size < 2) {
-                const message = 'Both the operations needs to be passed along with date (lt, gt) to query AuditEvent';
-                throw new BadRequestError(
-                    {
-                        'message': message,
-                        toString: function () {
-                            return message;
-                        }
-                    }
-                );
-            }
+            this.searchManager.validateAuditEventQueryParameters(parsedArgs);
         }
 
         try {

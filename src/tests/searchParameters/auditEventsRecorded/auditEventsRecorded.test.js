@@ -25,9 +25,93 @@ describe('AuditEventRecordedTests', () => {
     describe('AuditEvent Recorded Tests', () => {
         test('search by recorded works', async () => {
             const request = await createTestRequest();
-            // first confirm there are no AuditEvent
-            let resp = await request.get('/4_0_0/AuditEvent/?date=gt2020-02-02&date=lt2031-02-02').set(getHeaders());
+            // Confirm all correct operation are only allowed to query
+            let resp = await request.get('/4_0_0/AuditEvent/?date=2020-02-02&date=ew2031-02-02').set(getHeaders());
             // noinspection JSUnresolvedFunction
+            expect(resp).toHaveStatusCode(400);
+            expect(resp.body).toStrictEqual({
+                'resourceType': 'OperationOutcome',
+                'issue': [
+                    {
+                        'severity': 'error',
+                        'code': 'invalid',
+                        'details': {
+                            'text': '2020-02-02 is not valid to query operation. [lt, gt] operation is required'
+                        },
+                        'diagnostics': '2020-02-02 is not valid to query operation. [lt, gt] operation is required'
+                    }
+                ]
+            });
+            // Confirm all correct date are only allowed to query
+            resp = await request.get('/4_0_0/AuditEvent/?date=gt2020-13-35&date=lt2031-02-02').set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveStatusCode(400);
+            expect(resp.body).toStrictEqual({
+                'resourceType': 'OperationOutcome',
+                'issue': [
+                    {
+                        'severity': 'error',
+                        'code': 'invalid',
+                        'details': {
+                            'text': '2020-13-35 is not a valid date'
+                        },
+                        'diagnostics': '2020-13-35 is not a valid date'
+                    }
+                ]
+            });
+            // Confirm all correct operation are only allowed to query
+            resp = await request.get('/4_0_0/AuditEvent/?date=eq2020-02-02&date=ne2031-02-02').set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveStatusCode(400);
+            expect(resp.body).toStrictEqual({
+                'resourceType': 'OperationOutcome',
+                'issue': [
+                    {
+                        'severity': 'error',
+                        'code': 'invalid',
+                        'details': {
+                            'text': 'eq and ne are not valid parameters to query.'
+                        },
+                        'diagnostics': 'eq and ne are not valid parameters to query.'
+                    }
+                ]
+            });
+            // Confirm that a search more than one months are not allowed
+            resp = await request.get('/4_0_0/AuditEvent/?date=gt2020-02-02&date=lt2031-02-02').set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveStatusCode(400);
+            expect(resp.body).toStrictEqual({
+                'resourceType': 'OperationOutcome',
+                'issue': [
+                    {
+                        'severity': 'error',
+                        'code': 'invalid',
+                        'details': {
+                            'text': 'The difference between dates to query auditevent should not be greater than a month'
+                        },
+                        'diagnostics': 'The difference between dates to query auditevent should not be greater than a month'
+                    }
+                ]
+            });
+            // Confirm that a search more than two months are not allowed
+            resp = await request.get('/4_0_0/AuditEvent/?date=gt2020-02-02&date=lt2031-02-02').set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveStatusCode(400);
+            expect(resp.body).toStrictEqual({
+                'resourceType': 'OperationOutcome',
+                'issue': [
+                    {
+                        'severity': 'error',
+                        'code': 'invalid',
+                        'details': {
+                            'text': 'The difference between dates to query auditevent should not be greater than a month'
+                        },
+                        'diagnostics': 'The difference between dates to query auditevent should not be greater than a month'
+                    }
+                ]
+            });
+            // first confirm there are no AuditEvent
+            resp = await request.get('/4_0_0/AuditEvent/?date=gt2020-02-02&date=lt2031-02-02').set(getHeaders());
             expect(resp).toHaveResourceCount(0);
 
             // now add a record

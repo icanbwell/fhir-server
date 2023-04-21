@@ -4,6 +4,7 @@ const {isTrue} = require('../../utils/isTrue');
 const env = require('var');
 const {logDebug, logError} = require('../common/logging');
 const deepcopy = require('deepcopy');
+const moment = require('moment-timezone');
 const {searchLimitForIds, limit} = require('../../utils/searchForm.util');
 const {createReadableMongoStream} = require('../streaming/mongoStreamReader');
 const {pipeline} = require('stream/promises');
@@ -24,6 +25,7 @@ const {SecurityTagManager} = require('../common/securityTagManager');
 const {ResourcePreparer} = require('../common/resourcePreparer');
 const {VERSIONS} = require('../../middleware/fhir/utils/constants');
 const {RethrownError} = require('../../utils/rethrownError');
+const {BadRequestError} = require('../../utils/httpErrors');
 const {mongoQueryStringify} = require('../../utils/mongoQueryStringify');
 const {R4SearchQueryCreator} = require('../query/r4');
 const {ConfigManager} = require('../../utils/configManager');
@@ -1141,6 +1143,151 @@ class SearchManager {
                 message: `Error get linked patients for person id: ${personIdFromJwtToken}`,
                 error: e
             });
+        }
+    }
+
+    /**
+     * @description Validates if the correct arguments are being sent that will query AuditEvents.
+     * @param {ParsedArgs} parsedArgs
+     */
+    validateAuditEventQueryParameters(parsedArgs) {
+        // Validate all the required parameters are passed for audit events.
+            this.auditEventValidateRequiredFilters(parsedArgs);
+            // Fetching all the parsed arguments for date
+            const dateQueryParameterValues = parsedArgs['date'];
+            const queryParameters = Array.isArray(dateQueryParameterValues) ?
+                dateQueryParameterValues :
+                [dateQueryParameterValues];
+
+            const [operationDateObject, onlyGreaterThanConditions, onlyLesserThanConditions] = this.getValidDateOperationList(queryParameters);
+
+            if (!onlyGreaterThanConditions || !onlyLesserThanConditions) {
+                const message = 'Atleast two operations(lt,gt,ge,le) need to be passed to query Auditevent';
+                throw new BadRequestError(
+                    {
+                        'message': message,
+                        toString: function () {
+                            return message;
+                        }
+                    }
+                );
+            }
+
+            this.validateAuditEventQueryOperators(operationDateObject);
+
+            // Fetching all dates from operatorsList object
+            const values = Object.values(operationDateObject);
+
+            // If the difference between two dates is greater than a month throw error.
+            if (Math.abs(values[0].diff(values[1], 'months')) >= 1) {
+                const message = 'The difference between dates to query auditevent should not be greater than a month';
+                throw new BadRequestError(
+                    {
+                        'message': message,
+                        toString: function () {
+                            return message;
+                        }
+                    }
+                );
+            }
+        }
+
+
+    /**
+     * @description Validates that all the required parameters for audit events are present in parsedArgs
+     * @param {ParsedArgs} parsedArgs
+    */
+    auditEventValidateRequiredFilters(parsedArgs) {
+        // args must contain one of these
+        const requiredFiltersForAuditEvent = this.configManager.requiredFiltersForAuditEvent;
+        if (requiredFiltersForAuditEvent && requiredFiltersForAuditEvent.length > 0) {
+            if (requiredFiltersForAuditEvent.filter(r => parsedArgs[`${r}`]).length === 0) {
+                const message = `One of the filters [${requiredFiltersForAuditEvent.join(',')}] are required to query AuditEvent`;
+                throw new BadRequestError(
+                    {
+                        'message': message,
+                        toString: function () {
+                            return message;
+                        }
+                    }
+                );
+            }
+        }
+
+    }
+
+    /**
+     * @description Validates correct operations are passed in params and date passed is valid.
+     * @param {Object} queryParams
+     * @returns {Object}
+     */
+    getValidDateOperationList(queryParams) {
+        const allowedOperations = ['gt', 'ge', 'lt', 'le'];
+        const operationDateObject = {};
+        const regex = /([a-z]+)(.+)/;
+        let onlyLesserThanConditions = false, onlyGreaterThanConditions = false;
+        for (const dateParam of queryParams) {
+            // Match the date passed in param if it matches the regex pattern.
+            const regexMatch = dateParam.match(regex);
+            if (!regexMatch) {
+                const message = `${dateParam} is not valid to query operation. [lt, gt] operation is required`;
+                throw new BadRequestError({
+                    'message': message,
+                    toString: function () {
+                        return message;
+                    }
+                });
+            }
+            // Validate if date is valid.
+            if (!(regexMatch[1] in allowedOperations) || !moment.utc(regexMatch[2]).isValid()) {
+                const message = `${regexMatch[2]} is not a valid date`;
+                throw new BadRequestError({
+                    'message': message,
+                    toString: function () {
+                        return message;
+                    }
+                });
+            }
+            if (regexMatch[1] === 'gt' || regexMatch[1] === 'gte') {
+                onlyGreaterThanConditions = true;
+            } else if (regexMatch[1] === 'lt' || regexMatch[1] === 'lte') {
+                onlyLesserThanConditions = true;
+            }
+            // Object of operation and date.
+            operationDateObject[regexMatch[1]] = moment.utc(regexMatch[2]);
+        }
+        return [operationDateObject, onlyGreaterThanConditions, onlyLesserThanConditions];
+    }
+
+    /**
+     * @description Validates all the query operators passed are valid.
+     * @param {Object} operationList
+     */
+    validateAuditEventQueryOperators(operationList) {
+        // if Operation list contains eq validate it is only operation to be conducted.
+        if (Object.hasOwn(operationList, 'eq') || Object.hasOwn(operationList, 'eq')) {
+            const message = 'eq and ne are not valid parameters to query.';
+            throw new BadRequestError(
+                {
+                    'message': message,
+                    toString: function () {
+                        return message;
+                    }
+                }
+            );
+        }
+
+        // Verifying lt, gt both operations are passed to reduce the number of db hits on online archive
+        if (operationList.size < 2) {
+            const message = 'Atleast two operations(lt,gt,ge,le) or eq operation need to be passed to query Auditevent';
+            throw new BadRequestError(
+                {
+                    'message': message,
+                    toString: function () {
+                        return message;
+                    }
+                }
+            );
         }
     }
 }

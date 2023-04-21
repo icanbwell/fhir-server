@@ -61,7 +61,10 @@ class YearMonthPartitioner extends BasePartitioner {
         /**
          * @type {Object[]}
          */
-        const andClauses = query.$and || query || [];
+        const clauses = query.$and || query || [];
+        const andClauses = Array.isArray(clauses) ?
+            clauses :
+            [clauses];
         /**
          * @type {Object[]}
          */
@@ -83,9 +86,11 @@ class YearMonthPartitioner extends BasePartitioner {
                     fieldValue: currentDate.utc().toISOString(), resourceWithBaseVersion
                 }
             );
+
             if (partitionsCache.has(resourceType) && partitionsCache.get(resourceType).includes(partition)) {
                 partitions.push(partition);
             }
+            console.log(partition, 'partition');
             currentDate = currentDate.utc().subtract(1, 'months');
         }
         return partitions;
