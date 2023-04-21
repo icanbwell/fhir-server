@@ -15,11 +15,6 @@ module.exports = {
             );
         }
     },
-    TestScriptProfile: {
-        __resolveType(obj, context, info) {
-            return context.dataApi.resolveType(obj, context, info);
-        },
-    },
     TestScript: {
         // noinspection JSUnusedLocalSymbols
         // eslint-disable-next-line no-unused-vars

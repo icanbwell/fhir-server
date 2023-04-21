@@ -15,11 +15,6 @@ module.exports = {
             );
         }
     },
-    VerificationResultTarget: {
-        __resolveType(obj, context, info) {
-            return context.dataApi.resolveType(obj, context, info);
-        },
-    },
     VerificationResult: {
         // noinspection JSUnusedLocalSymbols
         // eslint-disable-next-line no-unused-vars

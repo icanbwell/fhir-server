@@ -40,11 +40,6 @@ module.exports = {
             return context.dataApi.resolveType(obj, context, info);
         },
     },
-    ChargeItemSupportingInformation: {
-        __resolveType(obj, context, info) {
-            return context.dataApi.resolveType(obj, context, info);
-        },
-    },
     ChargeItem: {
         // noinspection JSUnusedLocalSymbols
         // eslint-disable-next-line no-unused-vars
