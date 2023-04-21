@@ -15,22 +15,7 @@ module.exports = {
             );
         }
     },
-    ContractSubject: {
-        __resolveType(obj, context, info) {
-            return context.dataApi.resolveType(obj, context, info);
-        },
-    },
     ContractAuthor: {
-        __resolveType(obj, context, info) {
-            return context.dataApi.resolveType(obj, context, info);
-        },
-    },
-    ContractTopicReference: {
-        __resolveType(obj, context, info) {
-            return context.dataApi.resolveType(obj, context, info);
-        },
-    },
-    ContractSupportingInfo: {
         __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
         },

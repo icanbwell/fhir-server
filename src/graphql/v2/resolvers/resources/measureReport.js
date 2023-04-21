@@ -25,11 +25,6 @@ module.exports = {
             return context.dataApi.resolveType(obj, context, info);
         },
     },
-    MeasureReportEvaluatedResource: {
-        __resolveType(obj, context, info) {
-            return context.dataApi.resolveType(obj, context, info);
-        },
-    },
     MeasureReport: {
         // noinspection JSUnusedLocalSymbols
         // eslint-disable-next-line no-unused-vars

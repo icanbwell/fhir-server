@@ -8,16 +8,6 @@ module.exports = {
             return context.dataApi.resolveType(obj, context, info);
         },
     },
-    CompositionSectionFocus: {
-        __resolveType(obj, context, info) {
-            return context.dataApi.resolveType(obj, context, info);
-        },
-    },
-    CompositionSectionEntry: {
-        __resolveType(obj, context, info) {
-            return context.dataApi.resolveType(obj, context, info);
-        },
-    },
     CompositionSection: {
         // noinspection JSUnusedLocalSymbols
         // eslint-disable-next-line no-unused-vars

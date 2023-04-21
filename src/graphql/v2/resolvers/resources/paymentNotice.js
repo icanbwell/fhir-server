@@ -15,16 +15,6 @@ module.exports = {
             );
         }
     },
-    PaymentNoticeRequest: {
-        __resolveType(obj, context, info) {
-            return context.dataApi.resolveType(obj, context, info);
-        },
-    },
-    PaymentNoticeResponse: {
-        __resolveType(obj, context, info) {
-            return context.dataApi.resolveType(obj, context, info);
-        },
-    },
     PaymentNoticeProvider: {
         __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);

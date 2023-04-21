@@ -3,11 +3,6 @@
 
 // noinspection JSUnusedLocalSymbols
 module.exports = {
-    ContractValuedItemEntityReference: {
-        __resolveType(obj, context, info) {
-            return context.dataApi.resolveType(obj, context, info);
-        },
-    },
     ContractValuedItemResponsible: {
         __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);

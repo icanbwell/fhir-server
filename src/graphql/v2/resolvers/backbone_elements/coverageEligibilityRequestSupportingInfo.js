@@ -3,11 +3,6 @@
 
 // noinspection JSUnusedLocalSymbols
 module.exports = {
-    CoverageEligibilityRequestSupportingInfoInformation: {
-        __resolveType(obj, context, info) {
-            return context.dataApi.resolveType(obj, context, info);
-        },
-    },
     CoverageEligibilityRequestSupportingInfo: {
         // noinspection JSUnusedLocalSymbols
         // eslint-disable-next-line no-unused-vars
