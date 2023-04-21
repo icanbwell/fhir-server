@@ -1152,45 +1152,45 @@ class SearchManager {
      */
     validateAuditEventQueryParameters(parsedArgs) {
         // Validate all the required parameters are passed for audit events.
-            this.auditEventValidateRequiredFilters(parsedArgs);
-            // Fetching all the parsed arguments for date
-            const dateQueryParameterValues = parsedArgs['date'];
-            const queryParameters = Array.isArray(dateQueryParameterValues) ?
-                dateQueryParameterValues :
-                [dateQueryParameterValues];
+        this.auditEventValidateRequiredFilters(parsedArgs);
+        // Fetching all the parsed arguments for date
+        const dateQueryParameterValues = parsedArgs['date'];
+        const queryParameters = Array.isArray(dateQueryParameterValues) ?
+            dateQueryParameterValues :
+            [dateQueryParameterValues];
 
-            const [operationDateObject, onlyGreaterThanConditions, onlyLesserThanConditions] = this.getValidDateOperationList(queryParameters);
+        const [operationDateObject, onlyGreaterThanConditions, onlyLesserThanConditions] = this.getValidDateOperationList(queryParameters);
 
-            if (!onlyGreaterThanConditions || !onlyLesserThanConditions) {
-                const message = 'Atleast two operations(lt,gt,ge,le) need to be passed to query Auditevent';
-                throw new BadRequestError(
-                    {
-                        'message': message,
-                        toString: function () {
-                            return message;
-                        }
+        if (!onlyGreaterThanConditions || !onlyLesserThanConditions) {
+            const message = 'Atleast two operations(lt,gt,ge,le) need to be passed to query Auditevent';
+            throw new BadRequestError(
+                {
+                    'message': message,
+                    toString: function () {
+                        return message;
                     }
-                );
-            }
-
-            this.validateAuditEventQueryOperators(operationDateObject);
-
-            // Fetching all dates from operatorsList object
-            const values = Object.values(operationDateObject);
-
-            // If the difference between two dates is greater than a month throw error.
-            if (Math.abs(values[0].diff(values[1], 'months')) >= 1) {
-                const message = 'The difference between dates to query auditevent should not be greater than a month';
-                throw new BadRequestError(
-                    {
-                        'message': message,
-                        toString: function () {
-                            return message;
-                        }
-                    }
-                );
-            }
+                }
+            );
         }
+
+        this.validateAuditEventQueryOperators(operationDateObject);
+
+        // Fetching all dates from operatorsList object
+        const values = Object.values(operationDateObject);
+
+        // If the difference between two dates is greater than a month throw error.
+        if (Math.abs(values[0].diff(values[1], 'months')) >= 1) {
+            const message = 'The difference between dates to query auditevent should not be greater than a month';
+            throw new BadRequestError(
+                {
+                    'message': message,
+                    toString: function () {
+                        return message;
+                    }
+                }
+            );
+        }
+    }
 
 
     /**
@@ -1238,9 +1238,9 @@ class SearchManager {
                     }
                 });
             }
-            // Validate if date is valid.
-            if (!(regexMatch[1] in allowedOperations) || !moment.utc(regexMatch[2]).isValid()) {
-                const message = `${regexMatch[2]} is not a valid date`;
+            // Validate if date is valid and the operations is allowed to be performed.
+            if (!allowedOperations.includes(regexMatch[1]) || !moment.utc(regexMatch[2]).isValid()) {
+                const message = `${regexMatch[0]} is not a valid query`;
                 throw new BadRequestError({
                     'message': message,
                     toString: function () {
@@ -1264,22 +1264,9 @@ class SearchManager {
      * @param {Object} operationList
      */
     validateAuditEventQueryOperators(operationList) {
-        // if Operation list contains eq validate it is only operation to be conducted.
-        if (Object.hasOwn(operationList, 'eq') || Object.hasOwn(operationList, 'eq')) {
-            const message = 'eq and ne are not valid parameters to query.';
-            throw new BadRequestError(
-                {
-                    'message': message,
-                    toString: function () {
-                        return message;
-                    }
-                }
-            );
-        }
-
         // Verifying lt, gt both operations are passed to reduce the number of db hits on online archive
         if (operationList.size < 2) {
-            const message = 'Atleast two operations(lt,gt,ge,le) or eq operation need to be passed to query Auditevent';
+            const message = 'Atleast two operations(lt,gt,ge,le) need to be passed to query Auditevent';
             throw new BadRequestError(
                 {
                     'message': message,
