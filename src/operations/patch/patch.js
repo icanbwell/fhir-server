@@ -15,7 +15,8 @@ const {fhirContentTypes} = require('../../utils/contentTypes');
 const {ParsedArgs} = require('../query/parsedArgs');
 const {FhirResourceCreator} = require('../../fhir/fhirResourceCreator');
 const {DatabaseAttachmentManager} = require('../../dataLayer/databaseAttachmentManager');
-const {RETRIEVE} = require('../../constants').GRIDFS;
+const {RETRIEVE, DELETE} = require('../../constants').GRIDFS;
+const deepcopy = require('deepcopy');
 
 class PatchOperation {
     /**
@@ -147,6 +148,9 @@ class PatchOperation {
             if (!foundResource) {
                 throw new NotFoundError('Resource not found');
             }
+            const originalResource = deepcopy(foundResource);
+            foundResource = await this.databaseAttachmentManager.transformAttachments(foundResource, RETRIEVE);
+
             // Validate the patch
             let errors = validate(patchContent, foundResource);
             if (errors) {
@@ -210,6 +214,11 @@ class PatchOperation {
             if (!mergeResults || mergeResults.length === 0 || (!mergeResults[0].created && !mergeResults[0].updated)) {
                 throw new BadRequestError(new Error(JSON.stringify(mergeResults[0].issue, getCircularReplacer())));
             }
+
+            await this.databaseAttachmentManager.transformAttachments(
+                FhirResourceCreator.createByResourceType(originalResource, resourceType),
+                DELETE
+            );
 
             await this.fhirLoggingManager.logOperationSuccessAsync(
                 {

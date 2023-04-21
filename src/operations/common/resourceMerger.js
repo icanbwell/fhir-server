@@ -6,7 +6,7 @@ const {assertTypeEquals} = require('../../utils/assertType');
 const {PreSaveManager} = require('../../preSaveHandlers/preSave');
 const {IdentifierSystem} = require('../../utils/identifierSystem');
 const {getFirstElementOrNull} = require('../../utils/list.util');
-
+const {DELETE} = require('../../constants').GRIDFS;
 
 /**
  * @typedef MergePatchEntry
@@ -112,6 +112,9 @@ class ResourceMerger {
             return {updatedResource: null, patches: null};
         }
 
+        if (!smartMerge && databaseAttachmentManager) {
+            await databaseAttachmentManager.transformAttachments(currentResource, DELETE);
+        }
         /**
          * @type {Object}
          */

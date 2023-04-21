@@ -1,3 +1,4 @@
+const { ObjectId } = require('mongodb');
 const {commonBeforeEach, commonAfterEach, createTestRequest, getHeaders} = require('../../common');
 const { createTestContainer } = require('../../createTestContainer');
 const documentReferenceData = require('./fixtures/document_reference/document_reference.json');
@@ -24,18 +25,6 @@ describe('GridFS update tests', () => {
 
             expect(resp).toHaveMergeResponse({ created: true });
 
-            resp = await request
-                .put(`/4_0_0/DocumentReference/${resp.id}`)
-                .send(updatedDocumentReferenceData)
-                .set(getHeaders())
-                .expect(201);
-
-            expect(resp._body.content[0].attachment._file_id).toBeUndefined();
-
-            expect(resp._body.content[0].attachment.data).toBeDefined();
-
-            expect(resp._body.content[0].attachment.data).toEqual(updatedDocumentReferenceData.content[0].attachment.data);
-
             const base_version = '4_0_0';
             const container = createTestContainer();
 
@@ -51,6 +40,23 @@ describe('GridFS update tests', () => {
 
             const documentReferenceCollection = `DocumentReference_${base_version}`;
 
+            const originalResource = await fhirDb.collection(documentReferenceCollection)
+                .find({ id: resp._body.id }, { projection: { content: 1 }}).toArray();
+
+            expect(originalResource.length).toEqual(1);
+
+            resp = await request
+                .put(`/4_0_0/DocumentReference/${resp._body.id}`)
+                .send(updatedDocumentReferenceData)
+                .set(getHeaders())
+                .expect(200);
+
+            expect(resp._body.content[0].attachment._file_id).toBeUndefined();
+
+            expect(resp._body.content[0].attachment.data).toBeDefined();
+
+            expect(resp._body.content[0].attachment.data).toEqual(updatedDocumentReferenceData.content[0].attachment.data);
+
             const documentReference = await fhirDb.collection(documentReferenceCollection)
                 .find({ id: resp._body.id }, { projection: { content: 1 }}).toArray();
 
@@ -59,6 +65,13 @@ describe('GridFS update tests', () => {
             expect(documentReference[0].content[0].attachment.data).toBeUndefined();
 
             expect(documentReference[0].content[0].attachment._file_id).toBeDefined();
+
+            const originalFile = await fhirDb.collection('fs.files')
+                .find({ _id: new ObjectId(originalResource[0].content[0].attachment._file_id) }).toArray();
+
+            expect(originalFile.length).toEqual(1);
+
+            expect(originalFile[0].metadata.active).toEqual(false);
         });
     });
 });

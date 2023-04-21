@@ -214,7 +214,8 @@ const createContainer = function () {
     container.register('databaseQueryFactory', (c) => new DatabaseQueryFactory(
         {
             resourceLocatorFactory: c.resourceLocatorFactory,
-            mongoFilterGenerator: c.mongoFilterGenerator
+            mongoFilterGenerator: c.mongoFilterGenerator,
+            databaseAttachmentManager: c.databaseAttachmentManager
         }));
     container.register('databaseHistoryFactory', (c) => new DatabaseHistoryFactory(
         {
@@ -298,7 +299,8 @@ const createContainer = function () {
                 databaseUpdateFactory: c.databaseUpdateFactory,
                 resourceMerger: c.resourceMerger,
                 configManager: c.configManager,
-                mongoFilterGenerator: c.mongoFilterGenerator
+                mongoFilterGenerator: c.mongoFilterGenerator,
+                databaseAttachmentManager: c.databaseAttachmentManager
             }
         )
     );
