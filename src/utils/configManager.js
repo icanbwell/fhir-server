@@ -37,6 +37,13 @@ class ConfigManager {
     }
 
     /**
+     * @return {string[]|null}
+     */
+    get auditEventQueryTimePeriod() {
+        return env.AUDIT_EVENT_QUERY_TIME_PERIOD ? Number(env.AUDIT_EVENT_QUERY_TIME_PERIOD) : 30;
+    }
+
+    /**
      * whether to enable two step optimization
      * @return {boolean}
      */

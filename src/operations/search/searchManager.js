@@ -1159,10 +1159,10 @@ class SearchManager {
             dateQueryParameterValues :
             [dateQueryParameterValues];
 
-        const [operationDateObject, onlyGreaterThanConditions, onlyLesserThanConditions] = this.getValidDateOperationList(queryParameters);
+        const [operationDateObject, isGreaterThanConditionPresent, isLessThanConditionPresent] = this.getValidDateOperationList(queryParameters);
 
-        if (!onlyGreaterThanConditions || !onlyLesserThanConditions) {
-            const message = 'Atleast two operations(lt,gt,ge,le) need to be passed to query Auditevent';
+        if (!isGreaterThanConditionPresent || !isLessThanConditionPresent) {
+            const message = 'Atleast two operations(lt/le or gt/ge) need to be passed to query Auditevent';
             throw new BadRequestError(
                 {
                     'message': message,
@@ -1173,14 +1173,12 @@ class SearchManager {
             );
         }
 
-        this.validateAuditEventQueryOperators(operationDateObject);
-
         // Fetching all dates from operatorsList object
         const values = Object.values(operationDateObject);
 
         // If the difference between two dates is greater than a month throw error.
-        if (Math.abs(values[0].diff(values[1], 'months')) >= 1) {
-            const message = 'The difference between dates to query auditevent should not be greater than a month';
+        if (Math.abs(values[0].diff(values[1], 'days')) >= this.configManager.auditEventQueryTimePeriod) {
+            const message = `The difference between dates to query auditevent should not be greater than ${this.configManager.auditEventQueryTimePeriod}`;
             throw new BadRequestError(
                 {
                     'message': message,
@@ -1225,12 +1223,12 @@ class SearchManager {
         const allowedOperations = ['gt', 'ge', 'lt', 'le'];
         const operationDateObject = {};
         const regex = /([a-z]+)(.+)/;
-        let onlyLesserThanConditions = false, onlyGreaterThanConditions = false;
+        let isLessThanConditionPresent = false, isGreaterThanConditionPresent = false;
         for (const dateParam of queryParams) {
             // Match the date passed in param if it matches the regex pattern.
             const regexMatch = dateParam.match(regex);
             if (!regexMatch) {
-                const message = `${dateParam} is not valid to query operation. [lt, gt] operation is required`;
+                const message = `${dateParam} is not valid to query audit event. [lt, gt] operation is required`;
                 throw new BadRequestError({
                     'message': message,
                     toString: function () {
@@ -1240,7 +1238,7 @@ class SearchManager {
             }
             // Validate if date is valid and the operations is allowed to be performed.
             if (!allowedOperations.includes(regexMatch[1]) || !moment.utc(regexMatch[2]).isValid()) {
-                const message = `${regexMatch[0]} is not a valid query`;
+                const message = `${regexMatch[0]} is not a valid query.`;
                 throw new BadRequestError({
                     'message': message,
                     toString: function () {
@@ -1248,34 +1246,15 @@ class SearchManager {
                     }
                 });
             }
-            if (regexMatch[1] === 'gt' || regexMatch[1] === 'gte') {
-                onlyGreaterThanConditions = true;
-            } else if (regexMatch[1] === 'lt' || regexMatch[1] === 'lte') {
-                onlyLesserThanConditions = true;
+            if (regexMatch[1] === 'gt' || regexMatch[1] === 'ge') {
+                isGreaterThanConditionPresent = true;
+            } else if (regexMatch[1] === 'lt' || regexMatch[1] === 'le') {
+                isLessThanConditionPresent = true;
             }
             // Object of operation and date.
             operationDateObject[regexMatch[1]] = moment.utc(regexMatch[2]);
         }
-        return [operationDateObject, onlyGreaterThanConditions, onlyLesserThanConditions];
-    }
-
-    /**
-     * @description Validates all the query operators passed are valid.
-     * @param {Object} operationList
-     */
-    validateAuditEventQueryOperators(operationList) {
-        // Verifying lt, gt both operations are passed to reduce the number of db hits on online archive
-        if (operationList.size < 2) {
-            const message = 'Atleast two operations(lt,gt,ge,le) need to be passed to query Auditevent';
-            throw new BadRequestError(
-                {
-                    'message': message,
-                    toString: function () {
-                        return message;
-                    }
-                }
-            );
-        }
+        return [operationDateObject, isGreaterThanConditionPresent, isLessThanConditionPresent];
     }
 }
 

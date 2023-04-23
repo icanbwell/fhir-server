@@ -62,7 +62,7 @@ describe('AuditEvent when all is set Tests', () => {
             const container = getTestContainer();
 
             // first confirm there are no AuditEvent
-            let resp = await request.get('/4_0_0/AuditEvent/?date=gt2022-09-09&date=lt2030-02-02').set(getHeaders());
+            let resp = await request.get('/4_0_0/AuditEvent/?date=lt2021-10-09&date=gt2021-08-07').set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResourceCount(0);
 

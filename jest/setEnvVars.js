@@ -23,3 +23,4 @@ process.env.PARTITION_RESOURCES = 'AuditEvent';
 process.env.LOGLEVEL = 'TRACE';
 process.env.GRIDFS_RESOURCES = 'DocumentReference';
 process.env.REQUIRED_AUDIT_EVENT_FILTERS = 'date, ';
+process.env.AUDIT_EVENT_QUERY_TIME_PERIOD = '240'
