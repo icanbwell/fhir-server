@@ -1,9 +1,11 @@
 const Readable = require('stream').Readable;
+const ObjectId = require('mongodb').ObjectId;
 
 const { assertTypeEquals } = require('../utils/assertType');
 const { MongoDatabaseManager } = require('../utils/mongoDatabaseManager');
 const { ConfigManager } = require('../utils/configManager');
 const Attachment = require('../fhir/classes/4_0_0/complex_types/attachment');
+const { INSERT, RETRIEVE } = require('../constants').GRIDFS;
 
 /**
  * @classdesc This class handles attachments with Mongodb GridFS i.e. converts attachment.data
@@ -30,81 +32,142 @@ class DatabaseAttachmentManager {
     }
 
     /**
-     * Checks if GridFs is applicable on the resource and if applicable applies GridFs
-     * @param {Resource[]|Resource} resources
+     * creates metadata for the file if apply operation is to be performed
+     * @param {Resource} resource
+     * @param {String} operation
+     * @returns {Object}
     */
-    async transformAttachments(resources) {
+    getMetadata(resource, operation) {
+        let metadata = {};
+        if (operation === INSERT) {
+            if (resource._uuid) {
+                metadata['resource_uuid'] = resource._uuid;
+            }
+            if (resource._sourceId) {
+                metadata['resource_sourceId'] = resource._sourceId;
+            }
+            metadata.active = true;
+        }
+        return metadata;
+    }
+
+    /**
+     * Checks if GridFs is applicable on the resource and
+     * if applicable changes resources based on the create value
+     * @param {Resource[]|Resource} resources
+     * @param {String} operation
+    */
+    async transformAttachments(resources, operation = INSERT) {
         const enabledGridFsResources = this.configManager.enabledGridFsResources;
         if (Array.isArray(resources)) {
             for (let resourceIndex = 0; resourceIndex < resources.length; resourceIndex++) {
-                if (enabledGridFsResources.includes(resources[resourceIndex].resourceType)) {
-                    let metadata = {};
-                    if (resources[resourceIndex]._uuid) {
-                        metadata['resource_uuid'] = resources[resourceIndex]._uuid;
-                    }
-                    if (resources[resourceIndex]._sourceId) {
-                        metadata['resource_sourceId'] = resources[resourceIndex]._sourceId;
-                    }
-                    resources[resourceIndex] = await this.changeAttachmentWithGridFS(
-                        resources[resourceIndex],
-                        metadata,
-                        resources[resourceIndex].id,
-                        resourceIndex
-                    );
+                if (enabledGridFsResources.includes(resources[parseInt(resourceIndex)].resourceType)) {
+                    resources[parseInt(resourceIndex)] = await this.changeAttachmentWithGridFS({
+                        resource: resources[parseInt(resourceIndex)],
+                        resourceId: resources[parseInt(resourceIndex)].id,
+                        index: resourceIndex,
+                        metadata: this.getMetadata(resources[parseInt(resourceIndex)], operation),
+                        operation
+                    });
                 }
             }
         }
         else if (enabledGridFsResources.includes(resources.resourceType)) {
-            let metadata = {};
-            if (resources._uuid) {
-                metadata['resource_uuid'] = resources._uuid;
-            }
-            if (resources._sourceId) {
-                metadata['resource_sourceId'] = resources._sourceId;
-            }
-            resources = await this.changeAttachmentWithGridFS(resources, metadata, resources.id);
+            resources = await this.changeAttachmentWithGridFS({
+                resource: resources,
+                resourceId: resources.id,
+                metadata: this.getMetadata(resources, operation),
+                operation
+            });
         }
         return resources;
     }
 
     /**
-     * Converts the data field in attachments to _file_id returned by GridFS
+     * finds the attachment in the resource and applies the operation specified
      * @param {Object} resource
      * @param {Object} metadata
-     * @param {number|string} index
+     * @param {Number} resourceId
+     * @param {String} operation
+     * @param {Number|String} index
     */
-    async changeAttachmentWithGridFS(resource, metadata, resourceId, index = 0) {
+    async changeAttachmentWithGridFS({resource, resourceId, metadata, index = 0, operation = null}) {
         if (!resource) {
             return resource;
         }
         if (resource instanceof Attachment) {
             const gridFSBucket = await this.mongoDatabaseManager.getGridFsBucket();
-            if (resource.data) {
-                const buffer = Buffer.from(resource.data);
-                const stream = new Readable();
-                stream.push(buffer);
-                stream.push(null);
-                const gridFSResult = stream.pipe(gridFSBucket.openUploadStream(
-                    `${resourceId}_${index}`, { metadata }
-                ));
-                resource._file_id = gridFSResult.id.toString();
-                delete resource.data;
+            switch (operation) {
+                case INSERT:
+                    return await this.convertDataToFileId(
+                        resource, `${resourceId}_${index}`, gridFSBucket, metadata
+                    );
+
+                case RETRIEVE:
+                    return await this.convertFileIdToData(resource, gridFSBucket);
+
+                default:
+                    return resource;
             }
-            return resource;
         }
         if (resource instanceof Object || Array.isArray(resource)) {
             for (const key in resource) {
                 if (Object.getOwnPropertyDescriptor(resource, key).writable !== false) {
-                    resource[String(key)] = await this.changeAttachmentWithGridFS(
-                        resource[String(key)],
+                    resource[String(key)] = await this.changeAttachmentWithGridFS({
+                        resource: resource[String(key)],
                         metadata,
                         resourceId,
-                        Array.isArray(resource) ? key : index
-                    );
+                        index: Array.isArray(resource) ? key : index,
+                        operation
+                    });
                 }
             }
         }
         return resource;
+    }
+
+    /**
+     * changes the attachment.data to attachment._file_id if attachment.data is present
+     * @param {Resource} resource
+     * @param {String} filename
+     * @param {import('mongodb').GridFSBucket} gridFSBucket
+    */
+    async convertDataToFileId(resource, filename, gridFSBucket, metadata) {
+        if (resource.data) {
+            const buffer = Buffer.from(resource.data);
+            const stream = new Readable();
+            stream.push(buffer);
+            stream.push(null);
+            const gridFSResult = stream.pipe(gridFSBucket.openUploadStream(filename, {metadata}));
+            resource._file_id = gridFSResult.id.toString();
+            delete resource.data;
+        }
+        return resource;
+    }
+
+    /**
+     * changes the attachment._file_id to attachment.data if attachment._file_id is present
+     * @param {Resource} resource
+     * @param {import('mongodb').GridFSBucket} gridFSBucket
+     * @returns {Promise<Resource>}
+    */
+    async convertFileIdToData(resource, gridFSBucket) {
+        return new Promise((resolve) => {
+            if (resource._file_id) {
+                const downloadStream = gridFSBucket.openDownloadStream(new ObjectId(resource._file_id));
+
+                downloadStream.on('data', (chunk) => {
+                    resource.data = (resource.data) ? resource.data + chunk.toString() : chunk.toString();
+                });
+
+                downloadStream.on('end', () => {
+                    delete resource._file_id;
+                    resolve(resource);
+                });
+            } else {
+                resolve(resource);
+            }
+        });
     }
 }
 

@@ -16,6 +16,8 @@ const {BundleManager} = require('../common/bundleManager');
 const {ConfigManager} = require('../../utils/configManager');
 const {ParsedArgs} = require('../query/parsedArgs');
 const {QueryItem} = require('../graph/queryItem');
+const {DatabaseAttachmentManager} = require('../../dataLayer/databaseAttachmentManager');
+const {RETRIEVE} = require('../../constants').GRIDFS;
 
 class SearchBundleOperation {
     /**
@@ -28,6 +30,7 @@ class SearchBundleOperation {
      * @param {ScopesValidator} scopesValidator
      * @param {BundleManager} bundleManager
      * @param {ConfigManager} configManager
+     * @param {DatabaseAttachmentManager} databaseAttachmentManager
      */
     constructor(
         {
@@ -38,7 +41,8 @@ class SearchBundleOperation {
             fhirLoggingManager,
             scopesValidator,
             bundleManager,
-            configManager
+            configManager,
+            databaseAttachmentManager
         }
     ) {
         /**
@@ -86,6 +90,12 @@ class SearchBundleOperation {
          */
         this.configManager = configManager;
         assertTypeEquals(configManager, ConfigManager);
+
+        /**
+         * @type {DatabaseAttachmentManager}
+         */
+        this.databaseAttachmentManager = databaseAttachmentManager;
+        assertTypeEquals(databaseAttachmentManager, DatabaseAttachmentManager);
     }
 
     /**
@@ -291,6 +301,8 @@ class SearchBundleOperation {
                     await this.auditLogger.flushAsync({requestId, currentDate, method});
                 }
             }
+
+            resources = await this.databaseAttachmentManager.transformAttachments(resources, RETRIEVE);
 
             /**
              * @type {number}

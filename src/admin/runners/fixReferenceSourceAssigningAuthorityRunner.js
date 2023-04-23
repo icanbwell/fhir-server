@@ -232,11 +232,8 @@ class FixReferenceSourceAssigningAuthorityRunner extends BaseBulkOperationRunner
             }
 
             // if the _uuid reference works then we're good
-            const {resourceType, id, sourceAssigningAuthority} = ReferenceParser.parseReference(reference.reference);
+            const {resourceType, id} = ReferenceParser.parseReference(reference.reference);
             if (!resourceType) {
-                return reference;
-            }
-            if (sourceAssigningAuthority) {
                 return reference;
             }
             /**

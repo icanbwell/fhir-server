@@ -35,6 +35,7 @@ const {ScopesManager} = require('../security/scopesManager');
 const {convertErrorToOperationOutcome} = require('../../utils/convertErrorToOperationOutcome');
 const {GetCursorResult} = require('./getCursorResult');
 const {QueryItem} = require('../graph/queryItem');
+const { DatabaseAttachmentManager } = require('../../dataLayer/databaseAttachmentManager');
 
 class SearchManager {
     /**
@@ -49,6 +50,7 @@ class SearchManager {
      * @param {QueryRewriterManager} queryRewriterManager
      * @param {PersonToPatientIdsExpander} personToPatientIdsExpander
      * @param {ScopesManager} scopesManager
+     * @param {DatabaseAttachmentManager} databaseAttachmentManager
      */
     constructor(
         {
@@ -61,7 +63,8 @@ class SearchManager {
             configManager,
             queryRewriterManager,
             personToPatientIdsExpander,
-            scopesManager
+            scopesManager,
+            databaseAttachmentManager
         }
     ) {
         /**
@@ -117,6 +120,12 @@ class SearchManager {
          */
         this.scopesManager = scopesManager;
         assertTypeEquals(scopesManager, ScopesManager);
+
+        /**
+         * @type {DatabaseAttachmentManager}
+         */
+        this.databaseAttachmentManager = databaseAttachmentManager;
+        assertTypeEquals(databaseAttachmentManager, DatabaseAttachmentManager);
     }
 
     /**
@@ -786,7 +795,9 @@ class SearchManager {
             // https://nodejs.org/docs/latest-v16.x/api/stream.html#streams-compatibility-with-async-generators-and-async-iterators
             // https://nodejs.org/docs/latest-v16.x/api/stream.html#additional-notes
 
-            const readableMongoStream = createReadableMongoStream({cursor, signal: ac.signal});
+            const readableMongoStream = createReadableMongoStream({
+                cursor, signal: ac.signal, databaseAttachmentManager: this.databaseAttachmentManager
+            });
 
             await pipeline(
                 readableMongoStream,
@@ -962,7 +973,9 @@ class SearchManager {
         const objectChunker = new ObjectChunker({chunkSize: batchObjectCount, signal: ac.signal});
 
         try {
-            const readableMongoStream = createReadableMongoStream({cursor, signal: ac.signal});
+            const readableMongoStream = createReadableMongoStream({
+                cursor, signal: ac.signal, databaseAttachmentManager: this.databaseAttachmentManager
+            });
             // readableMongoStream.on('close', () => {
             //     // logInfo('Mongo read stream was closed');
             //     // ac.abort();
@@ -1075,7 +1088,9 @@ class SearchManager {
         const resourceIdTracker = new ResourceIdTracker({tracker, signal: ac.signal});
 
         try {
-            const readableMongoStream = createReadableMongoStream({cursor, signal: ac.signal});
+            const readableMongoStream = createReadableMongoStream({
+                cursor, signal: ac.signal, databaseAttachmentManager: this.databaseAttachmentManager
+            });
 
             const objectChunker = new ObjectChunker({chunkSize: batchObjectCount, signal: ac.signal});
 
