@@ -245,8 +245,6 @@ class CopyToV3Runner {
                                 liveDocument.meta.lastUpdated > this.updatedAfter
                             ) {
                                 liveDocumentLastUpdatedGreaterThanUpdatedAfter += 1;
-                                const documentToBeCreated = liveDocument;
-                                delete documentToBeCreated._id;
 
                                 // Updating the document in v3DatabaseCollection.
                                 result = await v3DatabaseCollection.updateOne(
