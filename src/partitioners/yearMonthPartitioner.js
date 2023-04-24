@@ -90,7 +90,6 @@ class YearMonthPartitioner extends BasePartitioner {
             if (partitionsCache.has(resourceType) && partitionsCache.get(resourceType).includes(partition)) {
                 partitions.push(partition);
             }
-            console.log(partition, 'partition');
             currentDate = currentDate.utc().subtract(1, 'months');
         }
         return partitions;

@@ -1166,53 +1166,55 @@ class SearchManager {
      * @param {ParsedArgs} parsedArgs
      */
     validateAuditEventQueryParameters(parsedArgs) {
-        // Validate all the required parameters are passed for audit events.
-        this.auditEventValidateRequiredFilters(parsedArgs);
-        // Fetching all the parsed arguments for date
-        const dateQueryParameterValues = parsedArgs['date'];
-        const queryParameters = Array.isArray(dateQueryParameterValues) ?
-            dateQueryParameterValues :
-            [dateQueryParameterValues];
+        const requiredFiltersForAuditEvent = this.configManager.requiredFiltersForAuditEvent;
+        // Validate all the required parameters are passed for AuditEvent.
+        this.auditEventValidateRequiredFilters(parsedArgs, requiredFiltersForAuditEvent);
 
-        const [operationDateObject, isGreaterThanConditionPresent, isLessThanConditionPresent] = this.getValidDateOperationList(queryParameters);
+        if (requiredFiltersForAuditEvent && requiredFiltersForAuditEvent.includes('date')) {
+            // Fetching all the parsed arguments for date
+            const dateQueryParameterValues = parsedArgs['date'];
+            const queryParameters = Array.isArray(dateQueryParameterValues) ?
+                dateQueryParameterValues :
+                [dateQueryParameterValues];
 
-        if (!isGreaterThanConditionPresent || !isLessThanConditionPresent) {
-            const message = 'Atleast two operations(lt/le or gt/ge) need to be passed to query Auditevent';
-            throw new BadRequestError(
-                {
-                    'message': message,
-                    toString: function () {
-                        return message;
+            const [operationDateObject, isGreaterThanConditionPresent, isLessThanConditionPresent] = this.getAuditEventValidDateOperationList(queryParameters);
+
+            if (!isGreaterThanConditionPresent || !isLessThanConditionPresent) {
+                const message = 'Atleast two operations lt/le and gt/ge need to be passed in params to query AuditEvent';
+                throw new BadRequestError(
+                    {
+                        'message': message,
+                        toString: function () {
+                            return message;
+                        }
                     }
-                }
-            );
-        }
+                );
+            }
 
-        // Fetching all dates from operatorsList object
-        const values = Object.values(operationDateObject);
+            // Fetching all dates from operatorsList object
+            const values = Object.values(operationDateObject);
 
-        // If the difference between two dates is greater than a month throw error.
-        if (Math.abs(values[0].diff(values[1], 'days')) >= this.configManager.auditEventQueryTimePeriod) {
-            const message = `The difference between dates to query auditevent should not be greater than ${this.configManager.auditEventQueryTimePeriod}`;
-            throw new BadRequestError(
-                {
-                    'message': message,
-                    toString: function () {
-                        return message;
+            // If the difference between two dates is greater than a month throw error.
+            if (Math.abs(values[0].diff(values[1], 'days')) >= this.configManager.auditEventMaxRangePeriod) {
+                const message = `The difference between dates to query AuditEvent should not be greater than ${this.configManager.auditEventMaxRangePeriod}`;
+                throw new BadRequestError(
+                    {
+                        'message': message,
+                        toString: function () {
+                            return message;
+                        }
                     }
-                }
-            );
+                );
+            }
         }
     }
 
 
     /**
-     * @description Validates that all the required parameters for audit events are present in parsedArgs
+     * @description Validates that all the required parameters for AuditEvent are present in parsedArgs
      * @param {ParsedArgs} parsedArgs
     */
-    auditEventValidateRequiredFilters(parsedArgs) {
-        // args must contain one of these
-        const requiredFiltersForAuditEvent = this.configManager.requiredFiltersForAuditEvent;
+    auditEventValidateRequiredFilters(parsedArgs, requiredFiltersForAuditEvent) {
         if (requiredFiltersForAuditEvent && requiredFiltersForAuditEvent.length > 0) {
             if (requiredFiltersForAuditEvent.filter(r => parsedArgs[`${r}`]).length === 0) {
                 const message = `One of the filters [${requiredFiltersForAuditEvent.join(',')}] are required to query AuditEvent`;
@@ -1230,11 +1232,11 @@ class SearchManager {
     }
 
     /**
-     * @description Validates correct operations are passed in params and date passed is valid.
+     * @description Validates the correct AuditEvent operations are passed in params and date passed is valid.
      * @param {Object} queryParams
      * @returns {Object}
      */
-    getValidDateOperationList(queryParams) {
+    getAuditEventValidDateOperationList(queryParams) {
         const allowedOperations = ['gt', 'ge', 'lt', 'le'];
         const operationDateObject = {};
         const regex = /([a-z]+)(.+)/;
@@ -1243,7 +1245,7 @@ class SearchManager {
             // Match the date passed in param if it matches the regex pattern.
             const regexMatch = dateParam.match(regex);
             if (!regexMatch) {
-                const message = `${dateParam} is not valid to query audit event. [lt, gt] operation is required`;
+                const message = `${dateParam} is not valid to query AuditEvent. [lt, gt] operation is required`;
                 throw new BadRequestError({
                     'message': message,
                     toString: function () {

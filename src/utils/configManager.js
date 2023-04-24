@@ -37,10 +37,11 @@ class ConfigManager {
     }
 
     /**
-     * @return {string[]|null}
+     * @description The max range period for which AuditEvent is to queried.
+     * @return {number}
      */
-    get auditEventQueryTimePeriod() {
-        return env.AUDIT_EVENT_QUERY_TIME_PERIOD ? Number(env.AUDIT_EVENT_QUERY_TIME_PERIOD) : 30;
+    get auditEventMaxRangePeriod() {
+        return env.AUDIT_EVENT_MAX_RANGE_PERIOD ? Number(env.AUDIT_EVENT_MAX_RANGE_PERIOD) : 30;
     }
 
     /**
