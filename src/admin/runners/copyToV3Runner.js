@@ -212,27 +212,26 @@ class CopyToV3Runner {
                     const liveDatabaseCollection = liveDatabase.collection(collection);
                     const v3DatabaseCollection = v3Database.collection(collection);
 
+                    // If _idAbove is provided fetch all documents having _id greater than this._idAbove along with lastUpdated greater than this.updatedAfter.
+                    const query = this._idAbove ? {$and: [{ _id: { $gt: new ObjectId(this._idAbove) } }, {'meta.lastUpdated': { $gt: new Date(this.updatedAfter)}}]} : {'meta.lastUpdated': { $gt: new Date(this.updatedAfter)}};
+
+                    // Counts the total number of documents
+                    const totalLiveDocuments = await liveDatabaseCollection.countDocuments();
+                    // Get total count of document for which last update is greater than updatedAfter
+                    const liveDocumentLastUpdatedGreaterThanUpdatedAfter = await liveDatabaseCollection.countDocumentscount(query);
+                    this.adminLogger.logInfo(
+                        `For ${collection} the total documents in live db: ${totalLiveDocuments} and documents having last updated greater than ${this.updatedAfter}: ${liveDocumentLastUpdatedGreaterThanUpdatedAfter}`
+                    );
+
                     // Cursor options. As we are also provide _idAbove we need to get results in sorted manner
                     const cursorOptions = {
                         batchSize: this.readBatchSize,
                         sort: { _id: 1 },
                     };
 
-                    // If _idAbove is provided fetch all documents having _id greater than this._idAbove along with lastUpdated greater than this.updatedAfter.
-                    const query = this._idAbove ? {$and: [{ _id: { $gt: new ObjectId(this._idAbove) } }, {'meta.lastUpdated': { $gt: new Date(this.updatedAfter)}}]} : {'meta.lastUpdated': { $gt: new Date(this.updatedAfter)}};
-
                     // Projection is used so that we don't fetch _id. Thus preventing it from being updated while updating document.
                     // Returns a list of documents from liveDatabaseCollection collection with specified batch size
                     const cursor = liveDatabaseCollection.find(query, cursorOptions);
-                    // Get total count of document for which last update is greater than updatedAfter
-                    const liveDocumentLastUpdatedGreaterThanUpdatedAfter = await cursor.count();
-
-                    // Counts the total number of documents
-                    const totalLiveDocuments = await liveDatabaseCollection.countDocuments();
-
-                    this.adminLogger.logInfo(
-                        `For ${collection} the total documents in live db: ${totalLiveDocuments} and documents having last updated greater than ${this.updatedAfter}: ${liveDocumentLastUpdatedGreaterThanUpdatedAfter}`
-                    );
 
                     while (await cursor.hasNext()) {
                         let result;
