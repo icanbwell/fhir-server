@@ -74,6 +74,7 @@ async function main() {
  * MONGO_URL, MONGO_USERNAME, MONGO_PASSWORD, MONGO_DB_NAME(default: fhir)
  * node src/admin/scripts/copyToV3.js --updatedAfter=2023-04-20 --readbatchSize=10000 --concurrentRunners=5 --_idAbove="1" --startWithCollection="Task_4_0_0"
  * node src/admin/scripts/copyToV3.js --updatedAfter=2023-04-20 --collections=Task_4_0_0 --skipHistoryCollections
+ * node src/admin/scripts/copyToV3.js --updatedAfter=2023-04-20 --concurrentRunners=10
  */
 main().catch((reason) => {
     console.error(reason);
