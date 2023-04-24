@@ -62,7 +62,7 @@ describe('AuditEvent when all is set Tests', () => {
             const container = getTestContainer();
 
             // first confirm there are no AuditEvent
-            let resp = await request.get('/4_0_0/AuditEvent').set(getHeaders());
+            let resp = await request.get('/4_0_0/AuditEvent/?date=lt2021-10-09&date=gt2021-08-07').set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResourceCount(0);
 
@@ -120,7 +120,7 @@ describe('AuditEvent when all is set Tests', () => {
             // ACT & ASSERT
             // search by token system and code and make sure we get the right AuditEvent back
             resp = await request
-                .get('/4_0_0/AuditEvent/?_bundle=1&_debug=1&_count=2&_getpagesoffset=0&_security=https://www.icanbwell.com/access%7Cmedstar&date=lt2021-09-22T00:00:00Z&date=ge2021-09-19T00:00:00Z')
+                .get('/4_0_0/AuditEvent/?date=lt2021-09-22&date=ge2021-09-19&_bundle=1&_debug=1&_count=2&_getpagesoffset=0&_security=https://www.icanbwell.com/access%7Cmedstar')
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedAuditEventResourcesAccessIndex);

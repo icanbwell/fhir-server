@@ -25,7 +25,7 @@ describe('AuditEventLastUpdatedTests', () => {
         test('search by last updated works', async () => {
             const request = await createTestRequest();
             // first confirm there are no AuditEvent
-            let resp = await request.get('/4_0_0/AuditEvent').set(getHeaders());
+            let resp = await request.get('/4_0_0/AuditEvent/?date=gt2021-08-02&date=lt2021-10-02').set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResourceCount(0);
 
@@ -40,7 +40,7 @@ describe('AuditEventLastUpdatedTests', () => {
             // now check that we get the right record back
             resp = await request
                 .get(
-                    '/4_0_0/AuditEvent/?_security=https://www.icanbwell.com/access|fake&_lastUpdated=gt2021-06-01&_lastUpdated=lt2031-10-26&_count=10&_getpagesoffset=0&_debug=1&date=gt2021-06-01&_bundle=1&streamResponse=1'
+                    '/4_0_0/AuditEvent/?_security=https://www.icanbwell.com/access|fake&_lastUpdated=gt2021-06-01&_lastUpdated=lt2031-10-26&_count=10&_getpagesoffset=0&_debug=1&date=gt2021-08-02&date=lt2021-10-02&_bundle=1&streamResponse=1'
                 )
                 .set(getHeaders());
 
