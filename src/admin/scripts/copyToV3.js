@@ -1,3 +1,10 @@
+// load config from .env.  Should be first thing so env vars are available to rest of the code
+const path = require('path');
+const dotenv = require('dotenv');
+const pathToEnv = path.resolve(__dirname, '.env');
+dotenv.config({
+    path: pathToEnv,
+});
 const { logInfo } = require('../../operations/common/logging');
 const { createContainer } = require('../../createContainer');
 const { CommandLineParser } = require('./commandLineParser');
@@ -63,8 +70,8 @@ async function main() {
  * To run this:
  * nvm use 18.14.2
  * required env variables
- * V3_CLUSTER_USERNAME, V3_CLUSTER_PASSWORD, V3_CLUSTER_MONGO_URL, V3_CLUSTER_DB_NAME
- * SOURCE_CLUSTER_USERNAME, SOURCE_CLUSTER_PASSWORD, SOURCE_CLUSTER_MONGO_URL, SOURCE_DB_NAME
+ * V3_MONGO_URL, V3_MONGO_HOSTNAME, V3_MONGO_PORT, V3_MONGO_USERNAME, V3_MONGO_PASSWORD, V3_DB_NAME
+ * MONGO_URL, MONGO_HOSTNAME, MONGO_PORT, MONGO_USERNAME, MONGO_PASSWORD, MONGO_DB_NAME
  * node src/admin/scripts/copyToV3.js --updatedAfter=2023-04-20 --readbatchSize=10000 --concurrentRunners=5 --_idAbove="1" --startWithCollection="Task_4_0_0"
  * node src/admin/scripts/copyToV3.js --updatedAfter=2023-04-20 --collections=Task_4_0_0 --skipHistoryCollections
  */

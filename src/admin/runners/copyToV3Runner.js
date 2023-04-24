@@ -4,6 +4,7 @@ const { MongoCollectionManager } = require('../../utils/mongoCollectionManager')
 const { MongoDatabaseManager } = require('../../utils/mongoDatabaseManager');
 const { AdminLogger } = require('../adminLogger');
 const { ObjectId } = require('mongodb');
+const {mongoConfig} = require('../../config');
 
 /**
  * @classdesc Copies documents from one collection into the other collection in different clusters
@@ -90,41 +91,34 @@ class CopyToV3Runner {
      * @returns {Object}
      */
     getV3ClusterConfig() {
-        const mongoUrl = encodeURI(`mongodb+srv://${process.env.V3_CLUSTER_USERNAME}:${process.env.V3_CLUSTER_PASSWORD}@${process.env.V3_CLUSTER_MONGO_URL}`);
-        const db_name = process.env.V3_CLUSTER_DB_NAME;
+        let v3MongoUrl = process.env.V3_MONGO_URL || `mongodb://${process.env.V3_MONGO_HOSTNAME}:${process.env.V3_MONGO_PORT}`;
+        if (process.env.V3_MONGO_USERNAME !== undefined) {
+            v3MongoUrl = v3MongoUrl.replace(
+                'mongodb://',
+                `mongodb://${process.env.V3_MONGO_USERNAME}:${process.env.V3_MONGO_PASSWORD}@`
+            );
+            v3MongoUrl = v3MongoUrl.replace(
+                'mongodb+srv://',
+                `mongodb+srv://${process.env.V3_MONGO_USERNAME}:${process.env.V3_MONGO_PASSWORD}@`
+            );
+        }
+        // url-encode the url
+        v3MongoUrl = encodeURI(v3MongoUrl);
+
+        const db_name = process.env.V3_DB_NAME;
 
         this.adminLogger.logInfo(
-            `Connecting to v3 cluster with mongo url: ${process.env.V3_CLUSTER_MONGO_URL} and db_name: ${db_name}`
+            `Connecting to v3 cluster with mongo url: ${v3MongoUrl} and db_name: ${db_name}`
         );
-        const options = {
-            // https://www.mongodb.com/docs/drivers/node/current/fundamentals/connection/connection-options/
-            retryWrites: true,
-            w: 'majority',
-            connectTimeoutMS: 0,
-            maxIdleTimeMS: 0,
-            serverSelectionTimeoutMS: 600000 // Wait for 60 seconds before server selection is complete.
-        };
-        return { connection: mongoUrl, db_name: db_name, options: options };
+        return { connection: v3MongoUrl, db_name: db_name, options: mongoConfig.options };
     }
 
     /**
-     * @description Creates config for the source cluster using connection string
+     * @description Creates config for the Live cluster using connection string
      * @returns {Object}
      */
-    getSourceClusterConfig() {
-        const mongoUrl = encodeURI(`mongodb+srv://${process.env.SOURCE_CLUSTER_USERNAME}:${process.env.SOURCE_CLUSTER_PASSWORD}@${process.env.SOURCE_CLUSTER_MONGO_URL}`);
-        const db_name = process.env.SOURCE_DB_NAME;
-
-        this.adminLogger.logInfo(
-            `Connecting to v3 cluster with mongo url: ${process.env.SOURCE_CLUSTER_MONGO_URL} and db_name: ${db_name}`
-        );
-        const options = {
-            // https://www.mongodb.com/docs/drivers/node/current/fundamentals/connection/connection-options/
-            connectTimeoutMS: 0,
-            maxIdleTimeMS: 0,
-            serverSelectionTimeoutMS: 600000 // Wait for 60 seconds before server selection is complete.
-        };
-        return { connection: mongoUrl, db_name: db_name, options: options };
+    getLiveClusterConfig() {
+        return mongoConfig;
     }
 
     /**
@@ -166,42 +160,42 @@ class CopyToV3Runner {
 
         // Creating config specific to each cluster
         const v3ClusterConfig = this.getV3ClusterConfig();
-        const sourceClusterConfig = this.getSourceClusterConfig();
-        let v3Client, sourceClient;
+        const liveClusterConfig = this.getLiveClusterConfig();
+        let v3Client, liveClient;
 
         try {
             // Creating a connection between the v3 cluster and the application
             v3Client = await this.mongoDatabaseManager.createClientAsync(v3ClusterConfig);
 
-            // Creating a connection between the source cluster and the application
-            sourceClient = await this.mongoDatabaseManager.createClientAsync(sourceClusterConfig);
+            // Creating a connection between the live cluster and the application
+            liveClient = await this.mongoDatabaseManager.createClientAsync(liveClusterConfig);
 
             this.adminLogger.logInfo('Client connected successfully to both the clusters.');
             // Creating a new db instance for both the clusters
             const v3Database = v3Client.db(v3ClusterConfig.db_name);
-            const sourceDatabase = sourceClient.db(sourceClusterConfig.db_name);
+            const liveDatabase = liveClient.db(liveClusterConfig.db_name);
 
-            // Fetch all the collection names for the source database.
-            let sourceCollectionAndViews = await sourceDatabase.listCollections().toArray();
+            // Fetch all the collection names for the live database.
+            let liveCollectionAndViews = await liveDatabase.listCollections().toArray();
 
-            let sourceCollections = this.getListOfCollections(sourceCollectionAndViews);
-            sourceCollections.sort();
+            let liveCollections = this.getListOfCollections(liveCollectionAndViews);
+            liveCollections.sort();
             if (this.startWithCollection) {
-                const indexToSplice = sourceCollections.indexOf(this.startWithCollection) !== -1 ? sourceCollections.indexOf(this.startWithCollection) : 0;
-                sourceCollections = sourceCollections.splice(indexToSplice);
+                const indexToSplice = liveCollections.indexOf(this.startWithCollection) !== -1 ? liveCollections.indexOf(this.startWithCollection) : 0;
+                liveCollections = liveCollections.splice(indexToSplice);
             }
-            this.adminLogger.logInfo(`The list of collections are:  ${sourceCollections}`);
+            this.adminLogger.logInfo(`The list of collections are:  ${liveCollections}`);
 
             // Creating batches of collections depending on the concurrency parameter passed.
             let collectionNameBatches = [];
             // Dpending on concurrentRunners provided we eill batch collections in equivalent groups.
             let minimumCollectionsToRunTogether = Math.max(
                 1,
-                Math.floor(sourceCollections.length / this.concurrentRunners)
+                Math.floor(liveCollections.length / this.concurrentRunners)
             );
-            for (let i = 0; i < sourceCollections.length; i = i + minimumCollectionsToRunTogether) {
+            for (let i = 0; i < liveCollections.length; i = i + minimumCollectionsToRunTogether) {
                 collectionNameBatches.push(
-                    sourceCollections.slice(i, i + minimumCollectionsToRunTogether)
+                    liveCollections.slice(i, i + minimumCollectionsToRunTogether)
                 );
             }
 
@@ -215,21 +209,19 @@ class CopyToV3Runner {
                 for (const collection of collectionNameBatch) {
                     this.adminLogger.logInfo(`========= Iterating through ${collection} =========`);
                     let updatedCount = 0; // Keeps track of the total updated documents
-                    let skippedCount = 0; // Keeps track of documents that are skipped as they don't match the requirements.
                     let lastProcessedId = null; // For each collect help in keeping track of the last id processed.
-                    let totalProcessedDoc = 0; // Keep tracks of the total processed id.
-                    let sourceDocumentLastUpdatedLesserThanUpdatedAfter = 0; // Keeps tracks of the documnet that is skipped and v3 last update is greater than updated before.
+                    let upsertedCount = 0; // Keeps track of the total documents that had to be created.
+                    let liveDocumentLastUpdatedGreaterThanUpdatedAfter = 0; // Keeps tracks of the documnet that is skipped and v3 last update is greater than updated before.
 
-                    // Fetching the collection from the database for both source and v3
-                    const sourceDatabaseCollection = sourceDatabase.collection(collection);
+                    // Fetching the collection from the database for both live and v3
+                    const liveDatabaseCollection = liveDatabase.collection(collection);
                     const v3DatabaseCollection = v3Database.collection(collection);
 
-                    const totalV3Documents = await v3DatabaseCollection.countDocuments();
-                    const totalSourceDocuments = await sourceDatabaseCollection.countDocuments();
-                    const sourceDocumentsMissingLastUpdated = await sourceDatabaseCollection.find({'meta.lastUpdated': { $exists: false}}).count();
+                    const totalLiveDocuments = await liveDatabaseCollection.countDocuments();
+                    const liveDocumentsMissingLastUpdated = await liveDatabaseCollection.find({'meta.lastUpdated': { $exists: false}}).count();
 
                     this.adminLogger.logInfo(
-                        `For ${collection} the total documents in v3 collection: ${totalV3Documents} and source collection: ${totalSourceDocuments}`
+                        `For ${collection} the total documents in live collection: ${totalLiveDocuments}`
                     );
 
                     // Cursor options. As we are also provide _idAbove we need to get results in sorted manner
@@ -242,61 +234,47 @@ class CopyToV3Runner {
                     const query = this._idAbove ? { _id: { $gt: new ObjectId(this._idAbove) } } : {'meta.lastUpdated': { $exists: true}};
 
                     // Projection is used so that we don't fetch _id. Thus preventing it from being updated while updating document.
-                    // Returns a list of documents from sourceDatabaseCollection collection with specified batch size
-                    const cursor = sourceDatabaseCollection.find(query, cursorOptions);
+                    // Returns a list of documents from liveDatabaseCollection collection with specified batch size
+                    const cursor = liveDatabaseCollection.find(query, cursorOptions);
                     while (await cursor.hasNext()) {
                         let result;
-                        totalProcessedDoc += 1;
-                        const sourceDocument = await cursor.next();
-
-                        // Fetching document from v3 db having same id.
-                        const v3Document = await v3DatabaseCollection.findOne({
-                            _id: sourceDocument._id,
-                        });
-
-                        if (sourceDocument.meta.lastUpdated < this.updatedAfter) {
-                            sourceDocumentLastUpdatedLesserThanUpdatedAfter += 1;
-                        }
+                        const liveDocument = await cursor.next();
 
                         try {
                             if (
-                                v3Document &&
-                                sourceDocument.meta.lastUpdated > this.updatedAfter
+                                liveDocument.meta.lastUpdated > this.updatedAfter
                             ) {
+                                liveDocumentLastUpdatedGreaterThanUpdatedAfter += 1;
+                                const documentToBeCreated = liveDocument;
+                                delete documentToBeCreated._id;
+
                                 // Updating the document in v3DatabaseCollection.
                                 result = await v3DatabaseCollection.updateOne(
-                                    { _id: sourceDocument._id },
-                                    {
-                                        $set: sourceDocument,
-                                    }
+                                    { _id: liveDocument._id },
+                                    { $set: liveDocument },
+                                    { upsert: true }
                                 );
-                            } else {
-                                // The document already exists in fhir and has been updated later than updatedAfter
-                                skippedCount++;
-                                continue;
+                                // Keeping track of the last updated id
+                                lastProcessedId = liveDocument._id;
+                                updatedCount += result.modifiedCount;
+                                upsertedCount += result.upsertedCount;
                             }
-
-                            // Keeping track of the last updated id
-                            lastProcessedId = sourceDocument._id;
-                            updatedCount += result.modifiedCount;
                         } catch (error) {
                             this.adminLogger.logError(
-                                `Error while updating document with id ${v3Document._id}. Error Message: ${error}`
+                                `Error while updating document with id ${liveDocument._id}. Error Message: ${error}`
                             );
                         }
                     }
                     this.adminLogger.logInfo(
-                        `===== For ${collection} total updated documents: ${updatedCount} and total documents skipped: ${skippedCount}. The source documents that have a missing lastUpdated value: ${sourceDocumentsMissingLastUpdated} `
+                        `===== For ${collection} total updated and upserted documents: ${updatedCount + upsertedCount} The live documents that have last updated greater than ${this.updatedAfter}: ${liveDocumentLastUpdatedGreaterThanUpdatedAfter} `
                     );
                     // eslint-disable-next-line security/detect-object-injection
                     results[collection] = {
-                        totalSourceDocuments: totalSourceDocuments,
-                        totalV3Documents: totalV3Documents,
-                        totalProcessedDocuments: totalProcessedDoc,
-                        sourceMissingLastUpdated: sourceDocumentsMissingLastUpdated,
-                        [`sourceDocumentLastUpdatedLesserThan_${moment(this.updatedAfter).format('YYYY-MM-DD')}`]: sourceDocumentLastUpdatedLesserThanUpdatedAfter,
+                        totalLiveDocuments: totalLiveDocuments,
+                        liveDocumentsMissingLastUpdated: liveDocumentsMissingLastUpdated,
+                        [`liveDocumentLastUpdatedGreaterThan_${moment(this.updatedAfter).format('YYYY-MM-DD')}`]: liveDocumentLastUpdatedGreaterThanUpdatedAfter,
                         updatedCount: updatedCount,
-                        skippedCount: skippedCount,
+                        upsertedCount: upsertedCount,
                         lastProcessedId: lastProcessedId
                     };
                 }
@@ -311,7 +289,7 @@ class CopyToV3Runner {
             this.adminLogger.logError(`Error: ${error}`);
         } finally {
             await this.mongoDatabaseManager.disconnectClientAsync(v3Client);
-            await this.mongoDatabaseManager.disconnectClientAsync(sourceClient);
+            await this.mongoDatabaseManager.disconnectClientAsync(liveClient);
             this.adminLogger.logInfo('Closed connectinon for both the cluster');
             this.adminLogger.logInfo('Finished Script');
         }
