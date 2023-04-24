@@ -214,7 +214,7 @@ class CopyToV3Runner {
                     let totalDocumentUpdatedCount = 0; // Keeps track of the total updated documents
                     let lastProcessedId = null; // For each collect help in keeping track of the last id processed.
                     let totalDocumentCreatedCount = 0; // Keeps track of the total documents that had to be created.
-                    let totalDocumentHavingSameDataCount = 0; // Keep tracks of the documents that match an existing _id but are neithe updated nor created.
+                    let totalDocumentHavingSameDataCount = 0; // Keep tracks of the documents that match an existing _id but are neither updated nor created.
 
                     // Fetching the collection from the database for both live and v3
                     const liveDatabaseCollection = liveDatabase.collection(collection);
@@ -229,8 +229,11 @@ class CopyToV3Runner {
                         sort: { _id: 1 },
                     };
 
-                    // If _idAbove is provided fetch all documents having _id greater than this._idAbove or fetch all documents that have a value for lastUpdated greater than this.updatedAfter.
-                    const query = this._idAbove ? { _id: { $gt: new ObjectId(this._idAbove) } } : {'meta.lastUpdated': { $gt: new Date(this.updatedAfter)}};
+                    // If _idAbove is provided fetch all documents having _id greater than this._idAbove and document having lastUpdate greater than updatedAfter
+                    // or fetch all documents that have a value for lastUpdated greater than this.updatedAfter.
+                    const query = this._idAbove ?
+                        {$and: [{ _id: { $gt: new ObjectId(this._idAbove) } }, { 'meta.lastUpdated': { $gt: new Date(this.updatedAfter) } }]} :
+                        {'meta.lastUpdated': { $gt: new Date(this.updatedAfter)}};
 
                     // Projection is used so that we don't fetch _id. Thus preventing it from being updated while updating document.
                     // Returns a list of documents from liveDatabaseCollection collection with specified batch size
@@ -256,6 +259,7 @@ class CopyToV3Runner {
                             lastProcessedId = liveDocument._id;
                             totalDocumentUpdatedCount += result.modifiedCount;
                             totalDocumentCreatedCount += result.upsertedCount;
+                            // If the data has been modified which means data are not same.
                             totalDocumentHavingSameDataCount += result.modifiedCount ? 0 : result.matchedCount;
                         } catch (error) {
                             this.adminLogger.logError(
