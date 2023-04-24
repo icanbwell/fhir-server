@@ -218,7 +218,7 @@ class CopyToV3Runner {
                     // Counts the total number of documents
                     const totalLiveDocuments = await liveDatabaseCollection.countDocuments();
                     // Get total count of document for which last update is greater than updatedAfter
-                    const liveDocumentLastUpdatedGreaterThanUpdatedAfter = await liveDatabaseCollection.countDocumentscount(query);
+                    const liveDocumentLastUpdatedGreaterThanUpdatedAfter = await liveDatabaseCollection.countDocuments(query);
                     this.adminLogger.logInfo(
                         `For ${collection} the total documents in live db: ${totalLiveDocuments} and documents having last updated greater than ${this.updatedAfter}: ${liveDocumentLastUpdatedGreaterThanUpdatedAfter}`
                     );
