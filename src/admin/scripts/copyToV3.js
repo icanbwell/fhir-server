@@ -70,8 +70,8 @@ async function main() {
  * To run this:
  * nvm use 18.14.2
  * required env variables
- * V3_MONGO_URL, V3_MONGO_HOSTNAME, V3_MONGO_PORT, V3_MONGO_USERNAME, V3_MONGO_PASSWORD, V3_DB_NAME
- * MONGO_URL, MONGO_HOSTNAME, MONGO_PORT, MONGO_USERNAME, MONGO_PASSWORD, MONGO_DB_NAME
+ * V3_MONGO_URL, V3_MONGO_USERNAME, V3_MONGO_PASSWORD, V3_DB_NAME(default: fhir)
+ * MONGO_URL, MONGO_USERNAME, MONGO_PASSWORD, MONGO_DB_NAME(default: fhir)
  * node src/admin/scripts/copyToV3.js --updatedAfter=2023-04-20 --readbatchSize=10000 --concurrentRunners=5 --_idAbove="1" --startWithCollection="Task_4_0_0"
  * node src/admin/scripts/copyToV3.js --updatedAfter=2023-04-20 --collections=Task_4_0_0 --skipHistoryCollections
  */
