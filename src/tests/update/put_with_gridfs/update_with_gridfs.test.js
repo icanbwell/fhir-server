@@ -135,7 +135,7 @@ describe('GridFS update tests', () => {
             expect(originalFile[0].metadata.active).toEqual(true);
         });
 
-        test("Removal of data works", async () => {
+        test('Removal of data works', async () => {
             const request = await createTestRequest();
             // add the resources to FHIR server
             let resp = await request
