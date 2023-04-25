@@ -215,10 +215,22 @@ class CopyToV3Runner {
                     let lastProcessedId = null; // For each collect help in keeping track of the last id processed.
                     let totalDocumentCreatedCount = 0; // Keeps track of the total documents that had to be created.
                     let totalDocumentHavingSameDataCount = 0; // Keep tracks of the documents that match an existing _id but are neither updated nor created.
+                    const isHistoryCollection = collection.endsWith('_History'); // Denotes that the current collection is a history collection
 
                     // Fetching the collection from the database for both live and v3
                     const liveDatabaseCollection = liveDatabase.collection(collection);
                     const v3DatabaseCollection = v3Database.collection(collection);
+
+                    // Query to fetch documents for both history collection and normal collection that have lastUpdated greater than updatedAfter
+                    const queryToFetchDocuments = isHistoryCollection ?
+                        { 'resource.meta.lastUpdated': { $gt: new Date(this.updatedAfter) } } :
+                        { 'meta.lastUpdated': { $gt: new Date(this.updatedAfter) } };
+                    // // If _idAbove is provided fetch all documents having _id greater than this._idAbove and document having lastUpdate greater than updatedAfter
+                    const queryToFetchDocumentsWithIdAboveFilter = isHistoryCollection ?
+                        {$and: [{ _id: { $gt: new ObjectId(this._idAbove) } }, {'resource.meta.lastUpdated': { $gt: new Date(this.updatedAfter)}}]} :
+                        {$and: [{ _id: { $gt: new ObjectId(this._idAbove) } }, {'meta.lastUpdated': { $gt: new Date(this.updatedAfter)}}]};
+
+                    const query = this._idAbove ? queryToFetchDocumentsWithIdAboveFilter : queryToFetchDocuments;
 
                     // Counts the total number of documents
                     const totalLiveDocuments = await liveDatabaseCollection.countDocuments();
@@ -229,13 +241,6 @@ class CopyToV3Runner {
                         sort: { _id: 1 },
                     };
 
-                    // If _idAbove is provided fetch all documents having _id greater than this._idAbove and document having lastUpdate greater than updatedAfter
-                    // or fetch all documents that have a value for lastUpdated greater than this.updatedAfter.
-                    const query = this._idAbove ?
-                        {$and: [{ _id: { $gt: new ObjectId(this._idAbove) } }, { 'meta.lastUpdated': { $gt: new Date(this.updatedAfter) } }]} :
-                        {'meta.lastUpdated': { $gt: new Date(this.updatedAfter)}};
-
-                    // Projection is used so that we don't fetch _id. Thus preventing it from being updated while updating document.
                     // Returns a list of documents from liveDatabaseCollection collection with specified batch size
                     const cursor = liveDatabaseCollection.find(query, cursorOptions);
                     // Get total count of document for which last update is greater than updatedAfter
