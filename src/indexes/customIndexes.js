@@ -407,6 +407,17 @@ module.exports = {
                 }
             }
         ],
+        'Organization_4_0_0': [
+            {
+                keys: {
+                    'type.coding.code': 1,
+                    '_uuid': 1
+                },
+                options: {
+                    name: 'organization_type_code_1'
+                }
+            }
+        ],
         'OrganizationAffiliation_4_0_0': [
             {
                 keys: {
