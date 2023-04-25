@@ -497,7 +497,7 @@ class IndexManager {
             await this.mongoDatabaseManager.getClientDbAsync();
         const collection_names = [];
 
-        for await (const collection of db.listCollections()) {
+        for await (const collection of db.listCollections({ type: {$ne: 'view'} })) {
             if (collection.name.indexOf('system.') === -1) {
                 collection_names.push(collection.name);
             }
