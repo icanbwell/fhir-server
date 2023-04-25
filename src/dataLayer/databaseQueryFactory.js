@@ -2,14 +2,16 @@ const {DatabaseQueryManager} = require('./databaseQueryManager');
 const {ResourceLocatorFactory} = require('../operations/common/resourceLocatorFactory');
 const {assertTypeEquals, assertIsValid} = require('../utils/assertType');
 const {MongoFilterGenerator} = require('../utils/mongoFilterGenerator');
+const {DatabaseAttachmentManager} = require('./databaseAttachmentManager');
 
 class DatabaseQueryFactory {
     /**
      * Constructor
      * @param {ResourceLocatorFactory} resourceLocatorFactory
      * @param {MongoFilterGenerator} mongoFilterGenerator
+     * @param {DatabaseAttachmentManager} databaseAttachmentManager
      */
-    constructor({resourceLocatorFactory, mongoFilterGenerator}) {
+    constructor({resourceLocatorFactory, mongoFilterGenerator, databaseAttachmentManager}) {
         assertTypeEquals(resourceLocatorFactory, ResourceLocatorFactory);
         /**
          * @type {ResourceLocatorFactory}
@@ -22,6 +24,11 @@ class DatabaseQueryFactory {
         this.mongoFilterGenerator = mongoFilterGenerator;
         assertTypeEquals(mongoFilterGenerator, MongoFilterGenerator);
 
+        /**
+         * @type {DatabaseAttachmentManager}
+         */
+        this.databaseAttachmentManager = databaseAttachmentManager;
+        assertTypeEquals(databaseAttachmentManager, DatabaseAttachmentManager);
     }
 
     /**
@@ -36,7 +43,8 @@ class DatabaseQueryFactory {
                 resourceLocatorFactory: this.resourceLocatorFactory,
                 resourceType,
                 base_version,
-                mongoFilterGenerator: this.mongoFilterGenerator
+                mongoFilterGenerator: this.mongoFilterGenerator,
+                databaseAttachmentManager: this.databaseAttachmentManager
             }
         );
     }

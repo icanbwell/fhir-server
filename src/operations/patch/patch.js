@@ -1,7 +1,7 @@
 // noinspection ExceptionCaughtLocallyJS
 
 const {BadRequestError, NotFoundError} = require('../../utils/httpErrors');
-const {validate, applyPatch} = require('fast-json-patch');
+const {validate, applyPatch, compare} = require('fast-json-patch');
 const moment = require('moment-timezone');
 const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
 const {DatabaseQueryFactory} = require('../../dataLayer/databaseQueryFactory');
@@ -15,7 +15,7 @@ const {fhirContentTypes} = require('../../utils/contentTypes');
 const {ParsedArgs} = require('../query/parsedArgs');
 const {FhirResourceCreator} = require('../../fhir/fhirResourceCreator');
 const {DatabaseAttachmentManager} = require('../../dataLayer/databaseAttachmentManager');
-const {RETRIEVE} = require('../../constants').GRIDFS;
+const {DELETE, RETRIEVE} = require('../../constants').GRIDFS;
 
 class PatchOperation {
     /**
@@ -147,6 +147,11 @@ class PatchOperation {
             if (!foundResource) {
                 throw new NotFoundError('Resource not found');
             }
+            const originalResource = foundResource.clone();
+            foundResource = await this.databaseAttachmentManager.transformAttachments(
+                foundResource, RETRIEVE, patchContent
+            );
+
             // Validate the patch
             let errors = validate(patchContent, foundResource);
             if (errors) {
@@ -158,7 +163,7 @@ class PatchOperation {
              * @type {Object}
              */
             let resource_incoming = applyPatch(foundResource.toJSONInternal(), patchContent).newDocument;
-
+            const appliedPatchContent = compare(foundResource.toJSONInternal(), resource_incoming);
             /**
              * @type {Resource}
              */
@@ -177,6 +182,11 @@ class PatchOperation {
                     'Unable to patch resource. Missing either foundResource, metadata or metadata source.'
                 ));
             }
+
+            // removing the files that are patched
+            await this.databaseAttachmentManager.transformAttachments(
+                originalResource, DELETE, appliedPatchContent.filter(patch => patch.op !== 'add')
+            );
 
             // converting attachment.data to attachment._file_id for the response
             resource = await this.databaseAttachmentManager.transformAttachments(resource);

@@ -1,11 +1,12 @@
-const Readable = require('stream').Readable;
+const { Readable, pipeline } = require('stream');
 const ObjectId = require('mongodb').ObjectId;
 
 const { assertTypeEquals } = require('../utils/assertType');
 const { MongoDatabaseManager } = require('../utils/mongoDatabaseManager');
 const { ConfigManager } = require('../utils/configManager');
 const Attachment = require('../fhir/classes/4_0_0/complex_types/attachment');
-const { INSERT, RETRIEVE } = require('../constants').GRIDFS;
+const { NotFoundError } = require('../utils/httpErrors');
+const { INSERT, RETRIEVE, DELETE } = require('../constants').GRIDFS;
 
 /**
  * @classdesc This class handles attachments with Mongodb GridFS i.e. converts attachment.data
@@ -39,7 +40,7 @@ class DatabaseAttachmentManager {
     */
     getMetadata(resource, operation) {
         let metadata = {};
-        if (operation === INSERT) {
+        if (operation === INSERT || operation === DELETE) {
             if (resource._uuid) {
                 metadata['resource_uuid'] = resource._uuid;
             }
@@ -52,12 +53,35 @@ class DatabaseAttachmentManager {
     }
 
     /**
+     * checks if any patch is applied to the path provided
+     * @param {String} path
+     * @param {Object} patchContent
+     * @returns {Boolean}
+    */
+    isUpdated(path, patchContent) {
+        const pathArray = path.split('/');
+        return patchContent.some(patch => {
+            path = '';
+            for (let pathEle of pathArray) {
+                if (pathEle) {
+                    path += `/${pathEle}`;
+                    if (path === patch.path) {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        });
+    }
+
+    /**
      * Checks if GridFs is applicable on the resource and
      * if applicable changes resources based on the create value
      * @param {Resource[]|Resource} resources
      * @param {String} operation
+     * @param {Object} patchContent
     */
-    async transformAttachments(resources, operation = INSERT) {
+    async transformAttachments(resources, operation = INSERT, patchContent = null) {
         const enabledGridFsResources = this.configManager.enabledGridFsResources;
         if (Array.isArray(resources)) {
             for (let resourceIndex = 0; resourceIndex < resources.length; resourceIndex++) {
@@ -67,7 +91,8 @@ class DatabaseAttachmentManager {
                         resourceId: resources[parseInt(resourceIndex)].id,
                         index: resourceIndex,
                         metadata: this.getMetadata(resources[parseInt(resourceIndex)], operation),
-                        operation
+                        operation,
+                        patchContent
                     });
                 }
             }
@@ -77,7 +102,8 @@ class DatabaseAttachmentManager {
                 resource: resources,
                 resourceId: resources.id,
                 metadata: this.getMetadata(resources, operation),
-                operation
+                operation,
+                patchContent
             });
         }
         return resources;
@@ -90,25 +116,36 @@ class DatabaseAttachmentManager {
      * @param {Number} resourceId
      * @param {String} operation
      * @param {Number|String} index
+     * @param {Object} patchContent
+     * @param {String} path
     */
-    async changeAttachmentWithGridFS({resource, resourceId, metadata, index = 0, operation = null}) {
+    async changeAttachmentWithGridFS({
+        resource, resourceId, metadata, index = 0, operation = null, patchContent = null, path = ''
+    }) {
         if (!resource) {
             return resource;
         }
         if (resource instanceof Attachment) {
             const gridFSBucket = await this.mongoDatabaseManager.getGridFsBucket();
-            switch (operation) {
-                case INSERT:
-                    return await this.convertDataToFileId(
-                        resource, `${resourceId}_${index}`, gridFSBucket, metadata
-                    );
+            if (!patchContent || this.isUpdated(`${path}/data`, patchContent)) {
+                switch (operation) {
+                    case INSERT:
+                        return await this.convertDataToFileId(
+                            resource, `${resourceId}_${index}`, gridFSBucket, metadata
+                        );
 
-                case RETRIEVE:
-                    return await this.convertFileIdToData(resource, gridFSBucket);
+                    case RETRIEVE:
+                        return await this.convertFileIdToData(resource, gridFSBucket);
 
-                default:
-                    return resource;
+                    case DELETE:
+                        await this.deleteFile(resource, metadata);
+                        return resource;
+
+                    default:
+                        return resource;
+                }
             }
+            return resource;
         }
         if (resource instanceof Object || Array.isArray(resource)) {
             for (const key in resource) {
@@ -118,7 +155,9 @@ class DatabaseAttachmentManager {
                         metadata,
                         resourceId,
                         index: Array.isArray(resource) ? key : index,
-                        operation
+                        operation,
+                        patchContent,
+                        path: `${path}/${key}`
                     });
                 }
             }
@@ -131,18 +170,37 @@ class DatabaseAttachmentManager {
      * @param {Resource} resource
      * @param {String} filename
      * @param {import('mongodb').GridFSBucket} gridFSBucket
+     * @param {Object} metadata
     */
     async convertDataToFileId(resource, filename, gridFSBucket, metadata) {
-        if (resource.data) {
-            const buffer = Buffer.from(resource.data);
-            const stream = new Readable();
-            stream.push(buffer);
-            stream.push(null);
-            const gridFSResult = stream.pipe(gridFSBucket.openUploadStream(filename, {metadata}));
-            resource._file_id = gridFSResult.id.toString();
-            delete resource.data;
-        }
-        return resource;
+        return new Promise((resolve, reject) => {
+            if (resource.data) {
+                try {
+                    const buffer = Buffer.from(resource.data);
+                    const stream = new Readable();
+                    stream.push(buffer);
+                    stream.push(null);
+                    const gridFSResult = pipeline(
+                        stream,
+                        gridFSBucket.openUploadStream(filename, {metadata}),
+                        (err) => {
+                            if (err) {
+                                reject(err);
+                            } else {
+                                resource._file_id = gridFSResult.id.toString();
+                                delete resource.data;
+                                resolve(resource);
+                            }
+                        }
+                    );
+                } catch (err) {
+                    reject(err);
+                }
+            }
+            else {
+                resolve(resource);
+            }
+        });
     }
 
     /**
@@ -152,22 +210,45 @@ class DatabaseAttachmentManager {
      * @returns {Promise<Resource>}
     */
     async convertFileIdToData(resource, gridFSBucket) {
-        return new Promise((resolve) => {
+        return new Promise((resolve, reject) => {
             if (resource._file_id) {
-                const downloadStream = gridFSBucket.openDownloadStream(new ObjectId(resource._file_id));
+                try {
+                    const downloadStream = gridFSBucket.openDownloadStream(new ObjectId(resource._file_id));
 
-                downloadStream.on('data', (chunk) => {
-                    resource.data = (resource.data) ? resource.data + chunk.toString() : chunk.toString();
-                });
+                    downloadStream.on('data', (chunk) => {
+                        resource.data = (resource.data) ? resource.data + chunk.toString() : chunk.toString();
+                    });
 
-                downloadStream.on('end', () => {
-                    delete resource._file_id;
-                    resolve(resource);
-                });
+                    downloadStream.on('end', () => {
+                        delete resource._file_id;
+                        resolve(resource);
+                    });
+                } catch (err) {
+                    reject(err);
+                }
             } else {
                 resolve(resource);
             }
         });
+    }
+
+    /**
+     * does a soft delete for the file present in attachment
+     * @param {Resource} resource
+     * @param {Object} metadata
+    */
+    async deleteFile(resource, metadata) {
+        if (resource._file_id) {
+            const db = await this.mongoDatabaseManager.getClientDbAsync();
+            try {
+                await db.collection('fs.files').updateOne(
+                    { _id: new ObjectId(resource._file_id) },
+                    { $set: { metadata: { ...metadata, active: false } } }
+                );
+            } catch {
+                throw new NotFoundError('Resource not found');
+            }
+        }
     }
 }
 

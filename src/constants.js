@@ -184,5 +184,6 @@ module.exports = {
     GRIDFS: {
         INSERT: 'INSERT',
         RETRIEVE: 'RETRIEVE',
+        DELETE: 'DELETE',
     }
 };

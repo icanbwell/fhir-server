@@ -6,7 +6,7 @@ const {assertTypeEquals} = require('../../utils/assertType');
 const {PreSaveManager} = require('../../preSaveHandlers/preSave');
 const {IdentifierSystem} = require('../../utils/identifierSystem');
 const {getFirstElementOrNull} = require('../../utils/list.util');
-
+const {DELETE, RETRIEVE} = require('../../constants').GRIDFS;
 
 /**
  * @typedef MergePatchEntry
@@ -111,12 +111,17 @@ class ResourceMerger {
         if (deepEqual(currentResource.toJSON(), resourceToMerge.toJSON()) === true) {
             return {updatedResource: null, patches: null};
         }
-
+        let currentResourceWithAttachmentData = currentResource;
+        if (databaseAttachmentManager) {
+            currentResourceWithAttachmentData = await databaseAttachmentManager.transformAttachments(
+                currentResource.clone(), RETRIEVE
+            );
+        }
         /**
          * @type {Object}
          */
         let mergedObject = smartMerge ?
-            mergeObject(currentResource.toJSON(), resourceToMerge.toJSON()) :
+            mergeObject(currentResourceWithAttachmentData.toJSON(), resourceToMerge.toJSON()) :
             resourceToMerge.toJSON();
 
         // now create a patch between the document in db and the incoming document
@@ -124,7 +129,7 @@ class ResourceMerger {
         /**
          * @type {import('fast-json-patch').Operation[]}
          */
-        let patchContent = compare(currentResource.toJSON(), mergedObject);
+        let patchContent = compare(currentResourceWithAttachmentData.toJSON(), mergedObject);
         // ignore any changes to _id since that's an internal field
         patchContent = patchContent.filter(item => item.path !== '/_id');
         // or any changes to id
@@ -151,9 +156,22 @@ class ResourceMerger {
 
         // see if there are any changes
         if (patchContent.length === 0) {
+            if (databaseAttachmentManager) {
+                currentResource = await databaseAttachmentManager.transformAttachments(
+                    currentResource, RETRIEVE
+                );
+            }
             return {updatedResource: null, patches: null};
         }
         // now apply the patches to the found resource
+        if (databaseAttachmentManager) {
+            currentResource = await databaseAttachmentManager.transformAttachments(
+                currentResource, DELETE, patchContent.filter(patch => patch.op !== 'add')
+            );
+            currentResource = await databaseAttachmentManager.transformAttachments(
+                currentResource, RETRIEVE, patchContent
+            );
+        }
         /**
          * @type {import('fast-json-patch').PatchResult}
          */

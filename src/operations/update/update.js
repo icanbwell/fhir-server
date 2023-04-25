@@ -264,7 +264,6 @@ class UpdateOperation {
                     if (this.configManager.requireMetaSourceTags && (!doc.meta || !doc.meta.source)) {
                         throw new BadRequestError(new Error('Unable to update resource. Missing either metadata or metadata source.'));
                     }
-                    doc = await this.databaseAttachmentManager.transformAttachments(doc);
 
                     await this.databaseBulkInserter.replaceOneAsync(
                         {
