@@ -181,7 +181,7 @@
             "id": "amp-12"
           }
         ],
-        "id": "MixP-0001wx03abn1tez5",
+        "id": "MixP-0001wx03abn1tez6",
         "meta": {
           "security": [
             {
@@ -209,7 +209,7 @@
           "versionId": "1"
         },
         "outcome": "0",
-        "recorded": "2022-05-20T14:27:30.000Z",
+        "recorded": "2021-08-22T14:27:30.000Z",
         "resourceType": "AuditEvent",
         "source": {
           "observer": {
@@ -435,7 +435,7 @@
             "id": "amp-12"
           }
         ],
-        "id": "MixP-0001wx03abn1tez6",
+        "id": "MixP-0001wx03abn1tez5",
         "meta": {
           "security": [
             {
@@ -463,7 +463,7 @@
           "versionId": "1"
         },
         "outcome": "0",
-        "recorded": "2022-05-22T14:27:30.000Z",
+        "recorded": "2021-07-20T14:27:30.000Z",
         "resourceType": "AuditEvent",
         "source": {
           "observer": {
@@ -718,7 +718,7 @@
           "versionId": "1"
         },
         "outcome": "0",
-        "recorded": "2021-09-20T12:44:59.000Z",
+        "recorded": "2021-05-20T12:44:59.000Z",
         "resourceType": "AuditEvent",
         "source": {
           "observer": {
@@ -767,7 +767,7 @@
   "meta": {
     "tag": [
       {
-        "display": "db.AuditEvent_4_0_0_2022_05.find({}, {}).sort({'id':1}).limit(100)",
+        "display": "db.AuditEvent_4_0_0_2021_08.find({'$and':[{'recorded':{'$gt':ISODate('2021-04-02T00:00:00.000Z')}},{'recorded':{'$lt':ISODate('2021-09-02T00:00:00.000Z')}}]}, {}).sort({'id':1}).limit(100)",
         "system": "https://www.icanbwell.com/query"
       },
       {
@@ -779,7 +779,7 @@
         "system": "https://www.icanbwell.com/queryOptions"
       },
       {
-        "display": "['id']",
+        "display": "['recorded','id']",
         "system": "https://www.icanbwell.com/queryFields"
       },
       {

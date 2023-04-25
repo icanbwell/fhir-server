@@ -91,21 +91,15 @@ class CopyToV3Runner {
      * @returns {Object}
      */
     getV3ClusterConfig() {
-        let v3MongoUrl = process.env.V3_MONGO_URL || `mongodb://${process.env.V3_MONGO_HOSTNAME}:${process.env.V3_MONGO_PORT}`;
-        if (process.env.V3_MONGO_USERNAME !== undefined) {
-            v3MongoUrl = v3MongoUrl.replace(
-                'mongodb://',
-                `mongodb://${process.env.V3_MONGO_USERNAME}:${process.env.V3_MONGO_PASSWORD}@`
-            );
-            v3MongoUrl = v3MongoUrl.replace(
-                'mongodb+srv://',
-                `mongodb+srv://${process.env.V3_MONGO_USERNAME}:${process.env.V3_MONGO_PASSWORD}@`
-            );
-        }
+        let v3MongoUrl = process.env.V3_MONGO_URL;
+        v3MongoUrl = v3MongoUrl.replace(
+            'mongodb+srv://',
+            `mongodb+srv://${process.env.V3_MONGO_USERNAME}:${process.env.V3_MONGO_PASSWORD}@`
+        );
         // url-encode the url
         v3MongoUrl = encodeURI(v3MongoUrl);
 
-        const db_name = process.env.V3_DB_NAME;
+        const db_name = process.env.V3_DB_NAME || 'fhir';
 
         this.adminLogger.logInfo(
             `Connecting to v3 cluster with db_name: ${db_name}`
@@ -169,18 +163,16 @@ class CopyToV3Runner {
         try {
             // Creating a connection between the v3 cluster and the application
             v3Client = await this.mongoDatabaseManager.createClientAsync(v3ClusterConfig);
-
             // Creating a connection between the live cluster and the application
             liveClient = await this.mongoDatabaseManager.createClientAsync(liveClusterConfig);
-
             this.adminLogger.logInfo('Client connected successfully to both the clusters.');
+
             // Creating a new db instance for both the clusters
             const v3Database = v3Client.db(v3ClusterConfig.db_name);
             const liveDatabase = liveClient.db(liveClusterConfig.db_name);
 
             // Fetch all the collection names for the live database.
             let liveCollectionAndViews = await liveDatabase.listCollections().toArray();
-
             let liveCollections = this.getListOfCollections(liveCollectionAndViews);
             liveCollections.sort();
             if (this.startWithCollection) {
@@ -234,6 +226,11 @@ class CopyToV3Runner {
 
                     // Counts the total number of documents
                     const totalLiveDocuments = await liveDatabaseCollection.countDocuments();
+                    // Get total count of document for which last update is greater than updatedAfter
+                    const liveDocumentLastUpdatedGreaterThanUpdatedAfter = await liveDatabaseCollection.countDocuments(query);
+                    this.adminLogger.logInfo(
+                        `For ${collection} the total documents in live db: ${totalLiveDocuments} and documents having last updated greater than ${this.updatedAfter}: ${liveDocumentLastUpdatedGreaterThanUpdatedAfter}`
+                    );
 
                     // Cursor options. As we are also provide _idAbove we need to get results in sorted manner
                     const cursorOptions = {
@@ -241,13 +238,9 @@ class CopyToV3Runner {
                         sort: { _id: 1 },
                     };
 
+                    // Projection is used so that we don't fetch _id. Thus preventing it from being updated while updating document.
                     // Returns a list of documents from liveDatabaseCollection collection with specified batch size
                     const cursor = liveDatabaseCollection.find(query, cursorOptions);
-                    // Get total count of document for which last update is greater than updatedAfter
-                    const liveDocumentLastUpdatedGreaterThanUpdatedAfter = await cursor.count();
-                    this.adminLogger.logInfo(
-                        `For ${collection} the total documents in live collection: ${totalLiveDocuments} and documents having last updated greater than ${this.updatedAfter}: ${liveDocumentLastUpdatedGreaterThanUpdatedAfter}`
-                    );
 
                     while (await cursor.hasNext()) {
                         let result;

@@ -141,6 +141,10 @@ The total count will be returned in the `total` field of the `Bundle` that is re
 
 FHIR Specification: https://www.hl7.org/fhir/search.html#total
 
+### 1.8 Enabling strict validation
+
+By default, the FHIR server does not validate if a search parameter passed in a request is valid or not. Pass the header `handling=strict` to enable strict parameter validation. Default value of the header is `lenient` that does not perform the unsupported or unknown parameter validation. Ref: https://www.hl7.org/fhir/search.html#errors
+
 ## 2. Requesting a single resource
 
 Add the id of the resource in the url e.g.,

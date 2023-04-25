@@ -15,16 +15,6 @@ module.exports = {
             );
         }
     },
-    RequestGroupBasedOn: {
-        __resolveType(obj, context, info) {
-            return context.dataApi.resolveType(obj, context, info);
-        },
-    },
-    RequestGroupReplaces: {
-        __resolveType(obj, context, info) {
-            return context.dataApi.resolveType(obj, context, info);
-        },
-    },
     RequestGroupSubject: {
         __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);

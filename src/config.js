@@ -99,7 +99,7 @@ if (env.AUDIT_EVENT_ONLINE_ARCHIVE_CLUSTER_MONGO_URL) {
     auditEventReadOnlyMongoConfig = {
         connection: auditEventReadOnlyMongoUrl,
         db_name: String(env.AUDIT_EVENT_MONGO_DB_NAME),
-        options: options,
+        options: {...options, ...{minPoolSize: env.AUDIT_EVENT_ONLINE_ARCHIVE_CLUSTER_MIN_POOL_SIZE ? parseInt(env.AUDIT_EVENT_ONLINE_ARCHIVE_CLUSTER_MIN_POOL_SIZE) : 0}},
     };
 } else {
     auditEventReadOnlyMongoConfig = auditEventMongoConfig;

@@ -70,7 +70,7 @@ describe('AuditEvent Tests', () => {
             });
             const container = getTestContainer();
             // first confirm there are no AuditEvent
-            let resp = await request.get('/4_0_0/AuditEvent').set(getHeaders());
+            let resp = await request.get('/4_0_0/AuditEvent/?date=gt2021-08-09&date=lt2021-10-09').set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResourceCount(0);
 
@@ -141,7 +141,7 @@ describe('AuditEvent Tests', () => {
             });
             const container = getTestContainer();
             // first confirm there are no AuditEvent
-            let resp = await request.get('/4_0_0/AuditEvent').set(getHeaders());
+            let resp = await request.get('/4_0_0/AuditEvent/?date=gt2021-08-09&date=lt2021-10-09').set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResourceCount(0);
 
@@ -263,7 +263,7 @@ describe('AuditEvent Tests', () => {
                 return c;
             });
             // first confirm there are no AuditEvent
-            let resp = await request.get('/4_0_0/AuditEvent').set(getHeaders());
+            let resp = await request.get('/4_0_0/AuditEvent/?date=gt2021-08-09&date=lt2021-10-09').set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResourceCount(0);
 

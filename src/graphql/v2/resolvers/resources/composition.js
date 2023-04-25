@@ -15,11 +15,6 @@ module.exports = {
             );
         }
     },
-    CompositionSubject: {
-        __resolveType(obj, context, info) {
-            return context.dataApi.resolveType(obj, context, info);
-        },
-    },
     CompositionAuthor: {
         __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);

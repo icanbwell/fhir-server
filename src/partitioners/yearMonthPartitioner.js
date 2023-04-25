@@ -61,7 +61,10 @@ class YearMonthPartitioner extends BasePartitioner {
         /**
          * @type {Object[]}
          */
-        const andClauses = query.$and || [];
+        const clauses = query.$and || query || [];
+        const andClauses = Array.isArray(clauses) ?
+            clauses :
+            [clauses];
         /**
          * @type {Object[]}
          */
@@ -83,6 +86,7 @@ class YearMonthPartitioner extends BasePartitioner {
                     fieldValue: currentDate.utc().toISOString(), resourceWithBaseVersion
                 }
             );
+
             if (partitionsCache.has(resourceType) && partitionsCache.get(resourceType).includes(partition)) {
                 partitions.push(partition);
             }
@@ -114,11 +118,13 @@ class YearMonthPartitioner extends BasePartitioner {
              * @type {{$gt:Date|undefined, $lt: Date|undefined }}
              */
             const value = clauseForDate[`${field}`];
-            if (value.$gt) {
-                greaterThan = moment.utc(value.$gt).isAfter(greaterThan) ? moment.utc(value.$gt) : greaterThan;
+            const dateGreaterThan = value.$gt || value.$gte;
+            if (dateGreaterThan) {
+                greaterThan = moment.utc(dateGreaterThan).isAfter(greaterThan) ? moment.utc(dateGreaterThan) : greaterThan;
             }
-            if (value.$lt) {
-                lessThan = moment.utc(value.$lt).isBefore(lessThan) ? moment.utc(value.$lt) : lessThan;
+            const dateLesserThan = value.$lt || value.$lte;
+            if (dateLesserThan) {
+                lessThan = moment.utc(dateLesserThan).isBefore(lessThan) ? moment.utc(dateLesserThan) : lessThan;
             }
         }
         return { greaterThan, lessThan };

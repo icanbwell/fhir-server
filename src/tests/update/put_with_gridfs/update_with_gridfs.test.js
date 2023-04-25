@@ -1,4 +1,5 @@
 const {commonBeforeEach, commonAfterEach, createTestRequest, getHeaders} = require('../../common');
+const { createTestContainer } = require('../../createTestContainer');
 const documentReferenceData = require('./fixtures/document_reference/document_reference.json');
 const updatedDocumentReferenceData = require('./fixtures/document_reference/updated_document_reference.json');
 
@@ -29,9 +30,35 @@ describe('GridFS update tests', () => {
                 .set(getHeaders())
                 .expect(201);
 
-            expect(resp._body.content[0].attachment.data).toBeUndefined();
+            expect(resp._body.content[0].attachment._file_id).toBeUndefined();
 
-            expect(resp._body.content[0].attachment._file_id).toBeDefined();
+            expect(resp._body.content[0].attachment.data).toBeDefined();
+
+            expect(resp._body.content[0].attachment.data).toEqual(updatedDocumentReferenceData.content[0].attachment.data);
+
+            const base_version = '4_0_0';
+            const container = createTestContainer();
+
+            /**
+             * @type {MongoDatabaseManager}
+             */
+            const mongoDatabaseManager = container.mongoDatabaseManager;
+            /**
+             * mongo connection
+             * @type {import('mongodb').Db}
+             */
+            const fhirDb = await mongoDatabaseManager.getClientDbAsync();
+
+            const documentReferenceCollection = `DocumentReference_${base_version}`;
+
+            const documentReference = await fhirDb.collection(documentReferenceCollection)
+                .find({ id: resp._body.id }, { projection: { content: 1 }}).toArray();
+
+            expect(documentReference.length).toEqual(1);
+
+            expect(documentReference[0].content[0].attachment.data).toBeUndefined();
+
+            expect(documentReference[0].content[0].attachment._file_id).toBeDefined();
         });
     });
 });

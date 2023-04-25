@@ -15,16 +15,6 @@ module.exports = {
             );
         }
     },
-    RiskAssessmentBasedOn: {
-        __resolveType(obj, context, info) {
-            return context.dataApi.resolveType(obj, context, info);
-        },
-    },
-    RiskAssessmentParent: {
-        __resolveType(obj, context, info) {
-            return context.dataApi.resolveType(obj, context, info);
-        },
-    },
     RiskAssessmentSubject: {
         __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
@@ -36,11 +26,6 @@ module.exports = {
         },
     },
     RiskAssessmentReasonReference: {
-        __resolveType(obj, context, info) {
-            return context.dataApi.resolveType(obj, context, info);
-        },
-    },
-    RiskAssessmentBasis: {
         __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
         },

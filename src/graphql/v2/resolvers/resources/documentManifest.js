@@ -30,11 +30,6 @@ module.exports = {
             return context.dataApi.resolveType(obj, context, info);
         },
     },
-    DocumentManifestContent: {
-        __resolveType(obj, context, info) {
-            return context.dataApi.resolveType(obj, context, info);
-        },
-    },
     DocumentManifest: {
         // noinspection JSUnusedLocalSymbols
         // eslint-disable-next-line no-unused-vars

@@ -4,6 +4,7 @@ const {isTrue} = require('../../utils/isTrue');
 const env = require('var');
 const {logDebug, logError} = require('../common/logging');
 const deepcopy = require('deepcopy');
+const moment = require('moment-timezone');
 const {searchLimitForIds, limit} = require('../../utils/searchForm.util');
 const {createReadableMongoStream} = require('../streaming/mongoStreamReader');
 const {pipeline} = require('stream/promises');
@@ -24,6 +25,7 @@ const {SecurityTagManager} = require('../common/securityTagManager');
 const {ResourcePreparer} = require('../common/resourcePreparer');
 const {VERSIONS} = require('../../middleware/fhir/utils/constants');
 const {RethrownError} = require('../../utils/rethrownError');
+const {BadRequestError} = require('../../utils/httpErrors');
 const {mongoQueryStringify} = require('../../utils/mongoQueryStringify');
 const {R4SearchQueryCreator} = require('../query/r4');
 const {ConfigManager} = require('../../utils/configManager');
@@ -33,6 +35,7 @@ const {ScopesManager} = require('../security/scopesManager');
 const {convertErrorToOperationOutcome} = require('../../utils/convertErrorToOperationOutcome');
 const {GetCursorResult} = require('./getCursorResult');
 const {QueryItem} = require('../graph/queryItem');
+const { DatabaseAttachmentManager } = require('../../dataLayer/databaseAttachmentManager');
 
 class SearchManager {
     /**
@@ -47,6 +50,7 @@ class SearchManager {
      * @param {QueryRewriterManager} queryRewriterManager
      * @param {PersonToPatientIdsExpander} personToPatientIdsExpander
      * @param {ScopesManager} scopesManager
+     * @param {DatabaseAttachmentManager} databaseAttachmentManager
      */
     constructor(
         {
@@ -59,7 +63,8 @@ class SearchManager {
             configManager,
             queryRewriterManager,
             personToPatientIdsExpander,
-            scopesManager
+            scopesManager,
+            databaseAttachmentManager
         }
     ) {
         /**
@@ -115,6 +120,12 @@ class SearchManager {
          */
         this.scopesManager = scopesManager;
         assertTypeEquals(scopesManager, ScopesManager);
+
+        /**
+         * @type {DatabaseAttachmentManager}
+         */
+        this.databaseAttachmentManager = databaseAttachmentManager;
+        assertTypeEquals(databaseAttachmentManager, DatabaseAttachmentManager);
     }
 
     /**
@@ -784,7 +795,9 @@ class SearchManager {
             // https://nodejs.org/docs/latest-v16.x/api/stream.html#streams-compatibility-with-async-generators-and-async-iterators
             // https://nodejs.org/docs/latest-v16.x/api/stream.html#additional-notes
 
-            const readableMongoStream = createReadableMongoStream({cursor, signal: ac.signal});
+            const readableMongoStream = createReadableMongoStream({
+                cursor, signal: ac.signal, databaseAttachmentManager: this.databaseAttachmentManager
+            });
 
             await pipeline(
                 readableMongoStream,
@@ -960,7 +973,9 @@ class SearchManager {
         const objectChunker = new ObjectChunker({chunkSize: batchObjectCount, signal: ac.signal});
 
         try {
-            const readableMongoStream = createReadableMongoStream({cursor, signal: ac.signal});
+            const readableMongoStream = createReadableMongoStream({
+                cursor, signal: ac.signal, databaseAttachmentManager: this.databaseAttachmentManager
+            });
             // readableMongoStream.on('close', () => {
             //     // logInfo('Mongo read stream was closed');
             //     // ac.abort();
@@ -1073,7 +1088,9 @@ class SearchManager {
         const resourceIdTracker = new ResourceIdTracker({tracker, signal: ac.signal});
 
         try {
-            const readableMongoStream = createReadableMongoStream({cursor, signal: ac.signal});
+            const readableMongoStream = createReadableMongoStream({
+                cursor, signal: ac.signal, databaseAttachmentManager: this.databaseAttachmentManager
+            });
 
             const objectChunker = new ObjectChunker({chunkSize: batchObjectCount, signal: ac.signal});
 
@@ -1142,6 +1159,119 @@ class SearchManager {
                 error: e
             });
         }
+    }
+
+    /**
+     * @description Validates if the correct arguments are being sent that will query AuditEvents.
+     * @param {ParsedArgs} parsedArgs
+     */
+    validateAuditEventQueryParameters(parsedArgs) {
+        const requiredFiltersForAuditEvent = this.configManager.requiredFiltersForAuditEvent;
+        // Validate all the required parameters are passed for AuditEvent.
+        this.auditEventValidateRequiredFilters(parsedArgs, requiredFiltersForAuditEvent);
+
+        if (requiredFiltersForAuditEvent && requiredFiltersForAuditEvent.includes('date')) {
+            // Fetching all the parsed arguments for date
+            const dateQueryParameterValues = parsedArgs['date'];
+            const queryParameters = Array.isArray(dateQueryParameterValues) ?
+                dateQueryParameterValues :
+                [dateQueryParameterValues];
+
+            const [operationDateObject, isGreaterThanConditionPresent, isLessThanConditionPresent] = this.getAuditEventValidDateOperationList(queryParameters);
+
+            if (!isGreaterThanConditionPresent || !isLessThanConditionPresent) {
+                const message = 'Atleast two operations lt/le and gt/ge need to be passed in params to query AuditEvent';
+                throw new BadRequestError(
+                    {
+                        'message': message,
+                        toString: function () {
+                            return message;
+                        }
+                    }
+                );
+            }
+
+            // Fetching all dates from operatorsList object
+            const values = Object.values(operationDateObject);
+
+            // If the difference between two dates is greater than a month throw error.
+            if (Math.abs(values[0].diff(values[1], 'days')) >= this.configManager.auditEventMaxRangePeriod) {
+                const message = `The difference between dates to query AuditEvent should not be greater than ${this.configManager.auditEventMaxRangePeriod}`;
+                throw new BadRequestError(
+                    {
+                        'message': message,
+                        toString: function () {
+                            return message;
+                        }
+                    }
+                );
+            }
+        }
+    }
+
+
+    /**
+     * @description Validates that all the required parameters for AuditEvent are present in parsedArgs
+     * @param {ParsedArgs} parsedArgs
+    */
+    auditEventValidateRequiredFilters(parsedArgs, requiredFiltersForAuditEvent) {
+        if (requiredFiltersForAuditEvent && requiredFiltersForAuditEvent.length > 0) {
+            if (requiredFiltersForAuditEvent.filter(r => parsedArgs[`${r}`]).length === 0) {
+                const message = `One of the filters [${requiredFiltersForAuditEvent.join(',')}] are required to query AuditEvent`;
+                throw new BadRequestError(
+                    {
+                        'message': message,
+                        toString: function () {
+                            return message;
+                        }
+                    }
+                );
+            }
+        }
+
+    }
+
+    /**
+     * @description Validates the correct AuditEvent operations are passed in params and date passed is valid.
+     * @param {Object} queryParams
+     * @returns {Object}
+     */
+    getAuditEventValidDateOperationList(queryParams) {
+        const allowedOperations = ['gt', 'ge', 'lt', 'le'];
+        const operationDateObject = {};
+        const regex = /([a-z]+)(.+)/;
+        let isLessThanConditionPresent = false, isGreaterThanConditionPresent = false;
+        for (const dateParam of queryParams) {
+            // Match the date passed in param if it matches the regex pattern.
+            const regexMatch = dateParam.match(regex);
+            if (!regexMatch) {
+                const message = `${dateParam} is not valid to query AuditEvent. [lt, gt] operation is required`;
+                throw new BadRequestError({
+                    'message': message,
+                    toString: function () {
+                        return message;
+                    }
+                });
+            }
+            // Validate if date is valid and the operations is allowed to be performed.
+            if (!allowedOperations.includes(regexMatch[1]) || !moment.utc(regexMatch[2]).isValid()) {
+                const message = `${regexMatch[0]} is not a valid query.`;
+                throw new BadRequestError({
+                    'message': message,
+                    toString: function () {
+                        return message;
+                    }
+                });
+            }
+            if (regexMatch[1] === 'gt' || regexMatch[1] === 'ge') {
+                isGreaterThanConditionPresent = true;
+            } else if (regexMatch[1] === 'lt' || regexMatch[1] === 'le') {
+                isLessThanConditionPresent = true;
+            }
+            // Object of operation and date.
+            operationDateObject[regexMatch[1]] = moment.utc(regexMatch[2]);
+        }
+        return [operationDateObject, isGreaterThanConditionPresent, isLessThanConditionPresent];
     }
 }
 

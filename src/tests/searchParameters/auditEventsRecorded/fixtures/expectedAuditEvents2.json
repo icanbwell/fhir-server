@@ -210,7 +210,7 @@
           "versionId": "1"
         },
         "outcome": "0",
-        "recorded": "2021-09-20T12:44:59.000Z",
+        "recorded": "2021-07-20T12:44:59.000Z",
         "resourceType": "AuditEvent",
         "source": {
           "observer": {
@@ -259,7 +259,7 @@
   "meta": {
     "tag": [
       {
-        "display": "db.AuditEvent_4_0_0_2021_09.find({'$and':[{'recorded':{'$gt':ISODate('2021-09-19T00:00:00.000Z')}},{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':'fake'}}},{'meta.lastUpdated':{'$gt':ISODate('2021-06-01T00:00:00.000Z')}},{'meta.lastUpdated':{'$lt':ISODate('2031-10-26T00:00:00.000Z')}}]}, {}).sort({'id':1}).limit(10)",
+        "display": "db.AuditEvent_4_0_0_2021_07.find({'$and':[{'meta.security':{'$elemMatch':{'system':'https://www.icanbwell.com/access','code':'fake'}}},{'recorded':{'$gt':ISODate('2021-07-19T00:00:00.000Z')}},{'recorded':{'$lt':ISODate('2021-10-19T00:00:00.000Z')}},{'meta.lastUpdated':{'$gt':ISODate('2021-06-01T00:00:00.000Z')}},{'meta.lastUpdated':{'$lt':ISODate('2031-08-19T00:00:00.000Z')}}]}, {}).sort({'id':1}).limit(10)",
         "system": "https://www.icanbwell.com/query"
       },
       {
@@ -271,7 +271,7 @@
         "system": "https://www.icanbwell.com/queryOptions"
       },
       {
-        "display": "['recorded','meta.security.system','meta.security.code','meta.lastUpdated','id']",
+        "display": "['meta.security.system','meta.security.code','recorded','meta.lastUpdated','id']",
         "system": "https://www.icanbwell.com/queryFields"
       },
       {

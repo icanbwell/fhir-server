@@ -20,7 +20,8 @@ const {getCircularReplacer} = require('../../utils/getCircularReplacer');
 const {ParsedArgs} = require('../query/parsedArgs');
 const {ConfigManager} = require('../../utils/configManager');
 const {FhirResourceCreator} = require('../../fhir/fhirResourceCreator');
-const { DatabaseAttachmentManager } = require('../../dataLayer/databaseAttachmentManager');
+const {DatabaseAttachmentManager} = require('../../dataLayer/databaseAttachmentManager');
+const {RETRIEVE} = require('../../constants').GRIDFS;
 
 /**
  * Update Operation
@@ -254,7 +255,8 @@ class UpdateOperation {
                 const {updatedResource, patches} = await this.resourceMerger.mergeResourceAsync({
                     currentResource: foundResource,
                     resourceToMerge: resource_incoming,
-                    smartMerge: false
+                    smartMerge: false,
+                    databaseAttachmentManager: this.databaseAttachmentManager,
                 });
                 doc = updatedResource;
                 if (doc) { // if there is a change
@@ -305,6 +307,7 @@ class UpdateOperation {
                     resource_incoming.meta['lastUpdated'] = new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ssZ'));
                 }
 
+                // changing the attachment.data to attachment._file_id from request
                 doc = await this.databaseAttachmentManager.transformAttachments(resource_incoming);
 
                 await this.databaseBulkInserter.insertOneAsync({requestId, resourceType, doc});
@@ -343,6 +346,9 @@ class UpdateOperation {
                     );
                     await this.auditLogger.flushAsync({requestId, currentDate, method});
                 }
+
+                // changing the attachment._file_id to attachment.data for response
+                doc = await this.databaseAttachmentManager.transformAttachments(doc, RETRIEVE);
 
                 const result = {
                     id: id,

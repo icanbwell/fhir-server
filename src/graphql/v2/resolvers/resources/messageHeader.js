@@ -35,11 +35,6 @@ module.exports = {
             return context.dataApi.resolveType(obj, context, info);
         },
     },
-    MessageHeaderFocus: {
-        __resolveType(obj, context, info) {
-            return context.dataApi.resolveType(obj, context, info);
-        },
-    },
     MessageHeader: {
         // noinspection JSUnusedLocalSymbols
         // eslint-disable-next-line no-unused-vars

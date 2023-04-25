@@ -1,5 +1,5 @@
-query {
-    getCodeSystemCodes(code: ["3584-4", "random"]) {
+query getCodeSystem($code: [String], $id: [String]){
+    getCodeSystemCodes(code: $code, id: $id) {
         entry {
             resource {
                 id

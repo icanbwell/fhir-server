@@ -39,6 +39,7 @@ class ResourceMerger {
      * @param {boolean|undefined} [smartMerge]
      * @param {boolean|undefined} [incrementVersion]
      * @param {string[]|undefined} [limitToPaths]
+     * @param {DatabaseAttachmentManager|null} databaseAttachmentManager
      * @returns {{updatedResource:Resource|null, patches: MergePatchEntry[]|null }} resource and patches
      */
     async mergeResourceAsync(
@@ -47,7 +48,8 @@ class ResourceMerger {
             resourceToMerge,
             smartMerge = true,
             incrementVersion = true,
-            limitToPaths
+            limitToPaths,
+            databaseAttachmentManager = null
         }
     ) {
         // create metadata structure if not present
@@ -187,6 +189,12 @@ class ResourceMerger {
         // If no security tags are provided then use the source of the previous entity
         if (!(patched_resource_incoming.meta.security)) {
             patched_resource_incoming.meta.security = meta.security;
+        }
+
+        if (databaseAttachmentManager) {
+            patched_resource_incoming = await databaseAttachmentManager.transformAttachments(
+                patched_resource_incoming
+            );
         }
 
         return {
