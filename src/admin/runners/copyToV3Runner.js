@@ -218,7 +218,7 @@ class CopyToV3Runner {
                         { 'resource.meta.lastUpdated': { $gt: new Date(this.updatedAfter) } } :
                         { 'meta.lastUpdated': { $gt: new Date(this.updatedAfter) } };
                     // // If _idAbove is provided fetch all documents having _id greater than this._idAbove and document having lastUpdate greater than updatedAfter
-                    const query = this._idAbove ? {$and: [{ _id: { $gt: new ObjectId(this._idAbove) } }, queryToFetchDocuments]}: queryToFetchDocuments;
+                    const query = this._idAbove ? {$and: [{ _id: { $gt: new ObjectId(this._idAbove) } }, queryToFetchDocuments ]} : queryToFetchDocuments;
 
                     // Counts the total number of documents
                     const totalLiveDocuments = await liveDatabaseCollection.countDocuments();
