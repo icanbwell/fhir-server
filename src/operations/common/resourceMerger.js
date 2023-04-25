@@ -111,15 +111,17 @@ class ResourceMerger {
         if (deepEqual(currentResource.toJSON(), resourceToMerge.toJSON()) === true) {
             return {updatedResource: null, patches: null};
         }
-        let currentResourceWithData = currentResource;
+        let currentResourceWithAttachmentData = currentResource;
         if (databaseAttachmentManager) {
-            currentResourceWithData = await databaseAttachmentManager.transformAttachments(currentResource.clone(), RETRIEVE);
+            currentResourceWithAttachmentData = await databaseAttachmentManager.transformAttachments(
+                currentResource.clone(), RETRIEVE
+            );
         }
         /**
          * @type {Object}
          */
         let mergedObject = smartMerge ?
-            mergeObject(currentResourceWithData.toJSON(), resourceToMerge.toJSON()) :
+            mergeObject(currentResourceWithAttachmentData.toJSON(), resourceToMerge.toJSON()) :
             resourceToMerge.toJSON();
 
         // now create a patch between the document in db and the incoming document
@@ -127,7 +129,7 @@ class ResourceMerger {
         /**
          * @type {import('fast-json-patch').Operation[]}
          */
-        let patchContent = compare(currentResourceWithData.toJSON(), mergedObject);
+        let patchContent = compare(currentResourceWithAttachmentData.toJSON(), mergedObject);
         // ignore any changes to _id since that's an internal field
         patchContent = patchContent.filter(item => item.path !== '/_id');
         // or any changes to id
@@ -154,6 +156,11 @@ class ResourceMerger {
 
         // see if there are any changes
         if (patchContent.length === 0) {
+            if (databaseAttachmentManager) {
+                currentResource = await databaseAttachmentManager.transformAttachments(
+                    currentResource, RETRIEVE
+                );
+            }
             return {updatedResource: null, patches: null};
         }
         // now apply the patches to the found resource
