@@ -257,7 +257,7 @@ class CopyToV3Runner {
                             totalDocumentHavingSameDataCount += result.modifiedCount ? 0 : result.matchedCount;
                         } catch (error) {
                             this.adminLogger.logError(
-                                `Error while updating document with id ${liveDocument._id}. Error Message: ${error}`
+                                `Error while updating collection: ${collection} document_id: ${liveDocument._id}. Error Message: ${error}`
                             );
                         }
                     }
