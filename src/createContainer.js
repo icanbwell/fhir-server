@@ -434,8 +434,7 @@ const createContainer = function () {
             bundleManager: c.bundleManager,
             resourceLocatorFactory: c.resourceLocatorFactory,
             resourceValidator: c.resourceValidator,
-            preSaveManager: c.preSaveManager,
-            databaseAttachmentManager: c.databaseAttachmentManager
+            preSaveManager: c.preSaveManager
         }
     ));
     container.register('everythingOperation', (c) => new EverythingOperation({

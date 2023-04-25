@@ -53,12 +53,35 @@ class DatabaseAttachmentManager {
     }
 
     /**
+     * checks if any patch is applied to the path provided
+     * @param {String} path
+     * @param {Object} patchContent
+     * @returns {Boolean}
+    */
+    isUpdated(path, patchContent) {
+        const pathArray = path.split('/');
+        return patchContent.some(patch => {
+            path = '';
+            for (let pathEle of pathArray) {
+                if (pathEle) {
+                    path += `/${pathEle}`;
+                    if (path === patch.path) {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        });
+    }
+
+    /**
      * Checks if GridFs is applicable on the resource and
      * if applicable changes resources based on the create value
      * @param {Resource[]|Resource} resources
      * @param {String} operation
+     * @param {Object} patchContent
     */
-    async transformAttachments(resources, operation = INSERT) {
+    async transformAttachments(resources, operation = INSERT, patchContent = null) {
         const enabledGridFsResources = this.configManager.enabledGridFsResources;
         if (Array.isArray(resources)) {
             for (let resourceIndex = 0; resourceIndex < resources.length; resourceIndex++) {
@@ -68,7 +91,8 @@ class DatabaseAttachmentManager {
                         resourceId: resources[parseInt(resourceIndex)].id,
                         index: resourceIndex,
                         metadata: this.getMetadata(resources[parseInt(resourceIndex)], operation),
-                        operation
+                        operation,
+                        patchContent
                     });
                 }
             }
@@ -78,7 +102,8 @@ class DatabaseAttachmentManager {
                 resource: resources,
                 resourceId: resources.id,
                 metadata: this.getMetadata(resources, operation),
-                operation
+                operation,
+                patchContent
             });
         }
         return resources;
@@ -91,29 +116,36 @@ class DatabaseAttachmentManager {
      * @param {Number} resourceId
      * @param {String} operation
      * @param {Number|String} index
+     * @param {Object} patchContent
+     * @param {String} path
     */
-    async changeAttachmentWithGridFS({resource, resourceId, metadata, index = 0, operation = null}) {
+    async changeAttachmentWithGridFS({
+        resource, resourceId, metadata, index = 0, operation = null, patchContent = null, path = ''
+    }) {
         if (!resource) {
             return resource;
         }
         if (resource instanceof Attachment) {
             const gridFSBucket = await this.mongoDatabaseManager.getGridFsBucket();
-            switch (operation) {
-                case INSERT:
-                    return await this.convertDataToFileId(
-                        resource, `${resourceId}_${index}`, gridFSBucket, metadata
-                    );
+            if (!patchContent || this.isUpdated(`${path}/data`, patchContent)) {
+                switch (operation) {
+                    case INSERT:
+                        return await this.convertDataToFileId(
+                            resource, `${resourceId}_${index}`, gridFSBucket, metadata
+                        );
 
-                case RETRIEVE:
-                    return await this.convertFileIdToData(resource, gridFSBucket);
+                    case RETRIEVE:
+                        return await this.convertFileIdToData(resource, gridFSBucket);
 
-                case DELETE:
-                    await this.deleteFile(resource, metadata);
-                    return resource;
+                    case DELETE:
+                        await this.deleteFile(resource, metadata);
+                        return resource;
 
-                default:
-                    return resource;
+                    default:
+                        return resource;
+                }
             }
+            return resource;
         }
         if (resource instanceof Object || Array.isArray(resource)) {
             for (const key in resource) {
@@ -123,7 +155,9 @@ class DatabaseAttachmentManager {
                         metadata,
                         resourceId,
                         index: Array.isArray(resource) ? key : index,
-                        operation
+                        operation,
+                        patchContent,
+                        path: `${path}/${key}`
                     });
                 }
             }
