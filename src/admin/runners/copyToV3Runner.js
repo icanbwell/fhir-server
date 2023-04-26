@@ -226,7 +226,7 @@ class CopyToV3Runner {
                     // Get total count of document for which last update is greater than updatedAfter
                     const liveDocumentLastUpdatedGreaterThanUpdatedAfter = await liveDatabaseCollection.countDocuments(query);
                     this.adminLogger.logInfo(
-                        `For ${collection} the total documents in live db: ${totalLiveDocuments} and documents having last updated greater than ${this.updatedAfter.updatedAfter()}: ${liveDocumentLastUpdatedGreaterThanUpdatedAfter}`
+                        `For ${collection} the total documents in live db: ${totalLiveDocuments} and documents having last updated greater than ${this.updatedAfter.toISOString()}: ${liveDocumentLastUpdatedGreaterThanUpdatedAfter}`
                     );
 
                     // Cursor options. As we are also provide _idAbove we need to get results in sorted manner
