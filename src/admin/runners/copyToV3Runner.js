@@ -144,6 +144,40 @@ class CopyToV3Runner {
     }
 
     /**
+     * @description Bulk write x record to collection
+     * @param {String} collection Collection Name
+     * @param {ObjectConstructor} v3DatabaseCollection collection cursor for write
+     * @param {Array} operations List of docs with operation
+     * @returns {Object}
+     */
+    async v3BulkWrite(collection, v3DatabaseCollection, operations) {
+        let totalDocumentUpdatedCount = 0, totalDocumentCreatedCount = 0, totalDocumentHavingSameDataCount = 0, lastProcessedId = null;
+        this.adminLogger.logInfo(`Writing ${operations.length.toLocaleString('en-US')} operations in bulk to ${collection}.`);
+
+        try {
+            const bulkResult = await v3DatabaseCollection.bulkWrite(operations);
+
+            totalDocumentUpdatedCount += bulkResult.nModified;
+            totalDocumentCreatedCount += bulkResult.nUpserted;
+            totalDocumentHavingSameDataCount += (bulkResult.nMatched - bulkResult.nModified);
+
+            lastProcessedId = operations[operations.length - 1]['updateOne']['filter']['_id'];
+            const message =
+                `Processed Collection: ${collection}, upto document _id: ${lastProcessedId.toLocaleString('en-US')},` +
+                `DocumentUpdatedCount: ${totalDocumentUpdatedCount.toLocaleString('en-US')}, ` +
+                `DocumentCreatedCount: ${totalDocumentCreatedCount.toLocaleString('en-US')}, ` +
+                `DocumentHavingSameDataCount: ${totalDocumentHavingSameDataCount.toLocaleString('en-US')}`;
+            this.adminLogger.logInfo(message);
+        } catch (error) {
+            this.adminLogger.logError(
+                `Error while updating collection: ${collection} document _id start: ${operations[0]['updateOne']['filter']['_id']}, end: ${operations[operations.length - 1]['updateOne']['filter']['_id']}. Error Message: ${error}`
+            );
+        }
+        return {totalDocumentUpdatedCount: totalDocumentUpdatedCount, totalDocumentCreatedCount: totalDocumentCreatedCount,
+            totalDocumentHavingSameDataCount: totalDocumentHavingSameDataCount, lastProcessedId: lastProcessedId};
+    }
+
+    /**
      * Runs a loop to process all the documents.
      */
     async processAsync() {
@@ -238,38 +272,36 @@ class CopyToV3Runner {
                     // Projection is used so that we don't fetch _id. Thus preventing it from being updated while updating document.
                     // Returns a list of documents from liveDatabaseCollection collection with specified batch size
                     const cursor = liveDatabaseCollection.find(query, cursorOptions);
+                    let result;
 
                     while (await cursor.hasNext()) {
                         const liveDocument = await cursor.next();
                         operations.push({updateOne: {filter: {_id: liveDocument._id}, update: {$set: liveDocument}, upsert: true }});
 
                         if (operations.length > 0 && (operations.length % this.batchSize === 0)) { // write every x items
-                            this.adminLogger.logInfo(`Writing ${operations.length.toLocaleString('en-US')} operations in bulk to ${v3DatabaseCollection}.`);
-                            try {
-                                const bulkResult = await v3DatabaseCollection.bulkWrite(operations);
-
-                                totalDocumentUpdatedCount += bulkResult.nModified;
-                                totalDocumentCreatedCount += bulkResult.nUpserted;
-                                totalDocumentHavingSameDataCount += (bulkResult.nMatched - bulkResult.nModified);
-                                // Keeping track of the last updated id
-                                lastProcessedId = liveDocument._id;
-
-                                const message =
-                                    `Processed Collection: ${collection}, upto document _id: ${liveDocument._id.toLocaleString('en-US')},` +
-                                    `DocumentUpdatedCount: ${totalDocumentUpdatedCount.toLocaleString('en-US')}, ` +
-                                    `DocumentCreatedCount: ${totalDocumentCreatedCount.toLocaleString('en-US')}, ` +
-                                    `DocumentHavingSameDataCount: ${totalDocumentHavingSameDataCount.toLocaleString('en-US')}`;
-                                this.adminLogger.logInfo(message);
-                            } catch (error) {
-                                this.adminLogger.logError(
-                                    `Error while updating collection: ${collection} last document _id: ${liveDocument._id}. Error Message: ${error}`
-                                );
-                            } finally {
-                                // Reset operations list
-                                operations = [];
+                            result = await this.v3BulkWrite(collection, v3DatabaseCollection, operations);
+                            totalDocumentUpdatedCount += result.totalDocumentUpdatedCount;
+                            totalDocumentCreatedCount += result.totalDocumentCreatedCount;
+                            totalDocumentHavingSameDataCount += result.totalDocumentHavingSameDataCount;
+                            // Keeping track of the last updated id
+                            if (result.lastProcessedId) {
+                                lastProcessedId = result.lastProcessedId;
                             }
 
+                            // Reset operations list
+                            operations = [];
                         }
+                    }
+                    if (operations.length > 0) { // Process remaning docs
+                        result = await this.v3BulkWrite(collection, v3DatabaseCollection, operations);
+                        totalDocumentUpdatedCount += result.totalDocumentUpdatedCount;
+                        totalDocumentCreatedCount += result.totalDocumentCreatedCount;
+                        totalDocumentHavingSameDataCount += result.totalDocumentHavingSameDataCount;
+                        // Keeping track of the last updated id
+                        if (result.lastProcessedId) {
+                            lastProcessedId = result.lastProcessedId;
+                        }
+
                     }
                     this.adminLogger.logInfo(
                         `===== For ${collection} total found and created or updated documents: ${totalDocumentHavingSameDataCount + totalDocumentCreatedCount + totalDocumentUpdatedCount} The live documents that have last updated greater than ${this.updatedAfter.toISOString()}: ${liveDocumentLastUpdatedGreaterThanUpdatedAfter} `
