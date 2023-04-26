@@ -255,7 +255,7 @@ class CopyToV3Runner {
                                 lastProcessedId = liveDocument._id;
 
                                 const message =
-                                    `Processed Collection: ${v3DatabaseCollection}, upto _id: ${liveDocument._id.toLocaleString('en-US')},` +
+                                    `Processed Collection: ${collection}, upto document _id: ${liveDocument._id.toLocaleString('en-US')},` +
                                     `DocumentUpdatedCount: ${totalDocumentUpdatedCount.toLocaleString('en-US')}, ` +
                                     `DocumentCreatedCount: ${totalDocumentCreatedCount.toLocaleString('en-US')}, ` +
                                     `DocumentHavingSameDataCount: ${totalDocumentHavingSameDataCount.toLocaleString('en-US')}`;
