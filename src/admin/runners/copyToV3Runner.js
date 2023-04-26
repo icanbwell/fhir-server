@@ -23,7 +23,7 @@ class CopyToV3Runner {
         mongoDatabaseManager,
         mongoCollectionManager,
         updatedAfter,
-        readBatchSize,
+        batchSize,
         concurrentRunners,
         _idAbove,
         collections,
@@ -40,7 +40,7 @@ class CopyToV3Runner {
         /**
          * @type {number}
          */
-        this.readBatchSize = readBatchSize;
+        this.batchSize = batchSize;
 
         /**
          * @type {number}
@@ -207,6 +207,7 @@ class CopyToV3Runner {
                     let lastProcessedId = null; // For each collect help in keeping track of the last id processed.
                     let totalDocumentCreatedCount = 0; // Keeps track of the total documents that had to be created.
                     let totalDocumentHavingSameDataCount = 0; // Keep tracks of the documents that match an existing _id but are neither updated nor created.
+                    let operations = []; // keep tracks of document that need to be copied to V3 DB
                     const isHistoryCollection = collection.endsWith('_History'); // Denotes that the current collection is a history collection
 
                     // Fetching the collection from the database for both live and v3
@@ -225,7 +226,7 @@ class CopyToV3Runner {
                     // Get total count of document for which last update is greater than updatedAfter
                     const liveDocumentLastUpdatedGreaterThanUpdatedAfter = await liveDatabaseCollection.countDocuments(query);
                     this.adminLogger.logInfo(
-                        `For ${collection} the total documents in live db: ${totalLiveDocuments} and documents having last updated greater than ${this.updatedAfter}: ${liveDocumentLastUpdatedGreaterThanUpdatedAfter}`
+                        `For ${collection} the total documents in live db: ${totalLiveDocuments} and documents having last updated greater than ${this.updatedAfter.updatedAfter()}: ${liveDocumentLastUpdatedGreaterThanUpdatedAfter}`
                     );
 
                     // Cursor options. As we are also provide _idAbove we need to get results in sorted manner
@@ -239,35 +240,44 @@ class CopyToV3Runner {
                     const cursor = liveDatabaseCollection.find(query, cursorOptions);
 
                     while (await cursor.hasNext()) {
-                        let result;
                         const liveDocument = await cursor.next();
+                        operations.push({updateOne: {filter: {_id: liveDocument._id}, update: {$set: liveDocument}, upsert: true }});
 
-                        try {
-                            // Updating the document in v3DatabaseCollection. and creating one if it does not exist
-                            result = await v3DatabaseCollection.updateOne(
-                                { _id: liveDocument._id },
-                                { $set: liveDocument },
-                                { upsert: true }
-                            );
-                            // Keeping track of the last updated id
-                            lastProcessedId = liveDocument._id;
-                            totalDocumentUpdatedCount += result.modifiedCount;
-                            totalDocumentCreatedCount += result.upsertedCount;
-                            // If the data has been modified which means data are not same.
-                            totalDocumentHavingSameDataCount += result.modifiedCount ? 0 : result.matchedCount;
-                        } catch (error) {
-                            this.adminLogger.logError(
-                                `Error while updating collection: ${collection} document_id: ${liveDocument._id}. Error Message: ${error}`
-                            );
+                        if (operations.length > 0 && (operations.length % this.batchSize === 0)) { // write every x items
+                            this.adminLogger.logInfo(`Writing ${operations.length.toLocaleString('en-US')} operations in bulk to ${v3DatabaseCollection}.`);
+                            try {
+                                const bulkResult = await v3DatabaseCollection.bulkWrite(operations);
+
+                                totalDocumentUpdatedCount += bulkResult.nModified;
+                                totalDocumentCreatedCount += bulkResult.nUpserted;
+                                totalDocumentHavingSameDataCount += (bulkResult.nMatched - bulkResult.nModified);
+                                // Keeping track of the last updated id
+                                lastProcessedId = liveDocument._id;
+
+                                const message =
+                                    `Processed Collection: ${v3DatabaseCollection}, upto _id: ${liveDocument._id.toLocaleString('en-US')},` +
+                                    `DocumentUpdatedCount: ${totalDocumentUpdatedCount.toLocaleString('en-US')}, ` +
+                                    `DocumentCreatedCount: ${totalDocumentCreatedCount.toLocaleString('en-US')}, ` +
+                                    `DocumentHavingSameDataCount: ${totalDocumentHavingSameDataCount.toLocaleString('en-US')}`;
+                                this.adminLogger.logInfo(message);
+                            } catch (error) {
+                                this.adminLogger.logError(
+                                    `Error while updating collection: ${collection} last document _id: ${liveDocument._id}. Error Message: ${error}`
+                                );
+                            } finally {
+                                // Reset operations list
+                                operations = [];
+                            }
+
                         }
                     }
                     this.adminLogger.logInfo(
-                        `===== For ${collection} total found and created or updated documents: ${totalDocumentHavingSameDataCount + totalDocumentCreatedCount + totalDocumentUpdatedCount} The live documents that have last updated greater than ${this.updatedAfter}: ${liveDocumentLastUpdatedGreaterThanUpdatedAfter} `
+                        `===== For ${collection} total found and created or updated documents: ${totalDocumentHavingSameDataCount + totalDocumentCreatedCount + totalDocumentUpdatedCount} The live documents that have last updated greater than ${this.updatedAfter.toISOString()}: ${liveDocumentLastUpdatedGreaterThanUpdatedAfter} `
                     );
                     // eslint-disable-next-line security/detect-object-injection
                     results[collection] = {
                         totalLiveDocuments: totalLiveDocuments,
-                        [`liveDocumentLastUpdatedGreaterThan_${moment(this.updatedAfter).format('YYYY-MM-DD')}`]: liveDocumentLastUpdatedGreaterThanUpdatedAfter,
+                        totalLiveMatchedDocuments: liveDocumentLastUpdatedGreaterThanUpdatedAfter,
                         totalDocumentUpdated: totalDocumentUpdatedCount,
                         totalDocumentCreated: totalDocumentCreatedCount,
                         totalDocumentHavingSameData: totalDocumentHavingSameDataCount,

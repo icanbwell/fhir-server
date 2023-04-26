@@ -26,13 +26,13 @@ async function main() {
         adminLogger.logInfo('UpdatedAfter is a required field.');
         process.exit(0);
     }
-    const updatedAfter = new Date(`${parameters.updatedAfter}T00:00:00Z`);
-    const readBatchSize = parameters.readBatchSize || process.env.BULK_BUFFER_SIZE || 10000;
+    const updatedAfter = moment.utc(new Date(`${parameters.updatedAfter}T00:00:00Z`));
+    const batchSize = parameters.batchSize || process.env.BULK_BUFFER_SIZE || 10000;
     const concurrentRunners = parameters.concurrentRunners || 1;
     const _idAbove = parameters._idAbove ? String(parameters._idAbove) : undefined;
     const collections = parameters.collections ? parameters.collections.split(',') : undefined;
     const startWithCollection = parameters.startWithCollection || undefined;
-    adminLogger.logInfo(`Running script to update data with last_updated greater than ${updatedAfter}`);
+    adminLogger.logInfo(`Running script to update data with last_updated greater than ${updatedAfter.toISOString()}.`);
 
     // set up all the standard services in the container
     const container = createContainer();
@@ -45,8 +45,8 @@ async function main() {
             new CopyToV3Runner({
                 mongoDatabaseManager: c.mongoDatabaseManager,
                 mongoCollectionManager: c.mongoCollectionManager,
-                updatedAfter: moment.utc(updatedAfter),
-                readBatchSize,
+                updatedAfter: updatedAfter,
+                batchSize,
                 concurrentRunners,
                 _idAbove,
                 collections,
@@ -72,7 +72,7 @@ async function main() {
  * required env variables
  * V3_MONGO_URL, V3_MONGO_USERNAME, V3_MONGO_PASSWORD, V3_DB_NAME(default: fhir)
  * MONGO_URL, MONGO_USERNAME, MONGO_PASSWORD, MONGO_DB_NAME(default: fhir)
- * node src/admin/scripts/copyToV3.js --updatedAfter=2023-04-20 --readbatchSize=10000 --concurrentRunners=5 --_idAbove="1" --startWithCollection="Task_4_0_0"
+ * node src/admin/scripts/copyToV3.js --updatedAfter=2023-04-20 --batchSize=10000 --concurrentRunners=5 --_idAbove="1" --startWithCollection="Task_4_0_0"
  * node src/admin/scripts/copyToV3.js --updatedAfter=2023-04-20 --collections=Task_4_0_0 --skipHistoryCollections
  * node src/admin/scripts/copyToV3.js --updatedAfter=2023-04-20 --concurrentRunners=10
  */
