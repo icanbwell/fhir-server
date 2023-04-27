@@ -142,19 +142,9 @@ module.exports = {
             },
             {
                 keys: {
-                    '_access.medstar': 1,
-                    '_sourceId': 1,
-                    'meta.lastUpdated': 1,
-                },
-                options: {
-                    name: 'helix_auditEvent_security_access_medstar'
-                }
-            },
-            {
-                keys: {
-                    '_access.medstar': 1,
-                    '_sourceId': 1,
                     'recorded': 1,
+                    '_access.medstar': 1,
+                    '_sourceId': 1,
                 },
                 options: {
                     name: 'helix_auditEvent_recorded_access_medstar'
@@ -162,9 +152,9 @@ module.exports = {
             },
             {
                 keys: {
+                    'recorded': 1,
                     'entity.what._sourceId': 1,
                     '_sourceId': 1,
-                    'recorded': 1
                 },
                 options: {
                     name: 'helix_auditEvent_recorded_entity'
@@ -172,9 +162,9 @@ module.exports = {
             },
             {
                 keys: {
+                    'recorded': 1,
                     'agent.who._sourceId': 1,
                     '_sourceId': 1,
-                    'recorded': 1
                 },
                 options: {
                     name: 'helix_auditEvent_recorded_who'
@@ -182,18 +172,20 @@ module.exports = {
             },
             {
                 keys: {
+                    'recorded': 1,
                     '_uuid': 1,
                 },
                 options: {
-                    name: 'uuid'
+                    name: 'helix_auditEvent_recorded_uuid'
                 }
             },
             {
                 keys: {
+                    'recorded': 1,
                     '_sourceId': 1,
                 },
                 options: {
-                    name: 'sourceId'
+                    name: 'helix_auditEvent_recorded_sourceId'
                 }
             },
 
