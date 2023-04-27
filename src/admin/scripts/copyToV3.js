@@ -26,7 +26,7 @@ async function main() {
         adminLogger.logInfo('UpdatedAfter is a required field.');
         process.exit(0);
     }
-    const updatedAfter = moment.utc(new Date(`${parameters.updatedAfter}T00:00:00Z`));
+    const updatedAfter = moment(`${parameters.updatedAfter}`);
     const batchSize = parameters.batchSize || process.env.BULK_BUFFER_SIZE || 10000;
     const concurrentRunners = parameters.concurrentRunners || 1;
     const _idAbove = parameters._idAbove ? String(parameters._idAbove) : undefined;
