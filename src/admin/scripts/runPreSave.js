@@ -35,6 +35,10 @@ async function main() {
      * @type {Date|undefined}
      */
     const beforeLastUpdatedDate = parameters.before ? new Date(parameters.before) : undefined;
+    /**
+     * @type {Date|undefined}
+     */
+    const afterLastUpdatedDate = parameters.after ? new Date(parameters.after) : undefined;
     console.log(`[${currentDateTime}] ` +
         `Running script for collections: ${collections.join(',')}`);
 
@@ -47,6 +51,7 @@ async function main() {
                 mongoCollectionManager: c.mongoCollectionManager,
                 collections: collections,
                 batchSize,
+                afterLastUpdatedDate,
                 beforeLastUpdatedDate,
                 useAuditDatabase: parameters.audit ? true : false,
                 includeHistoryCollections: parameters.includeHistoryCollections ? true : false,

@@ -14,6 +14,7 @@ class RunPreSaveRunner extends BaseBulkOperationRunner {
      * @param {MongoCollectionManager} mongoCollectionManager
      * @param {string[]} collections
      * @param {number} batchSize
+     * @param {date|undefined} afterLastUpdatedDate
      * @param {date|undefined} beforeLastUpdatedDate
      * @param {boolean} useAuditDatabase
      * @param {AdminLogger} adminLogger
@@ -28,6 +29,7 @@ class RunPreSaveRunner extends BaseBulkOperationRunner {
             mongoCollectionManager,
             collections,
             batchSize,
+            afterLastUpdatedDate,
             beforeLastUpdatedDate,
             useAuditDatabase,
             adminLogger,
@@ -51,6 +53,11 @@ class RunPreSaveRunner extends BaseBulkOperationRunner {
          * @type {number}
          */
         this.batchSize = batchSize;
+
+        /**
+         * @type {date|undefined}
+         */
+        this.afterLastUpdatedDate = afterLastUpdatedDate;
 
         /**
          * @type {date|undefined}
@@ -156,9 +163,10 @@ class RunPreSaveRunner extends BaseBulkOperationRunner {
                  */
 
 
-                const query = this.beforeLastUpdatedDate ? {
+                const query = this.beforeLastUpdatedDate || this.afterLastUpdatedDate ? {
                     'meta.lastUpdated': {
-                        $lt: this.beforeLastUpdatedDate,
+                        $lt: this.beforeLastUpdatedDate ? this.beforeLastUpdatedDate : new Date().toISOString(),
+                        $gt: this.afterLastUpdatedDate ? this.afterLastUpdatedDate : new Date(0).toISOString(),
                     }
                 } : {_sourceAssigningAuthority: {$not: {$type: 'string'}}};
                 try {
