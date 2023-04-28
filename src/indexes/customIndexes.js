@@ -24,7 +24,10 @@ module.exports = {
                 },
                 options: {
                     name: 'reverse_meta.lastUpdated_1'
-                }
+                },
+                exclude: [
+                    'AuditEvent_4_0_0'
+                ]
             },
             {
                 keys: {
@@ -33,7 +36,10 @@ module.exports = {
                 },
                 options: {
                     name: 'meta.source_1'
-                }
+                },
+                exclude: [
+                    'AuditEvent_4_0_0'
+                ]
             },
             {
                 keys: {
@@ -91,10 +97,7 @@ module.exports = {
                 },
                 options: {
                     name: 'uuid'
-                },
-                exclude: [
-                    'AuditEvent_4_0_0'
-                ]
+                }
             },
             {
                 keys: {
