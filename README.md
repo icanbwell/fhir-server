@@ -78,7 +78,7 @@ This is also where you can set environment variables that are common to all envi
 For [dev, perf, client-sandbox, staging, bulk-staging] environments:
 1. Run the GitHub Action for the appropriate environment: https://github.com/icanbwell/helm.helix-service/actions and input the version number to deploy
 
-To set environment variables for desired environment update the <environment>-ue1.values.yaml in https://github.com/icanbwell/helm.helix-service/tree/main/.helm/fhir-server
+To set environment variables for desired environment update the *environment-name*-ue1.values.yaml in https://github.com/icanbwell/helm.helix-service/tree/main/.helm/fhir-server
 
 ## Checking version of deployed fhir server
 
