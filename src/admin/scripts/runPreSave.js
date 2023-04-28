@@ -35,6 +35,10 @@ async function main() {
      * @type {Date|undefined}
      */
     const beforeLastUpdatedDate = parameters.before ? new Date(parameters.before) : undefined;
+    /**
+     * @type {Date|undefined}
+     */
+    const afterLastUpdatedDate = parameters.after ? new Date(parameters.after) : undefined;
     console.log(`[${currentDateTime}] ` +
         `Running script for collections: ${collections.join(',')}`);
 
@@ -47,6 +51,7 @@ async function main() {
                 mongoCollectionManager: c.mongoCollectionManager,
                 collections: collections,
                 batchSize,
+                afterLastUpdatedDate,
                 beforeLastUpdatedDate,
                 useAuditDatabase: parameters.audit ? true : false,
                 includeHistoryCollections: parameters.includeHistoryCollections ? true : false,
@@ -82,6 +87,7 @@ async function main() {
  * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/runPreSave.js --collections=AuditEvent_4_0_0_2023_02 --audit --batchSize=10000
  * node src/admin/scripts/runPreSave.js --collections=AuditEvent_4_0_0 --audit --batchSize=10000
  * node src/admin/scripts/runPreSave.js --collections=AuditEvent_4_0_0 --audit --batchSize=10000 --before 2021-12-31
+ * node src/admin/scripts/runPreSave.js --collections=AuditEvent_4_0_0 --audit --batchSize=10000 --after 2021-12-31
  */
 main().catch(reason => {
     console.error(reason);
