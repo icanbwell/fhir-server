@@ -30,9 +30,9 @@ class MongoCollectionManager {
         assertTypeEquals(configManager, ConfigManager);
 
         /**
-         * @type {Map}
+         * @type {Set}
          */
-        this.databaseCollectionStatusMap = new Map();
+        this.databaseCollectionStatusMap = new Set();
     }
 
     /**
@@ -56,7 +56,7 @@ class MongoCollectionManager {
                         await this.indexManager.indexCollectionAsync({collectionName, db});
                     }
                 }
-                this.databaseCollectionStatusMap.set(collectionName, true);
+                this.databaseCollectionStatusMap.add(collectionName);
             }
         });
 
