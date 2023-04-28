@@ -45,9 +45,9 @@ class MongoCollectionManager {
         assertIsValid(db !== undefined);
         assertIsValid(collectionName !== undefined);
 
-        if (!this.databaseCollectionStatusMap.has(collectionName)) {
-            // use mutex to prevent parallel async calls from trying to create the collection at the same time
-            await mutex.runExclusive(async () => {
+        // use mutex to prevent parallel async calls from trying to create the collection at the same time
+        await mutex.runExclusive(async () => {
+            if (!this.databaseCollectionStatusMap.has(collectionName)) {
                 const collectionExists = await db.listCollections({name: collectionName}, {nameOnly: true}).hasNext();
                 if (!collectionExists) {
                     await db.createCollection(collectionName);
@@ -57,8 +57,8 @@ class MongoCollectionManager {
                     }
                 }
                 this.databaseCollectionStatusMap.set(collectionName, true);
-            });
-        }
+            }
+        });
 
         return db.collection(collectionName);
     }
