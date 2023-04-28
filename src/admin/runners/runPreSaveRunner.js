@@ -161,14 +161,27 @@ class RunPreSaveRunner extends BaseBulkOperationRunner {
                 /**
                  * @type {import('mongodb').Filter<import('mongodb').Document>}
                  */
-
-
-                const query = this.beforeLastUpdatedDate || this.afterLastUpdatedDate ? {
-                    'meta.lastUpdated': {
-                        $lt: this.beforeLastUpdatedDate ? this.beforeLastUpdatedDate : new Date().toISOString(),
-                        $gt: this.afterLastUpdatedDate ? this.afterLastUpdatedDate : new Date(0).toISOString(),
-                    }
-                } : {_sourceAssigningAuthority: {$not: {$type: 'string'}}};
+                let query = {_sourceAssigningAuthority: {$not: {$type: 'string'}}};
+                if (this.beforeLastUpdatedDate && this.afterLastUpdatedDate) {
+                    query = {
+                        'meta.lastUpdated': {
+                            $lt: this.beforeLastUpdatedDate,
+                            $gt: this.afterLastUpdatedDate,
+                        }
+                    };
+                } else if (this.beforeLastUpdatedDate) {
+                    query = {
+                        'meta.lastUpdated': {
+                            $lt: this.beforeLastUpdatedDate
+                        }
+                    };
+                } else if (this.afterLastUpdatedDate) {
+                    query = {
+                        'meta.lastUpdated': {
+                            $gt: this.afterLastUpdatedDate,
+                        }
+                    };
+                }
                 try {
                     await this.runForQueryBatchesAsync(
                         {
