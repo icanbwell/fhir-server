@@ -20,6 +20,11 @@ module.exports = {
             return context.dataApi.resolveType(obj, context, info);
         },
     },
+    MedicationRequestReportedReference: {
+        __resolveType(obj, context, info) {
+            return context.dataApi.resolveType(obj, context, info);
+        },
+    },
     MedicationRequestSubject: {
         __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);

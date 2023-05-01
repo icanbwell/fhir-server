@@ -50,7 +50,7 @@ type TriggerDefinition {
     """
     None
     """
-    timingReference: Resource        
+    timingReference: Schedule        
     """
     None
     """

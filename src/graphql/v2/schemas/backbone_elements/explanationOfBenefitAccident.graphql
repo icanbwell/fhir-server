@@ -63,5 +63,5 @@ type ExplanationOfBenefitAccident {
     """
     None
     """
-    locationReference: Resource        
+    locationReference: Location        
 }

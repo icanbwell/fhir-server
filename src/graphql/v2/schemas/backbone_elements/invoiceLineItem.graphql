@@ -51,7 +51,7 @@ type InvoiceLineItem {
     """
     None
     """
-    chargeItemReference: Resource        
+    chargeItemReference: ChargeItem        
     """
     None
     """

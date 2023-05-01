@@ -164,7 +164,7 @@ type PlanDefinition {
     """
     None
     """
-    subjectReference: Resource        
+    subjectReference: Group        
     """
     The date  (and optionally time) when the plan definition was published. The
     date must change when the business version changes and it must change if the

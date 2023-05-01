@@ -6,6 +6,7 @@
 # import QuestionnaireResponse from "../resources/questionnaireResponse.graphql"
 
 union ContractLegalContentReferenceV2 = Composition | DocumentReference | QuestionnaireResponse
+union ContractLegalContentReference = Composition | DocumentReference | QuestionnaireResponse
 
 """
 Contract.Legal
@@ -52,5 +53,5 @@ type ContractLegal {
     """
     None
     """
-    contentReference: Resource        
+    contentReference: ContractLegalContentReference        
 }

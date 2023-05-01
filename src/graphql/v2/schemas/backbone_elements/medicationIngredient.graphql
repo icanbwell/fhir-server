@@ -6,6 +6,7 @@
 # import Ratio from "../complex_types/ratio.graphql"
 
 union MedicationIngredientItemReferenceV2 = Substance | Medication
+union MedicationIngredientItemReference = Substance | Medication
 
 """
 Medication.Ingredient
@@ -53,7 +54,7 @@ type MedicationIngredient {
     """
     None
     """
-    itemReference: Resource        
+    itemReference: MedicationIngredientItemReference        
     """
     Indication of whether this ingredient affects the therapeutic action of the
     drug.

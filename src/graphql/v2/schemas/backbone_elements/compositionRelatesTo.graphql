@@ -62,5 +62,5 @@ type CompositionRelatesTo {
     """
     None
     """
-    targetReference: Resource        
+    targetReference: Composition        
 }

@@ -20,6 +20,11 @@ module.exports = {
             return context.dataApi.resolveType(obj, context, info);
         },
     },
+    SupplyRequestItemReference: {
+        __resolveType(obj, context, info) {
+            return context.dataApi.resolveType(obj, context, info);
+        },
+    },
     SupplyRequestRequester: {
         __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);

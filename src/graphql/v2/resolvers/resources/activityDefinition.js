@@ -20,6 +20,11 @@ module.exports = {
             return context.dataApi.resolveType(obj, context, info);
         },
     },
+    ActivityDefinitionProductReference: {
+        __resolveType(obj, context, info) {
+            return context.dataApi.resolveType(obj, context, info);
+        },
+    },
     ActivityDefinition: {
         // noinspection JSUnusedLocalSymbols
         // eslint-disable-next-line no-unused-vars

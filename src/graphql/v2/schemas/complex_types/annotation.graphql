@@ -8,6 +8,7 @@
 # import markdown from "../simple_types/markdown.graphql"
 
 union AnnotationAuthorReferenceV2 = Practitioner | Patient | RelatedPerson | Organization
+union AnnotationAuthorReference = Practitioner | Patient | RelatedPerson | Organization
 
 """
 Annotation
@@ -36,7 +37,7 @@ type Annotation {
     """
     None
     """
-    authorReference: Resource        
+    authorReference: AnnotationAuthorReference        
     """
     None
     """

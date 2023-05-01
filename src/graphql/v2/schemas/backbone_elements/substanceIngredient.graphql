@@ -53,5 +53,5 @@ type SubstanceIngredient {
     """
     None
     """
-    substanceReference: Resource        
+    substanceReference: Substance        
 }

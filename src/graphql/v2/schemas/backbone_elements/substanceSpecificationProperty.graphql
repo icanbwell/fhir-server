@@ -6,6 +6,7 @@
 # import Quantity from "../complex_types/quantity.graphql"
 
 union SubstanceSpecificationPropertyDefiningSubstanceReferenceV2 = SubstanceSpecification | Substance
+union SubstanceSpecificationPropertyDefiningSubstanceReference = SubstanceSpecification | Substance
 
 """
 SubstanceSpecification.Property
@@ -61,7 +62,7 @@ type SubstanceSpecificationProperty {
     """
     None
     """
-    definingSubstanceReference: Resource        
+    definingSubstanceReference: SubstanceSpecificationPropertyDefiningSubstanceReference        
     """
     None
     """

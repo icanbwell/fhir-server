@@ -12,6 +12,7 @@
 union CarePlanDetailReasonReference = Condition | Observation | DiagnosticReport | DocumentReference
 union CarePlanDetailPerformer = Practitioner | PractitionerRole | Organization | RelatedPerson | Patient | CareTeam | HealthcareService | Device
 union CarePlanDetailProductReferenceV2 = Medication | Substance
+union CarePlanDetailProductReference = Medication | Substance
 
 """
 CarePlan.Detail
@@ -135,7 +136,7 @@ type CarePlanDetail {
     """
     None
     """
-    productReference: Resource        
+    productReference: CarePlanDetailProductReference        
     """
     Identifies the quantity expected to be consumed in a given day.
     """

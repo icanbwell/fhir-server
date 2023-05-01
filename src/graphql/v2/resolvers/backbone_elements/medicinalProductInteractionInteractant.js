@@ -8,6 +8,11 @@ module.exports = {
             return context.dataApi.resolveType(obj, context, info);
         },
     },
+    MedicinalProductInteractionInteractantItemReference: {
+        __resolveType(obj, context, info) {
+            return context.dataApi.resolveType(obj, context, info);
+        },
+    },
     MedicinalProductInteractionInteractant: {
         // noinspection JSUnusedLocalSymbols
         // eslint-disable-next-line no-unused-vars

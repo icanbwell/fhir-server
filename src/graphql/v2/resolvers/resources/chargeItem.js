@@ -40,6 +40,11 @@ module.exports = {
             return context.dataApi.resolveType(obj, context, info);
         },
     },
+    ChargeItemProductReference: {
+        __resolveType(obj, context, info) {
+            return context.dataApi.resolveType(obj, context, info);
+        },
+    },
     ChargeItemSupportingInformationV2: {
         __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);

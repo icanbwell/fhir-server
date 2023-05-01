@@ -7,6 +7,7 @@
 # import CodeableConcept from "../complex_types/codeableConcept.graphql"
 
 union MedicinalProductInteractionInteractantItemReferenceV2 = MedicinalProduct | Medication | Substance | ObservationDefinition
+union MedicinalProductInteractionInteractantItemReference = MedicinalProduct | Medication | Substance | ObservationDefinition
 
 """
 MedicinalProductInteraction.Interactant
@@ -49,7 +50,7 @@ type MedicinalProductInteractionInteractant {
     """
     None
     """
-    itemReference: Resource        
+    itemReference: MedicinalProductInteractionInteractantItemReference        
     """
     None
     """

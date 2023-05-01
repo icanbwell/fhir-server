@@ -18,6 +18,11 @@ module.exports = {
             return context.dataApi.resolveType(obj, context, info);
         },
     },
+    CarePlanDetailProductReference: {
+        __resolveType(obj, context, info) {
+            return context.dataApi.resolveType(obj, context, info);
+        },
+    },
     CarePlanDetail: {
         // noinspection JSUnusedLocalSymbols
         // eslint-disable-next-line no-unused-vars

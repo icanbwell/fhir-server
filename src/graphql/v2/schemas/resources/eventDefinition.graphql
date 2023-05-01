@@ -151,7 +151,7 @@ type EventDefinition {
     """
     None
     """
-    subjectReference: Resource        
+    subjectReference: Group        
     """
     The date  (and optionally time) when the event definition was published. The
     date must change when the business version changes and it must change if the

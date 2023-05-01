@@ -54,7 +54,7 @@ union {{fhir_entity.cleaned_name}}{{ upper_case_first_letter(property.name) }}{{
 type {{fhir_entity.cleaned_name}} {
     resourceType: String
 {% for property in fhir_entity.properties %}
-    {% if property.is_v2_supported and not property.reference_target_resources %}
+    {% if property.is_v2_supported and property.reference_target_resources|length == 0 %}
     {% else %}
     """
     {{ property.documentation[0] | wordwrap(78) | replace('\n', '\n    ') | replace('\r', '\n    ') }}

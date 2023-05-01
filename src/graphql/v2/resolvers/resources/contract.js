@@ -35,6 +35,11 @@ module.exports = {
             return context.dataApi.resolveType(obj, context, info);
         },
     },
+    ContractLegallyBindingReference: {
+        __resolveType(obj, context, info) {
+            return context.dataApi.resolveType(obj, context, info);
+        },
+    },
     Contract: {
         // noinspection JSUnusedLocalSymbols
         // eslint-disable-next-line no-unused-vars

@@ -27,6 +27,7 @@
 # import ActivityDefinitionDynamicValue from "../backbone_elements/activityDefinitionDynamicValue.graphql"
 
 union ActivityDefinitionProductReferenceV2 = Medication | Substance    
+union ActivityDefinitionProductReference = Medication | Substance    
 
 
 """
@@ -166,7 +167,7 @@ type ActivityDefinition {
     """
     None
     """
-    subjectReference: Resource        
+    subjectReference: Group        
     """
     The date  (and optionally time) when the activity definition was published.
     The date must change when the business version changes and it must change if
@@ -342,7 +343,7 @@ type ActivityDefinition {
     """
     None
     """
-    productReference: Resource        
+    productReference: ActivityDefinitionProductReference        
     """
     None
     """

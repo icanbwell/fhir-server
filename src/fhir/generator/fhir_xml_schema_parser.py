@@ -574,23 +574,23 @@ class FhirXmlSchemaParser:
                            == FhirXmlSchemaParser.fix_graphql_keywords(property_name)
                     ]
                 if fhir_property_list:
-                    fhir_property = fhir_property_list[0]
-                    fhir_property.reference_target_resources = [
-                        SmartName(
-                            name=c,
-                            cleaned_name=FhirXmlSchemaParser.cleaned_type_mapping[c]
-                            if c in FhirXmlSchemaParser.cleaned_type_mapping
-                            else c,
-                            snake_case_name=FhirXmlSchemaParser.camel_to_snake(c),
-                        )
-                        for c in reference.target_resources
-                    ]
-                    fhir_property.reference_target_resources_names = [
-                        FhirXmlSchemaParser.cleaned_type_mapping[c.name]
-                        if c.name in FhirXmlSchemaParser.cleaned_type_mapping
-                        else c.name
-                        for c in fhir_property.reference_target_resources
-                    ]
+                    for fhir_property in fhir_property_list:
+                        fhir_property.reference_target_resources = [
+                            SmartName(
+                                name=c,
+                                cleaned_name=FhirXmlSchemaParser.cleaned_type_mapping[c]
+                                if c in FhirXmlSchemaParser.cleaned_type_mapping
+                                else c,
+                                snake_case_name=FhirXmlSchemaParser.camel_to_snake(c),
+                            )
+                            for c in reference.target_resources
+                        ]
+                        fhir_property.reference_target_resources_names = [
+                            FhirXmlSchemaParser.cleaned_type_mapping[c.name]
+                            if c.name in FhirXmlSchemaParser.cleaned_type_mapping
+                            else c.name
+                            for c in fhir_property.reference_target_resources
+                        ]
 
         # set generic type for everything else
         for fhir_entity in fhir_entities:

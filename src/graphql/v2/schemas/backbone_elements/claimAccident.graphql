@@ -63,5 +63,5 @@ type ClaimAccident {
     """
     None
     """
-    locationReference: Resource        
+    locationReference: Location        
 }

@@ -74,5 +74,5 @@ type SpecimenContainer {
     """
     None
     """
-    additiveReference: Resource        
+    additiveReference: Substance        
 }

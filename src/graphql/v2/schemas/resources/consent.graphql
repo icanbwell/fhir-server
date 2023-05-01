@@ -17,6 +17,7 @@
 
 union ConsentPerformer = Organization | Patient | Practitioner | RelatedPerson | PractitionerRole    
 union ConsentSourceReferenceV2 = Consent | DocumentReference | Contract | QuestionnaireResponse    
+union ConsentSourceReference = Consent | DocumentReference | Contract | QuestionnaireResponse    
 
 
 """
@@ -138,7 +139,7 @@ type Consent {
     """
     None
     """
-    sourceReference: Resource        
+    sourceReference: ConsentSourceReference        
     """
     The references to the policies that are included in this consent scope.
     Policies may be organizational, but are often defined jurisdictionally, or in

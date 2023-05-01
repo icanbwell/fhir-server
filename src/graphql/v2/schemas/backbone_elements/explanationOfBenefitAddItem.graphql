@@ -105,7 +105,7 @@ type ExplanationOfBenefitAddItem {
     """
     None
     """
-    locationReference: Resource        
+    locationReference: Location        
     """
     The number of repetitions of a service or product.
     """

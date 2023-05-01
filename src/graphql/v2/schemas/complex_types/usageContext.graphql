@@ -13,6 +13,7 @@
 # import Organization from "../resources/organization.graphql"
 
 union UsageContextValueReferenceV2 = PlanDefinition | ResearchStudy | InsurancePlan | HealthcareService | Group | Location | Organization
+union UsageContextValueReference = PlanDefinition | ResearchStudy | InsurancePlan | HealthcareService | Group | Location | Organization
 
 """
 UsageContext
@@ -60,5 +61,5 @@ type UsageContext {
     """
     None
     """
-    valueReference: Resource        
+    valueReference: UsageContextValueReference        
 }

@@ -64,7 +64,7 @@ type ClaimProcedure {
     """
     None
     """
-    procedureReference: Resource        
+    procedureReference: Procedure        
     """
     Unique Device Identifiers associated with this line item.
     """

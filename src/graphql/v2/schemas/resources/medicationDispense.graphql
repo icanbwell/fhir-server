@@ -121,7 +121,7 @@ type MedicationDispense {
     """
     None
     """
-    statusReasonReference: Resource        
+    statusReasonReference: DetectedIssue        
     """
     Indicates the type of medication dispense (for example, where the medication
     is expected to be consumed or administered (i.e. inpatient or outpatient)).
@@ -138,7 +138,7 @@ type MedicationDispense {
     """
     None
     """
-    medicationReference: Resource        
+    medicationReference: Medication        
     """
     A link to a resource representing the person or the group to whom the
     medication will be given.

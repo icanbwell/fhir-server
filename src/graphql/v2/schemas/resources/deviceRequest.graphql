@@ -297,7 +297,7 @@ type DeviceRequest {
     """
     None
     """
-    codeReference: Resource        
+    codeReference: Device        
     """
     None
     """

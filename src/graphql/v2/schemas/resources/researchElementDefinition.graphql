@@ -162,7 +162,7 @@ type ResearchElementDefinition {
     """
     None
     """
-    subjectReference: Resource        
+    subjectReference: Group        
     """
     The date  (and optionally time) when the research element definition was
     published. The date must change when the business version changes and it must

@@ -18,6 +18,7 @@
 # import Timing from "../backbone_elements/timing.graphql"
 
 union SupplyRequestItemReferenceV2 = Medication | Substance | Device    
+union SupplyRequestItemReference = Medication | Substance | Device    
 union SupplyRequestRequester = Practitioner | PractitionerRole | Organization | Patient | RelatedPerson | Device    
 union SupplyRequestSupplier = Organization | HealthcareService    
 union SupplyRequestReasonReference = Condition | Observation | DiagnosticReport | DocumentReference    
@@ -125,7 +126,7 @@ type SupplyRequest {
     """
     None
     """
-    itemReference: Resource        
+    itemReference: SupplyRequestItemReference        
     """
     The amount that is being ordered of the indicated item.
     """

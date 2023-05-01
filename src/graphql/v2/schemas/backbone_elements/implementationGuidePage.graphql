@@ -52,7 +52,7 @@ type ImplementationGuidePage {
     """
     None
     """
-    nameReference: Resource        
+    nameReference: Binary        
     """
     A short title used to represent this page in navigational structures such as
     table of contents, bread crumbs, etc.
