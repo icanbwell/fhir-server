@@ -3,6 +3,7 @@ const { assertTypeEquals, assertIsValid } = require('../../utils/assertType');
 const { PreSaveManager } = require('../../preSaveHandlers/preSave');
 const deepEqual = require('fast-deep-equal');
 const moment = require('moment-timezone');
+const { SecurityTagSystem } = require('../../utils/securityTagSystem');
 const { fixMultipleAuthorities } = require('../utils/fixMultipleSourceAssigningAuthority');
 const { FhirResourceCreator } = require('../../fhir/fhirResourceCreator');
 
@@ -22,6 +23,7 @@ class FixMultipleSourceAssigningAuthorityRunner extends BaseBulkOperationRunner 
      * @param {PreSaveManager} preSaveManager
      * @param {boolean|undefined} [includeHistoryCollections]
      * @param {boolean|undefined} fixMultipleOwners
+     * @param {boolean|undefined} filterRecords
      * @param {string|undefined} [startFromCollection]
      * @param {number|undefined} [limit]
      * * @param {number|undefined} [skip]
@@ -38,6 +40,7 @@ class FixMultipleSourceAssigningAuthorityRunner extends BaseBulkOperationRunner 
             preSaveManager,
             includeHistoryCollections,
             fixMultipleOwners,
+            filterRecords,
             startFromCollection,
             limit,
             skip,
@@ -80,6 +83,12 @@ class FixMultipleSourceAssigningAuthorityRunner extends BaseBulkOperationRunner 
          * @type {boolean|undefined}
          */
         this.fixMultipleOwners = fixMultipleOwners;
+
+        /**
+         * @type {boolean}
+         * @type {boolean|undefined}
+         */
+        this.filterRecords = filterRecords;
 
         /**
          * @type {string|undefined}
@@ -180,6 +189,46 @@ class FixMultipleSourceAssigningAuthorityRunner extends BaseBulkOperationRunner 
                     },
                 } : {};
 
+                let idList = [];
+                if (this.filterRecords) {
+                    // Get ids of documents that have multiple sourceAssigningAuthority.
+                    let db = await this.mongoDatabaseManager.getClientDbAsync();
+                    let dbCollection = await this.mongoCollectionManager.getOrCreateCollectionAsync({
+                        db,
+                        collectionName,
+                    });
+                    let result = await dbCollection.aggregate([
+                        {
+                            '$unwind': {
+                                'path': '$meta.security',
+                            },
+                        },
+                        {
+                            '$match': {
+                                'meta.security.system': `${SecurityTagSystem.sourceAssigningAuthority}`,
+                            },
+                        },
+                        {
+                            '$group': {
+                                _id: '$_id',
+                                count: { $count: {} },
+                            },
+                        },
+                        {
+                            '$match': {
+                                'count': {
+                                    $gte: 2,
+                                },
+                            },
+                        },
+                        {
+                            $project: { array: true },
+                        },
+                    ], { allowDiskUse: true }).toArray();
+
+                    idList = result.map(obj => obj._id);
+                }
+
                 try {
                     await this.runForQueryBatchesAsync(
                         {
@@ -196,7 +245,9 @@ class FixMultipleSourceAssigningAuthorityRunner extends BaseBulkOperationRunner 
                             batchSize: this.batchSize,
                             skipExistingIds: false,
                             limit: this.limit,
-                            skip: this.skip
+                            skip: this.skip,
+                            filterToIdProperty: '_id',
+                            filterToIds: this.filterRecords ? idList : undefined,
                         },
                     );
                 } catch (e) {

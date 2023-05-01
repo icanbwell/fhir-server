@@ -22,14 +22,15 @@ class SourceAssigningAuthorityColumnHandler extends PreSaveHandler {
                     .map(s => s.code);
                 sourceAssigningAuthorityCodes = Array.from(new Set(sourceAssigningAuthorityCodes));
                 // add security tags
-                for (const code of sourceAssigningAuthorityCodes) {
+                if (sourceAssigningAuthorityCodes.length > 0){
                     resource.meta.security.push(new Coding({
                         system: SecurityTagSystem.sourceAssigningAuthority,
-                        code: code
+                        code: sourceAssigningAuthorityCodes[0]
                     }));
                 }
+            } else {
+                sourceAssigningAuthorityCodes = Array.from(new Set(sourceAssigningAuthorityCodes));
             }
-            sourceAssigningAuthorityCodes = Array.from(new Set(sourceAssigningAuthorityCodes));
             if (sourceAssigningAuthorityCodes.length > 0) {
                 const sourceAssigningAuthorityCode = sourceAssigningAuthorityCodes[0];
                 if (resource._sourceAssigningAuthority !== sourceAssigningAuthorityCode) {
