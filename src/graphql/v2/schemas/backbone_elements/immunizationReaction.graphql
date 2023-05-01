@@ -45,10 +45,6 @@ type ImmunizationReaction {
     """
     Details of the reaction.
     """
-    detailV2: Reference        
-    """
-    Details of the reaction.
-    """
     detail: Observation        
     """
     Self-reported indicator.

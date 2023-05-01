@@ -48,11 +48,6 @@ type ImmunizationProtocolApplied {
     Indicates the authority who published the protocol (e.g. ACIP) that is being
     followed.
     """
-    authorityV2: Reference        
-    """
-    Indicates the authority who published the protocol (e.g. ACIP) that is being
-    followed.
-    """
     authority: Organization        
     """
     The vaccine preventable disease the dose is being administered against.

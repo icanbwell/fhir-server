@@ -122,10 +122,6 @@ type RequestGroupAction {
     """
     The participant that should perform or be responsible for this action.
     """
-    participantV2: [Reference]        
-    """
-    The participant that should perform or be responsible for this action.
-    """
     participant: [RequestGroupActionParticipant]        
     """
     The type of action to perform (create, update, remove).

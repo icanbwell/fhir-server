@@ -42,10 +42,6 @@ type MedicationKnowledgeRegulatory {
     """
     The authority that is specifying the regulations.
     """
-    regulatoryAuthorityV2: Reference!        
-    """
-    The authority that is specifying the regulations.
-    """
     regulatoryAuthority: Organization        
     """
     Specifies if changes are allowed when dispensing a medication from a

@@ -47,10 +47,6 @@ type ContractSigner {
     """
     Party which is a signator to this Contract.
     """
-    partyV2: Reference!        
-    """
-    Party which is a signator to this Contract.
-    """
     party: ContractSignerParty        
     """
     Legally binding Contract DSIG signature contents in Base64.

@@ -49,9 +49,5 @@ type ImagingStudyPerformer {
     """
     Indicates who or what performed the series.
     """
-    actorV2: Reference!        
-    """
-    Indicates who or what performed the series.
-    """
     actor: ImagingStudyPerformerActor        
 }

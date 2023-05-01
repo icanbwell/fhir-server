@@ -54,9 +54,5 @@ type ClinicalImpressionInvestigation {
     """
     A record of a specific investigation that was undertaken.
     """
-    itemV2: [Reference]        
-    """
-    A record of a specific investigation that was undertaken.
-    """
     item: [ClinicalImpressionInvestigationItem]        
 }

@@ -53,23 +53,12 @@ type ClaimResponseInsurance {
     resource. The coverage issuing insurer will use these details to locate the
     patient's actual coverage within the insurer's information system.
     """
-    coverageV2: Reference!        
-    """
-    Reference to the insurance card level information contained in the Coverage
-    resource. The coverage issuing insurer will use these details to locate the
-    patient's actual coverage within the insurer's information system.
-    """
     coverage: Coverage        
     """
     A business agreement number established between the provider and the insurer
     for special business processing purposes.
     """
     businessArrangement: String        
-    """
-    The result of the adjudication of the line items for the Coverage specified in
-    this insurance.
-    """
-    claimResponseV2: Reference        
     """
     The result of the adjudication of the line items for the Coverage specified in
     this insurance.

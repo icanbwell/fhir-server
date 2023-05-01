@@ -46,13 +46,6 @@ type EncounterDiagnosis {
     typically be a Condition (with other resources referenced in the
     evidence.detail), or a Procedure.
     """
-    conditionV2: Reference!        
-    """
-    Reason the encounter takes place, as specified using information from another
-    resource. For admissions, this is the admission diagnosis. The indication will
-    typically be a Condition (with other resources referenced in the
-    evidence.detail), or a Procedure.
-    """
     condition: EncounterDiagnosisCondition        
     """
     Role that this diagnosis has within the encounter (e.g. admission, billing,

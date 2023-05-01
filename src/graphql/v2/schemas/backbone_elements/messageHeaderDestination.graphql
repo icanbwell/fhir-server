@@ -50,21 +50,11 @@ type MessageHeaderDestination {
     Identifies the target end system in situations where the initial message
     transmission is to an intermediary system.
     """
-    targetV2: Reference        
-    """
-    Identifies the target end system in situations where the initial message
-    transmission is to an intermediary system.
-    """
     target: Device        
     """
     Indicates where the message should be routed to.
     """
     endpoint: url!        
-    """
-    Allows data conveyed by a message to be addressed to a particular person or
-    department when routing to a specific application isn't sufficient.
-    """
-    receiverV2: Reference        
     """
     Allows data conveyed by a message to be addressed to a particular person or
     department when routing to a specific application isn't sufficient.

@@ -55,9 +55,5 @@ type PractitionerQualification {
     """
     Organization that regulates and issues the qualification.
     """
-    issuerV2: Reference        
-    """
-    Organization that regulates and issues the qualification.
-    """
     issuer: Organization        
 }

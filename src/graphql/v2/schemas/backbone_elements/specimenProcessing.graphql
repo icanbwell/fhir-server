@@ -50,10 +50,6 @@ type SpecimenProcessing {
     """
     Material used in the processing step.
     """
-    additiveV2: [Reference]        
-    """
-    Material used in the processing step.
-    """
     additive: [Substance]        
     """
     None

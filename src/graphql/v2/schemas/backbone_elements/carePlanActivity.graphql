@@ -218,10 +218,6 @@ type CarePlanActivity {
     """
     The details of the proposed activity represented in a specific resource.
     """
-    referenceV2: Reference        
-    """
-    The details of the proposed activity represented in a specific resource.
-    """
     reference: CarePlanActivityReference        
     """
     A simple summary of a planned activity suitable for a general care plan system

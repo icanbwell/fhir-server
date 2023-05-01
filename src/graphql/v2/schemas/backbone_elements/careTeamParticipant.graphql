@@ -50,16 +50,7 @@ type CareTeamParticipant {
     The specific person or organization who is participating/expected to
     participate in the care team.
     """
-    memberV2: Reference        
-    """
-    The specific person or organization who is participating/expected to
-    participate in the care team.
-    """
     member: CareTeamParticipantMember        
-    """
-    The organization of the practitioner.
-    """
-    onBehalfOfV2: Reference        
     """
     The organization of the practitioner.
     """

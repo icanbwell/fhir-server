@@ -55,10 +55,6 @@ type ContractContentDefinition {
     """
     The  individual or organization that published the Contract precursor content.
     """
-    publisherV2: Reference        
-    """
-    The  individual or organization that published the Contract precursor content.
-    """
     publisher: ContractContentDefinitionPublisher        
     """
     The date (and optionally time) when the contract was published. The date must

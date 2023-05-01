@@ -53,11 +53,6 @@ type ClinicalImpressionFinding {
     Specific reference for finding or diagnosis, which may include ruled-out or
     resolved conditions.
     """
-    itemReferenceV2: Reference        
-    """
-    Specific reference for finding or diagnosis, which may include ruled-out or
-    resolved conditions.
-    """
     itemReference: ClinicalImpressionFindingItemReference        
     """
     Which investigations support finding or diagnosis.

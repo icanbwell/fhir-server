@@ -45,10 +45,6 @@ type SpecimenCollection {
     """
     Person who collected the specimen.
     """
-    collectorV2: Reference        
-    """
-    Person who collected the specimen.
-    """
     collector: SpecimenCollectionCollector        
     """
     None

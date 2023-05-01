@@ -52,15 +52,7 @@ type InsurancePlanPlan {
     """
     The geographic region in which a health insurance plan's benefits apply.
     """
-    coverageAreaV2: [Reference]        
-    """
-    The geographic region in which a health insurance plan's benefits apply.
-    """
     coverageArea: [Location]        
-    """
-    Reference to the network that providing the type of coverage.
-    """
-    networkV2: [Reference]        
     """
     Reference to the network that providing the type of coverage.
     """

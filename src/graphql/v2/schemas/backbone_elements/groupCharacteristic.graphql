@@ -66,10 +66,6 @@ type GroupCharacteristic {
     """
     None
     """
-    valueReferenceV2: Reference        
-    """
-    None
-    """
     valueReference: Resource        
     """
     If true, indicates the characteristic is one that is NOT held by members of

@@ -49,9 +49,5 @@ type DiagnosticReportMedia {
     """
     Reference to the image source.
     """
-    linkV2: Reference!        
-    """
-    Reference to the image source.
-    """
     link: Media        
 }

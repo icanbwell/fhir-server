@@ -43,10 +43,6 @@ type VerificationResultPrimarySource {
     """
     Reference to the primary source.
     """
-    whoV2: Reference        
-    """
-    Reference to the primary source.
-    """
     who: VerificationResultPrimarySourceWho        
     """
     Type of primary source (License Board; Primary Education; Continuing

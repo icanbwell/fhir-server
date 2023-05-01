@@ -46,15 +46,6 @@ type AccountCoverage {
     sequence of the coverages in the account could be important when processing
     billing.
     """
-    coverageV2: Reference!        
-    """
-    The party(s) that contribute to payment (or part of) of the charges applied to
-    this account (including self-pay).
-    
-    A coverage may only be responsible for specific types of charges, and the
-    sequence of the coverages in the account could be important when processing
-    billing.
-    """
     coverage: Coverage        
     """
     The priority of the coverage in the context of this account.

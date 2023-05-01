@@ -48,12 +48,6 @@ type ExplanationOfBenefitInsurance {
     resource. The coverage issuing insurer will use these details to locate the
     patient's actual coverage within the insurer's information system.
     """
-    coverageV2: Reference!        
-    """
-    Reference to the insurance card level information contained in the Coverage
-    resource. The coverage issuing insurer will use these details to locate the
-    patient's actual coverage within the insurer's information system.
-    """
     coverage: Coverage        
     """
     Reference numbers previously provided by the insurer to the provider to be

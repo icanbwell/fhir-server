@@ -49,10 +49,6 @@ type AuditEventSource {
     """
     Identifier of the source where the event was detected.
     """
-    observerV2: Reference!        
-    """
-    Identifier of the source where the event was detected.
-    """
     observer: AuditEventSourceObserver        
     """
     Code specifying the type of source where event originated.

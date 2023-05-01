@@ -43,10 +43,6 @@ type ExplanationOfBenefitRelated {
     """
     Reference to a related claim.
     """
-    claimV2: Reference        
-    """
-    Reference to a related claim.
-    """
     claim: Claim        
     """
     A code to convey how the claims are related.

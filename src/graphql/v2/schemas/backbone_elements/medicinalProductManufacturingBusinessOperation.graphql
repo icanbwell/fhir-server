@@ -59,15 +59,7 @@ type MedicinalProductManufacturingBusinessOperation {
     """
     The manufacturer or establishment associated with the process.
     """
-    manufacturerV2: [Reference]        
-    """
-    The manufacturer or establishment associated with the process.
-    """
     manufacturer: [Organization]        
-    """
-    A regulator which oversees the operation.
-    """
-    regulatorV2: Reference        
     """
     A regulator which oversees the operation.
     """

@@ -79,9 +79,5 @@ type SubstanceReferenceInformationTarget {
     """
     Todo.
     """
-    sourceV2: [Reference]        
-    """
-    Todo.
-    """
     source: [DocumentReference]        
 }

@@ -48,15 +48,7 @@ type ProcedurePerformer {
     """
     The practitioner who was involved in the procedure.
     """
-    actorV2: Reference!        
-    """
-    The practitioner who was involved in the procedure.
-    """
     actor: ProcedurePerformerActor        
-    """
-    The organization the device or practitioner was acting on behalf of.
-    """
-    onBehalfOfV2: Reference        
     """
     The organization the device or practitioner was acting on behalf of.
     """

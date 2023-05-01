@@ -107,15 +107,7 @@ type ContractValuedItem {
     """
     Who will make payment.
     """
-    responsibleV2: Reference        
-    """
-    Who will make payment.
-    """
     responsible: ContractValuedItemResponsible        
-    """
-    Who will receive payment.
-    """
-    recipientV2: Reference        
     """
     Who will receive payment.
     """

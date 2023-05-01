@@ -48,10 +48,6 @@ type ExplanationOfBenefitCareTeam {
     """
     Member of the team who provided the product or service.
     """
-    providerV2: Reference!        
-    """
-    Member of the team who provided the product or service.
-    """
     provider: ExplanationOfBenefitCareTeamProvider        
     """
     The party who is billing and/or responsible for the claimed products or

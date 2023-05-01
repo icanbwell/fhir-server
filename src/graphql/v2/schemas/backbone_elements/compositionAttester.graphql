@@ -58,9 +58,5 @@ type CompositionAttester {
     """
     Who attested the composition in the specified way.
     """
-    partyV2: Reference        
-    """
-    Who attested the composition in the specified way.
-    """
     party: CompositionAttesterParty        
 }

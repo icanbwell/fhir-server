@@ -49,9 +49,5 @@ type SubstanceReferenceInformationGeneElement {
     """
     Todo.
     """
-    sourceV2: [Reference]        
-    """
-    Todo.
-    """
     source: [DocumentReference]        
 }

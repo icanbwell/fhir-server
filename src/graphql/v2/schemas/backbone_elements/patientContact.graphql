@@ -68,11 +68,6 @@ type PatientContact {
     Organization on behalf of which the contact is acting or for which the contact
     is working.
     """
-    organizationV2: Reference        
-    """
-    Organization on behalf of which the contact is acting or for which the contact
-    is working.
-    """
     organization: Organization        
     """
     The period during which this contact person or organization is valid to be

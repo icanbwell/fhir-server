@@ -52,9 +52,5 @@ type EncounterParticipant {
     """
     Persons involved in the encounter other than the patient.
     """
-    individualV2: Reference        
-    """
-    Persons involved in the encounter other than the patient.
-    """
     individual: EncounterParticipantIndividual        
 }

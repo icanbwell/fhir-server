@@ -71,10 +71,6 @@ type SubstanceSpecificationStructure {
     """
     Supporting literature.
     """
-    sourceV2: [Reference]        
-    """
-    Supporting literature.
-    """
     source: [DocumentReference]        
     """
     Molecular structural representation.

@@ -46,9 +46,5 @@ type MedicationKnowledgeMonograph {
     """
     Associated documentation about the medication.
     """
-    sourceV2: Reference        
-    """
-    Associated documentation about the medication.
-    """
     source: MedicationKnowledgeMonographSource        
 }

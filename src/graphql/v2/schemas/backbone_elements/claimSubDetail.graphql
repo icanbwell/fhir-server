@@ -95,9 +95,5 @@ type ClaimSubDetail {
     """
     Unique Device Identifiers associated with this line item.
     """
-    udiV2: [Reference]        
-    """
-    Unique Device Identifiers associated with this line item.
-    """
     udi: [Device]        
 }

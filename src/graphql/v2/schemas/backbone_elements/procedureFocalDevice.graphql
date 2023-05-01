@@ -46,9 +46,5 @@ type ProcedureFocalDevice {
     """
     The device that was manipulated (changed) during the procedure.
     """
-    manipulatedV2: Reference!        
-    """
-    The device that was manipulated (changed) during the procedure.
-    """
     manipulated: Device        
 }

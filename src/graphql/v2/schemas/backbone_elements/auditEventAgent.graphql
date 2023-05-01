@@ -57,10 +57,6 @@ type AuditEventAgent {
     """
     Reference to who this agent is that was involved in the event.
     """
-    whoV2: Reference        
-    """
-    Reference to who this agent is that was involved in the event.
-    """
     who: AuditEventAgentWho        
     """
     Alternative agent Identifier. For a human, this should be a user identifier
@@ -77,10 +73,6 @@ type AuditEventAgent {
     event being audited.
     """
     requestor: Boolean!        
-    """
-    Where the event occurred.
-    """
-    locationV2: Reference        
     """
     Where the event occurred.
     """

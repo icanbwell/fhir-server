@@ -237,10 +237,6 @@ type ParametersParameter {
     """
     None
     """
-    valueReferenceV2: Reference        
-    """
-    None
-    """
     valueReference: Resource        
     """
     None

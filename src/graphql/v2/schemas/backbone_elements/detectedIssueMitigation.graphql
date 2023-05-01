@@ -54,10 +54,5 @@ type DetectedIssueMitigation {
     Identifies the practitioner who determined the mitigation and takes
     responsibility for the mitigation step occurring.
     """
-    authorV2: Reference        
-    """
-    Identifies the practitioner who determined the mitigation and takes
-    responsibility for the mitigation step occurring.
-    """
     author: DetectedIssueMitigationAuthor        
 }

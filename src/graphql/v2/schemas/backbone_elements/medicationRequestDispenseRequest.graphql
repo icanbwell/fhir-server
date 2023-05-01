@@ -81,9 +81,5 @@ type MedicationRequestDispenseRequest {
     """
     Indicates the intended dispensing Organization specified by the prescriber.
     """
-    performerV2: Reference        
-    """
-    Indicates the intended dispensing Organization specified by the prescriber.
-    """
     performer: Organization        
 }

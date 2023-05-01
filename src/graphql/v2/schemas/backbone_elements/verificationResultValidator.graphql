@@ -41,10 +41,6 @@ type VerificationResultValidator {
     """
     Reference to the organization validating information.
     """
-    organizationV2: Reference!        
-    """
-    Reference to the organization validating information.
-    """
     organization: Organization        
     """
     A digital identity certificate associated with the validator.

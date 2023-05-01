@@ -65,15 +65,7 @@ type MedicinalProductPackagedPackageItem {
     """
     A device accompanying a medicinal product.
     """
-    deviceV2: [Reference]        
-    """
-    A device accompanying a medicinal product.
-    """
     device: [DeviceDefinition]        
-    """
-    The manufactured item as contained in the packaged medicinal product.
-    """
-    manufacturedItemV2: [Reference]        
     """
     The manufactured item as contained in the packaged medicinal product.
     """
@@ -94,10 +86,6 @@ type MedicinalProductPackagedPackageItem {
     Shelf Life and storage information.
     """
     shelfLifeStorage: [ProductShelfLife]        
-    """
-    Manufacturer of this Package Item.
-    """
-    manufacturerV2: [Reference]        
     """
     Manufacturer of this Package Item.
     """

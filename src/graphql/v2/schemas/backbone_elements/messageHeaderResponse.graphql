@@ -54,9 +54,5 @@ type MessageHeaderResponse {
     """
     Full details of any issues found in the message.
     """
-    detailsV2: Reference        
-    """
-    Full details of any issues found in the message.
-    """
     details: OperationOutcome        
 }

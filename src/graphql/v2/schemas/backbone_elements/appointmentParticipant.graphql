@@ -50,11 +50,6 @@ type AppointmentParticipant {
     A Person, Location/HealthcareService or Device that is participating in the
     appointment.
     """
-    actorV2: Reference        
-    """
-    A Person, Location/HealthcareService or Device that is participating in the
-    appointment.
-    """
     actor: AppointmentParticipantActor        
     """
     Whether this participant is required to be present at the meeting. This covers

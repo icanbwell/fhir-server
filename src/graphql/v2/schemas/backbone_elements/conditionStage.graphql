@@ -48,11 +48,6 @@ type ConditionStage {
     Reference to a formal record of the evidence on which the staging assessment
     is based.
     """
-    assessmentV2: [Reference]        
-    """
-    Reference to a formal record of the evidence on which the staging assessment
-    is based.
-    """
     assessment: [ConditionStageAssessment]        
     """
     The kind of staging, such as pathological or clinical staging.

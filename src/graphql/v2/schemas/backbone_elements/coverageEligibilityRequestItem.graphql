@@ -71,11 +71,6 @@ type CoverageEligibilityRequestItem {
     The practitioner who is responsible for the product or service to be rendered
     to the patient.
     """
-    providerV2: Reference        
-    """
-    The practitioner who is responsible for the product or service to be rendered
-    to the patient.
-    """
     provider: CoverageEligibilityRequestItemProvider        
     """
     The number of repetitions of a service or product.
@@ -85,10 +80,6 @@ type CoverageEligibilityRequestItem {
     The amount charged to the patient by the provider for a single unit.
     """
     unitPrice: Money        
-    """
-    Facility where the services will be provided.
-    """
-    facilityV2: Reference        
     """
     Facility where the services will be provided.
     """

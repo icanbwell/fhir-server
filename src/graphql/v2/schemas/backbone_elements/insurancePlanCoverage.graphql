@@ -46,10 +46,6 @@ type InsurancePlanCoverage {
     """
     Reference to the network that providing the type of coverage.
     """
-    networkV2: [Reference]        
-    """
-    Reference to the network that providing the type of coverage.
-    """
     network: [Organization]        
     """
     Specific benefits under this type of coverage.

@@ -47,9 +47,5 @@ type ImmunizationPerformer {
     """
     The practitioner or organization who performed the action.
     """
-    actorV2: Reference!        
-    """
-    The practitioner or organization who performed the action.
-    """
     actor: ImmunizationPerformerActor        
 }

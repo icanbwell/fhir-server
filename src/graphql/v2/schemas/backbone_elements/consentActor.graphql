@@ -50,11 +50,5 @@ type ConsentActor {
     to identify a set of actors by some property they share (e.g. 'admitting
     officers').
     """
-    referenceV2: Reference!        
-    """
-    The resource that identifies the actor. To identify actors by type, use group
-    to identify a set of actors by some property they share (e.g. 'admitting
-    officers').
-    """
     reference: ConsentActorReference        
 }

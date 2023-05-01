@@ -96,10 +96,6 @@ type ClaimDetail {
     """
     Unique Device Identifiers associated with this line item.
     """
-    udiV2: [Reference]        
-    """
-    Unique Device Identifiers associated with this line item.
-    """
     udi: [Device]        
     """
     A claim detail line. Either a simple (a product or service) or a 'group' of

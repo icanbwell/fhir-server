@@ -47,10 +47,6 @@ type ConsentVerification {
     """
     Who verified the instruction (Patient, Relative or other Authorized Person).
     """
-    verifiedWithV2: Reference        
-    """
-    Who verified the instruction (Patient, Relative or other Authorized Person).
-    """
     verifiedWith: ConsentVerificationVerifiedWith        
     """
     Date verification was collected.

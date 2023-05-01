@@ -214,10 +214,6 @@ type PaymentReconciliationDetail {
     """
     The party which submitted the claim or financial transaction.
     """
-    submitterV2: Reference        
-    """
-    The party which submitted the claim or financial transaction.
-    """
     submitter: PaymentReconciliationDetailSubmitter        
     """
     A resource, such as a ClaimResponse, which contains a commitment to payment.
@@ -235,16 +231,7 @@ type PaymentReconciliationDetail {
     A reference to the individual who is responsible for inquiries regarding the
     response and its payment.
     """
-    responsibleV2: Reference        
-    """
-    A reference to the individual who is responsible for inquiries regarding the
-    response and its payment.
-    """
     responsible: PractitionerRole        
-    """
-    The party which is receiving the payment.
-    """
-    payeeV2: Reference        
     """
     The party which is receiving the payment.
     """

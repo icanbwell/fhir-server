@@ -82,18 +82,7 @@ type CarePlanDetail {
     justifies this request and drove the inclusion of this particular activity as
     part of the plan.
     """
-    reasonReferenceV2: [Reference]        
-    """
-    Indicates another resource, such as the health condition(s), whose existence
-    justifies this request and drove the inclusion of this particular activity as
-    part of the plan.
-    """
     reasonReference: [CarePlanDetailReasonReference]        
-    """
-    Internal reference that identifies the goals that this activity is intended to
-    contribute towards meeting.
-    """
-    goalV2: [Reference]        
     """
     Internal reference that identifies the goals that this activity is intended to
     contribute towards meeting.
@@ -130,16 +119,7 @@ type CarePlanDetail {
     Identifies the facility where the activity will occur; e.g. home, hospital,
     specific clinic, etc.
     """
-    locationV2: Reference        
-    """
-    Identifies the facility where the activity will occur; e.g. home, hospital,
-    specific clinic, etc.
-    """
     location: Location        
-    """
-    Identifies who's expected to be involved in the activity.
-    """
-    performerV2: [Reference]        
     """
     Identifies who's expected to be involved in the activity.
     """

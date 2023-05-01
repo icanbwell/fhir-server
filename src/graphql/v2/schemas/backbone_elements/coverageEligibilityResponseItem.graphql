@@ -58,10 +58,6 @@ type CoverageEligibilityResponseItem {
     """
     The practitioner who is eligible for the provision of the product or service.
     """
-    providerV2: Reference        
-    """
-    The practitioner who is eligible for the provision of the product or service.
-    """
     provider: CoverageEligibilityResponseItemProvider        
     """
     True if the indicated class of service is excluded from the plan, missing or

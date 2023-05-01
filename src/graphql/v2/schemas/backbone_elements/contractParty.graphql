@@ -42,10 +42,6 @@ type ContractParty {
     """
     Participant in the offer.
     """
-    referenceV2: [Reference]!        
-    """
-    Participant in the offer.
-    """
     reference: [ContractPartyReference]        
     """
     How the party participates in the offer.

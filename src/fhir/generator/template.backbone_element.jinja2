@@ -52,6 +52,8 @@ union {{fhir_entity.cleaned_name}}{{ upper_case_first_letter(property.name) }} =
 """
 type {{fhir_entity.cleaned_name}} {
 {% for property in fhir_entity.properties %}
+    {% if property.is_v2_supported and not property.reference_target_resources %}
+    {% else %}
     """
     {{ property.documentation[0] | wordwrap(78) | replace('\n', '\n    ') | replace('\r', '\n    ') }}
     """
@@ -81,5 +83,6 @@ type {{fhir_entity.cleaned_name}} {
             {{ '' -}}
         {% endif %}
         {{ '' }}
+    {% endif %}
 {% endfor %}
 }

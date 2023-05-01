@@ -48,9 +48,5 @@ type InvoiceParticipant {
     """
     The device, practitioner, etc. who performed or participated in the service.
     """
-    actorV2: Reference!        
-    """
-    The device, practitioner, etc. who performed or participated in the service.
-    """
     actor: InvoiceParticipantActor        
 }

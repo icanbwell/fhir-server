@@ -52,10 +52,6 @@ type BiologicallyDerivedProductProcessing {
     """
     Substance added during processing.
     """
-    additiveV2: Reference        
-    """
-    Substance added during processing.
-    """
     additive: Substance        
     """
     None

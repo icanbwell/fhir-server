@@ -47,9 +47,5 @@ type ClaimPayee {
     """
     Reference to the individual or organization to whom any payment will be made.
     """
-    partyV2: Reference        
-    """
-    Reference to the individual or organization to whom any payment will be made.
-    """
     party: ClaimPayeeParty        
 }

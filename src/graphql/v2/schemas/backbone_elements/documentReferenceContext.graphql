@@ -48,11 +48,6 @@ type DocumentReferenceContext {
     Describes the clinical encounter or type of care that the document content is
     associated with.
     """
-    encounterV2: [Reference]        
-    """
-    Describes the clinical encounter or type of care that the document content is
-    associated with.
-    """
     encounter: [DocumentReferenceContextEncounter]        
     """
     This list of codes represents the main clinical acts, such as a colonoscopy or
@@ -75,11 +70,6 @@ type DocumentReferenceContext {
     content was created, often reflecting the clinical specialty.
     """
     practiceSetting: CodeableConcept        
-    """
-    The Patient Information as known when the document was published. May be a
-    reference to a version specific, or contained.
-    """
-    sourcePatientInfoV2: Reference        
     """
     The Patient Information as known when the document was published. May be a
     reference to a version specific, or contained.

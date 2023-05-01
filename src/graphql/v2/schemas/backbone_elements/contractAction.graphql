@@ -77,10 +77,6 @@ type ContractAction {
     """
     Encounter or Episode with primary association to specified term activity.
     """
-    contextV2: Reference        
-    """
-    Encounter or Episode with primary association to specified term activity.
-    """
     context: ContractActionContext        
     """
     Id [identifier??] of the clause or question text related to the requester of
@@ -99,10 +95,6 @@ type ContractAction {
     None
     """
     occurrenceTiming: Timing        
-    """
-    Who or what initiated the action and has responsibility for its activation.
-    """
-    requesterV2: [Reference]        
     """
     Who or what initiated the action and has responsibility for its activation.
     """
@@ -125,10 +117,6 @@ type ContractAction {
     """
     Indicates who or what is being asked to perform (or not perform) the ction.
     """
-    performerV2: Reference        
-    """
-    Indicates who or what is being asked to perform (or not perform) the ction.
-    """
     performer: ContractActionPerformer        
     """
     Id [identifier??] of the clause or question text related to the reason type or
@@ -140,11 +128,6 @@ type ContractAction {
     action is permitted or prohibited.
     """
     reasonCode: [CodeableConcept]        
-    """
-    Indicates another resource whose existence justifies permitting or not
-    permitting this action.
-    """
-    reasonReferenceV2: [Reference]        
     """
     Indicates another resource whose existence justifies permitting or not
     permitting this action.

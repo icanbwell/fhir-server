@@ -251,10 +251,6 @@ type StructureMapSource {
     """
     None
     """
-    defaultValueReferenceV2: Reference        
-    """
-    None
-    """
     defaultValueReference: Resource        
     """
     None

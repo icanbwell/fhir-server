@@ -68,10 +68,6 @@ type MolecularSequenceReferenceSeq {
     """
     A pointer to another MolecularSequence entity as reference sequence.
     """
-    referenceSeqPointerV2: Reference        
-    """
-    A pointer to another MolecularSequence entity as reference sequence.
-    """
     referenceSeqPointer: MolecularSequence        
     """
     A string like "ACGT".

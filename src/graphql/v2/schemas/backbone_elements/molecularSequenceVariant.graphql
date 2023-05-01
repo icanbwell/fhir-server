@@ -77,9 +77,5 @@ type MolecularSequenceVariant {
     """
     A pointer to an Observation containing variant information.
     """
-    variantPointerV2: Reference        
-    """
-    A pointer to an Observation containing variant information.
-    """
     variantPointer: Observation        
 }

@@ -51,10 +51,5 @@ type TaskRestriction {
     For requests that are targeted to more than on potential recipient/target, for
     whom is fulfillment sought?
     """
-    recipientV2: [Reference]        
-    """
-    For requests that are targeted to more than on potential recipient/target, for
-    whom is fulfillment sought?
-    """
     recipient: [TaskRestrictionRecipient]        
 }

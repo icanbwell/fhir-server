@@ -66,10 +66,6 @@ type ExplanationOfBenefitAddItem {
     """
     The providers who are authorized for the services rendered to the patient.
     """
-    providerV2: [Reference]        
-    """
-    The providers who are authorized for the services rendered to the patient.
-    """
     provider: [ExplanationOfBenefitAddItemProvider]        
     """
     When the value is a group code then this item collects a set of related claim

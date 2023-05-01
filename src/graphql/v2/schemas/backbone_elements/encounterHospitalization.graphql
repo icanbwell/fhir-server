@@ -48,10 +48,6 @@ type EncounterHospitalization {
     """
     The location/organization from which the patient came before admission.
     """
-    originV2: Reference        
-    """
-    The location/organization from which the patient came before admission.
-    """
     origin: EncounterHospitalizationOrigin        
     """
     From where patient was admitted (physician referral, transfer).
@@ -74,10 +70,6 @@ type EncounterHospitalization {
     such as the provision of specific equipment or other things.
     """
     specialArrangement: [CodeableConcept]        
-    """
-    Location/organization to which the patient is discharged.
-    """
-    destinationV2: Reference        
     """
     Location/organization to which the patient is discharged.
     """

@@ -64,11 +64,6 @@ type CompositionSection {
     Identifies who is responsible for the information in this section, not
     necessarily who typed it in.
     """
-    authorV2: [Reference]        
-    """
-    Identifies who is responsible for the information in this section, not
-    necessarily who typed it in.
-    """
     author: [CompositionSectionAuthor]        
     """
     The actual focus of the section when it is not the subject of the composition,

@@ -61,10 +61,5 @@ type MedicationDispenseSubstitution {
     The person or organization that has primary responsibility for the
     substitution.
     """
-    responsiblePartyV2: [Reference]        
-    """
-    The person or organization that has primary responsibility for the
-    substitution.
-    """
     responsibleParty: [MedicationDispenseSubstitutionResponsibleParty]        
 }

@@ -98,11 +98,6 @@ type ImmunizationRecommendationRecommendation {
     Immunization event history and/or evaluation that supports the status and
     recommendation.
     """
-    supportingImmunizationV2: [Reference]        
-    """
-    Immunization event history and/or evaluation that supports the status and
-    recommendation.
-    """
     supportingImmunization: [ImmunizationRecommendationRecommendationSupportingImmunization]        
     """
     Patient Information that supports the status and recommendation.  This

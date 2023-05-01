@@ -46,12 +46,6 @@ type GroupMember {
     with Group.type. If the entity is another group, then the type must be the
     same.
     """
-    entityV2: Reference!        
-    """
-    A reference to the entity that is a member of the group. Must be consistent
-    with Group.type. If the entity is another group, then the type must be the
-    same.
-    """
     entity: GroupMemberEntity        
     """
     The period that the member was in the group, if known.

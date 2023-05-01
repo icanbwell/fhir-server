@@ -45,16 +45,7 @@ type BiologicallyDerivedProductCollection {
     """
     Healthcare professional who is performing the collection.
     """
-    collectorV2: Reference        
-    """
-    Healthcare professional who is performing the collection.
-    """
     collector: BiologicallyDerivedProductCollectionCollector        
-    """
-    The patient or entity, such as a hospital or vendor in the case of a
-    processed/manipulated/manufactured product, providing the product.
-    """
-    sourceV2: Reference        
     """
     The patient or entity, such as a hospital or vendor in the case of a
     processed/manipulated/manufactured product, providing the product.

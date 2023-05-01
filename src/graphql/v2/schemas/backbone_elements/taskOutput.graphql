@@ -234,10 +234,6 @@ type TaskOutput {
     """
     None
     """
-    valueReferenceV2: Reference        
-    """
-    None
-    """
     valueReference: Resource        
     """
     None

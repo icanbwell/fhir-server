@@ -59,9 +59,5 @@ type SubstanceSpecificationCode {
     """
     Supporting literature.
     """
-    sourceV2: [Reference]        
-    """
-    Supporting literature.
-    """
     source: [DocumentReference]        
 }

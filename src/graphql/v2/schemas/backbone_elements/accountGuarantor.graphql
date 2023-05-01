@@ -42,10 +42,6 @@ type AccountGuarantor {
     """
     The entity who is responsible.
     """
-    partyV2: Reference!        
-    """
-    The entity who is responsible.
-    """
     party: AccountGuarantorParty        
     """
     A guarantor may be placed on credit hold or otherwise have their role
