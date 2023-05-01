@@ -3,12 +3,22 @@
 
 // noinspection JSUnusedLocalSymbols
 module.exports = {
-    MedicinalProductContraindicationOtherTherapyMedicationReference: {
+    MedicinalProductContraindicationOtherTherapyMedicationReferenceV2: {
         __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
         },
     },
     MedicinalProductContraindicationOtherTherapy: {
+        // noinspection JSUnusedLocalSymbols
+        // eslint-disable-next-line no-unused-vars
+        medicationReferenceV2: async (parent, args, context, info) => {
+            return await context.dataApi.findResourceByReference(
+                parent,
+                args,
+                context,
+                info,
+                parent.medicationReferenceV2);
+        },
         // noinspection JSUnusedLocalSymbols
         // eslint-disable-next-line no-unused-vars
         medicationReference: async (parent, args, context, info) => {

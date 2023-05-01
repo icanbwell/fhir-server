@@ -5,7 +5,7 @@
 # import ContactPoint from "../complex_types/contactPoint.graphql"
 # import Address from "../complex_types/address.graphql"
 # import code from "../simple_types/code.graphql"
-# import Organization from "../resources/organization.graphql"
+# import Reference from "../complex_types/reference.graphql"
 # import Period from "../complex_types/period.graphql"
 
 
@@ -64,6 +64,11 @@ type PatientContact {
     have for administration and record keeping purposes.
     """
     gender: code        
+    """
+    Organization on behalf of which the contact is acting or for which the contact
+    is working.
+    """
+    organizationV2: Reference        
     """
     Organization on behalf of which the contact is acting or for which the contact
     is working.

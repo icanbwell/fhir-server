@@ -2,9 +2,7 @@
 # import Extension from "../extensions/extension.graphql"
 # import CodeableConcept from "../complex_types/codeableConcept.graphql"
 # import Period from "../complex_types/period.graphql"
-# import Practitioner from "../resources/practitioner.graphql"
-# import PractitionerRole from "../resources/practitionerRole.graphql"
-# import RelatedPerson from "../resources/relatedPerson.graphql"
+# import Reference from "../complex_types/reference.graphql"
 
 union EncounterParticipantIndividual = Practitioner | PractitionerRole | RelatedPerson
 
@@ -51,6 +49,10 @@ type EncounterParticipant {
     encounter. These can overlap or be sub-sets of the overall encounter's period.
     """
     period: Period        
+    """
+    Persons involved in the encounter other than the patient.
+    """
+    individualV2: Reference        
     """
     Persons involved in the encounter other than the patient.
     """

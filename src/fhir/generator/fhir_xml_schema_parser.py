@@ -79,6 +79,7 @@ class FhirProperty:
     is_code: bool = False
     is_complex: bool = False
     name_suffix: Optional[str] = None
+    v2_support: bool = False
 
 
 @dataclasses.dataclass
@@ -598,6 +599,9 @@ class FhirXmlSchemaParser:
                         property_.cleaned_type in ["Reference"]
                         and not property_.reference_target_resources
                 ):
+                    if property_.fhir_name.endswith('V2') and len(property_.reference_target_resources) == 0:
+                        continue
+
                     property_.reference_target_resources = [
                         SmartName(
                             name="Resource",
@@ -767,6 +771,30 @@ class FhirXmlSchemaParser:
             cleaned_type: str = property_type
             cleaned_type = cleaned_type.replace(".", "")
             if property_type and property_name and property_type != "None":
+                if property_type == "Reference":
+                    fhir_properties.append(
+                        FhirProperty(
+                            fhir_name=f'{property_name}V2',
+                            name=f'{FhirXmlSchemaParser.fix_graphql_keywords(property_name)}V2',
+                            javascript_clean_name=f'{FhirXmlSchemaParser.fix_javascript_keywords(property_name)}V2',
+                            type_=property_type,
+                            cleaned_type=FhirXmlSchemaParser.cleaned_type_mapping.get(cleaned_type, cleaned_type),
+                            type_snake_case=FhirXmlSchemaParser.camel_to_snake(
+                                FhirXmlSchemaParser.cleaned_type_mapping.get(cleaned_type, cleaned_type)
+                            ),
+                            optional=optional,
+                            is_list=is_list,
+                            documentation=[property_documentation],
+                            fhir_type=None,
+                            reference_target_resources=[],
+                            reference_target_resources_names=[],
+                            is_back_bone_element="." in property_type,
+                            is_basic_type=cleaned_type
+                                        in FhirXmlSchemaParser.cleaned_type_mapping,
+                            codeable_type=None,
+                            v2_support=True
+                        )
+                    )
                 fhir_properties.append(
                     FhirProperty(
                         fhir_name=property_name,
@@ -939,9 +967,14 @@ class FhirXmlSchemaParser:
                             # the target resource will be a list of all resources. 
                             if "Resource" in target_resources:
                                 fhir_reference: FhirReferenceType = FhirReferenceType(
-                                    target_resources=resources_list,
+                                    target_resources=target_resources,
                                     path=snapshot_element["path"].get("value"),
                                 )
+                                fhir_reference_v2_support: FhirReferenceType = FhirReferenceType(
+                                    target_resources=resources_list,
+                                    path=f'{snapshot_element["path"].get("value")}V2',
+                                )
+                                fhir_references.append(fhir_reference_v2_support)
                             # Else target resource is the list of allowed references.
                             else :
                                 fhir_reference: FhirReferenceType = FhirReferenceType(

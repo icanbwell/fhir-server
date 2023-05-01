@@ -59,7 +59,11 @@ type MedicinalProductSpecialDesignation {
     """
     None
     """
-    indicationReference: MedicinalProductIndication        
+    indicationReferenceV2: MedicinalProductIndication        
+    """
+    None
+    """
+    indicationReference: Resource        
     """
     For example granted, pending, expired or withdrawn.
     """

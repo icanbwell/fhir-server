@@ -3,11 +3,6 @@
 
 // noinspection JSUnusedLocalSymbols
 module.exports = {
-    ContractValuedItemEntityReference: {
-        __resolveType(obj, context, info) {
-            return context.dataApi.resolveType(obj, context, info);
-        },
-    },
     ContractValuedItemResponsible: {
         __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
@@ -19,6 +14,16 @@ module.exports = {
         },
     },
     ContractValuedItem: {
+        // noinspection JSUnusedLocalSymbols
+        // eslint-disable-next-line no-unused-vars
+        entityReferenceV2: async (parent, args, context, info) => {
+            return await context.dataApi.findResourceByReference(
+                parent,
+                args,
+                context,
+                info,
+                parent.entityReferenceV2);
+        },
         // noinspection JSUnusedLocalSymbols
         // eslint-disable-next-line no-unused-vars
         entityReference: async (parent, args, context, info) => {

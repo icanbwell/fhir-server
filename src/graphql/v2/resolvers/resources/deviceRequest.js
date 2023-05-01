@@ -15,12 +15,12 @@ module.exports = {
             );
         }
     },
-    DeviceRequestBasedOn: {
+    DeviceRequestBasedOnV2: {
         __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
         },
     },
-    DeviceRequestPriorRequest: {
+    DeviceRequestPriorRequestV2: {
         __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
         },
@@ -50,12 +50,22 @@ module.exports = {
             return context.dataApi.resolveType(obj, context, info);
         },
     },
-    DeviceRequestSupportingInfo: {
+    DeviceRequestSupportingInfoV2: {
         __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
         },
     },
     DeviceRequest: {
+        // noinspection JSUnusedLocalSymbols
+        // eslint-disable-next-line no-unused-vars
+        basedOnV2: async (parent, args, context, info) => {
+            return await context.dataApi.findResourcesByReference(
+                parent,
+                args,
+                context,
+                info,
+                parent.basedOnV2);
+        },
         // noinspection JSUnusedLocalSymbols
         // eslint-disable-next-line no-unused-vars
         basedOn: async (parent, args, context, info) => {
@@ -68,6 +78,16 @@ module.exports = {
         },
         // noinspection JSUnusedLocalSymbols
         // eslint-disable-next-line no-unused-vars
+        priorRequestV2: async (parent, args, context, info) => {
+            return await context.dataApi.findResourcesByReference(
+                parent,
+                args,
+                context,
+                info,
+                parent.priorRequestV2);
+        },
+        // noinspection JSUnusedLocalSymbols
+        // eslint-disable-next-line no-unused-vars
         priorRequest: async (parent, args, context, info) => {
             return await context.dataApi.findResourcesByReference(
                 parent,
@@ -75,6 +95,16 @@ module.exports = {
                 context,
                 info,
                 parent.priorRequest);
+        },
+        // noinspection JSUnusedLocalSymbols
+        // eslint-disable-next-line no-unused-vars
+        codeReferenceV2: async (parent, args, context, info) => {
+            return await context.dataApi.findResourceByReference(
+                parent,
+                args,
+                context,
+                info,
+                parent.codeReferenceV2);
         },
         // noinspection JSUnusedLocalSymbols
         // eslint-disable-next-line no-unused-vars
@@ -145,6 +175,16 @@ module.exports = {
                 context,
                 info,
                 parent.insurance);
+        },
+        // noinspection JSUnusedLocalSymbols
+        // eslint-disable-next-line no-unused-vars
+        supportingInfoV2: async (parent, args, context, info) => {
+            return await context.dataApi.findResourcesByReference(
+                parent,
+                args,
+                context,
+                info,
+                parent.supportingInfoV2);
         },
         // noinspection JSUnusedLocalSymbols
         // eslint-disable-next-line no-unused-vars

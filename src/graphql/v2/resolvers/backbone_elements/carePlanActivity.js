@@ -3,7 +3,7 @@
 
 // noinspection JSUnusedLocalSymbols
 module.exports = {
-    CarePlanActivityOutcomeReference: {
+    CarePlanActivityOutcomeReferenceV2: {
         __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
         },
@@ -14,6 +14,16 @@ module.exports = {
         },
     },
     CarePlanActivity: {
+        // noinspection JSUnusedLocalSymbols
+        // eslint-disable-next-line no-unused-vars
+        outcomeReferenceV2: async (parent, args, context, info) => {
+            return await context.dataApi.findResourcesByReference(
+                parent,
+                args,
+                context,
+                info,
+                parent.outcomeReferenceV2);
+        },
         // noinspection JSUnusedLocalSymbols
         // eslint-disable-next-line no-unused-vars
         outcomeReference: async (parent, args, context, info) => {

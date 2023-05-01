@@ -4,7 +4,7 @@
 # import CodeableConcept from "../complex_types/codeableConcept.graphql"
 # import uri from "../simple_types/uri.graphql"
 # import Period from "../complex_types/period.graphql"
-# import Organization from "../resources/organization.graphql"
+# import Reference from "../complex_types/reference.graphql"
 
 
 """
@@ -50,6 +50,10 @@ type Identifier {
     Time period during which identifier is/was valid for use.
     """
     period: Period        
+    """
+    Organization that issued/manages the identifier.
+    """
+    assignerV2: Reference        
     """
     Organization that issued/manages the identifier.
     """

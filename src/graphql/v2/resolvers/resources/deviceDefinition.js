@@ -18,6 +18,16 @@ module.exports = {
     DeviceDefinition: {
         // noinspection JSUnusedLocalSymbols
         // eslint-disable-next-line no-unused-vars
+        manufacturerReferenceV2: async (parent, args, context, info) => {
+            return await context.dataApi.findResourceByReference(
+                parent,
+                args,
+                context,
+                info,
+                parent.manufacturerReferenceV2);
+        },
+        // noinspection JSUnusedLocalSymbols
+        // eslint-disable-next-line no-unused-vars
         manufacturerReference: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,

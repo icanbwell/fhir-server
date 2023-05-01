@@ -2,7 +2,7 @@
 # import Extension from "../extensions/extension.graphql"
 # import CodeableConcept from "../complex_types/codeableConcept.graphql"
 # import dateTime from "../simple_types/dateTime.graphql"
-# import DocumentReference from "../resources/documentReference.graphql"
+# import Reference from "../complex_types/reference.graphql"
 
 
 """
@@ -56,6 +56,10 @@ type SubstanceSpecificationCode {
     Any comment can be provided in this field, if necessary.
     """
     comment: String        
+    """
+    Supporting literature.
+    """
+    sourceV2: [Reference]        
     """
     Supporting literature.
     """

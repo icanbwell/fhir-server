@@ -111,7 +111,11 @@ type DeviceDefinition {
     """
     None
     """
-    manufacturerReference: Organization        
+    manufacturerReferenceV2: Organization        
+    """
+    None
+    """
+    manufacturerReference: Resource        
     """
     A name given to the device to identify it.
     """

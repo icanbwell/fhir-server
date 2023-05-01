@@ -56,7 +56,11 @@ type EvidenceVariableCharacteristic {
     """
     None
     """
-    definitionReference: Group        
+    definitionReferenceV2: Group        
+    """
+    None
+    """
+    definitionReference: Resource        
     """
     None
     """

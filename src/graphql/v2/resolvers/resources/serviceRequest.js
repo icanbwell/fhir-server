@@ -45,7 +45,7 @@ module.exports = {
             return context.dataApi.resolveType(obj, context, info);
         },
     },
-    ServiceRequestSupportingInfo: {
+    ServiceRequestSupportingInfoV2: {
         __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
         },
@@ -140,6 +140,16 @@ module.exports = {
                 context,
                 info,
                 parent.insurance);
+        },
+        // noinspection JSUnusedLocalSymbols
+        // eslint-disable-next-line no-unused-vars
+        supportingInfoV2: async (parent, args, context, info) => {
+            return await context.dataApi.findResourcesByReference(
+                parent,
+                args,
+                context,
+                info,
+                parent.supportingInfoV2);
         },
         // noinspection JSUnusedLocalSymbols
         // eslint-disable-next-line no-unused-vars

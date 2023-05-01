@@ -44,5 +44,9 @@ type SpecimenDefinitionAdditive {
     """
     None
     """
-    additiveReference: Substance        
+    additiveReferenceV2: Substance        
+    """
+    None
+    """
+    additiveReference: Resource        
 }

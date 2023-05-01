@@ -6,6 +6,16 @@ module.exports = {
     ExplanationOfBenefitProcedure: {
         // noinspection JSUnusedLocalSymbols
         // eslint-disable-next-line no-unused-vars
+        procedureReferenceV2: async (parent, args, context, info) => {
+            return await context.dataApi.findResourceByReference(
+                parent,
+                args,
+                context,
+                info,
+                parent.procedureReferenceV2);
+        },
+        // noinspection JSUnusedLocalSymbols
+        // eslint-disable-next-line no-unused-vars
         procedureReference: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,

@@ -6,7 +6,7 @@
 # import Substance from "../resources/substance.graphql"
 # import Device from "../resources/device.graphql"
 
-union SupplyDeliverySuppliedItemItemReference = Medication | Substance | Device
+union SupplyDeliverySuppliedItemItemReferenceV2 = Medication | Substance | Device
 
 """
 SupplyDelivery.SuppliedItem
@@ -52,5 +52,9 @@ type SupplyDeliverySuppliedItem {
     """
     None
     """
-    itemReference: SupplyDeliverySuppliedItemItemReference        
+    itemReferenceV2: SupplyDeliverySuppliedItemItemReferenceV2        
+    """
+    None
+    """
+    itemReference: Resource        
 }

@@ -4,7 +4,7 @@
 # import CodeableConcept from "../complex_types/codeableConcept.graphql"
 # import Quantity from "../complex_types/quantity.graphql"
 # import Range from "../complex_types/range.graphql"
-# import DocumentReference from "../resources/documentReference.graphql"
+# import Reference from "../complex_types/reference.graphql"
 
 
 """
@@ -76,6 +76,10 @@ type SubstanceReferenceInformationTarget {
     Todo.
     """
     amountType: CodeableConcept        
+    """
+    Todo.
+    """
+    sourceV2: [Reference]        
     """
     Todo.
     """

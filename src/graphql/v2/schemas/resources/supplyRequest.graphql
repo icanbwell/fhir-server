@@ -17,7 +17,7 @@
 # import Period from "../complex_types/period.graphql"
 # import Timing from "../backbone_elements/timing.graphql"
 
-union SupplyRequestItemReference = Medication | Substance | Device
+union SupplyRequestItemReferenceV2 = Medication | Substance | Device
 union SupplyRequestRequester = Practitioner | PractitionerRole | Organization | Patient | RelatedPerson | Device
 union SupplyRequestSupplier = Organization | HealthcareService
 union SupplyRequestReasonReference = Condition | Observation | DiagnosticReport | DocumentReference
@@ -121,7 +121,11 @@ type SupplyRequest {
     """
     None
     """
-    itemReference: SupplyRequestItemReference        
+    itemReferenceV2: SupplyRequestItemReferenceV2        
+    """
+    None
+    """
+    itemReference: Resource        
     """
     The amount that is being ordered of the indicated item.
     """

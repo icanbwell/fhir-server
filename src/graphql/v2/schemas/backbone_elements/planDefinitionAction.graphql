@@ -108,7 +108,11 @@ type PlanDefinitionAction {
     """
     None
     """
-    subjectReference: Group        
+    subjectReferenceV2: Group        
+    """
+    None
+    """
+    subjectReference: Resource        
     """
     A description of when the action should be triggered.
     """

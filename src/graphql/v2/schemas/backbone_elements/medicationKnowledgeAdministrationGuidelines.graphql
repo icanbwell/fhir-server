@@ -50,7 +50,11 @@ type MedicationKnowledgeAdministrationGuidelines {
     """
     None
     """
-    indicationReference: ObservationDefinition        
+    indicationReferenceV2: ObservationDefinition        
+    """
+    None
+    """
+    indicationReference: Resource        
     """
     Characteristics of the patient that are relevant to the administration
     guidelines (for example, height, weight, gender, etc.).

@@ -3,12 +3,22 @@
 
 // noinspection JSUnusedLocalSymbols
 module.exports = {
-    LinkageItemResource: {
+    LinkageItemResourceV2: {
         __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
         },
     },
     LinkageItem: {
+        // noinspection JSUnusedLocalSymbols
+        // eslint-disable-next-line no-unused-vars
+        resourceV2: async (parent, args, context, info) => {
+            return await context.dataApi.findResourceByReference(
+                parent,
+                args,
+                context,
+                info,
+                parent.resourceV2);
+        },
         // noinspection JSUnusedLocalSymbols
         // eslint-disable-next-line no-unused-vars
         resource: async (parent, args, context, info) => {

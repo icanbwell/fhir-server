@@ -48,5 +48,9 @@ type CoverageEligibilityRequestDiagnosis {
     """
     None
     """
-    diagnosisReference: Condition        
+    diagnosisReferenceV2: Condition        
+    """
+    None
+    """
+    diagnosisReference: Resource        
 }

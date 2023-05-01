@@ -3,12 +3,22 @@
 
 // noinspection JSUnusedLocalSymbols
 module.exports = {
-    TestScriptFixtureResource: {
+    TestScriptFixtureResourceV2: {
         __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
         },
     },
     TestScriptFixture: {
+        // noinspection JSUnusedLocalSymbols
+        // eslint-disable-next-line no-unused-vars
+        resourceV2: async (parent, args, context, info) => {
+            return await context.dataApi.findResourceByReference(
+                parent,
+                args,
+                context,
+                info,
+                parent.resourceV2);
+        },
         // noinspection JSUnusedLocalSymbols
         // eslint-disable-next-line no-unused-vars
         resource: async (parent, args, context, info) => {

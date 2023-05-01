@@ -60,7 +60,15 @@ type ExplanationOfBenefitProcedure {
     """
     None
     """
-    procedureReference: Procedure        
+    procedureReferenceV2: Procedure        
+    """
+    None
+    """
+    procedureReference: Resource        
+    """
+    Unique Device Identifiers associated with this line item.
+    """
+    udiV2: [Reference]        
     """
     Unique Device Identifiers associated with this line item.
     """

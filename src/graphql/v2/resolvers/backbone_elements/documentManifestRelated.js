@@ -3,12 +3,22 @@
 
 // noinspection JSUnusedLocalSymbols
 module.exports = {
-    DocumentManifestRelatedRef: {
+    DocumentManifestRelatedRefV2: {
         __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
         },
     },
     DocumentManifestRelated: {
+        // noinspection JSUnusedLocalSymbols
+        // eslint-disable-next-line no-unused-vars
+        refV2: async (parent, args, context, info) => {
+            return await context.dataApi.findResourceByReference(
+                parent,
+                args,
+                context,
+                info,
+                parent.refV2);
+        },
         // noinspection JSUnusedLocalSymbols
         // eslint-disable-next-line no-unused-vars
         ref: async (parent, args, context, info) => {
