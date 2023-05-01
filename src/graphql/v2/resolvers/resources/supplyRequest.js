@@ -15,7 +15,7 @@ module.exports = {
             );
         }
     },
-    SupplyRequestItemReference: {
+    SupplyRequestItemReferenceV2: {
         __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
         },
@@ -46,6 +46,16 @@ module.exports = {
         },
     },
     SupplyRequest: {
+        // noinspection JSUnusedLocalSymbols
+        // eslint-disable-next-line no-unused-vars
+        itemReferenceV2: async (parent, args, context, info) => {
+            return await context.dataApi.findResourceByReference(
+                parent,
+                args,
+                context,
+                info,
+                parent.itemReferenceV2);
+        },
         // noinspection JSUnusedLocalSymbols
         // eslint-disable-next-line no-unused-vars
         itemReference: async (parent, args, context, info) => {

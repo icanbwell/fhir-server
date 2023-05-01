@@ -5,7 +5,7 @@
 # import DocumentReference from "../resources/documentReference.graphql"
 # import QuestionnaireResponse from "../resources/questionnaireResponse.graphql"
 
-union ContractFriendlyContentReference = Composition | DocumentReference | QuestionnaireResponse
+union ContractFriendlyContentReferenceV2 = Composition | DocumentReference | QuestionnaireResponse
 
 """
 Contract.Friendly
@@ -48,5 +48,9 @@ type ContractFriendly {
     """
     None
     """
-    contentReference: ContractFriendlyContentReference        
+    contentReferenceV2: ContractFriendlyContentReferenceV2        
+    """
+    None
+    """
+    contentReference: Resource        
 }

@@ -15,12 +15,22 @@ module.exports = {
             );
         }
     },
+    ContractSubjectV2: {
+        __resolveType(obj, context, info) {
+            return context.dataApi.resolveType(obj, context, info);
+        },
+    },
     ContractAuthor: {
         __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
         },
     },
-    ContractLegallyBindingReference: {
+    ContractSupportingInfoV2: {
+        __resolveType(obj, context, info) {
+            return context.dataApi.resolveType(obj, context, info);
+        },
+    },
+    ContractLegallyBindingReferenceV2: {
         __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
         },
@@ -35,6 +45,16 @@ module.exports = {
                 context,
                 info,
                 parent.instantiatesCanonical);
+        },
+        // noinspection JSUnusedLocalSymbols
+        // eslint-disable-next-line no-unused-vars
+        subjectV2: async (parent, args, context, info) => {
+            return await context.dataApi.findResourcesByReference(
+                parent,
+                args,
+                context,
+                info,
+                parent.subjectV2);
         },
         // noinspection JSUnusedLocalSymbols
         // eslint-disable-next-line no-unused-vars
@@ -88,6 +108,16 @@ module.exports = {
         },
         // noinspection JSUnusedLocalSymbols
         // eslint-disable-next-line no-unused-vars
+        topicReferenceV2: async (parent, args, context, info) => {
+            return await context.dataApi.findResourceByReference(
+                parent,
+                args,
+                context,
+                info,
+                parent.topicReferenceV2);
+        },
+        // noinspection JSUnusedLocalSymbols
+        // eslint-disable-next-line no-unused-vars
         topicReference: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
@@ -95,6 +125,16 @@ module.exports = {
                 context,
                 info,
                 parent.topicReference);
+        },
+        // noinspection JSUnusedLocalSymbols
+        // eslint-disable-next-line no-unused-vars
+        supportingInfoV2: async (parent, args, context, info) => {
+            return await context.dataApi.findResourcesByReference(
+                parent,
+                args,
+                context,
+                info,
+                parent.supportingInfoV2);
         },
         // noinspection JSUnusedLocalSymbols
         // eslint-disable-next-line no-unused-vars
@@ -115,6 +155,16 @@ module.exports = {
                 context,
                 info,
                 parent.relevantHistory);
+        },
+        // noinspection JSUnusedLocalSymbols
+        // eslint-disable-next-line no-unused-vars
+        legallyBindingReferenceV2: async (parent, args, context, info) => {
+            return await context.dataApi.findResourceByReference(
+                parent,
+                args,
+                context,
+                info,
+                parent.legallyBindingReferenceV2);
         },
         // noinspection JSUnusedLocalSymbols
         // eslint-disable-next-line no-unused-vars

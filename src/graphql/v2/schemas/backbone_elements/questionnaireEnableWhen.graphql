@@ -94,5 +94,9 @@ type QuestionnaireEnableWhen {
     """
     None
     """
+    answerReferenceV2: Resource        
+    """
+    None
+    """
     answerReference: Resource        
 }

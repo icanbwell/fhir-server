@@ -15,7 +15,22 @@ module.exports = {
             );
         }
     },
+    ProvenanceTargetV2: {
+        __resolveType(obj, context, info) {
+            return context.dataApi.resolveType(obj, context, info);
+        },
+    },
     Provenance: {
+        // noinspection JSUnusedLocalSymbols
+        // eslint-disable-next-line no-unused-vars
+        targetV2: async (parent, args, context, info) => {
+            return await context.dataApi.findResourcesByReference(
+                parent,
+                args,
+                context,
+                info,
+                parent.targetV2);
+        },
         // noinspection JSUnusedLocalSymbols
         // eslint-disable-next-line no-unused-vars
         target: async (parent, args, context, info) => {

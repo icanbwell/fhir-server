@@ -65,6 +65,10 @@ type QuestionnaireAnswerOption {
     """
     None
     """
+    valueReferenceV2: Resource        
+    """
+    None
+    """
     valueReference: Resource        
     """
     Indicates whether the answer value is selected when the list of possible

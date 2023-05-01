@@ -95,6 +95,10 @@ type QuestionnaireResponseAnswer {
     """
     None
     """
+    valueReferenceV2: Resource        
+    """
+    None
+    """
     valueReference: Resource        
     """
     Nested groups and/or questions found within this particular answer.

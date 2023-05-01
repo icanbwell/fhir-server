@@ -111,7 +111,11 @@ type ClaimItem {
     """
     None
     """
-    locationReference: Location        
+    locationReferenceV2: Location        
+    """
+    None
+    """
+    locationReference: Resource        
     """
     The number of repetitions of a service or product.
     """
@@ -136,6 +140,10 @@ type ClaimItem {
     """
     Unique Device Identifiers associated with this line item.
     """
+    udiV2: [Reference]        
+    """
+    Unique Device Identifiers associated with this line item.
+    """
     udi: [Device]        
     """
     Physical service site on the patient (limb, tooth, etc.).
@@ -145,6 +153,11 @@ type ClaimItem {
     A region or surface of the bodySite, e.g. limb region or tooth surface(s).
     """
     subSite: [CodeableConcept]        
+    """
+    The Encounters during which this Claim was created or to which the creation of
+    this record is tightly associated.
+    """
+    encounterV2: [Reference]        
     """
     The Encounters during which this Claim was created or to which the creation of
     this record is tightly associated.

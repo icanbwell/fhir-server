@@ -9,7 +9,7 @@
 # import Identifier from "../complex_types/identifier.graphql"
 # import canonical from "../simple_types/canonical.graphql"
 # import CodeableConcept from "../complex_types/codeableConcept.graphql"
-# import Patient from "../resources/patient.graphql"
+# import Reference from "../complex_types/reference.graphql"
 # import dateTime from "../simple_types/dateTime.graphql"
 # import Period from "../complex_types/period.graphql"
 # import date from "../simple_types/date.graphql"
@@ -18,7 +18,7 @@
 # import Annotation from "../complex_types/annotation.graphql"
 # import FamilyMemberHistoryCondition from "../backbone_elements/familyMemberHistoryCondition.graphql"
 
-union FamilyMemberHistoryReasonReference = Condition | Observation | AllergyIntolerance | QuestionnaireResponse | DiagnosticReport | DocumentReference
+union FamilyMemberHistoryReasonReference = Condition | Observation | AllergyIntolerance | QuestionnaireResponse | DiagnosticReport | DocumentReference    
 
 
 """

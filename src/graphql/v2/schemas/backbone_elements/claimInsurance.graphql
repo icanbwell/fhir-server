@@ -2,7 +2,7 @@
 # import Extension from "../extensions/extension.graphql"
 # import positiveInt from "../simple_types/int.graphql"
 # import Identifier from "../complex_types/identifier.graphql"
-# import Coverage from "../resources/coverage.graphql"
+# import Reference from "../complex_types/reference.graphql"
 
 
 """
@@ -60,6 +60,12 @@ type ClaimInsurance {
     resource. The coverage issuing insurer will use these details to locate the
     patient's actual coverage within the insurer's information system.
     """
+    coverageV2: Reference!        
+    """
+    Reference to the insurance card level information contained in the Coverage
+    resource. The coverage issuing insurer will use these details to locate the
+    patient's actual coverage within the insurer's information system.
+    """
     coverage: Coverage        
     """
     A business agreement number established between the provider and the insurer
@@ -72,6 +78,11 @@ type ClaimInsurance {
     prior authorization.
     """
     preAuthRef: [String]        
+    """
+    The result of the adjudication of the line items for the Coverage specified in
+    this insurance.
+    """
+    claimResponseV2: Reference        
     """
     The result of the adjudication of the line items for the Coverage specified in
     this insurance.

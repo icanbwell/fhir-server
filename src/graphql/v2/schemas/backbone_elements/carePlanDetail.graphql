@@ -4,17 +4,14 @@
 # import canonical from "../simple_types/canonical.graphql"
 # import uri from "../simple_types/uri.graphql"
 # import CodeableConcept from "../complex_types/codeableConcept.graphql"
-# import Condition from "../resources/condition.graphql"
-# import Observation from "../resources/observation.graphql"
-# import DiagnosticReport from "../resources/diagnosticReport.graphql"
-# import DocumentReference from "../resources/documentReference.graphql"
+# import Reference from "../complex_types/reference.graphql"
 # import Timing from "../backbone_elements/timing.graphql"
 # import Period from "../complex_types/period.graphql"
 # import Quantity from "../complex_types/quantity.graphql"
 
 union CarePlanDetailReasonReference = Condition | Observation | DiagnosticReport | DocumentReference
 union CarePlanDetailPerformer = Practitioner | PractitionerRole | Organization | RelatedPerson | Patient | CareTeam | HealthcareService | Device
-union CarePlanDetailProductReference = Medication | Substance
+union CarePlanDetailProductReferenceV2 = Medication | Substance
 
 """
 CarePlan.Detail
@@ -85,7 +82,18 @@ type CarePlanDetail {
     justifies this request and drove the inclusion of this particular activity as
     part of the plan.
     """
+    reasonReferenceV2: [Reference]        
+    """
+    Indicates another resource, such as the health condition(s), whose existence
+    justifies this request and drove the inclusion of this particular activity as
+    part of the plan.
+    """
     reasonReference: [CarePlanDetailReasonReference]        
+    """
+    Internal reference that identifies the goals that this activity is intended to
+    contribute towards meeting.
+    """
+    goalV2: [Reference]        
     """
     Internal reference that identifies the goals that this activity is intended to
     contribute towards meeting.
@@ -122,7 +130,16 @@ type CarePlanDetail {
     Identifies the facility where the activity will occur; e.g. home, hospital,
     specific clinic, etc.
     """
+    locationV2: Reference        
+    """
+    Identifies the facility where the activity will occur; e.g. home, hospital,
+    specific clinic, etc.
+    """
     location: Location        
+    """
+    Identifies who's expected to be involved in the activity.
+    """
+    performerV2: [Reference]        
     """
     Identifies who's expected to be involved in the activity.
     """
@@ -134,7 +151,11 @@ type CarePlanDetail {
     """
     None
     """
-    productReference: CarePlanDetailProductReference        
+    productReferenceV2: CarePlanDetailProductReferenceV2        
+    """
+    None
+    """
+    productReference: Resource        
     """
     Identifies the quantity expected to be consumed in a given day.
     """

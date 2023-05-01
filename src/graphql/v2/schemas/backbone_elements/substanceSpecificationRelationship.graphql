@@ -44,7 +44,11 @@ type SubstanceSpecificationRelationship {
     """
     None
     """
-    substanceReference: SubstanceSpecification        
+    substanceReferenceV2: SubstanceSpecification        
+    """
+    None
+    """
+    substanceReference: Resource        
     """
     None
     """
@@ -84,6 +88,10 @@ type SubstanceSpecificationRelationship {
     than".
     """
     amountType: CodeableConcept        
+    """
+    Supporting literature.
+    """
+    sourceV2: [Reference]        
     """
     Supporting literature.
     """

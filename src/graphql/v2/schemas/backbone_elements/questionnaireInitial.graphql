@@ -94,5 +94,9 @@ type QuestionnaireInitial {
     """
     None
     """
+    valueReferenceV2: Resource        
+    """
+    None
+    """
     valueReference: Resource        
 }

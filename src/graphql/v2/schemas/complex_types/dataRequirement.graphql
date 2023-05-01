@@ -47,7 +47,11 @@ type DataRequirement {
     """
     None
     """
-    subjectReference: Group        
+    subjectReferenceV2: Group        
+    """
+    None
+    """
+    subjectReference: Resource        
     """
     Indicates that specific elements of the type are referenced by the knowledge
     module and must be supported by the consumer in order to obtain an effective

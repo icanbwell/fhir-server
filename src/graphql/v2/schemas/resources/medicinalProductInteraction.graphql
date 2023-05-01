@@ -6,13 +6,11 @@
 # import Narrative from "../complex_types/narrative.graphql"
 # import ResourceContainer from "../simple_types/resourceContainer.graphql"
 # import Extension from "../extensions/extension.graphql"
-# import MedicinalProduct from "../resources/medicinalProduct.graphql"
-# import Medication from "../resources/medication.graphql"
-# import Substance from "../resources/substance.graphql"
+# import Reference from "../complex_types/reference.graphql"
 # import MedicinalProductInteractionInteractant from "../backbone_elements/medicinalProductInteractionInteractant.graphql"
 # import CodeableConcept from "../complex_types/codeableConcept.graphql"
 
-union MedicinalProductInteractionSubject = MedicinalProduct | Medication | Substance
+union MedicinalProductInteractionSubject = MedicinalProduct | Medication | Substance    
 
 
 """

@@ -11,8 +11,7 @@
 # import Coding from "../complex_types/coding.graphql"
 # import EncounterClassHistory from "../backbone_elements/encounterClassHistory.graphql"
 # import CodeableConcept from "../complex_types/codeableConcept.graphql"
-# import Patient from "../resources/patient.graphql"
-# import Group from "../resources/group.graphql"
+# import Reference from "../complex_types/reference.graphql"
 # import EncounterParticipant from "../backbone_elements/encounterParticipant.graphql"
 # import Period from "../complex_types/period.graphql"
 # import Quantity from "../complex_types/quantity.graphql"
@@ -20,8 +19,8 @@
 # import EncounterHospitalization from "../backbone_elements/encounterHospitalization.graphql"
 # import EncounterLocation from "../backbone_elements/encounterLocation.graphql"
 
-union EncounterSubject = Patient | Group
-union EncounterReasonReference = Condition | Procedure | Observation | ImmunizationRecommendation
+union EncounterSubject = Patient | Group    
+union EncounterReasonReference = Condition | Procedure | Observation | ImmunizationRecommendation    
 
 
 """

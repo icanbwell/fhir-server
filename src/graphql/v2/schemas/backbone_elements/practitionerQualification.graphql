@@ -3,7 +3,7 @@
 # import Identifier from "../complex_types/identifier.graphql"
 # import CodeableConcept from "../complex_types/codeableConcept.graphql"
 # import Period from "../complex_types/period.graphql"
-# import Organization from "../resources/organization.graphql"
+# import Reference from "../complex_types/reference.graphql"
 
 
 """
@@ -52,6 +52,10 @@ type PractitionerQualification {
     Period during which the qualification is valid.
     """
     period: Period        
+    """
+    Organization that regulates and issues the qualification.
+    """
+    issuerV2: Reference        
     """
     Organization that regulates and issues the qualification.
     """

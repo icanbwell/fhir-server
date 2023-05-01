@@ -64,6 +64,10 @@ type ContractTerm {
     """
     None
     """
+    topicReferenceV2: Resource        
+    """
+    None
+    """
     topicReference: Resource        
     """
     A legal clause or condition contained within a contract that requires one or

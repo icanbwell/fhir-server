@@ -6,6 +6,16 @@ module.exports = {
     CompositionRelatesTo: {
         // noinspection JSUnusedLocalSymbols
         // eslint-disable-next-line no-unused-vars
+        targetReferenceV2: async (parent, args, context, info) => {
+            return await context.dataApi.findResourceByReference(
+                parent,
+                args,
+                context,
+                info,
+                parent.targetReferenceV2);
+        },
+        // noinspection JSUnusedLocalSymbols
+        // eslint-disable-next-line no-unused-vars
         targetReference: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,

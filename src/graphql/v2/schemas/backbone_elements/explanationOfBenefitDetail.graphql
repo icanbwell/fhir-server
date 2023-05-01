@@ -5,7 +5,7 @@
 # import Quantity from "../complex_types/quantity.graphql"
 # import Money from "../complex_types/money.graphql"
 # import decimal from "../simple_types/decimal.graphql"
-# import Device from "../resources/device.graphql"
+# import Reference from "../complex_types/reference.graphql"
 # import ExplanationOfBenefitAdjudication from "../backbone_elements/explanationOfBenefitAdjudication.graphql"
 # import ExplanationOfBenefitSubDetail from "../backbone_elements/explanationOfBenefitSubDetail.graphql"
 
@@ -95,6 +95,10 @@ type ExplanationOfBenefitDetail {
     charge.
     """
     net: Money        
+    """
+    Unique Device Identifiers associated with this line item.
+    """
+    udiV2: [Reference]        
     """
     Unique Device Identifiers associated with this line item.
     """

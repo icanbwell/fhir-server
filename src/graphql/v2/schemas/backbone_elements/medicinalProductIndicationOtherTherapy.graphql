@@ -6,7 +6,7 @@
 # import Substance from "../resources/substance.graphql"
 # import SubstanceSpecification from "../resources/substanceSpecification.graphql"
 
-union MedicinalProductIndicationOtherTherapyMedicationReference = MedicinalProduct | Medication | Substance | SubstanceSpecification
+union MedicinalProductIndicationOtherTherapyMedicationReferenceV2 = MedicinalProduct | Medication | Substance | SubstanceSpecification
 
 """
 MedicinalProductIndication.OtherTherapy
@@ -53,5 +53,9 @@ type MedicinalProductIndicationOtherTherapy {
     """
     None
     """
-    medicationReference: MedicinalProductIndicationOtherTherapyMedicationReference        
+    medicationReferenceV2: MedicinalProductIndicationOtherTherapyMedicationReferenceV2        
+    """
+    None
+    """
+    medicationReference: Resource        
 }

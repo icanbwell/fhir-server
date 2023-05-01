@@ -8,8 +8,7 @@
 # import Extension from "../extensions/extension.graphql"
 # import Identifier from "../complex_types/identifier.graphql"
 # import canonical from "../simple_types/canonical.graphql"
-# import CarePlan from "../resources/carePlan.graphql"
-# import ServiceRequest from "../resources/serviceRequest.graphql"
+# import Reference from "../complex_types/reference.graphql"
 # import CodeableConcept from "../complex_types/codeableConcept.graphql"
 # import dateTime from "../simple_types/dateTime.graphql"
 # import Period from "../complex_types/period.graphql"
@@ -19,14 +18,14 @@
 # import Annotation from "../complex_types/annotation.graphql"
 # import ProcedureFocalDevice from "../backbone_elements/procedureFocalDevice.graphql"
 
-union ProcedureBasedOn = CarePlan | ServiceRequest
-union ProcedurePartOf = Procedure | Observation | MedicationAdministration
-union ProcedureSubject = Patient | Group
-union ProcedureRecorder = Patient | RelatedPerson | Practitioner | PractitionerRole
-union ProcedureAsserter = Patient | RelatedPerson | Practitioner | PractitionerRole
-union ProcedureReasonReference = Condition | Observation | Procedure | DiagnosticReport | DocumentReference
-union ProcedureReport = DiagnosticReport | DocumentReference | Composition
-union ProcedureUsedReference = Device | Medication | Substance
+union ProcedureBasedOn = CarePlan | ServiceRequest    
+union ProcedurePartOf = Procedure | Observation | MedicationAdministration    
+union ProcedureSubject = Patient | Group    
+union ProcedureRecorder = Patient | RelatedPerson | Practitioner | PractitionerRole    
+union ProcedureAsserter = Patient | RelatedPerson | Practitioner | PractitionerRole    
+union ProcedureReasonReference = Condition | Observation | Procedure | DiagnosticReport | DocumentReference    
+union ProcedureReport = DiagnosticReport | DocumentReference | Composition    
+union ProcedureUsedReference = Device | Medication | Substance    
 
 
 """

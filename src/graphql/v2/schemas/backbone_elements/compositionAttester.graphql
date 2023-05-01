@@ -2,11 +2,7 @@
 # import Extension from "../extensions/extension.graphql"
 # import code from "../simple_types/code.graphql"
 # import dateTime from "../simple_types/dateTime.graphql"
-# import Patient from "../resources/patient.graphql"
-# import RelatedPerson from "../resources/relatedPerson.graphql"
-# import Practitioner from "../resources/practitioner.graphql"
-# import PractitionerRole from "../resources/practitionerRole.graphql"
-# import Organization from "../resources/organization.graphql"
+# import Reference from "../complex_types/reference.graphql"
 
 union CompositionAttesterParty = Patient | RelatedPerson | Practitioner | PractitionerRole | Organization
 
@@ -59,6 +55,10 @@ type CompositionAttester {
     When the composition was attested by the party.
     """
     time: dateTime        
+    """
+    Who attested the composition in the specified way.
+    """
+    partyV2: Reference        
     """
     Who attested the composition in the specified way.
     """

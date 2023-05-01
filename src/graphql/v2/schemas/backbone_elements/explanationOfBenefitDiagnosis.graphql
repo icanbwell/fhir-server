@@ -51,7 +51,11 @@ type ExplanationOfBenefitDiagnosis {
     """
     None
     """
-    diagnosisReference: Condition        
+    diagnosisReferenceV2: Condition        
+    """
+    None
+    """
+    diagnosisReference: Resource        
     """
     When the condition was observed or the relative ranking.
     """

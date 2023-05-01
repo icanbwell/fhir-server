@@ -15,13 +15,11 @@
 # import CodeableConcept from "../complex_types/codeableConcept.graphql"
 # import date from "../simple_types/date.graphql"
 # import Period from "../complex_types/period.graphql"
-# import Medication from "../resources/medication.graphql"
-# import Substance from "../resources/substance.graphql"
-# import Device from "../resources/device.graphql"
+# import Reference from "../complex_types/reference.graphql"
 # import ChargeItemDefinitionApplicability from "../backbone_elements/chargeItemDefinitionApplicability.graphql"
 # import ChargeItemDefinitionPropertyGroup from "../backbone_elements/chargeItemDefinitionPropertyGroup.graphql"
 
-union ChargeItemDefinitionInstance = Medication | Substance | Device
+union ChargeItemDefinitionInstance = Medication | Substance | Device    
 
 
 """
