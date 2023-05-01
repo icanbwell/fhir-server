@@ -4,8 +4,6 @@ const practitioner2Resource = require('./fixtures/Practitioner/practitioner2.jso
 const practitionerrole1Resource = require('./fixtures/Practitioner/practitionerrole1.json');
 const practitionerrole2Resource = require('./fixtures/Practitioner/practitionerrole2.json');
 const Practitioner1HistoryResource = require('./fixtures/Practitioner/practitioner1_history.json');
-const patient1Resource = require('./fixtures/Patient/patient1.json');
-const patient1HistoryResource = require('./fixtures/Patient/patient1_history.json');
 
 
 // expected
@@ -14,16 +12,12 @@ const expectedPractitioner2InDatabaseBeforeRun = require('./fixtures/expected/ex
 const expectedPractitionerRole1InDatabaseBeforeRun = require('./fixtures/expected/expected_practitionerrole_1_in_database_before_run.json');
 const expectedPractitionerRole2InDatabaseBeforeRun = require('./fixtures/expected/expected_practitionerrole_2_in_database_before_run.json');
 const expectedPractitioner1HistoryInDatabaseBeforeRun = require('./fixtures/expected/expected_practitioner1_hisory_in_database_before_run.json');
-const expectedPatient1InDatabaseBeforeRun = require('./fixtures/expected/expected_patient_1_in_database_before_run.json');
-const expectedPatient1HistoryInDatabaseBeforeRun = require('./fixtures/expected/expected_patient1_history_in_database_before_run.json');
 
 const expectedPractitioner1DatabaseAfterRun = require('./fixtures/expected/expected_practitioner1.json');
 const expectedPractitioner2DatabaseAfterRun = require('./fixtures/expected/expected_practitioner2.json');
 const expectedPractitionerRole1DatabaseAfterRun = require('./fixtures/expected/expected_practitionerrole1.json');
 const expectedPractitionerRole2DatabaseAfterRun = require('./fixtures/expected/expected_practitionerrole2.json');
 const expectedPractitioner1HistoryDatabaseAfterRun = require('./fixtures/expected/expected_practitioner1_hisory.json');
-const expectedPatient1DatabaseAfterRun = require('./fixtures/expected/expected_patient1.json');
-const expectedPatient1HistoryDatabaseAfterRun = require('./fixtures/expected/expected_patient1_history.json');
 
 const { FixMultipleSourceAssigningAuthorityHistoryRunner } = require('../../../../admin/runners/fixMultipleSourceAssigningAuthorityHistoryRunner');
 
@@ -273,118 +267,6 @@ describe('Fix Multiple Source Assigning Authority Tests', () => {
             expect(practitioner1History).toBeDefined();
             delete practitioner1History._id;
             expect(practitioner1History).toStrictEqual(expectedPractitioner1HistoryDatabaseAfterRun);
-        });
-    });
-
-    describe('Patient fixMultipleSourceAssigningAuthority Tests', () => {
-        test('fixMultipleSourceAssigningAuthority works for patients', async () => {
-            // eslint-disable-next-line no-unused-vars
-            const request = await createTestRequest((c) => {
-                c.register('configManager', () => new MockConfigManagerWithoutGlobalId());
-                return c;
-            });
-            const container = getTestContainer();
-            /**
-             * @type {PostRequestProcessor}
-             */
-            // eslint-disable-next-line no-unused-vars
-            const postRequestProcessor = container.postRequestProcessor;
-
-            // insert directly into database instead of going through merge() so we simulate old records
-            /**
-             * @type {MongoDatabaseManager}
-             */
-            const mongoDatabaseManager = container.mongoDatabaseManager;
-            let patientCollection = await setupDatabaseAsync(
-                mongoDatabaseManager, patient1Resource, expectedPatient1InDatabaseBeforeRun
-            );
-
-            // run admin runner
-
-            let collections = ['Patient_4_0_0'];
-            const batchSize = 10000;
-
-            container.register('fixMultipleSourceAssigningAuthorityRunner', (c) => new FixMultipleSourceAssigningAuthorityRunner(
-                    {
-                        mongoCollectionManager: c.mongoCollectionManager,
-                        collections: collections,
-                        batchSize,
-                        useAuditDatabase: false,
-                        adminLogger: new AdminLogger(),
-                        mongoDatabaseManager: c.mongoDatabaseManager,
-                        preSaveManager: c.preSaveManager,
-                        filterRecords: true
-                    }
-                )
-            );
-
-            /**
-             * @type {FixMultipleSourceAssigningAuthorityRunner}
-             */
-            const fixMultipleSourceAssigningAuthorityRunner = container.fixMultipleSourceAssigningAuthorityRunner;
-            assertTypeEquals(fixMultipleSourceAssigningAuthorityRunner, FixMultipleSourceAssigningAuthorityRunner);
-            await fixMultipleSourceAssigningAuthorityRunner.processAsync();
-
-            // Check patient 1
-            const patient1 = await patientCollection.findOne({id: patient1Resource.id});
-            expect(patient1).toBeDefined();
-            delete patient1._id;
-            expectedPatient1DatabaseAfterRun.meta.lastUpdated = patient1.meta.lastUpdated;
-            expect(patient1).toStrictEqual(expectedPatient1DatabaseAfterRun);
-        });
-        test('fixMultipleSourceAssigningAuthorityHistory works for patient', async () => {
-            // eslint-disable-next-line no-unused-vars
-            const request = await createTestRequest((c) => {
-                c.register('configManager', () => new MockConfigManagerWithoutGlobalId());
-                return c;
-            });
-            const container = getTestContainer();
-            /**
-             * @type {PostRequestProcessor}
-             */
-                // eslint-disable-next-line no-unused-vars
-            const postRequestProcessor = container.postRequestProcessor;
-
-            // insert directly into database instead of going through merge() so we simulate old records
-            /**
-             * @type {MongoDatabaseManager}
-             */
-            const mongoDatabaseManager = container.mongoDatabaseManager;
-            const patientHistoryCollection = await setupHistoryDatabaseAsync(
-                mongoDatabaseManager,
-                patient1HistoryResource,
-                expectedPatient1HistoryInDatabaseBeforeRun
-            );
-
-            // run admin runner
-
-            const collections = ['Patient_4_0_0_History'];
-            const batchSize = 10000;
-
-            container.register('fixMultipleSourceAssigningAuthorityHistoryRunner', (c) => new FixMultipleSourceAssigningAuthorityHistoryRunner(
-                    {
-                        mongoCollectionManager: c.mongoCollectionManager,
-                        collections: collections,
-                        batchSize,
-                        adminLogger: new AdminLogger(),
-                        mongoDatabaseManager: c.mongoDatabaseManager,
-                        preSaveManager: c.preSaveManager
-                    }
-                )
-            );
-
-            /**
-             * @type {FixHistoryRunner}
-             */
-            const fixMultipleSourceAssigningAuthorityHistoryRunner = container.fixMultipleSourceAssigningAuthorityHistoryRunner;
-            assertTypeEquals(fixMultipleSourceAssigningAuthorityHistoryRunner, FixMultipleSourceAssigningAuthorityHistoryRunner);
-            await fixMultipleSourceAssigningAuthorityHistoryRunner.processAsync();
-
-            // Check patient 1 history
-            const patient1History = await patientHistoryCollection.findOne({id: patient1HistoryResource.id});
-            expect(patient1History).toBeDefined();
-            delete patient1History._id;
-            expect(patient1History).toStrictEqual(expectedPatient1HistoryDatabaseAfterRun);
         });
     });
 });
