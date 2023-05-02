@@ -3,7 +3,7 @@
 # import CodeableConcept from "../complex_types/codeableConcept.graphql"
 # import SubstanceSpecificationIsotope from "../backbone_elements/substanceSpecificationIsotope.graphql"
 # import SubstanceSpecificationMolecularWeight from "../backbone_elements/substanceSpecificationMolecularWeight.graphql"
-# import DocumentReference from "../resources/documentReference.graphql"
+# import Reference from "../complex_types/reference.graphql"
 # import SubstanceSpecificationRepresentation from "../backbone_elements/substanceSpecificationRepresentation.graphql"
 
 

@@ -17,12 +17,12 @@
 # import Period from "../complex_types/period.graphql"
 # import Timing from "../backbone_elements/timing.graphql"
 
-union SupplyRequestItemReference = Medication | Substance | Device
-union SupplyRequestRequester = Practitioner | PractitionerRole | Organization | Patient | RelatedPerson | Device
-union SupplyRequestSupplier = Organization | HealthcareService
-union SupplyRequestReasonReference = Condition | Observation | DiagnosticReport | DocumentReference
-union SupplyRequestDeliverFrom = Organization | Location
-union SupplyRequestDeliverTo = Organization | Location | Patient
+union SupplyRequestItemReference = Medication | Substance | Device    
+union SupplyRequestRequester = Practitioner | PractitionerRole | Organization | Patient | RelatedPerson | Device    
+union SupplyRequestSupplier = Organization | HealthcareService    
+union SupplyRequestReasonReference = Condition | Observation | DiagnosticReport | DocumentReference    
+union SupplyRequestDeliverFrom = Organization | Location    
+union SupplyRequestDeliverTo = Organization | Location | Patient    
 
 
 """

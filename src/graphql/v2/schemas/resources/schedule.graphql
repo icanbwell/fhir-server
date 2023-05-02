@@ -8,16 +8,10 @@
 # import Extension from "../extensions/extension.graphql"
 # import Identifier from "../complex_types/identifier.graphql"
 # import CodeableConcept from "../complex_types/codeableConcept.graphql"
-# import Patient from "../resources/patient.graphql"
-# import Practitioner from "../resources/practitioner.graphql"
-# import PractitionerRole from "../resources/practitionerRole.graphql"
-# import RelatedPerson from "../resources/relatedPerson.graphql"
-# import Device from "../resources/device.graphql"
-# import HealthcareService from "../resources/healthcareService.graphql"
-# import Location from "../resources/location.graphql"
+# import Reference from "../complex_types/reference.graphql"
 # import Period from "../complex_types/period.graphql"
 
-union ScheduleActor = Patient | Practitioner | PractitionerRole | RelatedPerson | Device | HealthcareService | Location
+union ScheduleActor = Patient | Practitioner | PractitionerRole | RelatedPerson | Device | HealthcareService | Location    
 
 
 """

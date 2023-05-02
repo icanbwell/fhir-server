@@ -30,6 +30,11 @@ module.exports = {
             return context.dataApi.resolveType(obj, context, info);
         },
     },
+    ObservationFocusV2: {
+        __resolveType(obj, context, info) {
+            return context.dataApi.resolveType(obj, context, info);
+        },
+    },
     ObservationPerformer: {
         __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
@@ -80,6 +85,16 @@ module.exports = {
                 context,
                 info,
                 parent.subject);
+        },
+        // noinspection JSUnusedLocalSymbols
+        // eslint-disable-next-line no-unused-vars
+        focusV2: async (parent, args, context, info) => {
+            return await context.dataApi.findResourcesByReference(
+                parent,
+                args,
+                context,
+                info,
+                parent.focusV2);
         },
         // noinspection JSUnusedLocalSymbols
         // eslint-disable-next-line no-unused-vars

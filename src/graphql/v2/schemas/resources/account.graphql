@@ -8,18 +8,12 @@
 # import Extension from "../extensions/extension.graphql"
 # import Identifier from "../complex_types/identifier.graphql"
 # import CodeableConcept from "../complex_types/codeableConcept.graphql"
-# import Patient from "../resources/patient.graphql"
-# import Device from "../resources/device.graphql"
-# import Practitioner from "../resources/practitioner.graphql"
-# import PractitionerRole from "../resources/practitionerRole.graphql"
-# import Location from "../resources/location.graphql"
-# import HealthcareService from "../resources/healthcareService.graphql"
-# import Organization from "../resources/organization.graphql"
+# import Reference from "../complex_types/reference.graphql"
 # import Period from "../complex_types/period.graphql"
 # import AccountCoverage from "../backbone_elements/accountCoverage.graphql"
 # import AccountGuarantor from "../backbone_elements/accountGuarantor.graphql"
 
-union AccountSubject = Patient | Device | Practitioner | PractitionerRole | Location | HealthcareService | Organization
+union AccountSubject = Patient | Device | Practitioner | PractitionerRole | Location | HealthcareService | Organization    
 
 
 """
