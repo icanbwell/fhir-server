@@ -58,9 +58,5 @@ type CompositionRelatesTo {
     """
     None
     """
-    targetReferenceV2: Composition        
-    """
-    None
-    """
     targetReference: Composition        
 }

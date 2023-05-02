@@ -149,10 +149,6 @@ type MedicationStatement {
     """
     None
     """
-    medicationReferenceV2: Medication        
-    """
-    None
-    """
     medicationReference: Medication        
     """
     The person, animal or group who is/was taking the medication.

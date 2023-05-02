@@ -6,16 +6,6 @@ module.exports = {
     SubstanceSpecificationRelationship: {
         // noinspection JSUnusedLocalSymbols
         // eslint-disable-next-line no-unused-vars
-        substanceReferenceV2: async (parent, args, context, info) => {
-            return await context.dataApi.findResourceByReference(
-                parent,
-                args,
-                context,
-                info,
-                parent.substanceReferenceV2);
-        },
-        // noinspection JSUnusedLocalSymbols
-        // eslint-disable-next-line no-unused-vars
         substanceReference: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,

@@ -51,10 +51,6 @@ type ClaimDiagnosis {
     """
     None
     """
-    diagnosisReferenceV2: Condition        
-    """
-    None
-    """
     diagnosisReference: Condition        
     """
     When the condition was observed or the relative ranking.

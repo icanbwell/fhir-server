@@ -45,10 +45,6 @@ type MedicationKnowledgeIngredient {
     """
     None
     """
-    itemReferenceV2: Substance        
-    """
-    None
-    """
     itemReference: Substance        
     """
     Indication of whether this ingredient affects the therapeutic action of the

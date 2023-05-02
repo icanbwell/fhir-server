@@ -159,10 +159,6 @@ type Library {
     """
     None
     """
-    subjectReferenceV2: Group        
-    """
-    None
-    """
     subjectReference: Group        
     """
     The date  (and optionally time) when the library was published. The date must

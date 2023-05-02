@@ -44,10 +44,6 @@ type SubstanceSpecificationRelationship {
     """
     None
     """
-    substanceReferenceV2: SubstanceSpecification        
-    """
-    None
-    """
     substanceReference: SubstanceSpecification        
     """
     None

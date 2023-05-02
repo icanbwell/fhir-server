@@ -6,7 +6,6 @@
 # import Substance from "../resources/substance.graphql"
 # import SubstanceSpecification from "../resources/substanceSpecification.graphql"
 
-union MedicinalProductIndicationOtherTherapyMedicationReferenceV2 = MedicinalProduct | Medication | Substance | SubstanceSpecification
 union MedicinalProductIndicationOtherTherapyMedicationReference = MedicinalProduct | Medication | Substance | SubstanceSpecification
 
 """
@@ -51,10 +50,6 @@ type MedicinalProductIndicationOtherTherapy {
     None
     """
     medicationCodeableConcept: CodeableConcept        
-    """
-    None
-    """
-    medicationReferenceV2: MedicinalProductIndicationOtherTherapyMedicationReferenceV2        
     """
     None
     """

@@ -117,10 +117,6 @@ type MedicationDispense {
     """
     None
     """
-    statusReasonReferenceV2: DetectedIssue        
-    """
-    None
-    """
     statusReasonReference: DetectedIssue        
     """
     Indicates the type of medication dispense (for example, where the medication
@@ -131,10 +127,6 @@ type MedicationDispense {
     None
     """
     medicationCodeableConcept: CodeableConcept        
-    """
-    None
-    """
-    medicationReferenceV2: Medication        
     """
     None
     """

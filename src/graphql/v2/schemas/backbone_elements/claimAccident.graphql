@@ -59,9 +59,5 @@ type ClaimAccident {
     """
     None
     """
-    locationReferenceV2: Location        
-    """
-    None
-    """
     locationReference: Location        
 }

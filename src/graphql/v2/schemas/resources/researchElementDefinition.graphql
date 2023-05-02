@@ -158,10 +158,6 @@ type ResearchElementDefinition {
     """
     None
     """
-    subjectReferenceV2: Group        
-    """
-    None
-    """
     subjectReference: Group        
     """
     The date  (and optionally time) when the research element definition was

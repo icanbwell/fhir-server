@@ -48,10 +48,6 @@ type ImplementationGuidePage {
     """
     None
     """
-    nameReferenceV2: Binary        
-    """
-    None
-    """
     nameReference: Binary        
     """
     A short title used to represent this page in navigational structures such as

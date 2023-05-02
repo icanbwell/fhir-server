@@ -12,7 +12,6 @@
 # import Location from "../resources/location.graphql"
 # import Organization from "../resources/organization.graphql"
 
-union UsageContextValueReferenceV2 = PlanDefinition | ResearchStudy | InsurancePlan | HealthcareService | Group | Location | Organization
 union UsageContextValueReference = PlanDefinition | ResearchStudy | InsurancePlan | HealthcareService | Group | Location | Organization
 
 """
@@ -54,10 +53,6 @@ type UsageContext {
     None
     """
     valueRange: Range        
-    """
-    None
-    """
-    valueReferenceV2: UsageContextValueReferenceV2        
     """
     None
     """

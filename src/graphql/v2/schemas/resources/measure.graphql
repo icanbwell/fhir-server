@@ -150,10 +150,6 @@ type Measure {
     """
     None
     """
-    subjectReferenceV2: Group        
-    """
-    None
-    """
     subjectReference: Group        
     """
     The date  (and optionally time) when the measure was published. The date must

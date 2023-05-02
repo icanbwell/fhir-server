@@ -147,10 +147,6 @@ type EventDefinition {
     """
     None
     """
-    subjectReferenceV2: Group        
-    """
-    None
-    """
     subjectReference: Group        
     """
     The date  (and optionally time) when the event definition was published. The

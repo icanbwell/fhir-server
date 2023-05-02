@@ -133,10 +133,6 @@ type MedicationAdministration {
     """
     None
     """
-    medicationReferenceV2: Medication        
-    """
-    None
-    """
     medicationReference: Medication        
     """
     The person or animal or group receiving the medication.

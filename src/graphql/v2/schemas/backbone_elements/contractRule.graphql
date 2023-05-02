@@ -45,9 +45,5 @@ type ContractRule {
     """
     None
     """
-    contentReferenceV2: DocumentReference        
-    """
-    None
-    """
     contentReference: DocumentReference        
 }

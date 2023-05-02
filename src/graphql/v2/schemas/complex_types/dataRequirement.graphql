@@ -47,10 +47,6 @@ type DataRequirement {
     """
     None
     """
-    subjectReferenceV2: Group        
-    """
-    None
-    """
     subjectReference: Group        
     """
     Indicates that specific elements of the type are referenced by the knowledge

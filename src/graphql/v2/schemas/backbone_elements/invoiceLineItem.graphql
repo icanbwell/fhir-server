@@ -47,10 +47,6 @@ type InvoiceLineItem {
     """
     None
     """
-    chargeItemReferenceV2: ChargeItem        
-    """
-    None
-    """
     chargeItemReference: ChargeItem        
     """
     None

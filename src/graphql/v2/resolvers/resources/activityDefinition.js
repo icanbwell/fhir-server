@@ -15,27 +15,12 @@ module.exports = {
             );
         }
     },
-    ActivityDefinitionProductReferenceV2: {
-        __resolveType(obj, context, info) {
-            return context.dataApi.resolveType(obj, context, info);
-        },
-    },
     ActivityDefinitionProductReference: {
         __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
         },
     },
     ActivityDefinition: {
-        // noinspection JSUnusedLocalSymbols
-        // eslint-disable-next-line no-unused-vars
-        subjectReferenceV2: async (parent, args, context, info) => {
-            return await context.dataApi.findResourceByReference(
-                parent,
-                args,
-                context,
-                info,
-                parent.subjectReferenceV2);
-        },
         // noinspection JSUnusedLocalSymbols
         // eslint-disable-next-line no-unused-vars
         subjectReference: async (parent, args, context, info) => {
@@ -55,16 +40,6 @@ module.exports = {
                 context,
                 info,
                 parent.location);
-        },
-        // noinspection JSUnusedLocalSymbols
-        // eslint-disable-next-line no-unused-vars
-        productReferenceV2: async (parent, args, context, info) => {
-            return await context.dataApi.findResourceByReference(
-                parent,
-                args,
-                context,
-                info,
-                parent.productReferenceV2);
         },
         // noinspection JSUnusedLocalSymbols
         // eslint-disable-next-line no-unused-vars

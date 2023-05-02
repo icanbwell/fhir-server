@@ -5,7 +5,6 @@
 # import Medication from "../resources/medication.graphql"
 # import Ratio from "../complex_types/ratio.graphql"
 
-union MedicationIngredientItemReferenceV2 = Substance | Medication
 union MedicationIngredientItemReference = Substance | Medication
 
 """
@@ -47,10 +46,6 @@ type MedicationIngredient {
     None
     """
     itemCodeableConcept: CodeableConcept        
-    """
-    None
-    """
-    itemReferenceV2: MedicationIngredientItemReferenceV2        
     """
     None
     """

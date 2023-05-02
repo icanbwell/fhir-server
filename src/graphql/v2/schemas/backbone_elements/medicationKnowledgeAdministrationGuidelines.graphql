@@ -50,10 +50,6 @@ type MedicationKnowledgeAdministrationGuidelines {
     """
     None
     """
-    indicationReferenceV2: ObservationDefinition        
-    """
-    None
-    """
     indicationReference: ObservationDefinition        
     """
     Characteristics of the patient that are relevant to the administration

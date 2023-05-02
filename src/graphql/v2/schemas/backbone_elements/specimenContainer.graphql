@@ -70,9 +70,5 @@ type SpecimenContainer {
     """
     None
     """
-    additiveReferenceV2: Substance        
-    """
-    None
-    """
     additiveReference: Substance        
 }

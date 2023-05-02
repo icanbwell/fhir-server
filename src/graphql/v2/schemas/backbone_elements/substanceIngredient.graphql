@@ -49,9 +49,5 @@ type SubstanceIngredient {
     """
     None
     """
-    substanceReferenceV2: Substance        
-    """
-    None
-    """
     substanceReference: Substance        
 }

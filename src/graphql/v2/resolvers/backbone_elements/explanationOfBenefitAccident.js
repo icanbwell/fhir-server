@@ -6,16 +6,6 @@ module.exports = {
     ExplanationOfBenefitAccident: {
         // noinspection JSUnusedLocalSymbols
         // eslint-disable-next-line no-unused-vars
-        locationReferenceV2: async (parent, args, context, info) => {
-            return await context.dataApi.findResourceByReference(
-                parent,
-                args,
-                context,
-                info,
-                parent.locationReferenceV2);
-        },
-        // noinspection JSUnusedLocalSymbols
-        // eslint-disable-next-line no-unused-vars
         locationReference: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,

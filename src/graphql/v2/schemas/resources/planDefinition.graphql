@@ -160,10 +160,6 @@ type PlanDefinition {
     """
     None
     """
-    subjectReferenceV2: Group        
-    """
-    None
-    """
     subjectReference: Group        
     """
     The date  (and optionally time) when the plan definition was published. The

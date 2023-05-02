@@ -93,9 +93,5 @@ type ContractAnswer {
     """
     None
     """
-    valueReferenceV2: Resource        
-    """
-    None
-    """
     valueReference: Resource        
 }

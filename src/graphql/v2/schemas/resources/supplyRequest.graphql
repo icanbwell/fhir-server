@@ -17,7 +17,6 @@
 # import Period from "../complex_types/period.graphql"
 # import Timing from "../backbone_elements/timing.graphql"
 
-union SupplyRequestItemReferenceV2 = Medication | Substance | Device    
 union SupplyRequestItemReference = Medication | Substance | Device    
 union SupplyRequestRequester = Practitioner | PractitionerRole | Organization | Patient | RelatedPerson | Device    
 union SupplyRequestSupplier = Organization | HealthcareService    
@@ -119,10 +118,6 @@ type SupplyRequest {
     None
     """
     itemCodeableConcept: CodeableConcept        
-    """
-    None
-    """
-    itemReferenceV2: SupplyRequestItemReferenceV2        
     """
     None
     """

@@ -6,7 +6,6 @@
 # import ObservationDefinition from "../resources/observationDefinition.graphql"
 # import CodeableConcept from "../complex_types/codeableConcept.graphql"
 
-union MedicinalProductInteractionInteractantItemReferenceV2 = MedicinalProduct | Medication | Substance | ObservationDefinition
 union MedicinalProductInteractionInteractantItemReference = MedicinalProduct | Medication | Substance | ObservationDefinition
 
 """
@@ -43,10 +42,6 @@ type MedicinalProductInteractionInteractant {
     itself).
     """
     modifierExtension: [Extension]        
-    """
-    None
-    """
-    itemReferenceV2: MedicinalProductInteractionInteractantItemReferenceV2        
     """
     None
     """

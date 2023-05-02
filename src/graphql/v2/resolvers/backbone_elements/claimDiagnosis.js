@@ -6,16 +6,6 @@ module.exports = {
     ClaimDiagnosis: {
         // noinspection JSUnusedLocalSymbols
         // eslint-disable-next-line no-unused-vars
-        diagnosisReferenceV2: async (parent, args, context, info) => {
-            return await context.dataApi.findResourceByReference(
-                parent,
-                args,
-                context,
-                info,
-                parent.diagnosisReferenceV2);
-        },
-        // noinspection JSUnusedLocalSymbols
-        // eslint-disable-next-line no-unused-vars
         diagnosisReference: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,

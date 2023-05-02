@@ -900,7 +900,7 @@ class FhirXmlSchemaParser:
             return fhir_properties
 
     @staticmethod
-    def get_types_for_references() -> List[FhirReferenceType]:
+    def get_list_of_resources():
         data_dir: Path = Path(__file__).parent.joinpath("./")
         # first read fhir-base.xsd to get a list of resources
         fhir_base_all_resources: Path = (
@@ -919,6 +919,14 @@ class FhirXmlSchemaParser:
                 resources_list.append(choice.get("ref"))
         # List of all resources with Resource as base.
         resources_list.append("Resource")
+
+        return resources_list
+
+    @staticmethod
+    def get_types_for_references() -> List[FhirReferenceType]:
+        data_dir: Path = Path(__file__).parent.joinpath("./")
+        # List of resources to be used for reference any types.
+        resources_list = FhirXmlSchemaParser.get_list_of_resources()
 
         # first read fhir-all.xsd to get a list of resources
         de_xml_file: Path = (

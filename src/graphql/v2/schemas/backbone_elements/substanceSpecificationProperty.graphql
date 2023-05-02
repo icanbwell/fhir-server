@@ -5,7 +5,6 @@
 # import Substance from "../resources/substance.graphql"
 # import Quantity from "../complex_types/quantity.graphql"
 
-union SubstanceSpecificationPropertyDefiningSubstanceReferenceV2 = SubstanceSpecification | Substance
 union SubstanceSpecificationPropertyDefiningSubstanceReference = SubstanceSpecification | Substance
 
 """
@@ -55,10 +54,6 @@ type SubstanceSpecificationProperty {
     viscosity: measured at 20C with a pH of 7.1).
     """
     parameters: String        
-    """
-    None
-    """
-    definingSubstanceReferenceV2: SubstanceSpecificationPropertyDefiningSubstanceReferenceV2        
     """
     None
     """

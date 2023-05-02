@@ -11,7 +11,6 @@
 
 union CarePlanDetailReasonReference = Condition | Observation | DiagnosticReport | DocumentReference
 union CarePlanDetailPerformer = Practitioner | PractitionerRole | Organization | RelatedPerson | Patient | CareTeam | HealthcareService | Device
-union CarePlanDetailProductReferenceV2 = Medication | Substance
 union CarePlanDetailProductReference = Medication | Substance
 
 """
@@ -129,10 +128,6 @@ type CarePlanDetail {
     None
     """
     productCodeableConcept: CodeableConcept        
-    """
-    None
-    """
-    productReferenceV2: CarePlanDetailProductReferenceV2        
     """
     None
     """

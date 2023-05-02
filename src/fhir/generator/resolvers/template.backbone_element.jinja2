@@ -10,8 +10,7 @@
 // noinspection JSUnusedLocalSymbols
 module.exports = {
 {% for property in fhir_entity.properties %}
-{% if property.is_v2_supported and property.reference_target_resources|length == 0 %}
-{% else %}
+{% if not property.is_v2_supported or (property.is_v2_supported and property.reference_target_resources|length == total_resources_count) %}
 {% if property.reference_target_resources -%}
     {% if property.reference_target_resources | length > 1  %}
     {{fhir_entity.cleaned_name}}{{ upper_case_first_letter(property.name) }}: {
@@ -25,6 +24,7 @@ module.exports = {
 {% endfor %}
     {{  fhir_entity.cleaned_name }}: {
     {% for property in fhir_entity.properties %}
+        {% if not property.is_v2_supported or (property.is_v2_supported and property.reference_target_resources|length == total_resources_count) %}
         {% if property.reference_target_resources %}
         // noinspection JSUnusedLocalSymbols
         // eslint-disable-next-line no-unused-vars
@@ -48,6 +48,7 @@ module.exports = {
             {%  endif %}
         },
         {%  endif %}
+        {% endif %}
     {% endfor %}
     }
 };

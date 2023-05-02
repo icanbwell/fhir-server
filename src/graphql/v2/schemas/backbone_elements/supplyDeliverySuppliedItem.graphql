@@ -6,7 +6,6 @@
 # import Substance from "../resources/substance.graphql"
 # import Device from "../resources/device.graphql"
 
-union SupplyDeliverySuppliedItemItemReferenceV2 = Medication | Substance | Device
 union SupplyDeliverySuppliedItemItemReference = Medication | Substance | Device
 
 """
@@ -50,10 +49,6 @@ type SupplyDeliverySuppliedItem {
     None
     """
     itemCodeableConcept: CodeableConcept        
-    """
-    None
-    """
-    itemReferenceV2: SupplyDeliverySuppliedItemItemReferenceV2        
     """
     None
     """

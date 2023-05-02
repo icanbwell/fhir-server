@@ -293,10 +293,6 @@ type DeviceRequest {
     """
     None
     """
-    codeReferenceV2: Device        
-    """
-    None
-    """
     codeReference: Device        
     """
     None

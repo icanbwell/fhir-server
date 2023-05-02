@@ -15,11 +15,6 @@ module.exports = {
             );
         }
     },
-    MedicationRequestReportedReferenceV2: {
-        __resolveType(obj, context, info) {
-            return context.dataApi.resolveType(obj, context, info);
-        },
-    },
     MedicationRequestReportedReference: {
         __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
@@ -68,16 +63,6 @@ module.exports = {
     MedicationRequest: {
         // noinspection JSUnusedLocalSymbols
         // eslint-disable-next-line no-unused-vars
-        reportedReferenceV2: async (parent, args, context, info) => {
-            return await context.dataApi.findResourceByReference(
-                parent,
-                args,
-                context,
-                info,
-                parent.reportedReferenceV2);
-        },
-        // noinspection JSUnusedLocalSymbols
-        // eslint-disable-next-line no-unused-vars
         reportedReference: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,
@@ -85,16 +70,6 @@ module.exports = {
                 context,
                 info,
                 parent.reportedReference);
-        },
-        // noinspection JSUnusedLocalSymbols
-        // eslint-disable-next-line no-unused-vars
-        medicationReferenceV2: async (parent, args, context, info) => {
-            return await context.dataApi.findResourceByReference(
-                parent,
-                args,
-                context,
-                info,
-                parent.medicationReferenceV2);
         },
         // noinspection JSUnusedLocalSymbols
         // eslint-disable-next-line no-unused-vars

@@ -108,6 +108,7 @@ def main() -> int:
     os.mkdir(value_sets_folder)
 
     fhir_entities: List[FhirEntity] = FhirXmlSchemaParser.generate_classes()
+    total_resources_count = len(FhirXmlSchemaParser.get_list_of_resources())
 
     # generate schema.graphql
     with open(data_dir.joinpath("template.query.jinja2"), "r") as file:
@@ -152,7 +153,8 @@ def main() -> int:
                 result = template.render(
                     fhir_entity=fhir_entity,
                     search_parameters_for_all_resources=search_parameters_for_all_resources,
-                    search_parameters_for_current_resource=search_parameters_for_current_resource
+                    search_parameters_for_current_resource=search_parameters_for_current_resource,
+                    total_resources_count=total_resources_count
                 )
             if not path.exists(file_path):
                 with open(file_path, "w") as file2:
@@ -170,7 +172,8 @@ def main() -> int:
                 result = template.render(
                     fhir_entity=fhir_entity,
                     search_parameters_for_all_resources=search_parameters_for_all_resources,
-                    search_parameters_for_current_resource=search_parameters_for_current_resource
+                    search_parameters_for_current_resource=search_parameters_for_current_resource,
+                    total_resources_count=total_resources_count
                 )
             if not path.exists(file_path):
                 with open(file_path, "w") as file2:
@@ -187,6 +190,7 @@ def main() -> int:
                 )
                 result = template.render(
                     fhir_entity=fhir_entity,
+                    total_resources_count=total_resources_count
                 )
             if not path.exists(file_path):
                 with open(file_path, "w") as file2:
@@ -207,6 +211,7 @@ def main() -> int:
                 )
                 result = template.render(
                     fhir_entity=fhir_entity,
+                    total_resources_count=total_resources_count
                 )
 
             if not path.exists(file_path):
@@ -224,6 +229,7 @@ def main() -> int:
                 )
                 result = template.render(
                     fhir_entity=fhir_entity,
+                    total_resources_count=total_resources_count
                 )
             if not path.exists(file_path):
                 with open(file_path, "w") as file2:
@@ -241,6 +247,7 @@ def main() -> int:
                 )
                 result = template.render(
                     fhir_entity=fhir_entity,
+                    total_resources_count=total_resources_count
                 )
 
             with open(file_path, "w") as file2:
@@ -257,6 +264,7 @@ def main() -> int:
                 )
                 result = template.render(
                     fhir_entity=fhir_entity,
+                    total_resources_count=total_resources_count
                 )
             if not path.exists(file_path):
                 with open(file_path, "w") as file2:
@@ -274,6 +282,7 @@ def main() -> int:
                 )
                 result = template.render(
                     fhir_entity=fhir_entity,
+                    total_resources_count=total_resources_count
                 )
 
             if not path.exists(file_path):
@@ -291,6 +300,7 @@ def main() -> int:
                 )
                 result = template.render(
                     fhir_entity=fhir_entity,
+                    total_resources_count=total_resources_count
                 )
             if not path.exists(file_path):
                 with open(file_path, "w") as file2:
@@ -308,6 +318,7 @@ def main() -> int:
                 )
                 result = template.render(
                     fhir_entity=fhir_entity,
+                    total_resources_count=total_resources_count
                 )
 
             if not path.exists(file_path):

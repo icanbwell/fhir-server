@@ -16,7 +16,6 @@
 # import ConsentProvision from "../backbone_elements/consentProvision.graphql"
 
 union ConsentPerformer = Organization | Patient | Practitioner | RelatedPerson | PractitionerRole    
-union ConsentSourceReferenceV2 = Consent | DocumentReference | Contract | QuestionnaireResponse    
 union ConsentSourceReference = Consent | DocumentReference | Contract | QuestionnaireResponse    
 
 
@@ -132,10 +131,6 @@ type Consent {
     None
     """
     sourceAttachment: Attachment        
-    """
-    None
-    """
-    sourceReferenceV2: ConsentSourceReferenceV2        
     """
     None
     """

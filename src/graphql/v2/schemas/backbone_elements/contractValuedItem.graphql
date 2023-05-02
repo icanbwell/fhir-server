@@ -53,10 +53,6 @@ type ContractValuedItem {
     """
     None
     """
-    entityReferenceV2: Resource        
-    """
-    None
-    """
     entityReference: Resource        
     """
     Identifies a Contract Valued Item instance.

@@ -87,10 +87,6 @@ type ExplanationOfBenefitSupportingInfo {
     """
     None
     """
-    valueReferenceV2: Resource        
-    """
-    None
-    """
     valueReference: Resource        
     """
     Provides the reason in the situation where a reason code is required in

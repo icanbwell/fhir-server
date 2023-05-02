@@ -50,9 +50,5 @@ type CommunicationRequestPayload {
     """
     None
     """
-    contentReferenceV2: Resource        
-    """
-    None
-    """
     contentReference: Resource        
 }

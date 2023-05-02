@@ -6,16 +6,6 @@ module.exports = {
     QuestionnaireEnableWhen: {
         // noinspection JSUnusedLocalSymbols
         // eslint-disable-next-line no-unused-vars
-        answerReferenceV2: async (parent, args, context, info) => {
-            return await context.dataApi.findResourceByReference(
-                parent,
-                args,
-                context,
-                info,
-                parent.answerReferenceV2);
-        },
-        // noinspection JSUnusedLocalSymbols
-        // eslint-disable-next-line no-unused-vars
         answerReference: async (parent, args, context, info) => {
             return await context.dataApi.findResourceByReference(
                 parent,

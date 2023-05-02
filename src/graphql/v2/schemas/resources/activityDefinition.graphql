@@ -26,7 +26,6 @@
 # import Dosage from "../backbone_elements/dosage.graphql"
 # import ActivityDefinitionDynamicValue from "../backbone_elements/activityDefinitionDynamicValue.graphql"
 
-union ActivityDefinitionProductReferenceV2 = Medication | Substance    
 union ActivityDefinitionProductReference = Medication | Substance    
 
 
@@ -160,10 +159,6 @@ type ActivityDefinition {
     None
     """
     subjectCodeableConcept: CodeableConcept        
-    """
-    None
-    """
-    subjectReferenceV2: Group        
     """
     None
     """
@@ -336,10 +331,6 @@ type ActivityDefinition {
     Indicates who should participate in performing the action described.
     """
     participant: [ActivityDefinitionParticipant]        
-    """
-    None
-    """
-    productReferenceV2: ActivityDefinitionProductReferenceV2        
     """
     None
     """

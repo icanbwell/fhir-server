@@ -7,7 +7,6 @@
 # import dateTime from "../simple_types/dateTime.graphql"
 # import markdown from "../simple_types/markdown.graphql"
 
-union AnnotationAuthorReferenceV2 = Practitioner | Patient | RelatedPerson | Organization
 union AnnotationAuthorReference = Practitioner | Patient | RelatedPerson | Organization
 
 """
@@ -30,10 +29,6 @@ type Annotation {
     requirements that SHALL be met as part of the definition of the extension.
     """
     extension: [Extension]        
-    """
-    None
-    """
-    authorReferenceV2: AnnotationAuthorReferenceV2        
     """
     None
     """
