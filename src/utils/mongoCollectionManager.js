@@ -9,14 +9,16 @@ const mutex = new Mutex();
 const {IndexManager} = require('../indexes/indexManager');
 const {assertTypeEquals, assertIsValid} = require('./assertType');
 const {ConfigManager} = require('./configManager');
+const {MongoDatabaseManager} = require('./mongoDatabaseManager');
 
 class MongoCollectionManager {
     /**
      * Constructor
      * @param {IndexManager} indexManager
      * @param {ConfigManager} configManager
+     * @param {MongoDatabaseManager} mongoDatabaseManager
      */
-    constructor({indexManager, configManager}) {
+    constructor({indexManager, configManager, mongoDatabaseManager}) {
         /**
          * @type {IndexManager}
          */
@@ -30,9 +32,29 @@ class MongoCollectionManager {
         assertTypeEquals(configManager, ConfigManager);
 
         /**
+         * @type {MongoDatabaseManager}
+         */
+        this.mongoDatabaseManager = mongoDatabaseManager;
+        assertTypeEquals(mongoDatabaseManager, MongoDatabaseManager);
+
+        /**
          * @type {Set}
          */
-        this.databaseCollectionStatusMap = new Set();
+        this.databaseCollectionStatusMap = null;
+    }
+
+    /**
+     * Returns the list of all collection names specific to a db
+     * @return {Promise<void>}
+     */
+    async addExisitingCollectionsToMap() {
+        const fhirDb = await this.mongoDatabaseManager.getClientDbAsync();
+        const auditDb = await this.mongoDatabaseManager.getAuditDbAsync();
+
+        const fhirCollections = await this.getAllCollectionNames({ db: fhirDb });
+        const auditCollections = await this.getAllCollectionNames({ db: auditDb });
+
+        this.databaseCollectionStatusMap = new Set([...fhirCollections, ...auditCollections]);
     }
 
     /**
@@ -45,6 +67,9 @@ class MongoCollectionManager {
         assertIsValid(db !== undefined);
         assertIsValid(collectionName !== undefined);
 
+        if (this.databaseCollectionStatusMap === null) {
+            await this.addExisitingCollectionsToMap();
+        }
         // use mutex to prevent parallel async calls from trying to create the collection at the same time
         if (!this.databaseCollectionStatusMap.has(collectionName)) {
             await mutex.runExclusive(async () => {

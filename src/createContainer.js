@@ -198,7 +198,8 @@ const createContainer = function () {
     container.register('mongoCollectionManager', (c) => new MongoCollectionManager(
         {
             indexManager: c.indexManager,
-            configManager: c.configManager
+            configManager: c.configManager,
+            mongoDatabaseManager: c.mongoDatabaseManager
         }));
     container.register('valueSetManager', (c) => new ValueSetManager(
         {
