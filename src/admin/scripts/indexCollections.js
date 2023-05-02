@@ -50,7 +50,7 @@ async function main() {
  * To run this:
  * nvm use 18.14.2
  * Create .env file in root directory with these variables
- * MONGO_URL, MONGO_HOSTNAME, MONGO_PORT, MONGO_USERNAME, MONGO_PASSWORD, MONGO_DB_NAME
+ * MONGO_URL, MONGO_USERNAME, MONGO_PASSWORD, MONGO_DB_NAME
  * AUDIT_EVENT_MONGO_URL, AUDIT_EVENT_MONGO_USERNAME, AUDIT_EVENT_MONGO_PASSWORD, AUDIT_EVENT_MONGO_DB_NAME
  * Command: node -r dotenv/config src/admin/scripts/indexCollections --collections=Patient_4_0_0 --drop
  * Command: node -r dotenv/config src/admin/scripts/indexCollections --collections=all --drop
