@@ -53,9 +53,5 @@ type Identifier {
     """
     Organization that issued/manages the identifier.
     """
-    assignerV2: Reference        
-    """
-    Organization that issued/manages the identifier.
-    """
     assigner: Organization        
 }

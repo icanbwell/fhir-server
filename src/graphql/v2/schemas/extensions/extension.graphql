@@ -219,10 +219,6 @@ type Extension {
     """
     None
     """
-    valueReferenceV2: Reference        
-    """
-    None
-    """
     valueReference: Resource        
     """
     None
