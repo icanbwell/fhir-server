@@ -52,12 +52,12 @@ async function main() {
  * Create .env file in root directory with these variables
  * MONGO_URL, MONGO_HOSTNAME, MONGO_PORT, MONGO_USERNAME, MONGO_PASSWORD, MONGO_DB_NAME
  * AUDIT_EVENT_MONGO_URL, AUDIT_EVENT_MONGO_USERNAME, AUDIT_EVENT_MONGO_PASSWORD, AUDIT_EVENT_MONGO_DB_NAME
- * node -r dotenv/config src/admin/scripts/indexCollections --collections=Patient_4_0_0 --drop
- * node -r dotenv/config src/admin/scripts/indexCollections --collections=all --drop
- * node -r dotenv/config src/admin/scripts/indexCollections --synchronize
- * node -r dotenv/config src/admin/scripts/indexCollections --audit --synchronize
- * node -r dotenv/config src/admin/scripts/indexCollections --collections=AuditEvent_4_0_0 --drop --audit --includeHistoryCollections
- * node -r dotenv/config src/admin/scripts/indexCollections --collections=AuditEvent_4_0_0 --drop --audit --includeHistoryCollections
+ * Command: node -r dotenv/config src/admin/scripts/indexCollections --collections=Patient_4_0_0 --drop
+ * Command: node -r dotenv/config src/admin/scripts/indexCollections --collections=all --drop
+ * Command: node -r dotenv/config src/admin/scripts/indexCollections --synchronize
+ * Command: node -r dotenv/config src/admin/scripts/indexCollections --audit --synchronize
+ * Command: node -r dotenv/config src/admin/scripts/indexCollections --collections=AuditEvent_4_0_0 --drop --audit --includeHistoryCollections
+ * Command: node -r dotenv/config src/admin/scripts/indexCollections --collections=AuditEvent_4_0_0 --drop --audit --includeHistoryCollections
  * collection can be a regex
  */
 main().catch(reason => {
