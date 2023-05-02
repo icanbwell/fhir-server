@@ -17,7 +17,6 @@ class MongoCollectionManager {
      * @param {ConfigManager} configManager
      */
     constructor({indexManager, configManager}) {
-        assertTypeEquals(indexManager, IndexManager);
         /**
          * @type {IndexManager}
          */
@@ -29,6 +28,11 @@ class MongoCollectionManager {
          */
         this.configManager = configManager;
         assertTypeEquals(configManager, ConfigManager);
+
+        /**
+         * @type {Set}
+         */
+        this.databaseCollectionStatusMap = new Set();
     }
 
     /**
@@ -40,17 +44,24 @@ class MongoCollectionManager {
     async getOrCreateCollectionAsync({db, collectionName}) {
         assertIsValid(db !== undefined);
         assertIsValid(collectionName !== undefined);
+
         // use mutex to prevent parallel async calls from trying to create the collection at the same time
-        await mutex.runExclusive(async () => {
-            const collectionExists = await db.listCollections({name: collectionName}, {nameOnly: true}).hasNext();
-            if (!collectionExists) {
-                await db.createCollection(collectionName);
-                if (this.configManager.createIndexOnCollectionCreation) {
-                    // and index it
-                    await this.indexManager.indexCollectionAsync({collectionName, db});
+        if (!this.databaseCollectionStatusMap.has(collectionName)) {
+            await mutex.runExclusive(async () => {
+                const collectionExists = await db.listCollections({name: collectionName}, {nameOnly: true}).hasNext();
+                if (!collectionExists) {
+                    await db.createCollection(collectionName);
+                    if (this.configManager.createIndexOnCollectionCreation) {
+                        // and index it
+                        await this.indexManager.indexCollectionAsync({collectionName, db});
+                    }
                 }
-            }
-        });
+                this.databaseCollectionStatusMap.add(collectionName);
+            });
+        } else {
+            await mutex.waitForUnlock();
+        }
+
         return db.collection(collectionName);
     }
 
