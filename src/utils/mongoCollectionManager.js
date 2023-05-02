@@ -46,8 +46,8 @@ class MongoCollectionManager {
         assertIsValid(collectionName !== undefined);
 
         // use mutex to prevent parallel async calls from trying to create the collection at the same time
-        await mutex.runExclusive(async () => {
-            if (!this.databaseCollectionStatusMap.has(collectionName)) {
+        if (!this.databaseCollectionStatusMap.has(collectionName)) {
+            await mutex.runExclusive(async () => {
                 const collectionExists = await db.listCollections({name: collectionName}, {nameOnly: true}).hasNext();
                 if (!collectionExists) {
                     await db.createCollection(collectionName);
@@ -57,8 +57,10 @@ class MongoCollectionManager {
                     }
                 }
                 this.databaseCollectionStatusMap.add(collectionName);
-            }
-        });
+            });
+        } else {
+            await mutex.waitForUnlock();
+        }
 
         return db.collection(collectionName);
     }
