@@ -1,10 +1,3 @@
-// load config from .env.  Should be first thing so env vars are available to rest of the code
-const path = require('path');
-const dotenv = require('dotenv');
-const pathToEnv = path.resolve(__dirname, '.env');
-dotenv.config({
-    path: pathToEnv
-});
 const {createContainer} = require('../../createContainer');
 const {CommandLineParser} = require('./commandLineParser');
 const {IndexCollectionsRunner} = require('../runners/indexCollectionsRunner');
@@ -56,12 +49,15 @@ async function main() {
 /**
  * To run this:
  * nvm use 18.14.2
- * node src/admin/scripts/indexCollections --collections=Patient_4_0_0 --drop
- * node src/admin/scripts/indexCollections --collections=all --drop
- * node src/admin/scripts/indexCollections --synchronize
- * node src/admin/scripts/indexCollections --audit --synchronize
- * node src/admin/scripts/indexCollections --collections=AuditEvent_4_0_0 --drop --audit --includeHistoryCollections
- * node src/admin/scripts/indexCollections --collections=AuditEvent_4_0_0 --drop --audit --includeHistoryCollections
+ * Create .env file in root directory with these variables
+ * MONGO_URL, MONGO_USERNAME, MONGO_PASSWORD, MONGO_DB_NAME
+ * AUDIT_EVENT_MONGO_URL, AUDIT_EVENT_MONGO_USERNAME, AUDIT_EVENT_MONGO_PASSWORD, AUDIT_EVENT_MONGO_DB_NAME
+ * Command: node -r dotenv/config src/admin/scripts/indexCollections --collections=Patient_4_0_0 --drop
+ * Command: node -r dotenv/config src/admin/scripts/indexCollections --collections=all --drop
+ * Command: node -r dotenv/config src/admin/scripts/indexCollections --synchronize
+ * Command: node -r dotenv/config src/admin/scripts/indexCollections --audit --synchronize
+ * Command: node -r dotenv/config src/admin/scripts/indexCollections --collections=AuditEvent_4_0_0 --drop --audit --includeHistoryCollections
+ * Command: node -r dotenv/config src/admin/scripts/indexCollections --collections=AuditEvent_4_0_0 --drop --audit --includeHistoryCollections
  * collection can be a regex
  */
 main().catch(reason => {

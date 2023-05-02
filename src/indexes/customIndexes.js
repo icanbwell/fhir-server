@@ -131,6 +131,14 @@ module.exports = {
                     // unique: true,
                     name: 'resource_by_uuid'
                 }
+            },
+            {
+                keys: {
+                    'resource.meta.lastUpdated': 1
+                },
+                options: {
+                    name: 'history_resource_lastUpdated'
+                }
             }
         ],
         'AuditEvent_4_0_0': [
