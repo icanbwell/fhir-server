@@ -8,7 +8,7 @@
 # import Extension from "../extensions/extension.graphql"
 # import Identifier from "../complex_types/identifier.graphql"
 # import integer from "../simple_types/int.graphql"
-# import Reference from "../complex_types/reference.graphql"
+# import Patient from "../resources/patient.graphql"
 # import Quantity from "../complex_types/quantity.graphql"
 # import MolecularSequenceReferenceSeq from "../backbone_elements/molecularSequenceReferenceSeq.graphql"
 # import MolecularSequenceVariant from "../backbone_elements/molecularSequenceVariant.graphql"

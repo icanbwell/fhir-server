@@ -6,11 +6,12 @@
 # import Narrative from "../complex_types/narrative.graphql"
 # import ResourceContainer from "../simple_types/resourceContainer.graphql"
 # import Extension from "../extensions/extension.graphql"
-# import Reference from "../complex_types/reference.graphql"
+# import MedicinalProduct from "../resources/medicinalProduct.graphql"
+# import Medication from "../resources/medication.graphql"
 # import CodeableConcept from "../complex_types/codeableConcept.graphql"
 # import Population from "../backbone_elements/population.graphql"
 
-union MedicinalProductUndesirableEffectSubject = MedicinalProduct | Medication    
+union MedicinalProductUndesirableEffectSubject = MedicinalProduct | Medication
 
 
 """

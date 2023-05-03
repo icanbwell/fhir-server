@@ -16,7 +16,7 @@
 # import date from "../simple_types/date.graphql"
 # import Period from "../complex_types/period.graphql"
 # import RelatedArtifact from "../complex_types/relatedArtifact.graphql"
-# import Reference from "../complex_types/reference.graphql"
+# import EvidenceVariable from "../resources/evidenceVariable.graphql"
 
 
 

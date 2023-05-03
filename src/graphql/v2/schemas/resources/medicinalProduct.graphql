@@ -10,12 +10,12 @@
 # import CodeableConcept from "../complex_types/codeableConcept.graphql"
 # import Coding from "../complex_types/coding.graphql"
 # import MarketingStatus from "../backbone_elements/marketingStatus.graphql"
-# import Reference from "../complex_types/reference.graphql"
+# import MedicinalProductPharmaceutical from "../resources/medicinalProductPharmaceutical.graphql"
 # import MedicinalProductName from "../backbone_elements/medicinalProductName.graphql"
 # import MedicinalProductManufacturingBusinessOperation from "../backbone_elements/medicinalProductManufacturingBusinessOperation.graphql"
 # import MedicinalProductSpecialDesignation from "../backbone_elements/medicinalProductSpecialDesignation.graphql"
 
-union MedicinalProductContact = Organization | PractitionerRole    
+union MedicinalProductContact = Organization | PractitionerRole
 
 
 """

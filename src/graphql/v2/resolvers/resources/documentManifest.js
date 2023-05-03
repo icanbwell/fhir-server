@@ -30,11 +30,6 @@ module.exports = {
             return context.dataApi.resolveType(obj, context, info);
         },
     },
-    DocumentManifestContentV2: {
-        __resolveType(obj, context, info) {
-            return context.dataApi.resolveType(obj, context, info);
-        },
-    },
     DocumentManifest: {
         // noinspection JSUnusedLocalSymbols
         // eslint-disable-next-line no-unused-vars
@@ -65,16 +60,6 @@ module.exports = {
                 context,
                 info,
                 parent.recipient);
-        },
-        // noinspection JSUnusedLocalSymbols
-        // eslint-disable-next-line no-unused-vars
-        contentV2: async (parent, args, context, info) => {
-            return await context.dataApi.findResourcesByReference(
-                parent,
-                args,
-                context,
-                info,
-                parent.contentV2);
         },
         // noinspection JSUnusedLocalSymbols
         // eslint-disable-next-line no-unused-vars

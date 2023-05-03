@@ -3,22 +3,7 @@
 
 // noinspection JSUnusedLocalSymbols
 module.exports = {
-    CompositionEventDetailV2: {
-        __resolveType(obj, context, info) {
-            return context.dataApi.resolveType(obj, context, info);
-        },
-    },
     CompositionEvent: {
-        // noinspection JSUnusedLocalSymbols
-        // eslint-disable-next-line no-unused-vars
-        detailV2: async (parent, args, context, info) => {
-            return await context.dataApi.findResourcesByReference(
-                parent,
-                args,
-                context,
-                info,
-                parent.detailV2);
-        },
         // noinspection JSUnusedLocalSymbols
         // eslint-disable-next-line no-unused-vars
         detail: async (parent, args, context, info) => {

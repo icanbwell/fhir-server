@@ -8,7 +8,7 @@
 # import Extension from "../extensions/extension.graphql"
 # import CodeableConcept from "../complex_types/codeableConcept.graphql"
 # import Quantity from "../complex_types/quantity.graphql"
-# import Reference from "../complex_types/reference.graphql"
+# import Organization from "../resources/organization.graphql"
 # import ProdCharacteristic from "../backbone_elements/prodCharacteristic.graphql"
 
 

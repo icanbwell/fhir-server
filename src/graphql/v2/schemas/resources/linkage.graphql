@@ -6,10 +6,12 @@
 # import Narrative from "../complex_types/narrative.graphql"
 # import ResourceContainer from "../simple_types/resourceContainer.graphql"
 # import Extension from "../extensions/extension.graphql"
-# import Reference from "../complex_types/reference.graphql"
+# import Practitioner from "../resources/practitioner.graphql"
+# import PractitionerRole from "../resources/practitionerRole.graphql"
+# import Organization from "../resources/organization.graphql"
 # import LinkageItem from "../backbone_elements/linkageItem.graphql"
 
-union LinkageAuthor = Practitioner | PractitionerRole | Organization    
+union LinkageAuthor = Practitioner | PractitionerRole | Organization
 
 
 """
