@@ -115,6 +115,11 @@ const verify = (jwt_payload, done) => {
             const personIdFromJwtToken = jwt_payload['custom:bwell_fhir_person_id'];
             if (personIdFromJwtToken) {
                 context['personIdFromJwtToken'] = personIdFromJwtToken;
+            } else {
+                const personIdFromJwtToken2 = jwt_payload['custom:bwellFhirPersonId'];
+                if (personIdFromJwtToken2) {
+                    context['personIdFromJwtToken'] = personIdFromJwtToken2;
+                }
             }
         }
 
