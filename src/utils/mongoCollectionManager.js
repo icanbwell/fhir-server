@@ -41,7 +41,7 @@ class MongoCollectionManager {
         /**
          * @type {Set}
          */
-        this.databaseCollectionStatusMap = null;
+        this.databaseCollectionNameSet = null;
     }
 
     /**
@@ -49,16 +49,16 @@ class MongoCollectionManager {
      * @return {Promise<void>}
      */
     async addExisitingCollectionsToMap() {
-        if (this.databaseCollectionStatusMap === null) {
+        if (this.databaseCollectionNameSet === null) {
             const fhirDb = await this.mongoDatabaseManager.getClientDbAsync();
             const auditDb = await this.mongoDatabaseManager.getAuditDbAsync();
 
             const fhirCollections = await this.getAllCollectionNames({db: fhirDb});
             const auditCollections = await this.getAllCollectionNames({db: auditDb});
 
-            this.databaseCollectionStatusMap = new Set([...fhirCollections, ...auditCollections]);
+            this.databaseCollectionNameSet = new Set([...fhirCollections, ...auditCollections]);
 
-            logInfo('Collection added to cache', [...fhirCollections, ...auditCollections]);
+            logInfo('Collection added to cache', Array.from(this.databaseCollectionNameSet));
         } else {
             logInfo('No collections added to cache', []);
         }
@@ -75,11 +75,11 @@ class MongoCollectionManager {
         assertIsValid(collectionName !== undefined);
 
         // use mutex to prevent parallel async calls from trying to create the collection at the same time
-        if (this.databaseCollectionStatusMap === null || !this.databaseCollectionStatusMap.has(collectionName)) {
+        if (this.databaseCollectionNameSet === null || !this.databaseCollectionNameSet.has(collectionName)) {
             await mutex.runExclusive(async () => {
-                if (this.databaseCollectionStatusMap === null) {
+                if (this.databaseCollectionNameSet === null) {
                     await this.addExisitingCollectionsToMap();
-                    if (this.databaseCollectionStatusMap.has(collectionName)) {
+                    if (this.databaseCollectionNameSet.has(collectionName)) {
                         return;
                     }
                 }
@@ -91,7 +91,7 @@ class MongoCollectionManager {
                         await this.indexManager.indexCollectionAsync({collectionName, db});
                     }
                 }
-                this.databaseCollectionStatusMap.add(collectionName);
+                this.databaseCollectionNameSet.add(collectionName);
             });
         } else {
             await mutex.waitForUnlock();
