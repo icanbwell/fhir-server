@@ -31,12 +31,12 @@ describe('mongoCollectionManager cache Test', () => {
 
             await mongoCollectionManager.getOrCreateCollectionAsync({db, collectionName: documentReferenceCollection});
 
-            expect(mongoCollectionManager.databaseCollectionStatusMap.size).toEqual(1);
-            expect(mongoCollectionManager.databaseCollectionStatusMap.has(documentReferenceCollection)).toBeTrue();
+            expect(mongoCollectionManager.databaseCollectionNameSet.size).toEqual(1);
+            expect(mongoCollectionManager.databaseCollectionNameSet.has(documentReferenceCollection)).toBeTrue();
 
             await mongoCollectionManager.getOrCreateCollectionAsync({db, collectionName: documentReferenceCollection});
 
-            expect(mongoCollectionManager.databaseCollectionStatusMap.size).toEqual(1);
+            expect(mongoCollectionManager.databaseCollectionNameSet.size).toEqual(1);
         });
 
         test('exisiting collection added in map', async () => {
@@ -60,9 +60,9 @@ describe('mongoCollectionManager cache Test', () => {
 
             await mongoCollectionManager.getOrCreateCollectionAsync({db, collectionName: documentReferenceCollection});
 
-            expect(mongoCollectionManager.databaseCollectionStatusMap.size).toEqual(2);
-            expect(mongoCollectionManager.databaseCollectionStatusMap.has(documentReferenceCollection)).toBeTrue();
-            expect(mongoCollectionManager.databaseCollectionStatusMap.has(patientCollection)).toBeTrue();
+            expect(mongoCollectionManager.databaseCollectionNameSet.size).toEqual(2);
+            expect(mongoCollectionManager.databaseCollectionNameSet.has(documentReferenceCollection)).toBeTrue();
+            expect(mongoCollectionManager.databaseCollectionNameSet.has(patientCollection)).toBeTrue();
         });
     });
 });
