@@ -40,9 +40,21 @@ describe('mongoCollectionManager cache Test', () => {
         });
 
         test('exisiting collection added in map', async () => {
-            const container = await createTestContainer();
             const documentReferenceCollection = 'DocumentReference_4_0_0';
             const patientCollection = 'Patient_4_0_0';
+            let container = await createTestContainer();
+
+            /**
+             * @type {MongoDatabaseManager}
+             */
+            let mongoDatabaseManager = container.mongoDatabaseManager;
+
+            let db = await mongoDatabaseManager.getClientDbAsync();
+
+            await db.createCollection(patientCollection);
+
+            container = await createTestContainer();
+
             /*
             * @type {MongoCollectionManager}
             */
@@ -51,11 +63,9 @@ describe('mongoCollectionManager cache Test', () => {
             /**
              * @type {MongoDatabaseManager}
              */
-            const mongoDatabaseManager = container.mongoDatabaseManager;
+            mongoDatabaseManager = container.mongoDatabaseManager;
 
-            const db = await mongoDatabaseManager.getClientDbAsync();
-
-            await db.createCollection(patientCollection);
+            db = await mongoDatabaseManager.getClientDbAsync();
 
             await mongoCollectionManager.getOrCreateCollectionAsync({db, collectionName: documentReferenceCollection});
 

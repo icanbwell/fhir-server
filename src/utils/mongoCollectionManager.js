@@ -40,7 +40,8 @@ class MongoCollectionManager {
         /**
          * @type {Set}
          */
-        this.databaseCollectionStatusMap = null;
+        this.databaseCollectionStatusMap = new Set();
+        this.addExisitingCollectionsToMap();
     }
 
     /**
@@ -67,9 +68,6 @@ class MongoCollectionManager {
         assertIsValid(db !== undefined);
         assertIsValid(collectionName !== undefined);
 
-        if (this.databaseCollectionStatusMap === null) {
-            await this.addExisitingCollectionsToMap();
-        }
         // use mutex to prevent parallel async calls from trying to create the collection at the same time
         if (!this.databaseCollectionStatusMap.has(collectionName)) {
             await mutex.runExclusive(async () => {
