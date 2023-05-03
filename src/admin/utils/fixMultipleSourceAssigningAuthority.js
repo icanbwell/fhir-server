@@ -81,7 +81,7 @@ function fixResource(resource) {
 
     let newSourceAssigningAuthority = sourceAssigningAuthorities.length ? sourceAssigningAuthorities[0] : new Coding({
         system: SecurityTagSystem.sourceAssigningAuthority,
-        code: owners[0],
+        code: owners[0].code,
     });
     securityWithoutOriginalAuthority.push(newSourceAssigningAuthority);
     resource._sourceAssigningAuthority = newSourceAssigningAuthority.code;
