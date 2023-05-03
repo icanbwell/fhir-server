@@ -5,7 +5,7 @@
 # import ContactPoint from "../complex_types/contactPoint.graphql"
 # import Address from "../complex_types/address.graphql"
 # import code from "../simple_types/code.graphql"
-# import Reference from "../complex_types/reference.graphql"
+# import Organization from "../resources/organization.graphql"
 # import Period from "../complex_types/period.graphql"
 
 

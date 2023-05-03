@@ -8,11 +8,6 @@ module.exports = {
             return context.dataApi.resolveType(obj, context, info);
         },
     },
-    ImmunizationRecommendationRecommendationSupportingPatientInformationV2: {
-        __resolveType(obj, context, info) {
-            return context.dataApi.resolveType(obj, context, info);
-        },
-    },
     ImmunizationRecommendationRecommendation: {
         // noinspection JSUnusedLocalSymbols
         // eslint-disable-next-line no-unused-vars
@@ -23,16 +18,6 @@ module.exports = {
                 context,
                 info,
                 parent.supportingImmunization);
-        },
-        // noinspection JSUnusedLocalSymbols
-        // eslint-disable-next-line no-unused-vars
-        supportingPatientInformationV2: async (parent, args, context, info) => {
-            return await context.dataApi.findResourcesByReference(
-                parent,
-                args,
-                context,
-                info,
-                parent.supportingPatientInformationV2);
         },
         // noinspection JSUnusedLocalSymbols
         // eslint-disable-next-line no-unused-vars

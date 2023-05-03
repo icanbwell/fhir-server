@@ -2,7 +2,12 @@
 # import Extension from "../extensions/extension.graphql"
 # import positiveInt from "../simple_types/int.graphql"
 # import Period from "../complex_types/period.graphql"
-# import Reference from "../complex_types/reference.graphql"
+# import Patient from "../resources/patient.graphql"
+# import Practitioner from "../resources/practitioner.graphql"
+# import PractitionerRole from "../resources/practitionerRole.graphql"
+# import RelatedPerson from "../resources/relatedPerson.graphql"
+# import Group from "../resources/group.graphql"
+# import Organization from "../resources/organization.graphql"
 
 union TaskRestrictionRecipient = Patient | Practitioner | PractitionerRole | RelatedPerson | Group | Organization
 

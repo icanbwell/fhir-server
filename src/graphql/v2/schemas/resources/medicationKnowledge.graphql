@@ -7,7 +7,7 @@
 # import ResourceContainer from "../simple_types/resourceContainer.graphql"
 # import Extension from "../extensions/extension.graphql"
 # import CodeableConcept from "../complex_types/codeableConcept.graphql"
-# import Reference from "../complex_types/reference.graphql"
+# import Organization from "../resources/organization.graphql"
 # import Quantity from "../complex_types/quantity.graphql"
 # import MedicationKnowledgeRelatedMedicationKnowledge from "../backbone_elements/medicationKnowledgeRelatedMedicationKnowledge.graphql"
 # import MedicationKnowledgeMonograph from "../backbone_elements/medicationKnowledgeMonograph.graphql"

@@ -16,7 +16,7 @@
 # import date from "../simple_types/date.graphql"
 # import Period from "../complex_types/period.graphql"
 # import RelatedArtifact from "../complex_types/relatedArtifact.graphql"
-# import Reference from "../complex_types/reference.graphql"
+# import EvidenceVariable from "../resources/evidenceVariable.graphql"
 # import RiskEvidenceSynthesisSampleSize from "../backbone_elements/riskEvidenceSynthesisSampleSize.graphql"
 # import RiskEvidenceSynthesisRiskEstimate from "../backbone_elements/riskEvidenceSynthesisRiskEstimate.graphql"
 # import RiskEvidenceSynthesisCertainty from "../backbone_elements/riskEvidenceSynthesisCertainty.graphql"

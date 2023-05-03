@@ -7,7 +7,11 @@
 # import ResourceContainer from "../simple_types/resourceContainer.graphql"
 # import Extension from "../extensions/extension.graphql"
 # import Identifier from "../complex_types/identifier.graphql"
-# import Reference from "../complex_types/reference.graphql"
+# import CarePlan from "../resources/carePlan.graphql"
+# import ImmunizationRecommendation from "../resources/immunizationRecommendation.graphql"
+# import MedicationRequest from "../resources/medicationRequest.graphql"
+# import NutritionOrder from "../resources/nutritionOrder.graphql"
+# import ServiceRequest from "../resources/serviceRequest.graphql"
 # import CodeableConcept from "../complex_types/codeableConcept.graphql"
 # import dateTime from "../simple_types/dateTime.graphql"
 # import Period from "../complex_types/period.graphql"
@@ -15,10 +19,10 @@
 # import DiagnosticReportMedia from "../backbone_elements/diagnosticReportMedia.graphql"
 # import Attachment from "../complex_types/attachment.graphql"
 
-union DiagnosticReportBasedOn = CarePlan | ImmunizationRecommendation | MedicationRequest | NutritionOrder | ServiceRequest    
-union DiagnosticReportSubject = Patient | Group | Device | Location    
-union DiagnosticReportPerformer = Practitioner | PractitionerRole | Organization | CareTeam    
-union DiagnosticReportResultsInterpreter = Practitioner | PractitionerRole | Organization | CareTeam    
+union DiagnosticReportBasedOn = CarePlan | ImmunizationRecommendation | MedicationRequest | NutritionOrder | ServiceRequest
+union DiagnosticReportSubject = Patient | Group | Device | Location
+union DiagnosticReportPerformer = Practitioner | PractitionerRole | Organization | CareTeam
+union DiagnosticReportResultsInterpreter = Practitioner | PractitionerRole | Organization | CareTeam
 
 
 """

@@ -8,12 +8,22 @@
 # import Extension from "../extensions/extension.graphql"
 # import Identifier from "../complex_types/identifier.graphql"
 # import CodeableConcept from "../complex_types/codeableConcept.graphql"
-# import Reference from "../complex_types/reference.graphql"
+# import Medication from "../resources/medication.graphql"
+# import Device from "../resources/device.graphql"
+# import Organization from "../resources/organization.graphql"
+# import Practitioner from "../resources/practitioner.graphql"
+# import PractitionerRole from "../resources/practitionerRole.graphql"
+# import HealthcareService from "../resources/healthcareService.graphql"
+# import ActivityDefinition from "../resources/activityDefinition.graphql"
+# import PlanDefinition from "../resources/planDefinition.graphql"
+# import SpecimenDefinition from "../resources/specimenDefinition.graphql"
+# import ObservationDefinition from "../resources/observationDefinition.graphql"
+# import Binary from "../resources/binary.graphql"
 # import Period from "../complex_types/period.graphql"
 # import dateTime from "../simple_types/dateTime.graphql"
 # import CatalogEntryRelatedEntry from "../backbone_elements/catalogEntryRelatedEntry.graphql"
 
-union CatalogEntryReferencedItem = Medication | Device | Organization | Practitioner | PractitionerRole | HealthcareService | ActivityDefinition | PlanDefinition | SpecimenDefinition | ObservationDefinition | Binary    
+union CatalogEntryReferencedItem = Medication | Device | Organization | Practitioner | PractitionerRole | HealthcareService | ActivityDefinition | PlanDefinition | SpecimenDefinition | ObservationDefinition | Binary
 
 
 """

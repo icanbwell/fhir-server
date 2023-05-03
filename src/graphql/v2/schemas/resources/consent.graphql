@@ -8,15 +8,15 @@
 # import Extension from "../extensions/extension.graphql"
 # import Identifier from "../complex_types/identifier.graphql"
 # import CodeableConcept from "../complex_types/codeableConcept.graphql"
-# import Reference from "../complex_types/reference.graphql"
+# import Patient from "../resources/patient.graphql"
 # import dateTime from "../simple_types/dateTime.graphql"
 # import Attachment from "../complex_types/attachment.graphql"
 # import ConsentPolicy from "../backbone_elements/consentPolicy.graphql"
 # import ConsentVerification from "../backbone_elements/consentVerification.graphql"
 # import ConsentProvision from "../backbone_elements/consentProvision.graphql"
 
-union ConsentPerformer = Organization | Patient | Practitioner | RelatedPerson | PractitionerRole    
-union ConsentSourceReference = Consent | DocumentReference | Contract | QuestionnaireResponse    
+union ConsentPerformer = Organization | Patient | Practitioner | RelatedPerson | PractitionerRole
+union ConsentSourceReference = Consent | DocumentReference | Contract | QuestionnaireResponse
 
 
 """

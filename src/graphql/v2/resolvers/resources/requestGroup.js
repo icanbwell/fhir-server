@@ -15,16 +15,6 @@ module.exports = {
             );
         }
     },
-    RequestGroupBasedOnV2: {
-        __resolveType(obj, context, info) {
-            return context.dataApi.resolveType(obj, context, info);
-        },
-    },
-    RequestGroupReplacesV2: {
-        __resolveType(obj, context, info) {
-            return context.dataApi.resolveType(obj, context, info);
-        },
-    },
     RequestGroupSubject: {
         __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
@@ -43,16 +33,6 @@ module.exports = {
     RequestGroup: {
         // noinspection JSUnusedLocalSymbols
         // eslint-disable-next-line no-unused-vars
-        basedOnV2: async (parent, args, context, info) => {
-            return await context.dataApi.findResourcesByReference(
-                parent,
-                args,
-                context,
-                info,
-                parent.basedOnV2);
-        },
-        // noinspection JSUnusedLocalSymbols
-        // eslint-disable-next-line no-unused-vars
         basedOn: async (parent, args, context, info) => {
             return await context.dataApi.findResourcesByReference(
                 parent,
@@ -60,16 +40,6 @@ module.exports = {
                 context,
                 info,
                 parent.basedOn);
-        },
-        // noinspection JSUnusedLocalSymbols
-        // eslint-disable-next-line no-unused-vars
-        replacesV2: async (parent, args, context, info) => {
-            return await context.dataApi.findResourcesByReference(
-                parent,
-                args,
-                context,
-                info,
-                parent.replacesV2);
         },
         // noinspection JSUnusedLocalSymbols
         // eslint-disable-next-line no-unused-vars

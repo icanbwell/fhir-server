@@ -33,7 +33,7 @@
 # import Quantity from "../complex_types/quantity.graphql"
 # import Range from "../complex_types/range.graphql"
 # import Ratio from "../complex_types/ratio.graphql"
-# import Reference from "../complex_types/reference.graphql"
+# import Resource from "../resources/resource.graphql"
 # import SampledData from "../complex_types/sampledData.graphql"
 # import Signature from "../complex_types/signature.graphql"
 # import Timing from "../backbone_elements/timing.graphql"
