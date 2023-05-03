@@ -42,13 +42,13 @@ function fixPractitionerResource(resource, fixMultipleOwners) {
 
     let newSourceAssigningAuthority = sourceAssigningAuthorities.find(s => s.code === NPPES);
     if (!newSourceAssigningAuthority) {
-        const npiIdentifier = resource.identifier.find(i => i.system === NPI_SYSTEM);
-        if (npiIdentifier && (npiIdentifier.value === resource.id || npiIdentifier.value === resource._sourceId)) {
+        // const npiIdentifier = resource.identifier.find(i => i.code === NPI_SYSTEM);
+        // if (npiIdentifier && (npiIdentifier.value === resource.id || npiIdentifier.value === resource._sourceId)) {
             newSourceAssigningAuthority = new Coding({
                 system: SecurityTagSystem.sourceAssigningAuthority,
                 code: NPPES,
             });
-        }
+        // }
     }
     if (!newSourceAssigningAuthority && source && PRACTITIONER_SOURCE_OWNER_MAP[`${source}`]) {
         newSourceAssigningAuthority = sourceAssigningAuthorities.find(s => s.code === PRACTITIONER_SOURCE_OWNER_MAP[`${source}`]);
