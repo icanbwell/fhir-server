@@ -10,6 +10,7 @@ const {IndexManager} = require('../indexes/indexManager');
 const {assertTypeEquals, assertIsValid} = require('./assertType');
 const {ConfigManager} = require('./configManager');
 const {MongoDatabaseManager} = require('./mongoDatabaseManager');
+const {logInfo} = require('../operations/common/logging');
 
 class MongoCollectionManager {
     /**
@@ -44,7 +45,7 @@ class MongoCollectionManager {
     }
 
     /**
-     * Returns the list of all collection names specific to a db
+     * adds existing collections in db to databaseCollectionStatusMap
      * @return {Promise<void>}
      */
     async addExisitingCollectionsToMap() {
@@ -56,6 +57,10 @@ class MongoCollectionManager {
             const auditCollections = await this.getAllCollectionNames({db: auditDb});
 
             this.databaseCollectionStatusMap = new Set([...fhirCollections, ...auditCollections]);
+
+            logInfo('Collection added to cache', [...fhirCollections, ...auditCollections]);
+        } else {
+            logInfo('No collections added to cache', []);
         }
     }
 
