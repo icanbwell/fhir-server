@@ -183,7 +183,7 @@ class FixMultipleSourceAssigningAuthorityRunner extends BaseBulkOperationRunner 
                  */
 
 
-                const query = this.beforeLastUpdatedDate ? {
+                let query = this.beforeLastUpdatedDate ? {
                     'meta.lastUpdated': {
                         $lt: this.beforeLastUpdatedDate,
                     },
@@ -227,6 +227,19 @@ class FixMultipleSourceAssigningAuthorityRunner extends BaseBulkOperationRunner 
                     ], { allowDiskUse: true }).toArray();
 
                     idList = result.map(obj => obj._id);
+                }
+
+                if (collectionName === 'Practitioner_4_0_0') {
+                    query = {
+                        $and: [
+                            query,
+                            {
+                                _sourceId: { $regex: '^[0-9]{10}$' },
+                                _sourceAssigningAuthority: {
+                                    $ne: 'nppes', $eq: 'medstar',
+                                },
+                            }],
+                    };
                 }
 
                 try {
