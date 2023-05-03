@@ -40,8 +40,7 @@ class MongoCollectionManager {
         /**
          * @type {Set}
          */
-        this.databaseCollectionStatusMap = new Set();
-        this.addExisitingCollectionsToMap();
+        this.databaseCollectionStatusMap = null;
     }
 
     /**
@@ -49,13 +48,15 @@ class MongoCollectionManager {
      * @return {Promise<void>}
      */
     async addExisitingCollectionsToMap() {
-        const fhirDb = await this.mongoDatabaseManager.getClientDbAsync();
-        const auditDb = await this.mongoDatabaseManager.getAuditDbAsync();
+        if (this.databaseCollectionStatusMap === null) {
+            const fhirDb = await this.mongoDatabaseManager.getClientDbAsync();
+            const auditDb = await this.mongoDatabaseManager.getAuditDbAsync();
 
-        const fhirCollections = await this.getAllCollectionNames({ db: fhirDb });
-        const auditCollections = await this.getAllCollectionNames({ db: auditDb });
+            const fhirCollections = await this.getAllCollectionNames({db: fhirDb});
+            const auditCollections = await this.getAllCollectionNames({db: auditDb});
 
-        this.databaseCollectionStatusMap = new Set([...fhirCollections, ...auditCollections]);
+            this.databaseCollectionStatusMap = new Set([...fhirCollections, ...auditCollections]);
+        }
     }
 
     /**
@@ -69,8 +70,14 @@ class MongoCollectionManager {
         assertIsValid(collectionName !== undefined);
 
         // use mutex to prevent parallel async calls from trying to create the collection at the same time
-        if (!this.databaseCollectionStatusMap.has(collectionName)) {
+        if (this.databaseCollectionStatusMap === null || !this.databaseCollectionStatusMap.has(collectionName)) {
             await mutex.runExclusive(async () => {
+                if (this.databaseCollectionStatusMap === null) {
+                    await this.addExisitingCollectionsToMap();
+                    if (this.databaseCollectionStatusMap.has(collectionName)) {
+                        return;
+                    }
+                }
                 const collectionExists = await db.listCollections({name: collectionName}, {nameOnly: true}).hasNext();
                 if (!collectionExists) {
                     await db.createCollection(collectionName);
