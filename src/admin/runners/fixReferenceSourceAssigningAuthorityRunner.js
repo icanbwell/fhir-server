@@ -383,13 +383,20 @@ class FixReferenceSourceAssigningAuthorityRunner extends BaseBulkOperationRunner
                             }
                         );
                         reference._sourceAssigningAuthority = doc._sourceAssigningAuthority;
-                        reference._uuid = generateUUIDv5(`${id}|${reference._sourceAssigningAuthority}`);
+                        const newUUID = generateUUIDv5(`${id}|${reference._sourceAssigningAuthority}`);
+                        reference._uuid = `${resourceType}/${newUUID}`;
                         if (reference.extension) {
                             const uuidExtension = reference.extension.find(e => e.id === 'uuid');
                             if (uuidExtension) {
                                 uuidExtension.valueString = reference._uuid;
                             }
+                            const sourceAssigningAuthorityExtension = reference.extension.find(
+                                e => e.id === 'sourceAssigningAuthority');
+                            if (sourceAssigningAuthorityExtension) {
+                                sourceAssigningAuthorityExtension.valueString = reference._sourceAssigningAuthority;
+                            }
                         }
+
                         if (!cache.has(reference._uuid)) {
                             cache.set(reference._uuid, {
                                 _uuid: reference._uuid,
