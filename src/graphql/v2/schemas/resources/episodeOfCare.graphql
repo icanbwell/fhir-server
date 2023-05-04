@@ -10,7 +10,7 @@
 # import EpisodeOfCareStatusHistory from "../backbone_elements/episodeOfCareStatusHistory.graphql"
 # import CodeableConcept from "../complex_types/codeableConcept.graphql"
 # import EpisodeOfCareDiagnosis from "../backbone_elements/episodeOfCareDiagnosis.graphql"
-# import Patient from "../resources/patient.graphql"
+# import Reference from "../complex_types/reference.graphql"
 # import Period from "../complex_types/period.graphql"
 
 union EpisodeOfCareCareManager = Practitioner | PractitionerRole

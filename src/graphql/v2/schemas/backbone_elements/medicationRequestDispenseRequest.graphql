@@ -5,7 +5,7 @@
 # import Period from "../complex_types/period.graphql"
 # import unsignedInt from "../simple_types/unsignedInt.graphql"
 # import Quantity from "../complex_types/quantity.graphql"
-# import Organization from "../resources/organization.graphql"
+# import Reference from "../complex_types/reference.graphql"
 
 
 """

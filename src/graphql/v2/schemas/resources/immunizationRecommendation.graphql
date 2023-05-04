@@ -7,7 +7,7 @@
 # import ResourceContainer from "../simple_types/resourceContainer.graphql"
 # import Extension from "../extensions/extension.graphql"
 # import Identifier from "../complex_types/identifier.graphql"
-# import Patient from "../resources/patient.graphql"
+# import Reference from "../complex_types/reference.graphql"
 # import dateTime from "../simple_types/dateTime.graphql"
 # import ImmunizationRecommendationRecommendation from "../backbone_elements/immunizationRecommendationRecommendation.graphql"
 

@@ -22,6 +22,7 @@ module.exports = {
         }
     },
 {% for property in fhir_entity.properties %}
+{% if not property.is_v2_supported or (property.is_v2_supported and property.reference_target_resources|length == total_resources_count) %}
 {% if property.reference_target_resources -%}
     {% if property.reference_target_resources | length > 1  %}
     {{fhir_entity.cleaned_name}}{{ upper_case_first_letter(property.name) }}: {
@@ -31,10 +32,13 @@ module.exports = {
     },
     {%  endif %}
 {% endif -%}
+{% endif %}
 {% endfor %}
     {{  fhir_entity.cleaned_name }}: {
     {% for property in fhir_entity.properties %}
+        {% if not property.is_v2_supported or (property.is_v2_supported and property.reference_target_resources|length == total_resources_count) %}
         {% if property.reference_target_resources %}
+        {% set property_name = property.name|replace('V2', '') if property.is_v2_supported else property.name %}
         // noinspection JSUnusedLocalSymbols
         // eslint-disable-next-line no-unused-vars
         {{ property.name -}}: async (parent, args, context, info) => {
@@ -44,7 +48,7 @@ module.exports = {
                 args,
                 context,
                 info,
-                parent.{{ property.name -}}
+                parent.{{ property_name -}}
             );
             {% else %}
             return await context.dataApi.findResourceByReference(
@@ -52,11 +56,12 @@ module.exports = {
                 args,
                 context,
                 info,
-                parent.{{ property.name -}}
+                parent.{{ property_name -}}
             );
             {%  endif %}
         },
         {%  endif %}
+        {% endif %}
     {% endfor %}
     }
 };

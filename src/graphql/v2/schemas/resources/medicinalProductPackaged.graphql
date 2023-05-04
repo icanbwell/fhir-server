@@ -7,7 +7,7 @@
 # import ResourceContainer from "../simple_types/resourceContainer.graphql"
 # import Extension from "../extensions/extension.graphql"
 # import Identifier from "../complex_types/identifier.graphql"
-# import MedicinalProduct from "../resources/medicinalProduct.graphql"
+# import Reference from "../complex_types/reference.graphql"
 # import CodeableConcept from "../complex_types/codeableConcept.graphql"
 # import MarketingStatus from "../backbone_elements/marketingStatus.graphql"
 # import MedicinalProductPackagedBatchIdentifier from "../backbone_elements/medicinalProductPackagedBatchIdentifier.graphql"

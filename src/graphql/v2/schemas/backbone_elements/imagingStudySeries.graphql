@@ -3,7 +3,7 @@
 # import id from "../simple_types/id.graphql"
 # import unsignedInt from "../simple_types/unsignedInt.graphql"
 # import Coding from "../complex_types/coding.graphql"
-# import Endpoint from "../resources/endpoint.graphql"
+# import Reference from "../complex_types/reference.graphql"
 # import dateTime from "../simple_types/dateTime.graphql"
 # import ImagingStudyPerformer from "../backbone_elements/imagingStudyPerformer.graphql"
 # import ImagingStudyInstance from "../backbone_elements/imagingStudyInstance.graphql"

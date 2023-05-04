@@ -3,7 +3,22 @@
 
 // noinspection JSUnusedLocalSymbols
 module.exports = {
+    CoverageEligibilityRequestSupportingInfoInformationV2: {
+        __resolveType(obj, context, info) {
+            return context.dataApi.resolveType(obj, context, info);
+        },
+    },
     CoverageEligibilityRequestSupportingInfo: {
+        // noinspection JSUnusedLocalSymbols
+        // eslint-disable-next-line no-unused-vars
+        informationV2: async (parent, args, context, info) => {
+            return await context.dataApi.findResourceByReference(
+                parent,
+                args,
+                context,
+                info,
+                parent.informationV2);
+        },
         // noinspection JSUnusedLocalSymbols
         // eslint-disable-next-line no-unused-vars
         information: async (parent, args, context, info) => {
