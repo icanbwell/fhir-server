@@ -9,14 +9,17 @@ const mutex = new Mutex();
 const {IndexManager} = require('../indexes/indexManager');
 const {assertTypeEquals, assertIsValid} = require('./assertType');
 const {ConfigManager} = require('./configManager');
+const {MongoDatabaseManager} = require('./mongoDatabaseManager');
+const {logInfo} = require('../operations/common/logging');
 
 class MongoCollectionManager {
     /**
      * Constructor
      * @param {IndexManager} indexManager
      * @param {ConfigManager} configManager
+     * @param {MongoDatabaseManager} mongoDatabaseManager
      */
-    constructor({indexManager, configManager}) {
+    constructor({indexManager, configManager, mongoDatabaseManager}) {
         /**
          * @type {IndexManager}
          */
@@ -30,9 +33,35 @@ class MongoCollectionManager {
         assertTypeEquals(configManager, ConfigManager);
 
         /**
+         * @type {MongoDatabaseManager}
+         */
+        this.mongoDatabaseManager = mongoDatabaseManager;
+        assertTypeEquals(mongoDatabaseManager, MongoDatabaseManager);
+
+        /**
          * @type {Set}
          */
-        this.databaseCollectionStatusMap = new Set();
+        this.databaseCollectionNameSet = null;
+    }
+
+    /**
+     * adds existing collections in db to databaseCollectionStatusMap
+     * @return {Promise<void>}
+     */
+    async addExisitingCollectionsToMap() {
+        if (this.databaseCollectionNameSet === null) {
+            const fhirDb = await this.mongoDatabaseManager.getClientDbAsync();
+            const auditDb = await this.mongoDatabaseManager.getAuditDbAsync();
+
+            const fhirCollections = await this.getAllCollectionNames({db: fhirDb});
+            const auditCollections = await this.getAllCollectionNames({db: auditDb});
+
+            this.databaseCollectionNameSet = new Set([...fhirCollections, ...auditCollections]);
+
+            logInfo('Collection added to cache', Array.from(this.databaseCollectionNameSet));
+        } else {
+            logInfo('No collections added to cache', []);
+        }
     }
 
     /**
@@ -46,8 +75,14 @@ class MongoCollectionManager {
         assertIsValid(collectionName !== undefined);
 
         // use mutex to prevent parallel async calls from trying to create the collection at the same time
-        if (!this.databaseCollectionStatusMap.has(collectionName)) {
+        if (this.databaseCollectionNameSet === null || !this.databaseCollectionNameSet.has(collectionName)) {
             await mutex.runExclusive(async () => {
+                if (this.databaseCollectionNameSet === null) {
+                    await this.addExisitingCollectionsToMap();
+                    if (this.databaseCollectionNameSet.has(collectionName)) {
+                        return;
+                    }
+                }
                 const collectionExists = await db.listCollections({name: collectionName}, {nameOnly: true}).hasNext();
                 if (!collectionExists) {
                     await db.createCollection(collectionName);
@@ -56,7 +91,7 @@ class MongoCollectionManager {
                         await this.indexManager.indexCollectionAsync({collectionName, db});
                     }
                 }
-                this.databaseCollectionStatusMap.add(collectionName);
+                this.databaseCollectionNameSet.add(collectionName);
             });
         } else {
             await mutex.waitForUnlock();
