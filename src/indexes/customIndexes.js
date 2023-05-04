@@ -551,6 +551,45 @@ module.exports = {
                 options: {
                     name: 'bwell_name.prefix_1'
                 }
+            },
+            {
+                keys: {
+                    '_access.bwell': 1,
+                    '_uuid': 1,
+                    '_sourceId': 1
+                },
+                options: {
+                    name: 'bwell_uuid_1'
+                }
+            },
+            {
+                keys: {
+                    'meta.security.code': 1,
+                    '_uuid': 1,
+                    '_sourceId': 1
+                },
+                options: {
+                    name: 'meta.security.code_1'
+                }
+            }
+        ],
+        'Practitioner_4_0_0': [
+            {
+                keys: {
+                    '_sourceAssigningAuthority': 1
+                },
+                options: {
+                    name: 'sourceAssigningAuthority_1'
+                }
+            },
+            {
+                keys: {
+                    'name.family': 1,
+                    '_uuid': 1
+                },
+                options: {
+                    name: 'name.family_1'
+                }
             }
         ],
         'PractitionerRole_4_0_0': [
