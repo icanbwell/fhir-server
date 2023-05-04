@@ -78,6 +78,8 @@ class FhirProperty:
     is_extension: bool = False
     is_code: bool = False
     is_complex: bool = False
+    name_suffix: Optional[str] = None
+    is_v2_supported: bool = False
 
 
 @dataclasses.dataclass
@@ -340,6 +342,14 @@ class FhirXmlSchemaParser:
                         for c in value_sets
                         if c.name == fhir_property.type_
                     ][0]
+                # Consist entity name mapping to property for which we need to add a suffix name.
+                update_property_name_map = {
+                    'Contract': ({'subject': 'Type'}, )
+                }
+                if update_property_name_map.get(fhir_entity.cleaned_name) is not None:
+                    for resource_property in update_property_name_map.get(fhir_entity.cleaned_name):
+                        if resource_property.get(fhir_property.name) is not None:
+                            fhir_property.name_suffix = resource_property.get(fhir_property.name)
 
         # create list of unique properties
         for fhir_entity in fhir_entities:
@@ -564,23 +574,23 @@ class FhirXmlSchemaParser:
                            == FhirXmlSchemaParser.fix_graphql_keywords(property_name)
                     ]
                 if fhir_property_list:
-                    fhir_property = fhir_property_list[0]
-                    fhir_property.reference_target_resources = [
-                        SmartName(
-                            name=c,
-                            cleaned_name=FhirXmlSchemaParser.cleaned_type_mapping[c]
-                            if c in FhirXmlSchemaParser.cleaned_type_mapping
-                            else c,
-                            snake_case_name=FhirXmlSchemaParser.camel_to_snake(c),
-                        )
-                        for c in reference.target_resources
-                    ]
-                    fhir_property.reference_target_resources_names = [
-                        FhirXmlSchemaParser.cleaned_type_mapping[c.name]
-                        if c.name in FhirXmlSchemaParser.cleaned_type_mapping
-                        else c.name
-                        for c in fhir_property.reference_target_resources
-                    ]
+                    for fhir_property in fhir_property_list:
+                        fhir_property.reference_target_resources = [
+                            SmartName(
+                                name=c,
+                                cleaned_name=FhirXmlSchemaParser.cleaned_type_mapping[c]
+                                if c in FhirXmlSchemaParser.cleaned_type_mapping
+                                else c,
+                                snake_case_name=FhirXmlSchemaParser.camel_to_snake(c),
+                            )
+                            for c in reference.target_resources
+                        ]
+                        fhir_property.reference_target_resources_names = [
+                            FhirXmlSchemaParser.cleaned_type_mapping[c.name]
+                            if c.name in FhirXmlSchemaParser.cleaned_type_mapping
+                            else c.name
+                            for c in fhir_property.reference_target_resources
+                        ]
 
         # set generic type for everything else
         for fhir_entity in fhir_entities:
@@ -589,6 +599,9 @@ class FhirXmlSchemaParser:
                         property_.cleaned_type in ["Reference"]
                         and not property_.reference_target_resources
                 ):
+                    if property_.fhir_name.endswith('V2') and len(property_.reference_target_resources) == 0:
+                        continue
+
                     property_.reference_target_resources = [
                         SmartName(
                             name="Resource",
@@ -758,6 +771,30 @@ class FhirXmlSchemaParser:
             cleaned_type: str = property_type
             cleaned_type = cleaned_type.replace(".", "")
             if property_type and property_name and property_type != "None":
+                if property_type == "Reference":
+                    fhir_properties.append(
+                        FhirProperty(
+                            fhir_name=f'{property_name}V2',
+                            name=f'{FhirXmlSchemaParser.fix_graphql_keywords(property_name)}V2',
+                            javascript_clean_name=f'{FhirXmlSchemaParser.fix_javascript_keywords(property_name)}V2',
+                            type_=property_type,
+                            cleaned_type=FhirXmlSchemaParser.cleaned_type_mapping.get(cleaned_type, cleaned_type),
+                            type_snake_case=FhirXmlSchemaParser.camel_to_snake(
+                                FhirXmlSchemaParser.cleaned_type_mapping.get(cleaned_type, cleaned_type)
+                            ),
+                            optional=optional,
+                            is_list=is_list,
+                            documentation=[property_documentation],
+                            fhir_type=None,
+                            reference_target_resources=[],
+                            reference_target_resources_names=[],
+                            is_back_bone_element="." in property_type,
+                            is_basic_type=cleaned_type
+                                        in FhirXmlSchemaParser.cleaned_type_mapping,
+                            codeable_type=None,
+                            is_v2_supported=True
+                        )
+                    )
                 fhir_properties.append(
                     FhirProperty(
                         fhir_name=property_name,
@@ -863,8 +900,33 @@ class FhirXmlSchemaParser:
             return fhir_properties
 
     @staticmethod
+    def get_list_of_resources():
+        data_dir: Path = Path(__file__).parent.joinpath("./")
+        # first read fhir-base.xsd to get a list of resources
+        fhir_base_all_resources: Path = (
+            data_dir.joinpath("xsd")
+            .joinpath("definitions.xml")
+            .joinpath("fhir-all-xsd")
+            .joinpath("fhir-base.xsd")
+        )
+
+        with open(fhir_base_all_resources, "rb") as resources_file:
+            file_contents = resources_file.read()
+            root_dir: objectify.ObjectifiedElement = objectify.fromstring(file_contents)
+        resources_list = []
+        for resource_container in root_dir.xpath("//xs:complexType[@name='ResourceContainer']", namespaces={"xs": "http://www.w3.org/2001/XMLSchema"}):
+            for choice in resource_container.xpath(".//xs:choice/xs:element", namespaces={"xs": "http://www.w3.org/2001/XMLSchema"}):
+                resources_list.append(choice.get("ref"))
+        # List of all resources with Resource as base.
+        resources_list.append("Resource")
+
+        return resources_list
+
+    @staticmethod
     def get_types_for_references() -> List[FhirReferenceType]:
         data_dir: Path = Path(__file__).parent.joinpath("./")
+        # List of resources to be used for reference any types.
+        resources_list = FhirXmlSchemaParser.get_list_of_resources()
 
         # first read fhir-all.xsd to get a list of resources
         de_xml_file: Path = (
@@ -908,10 +970,24 @@ class FhirXmlSchemaParser:
                             target_resources: List[str] = [
                                 c.split("/")[-1] for c in target_profiles
                             ]
-                            fhir_reference: FhirReferenceType = FhirReferenceType(
-                                target_resources=target_resources,
-                                path=snapshot_element["path"].get("value"),
-                            )
+                            # If target resource is type Reference(Any),
+                            # the target resource will be a list of all resources. 
+                            if "Resource" in target_resources:
+                                fhir_reference: FhirReferenceType = FhirReferenceType(
+                                    target_resources=target_resources,
+                                    path=snapshot_element["path"].get("value"),
+                                )
+                                fhir_reference_v2_support: FhirReferenceType = FhirReferenceType(
+                                    target_resources=resources_list,
+                                    path=f'{snapshot_element["path"].get("value")}V2',
+                                )
+                                fhir_references.append(fhir_reference_v2_support)
+                            # Else target resource is the list of allowed references.
+                            else :
+                                fhir_reference: FhirReferenceType = FhirReferenceType(
+                                    target_resources=target_resources,
+                                    path=snapshot_element["path"].get("value"),
+                                )
                             fhir_references.append(fhir_reference)
             return fhir_references
 

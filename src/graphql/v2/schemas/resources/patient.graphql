@@ -17,9 +17,7 @@
 # import Attachment from "../complex_types/attachment.graphql"
 # import PatientContact from "../backbone_elements/patientContact.graphql"
 # import PatientCommunication from "../backbone_elements/patientCommunication.graphql"
-# import Organization from "../resources/organization.graphql"
-# import Practitioner from "../resources/practitioner.graphql"
-# import PractitionerRole from "../resources/practitionerRole.graphql"
+# import Reference from "../complex_types/reference.graphql"
 # import PatientLink from "../backbone_elements/patientLink.graphql"
 
 union PatientGeneralPractitioner = Organization | Practitioner | PractitionerRole

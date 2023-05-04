@@ -37,11 +37,13 @@
 {% endfor %}
 
 {% for property in fhir_entity.properties %}
+{% if not property.is_v2_supported or (property.is_v2_supported and property.reference_target_resources|length == total_resources_count) %}
 {% if property.reference_target_resources -%}
     {% if property.reference_target_resources | length > 1  %}
-union {{fhir_entity.cleaned_name}}{{ upper_case_first_letter(property.name) }} = {{ property.reference_target_resources_names | unique | join(" | ") }}
+union {{fhir_entity.cleaned_name}}{{ upper_case_first_letter(property.name) }}{{ upper_case_first_letter(property.name_suffix) if property.name_suffix is not none }} = {{ property.reference_target_resources_names | unique | join(" | ") }}
     {%  endif %}
 {% endif -%}
+{% endif %}
 {% endfor %}
 
 
@@ -54,6 +56,7 @@ union {{fhir_entity.cleaned_name}}{{ upper_case_first_letter(property.name) }} =
 type {{fhir_entity.cleaned_name}} {
     resourceType: String
 {% for property in fhir_entity.properties %}
+    {% if not property.is_v2_supported or (property.is_v2_supported and property.reference_target_resources|length == total_resources_count) %}
     """
     {{ property.documentation[0] | wordwrap(78) | replace('\n', '\n    ') | replace('\r', '\n    ') }}
     """
@@ -83,6 +86,7 @@ type {{fhir_entity.cleaned_name}} {
             {{ '' -}}
         {% endif %}
         {{ '' }}
+    {% endif %}
 {% endfor %}
 }
 

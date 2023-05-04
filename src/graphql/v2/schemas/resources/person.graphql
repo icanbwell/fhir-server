@@ -12,7 +12,7 @@
 # import date from "../simple_types/date.graphql"
 # import Address from "../complex_types/address.graphql"
 # import Attachment from "../complex_types/attachment.graphql"
-# import Organization from "../resources/organization.graphql"
+# import Reference from "../complex_types/reference.graphql"
 # import PersonLink from "../backbone_elements/personLink.graphql"
 
 

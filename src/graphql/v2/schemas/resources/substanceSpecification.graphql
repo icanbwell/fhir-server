@@ -8,7 +8,7 @@
 # import Extension from "../extensions/extension.graphql"
 # import Identifier from "../complex_types/identifier.graphql"
 # import CodeableConcept from "../complex_types/codeableConcept.graphql"
-# import DocumentReference from "../resources/documentReference.graphql"
+# import Reference from "../complex_types/reference.graphql"
 # import SubstanceSpecificationMoiety from "../backbone_elements/substanceSpecificationMoiety.graphql"
 # import SubstanceSpecificationProperty from "../backbone_elements/substanceSpecificationProperty.graphql"
 # import SubstanceSpecificationStructure from "../backbone_elements/substanceSpecificationStructure.graphql"

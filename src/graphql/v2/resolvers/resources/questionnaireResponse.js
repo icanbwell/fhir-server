@@ -25,6 +25,11 @@ module.exports = {
             return context.dataApi.resolveType(obj, context, info);
         },
     },
+    QuestionnaireResponseSubjectV2: {
+        __resolveType(obj, context, info) {
+            return context.dataApi.resolveType(obj, context, info);
+        },
+    },
     QuestionnaireResponseAuthor: {
         __resolveType(obj, context, info) {
             return context.dataApi.resolveType(obj, context, info);
@@ -55,6 +60,16 @@ module.exports = {
                 context,
                 info,
                 parent.partOf);
+        },
+        // noinspection JSUnusedLocalSymbols
+        // eslint-disable-next-line no-unused-vars
+        subjectV2: async (parent, args, context, info) => {
+            return await context.dataApi.findResourceByReference(
+                parent,
+                args,
+                context,
+                info,
+                parent.subject);
         },
         // noinspection JSUnusedLocalSymbols
         // eslint-disable-next-line no-unused-vars
