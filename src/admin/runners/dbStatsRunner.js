@@ -36,8 +36,8 @@ class DatabaseStats extends BaseScriptRunner {
         let validCollections = [];
         for (let collection of collectionNames) {
             // Skip collections which are of type views or collection whose name contains 'system.
-            if (collection.type !== 'collection' || collection.name.indexOf('system.') !== -1) {
-                this.adminLogger.logInfo(`${collection} is an invalid collection`);
+            if (collection.type !== 'collection' || !this.mongoCollectionManager.isNotSystemCollection(collection.name)) {
+                this.adminLogger.logInfo(`${collection.name} is an invalid collection`);
                 continue;
             }
             validCollections.push(collection.name);

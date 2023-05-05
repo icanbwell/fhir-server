@@ -111,13 +111,22 @@ class MongoCollectionManager {
          */
         const collectionNames = [];
         for await (const /** @type {{name: string, type: string}} */ collection of db.listCollections(
-            {}, {nameOnly: true})) {
-            if (collection.name.indexOf('system.') === -1) {
+            {type: {$ne: 'view'}}, {nameOnly: true})) {
+            if (this.isNotSystemCollection(collection.name)) {
                 collectionNames.push(collection.name);
             }
         }
-
         return collectionNames;
+    }
+
+    /**
+     * Check if a collection is a valid collection and not a system collection
+     * @param {String} collectionName
+     * @returns {boolean}
+     */
+    isNotSystemCollection(collectionName) {
+        const systemCollectionNames = ['system.', 'fs.files', 'fs.chunks'];
+        return !systemCollectionNames.some(systemCollectionName => collectionName.indexOf(systemCollectionName) !== -1);
     }
 
     /**
