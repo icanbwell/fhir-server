@@ -103,6 +103,27 @@ const verify = (jwt_payload, done) => {
         }
         if (isUser) {
             context['isUser'] = isUser;
+            // Test that required fields are populated
+            let validInput = true;
+            if (!jwt_payload['custom:clientFhirPersonId']) {
+                logDebug('Error: custom:clientFhirPersonId field is missing', {user: ''});
+                validInput = false;
+            }
+            if (!jwt_payload['custom:clientFhirPatientId']) {
+                logDebug('Error: custom:clientFhirPersonId field is missing', {user: ''});
+                validInput = false;
+            }
+            if (!jwt_payload['custom:bwellFhirPersonId']) {
+                logDebug('Error: custom:bwellFhirPersonId field is missing', {user: ''});
+                validInput = false;
+            }
+            if (!jwt_payload['custom:bwellFhirPatientId']) {
+                logDebug('Error: custom:bwellFhirPatientId field is missing', {user: ''});
+                validInput = false;
+            }
+            if (!validInput) {
+                return done(null, false);
+            }
             const fhirPatientId = jwt_payload['custom:bwell_fhir_id'];
             if (jwt_payload['custom:bwell_fhir_ids']) {
                 const patientIdsFromJwtToken = jwt_payload['custom:bwell_fhir_ids'].split('|');
@@ -112,15 +133,7 @@ const verify = (jwt_payload, done) => {
             } else if (fhirPatientId) {
                 context['patientIdsFromJwtToken'] = [fhirPatientId];
             }
-            const personIdFromJwtToken = jwt_payload['custom:bwell_fhir_person_id'];
-            if (personIdFromJwtToken) {
-                context['personIdFromJwtToken'] = personIdFromJwtToken;
-            } else {
-                const personIdFromJwtToken2 = jwt_payload['custom:bwellFhirPersonId'];
-                if (personIdFromJwtToken2) {
-                    context['personIdFromJwtToken'] = personIdFromJwtToken2;
-                }
-            }
+            context['personIdFromJwtToken'] = jwt_payload['custom:bwellFhirPersonId'];
         }
 
         return done(null, {id: client_id, isUser, name: username}, {scope, context});
