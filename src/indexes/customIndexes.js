@@ -588,6 +588,45 @@ module.exports = {
                 options: {
                     name: 'person.linkTarget_sourceId_uuid'
                 }
+            },
+            {
+                keys: {
+                    '_access.bwell': 1,
+                    '_uuid': 1,
+                    '_sourceId': 1
+                },
+                options: {
+                    name: 'person.bwell.uuid.sourceId'
+                }
+            },
+            {
+                keys: {
+                    'meta.security.code': 1,
+                    '_uuid': 1,
+                    '_sourceId': 1
+                },
+                options: {
+                    name: 'person.meta_security_code.uuid.sourceId'
+                }
+            }
+        ],
+        'Practitioner_4_0_0': [
+             {
+                keys: {
+                    'name.family': 1,
+                    '_uuid': 1
+                },
+                options: {
+                    name: 'practitioner.name_family.uuid'
+                }
+            },
+            {
+                keys: {
+                    '_sourceAssigningAuthority': 1
+                },
+                options: {
+                    name: 'practition.sourceAssigningAuthority'
+                }
             }
         ],
         'PractitionerRole_4_0_0': [
@@ -653,7 +692,7 @@ module.exports = {
                 options: {
                     name: 'security._access_medstar_1_uuid_1',
                 }
-            },
+            }
         ],
         'QuestionnaireResponse_4_0_0': [
             {
