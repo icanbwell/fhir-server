@@ -306,6 +306,16 @@ module.exports = {
                 options: {
                     name: 'providedBy.reference_1'
                 }
+            },
+            {
+                keys: {
+                    'providedBy._uuid': 1,
+                    'providedBy._sourceId': 1,
+                    '_uuid': 1
+                },
+                options: {
+                    name: 'healthcareService.providedBy_uuid_sourceId_uuid'
+                }
             }
         ],
         'Location_4_0_0': [
@@ -550,6 +560,33 @@ module.exports = {
                 },
                 options: {
                     name: 'bwell_name.prefix_1'
+                }
+            },
+            {
+                keys: {
+                    'link.target.reference': 1
+                },
+                options: {
+                    name: 'person.linkTargetReference'
+                }
+            },
+            {
+                keys: {
+                    'link.target._uuid': 1,
+                    '_uuid': 1
+
+                },
+                options: {
+                    name: 'person.linkTarget_uuid_uuid'
+                }
+            },
+            {
+                keys: {
+                    'link.target._sourceId': 1,
+                    '_uuid': 1
+                },
+                options: {
+                    name: 'person.linkTarget_sourceId_uuid'
                 }
             }
         ],
