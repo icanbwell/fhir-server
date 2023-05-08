@@ -18,6 +18,7 @@ const expectedPractitioner2DatabaseAfterRun = require('./fixtures/expected/expec
 const expectedPractitionerRole1DatabaseAfterRun = require('./fixtures/expected/expected_practitionerrole1.json');
 const expectedPractitionerRole2DatabaseAfterRun = require('./fixtures/expected/expected_practitionerrole2.json');
 const expectedPractitioner1HistoryDatabaseAfterRun = require('./fixtures/expected/expected_practitioner1_hisory.json');
+
 const { FixMultipleSourceAssigningAuthorityHistoryRunner } = require('../../../../admin/runners/fixMultipleSourceAssigningAuthorityHistoryRunner');
 
 const { FixReferenceSourceAssigningAuthorityRunner } = require('../../../../admin/runners/fixReferenceSourceAssigningAuthorityRunner');
@@ -84,7 +85,7 @@ async function setupHistoryDatabaseAsync(mongoDatabaseManager, incomingResource,
     return collection;
 }
 
-describe('Practitioner Tests', () => {
+describe('Fix Multiple Source Assigning Authority Tests', () => {
     beforeEach(async () => {
         await commonBeforeEach();
     });

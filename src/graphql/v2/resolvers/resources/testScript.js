@@ -15,7 +15,22 @@ module.exports = {
             );
         }
     },
+    TestScriptProfileV2: {
+        __resolveType(obj, context, info) {
+            return context.dataApi.resolveType(obj, context, info);
+        },
+    },
     TestScript: {
+        // noinspection JSUnusedLocalSymbols
+        // eslint-disable-next-line no-unused-vars
+        profileV2: async (parent, args, context, info) => {
+            return await context.dataApi.findResourcesByReference(
+                parent,
+                args,
+                context,
+                info,
+                parent.profile);
+        },
         // noinspection JSUnusedLocalSymbols
         // eslint-disable-next-line no-unused-vars
         profile: async (parent, args, context, info) => {

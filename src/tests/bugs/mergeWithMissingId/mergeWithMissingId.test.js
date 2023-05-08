@@ -31,7 +31,7 @@ describe('AuditEvent Tests', () => {
 
             // ACT & ASSERT
             resp = await request
-                .get('/4_0_0/AuditEvent/?_bundle=1&_debug=1')
+                .get('/4_0_0/AuditEvent/?date=gt2022-08-15&date=lt2022-10-09&_bundle=1&_debug=1')
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedAuditEventResources);

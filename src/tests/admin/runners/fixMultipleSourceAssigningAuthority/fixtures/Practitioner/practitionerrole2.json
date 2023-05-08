@@ -53,7 +53,7 @@
       {
         "id": "sourceId",
         "url": "https://www.icanbwell.com/sourceId",
-        "valueString": "Practitioner/1083620462"
+        "valueString": "Practitioner/abc"
       },
       {
         "id": "uuid",
@@ -66,10 +66,10 @@
         "valueString": "nppes"
       }
     ],
-    "reference": "Practitioner/1083620462",
+    "reference": "Practitioner/abc",
     "_sourceAssigningAuthority": "nppes",
     "_uuid": "Practitioner/bd872d22-9e14-56d5-a9c1-71dc4d8ae765",
-    "_sourceId": "Practitioner/1083620462"
+    "_sourceId": "Practitioner/abc"
   },
   "specialty": [
     {

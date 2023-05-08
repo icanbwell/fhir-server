@@ -10,6 +10,8 @@ const {getCircularReplacer} = require('../utils/getCircularReplacer');
 const {MongoFilterGenerator} = require('../utils/mongoFilterGenerator');
 const {SecurityTagStructure} = require('../fhir/securityTagStructure');
 const {FhirResourceCreator} = require('../fhir/fhirResourceCreator');
+const { DatabaseAttachmentManager } = require('./databaseAttachmentManager');
+const {DELETE} = require('../constants').GRIDFS;
 
 /**
  * @typedef FindOneAndUpdateResult
@@ -36,8 +38,15 @@ class DatabaseQueryManager {
      * @param {string} resourceType
      * @param {string} base_version
      * @param {MongoFilterGenerator} mongoFilterGenerator
+     * @param {DatabaseAttachmentManager} databaseAttachmentManager
      */
-    constructor({resourceLocatorFactory, resourceType, base_version, mongoFilterGenerator}) {
+    constructor({
+        resourceLocatorFactory,
+        resourceType,
+        base_version,
+        mongoFilterGenerator,
+        databaseAttachmentManager
+    }) {
         assertTypeEquals(resourceLocatorFactory, ResourceLocatorFactory);
         /**
          * @type {string}
@@ -63,6 +72,12 @@ class DatabaseQueryManager {
          */
         this.mongoFilterGenerator = mongoFilterGenerator;
         assertTypeEquals(mongoFilterGenerator, MongoFilterGenerator);
+
+        /**
+         * @type {DatabaseAttachmentManager}
+         */
+        this.databaseAttachmentManager = databaseAttachmentManager;
+        assertTypeEquals(databaseAttachmentManager, DatabaseAttachmentManager);
     }
 
     /**
@@ -125,8 +140,9 @@ class DatabaseQueryManager {
                     /**
                      * @type {Resource|null}
                      */
-                    const resource = await resourcesCursor.next();
+                    let resource = await resourcesCursor.next();
                     if (resource) {
+                        await this.databaseAttachmentManager.transformAttachments(resource, DELETE);
                         /**
                          * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>}
                          */
@@ -169,14 +185,15 @@ class DatabaseQueryManager {
      * Returns a DatabasePartitionedCursor by executing the query
      * @param {import('mongodb').Filter<import('mongodb').DefaultSchema>} query
      * @param {import('mongodb').FindOptions<import('mongodb').DefaultSchema>} options
+     * @param {Object} extraInfo
      * @return {DatabasePartitionedCursor}
      */
-    async findAsync({query, options = null}) {
+    async findAsync({query, options = null, extraInfo = {}}) {
         try {
             /**
              * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>[]}
              */
-            const collections = await this.resourceLocator.getOrCreateCollectionsForQueryAsync({query});
+            const collections = await this.resourceLocator.getOrCreateCollectionsForQueryAsync({query, extraInfo});
             /**
              * @type {CursorInfo[]}
              */
@@ -205,14 +222,15 @@ class DatabaseQueryManager {
      * @param {import('mongodb').Filter<import('mongodb').DefaultSchema>} query
      * @param projection
      * @param {import('mongodb').FindOptions<import('mongodb').DefaultSchema>} options
+     * @param {Object} extraInfo
      * @return {DatabasePartitionedCursor}
      */
-    async findUsingAggregationAsync({query, projection, options = null}) {
+    async findUsingAggregationAsync({query, projection, options = null, extraInfo = {}}) {
         try {
             /**
              * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>[]}
              */
-            const collections = await this.resourceLocator.getOrCreateCollectionsForQueryAsync({query});
+            const collections = await this.resourceLocator.getOrCreateCollectionsForQueryAsync({query, extraInfo});
             /**
              * @type {CursorInfo[]}
              */

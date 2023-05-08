@@ -9,6 +9,8 @@ const {isTrue} = require('../../utils/isTrue');
 const {ConfigManager} = require('../../utils/configManager');
 const {SearchManager} = require('../search/searchManager');
 const {ParsedArgs} = require('../query/parsedArgs');
+const {DatabaseAttachmentManager} = require('../../dataLayer/databaseAttachmentManager');
+const {RETRIEVE} = require('../../constants').GRIDFS;
 
 class SearchByVersionIdOperation {
     /**
@@ -20,6 +22,7 @@ class SearchByVersionIdOperation {
      * @param {EnrichmentManager} enrichmentManager
      * @param {ConfigManager} configManager
      * @param {SearchManager} searchManager
+     * @param {DatabaseAttachmentManager} databaseAttachmentManager
      */
     constructor(
         {
@@ -29,7 +32,8 @@ class SearchByVersionIdOperation {
             scopesValidator,
             enrichmentManager,
             configManager,
-            searchManager
+            searchManager,
+            databaseAttachmentManager
         }
     ) {
         /**
@@ -69,6 +73,11 @@ class SearchByVersionIdOperation {
          */
         this.searchManager = searchManager;
         assertTypeEquals(searchManager, SearchManager);
+        /**
+         * @type {DatabaseAttachmentManager}
+         */
+        this.databaseAttachmentManager = databaseAttachmentManager;
+        assertTypeEquals(databaseAttachmentManager, DatabaseAttachmentManager);
     }
 
     /**
@@ -186,6 +195,8 @@ class SearchByVersionIdOperation {
                         }
                     )
                 )[0];
+
+                resource = await this.databaseAttachmentManager.transformAttachments(resource, RETRIEVE);
                 await this.fhirLoggingManager.logOperationSuccessAsync(
                     {
                         requestInfo,

@@ -14,7 +14,6 @@ const {FhirLoggingManager} = require('../common/fhirLoggingManager');
 const {ScopesValidator} = require('../security/scopesValidator');
 const {BundleManager} = require('../common/bundleManager');
 const {ConfigManager} = require('../../utils/configManager');
-const {BadRequestError} = require('../../utils/httpErrors');
 const {ParsedArgs} = require('../query/parsedArgs');
 const {QueryItem} = require('../graph/queryItem');
 
@@ -102,6 +101,9 @@ class SearchStreamingOperation {
         {requestInfo, res, parsedArgs, resourceType}) {
         assertTypeEquals(parsedArgs, ParsedArgs);
         const currentOperationName = 'searchStreaming';
+        const extraInfo = {
+            currentOperationName: currentOperationName
+        };
         // Start the FHIR request timer, saving a reference to the returned method
         const timer = fhirRequestTimer.startTimer();
         /**
@@ -157,21 +159,7 @@ class SearchStreamingOperation {
 
         // check if required filters for AuditEvent are passed
         if (resourceType === 'AuditEvent') {
-            // args must contain one of these
-            const requiredFiltersForAuditEvent = this.configManager.requiredFiltersForAuditEvent;
-            if (requiredFiltersForAuditEvent && requiredFiltersForAuditEvent.length > 0) {
-                if (requiredFiltersForAuditEvent.filter(r => parsedArgs[`${r}`]).length === 0) {
-                    const message = `One of the filters [${requiredFiltersForAuditEvent.join(',')}] are required to query AuditEvent`;
-                    throw new BadRequestError(
-                        {
-                            'message': message,
-                            toString: function () {
-                                return message;
-                            }
-                        }
-                    );
-                }
-            }
+            this.searchManager.validateAuditEventQueryParameters(parsedArgs);
         }
 
         try {
@@ -229,7 +217,8 @@ class SearchStreamingOperation {
                 {
                     resourceType, base_version,
                     parsedArgs, columns, options, query,
-                    maxMongoTimeMS, user, isStreaming: true, useAccessIndex
+                    maxMongoTimeMS, user, isStreaming: true, useAccessIndex,
+                    extraInfo
                 }
             );
             /**

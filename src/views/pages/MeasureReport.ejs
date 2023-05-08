@@ -31,26 +31,31 @@
                     <tbody>
                     <!-- prettier-ignore -->
                     <% res.group.forEach(function(group){ %>
-                        <% group.population.forEach(function(population){ %>
-                            <tr>
-                                <td>
-                                    <!-- prettier-ignore -->
-                                    <% if (population.code && population.code.coding){ %>
-                                        <% population.code.coding.forEach(function(coding){ %>
-                                            <%= coding.code %> = <%= population.count %>
-                                        <% }) %>
-                                    <% } %>
-                                </td>
-                                <td>
-                                    <!-- prettier-ignore -->
-                                    <% if (group.measureScore){ %>
-                                        <%= group.measureScore.value %>
-                                    <% } %>
-                                </td>
-                            </tr>
-                            <!-- prettier-ignore -->
-                        <% }) %>
-                    <% }) %>
+                        <tr>
+                            <td>
+                                <% if (group.population){ %>
+                                    <% group.population.forEach(function(population){ %>
+
+                                        <!-- prettier-ignore -->
+                                        <% if (population.code && population.code.coding){ %>
+                                            <% population.code.coding.forEach(function(coding){ %>
+                                                <%= coding.code ;%> = <%= population.count ;%>
+                                            <% }); %>
+                                        <% } %>
+
+                                        <!-- prettier-ignore -->
+                                    <% }); %>
+                                <% } %>
+                            </td>
+                            <td>
+                                <!-- prettier-ignore -->
+                                <% if (group.measureScore){ %>
+                                    <%= group.measureScore.value ;%>
+                                <% } %>
+                            </td>
+                        </tr>
+
+                    <% }); %>
                     </tbody>
                 </table>
             <% } %>

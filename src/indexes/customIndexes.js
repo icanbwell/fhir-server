@@ -24,7 +24,10 @@ module.exports = {
                 },
                 options: {
                     name: 'reverse_meta.lastUpdated_1'
-                }
+                },
+                exclude: [
+                    'AuditEvent_4_0_0'
+                ]
             },
             {
                 keys: {
@@ -33,7 +36,10 @@ module.exports = {
                 },
                 options: {
                     name: 'meta.source_1'
-                }
+                },
+                exclude: [
+                    'AuditEvent_4_0_0'
+                ]
             },
             {
                 keys: {
@@ -91,10 +97,7 @@ module.exports = {
                 },
                 options: {
                     name: 'uuid'
-                },
-                exclude: [
-                    'AuditEvent_4_0_0'
-                ]
+                }
             },
             {
                 keys: {
@@ -128,6 +131,14 @@ module.exports = {
                     // unique: true,
                     name: 'resource_by_uuid'
                 }
+            },
+            {
+                keys: {
+                    'resource.meta.lastUpdated': 1
+                },
+                options: {
+                    name: 'history_resource_lastUpdated'
+                }
             }
         ],
         'AuditEvent_4_0_0': [
@@ -142,19 +153,9 @@ module.exports = {
             },
             {
                 keys: {
-                    '_access.medstar': 1,
-                    '_sourceId': 1,
-                    'meta.lastUpdated': 1,
-                },
-                options: {
-                    name: 'helix_auditEvent_security_access_medstar'
-                }
-            },
-            {
-                keys: {
-                    '_access.medstar': 1,
-                    '_sourceId': 1,
                     'recorded': 1,
+                    '_access.medstar': 1,
+                    '_sourceId': 1,
                 },
                 options: {
                     name: 'helix_auditEvent_recorded_access_medstar'
@@ -162,9 +163,9 @@ module.exports = {
             },
             {
                 keys: {
+                    'recorded': 1,
                     'entity.what._sourceId': 1,
                     '_sourceId': 1,
-                    'recorded': 1
                 },
                 options: {
                     name: 'helix_auditEvent_recorded_entity'
@@ -172,9 +173,9 @@ module.exports = {
             },
             {
                 keys: {
+                    'recorded': 1,
                     'agent.who._sourceId': 1,
                     '_sourceId': 1,
-                    'recorded': 1
                 },
                 options: {
                     name: 'helix_auditEvent_recorded_who'
@@ -182,18 +183,20 @@ module.exports = {
             },
             {
                 keys: {
+                    'recorded': 1,
                     '_uuid': 1,
                 },
                 options: {
-                    name: 'uuid'
+                    name: 'helix_auditEvent_recorded_uuid'
                 }
             },
             {
                 keys: {
+                    'recorded': 1,
                     '_sourceId': 1,
                 },
                 options: {
-                    name: 'sourceId'
+                    name: 'helix_auditEvent_recorded_sourceId'
                 }
             },
 
@@ -303,6 +306,16 @@ module.exports = {
                 options: {
                     name: 'providedBy.reference_1'
                 }
+            },
+            {
+                keys: {
+                    'providedBy._uuid': 1,
+                    'providedBy._sourceId': 1,
+                    '_uuid': 1
+                },
+                options: {
+                    name: 'healthcareService.providedBy_uuid_sourceId_uuid'
+                }
             }
         ],
         'Location_4_0_0': [
@@ -404,6 +417,17 @@ module.exports = {
                 },
                 options: {
                     name: 'reverse_helix_observation_effective_uuid_2'
+                }
+            }
+        ],
+        'Organization_4_0_0': [
+            {
+                keys: {
+                    'type.coding.code': 1,
+                    '_uuid': 1
+                },
+                options: {
+                    name: 'organization_type_code_1'
                 }
             }
         ],
@@ -537,6 +561,72 @@ module.exports = {
                 options: {
                     name: 'bwell_name.prefix_1'
                 }
+            },
+            {
+                keys: {
+                    'link.target.reference': 1
+                },
+                options: {
+                    name: 'person.linkTargetReference'
+                }
+            },
+            {
+                keys: {
+                    'link.target._uuid': 1,
+                    '_uuid': 1
+
+                },
+                options: {
+                    name: 'person.linkTarget_uuid_uuid'
+                }
+            },
+            {
+                keys: {
+                    'link.target._sourceId': 1,
+                    '_uuid': 1
+                },
+                options: {
+                    name: 'person.linkTarget_sourceId_uuid'
+                }
+            },
+            {
+                keys: {
+                    '_access.bwell': 1,
+                    '_uuid': 1,
+                    '_sourceId': 1
+                },
+                options: {
+                    name: 'person.bwell.uuid.sourceId'
+                }
+            },
+            {
+                keys: {
+                    'meta.security.code': 1,
+                    '_uuid': 1,
+                    '_sourceId': 1
+                },
+                options: {
+                    name: 'person.meta_security_code.uuid.sourceId'
+                }
+            }
+        ],
+        'Practitioner_4_0_0': [
+             {
+                keys: {
+                    'name.family': 1,
+                    '_uuid': 1
+                },
+                options: {
+                    name: 'practitioner.name_family.uuid'
+                }
+            },
+            {
+                keys: {
+                    '_sourceAssigningAuthority': 1
+                },
+                options: {
+                    name: 'practition.sourceAssigningAuthority'
+                }
             }
         ],
         'PractitionerRole_4_0_0': [
@@ -602,7 +692,7 @@ module.exports = {
                 options: {
                     name: 'security._access_medstar_1_uuid_1',
                 }
-            },
+            }
         ],
         'QuestionnaireResponse_4_0_0': [
             {

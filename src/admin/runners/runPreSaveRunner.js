@@ -14,6 +14,7 @@ class RunPreSaveRunner extends BaseBulkOperationRunner {
      * @param {MongoCollectionManager} mongoCollectionManager
      * @param {string[]} collections
      * @param {number} batchSize
+     * @param {date|undefined} afterLastUpdatedDate
      * @param {date|undefined} beforeLastUpdatedDate
      * @param {boolean} useAuditDatabase
      * @param {AdminLogger} adminLogger
@@ -28,6 +29,7 @@ class RunPreSaveRunner extends BaseBulkOperationRunner {
             mongoCollectionManager,
             collections,
             batchSize,
+            afterLastUpdatedDate,
             beforeLastUpdatedDate,
             useAuditDatabase,
             adminLogger,
@@ -51,6 +53,11 @@ class RunPreSaveRunner extends BaseBulkOperationRunner {
          * @type {number}
          */
         this.batchSize = batchSize;
+
+        /**
+         * @type {date|undefined}
+         */
+        this.afterLastUpdatedDate = afterLastUpdatedDate;
 
         /**
          * @type {date|undefined}
@@ -154,13 +161,27 @@ class RunPreSaveRunner extends BaseBulkOperationRunner {
                 /**
                  * @type {import('mongodb').Filter<import('mongodb').Document>}
                  */
-
-
-                const query = this.beforeLastUpdatedDate ? {
-                    'meta.lastUpdated': {
-                        $lt: this.beforeLastUpdatedDate,
-                    }
-                } : {_sourceAssigningAuthority: {$not: {$type: 'string'}}};
+                let query = {_sourceAssigningAuthority: {$not: {$type: 'string'}}};
+                if (this.beforeLastUpdatedDate && this.afterLastUpdatedDate) {
+                    query = {
+                        'meta.lastUpdated': {
+                            $lt: this.beforeLastUpdatedDate,
+                            $gt: this.afterLastUpdatedDate,
+                        }
+                    };
+                } else if (this.beforeLastUpdatedDate) {
+                    query = {
+                        'meta.lastUpdated': {
+                            $lt: this.beforeLastUpdatedDate
+                        }
+                    };
+                } else if (this.afterLastUpdatedDate) {
+                    query = {
+                        'meta.lastUpdated': {
+                            $gt: this.afterLastUpdatedDate,
+                        }
+                    };
+                }
                 try {
                     await this.runForQueryBatchesAsync(
                         {

@@ -1,7 +1,7 @@
 <header>
     <nav class="navbar px-3 pt-2">
         <a href="/" title="Go to Home Page" class="px-3 helix-logo"></a>
-        <h5 class="flex-grow-1 px-3 mb-0">Helix FHIR Server</h5>
+        <h5 class="flex-grow-1 px-3 mb-0">Helix FHIR Server - <%= locals.deployEnvironment %></h5>
         <button
                 type="button"
                 id="appInfo"
@@ -28,16 +28,25 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
+                <h5>Environment</h5>
+                <%= locals.deployEnvironment %>
+                <br />
                 <% if(locals.environment) { %>
+                    <br />
                     <h5>Server</h5>
                     <%= locals.environment ;%>
+                    <br />
                 <% } %>
+                <br />
+                <h5>Version</h5>
+                <%= locals.deployVersion %>
+                <br />
                 <!-- prettier-ignore -->
                 <% if(typeof (meta) !== 'undefined'){ %>
                     <%- include('../partials/bundleMeta', {meta: meta}); %>
-                    <hr/>
                 <% } %>
                 <!-- prettier-ignore -->
+                    <hr/>
                 Swagger API Documentation: <a href="/api-docs/">/api-docs</a>
             </div>
             <div class="modal-footer py-1">

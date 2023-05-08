@@ -3,8 +3,8 @@ const { assertTypeEquals, assertIsValid } = require('../../utils/assertType');
 const { PreSaveManager } = require('../../preSaveHandlers/preSave');
 const deepEqual = require('fast-deep-equal');
 const moment = require('moment-timezone');
-const { fixMultipleAuthorities } = require('../utils/fixMultipleSourceAssigningAuthority');
 const { SecurityTagSystem } = require('../../utils/securityTagSystem');
+const { fixMultipleAuthorities } = require('../utils/fixMultipleSourceAssigningAuthority');
 const { FhirResourceCreator } = require('../../fhir/fhirResourceCreator');
 
 /**
@@ -22,8 +22,11 @@ class FixMultipleSourceAssigningAuthorityRunner extends BaseBulkOperationRunner 
      * @param {MongoDatabaseManager} mongoDatabaseManager
      * @param {PreSaveManager} preSaveManager
      * @param {boolean|undefined} [includeHistoryCollections]
+     * @param {boolean|undefined} fixMultipleOwners
+     * @param {boolean|undefined} filterRecords
      * @param {string|undefined} [startFromCollection]
      * @param {number|undefined} [limit]
+     * * @param {number|undefined} [skip]
      */
     constructor(
         {
@@ -36,8 +39,11 @@ class FixMultipleSourceAssigningAuthorityRunner extends BaseBulkOperationRunner 
             mongoDatabaseManager,
             preSaveManager,
             includeHistoryCollections,
+            fixMultipleOwners,
+            filterRecords,
             startFromCollection,
             limit,
+            skip,
         }) {
         super({
             mongoCollectionManager,
@@ -73,6 +79,18 @@ class FixMultipleSourceAssigningAuthorityRunner extends BaseBulkOperationRunner 
         this.includeHistoryCollections = includeHistoryCollections;
 
         /**
+         * @type {boolean}
+         * @type {boolean|undefined}
+         */
+        this.fixMultipleOwners = fixMultipleOwners;
+
+        /**
+         * @type {boolean}
+         * @type {boolean|undefined}
+         */
+        this.filterRecords = filterRecords;
+
+        /**
          * @type {string|undefined}
          */
         this.startFromCollection = startFromCollection;
@@ -81,6 +99,11 @@ class FixMultipleSourceAssigningAuthorityRunner extends BaseBulkOperationRunner 
          * @type {number|undefined}
          */
         this.limit = limit;
+
+        /**
+         * @type {number|undefined}
+         */
+        this.skip = skip;
     }
 
     /**
@@ -99,7 +122,7 @@ class FixMultipleSourceAssigningAuthorityRunner extends BaseBulkOperationRunner 
          */
         const currentResource = FhirResourceCreator.create(doc);
         let resource = currentResource.clone();
-        resource = fixMultipleAuthorities(resource);
+        resource = fixMultipleAuthorities(resource, this.fixMultipleOwners);
         /**
          * @type {Resource}
          */
@@ -166,45 +189,46 @@ class FixMultipleSourceAssigningAuthorityRunner extends BaseBulkOperationRunner 
                     },
                 } : {};
 
-                // Get ids of documents that have multiple owners/sourceAssigningAuthority.
-                const db = await this.mongoDatabaseManager.getDatabaseForResourceAsync(
-                    {
-                        resourceType: this._resourceType,
+                let idList = [];
+                if (this.filterRecords) {
+                    // Get ids of documents that have multiple sourceAssigningAuthority.
+                    let db = await this.mongoDatabaseManager.getClientDbAsync();
+                    let dbCollection = await this.mongoCollectionManager.getOrCreateCollectionAsync({
+                        db,
+                        collectionName,
                     });
-                const dbCollection = await this.mongoCollectionManager.getOrCreateCollectionAsync({
-                    db,
-                    collectionName,
-                });
-                const result = await dbCollection.aggregate([
-                    {
-                        '$unwind': {
-                            'path': '$meta.security',
-                        },
-                    },
-                    {
-                        '$match': {
-                            'meta.security.system': `${SecurityTagSystem.sourceAssigningAuthority}`,
-                        },
-                    },
-                    {
-                        '$group': {
-                            _id: '$_id',
-                            count: { $count: {} },
-                        },
-                    },
-                    {
-                        '$match': {
-                            'count': {
-                                $gte: 2,
+                    let result = await dbCollection.aggregate([
+                        {
+                            '$unwind': {
+                                'path': '$meta.security',
                             },
                         },
-                    },
-                    {
-                        $project: { array: true },
-                    },
-                ], { allowDiskUse: true }).toArray();
+                        {
+                            '$match': {
+                                'meta.security.system': `${SecurityTagSystem.sourceAssigningAuthority}`,
+                            },
+                        },
+                        {
+                            '$group': {
+                                _id: '$_id',
+                                count: { $count: {} },
+                            },
+                        },
+                        {
+                            '$match': {
+                                'count': {
+                                    $gte: 2,
+                                },
+                            },
+                        },
+                        {
+                            $project: { array: true },
+                        },
+                    ], { allowDiskUse: true }).toArray();
 
-                const idList = result.map(obj => obj._id);
+                    idList = result.map(obj => obj._id);
+                }
+
                 try {
                     await this.runForQueryBatchesAsync(
                         {
@@ -221,8 +245,9 @@ class FixMultipleSourceAssigningAuthorityRunner extends BaseBulkOperationRunner 
                             batchSize: this.batchSize,
                             skipExistingIds: false,
                             limit: this.limit,
+                            skip: this.skip,
                             filterToIdProperty: '_id',
-                            filterToIds: idList,
+                            filterToIds: this.filterRecords ? idList : undefined,
                         },
                     );
                 } catch (e) {

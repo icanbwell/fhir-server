@@ -1,0 +1,12 @@
+query my_patient {
+    patient(_debug: true) {
+        entry {
+            resource {
+                id
+                photo {
+                    data
+                }
+            }
+        }
+    }
+}

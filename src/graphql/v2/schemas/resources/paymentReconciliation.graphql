@@ -9,7 +9,7 @@
 # import Identifier from "../complex_types/identifier.graphql"
 # import Period from "../complex_types/period.graphql"
 # import dateTime from "../simple_types/dateTime.graphql"
-# import Organization from "../resources/organization.graphql"
+# import Reference from "../complex_types/reference.graphql"
 # import date from "../simple_types/date.graphql"
 # import Money from "../complex_types/money.graphql"
 # import PaymentReconciliationDetail from "../backbone_elements/paymentReconciliationDetail.graphql"

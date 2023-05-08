@@ -21,13 +21,14 @@ async function main() {
      * @type {Object}
      */
     const parameters = CommandLineParser.parseCommandLine();
+    const adminLogger = new AdminLogger();
     const updatedBefore = parameters.updatedBefore ? new Date(`${parameters.updatedBefore}T00:00:00Z`) : new Date(2023, 3 - 1, 14);
     const readBatchSize = parameters.readBatchSize || process.env.BULK_BUFFER_SIZE || 10000;
     const concurrentRunners = parameters.concurrentRunners || 1;
     const _idAbove = parameters._idAbove ? String(parameters._idAbove) : undefined;
     const collections = parameters.collections ? parameters.collections.split(',') : undefined;
     const startWithCollection = parameters.startWithCollection || undefined;
-    console.log(`Running script to update data with last_updated greater than ${updatedBefore}`);
+    adminLogger.logInfo(`Running script to update data with last_updated greater than ${updatedBefore}`);
 
     // set up all the standard services in the container
     const container = createContainer();
@@ -46,7 +47,8 @@ async function main() {
                 _idAbove,
                 collections,
                 startWithCollection,
-                adminLogger: new AdminLogger(),
+                skipHistoryCollections: parameters.skipHistoryCollections ? true : false,
+                adminLogger: adminLogger,
             })
     );
 
@@ -56,7 +58,7 @@ async function main() {
     const processUpdateFhirRunner = container.processUpdateFhirRunner;
     await processUpdateFhirRunner.processAsync();
 
-    console.log('Exiting process');
+    adminLogger.logInfo('Exiting process');
     process.exit(0);
 }
 
@@ -67,7 +69,7 @@ async function main() {
  * TARGET_CLUSTER_USERNAME, TARGET_CLUSTER_PASSWORD, TARGET_CLUSTER_MONGO_URL, TARGET_DB_NAME
  * SOURCE_CLUSTER_USERNAME, SOURCE_CLUSTER_PASSWORD, SOURCE_CLUSTER_MONGO_URL, SOURCE_DB_NAME
  * node src/admin/scripts/updateCollections.js --updatedBefore=2023-03-14 --readbatchSize=10000 --concurrentRunners=5 --_idAbove="1" --startWithCollection="Task_4_0_0"
- * node src/admin/scripts/updateCollections.js --updatedBefore=2023-03-14 --collections=Task_4_0_0
+ * node src/admin/scripts/updateCollections.js --updatedBefore=2023-03-14 --collections=Task_4_0_0 --skipHistoryCollections
  */
 main().catch((reason) => {
     console.error(reason);

@@ -20,6 +20,8 @@ const {getCircularReplacer} = require('../../utils/getCircularReplacer');
 const {ParsedArgs} = require('../query/parsedArgs');
 const {ConfigManager} = require('../../utils/configManager');
 const {FhirResourceCreator} = require('../../fhir/fhirResourceCreator');
+const {DatabaseAttachmentManager} = require('../../dataLayer/databaseAttachmentManager');
+const {RETRIEVE} = require('../../constants').GRIDFS;
 
 /**
  * Update Operation
@@ -38,6 +40,7 @@ class UpdateOperation {
      * @param {DatabaseBulkInserter} databaseBulkInserter
      * @param {ResourceMerger} resourceMerger
      * @param {ConfigManager} configManager
+     * @param {DatabaseAttachmentManager} databaseAttachmentManager
      */
     constructor(
         {
@@ -51,7 +54,8 @@ class UpdateOperation {
             resourceValidator,
             databaseBulkInserter,
             resourceMerger,
-            configManager
+            configManager,
+            databaseAttachmentManager
         }
     ) {
         /**
@@ -111,6 +115,12 @@ class UpdateOperation {
          */
         this.configManager = configManager;
         assertTypeEquals(configManager, ConfigManager);
+
+        /**
+         * @type {DatabaseAttachmentManager}
+         */
+        this.databaseAttachmentManager = databaseAttachmentManager;
+        assertTypeEquals(databaseAttachmentManager, DatabaseAttachmentManager);
     }
 
     /**
@@ -208,6 +218,7 @@ class UpdateOperation {
             }
         }
 
+
         try {
             // Get current record
             const databaseQueryManager = this.databaseQueryFactory.createQuery(
@@ -244,7 +255,8 @@ class UpdateOperation {
                 const {updatedResource, patches} = await this.resourceMerger.mergeResourceAsync({
                     currentResource: foundResource,
                     resourceToMerge: resource_incoming,
-                    smartMerge: false
+                    smartMerge: false,
+                    databaseAttachmentManager: this.databaseAttachmentManager,
                 });
                 doc = updatedResource;
                 if (doc) { // if there is a change
@@ -252,6 +264,7 @@ class UpdateOperation {
                     if (this.configManager.requireMetaSourceTags && (!doc.meta || !doc.meta.source)) {
                         throw new BadRequestError(new Error('Unable to update resource. Missing either metadata or metadata source.'));
                     }
+
                     await this.databaseBulkInserter.replaceOneAsync(
                         {
                             requestId, resourceType, doc,
@@ -293,7 +306,9 @@ class UpdateOperation {
                     resource_incoming.meta['lastUpdated'] = new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ssZ'));
                 }
 
-                doc = resource_incoming;
+                // changing the attachment.data to attachment._file_id from request
+                doc = await this.databaseAttachmentManager.transformAttachments(resource_incoming);
+
                 await this.databaseBulkInserter.insertOneAsync({requestId, resourceType, doc});
             }
 
@@ -330,6 +345,9 @@ class UpdateOperation {
                     );
                     await this.auditLogger.flushAsync({requestId, currentDate, method});
                 }
+
+                // changing the attachment._file_id to attachment.data for response
+                doc = await this.databaseAttachmentManager.transformAttachments(doc, RETRIEVE);
 
                 const result = {
                     id: id,

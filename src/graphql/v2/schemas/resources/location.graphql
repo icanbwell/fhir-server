@@ -12,7 +12,7 @@
 # import ContactPoint from "../complex_types/contactPoint.graphql"
 # import Address from "../complex_types/address.graphql"
 # import LocationPosition from "../backbone_elements/locationPosition.graphql"
-# import Organization from "../resources/organization.graphql"
+# import Reference from "../complex_types/reference.graphql"
 # import LocationHoursOfOperation from "../backbone_elements/locationHoursOfOperation.graphql"
 
 

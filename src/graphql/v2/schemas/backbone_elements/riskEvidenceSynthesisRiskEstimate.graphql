@@ -2,6 +2,7 @@
 # import Extension from "../extensions/extension.graphql"
 # import CodeableConcept from "../complex_types/codeableConcept.graphql"
 # import decimal from "../simple_types/decimal.graphql"
+# import integer from "../simple_types/int.graphql"
 # import RiskEvidenceSynthesisPrecisionEstimate from "../backbone_elements/riskEvidenceSynthesisPrecisionEstimate.graphql"
 
 

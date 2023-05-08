@@ -78,6 +78,7 @@ when possible, to always implement the better patterns since the data size may i
 ### Recommended Pattern for AuditEvent
 
 There are, of course, a lot of events in the system. As a result, you can use an even more optimized access pattern:
+Note: To search for an AuditEvent resource, specific dates must be provided to define the range within which the search will be conducted. It is recommended to keep the date range as narrow as possible to expedite the search process.  
 
 1. Define the date range you're interested in e.g., you want events that were created or updated between 1/20/2022 and 1/30/2022.
 2. Iterate over this range, so you pull ids for records one day at a time. When you get the first page of data use the last id received and pass that as `id:above` parameter in the next call. This will allow you to leverage the index and will be much faster.

@@ -1,7 +1,7 @@
 // noinspection ExceptionCaughtLocallyJS
 
 const {BadRequestError, NotFoundError} = require('../../utils/httpErrors');
-const {validate, applyPatch} = require('fast-json-patch');
+const {validate, applyPatch, compare} = require('fast-json-patch');
 const moment = require('moment-timezone');
 const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
 const {DatabaseQueryFactory} = require('../../dataLayer/databaseQueryFactory');
@@ -14,6 +14,8 @@ const {getCircularReplacer} = require('../../utils/getCircularReplacer');
 const {fhirContentTypes} = require('../../utils/contentTypes');
 const {ParsedArgs} = require('../query/parsedArgs');
 const {FhirResourceCreator} = require('../../fhir/fhirResourceCreator');
+const {DatabaseAttachmentManager} = require('../../dataLayer/databaseAttachmentManager');
+const {DELETE, RETRIEVE} = require('../../constants').GRIDFS;
 
 class PatchOperation {
     /**
@@ -24,6 +26,7 @@ class PatchOperation {
      * @param {FhirLoggingManager} fhirLoggingManager
      * @param {ScopesValidator} scopesValidator
      * @param {DatabaseBulkInserter} databaseBulkInserter
+     * @param {DatabaseAttachmentManager} databaseAttachmentManager
      */
     constructor(
         {
@@ -32,7 +35,8 @@ class PatchOperation {
             postRequestProcessor,
             fhirLoggingManager,
             scopesValidator,
-            databaseBulkInserter
+            databaseBulkInserter,
+            databaseAttachmentManager
         }
     ) {
         /**
@@ -65,6 +69,11 @@ class PatchOperation {
          */
         this.databaseBulkInserter = databaseBulkInserter;
         assertTypeEquals(databaseBulkInserter, DatabaseBulkInserter);
+        /**
+         * @type {DatabaseAttachmentManager}
+         */
+        this.databaseAttachmentManager = databaseAttachmentManager;
+        assertTypeEquals(databaseAttachmentManager, DatabaseAttachmentManager);
     }
 
     /**
@@ -138,17 +147,23 @@ class PatchOperation {
             if (!foundResource) {
                 throw new NotFoundError('Resource not found');
             }
+            const originalResource = foundResource.clone();
+            foundResource = await this.databaseAttachmentManager.transformAttachments(
+                foundResource, RETRIEVE, patchContent
+            );
+
             // Validate the patch
             let errors = validate(patchContent, foundResource);
-            if (errors && Object.keys(errors).length > 0) {
-                throw new BadRequestError(errors[0]);
+            if (errors) {
+                const error = Array.isArray(errors) && errors.length && errors.find(e => !!e) ? errors.find(e => !!e) : errors;
+                throw new BadRequestError(error);
             }
             // Make the changes indicated in the patch
             /**
              * @type {Object}
              */
             let resource_incoming = applyPatch(foundResource.toJSONInternal(), patchContent).newDocument;
-
+            const appliedPatchContent = compare(foundResource.toJSONInternal(), resource_incoming);
             /**
              * @type {Resource}
              */
@@ -167,6 +182,14 @@ class PatchOperation {
                     'Unable to patch resource. Missing either foundResource, metadata or metadata source.'
                 ));
             }
+
+            // removing the files that are patched
+            await this.databaseAttachmentManager.transformAttachments(
+                originalResource, DELETE, appliedPatchContent.filter(patch => patch.op !== 'add')
+            );
+
+            // converting attachment.data to attachment._file_id for the response
+            resource = await this.databaseAttachmentManager.transformAttachments(resource);
 
             // Same as update from this point on
             // Insert/update our resource record
@@ -217,6 +240,9 @@ class PatchOperation {
                     await this.changeEventProducer.flushAsync({requestId});
                 }
             });
+
+            // converting attachment._file_id to attachment.data for the response
+            resource = await this.databaseAttachmentManager.transformAttachments(resource, RETRIEVE);
 
             return {
                 id: resource.id,

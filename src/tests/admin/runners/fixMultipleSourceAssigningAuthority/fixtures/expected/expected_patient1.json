@@ -1,0 +1,107 @@
+{
+  "resourceType": "Patient",
+  "id": "VAEagle-123456789",
+  "meta": {
+    "versionId": "23",
+    "lastUpdated": "2023-04-25T14:56:11.000Z",
+    "source": "https://www.vaeagle.com/boonchapman/eligibility",
+    "security": [
+      {
+        "system": "https://www.icanbwell.com/owner",
+        "code": "virginiaeagle"
+      },
+      {
+        "system": "https://www.icanbwell.com/access",
+        "code": "virginiaeagle"
+      },
+      {
+        "system": "https://www.icanbwell.com/vendor",
+        "code": "boon-chapman"
+      },
+      {
+        "system": "https://www.icanbwell.com/access",
+        "code": "boon-chapman"
+      },
+      {
+        "system": "https://www.icanbwell.com/owner",
+        "code": "lnf"
+      },
+      {
+        "system": "https://www.icanbwell.com/access",
+        "code": "lnf"
+      },
+      {
+        "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+        "code": "virginiaeagle"
+      }
+    ]
+  },
+  "identifier": [
+    {
+      "use": "usual",
+      "type": {
+        "coding": [
+          {
+            "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+            "code": "MB"
+          }
+        ],
+        "text": "Member Number"
+      },
+      "system": "https://www.boonchapman.com/",
+      "value": "123456789"
+    },
+    {
+      "id": "sourceId",
+      "system": "https://www.icanbwell.com/sourceId",
+      "value": "VAEagle-123456789"
+    },
+    {
+      "id": "uuid",
+      "system": "https://www.icanbwell.com/uuid",
+      "value": "29763599-2e06-5020-bd7c-1dc5fa1f6daf"
+    }
+  ],
+  "active": true,
+  "name": [
+    {
+      "id": "amp-0",
+      "family": "Doe",
+      "given": [
+        "John",
+        "M"
+      ]
+    }
+  ],
+  "telecom": [
+    {
+      "id": "amp-0",
+      "system": "phone"
+    },
+    {
+      "id": "amp-1",
+      "system": "phone"
+    }
+  ],
+  "gender": "male",
+  "birthDate": "2001-07-14",
+  "address": [
+    {
+      "id": "amp-0",
+      "line": [
+        "1 main st."
+      ],
+      "city": "main city",
+      "state": "VA",
+      "postalCode": "22407"
+    }
+  ],
+  "_access": {
+    "virginiaeagle": 1,
+    "boon-chapman": 1,
+    "lnf": 1
+  },
+  "_sourceAssigningAuthority": "virginiaeagle",
+  "_uuid": "29763599-2e06-5020-bd7c-1dc5fa1f6daf",
+  "_sourceId": "VAEagle-123456789"
+}

@@ -4,6 +4,7 @@ const {ChangeEventProducer} = require('./utils/changeEventProducer');
 const {ResourceManager} = require('./operations/common/resourceManager');
 const {DatabaseBulkInserter} = require('./dataLayer/databaseBulkInserter');
 const {DatabaseBulkLoader} = require('./dataLayer/databaseBulkLoader');
+const {DatabaseAttachmentManager} = require('./dataLayer/databaseAttachmentManager');
 const {PostRequestProcessor} = require('./utils/postRequestProcessor');
 const {AuditLogger} = require('./utils/auditLogger');
 const {ErrorReporter} = require('./utils/slack.logger');
@@ -144,7 +145,8 @@ const createContainer = function () {
         ]
     }));
     container.register('resourceMerger', (c) => new ResourceMerger({
-        preSaveManager: c.preSaveManager
+        preSaveManager: c.preSaveManager,
+        databaseAttachmentManager: c.databaseAttachmentManager
     }));
     container.register('scopesValidator', (c) => new ScopesValidator({
         scopesManager: c.scopesManager,
@@ -188,7 +190,8 @@ const createContainer = function () {
     container.register('mongoCollectionManager', (c) => new MongoCollectionManager(
         {
             indexManager: c.indexManager,
-            configManager: c.configManager
+            configManager: c.configManager,
+            mongoDatabaseManager: c.mongoDatabaseManager
         }));
     container.register('valueSetManager', (c) => new ValueSetManager(
         {
@@ -204,7 +207,8 @@ const createContainer = function () {
     container.register('databaseQueryFactory', (c) => new DatabaseQueryFactory(
         {
             resourceLocatorFactory: c.resourceLocatorFactory,
-            mongoFilterGenerator: c.mongoFilterGenerator
+            mongoFilterGenerator: c.mongoFilterGenerator,
+            databaseAttachmentManager: c.databaseAttachmentManager
         }));
     container.register('databaseHistoryFactory', (c) => new DatabaseHistoryFactory(
         {
@@ -246,7 +250,8 @@ const createContainer = function () {
                 configManager: c.configManager,
                 queryRewriterManager: c.queryRewriterManager,
                 personToPatientIdsExpander: c.personToPatientIdsExpander,
-                scopesManager: c.scopesManager
+                scopesManager: c.scopesManager,
+                databaseAttachmentManager: c.databaseAttachmentManager
             }
         )
     );
@@ -269,7 +274,8 @@ const createContainer = function () {
                 resourceValidator: c.resourceValidator,
                 preSaveManager: c.preSaveManager,
                 configManager: c.configManager,
-                mongoFilterGenerator: c.mongoFilterGenerator
+                mongoFilterGenerator: c.mongoFilterGenerator,
+                databaseAttachmentManager: c.databaseAttachmentManager
             }
         )
     );
@@ -286,7 +292,8 @@ const createContainer = function () {
                 databaseUpdateFactory: c.databaseUpdateFactory,
                 resourceMerger: c.resourceMerger,
                 configManager: c.configManager,
-                mongoFilterGenerator: c.mongoFilterGenerator
+                mongoFilterGenerator: c.mongoFilterGenerator,
+                databaseAttachmentManager: c.databaseAttachmentManager
             }
         )
     );
@@ -321,7 +328,8 @@ const createContainer = function () {
                 r4SearchQueryCreator: c.r4SearchQueryCreator,
                 searchManager: c.searchManager,
                 enrichmentManager: c.enrichmentManager,
-                r4ArgsParser: c.r4ArgsParser
+                r4ArgsParser: c.r4ArgsParser,
+                databaseAttachmentManager: c.databaseAttachmentManager
             }
         )
     );
@@ -339,7 +347,8 @@ const createContainer = function () {
                 fhirLoggingManager: c.fhirLoggingManager,
                 scopesValidator: c.scopesValidator,
                 bundleManager: c.bundleManager,
-                configManager: c.configManager
+                configManager: c.configManager,
+                databaseAttachmentManager: c.databaseAttachmentManager
             }
         )
     );
@@ -366,7 +375,8 @@ const createContainer = function () {
             fhirLoggingManager: c.fhirLoggingManager,
             scopesValidator: c.scopesValidator,
             enrichmentManager: c.enrichmentManager,
-            configManager: c.configManager
+            configManager: c.configManager,
+            databaseAttachmentManager: c.databaseAttachmentManager
         }
     ));
     container.register('createOperation', (c) => new CreateOperation(
@@ -379,7 +389,8 @@ const createContainer = function () {
                 scopesValidator: c.scopesValidator,
                 resourceValidator: c.resourceValidator,
                 databaseBulkInserter: c.databaseBulkInserter,
-                configManager: c.configManager
+                configManager: c.configManager,
+                databaseAttachmentManager: c.databaseAttachmentManager
             }
         )
     );
@@ -397,7 +408,8 @@ const createContainer = function () {
                 resourceLocatorFactory: c.resourceLocatorFactory,
                 databaseBulkInserter: c.databaseBulkInserter,
                 resourceMerger: c.resourceMerger,
-                configManager: c.configManager
+                configManager: c.configManager,
+                databaseAttachmentManager: c.databaseAttachmentManager
             }
         )
     );
@@ -445,7 +457,8 @@ const createContainer = function () {
             scopesValidator: c.scopesValidator,
             enrichmentManager: c.enrichmentManager,
             configManager: c.configManager,
-            searchManager: c.searchManager
+            searchManager: c.searchManager,
+            databaseAttachmentManager: c.databaseAttachmentManager
         }
     ));
     container.register('historyOperation', (c) => new HistoryOperation(
@@ -458,7 +471,8 @@ const createContainer = function () {
             resourceLocatorFactory: c.resourceLocatorFactory,
             configManager: c.configManager,
             searchManager: c.searchManager,
-            resourceManager: c.resourceManager
+            resourceManager: c.resourceManager,
+            databaseAttachmentManager: c.databaseAttachmentManager
         }
     ));
     container.register('historyByIdOperation', (c) => new HistoryByIdOperation(
@@ -471,7 +485,8 @@ const createContainer = function () {
             resourceLocatorFactory: c.resourceLocatorFactory,
             configManager: c.configManager,
             searchManager: c.searchManager,
-            resourceManager: c.resourceManager
+            resourceManager: c.resourceManager,
+            databaseAttachmentManager: c.databaseAttachmentManager
         }
     ));
     container.register('patchOperation', (c) => new PatchOperation(
@@ -481,7 +496,8 @@ const createContainer = function () {
             postRequestProcessor: c.postRequestProcessor,
             fhirLoggingManager: c.fhirLoggingManager,
             scopesValidator: c.scopesValidator,
-            databaseBulkInserter: c.databaseBulkInserter
+            databaseBulkInserter: c.databaseBulkInserter,
+            databaseAttachmentManager: c.databaseAttachmentManager
         }
     ));
     container.register('validateOperation', (c) => new ValidateOperation(
@@ -507,7 +523,15 @@ const createContainer = function () {
             scopesManager: c.scopesManager,
             fhirLoggingManager: c.fhirLoggingManager,
             scopesValidator: c.scopesValidator,
-            enrichmentManager: c.enrichmentManager
+            enrichmentManager: c.enrichmentManager,
+            databaseAttachmentManager: c.databaseAttachmentManager
+        }
+    ));
+
+    container.register('databaseAttachmentManager', (c) => new DatabaseAttachmentManager(
+        {
+            mongoDatabaseManager: c.mongoDatabaseManager,
+            configManager: c.configManager
         }
     ));
 
@@ -584,7 +608,8 @@ const createContainer = function () {
 
     container.register('adminPersonPatientLinkManager', (c) => new AdminPersonPatientLinkManager({
         databaseQueryFactory: c.databaseQueryFactory,
-        databaseUpdateFactory: c.databaseUpdateFactory
+        databaseUpdateFactory: c.databaseUpdateFactory,
+        fhirOperationsManager: c.fhirOperationsManager
     }));
 
     container.register('bwellPersonFinder', (c) => new BwellPersonFinder({

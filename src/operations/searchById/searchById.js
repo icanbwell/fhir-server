@@ -15,6 +15,8 @@ const {ConfigManager} = require('../../utils/configManager');
 const {getFirstResourceOrNull} = require('../../utils/list.util');
 const {SecurityTagSystem} = require('../../utils/securityTagSystem');
 const {ParsedArgs} = require('../query/parsedArgs');
+const {DatabaseAttachmentManager} = require('../../dataLayer/databaseAttachmentManager');
+const {RETRIEVE} = require('../../constants').GRIDFS;
 
 class SearchByIdOperation {
     /**
@@ -28,6 +30,7 @@ class SearchByIdOperation {
      * @param {ScopesValidator} scopesValidator
      * @param {EnrichmentManager} enrichmentManager
      * @param {ConfigManager} configManager
+     * @param {DatabaseAttachmentManager} databaseAttachmentManager
      */
     constructor(
         {
@@ -39,7 +42,8 @@ class SearchByIdOperation {
             fhirLoggingManager,
             scopesValidator,
             enrichmentManager,
-            configManager
+            configManager,
+            databaseAttachmentManager
         }
     ) {
         /**
@@ -90,6 +94,11 @@ class SearchByIdOperation {
         this.configManager = configManager;
         assertTypeEquals(configManager, ConfigManager);
 
+        /**
+         * @type {DatabaseAttachmentManager}
+         */
+        this.databaseAttachmentManager = databaseAttachmentManager;
+        assertTypeEquals(databaseAttachmentManager, DatabaseAttachmentManager);
     }
 
     /**
@@ -104,6 +113,9 @@ class SearchByIdOperation {
         assertIsValid(resourceType !== undefined);
         assertTypeEquals(parsedArgs, ParsedArgs);
         const currentOperationName = 'searchById';
+        const extraInfo = {
+            currentOperationName: currentOperationName
+        };
         /**
          * @type {number}
          */
@@ -173,7 +185,7 @@ class SearchByIdOperation {
             /**
              * @type {DatabasePartitionedCursor}
              */
-            const cursor = await databaseQueryManager.findAsync({query});
+            const cursor = await databaseQueryManager.findAsync({query, extraInfo});
             // we can convert to array since we don't expect to be many resources that have same id
             /**
              * @type {Resource[]}
@@ -240,6 +252,9 @@ class SearchByIdOperation {
                         startTime,
                         action: currentOperationName
                     });
+
+                resource = await this.databaseAttachmentManager.transformAttachments(resource, RETRIEVE);
+
                 return resource;
             } else {
                 throw new NotFoundError(`Resource not found: ${resourceType}/${id}`);

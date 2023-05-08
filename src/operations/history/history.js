@@ -14,6 +14,8 @@ const BundleEntry = require('../../fhir/classes/4_0_0/backbone_elements/bundleEn
 const {ResourceManager} = require('../common/resourceManager');
 const {ParsedArgs} = require('../query/parsedArgs');
 const {QueryItem} = require('../graph/queryItem');
+const {DatabaseAttachmentManager} = require('../../dataLayer/databaseAttachmentManager');
+const {RETRIEVE} = require('../../constants').GRIDFS;
 
 class HistoryOperation {
     /**
@@ -27,6 +29,7 @@ class HistoryOperation {
      * @param {ConfigManager} configManager
      * @param {SearchManager} searchManager
      * @param {ResourceManager} resourceManager
+     * @param {DatabaseAttachmentManager} databaseAttachmentManager
      */
     constructor(
         {
@@ -38,7 +41,8 @@ class HistoryOperation {
             resourceLocatorFactory,
             configManager,
             searchManager,
-            resourceManager
+            resourceManager,
+            databaseAttachmentManager
         }
     ) {
         /**
@@ -90,6 +94,12 @@ class HistoryOperation {
          */
         this.resourceManager = resourceManager;
         assertTypeEquals(resourceManager, ResourceManager);
+
+        /**
+         * @type {DatabaseAttachmentManager}
+         */
+        this.databaseAttachmentManager = databaseAttachmentManager;
+        assertTypeEquals(databaseAttachmentManager, DatabaseAttachmentManager);
     }
 
     /**
@@ -218,13 +228,22 @@ class HistoryOperation {
          */
         const resources = [];
         while (await cursor.hasNext()) {
-            const resource = await cursor.next();
+            let resource = await cursor.next();
             if (!resource) {
                 throw new NotFoundError('Resource not found');
             }
             if (this.scopesManager.isAccessToResourceAllowedBySecurityTags({
                 resource: resource, user, scope
             })) {
+                if (resource.resource) {
+                    resource.resource = await this.databaseAttachmentManager.transformAttachments(
+                        resource.resource, RETRIEVE
+                    );
+                } else {
+                    resource = await this.databaseAttachmentManager.transformAttachments(
+                        resource, RETRIEVE
+                    );
+                }
                 resources.push(resource);
             }
         }

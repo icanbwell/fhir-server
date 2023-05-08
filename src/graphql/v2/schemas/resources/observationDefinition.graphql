@@ -10,7 +10,7 @@
 # import Identifier from "../complex_types/identifier.graphql"
 # import ObservationDefinitionQuantitativeDetails from "../backbone_elements/observationDefinitionQuantitativeDetails.graphql"
 # import ObservationDefinitionQualifiedInterval from "../backbone_elements/observationDefinitionQualifiedInterval.graphql"
-# import ValueSet from "../resources/valueSet.graphql"
+# import Reference from "../complex_types/reference.graphql"
 
 
 

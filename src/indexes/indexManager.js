@@ -251,7 +251,7 @@ class IndexManager {
          */
         const commandCursor = db.listCollections();
         await commandCursor.forEach(collection => {
-            if (collection.name.indexOf('system.') === -1) {
+            if (this.isNotSystemCollection(collection.name)) {
                 collectionNames.push(collection.name);
             }
         });
@@ -456,7 +456,7 @@ class IndexManager {
             const collection_names = [];
 
             for await (const collection of db.listCollections()) {
-                if (collection.name.indexOf('system.') === -1) {
+                if (this.isNotSystemCollection(collection.name)) {
                     collection_names.push(collection.name);
                 }
             }
@@ -497,8 +497,8 @@ class IndexManager {
             await this.mongoDatabaseManager.getClientDbAsync();
         const collection_names = [];
 
-        for await (const collection of db.listCollections()) {
-            if (collection.name.indexOf('system.') === -1) {
+        for await (const collection of db.listCollections({ type: {$ne: 'view'} })) {
+            if (this.isNotSystemCollection(collection.name)) {
                 collection_names.push(collection.name);
             }
         }
@@ -558,7 +558,7 @@ class IndexManager {
         let collectionNames = [];
 
         for await (const collection of db.listCollections()) {
-            if (collection.name.indexOf('system.') === -1) {
+            if (this.isNotSystemCollection(collection.name)) {
                 collectionNames.push(collection.name);
             }
         }
@@ -687,6 +687,16 @@ class IndexManager {
             created: collectionIndexesCreated,
             dropped: collectionIndexesDropped
         };
+    }
+
+    /**
+     * Check if a collection is system collection or not
+     * @param {String} collectionName
+     * @returns {boolean}
+     */
+    isNotSystemCollection(collectionName){
+        const systemCollectionNames = ['system.', 'fs.files', 'fs.chunks'];
+        return !systemCollectionNames.some(systemCollectionName => collectionName.indexOf(systemCollectionName) !== -1);
     }
 }
 

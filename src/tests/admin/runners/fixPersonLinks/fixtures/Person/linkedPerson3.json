@@ -1,0 +1,112 @@
+{
+  "_id": "63a1ed9bee8f8b723be0d743",
+  "resourceType": "Person",
+  "id": "c7fb5507169f43f7abcd9e7d8b7fa69a",
+  "meta": {
+    "versionId": "1",
+    "lastUpdated": "2023-02-24T22:44:45.000Z",
+    "security": [
+      {
+        "system": "https://www.icanbwell.com/access",
+        "code": "unitypoint"
+      },
+      {
+        "system": "https://www.icanbwell.com/owner",
+        "code": "unitypoint"
+      },
+      {
+        "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+        "code": "unitypoint"
+      }
+    ]
+  },
+  "identifier": [
+    {
+      "type": {
+        "coding": [
+          {
+            "system": "https://www.icanbwell.com",
+            "code": "FHIR_id",
+            "display": "bWell FHIR id"
+          }
+        ]
+      },
+      "system": "https://www.icanbwell.com",
+      "value": "bwell-c7fb5507169f43f7abcd9e7d8b7fa69a"
+    },
+    {
+      "id": "sourceId",
+      "system": "https://www.icanbwell.com/sourceId",
+      "value": "c7fb5507169f43f7abcd9e7d8b7fa69a"
+    },
+    {
+      "id": "uuid",
+      "system": "https://www.icanbwell.com/uuid",
+      "value": "8b8c4dab-f94c-5805-9729-68053a51ee8e"
+    }
+  ],
+  "name": [
+    {
+      "use": "official",
+      "text": "Sweetie hfqcngkxht",
+      "family": "hfqcngkxht",
+      "given": [
+        "Sweetie"
+      ]
+    }
+  ],
+  "telecom": [
+    {
+      "system": "phone",
+      "value": "+15125550156",
+      "use": "home"
+    }
+  ],
+  "gender": "male",
+  "birthDate": "1991-09-10",
+  "address": [
+    {
+      "line": [
+        "801 W 5th St"
+      ],
+      "city": "Austin",
+      "state": "TX",
+      "postalCode": "78703"
+    }
+  ],
+  "link": [
+    {
+      "target": {
+        "extension": [
+          {
+            "id": "sourceId",
+            "url": "https://www.icanbwell.com/sourceId",
+            "valueString": "Patient/d2ae6bce9ffb44ecaf29d6a4629fdc20"
+          },
+          {
+            "id": "uuid",
+            "url": "https://www.icanbwell.com/uuid",
+            "valueString": "Patient/73193e89-9f15-52b3-8ad2-aa41e9d49954"
+          },
+          {
+            "id": "sourceAssigningAuthority",
+            "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+            "valueString": "unitypoint"
+          }
+        ],
+        "reference": "Patient/d2ae6bce9ffb44ecaf29d6a4629fdc20",
+        "type": "Patient",
+        "_sourceAssigningAuthority": "unitypoint",
+        "_uuid": "Patient/73193e89-9f15-52b3-8ad2-aa41e9d49954",
+        "_sourceId": "Patient/d2ae6bce9ffb44ecaf29d6a4629fdc20"
+      },
+      "assurance": "level4"
+    }
+  ],
+  "_access": {
+    "unitypoint": 1
+  },
+  "_sourceAssigningAuthority": "unitypoint",
+  "_uuid": "8b8c4dab-f94c-5805-9729-68053a51ee8e",
+  "_sourceId": "c7fb5507169f43f7abcd9e7d8b7fa69a"
+}

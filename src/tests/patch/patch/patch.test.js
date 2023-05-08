@@ -4,9 +4,10 @@ const person1Resource = require('./fixtures/Person/person1.json');
 // expected
 const expectedPersonResources = require('./fixtures/expected/expected_person.json');
 const patch1 = require('./fixtures/patches/patch1.json');
+const patch2 = require('./fixtures/patches/patch2.json');
 
 const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest, getHeadersJsonPatch} = require('../../common');
-const {describe, beforeEach, afterEach, test} = require('@jest/globals');
+const { describe, beforeEach, afterEach, test } = require('@jest/globals');
 
 describe('Person Tests', () => {
     beforeEach(async () => {
@@ -27,7 +28,7 @@ describe('Person Tests', () => {
                 .send(person1Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             // ACT & ASSERT
             resp = await request
@@ -50,7 +51,7 @@ describe('Person Tests', () => {
                 .send(person1Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveMergeResponse({created: true});
+            expect(resp).toHaveMergeResponse({ created: true });
 
             // ACT & ASSERT
             resp = await request
@@ -69,6 +70,37 @@ describe('Person Tests', () => {
                         'diagnostics': 'Content-Type application/fhir+json is not supported for patch. Only application/json-patch+json is supported.'
                     }
                 ]
+            });
+        });
+        test('patch fails due to invalid body', async () => {
+            const request = await createTestRequest();
+            // ARRANGE
+            // add the resources to FHIR server
+            let resp = await request
+                .post('/4_0_0/Person/1/$merge?validate=true')
+                .send(person1Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({ created: true });
+
+            // ACT & ASSERT
+            resp = await request
+                .patch('/4_0_0/Person/7d744c63-fa81-45e9-bcb4-f312940e9300')
+                .send(patch2)
+                .set(getHeadersJsonPatch());
+
+            expect(resp.body).toStrictEqual({
+                'issue': [
+                    {
+                        'code': 'invalid',
+                        'details': {
+                            'text': 'Operation `value` property is not present (applicable in `add`, `replace` and `test` operations)\nname: OPERATION_VALUE_REQUIRED\nindex: 0\noperation: {\n  "op": "replace",\n  "path": "/gender"\n}',
+                        },
+                        'diagnostics': 'OPERATION_VALUE_REQUIRED: Operation `value` property is not present (applicable in `add`, `replace` and `test` operations)\nname: OPERATION_VALUE_REQUIRED\nindex: 0\noperation: {\n  "op": "replace",\n  "path": "/gender"\n}',
+                        'severity': 'error',
+                    },
+                ],
+                'resourceType': 'OperationOutcome',
             });
         });
     });
