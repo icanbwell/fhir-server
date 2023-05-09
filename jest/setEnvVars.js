@@ -24,3 +24,5 @@ process.env.LOGLEVEL = 'TRACE';
 process.env.GRIDFS_RESOURCES = 'DocumentReference';
 process.env.REQUIRED_AUDIT_EVENT_FILTERS = 'date';
 process.env.AUDIT_EVENT_MAX_RANGE_PERIOD = '240'
+process.env.KAFKA_SASL_USERNAME = 'msk_user_dev_ue1';
+process.env.KAFKA_SASL_PASSWORD = 'foo;ar';
