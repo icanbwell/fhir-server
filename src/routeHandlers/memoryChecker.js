@@ -17,6 +17,8 @@ module.exports.handleMemoryCheck = (req, res, memoryThresholdOffset) => {
         memThreshold += memoryThresholdOffset;
     }
     if (memoryUsedPercentage > memThreshold) {
+        console.dir(heapStats);
+        console.log(`memoryUsedMB = ${memoryUsedMB}, memoryAllocatedMB = ${memoryAllocatedMB}, preDefinedMemoryMB = ${preDefinedMemoryMB}, memoryUsedPercentage = ${memoryUsedPercentage}, memThreshold = ${memThreshold}`);
         return res.sendStatus(455);
     }
     return res.sendStatus(200);
