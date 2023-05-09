@@ -1,25 +1,19 @@
 const env = require('var');
 const {KafkaClient} = require('./kafkaClient');
 const {assertTypeEquals} = require('./assertType');
-const {AwsSecretsManager} = require('./awsSecretsManager');
 const {ConfigManager} = require('./configManager');
 const {DummyKafkaClient} = require('./dummyKafkaClient');
 
 class KafkaClientFactory {
     /**
      * constructor
-     * @param {AwsSecretsManager} secretsManager
      * @param {ConfigManager} configManager
      */
     constructor(
         {
-            secretsManager,
             configManager
         }
     ) {
-        this.secretsManager = secretsManager;
-        assertTypeEquals(secretsManager, AwsSecretsManager);
-
         this.configManager = configManager;
         assertTypeEquals(configManager, ConfigManager);
 
@@ -47,19 +41,10 @@ class KafkaClientFactory {
             accessKeyId: this.configManager.kafkaAccessKeyId || null,
             secretAccessKey: this.configManager.kafkaAccessKeySecret || null
         } : null;
-        if (this.configManager.kafkaUseSasl && this.configManager.kafkaAwsSecretName) {
+        if (this.configManager.kafkaUseSasl) {
             if (!this.userName || !this.password) {
-                if (env.KAFKA_SASL_USERNAME && env.KAFKA_SASL_PASSWORD) {
-                    this.userName = env.KAFKA_SASL_USERNAME;
-                    this.password = env.KAFKA_SASL_PASSWORD;
-                } else {
-                    const {
-                        username,
-                        password,
-                    } = await this.secretsManager.getSecretValueAsync({ secretName: this.configManager.kafkaAwsSecretName });
-                    this.userName = username;
-                    this.password = password;
-                }
+                this.userName = env.KAFKA_SASL_USERNAME;
+                this.password = env.KAFKA_SASL_PASSWORD;
             }
             sasl.username = this.userName;
             sasl.password = this.password;

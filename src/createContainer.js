@@ -73,9 +73,7 @@ const {RequestSpecificCache} = require('./utils/requestSpecificCache');
 const {PatientFilterManager} = require('./fhir/patientFilterManager');
 const {AdminPersonPatientDataManager} = require('./admin/adminPersonPatientDataManager');
 const {ProxyPatientReferenceEnrichmentProvider} = require('./enrich/providers/proxyPatientReferenceEnrichmentProvider');
-const {AwsSecretsManager} = require('./utils/awsSecretsManager');
 const {KafkaClientFactory} = require('./utils/kafkaClientFactory');
-const {AwsSecretsClientFactory} = require('./utils/awsSecretsClientFactory');
 const {PersonMatchManager} = require('./admin/personMatchManager');
 const {MongoFilterGenerator} = require('./utils/mongoFilterGenerator');
 const {R4ArgsParser} = require('./operations/query/r4ArgsParser');
@@ -94,14 +92,8 @@ const createContainer = function () {
     const container = new SimpleContainer();
 
     container.register('configManager', () => new ConfigManager());
-    container.register('secretsManagerClientFactory', () => new AwsSecretsClientFactory());
-
-    container.register('awsSecretsManager', (c) => new AwsSecretsManager({
-        secretsManagerClientFactory: c.secretsManagerClientFactory
-    }));
 
     container.register('kafkaClientFactory', (c) => new KafkaClientFactory({
-        secretsManager: c.awsSecretsManager,
         configManager: c.configManager
     }));
 
