@@ -237,6 +237,10 @@ module.exports.getGraphQLHeadersWithPerson = (personId) => {
         'custom:bwell_fhir_person_id': personId,
         scope: 'patient/*.read user/*.* access/*.*',
         username: 'patient-123@example.com',
+        'custom:clientFhirPersonId': 'clientFhirPerson',
+        'custom:clientFhirPatientId': 'clientFhirPatient',
+        'custom:bwellFhirPersonId': personId,
+        'custom:bwellFhirPatientId': 'bwellFhirPatient'
     };
     return {
         'Content-Type': 'application/json; charset=utf-8',
