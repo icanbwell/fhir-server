@@ -143,12 +143,17 @@ module.exports.commonAfterEach = async () => {
  * @return {string}
  */
 const getToken = (module.exports.getToken = (scope) => {
-    return createToken(privateKey, '123', {
+    const payload = {
         sub: 'john',
         username: 'imran',
         client_id: 'my_client_id',
         scope: scope,
-    });
+        'custom:clientFhirPersonId': 'clientFhirPerson',
+        'custom:clientFhirPatientId': 'clientFhirPatient',
+        'custom:bwellFhirPersonId': 'bwellFhirPerson',
+        'custom:bwellFhirPatientId': 'bwellFhirPatient'
+    };
+    return createToken(privateKey, '123', payload);
 });
 
 const getFullAccessToken = (module.exports.getFullAccessToken = () => {
