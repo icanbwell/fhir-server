@@ -20,18 +20,14 @@ class AdminLogManager {
         let node = env.LOG_ELASTIC_SEARCH_URL;
         assertIsValid(node, 'LOG_ELASTIC_SEARCH_URL environment variable is not defined but LOG_ELASTIC_SEARCH_ENABLE is set');
         logInfo(`Reading from ${node}`, {});
-        if (env.LOG_ELASTIC_SEARCH_USERNAME !== undefined && env.LOG_ELASTIC_SEARCH_PASSWORD !== undefined) {
-            node = node.replace('https://', `https://${env.LOG_ELASTIC_SEARCH_USERNAME}:${env.LOG_ELASTIC_SEARCH_PASSWORD}@`);
-        } else {
-            const username = env.ELASTIC_SEARCH_USERNAME;
-            const password = env.ELASTIC_SEARCH_PASSWORD;
-            assertIsValid(username);
-            assertIsValid(typeof username === 'string');
-            assertIsValid(password);
-            assertIsValid(typeof password === 'string');
-            logInfo(`Reading from ${node} with username: ${username}`, {});
-            node = node.replace('https://', `https://${username}:${password}@`);
-        }
+        const username = env.ELASTIC_SEARCH_USERNAME;
+        const password = env.ELASTIC_SEARCH_PASSWORD;
+        assertIsValid(username);
+        assertIsValid(typeof username === 'string');
+        assertIsValid(password);
+        assertIsValid(typeof password === 'string');
+        logInfo(`Reading from ${node} with username: ${username}`, {});
+        node = node.replace('https://', `https://${username}:${password}@`);
 
         /**
          * @type {Client}
