@@ -150,7 +150,7 @@ const getToken = (module.exports.getToken = (scope) => {
         scope: scope,
         'custom:clientFhirPersonId': 'clientFhirPerson',
         'custom:clientFhirPatientId': 'clientFhirPatient',
-        'custom:bwellFhirPersonId': 'bwellFhirPerson',
+        'custom:bwellFhirPersonId': 'root-person',
         'custom:bwellFhirPatientId': 'bwellFhirPatient'
     };
     return createToken(privateKey, '123', payload);

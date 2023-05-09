@@ -134,6 +134,15 @@ const verify = (jwt_payload, done) => {
                 context['patientIdsFromJwtToken'] = [fhirPatientId];
             }
             context['personIdFromJwtToken'] = jwt_payload['custom:bwellFhirPersonId'];
+ /*           const personIdFromJwtToken = jwt_payload['custom:bwell_fhir_person_id'];
+            if (personIdFromJwtToken) {
+                context['personIdFromJwtToken'] = personIdFromJwtToken;
+            } else {
+                const personIdFromJwtToken2 = jwt_payload['custom:bwellFhirPersonId'];
+                if (personIdFromJwtToken2) {
+                    context['personIdFromJwtToken'] = personIdFromJwtToken2;
+                }
+            }*/
         }
 
         return done(null, {id: client_id, isUser, name: username}, {scope, context});
