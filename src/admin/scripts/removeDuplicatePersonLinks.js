@@ -12,8 +12,10 @@ async function main() {
      * @type {Object}
      */
     const parameters = CommandLineParser.parseCommandLine();
-    const maximumLinkSize = parameters.maximumLinkSize ? parseInt(parameters.maximumLinkSize) : 10;
+    const batchSize = parameters.batchSize || process.env.BULK_BUFFER_SIZE || 10000;
+    const minLinks = parameters.minLinks ? parseInt(parameters.minLinks) : 10;
     const personUuids = parameters.personUuids ? parameters.personUuids.split(',') : undefined;
+    const ownerCode = parameters.ownerCode ? parameters.ownerCode : undefined;
     // set up all the standard services in the container
     const container = createContainer();
 
@@ -27,8 +29,12 @@ async function main() {
             adminLogger: new AdminLogger(),
             mongoDatabaseManager: c.mongoDatabaseManager,
             mongoCollectionManager: c.mongoCollectionManager,
-            maximumLinkSize: maximumLinkSize,
-            personUuids: personUuids
+            personUuids: personUuids,
+            limit: parameters.limit,
+            skip: parameters.skip,
+            minLinks: minLinks,
+            batchSize: batchSize,
+            ownerCode: ownerCode
         }));
 
     /**
@@ -42,10 +48,12 @@ async function main() {
 
 /**
  * To run this:
+ * If running the script using EC2, the command will be: node -r dotenv/config src/admin/scripts/removeDuplicatePersonLinks
  * Required env variables:
  * MONGO_URL, MONGO_USERNAME, MONGO_PASSWORD, MONGO_DB_NAME(default: fhir)
  * node src/admin/scripts/removeDuplicatePersonLinks
- * node src/admin/scripts/removeDuplicatePersonLinks --maximumLinkSize=2
+ * node src/admin/scripts/removeDuplicatePersonLinks --minLinks=2 --limit=10 --batchSize=1000
+ * node src/admin/scripts/removeDuplicatePersonLinks --ownerCode="bwell"
  * node src/admin/scripts/removeDuplicatePersonLinks --personUuids="60185667-f6c5-5534-8980-90448606be94,f31e6f0a-a0fc-500d-8e6a-e017d633391d"
  */
 main().catch(reason => {
