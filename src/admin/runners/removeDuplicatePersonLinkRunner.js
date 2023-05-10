@@ -10,13 +10,15 @@ class RemoveDuplicatePersonLinkRunner {
      * @param {MongoDatabaseManager} mongoDatabaseManager
      * @param {MongoCollectionManager} mongoCollectionManager
      * @param {number} maximumLinkSize
+     * @param {Object} personUuids
      */
     constructor (
         {
             adminLogger,
             mongoDatabaseManager,
             mongoCollectionManager,
-            maximumLinkSize
+            maximumLinkSize,
+            personUuids,
         }
     ) {
         /**
@@ -41,6 +43,11 @@ class RemoveDuplicatePersonLinkRunner {
          * @type {number}
          */
         this.maximumLinkSize = maximumLinkSize;
+
+        /**
+         * @type {Object}
+         */
+        this.personUuids = personUuids;
     }
 
 
@@ -56,6 +63,10 @@ class RemoveDuplicatePersonLinkRunner {
                 db: db, collectionName: collectionName
             }
         );
+        // Filter to process only certain documents which match an uuid.
+        const personUuidQuery = this.personUuids ?
+            { _uuid: { $in: this.personUuids } } :
+            {};
 
         const resourcesIdCursor = await dbCollection.aggregate([
             // Extract all documents that have multiple links in person records
@@ -63,7 +74,8 @@ class RemoveDuplicatePersonLinkRunner {
                 '$match': {
                     '$and': [
                         {link: {$exists: true}},
-                        {$expr: { $gt: [{ $size: '$link' }, this.maximumLinkSize] }}
+                        {$expr: { $gt: [{ $size: '$link' }, this.maximumLinkSize] }},
+                        personUuidQuery
                     ]
                 }
             },
