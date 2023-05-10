@@ -16,12 +16,13 @@
             <!-- prettier-ignore -->
             <%- include('../partials/codeableConcept', {resourceType: res.resourceType, codeableConcepts: res.category, name: "Category", searchParameter: 'category'}); %>
             <%- include('../partials/codeableConcept', {resourceType: res.resourceType, codeableConcepts: res.code, name: "Code", searchParameter: 'code'}); %>
+            <%- include('../partials/referenceRange', {referenceRange: res.referenceRange, name: "Reference Range"}); %>
             <%- include('../partials/reference', {references: [res.subject], name: "Subject"}); %>
             <%- include('../partials/reference', {references: [res.encounter], name: "Encounter"}); %>
 
             <%- include('../partials/dateTime', {value: res.effectiveDateTime, name: "Effective Date"}); %>
             <%- include('../partials/dateTime', {value: res.issued, name: "Issued Date"}); %>
-
+            <%- include('../partials/period', {periods: res.effectivePeriod, name: "Effective Period"}); %>
             <!-- prettier-ignore -->
             <%- include('../partials/reference', {references: res.performer, name: "Performer"}); %>
             <%- include('../partials/codeableConceptWithValue', {resourceType: res.resourceType, codeableConceptsWithValue: res.component, codePropertyName: "code", name: "Code", searchParameter: 'component-code'}); %>
