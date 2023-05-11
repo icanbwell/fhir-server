@@ -110,6 +110,10 @@ describe('Patient Tests', () => {
                 'custom:bwell_fhir_person_id': 'bwellPerson1',
                 scope: 'patient/*.read user/*.* access/*.*',
                 username: 'patient-123@example.com',
+                'custom:clientFhirPersonId': 'clientFhirPerson',
+                'custom:clientFhirPatientId': 'clientFhirPatient',
+                'custom:bwellFhirPersonId': 'bwellPerson1',
+                'custom:bwellFhirPatientId': 'bwellFhirPatient',
             };
             const headers = getHeadersWithCustomPayload(person_payload);
             // ACT & ASSERT
