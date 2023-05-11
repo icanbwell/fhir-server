@@ -84,15 +84,13 @@ class RemoveDuplicatePersonLinkRunner extends BaseBulkOperationRunner {
      * @returns
      */
     async removeDuplicateLinks(resource) {
-        const uniqueLinks = [];
-        for (const currentLink of resource.link) {
-            if (!uniqueLinks.some(prevLink => deepEqual(prevLink, currentLink))) {
-                uniqueLinks.push(currentLink);
-            }
-        }
+        const links = resource.link.map(link => JSON.stringify(link));
+        const uniqueLinkSet = [...new Set(links)];
+        const uniqueLinks = uniqueLinkSet.map(linkString => JSON.parse(linkString));
         resource.link = uniqueLinks;
         return resource;
     }
+
     /**
      * returns the bulk operation for this doc
      * @param {import('mongodb').DefaultSchema} doc
