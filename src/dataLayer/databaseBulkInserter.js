@@ -359,6 +359,69 @@ class DatabaseBulkInserter extends EventEmitter {
     }
 
     /**
+     * Inserts item into audit event collection
+     * @param {string} requestId
+     * @param {string} resourceType
+     * @param {Resource} doc
+     * @returns {Promise<void>}
+     */
+    async insertOneAuditEventAsync({requestId, resourceType, doc}) {
+        try {
+            assertTypeEquals(doc, Resource);
+            if (!doc.meta) {
+                doc.meta = new Meta({});
+            }
+            if (!doc.meta.versionId || isNaN(parseInt(doc.meta.versionId))) {
+                doc.meta.versionId = '1';
+            }
+            doc = await this.preSaveManager.preSaveAsync(doc);
+
+            assertIsValid(doc._uuid, `No uuid found for ${doc.resourceType}/${doc.id}`);
+            /**
+             * @type {Map<string, BulkInsertUpdateEntry[]>}
+             */
+            const operationsByResourceTypeMap = this.getOperationsByResourceTypeMap({requestId});
+            await logVerboseAsync({
+                source: 'DatabaseBulkInserter.insertOneAsync',
+                args:
+                    {
+                        message: 'start',
+                        bufferLength: operationsByResourceTypeMap.size
+                    }
+            });
+
+            this.addOperationForResourceType({
+                requestId,
+                resourceType,
+                resource: doc,
+                operation: {
+                    insertOne: {
+                        document: doc.toJSONInternal()
+                    }
+                },
+                operationType: 'insert',
+            });
+            if (doc._id) {
+                await this.errorReporter.reportMessageAsync({
+                    source: 'DatabaseBulkInserter.insertOneAsync',
+                    message: '_id still present',
+                    args: {
+                        doc: doc
+                    }
+                });
+                logInfo('_id still present', {args: {
+                    source: 'DatabaseBulkInserter.insertOneAsync',
+                    doc: doc
+                }});
+            }
+        } catch (e) {
+            throw new RethrownError({
+                error: e
+            });
+        }
+    }
+
+    /**
      * Inserts item into history collection
      * @param {string} requestId
      * @param {string} method
