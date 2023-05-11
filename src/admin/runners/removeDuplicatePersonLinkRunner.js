@@ -16,6 +16,7 @@ class RemoveDuplicatePersonLinkRunner extends BaseBulkOperationRunner {
      * @param {number} skip
      * @param {number} batchSize
      * @param {string|undefined} ownerCode
+     * @param {string|undefined} uuidGreaterThan
      */
     constructor (
         {
@@ -27,7 +28,8 @@ class RemoveDuplicatePersonLinkRunner extends BaseBulkOperationRunner {
             skip,
             minLinks,
             batchSize,
-            ownerCode
+            ownerCode,
+            uuidGreaterThan
         }
     ) {
         super({
@@ -63,9 +65,14 @@ class RemoveDuplicatePersonLinkRunner extends BaseBulkOperationRunner {
         this.skip = skip;
 
         /**
-         * @type {string| undefined}
+         * @type {string|undefined}
          */
         this.ownerCode = ownerCode;
+
+        /**
+         * @type {string|undefined}
+         */
+        this.uuidGreaterThan = uuidGreaterThan;
     }
 
 
@@ -141,42 +148,49 @@ class RemoveDuplicatePersonLinkRunner extends BaseBulkOperationRunner {
         const ownerFilter = this.ownerCode ?
             { 'meta.security': { $elemMatch: { 'system': 'https://www.icanbwell.com/owner', 'code': this.ownerCode }} } :
             {};
+        // Fetch onlu uuid that are greater than uuidGreaterThan
+        const uuidGreaterThanQuery = this.uuidGreaterThan ?
+            { _uuid: { $gt: this.uuidGreaterThan}} :
+            {};
 
         const result = await dbCollection.find({
             link: {$exists: true},
             $expr: { $gt: [{ $size: '$link' }, this.minLinks] },
             ...personUuidQuery,
-            ...ownerFilter
-        }, { projection: { _uuid: 1 }}).batchSize(this.batchSize);
+            ...ownerFilter,
+            ...uuidGreaterThanQuery
+        }, { projection: { _uuid: 1 }}).sort({_uuid: -1}).batchSize(this.batchSize);
         let uuidList = [];
         while (await result.hasNext()) {
             let document = await result.next();
             uuidList.push(document._uuid);
-        }
-        this.adminLogger.logInfo(`Toal resources: ${uuidList.length}`);
-
-        try {
-            await this.runForQueryBatchesAsync(
-                {
-                    config: await this.mongoDatabaseManager.getClientConfigAsync(),
-                    sourceCollectionName: collectionName,
-                    destinationCollectionName: collectionName,
-                    query,
-                    projection: undefined,
-                    startFromIdContainer: this.startFromIdContainer,
-                    fnCreateBulkOperationAsync: async (doc) => await this.processRecordAsync(doc),
-                    ordered: false,
-                    batchSize: this.batchSize,
-                    skipExistingIds: false,
-                    limit: this.limit,
-                    useTransaction: true,
-                    skip: this.skip,
-                    filterToIdProperty: '_uuid',
-                    filterToIds: uuidList,
-                },
-            );
-        } catch (e) {
-            this.adminLogger.logError(`Got error ${e}.  At ${this.startFromIdContainer.startFromId}`);
+            if (uuidList.length === this.batchSize || await result.hasNext() === false) {
+                try {
+                    this.adminLogger.logInfo(`Total resources being processed: ${uuidList.length}`);
+                    await this.runForQueryBatchesAsync(
+                        {
+                            config: await this.mongoDatabaseManager.getClientConfigAsync(),
+                            sourceCollectionName: collectionName,
+                            destinationCollectionName: collectionName,
+                            query,
+                            projection: undefined,
+                            startFromIdContainer: this.startFromIdContainer,
+                            fnCreateBulkOperationAsync: async (doc) => await this.processRecordAsync(doc),
+                            ordered: false,
+                            batchSize: this.batchSize,
+                            skipExistingIds: false,
+                            limit: this.limit,
+                            useTransaction: true,
+                            skip: this.skip,
+                            filterToIdProperty: '_uuid',
+                            filterToIds: uuidList,
+                        },
+                    );
+                } catch (e) {
+                    this.adminLogger.logError(`Got error ${e}.  At ${this.startFromIdContainer.startFromId}`);
+                }
+                uuidList = [];
+            }
         }
         this.adminLogger.logInfo(`Finished loop ${collectionName}`);
         this.adminLogger.logInfo('Finished script');
