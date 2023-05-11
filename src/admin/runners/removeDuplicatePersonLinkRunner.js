@@ -73,6 +73,8 @@ class RemoveDuplicatePersonLinkRunner extends BaseBulkOperationRunner {
          * @type {string|undefined}
          */
         this.uuidGreaterThan = uuidGreaterThan;
+
+        this.collectionName = 'Person_4_0_0';
     }
 
 
@@ -125,21 +127,46 @@ class RemoveDuplicatePersonLinkRunner extends BaseBulkOperationRunner {
         return operations;
     }
 
+    async processBatch(uuidList) {
+        const query = {};
+        try {
+            this.adminLogger.logInfo(`Total resources being processed: ${uuidList.length}`);
+            await this.runForQueryBatchesAsync(
+                {
+                    config: await this.mongoDatabaseManager.getClientConfigAsync(),
+                    sourceCollectionName: this.collectionName,
+                    destinationCollectionName: this.collectionName,
+                    query,
+                    projection: undefined,
+                    startFromIdContainer: this.startFromIdContainer,
+                    fnCreateBulkOperationAsync: async (doc) => await this.processRecordAsync(doc),
+                    ordered: false,
+                    batchSize: this.batchSize,
+                    skipExistingIds: false,
+                    limit: this.limit,
+                    useTransaction: true,
+                    skip: this.skip,
+                    filterToIdProperty: '_uuid',
+                    filterToIds: uuidList,
+                },
+            );
+        } catch (e) {
+            this.adminLogger.logError(`Got error ${e}.  At ${this.startFromIdContainer.startFromId}`);
+        }
+    }
     /**
      * Runs a loop to process all the documents and remove duplicate person links
      * @returns {Promise<void>}
      */
     async processAsync() {
         await this.init();
-        const collectionName = 'Person_4_0_0';
         this.startFromIdContainer.startFromId = '';
         const db = await this.mongoDatabaseManager.getClientDbAsync();
         const dbCollection = await this.mongoCollectionManager.getOrCreateCollectionAsync(
             {
-                db: db, collectionName: collectionName
+                db: db, collectionName: this.collectionName
             }
         );
-        const query = {};
         // Filter to process only certain documents which match an uuid
         const personUuidQuery = this.personUuids ?
             { _uuid: { $in: this.personUuids } } :
@@ -161,38 +188,20 @@ class RemoveDuplicatePersonLinkRunner extends BaseBulkOperationRunner {
             ...uuidGreaterThanQuery
         }, { projection: { _uuid: 1 }}).sort({_uuid: -1}).batchSize(this.batchSize);
         let uuidList = [];
+        // Remove duplicates and update in batches.
         while (await result.hasNext()) {
             let document = await result.next();
             uuidList.push(document._uuid);
-            if (uuidList.length === this.batchSize || await result.hasNext() === false) {
-                try {
-                    this.adminLogger.logInfo(`Total resources being processed: ${uuidList.length}`);
-                    await this.runForQueryBatchesAsync(
-                        {
-                            config: await this.mongoDatabaseManager.getClientConfigAsync(),
-                            sourceCollectionName: collectionName,
-                            destinationCollectionName: collectionName,
-                            query,
-                            projection: undefined,
-                            startFromIdContainer: this.startFromIdContainer,
-                            fnCreateBulkOperationAsync: async (doc) => await this.processRecordAsync(doc),
-                            ordered: false,
-                            batchSize: this.batchSize,
-                            skipExistingIds: false,
-                            limit: this.limit,
-                            useTransaction: true,
-                            skip: this.skip,
-                            filterToIdProperty: '_uuid',
-                            filterToIds: uuidList,
-                        },
-                    );
-                } catch (e) {
-                    this.adminLogger.logError(`Got error ${e}.  At ${this.startFromIdContainer.startFromId}`);
-                }
+            if (uuidList.length === this.batchSize) {
+                await this.processBatch(uuidList);
                 uuidList = [];
             }
         }
-        this.adminLogger.logInfo(`Finished loop ${collectionName}`);
+        // If the cursor goes empty but uuid still need to processed.
+        if (uuidList.length !== 0) {
+            await this.processBatch(uuidList);
+        }
+        this.adminLogger.logInfo(`Finished loop ${this.collectionName}`);
         this.adminLogger.logInfo('Finished script');
         this.adminLogger.logInfo('Shutting down');
         await this.shutdown();
