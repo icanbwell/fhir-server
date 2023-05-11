@@ -266,7 +266,7 @@ class DatabaseBulkInserter extends EventEmitter {
     }
 
     /**
-     * Inserts item into collection
+     * Inserts item into collection if item doesn't exists else updates the item
      * @param {string} requestId
      * @param {string} resourceType
      * @param {Resource} doc
@@ -359,13 +359,13 @@ class DatabaseBulkInserter extends EventEmitter {
     }
 
     /**
-     * Inserts item into audit event collection
+     * Inserts item into collection without checking if item exists
      * @param {string} requestId
      * @param {string} resourceType
      * @param {Resource} doc
      * @returns {Promise<void>}
      */
-    async insertOneAuditEventAsync({requestId, resourceType, doc}) {
+    async insertOnlyAsync({requestId, resourceType, doc}) {
         try {
             assertTypeEquals(doc, Resource);
             if (!doc.meta) {
