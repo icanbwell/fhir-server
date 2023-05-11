@@ -142,21 +142,18 @@ class RemoveDuplicatePersonLinkRunner extends BaseBulkOperationRunner {
             { 'meta.security': { $elemMatch: { 'system': 'https://www.icanbwell.com/owner', 'code': this.ownerCode }} } :
             {};
 
-        const result = await dbCollection.aggregate([
-            // Extract all documents that have multiple links in person records
-            {
-                '$match': {
-                    '$and': [
-                        {link: {$exists: true}},
-                        {$expr: { $gt: [{ $size: '$link' }, this.minLinks] }},
-                        personUuidQuery,
-                        ownerFilter
-                    ]
-                }
-            },
-        ]).toArray();
-        this.adminLogger.logInfo(`Toal resources: ${result.length}`);
-        const idList = result.map(obj => obj._uuid);
+        const result = await dbCollection.find({
+            link: {$exists: true},
+            $expr: { $gt: [{ $size: '$link' }, this.minLinks] },
+            ...personUuidQuery,
+            ...ownerFilter
+        }, { projection: { _uuid: 1 }}).batchSize(this.batchSize);
+        let uuidList = [];
+        while (await result.hasNext()) {
+            let document = await result.next();
+            uuidList.push(document._uuid);
+        }
+        this.adminLogger.logInfo(`Toal resources: ${uuidList.length}`);
 
         try {
             await this.runForQueryBatchesAsync(
@@ -175,7 +172,7 @@ class RemoveDuplicatePersonLinkRunner extends BaseBulkOperationRunner {
                     useTransaction: true,
                     skip: this.skip,
                     filterToIdProperty: '_uuid',
-                    filterToIds: idList,
+                    filterToIds: uuidList,
                 },
             );
         } catch (e) {
