@@ -275,6 +275,17 @@ module.exports = {
                 options: {
                     name: 'helix_encounter_uuid'
                 }
+            },
+            {
+                keys: {
+                    '_access.Thedacare': 1,
+                    'meta.source': 1,
+                    '_uuid': 1,
+                    'meta.lastUpdated': 1,
+                },
+                options: {
+                    name: 'access_Thedacare.meta_source.uuid.meta_lastUpdated'
+                }
             }
         ],
         'ExplanationOfBenefit_4_0_0': [
@@ -294,6 +305,16 @@ module.exports = {
                 },
                 options: {
                     name: 'patient.reference_uuid'
+                }
+            },
+            {
+                keys: {
+                    '_access.bwell': 1,
+                    '_uuid': 1,
+                    'meta.lastUpdated': 1
+                },
+                options: {
+                    name: 'access_bwell.uuid.meta_lastUpdated'
                 }
             }
         ],
@@ -378,6 +399,16 @@ module.exports = {
                 }
             }
         ],
+        'MedicationStatement_4_0_0': [
+            {
+                keys: {
+                    'subject._uuid': 1,
+                },
+                options: {
+                    name: 'helix_medication_statement_1'
+                }
+            }
+        ],
         'Observation_4_0_0': [
             {
                 keys: {
@@ -417,6 +448,16 @@ module.exports = {
                 },
                 options: {
                     name: 'reverse_helix_observation_effective_uuid_2'
+                }
+            },
+            {
+                keys: {
+                    '_access.bwell': 1,
+                    '_uuid': -1,
+                    'meta.lastUpdated': 1,
+                },
+                options: {
+                    name: 'access_bwell.uuid.meta_lastUpdated'
                 }
             }
         ],
@@ -607,6 +648,17 @@ module.exports = {
                 },
                 options: {
                     name: 'person.meta_security_code.uuid.sourceId'
+                }
+            },
+            {
+                keys: {
+                    '_uuid': 1,
+                    '_access.bwell': 1,
+                    'addresss.postalCode': 1,
+                    'birthDate': 1
+                },
+                options: {
+                    name: 'person.uuid.access_bwell.address_postalCode.birthDate'
                 }
             }
         ],
