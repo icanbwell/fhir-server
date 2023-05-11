@@ -181,13 +181,21 @@ describe('patient Tests', () => {
             'custom:bwell_fhir_ids': 'patient-123-a|patient-123-b',
             scope: 'patient/*.read user/*.* access/*.*',
             username: 'patient-123@example.com',
-        };
+            'custom:clientFhirPersonId': 'clientFhirPerson',
+            'custom:clientFhirPatientId': 'clientFhirPatient',
+            'custom:bwellFhirPersonId': 'root-person',
+            'custom:bwellFhirPatientId': 'bwellFhirPatient',
+       };
         let only_fhir_person_payload = {
             'cognito:username': 'patient-123@example.com',
             'custom:bwell_fhir_person_id': 'root-person',
             scope: 'patient/*.read user/*.* access/*.*',
             username: 'patient-123@example.com',
-        };
+             'custom:clientFhirPersonId': 'clientFhirPerson',
+            'custom:clientFhirPatientId': 'clientFhirPatient',
+            'custom:bwellFhirPersonId': 'root-person',
+            'custom:bwellFhirPatientId': 'bwellFhirPatient',
+       };
         let no_ids_user_payload = {
             'cognito:username': 'patient-123@example.com',
             scope: 'patient/*.read user/*.* access/*.*',
@@ -199,6 +207,10 @@ describe('patient Tests', () => {
             'custom:bwell_fhir_ids': 'other-patient',
             scope: 'patient/*.read user/*.* access/*.*',
             username: 'other-patient@example.com',
+            'custom:clientFhirPersonId': 'otherClientFhirPerson',
+            'custom:clientFhirPatientId': 'otherClientFhirPatient',
+            'custom:bwellFhirPersonId': 'other-patient',
+            'custom:bwellFhirPatientId': 'otherBwellFhirPatient',
         };
         // Legacy payload represents a user that registered before FHIR person support was added
         let patient_123_legacy_payload = {
@@ -206,6 +218,10 @@ describe('patient Tests', () => {
             'custom:bwell_fhir_id': 'patient-123-a',
             scope: 'patient/*.read user/*.* access/*.*',
             username: 'patient-123@example.com',
+            'custom:clientFhirPersonId': 'clientFhirPerson',
+            'custom:clientFhirPatientId': 'clientFhirPatient',
+            'custom:bwellFhirPersonId': 'person-123-a',
+            'custom:bwellFhirPatientId': 'bwellFhirPatient',
         };
         let patient_123_legacy_bad_id_payload = {
             'custom:bwell_fhir_id': '-',
@@ -214,6 +230,10 @@ describe('patient Tests', () => {
             scope: 'patient/*.read user/*.* access/*.*',
             patient: '-',
             email: 'test+devb2c@icanbwell.com',
+            'custom:clientFhirPersonId': 'clientFhirPerson',
+            'custom:clientFhirPatientId': 'clientFhirPatient',
+            'custom:bwellFhirPersonId': '-',
+            'custom:bwellFhirPatientId': 'bwellFhirPatient',
         };
         let app_client_payload = {
             scope: 'patient/*.read user/*.* access/*.*',
@@ -225,6 +245,10 @@ describe('patient Tests', () => {
             'custom:scope': 'patient/*.read user/*.* access/*.*',
             scope: 'patient/*.read user/*.* access/*.*',
             email: 'test+devb2c@icanbwell.com',
+            'custom:clientFhirPersonId': 'clientFhirPerson',
+            'custom:clientFhirPatientId': 'clientFhirPatient',
+            'custom:bwellFhirPersonId': 'desiree-root-person',
+            'custom:bwellFhirPatientId': 'bwellFhirPatient',
         };
 
         describe('User security filtering', () => {
@@ -283,13 +307,13 @@ describe('patient Tests', () => {
                     .get('/4_0_0/patient/?_bundle=1')
                     .set(getHeadersWithCustomPayload(no_ids_user_payload));
                 // noinspection JSUnresolvedFunction
-                expect(resp).toHaveResourceCount(0);
+                expect(resp).toHaveStatusCode(401);
 
                 resp = await request
                     .get('/4_0_0/AllergyIntolerance/?_bundle=1')
                     .set(getHeadersWithCustomPayload(no_ids_user_payload));
                 // noinspection JSUnresolvedFunction
-                expect(resp).toHaveResourceCount(0);
+                expect(resp).toHaveStatusCode(401);
             });
 
             test('No resources are returned if user has a bad fhir id', async () => {
