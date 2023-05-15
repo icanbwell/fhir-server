@@ -1,6 +1,7 @@
 const env = require('var');
 const moment = require('moment-timezone');
 const {getLogger} = require('../../winstonInit');
+const httpContext = require('express-http-context');
 
 /**
  * @type {import('winston').logger}
@@ -13,11 +14,26 @@ const {getCircularReplacer} = require('../../utils/getCircularReplacer');
 const fhirLogger = require('../../utils/fhirLogger').FhirLogger;
 
 /**
+ * Set request id in the log args
+ * @param {Object} args
+ */
+const setRequestIdInLog = (args) => {
+    const reqId = httpContext.get('requestId');
+    if (reqId) {
+        args.request = {
+            ...args.request,
+            id: reqId,
+        };
+    }
+};
+
+/**
  * Always logs regardless of env.IS_PRODUCTION
  * @param {string} message
  * @param {Object} args
  */
 const logInfo = (message, args) => {
+    setRequestIdInLog(args);
     logger.info(message, args);
 };
 
@@ -28,6 +44,7 @@ const logInfo = (message, args) => {
  */
 const logDebug = (message, args) => {
     if ((!env.IS_PRODUCTION && env.LOGLEVEL !== 'INFO') || (env.LOGLEVEL === 'DEBUG')) {
+        setRequestIdInLog(args);
         logger.debug(message, args);
     }
 };
@@ -38,6 +55,7 @@ const logDebug = (message, args) => {
  * @param {Object} args
  */
 const logError = (message, args) => {
+    setRequestIdInLog(args);
     logger.error(message, args);
 };
 
@@ -47,6 +65,7 @@ const logError = (message, args) => {
  * @param {Object} args
  */
 const logWarn = (message, args) => {
+    setRequestIdInLog(args);
     logger.warn(message, args);
 };
 
@@ -98,6 +117,11 @@ const logSystemEventAsync = async ({event, message, args}) => {
             }
         ],
     };
+    if (args.requestId) {
+        logEntry.request = {
+            id: args.requestId,
+        };
+    }
     const fhirSecureLogger = await fhirLogger.getSecureLoggerAsync();
     fhirSecureLogger.info(logEntry);
     const fhirInSecureLogger = await fhirLogger.getInSecureLoggerAsync();
@@ -154,6 +178,12 @@ const logSystemErrorAsync = async ({event, message, args, error}) => {
             }
         ],
     };
+    if (args.requestId) {
+        logEntry.request = {
+            id: args.requestId,
+        };
+    }
+
     const fhirSecureLogger = await fhirLogger.getSecureLoggerAsync();
     if (error) {
         fhirSecureLogger.error(logEntry);
@@ -212,7 +242,10 @@ const logErrorAndRequestAsync = async ({error, req}) => {
         query: req.query,
         body: req.body || {},
         user: getUserName(req),
-        remoteAddress: getRemoteAddress(req)
+        remoteAddress: getRemoteAddress(req),
+        request: {
+            id: req.id
+        }
     };
     const logData = {request, error};
     if (error.elapsedTimeInSecs) {

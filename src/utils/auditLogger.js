@@ -242,7 +242,7 @@ class AuditLogger {
                     source: 'flushAsync',
                     message: `Error creating audit entries: ${JSON.stringify(mergeResultErrors, getCircularReplacer())}`,
                     args: {
-                        requestId: requestId,
+                        request: {id: requestId},
                         errors: mergeResultErrors
                     }
                 }
