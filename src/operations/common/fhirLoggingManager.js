@@ -216,7 +216,10 @@ class FhirLoggingManager {
                     detail: detail
                 }
             ],
-            message: error ? `${message}: ${JSON.stringify(error, getCircularReplacer())}` : message
+            message: error ? `${message}: ${JSON.stringify(error, getCircularReplacer())}` : message,
+            request: {
+                id: requestInfo.requestId
+            }
         };
         const fhirInSecureLogger = await fhirLogger.getInSecureLoggerAsync();
         // write the insecure information to insecure log

@@ -43,8 +43,7 @@ let invalidParameter = (message, base_version) => {
 
 let unauthorized = (message, base_version) => {
     let ErrorConstructor = getErrorConstructor(base_version);
-    return new ErrorConstructor({
-        statusCode: 401,
+    const err = new ErrorConstructor({
         text: {
             status: 'generated',
             div: div_content(ISSUE.SEVERITY.ERROR, message || 'Unauthorized request')
@@ -55,12 +54,13 @@ let unauthorized = (message, base_version) => {
             diagnostics: message || '401: Unauthorized request'
         }
     });
+    err.statusCode = 401;
+    return err;
 };
 
 let insufficientScope = (message, base_version) => {
     let ErrorConstructor = getErrorConstructor(base_version);
-    return new ErrorConstructor({
-        statusCode: 403,
+    const err = new ErrorConstructor({
         text: {
             status: 'generated',
             div: div_content(ISSUE.SEVERITY.ERROR, message || 'Insufficient scope')
@@ -71,6 +71,8 @@ let insufficientScope = (message, base_version) => {
             diagnostics: message || '403: Insufficient scope'
         }
     });
+    err.statusCode = 403;
+    return err;
 };
 
 let notFound = (message, base_version) => {
@@ -78,8 +80,7 @@ let notFound = (message, base_version) => {
     if (!ErrorConstructor){
         ErrorConstructor = getErrorConstructor('4_0_0');
     }
-    return new ErrorConstructor({
-        statusCode: 404,
+    const err = new ErrorConstructor({
         text: {
             status: 'generated',
             div: div_content(ISSUE.SEVERITY.ERROR, message || 'Not found')
@@ -90,12 +91,13 @@ let notFound = (message, base_version) => {
             diagnostics: message || '404: Not found'
         }
     });
+    err.statusCode = 404;
+    return err;
 };
 
 let methodNotAllowed = (message, base_version) => {
     let ErrorConstructor = getErrorConstructor(base_version);
-    return new ErrorConstructor({
-        statusCode: 405,
+    const err = new ErrorConstructor({
         text: {
             status: 'generated',
             div: div_content(ISSUE.SEVERITY.ERROR, message || 'Method not allowed')
@@ -106,12 +108,13 @@ let methodNotAllowed = (message, base_version) => {
             diagnostics: message || '405: Method not allowed'
         }
     });
+    err.statusCode = 405;
+    return err;
 };
 
 let deleteConflict = (message, base_version) => {
     let ErrorConstructor = getErrorConstructor(base_version);
-    return new ErrorConstructor({
-        statusCode: 409,
+    const err = new ErrorConstructor({
         text: {
             status: 'generated',
             div: div_content(ISSUE.SEVERITY.ERROR, message || 'Conflict')
@@ -122,12 +125,13 @@ let deleteConflict = (message, base_version) => {
             diagnostics: message || '409: Conflict'
         }
     });
+    err.statusCode = 409;
+    return err;
 };
 
 let deleted = (message, base_version) => {
     let ErrorConstructor = getErrorConstructor(base_version);
-    return new ErrorConstructor({
-        statusCode: 410,
+    const err = new ErrorConstructor({
         text: {
             status: 'generated',
             div: div_content(ISSUE.SEVERITY.ERROR, message || 'Resource deleted')
@@ -138,6 +142,8 @@ let deleted = (message, base_version) => {
             diagnostics: message || '410: Resource deleted'
         }
     });
+    err.statusCode = 410;
+    return err;
 };
 /**
  * @function customError
@@ -169,8 +175,7 @@ let internal = (err, base_version) => {
     }
 
     let ErrorConstructor = getErrorConstructor(base_version);
-    return new ErrorConstructor({
-        statusCode: 500,
+    const error = new ErrorConstructor({
         text: {
             status: 'generated',
             div: div_content(ISSUE.SEVERITY.ERROR, err.message || 'Internal server error')
@@ -181,6 +186,8 @@ let internal = (err, base_version) => {
             diagnostics: err.message || '500: Internal server error'
         }
     });
+    error.statusCode = 500;
+    return error;
 };
 
 let isServerError = (err, base_version) => err instanceof getErrorConstructor(base_version);

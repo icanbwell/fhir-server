@@ -23,6 +23,7 @@ const path = require('path');
 const contentType = require('content-type');
 const {REQUEST_ID_HEADER} = require('../constants');
 const {convertErrorToOperationOutcome} = require('../utils/convertErrorToOperationOutcome');
+const httpContext = require('express-http-context');
 
 class MyFHIRServer {
     /**
@@ -133,6 +134,7 @@ class MyFHIRServer {
                 next
             ) => {
                 req.id = req.id || req.header(`${REQUEST_ID_HEADER}`) || generateUUID();
+                httpContext.set('requestId', req.id);
                 next();
             }
         );

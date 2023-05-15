@@ -21,6 +21,7 @@ const {generateUUID} = require('../../utils/uid.util');
 const {getAddRequestIdToResponseHeadersPlugin} = require('./plugins/graphqlAddRequestIdToResponseHeadersPlugin');
 const contentType = require('content-type');
 const { getValidateMissingVariableValuesPlugin } = require('./plugins/graphqlValidateMissingVariableValuesPlugin');
+const httpContext = require('express-http-context');
 // const {unwrapResolverError} = require('@apollo/server/errors');
 // const {ForbiddenError} = require('../../utils/httpErrors');
 // const {ApolloServerPluginLandingPageLocalDefault} = require('@apollo/server/plugin/landingPage/default');
@@ -87,6 +88,7 @@ const graphql = async (fnCreateContainer) => {
         const container = fnCreateContainer();
 
         req.id = req.id || req.header(`${REQUEST_ID_HEADER}`) || generateUUID();
+        httpContext.set('requestId', req.id);
         /**
          * @type {import('content-type').ContentType}
          */

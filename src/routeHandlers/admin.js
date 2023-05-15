@@ -15,6 +15,7 @@ const OperationOutcome = require('../fhir/classes/4_0_0/resources/operationOutco
 const OperationOutcomeIssue = require('../fhir/classes/4_0_0/backbone_elements/operationOutcomeIssue');
 const { REQUEST_ID_HEADER } = require('../constants');
 const {logInfo} = require('../operations/common/logging');
+const httpContext = require('express-http-context');
 
 /**
  * shows indexes
@@ -105,6 +106,7 @@ async function handleAdmin(
 
     try {
         req.id = req.id || req.header(`${REQUEST_ID_HEADER}`) || generateUUID();
+        httpContext.set('requestId', req.id);
         const operation = req.params['op'];
         logInfo(`op=${operation}`, {});
 

@@ -2,6 +2,7 @@
  * Main entrypoint that sets up the app
  */
 const express = require('express');
+const httpContext = require('express-http-context');
 const {fhirServerConfig} = require('./config');
 const Prometheus = require('./utils/prometheus.utils');
 const cors = require('cors');
@@ -95,6 +96,9 @@ function createApp({fnCreateContainer, trackMetrics}) {
     app.set('view engine', 'ejs');
 
     app.use(handleSecurityPolicy);
+
+    // Used to initialize context for each request
+    app.use(httpContext.middleware);
 
     // noinspection SpellCheckingInspection
     const options = {
