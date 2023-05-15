@@ -11,6 +11,13 @@ const {isTrue} = require('../utils/isTrue');
 const async = require('async');
 const superagent = require('superagent');
 
+const requiredJWTFields = [
+    'custom:clientFhirPersonId',
+    'custom:clientFhirPatientId',
+    'custom:bwellFhirPersonId',
+    'custom:bwellFhirPatientId',
+];
+
 /**
  * Retrieve jwks for URL
  * @param {string} jwksUrl
@@ -105,22 +112,12 @@ const verify = (jwt_payload, done) => {
             context['isUser'] = isUser;
             // Test that required fields are populated
             let validInput = true;
-            if (!jwt_payload['custom:clientFhirPersonId']) {
-                logDebug('Error: custom:clientFhirPersonId field is missing', {user: ''});
-                validInput = false;
-            }
-            if (!jwt_payload['custom:clientFhirPatientId']) {
-                logDebug('Error: custom:clientFhirPersonId field is missing', {user: ''});
-                validInput = false;
-            }
-            if (!jwt_payload['custom:bwellFhirPersonId']) {
-                logDebug('Error: custom:bwellFhirPersonId field is missing', {user: ''});
-                validInput = false;
-            }
-            if (!jwt_payload['custom:bwellFhirPatientId']) {
-                logDebug('Error: custom:bwellFhirPatientId field is missing', {user: ''});
-                validInput = false;
-            }
+            requiredJWTFields.forEach((field) => {
+                if (!jwt_payload[field]) {
+                    logDebug(`Error: ${field} field is missing`, {user: ''});
+                    validInput = false;
+                }
+            });
             if (!validInput) {
                 return done(null, false);
             }
