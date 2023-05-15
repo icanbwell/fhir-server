@@ -652,11 +652,11 @@ module.exports = {
             },
             {
                 keys: {
-                    'addresss.postalCode': 1,
+                    'address.postalCode': 1,
                     '_uuid': 1
                 },
                 options: {
-                    name: 'address_postalCode.uuid'
+                    name: 'person.address_postalCode_uuid'
                 }
             }
         ],
