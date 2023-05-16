@@ -652,13 +652,11 @@ module.exports = {
             },
             {
                 keys: {
-                    '_uuid': 1,
-                    '_access.bwell': 1,
-                    'addresss.postalCode': 1,
-                    'birthDate': 1
+                    'address.postalCode': 1,
+                    '_uuid': 1
                 },
                 options: {
-                    name: 'person.uuid.access_bwell.address_postalCode.birthDate'
+                    name: 'person.address_postalCode_uuid'
                 }
             }
         ],
