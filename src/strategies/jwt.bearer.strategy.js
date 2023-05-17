@@ -11,6 +11,13 @@ const {isTrue} = require('../utils/isTrue');
 const async = require('async');
 const superagent = require('superagent');
 
+const requiredJWTFields = [
+    'custom:clientFhirPersonId',
+    'custom:clientFhirPatientId',
+    'custom:bwellFhirPersonId',
+    'custom:bwellFhirPatientId',
+];
+
 /**
  * Retrieve jwks for URL
  * @param {string} jwksUrl
@@ -103,6 +110,17 @@ const verify = (jwt_payload, done) => {
         }
         if (isUser) {
             context['isUser'] = isUser;
+            // Test that required fields are populated
+            let validInput = true;
+            requiredJWTFields.forEach((field) => {
+                if (!jwt_payload[`${field}`]) {
+                    logDebug(`Error: ${field} field is missing`, {user: ''});
+                    validInput = false;
+                }
+            });
+            if (!validInput) {
+                return done(null, false);
+            }
             const fhirPatientId = jwt_payload['custom:bwell_fhir_id'];
             if (jwt_payload['custom:bwell_fhir_ids']) {
                 const patientIdsFromJwtToken = jwt_payload['custom:bwell_fhir_ids'].split('|');
@@ -112,15 +130,7 @@ const verify = (jwt_payload, done) => {
             } else if (fhirPatientId) {
                 context['patientIdsFromJwtToken'] = [fhirPatientId];
             }
-            const personIdFromJwtToken = jwt_payload['custom:bwell_fhir_person_id'];
-            if (personIdFromJwtToken) {
-                context['personIdFromJwtToken'] = personIdFromJwtToken;
-            } else {
-                const personIdFromJwtToken2 = jwt_payload['custom:bwellFhirPersonId'];
-                if (personIdFromJwtToken2) {
-                    context['personIdFromJwtToken'] = personIdFromJwtToken2;
-                }
-            }
+            context['personIdFromJwtToken'] = jwt_payload['custom:bwellFhirPersonId'];
         }
 
         return done(null, {id: client_id, isUser, name: username}, {scope, context});

@@ -36,6 +36,10 @@ const person_payload = {
     'custom:bwell_fhir_person_id': 'person1',
     scope: 'patient/*.read user/*.* access/*.*',
     username: 'patient-123@example.com',
+    'custom:clientFhirPersonId': 'clientFhirPerson',
+    'custom:clientFhirPatientId': 'clientFhirPatient',
+    'custom:bwellFhirPersonId': 'person1',
+    'custom:bwellFhirPatientId': 'bwellFhirPatient',
 };
 const headers = getHeadersWithCustomPayload(person_payload);
 describe('Observation Tests', () => {

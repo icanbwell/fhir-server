@@ -207,7 +207,11 @@ describe('GraphQL CodeSystem Tests', () => {
                 'custom:bwell_fhir_person_id': 'root-person',
                 scope: 'patient/*.read user/*.* access/*.*',
                 username: 'patient-123@example.com',
-            };
+                'custom:clientFhirPersonId': 'clientFhirPerson',
+                'custom:clientFhirPatientId': 'clientFhirPatient',
+                'custom:bwellFhirPersonId': 'root-person',
+                'custom:bwellFhirPatientId': 'bwellFhirPatient'
+         };
 
             resp = await request
                 .post('/graphqlv2')
@@ -287,7 +291,11 @@ describe('GraphQL CodeSystem Tests', () => {
                 'custom:bwell_fhir_person_id': 'root-person',
                 scope: 'patient/*.read user/*.* access/*.*',
                 username: 'patient-123@example.com',
-            };
+                'custom:clientFhirPersonId': 'clientFhirPerson',
+                'custom:clientFhirPatientId': 'clientFhirPatient',
+                'custom:bwellFhirPersonId': 'root-person',
+                'custom:bwellFhirPatientId': 'bwellFhirPatient'
+           };
 
             resp = await request
                 .post('/graphqlv2')
@@ -471,6 +479,10 @@ describe('GraphQL CodeSystem Tests', () => {
                 'custom:bwell_fhir_person_id': 'root-person',
                 scope: 'patient/*.read user/*.* access/*.*',
                 username: 'patient-123@example.com',
+                'custom:clientFhirPersonId': 'clientFhirPerson',
+                'custom:clientFhirPatientId': 'clientFhirPatient',
+                'custom:bwellFhirPersonId': 'root-person',
+                'custom:bwellFhirPatientId': 'bwellFhirPatient'
             };
 
             resp = await request

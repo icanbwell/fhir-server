@@ -143,12 +143,17 @@ module.exports.commonAfterEach = async () => {
  * @return {string}
  */
 const getToken = (module.exports.getToken = (scope) => {
-    return createToken(privateKey, '123', {
+    const payload = {
         sub: 'john',
         username: 'imran',
         client_id: 'my_client_id',
         scope: scope,
-    });
+        'custom:clientFhirPersonId': 'clientFhirPerson',
+        'custom:clientFhirPatientId': 'clientFhirPatient',
+        'custom:bwellFhirPersonId': 'root-person',
+        'custom:bwellFhirPatientId': 'bwellFhirPatient'
+    };
+    return createToken(privateKey, '123', payload);
 });
 
 const getFullAccessToken = (module.exports.getFullAccessToken = () => {
@@ -232,6 +237,10 @@ module.exports.getGraphQLHeadersWithPerson = (personId) => {
         'custom:bwell_fhir_person_id': personId,
         scope: 'patient/*.read user/*.* access/*.*',
         username: 'patient-123@example.com',
+        'custom:clientFhirPersonId': 'clientFhirPerson',
+        'custom:clientFhirPatientId': 'clientFhirPatient',
+        'custom:bwellFhirPersonId': personId,
+        'custom:bwellFhirPatientId': 'bwellFhirPatient'
     };
     return {
         'Content-Type': 'application/json; charset=utf-8',

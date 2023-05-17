@@ -193,6 +193,10 @@ describe('patient Tests', () => {
             'custom:scope': 'patient/*.read user/*.* access/*.*',
             scope: 'patient/*.read user/*.* access/*.*',
             email: 'test+devb2c@icanbwell.com',
+            'custom:clientFhirPersonId': 'clientFhirPerson',
+            'custom:clientFhirPatientId': 'clientFhirPatient',
+            'custom:bwellFhirPersonId': 'desiree-root-person',
+            'custom:bwellFhirPatientId': 'bwellFhirPatient',
         };
 
         describe('App clients security filtering if config is on', () => {
