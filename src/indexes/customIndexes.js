@@ -14,7 +14,8 @@ module.exports = {
                     name: 'id_1'
                 },
                 exclude: [
-                    'AuditEvent_4_0_0'
+                    'AuditEvent_4_0_0',
+                    'Practitioner_4_0_0'
                 ]
             },
             {
@@ -51,7 +52,8 @@ module.exports = {
                     name: 'security.system_code_1'
                 },
                 exclude: [
-                    'AuditEvent_4_0_0'
+                    'AuditEvent_4_0_0',
+                    'Practitioner_4_0_0'
                 ]
             },
             {
@@ -661,7 +663,16 @@ module.exports = {
             }
         ],
         'Practitioner_4_0_0': [
-             {
+            {
+                keys: {
+                    'id': 1,
+                    '_uuid': 1
+                },
+                options: {
+                    name: 'practitioner.id_uuid'
+                }
+            },
+            {
                 keys: {
                     'name.family': 1,
                     '_uuid': 1
@@ -677,6 +688,18 @@ module.exports = {
                 options: {
                     name: 'practition.sourceAssigningAuthority'
                 }
+            },
+            {
+                keys: {
+                    'meta.security.system': 1,
+                    'meta.security.code': 1,
+                    '_sourceId': 1,
+                    'id': 1,
+                    '_uuid': 1
+                },
+                options: {
+                    name: 'practitioner.metaSecuritySystemCode_sourceIdId_uuid'
+                },
             }
         ],
         'PractitionerRole_4_0_0': [
