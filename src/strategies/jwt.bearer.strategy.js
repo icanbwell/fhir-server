@@ -113,7 +113,7 @@ const verify = (jwt_payload, done) => {
             // Test that required fields are populated
             let validInput = true;
             requiredJWTFields.forEach((field) => {
-                if (!jwt_payload[field]) {
+                if (!jwt_payload[`${field}`]) {
                     logDebug(`Error: ${field} field is missing`, {user: ''});
                     validInput = false;
                 }
