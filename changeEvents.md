@@ -67,3 +67,21 @@ See `_createMessage` function for an example:
 ## Contributing
 
 The code for this is at [src/utils/changeEventProducer.js](src/utils/changeEventProducer.js)
+
+When DatabaseBulkInserter inserts or updates a resource, it calls ChangeEventProducer to fire events
+```javascript
+        // fire change events
+        if (!bulkInsertUpdateEntry.skipped && resourceType !== 'AuditEvent' && !useHistoryCollection) {
+            this.postRequestProcessor.add({
+                requestId,
+                fnTask: async () => await this.changeEventProducer.fireEventsAsync({
+                    requestId,
+                    eventType: bulkInsertUpdateEntry.isCreateOperation ? 'C' : 'U',
+                    resourceType: resourceType,
+                    doc: bulkInsertUpdateEntry.resource
+                })
+            });
+        }
+```
+PostRequestProcessor is used to fire the events AFTER the response has been returned to the caller.  This is to avoid slowing down responses while we do post request processing tasks.
+
