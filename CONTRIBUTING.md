@@ -91,7 +91,7 @@ Run `make up` to bring up the fhir server in docker on your local machine. Click
 
 [package.json](package.json): Specifies the npm packages to use and commands for running tests
 
-[package-lock.json](package-lock.json) and [yarn.lock](yarn.lock): Generated from package.json
+[yarn.lock](yarn.lock): Generated from package.json
 
 ## Indexing
 The process for adding/updating an index:

@@ -78,8 +78,7 @@ update:down
 	. ${NVM_DIR}/nvm.sh && nvm use ${NODE_VERSION} && \
 	npm install --location=global yarn && \
 	rm -f yarn.lock && \
-	yarn install --no-optional && \
-	npm i --package-lock-only
+	yarn install --no-optional
 
 # https://www.npmjs.com/package/npm-check-updates
 .PHONY:upgrade_packages

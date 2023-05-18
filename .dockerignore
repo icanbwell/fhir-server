@@ -7,7 +7,6 @@
 .pytest_cache
 tmp
 .vscode
-package-lock.json
 node_modules
 grafana
 prometheus
