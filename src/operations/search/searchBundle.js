@@ -8,7 +8,6 @@ const moment = require('moment-timezone');
 const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
 const {SearchManager} = require('./searchManager');
 const {ResourceLocatorFactory} = require('../common/resourceLocatorFactory');
-const {ErrorReporter} = require('../../utils/slack.logger');
 const {AuditLogger} = require('../../utils/auditLogger');
 const {FhirLoggingManager} = require('../common/fhirLoggingManager');
 const {ScopesValidator} = require('../security/scopesValidator');
@@ -25,7 +24,6 @@ class SearchBundleOperation {
      * @param {SearchManager} searchManager
      * @param {ResourceLocatorFactory} resourceLocatorFactory
      * @param {AuditLogger} auditLogger
-     * @param {ErrorReporter} errorReporter
      * @param {FhirLoggingManager} fhirLoggingManager
      * @param {ScopesValidator} scopesValidator
      * @param {BundleManager} bundleManager
@@ -37,7 +35,6 @@ class SearchBundleOperation {
             searchManager,
             resourceLocatorFactory,
             auditLogger,
-            errorReporter,
             fhirLoggingManager,
             scopesValidator,
             bundleManager,
@@ -63,11 +60,6 @@ class SearchBundleOperation {
         this.auditLogger = auditLogger;
         assertTypeEquals(auditLogger, AuditLogger);
 
-        /**
-         * @type {ErrorReporter}
-         */
-        this.errorReporter = errorReporter;
-        assertTypeEquals(errorReporter, ErrorReporter);
         /**
          * @type {FhirLoggingManager}
          */

@@ -2,7 +2,6 @@
  * This class stores any actions to run after the current request has finished
  * The goal is to get the response back to client quickly and then run these actions
  */
-const {ErrorReporter} = require('./slack.logger');
 const {assertTypeEquals, assertIsValid} = require('./assertType');
 const {logSystemErrorAsync, logTraceSystemEventAsync} = require('../operations/common/logging');
 const {RequestSpecificCache} = require('./requestSpecificCache');
@@ -17,15 +16,9 @@ const mutex = new Mutex();
 class PostRequestProcessor {
     /**
      * Constructor
-     * @param {ErrorReporter} errorReporter
      * @param {RequestSpecificCache} requestSpecificCache
      */
-    constructor({errorReporter, requestSpecificCache}) {
-        assertTypeEquals(errorReporter, ErrorReporter);
-        /**
-         * @type {ErrorReporter}
-         */
-        this.errorReporter = errorReporter;
+    constructor({requestSpecificCache}) {
         /**
          * @type {Map<string,boolean>}
          */
@@ -113,14 +106,6 @@ class PostRequestProcessor {
                 try {
                     await task();
                 } catch (e) {
-                    await this.errorReporter.reportErrorAsync({
-                        source: 'PostRequestProcessor',
-                        message: 'Error running post request task',
-                        error: e,
-                        args: {
-                            requestId: requestId,
-                        }
-                    });
                     await logSystemErrorAsync(
                         {
                             event: 'postRequestProcessor',

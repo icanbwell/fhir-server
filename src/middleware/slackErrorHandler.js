@@ -3,8 +3,6 @@
  */
 
 const env = require('var');
-const {ErrorReporter} = require('../utils/slack.logger');
-const {getImageVersion} = require('../utils/getImageVersion');
 const {logError, logErrorAndRequestAsync} = require('../operations/common/logging');
 
 /**
@@ -26,16 +24,6 @@ const errorReportingMiddleware = async (err, req, res, next) => {
             [200, 401, 404];
         if (!statusCodeToIgnore.includes(err.statusCode)) {
             err.statusCode = err.statusCode || 500;
-            const errorReporter = new ErrorReporter(getImageVersion());
-            await errorReporter.reportErrorAndRequestAsync(
-                {
-                    error: err,
-                    req,
-                    args: {
-                        requestId: req.id
-                    }
-                }
-            );
             await logErrorAndRequestAsync({
                 error: err,
                 req

@@ -7,7 +7,6 @@ const {DatabaseBulkLoader} = require('./dataLayer/databaseBulkLoader');
 const {DatabaseAttachmentManager} = require('./dataLayer/databaseAttachmentManager');
 const {PostRequestProcessor} = require('./utils/postRequestProcessor');
 const {AuditLogger} = require('./utils/auditLogger');
-const {ErrorReporter} = require('./utils/slack.logger');
 const {MongoCollectionManager} = require('./utils/mongoCollectionManager');
 const {IndexManager} = require('./indexes/indexManager');
 const {ValueSetManager} = require('./utils/valueSet.util');
@@ -175,14 +174,12 @@ const createContainer = function () {
             configManager: c.configManager,
             mongoDatabaseManager: c.mongoDatabaseManager
         }));
-    container.register('errorReporter', () => new ErrorReporter(getImageVersion()));
     container.register('indexProvider', (c) => new IndexProvider({
         configManager: c.configManager
     }));
     container.register('mongoDatabaseManager', () => new MongoDatabaseManager());
     container.register('indexManager', (c) => new IndexManager(
         {
-            errorReporter: c.errorReporter,
             indexProvider: c.indexProvider,
             mongoDatabaseManager: c.mongoDatabaseManager
         })
@@ -283,7 +280,6 @@ const createContainer = function () {
             {
                 resourceManager: c.resourceManager,
                 postRequestProcessor: c.postRequestProcessor,
-                errorReporter: c.errorReporter,
                 mongoCollectionManager: c.mongoCollectionManager,
                 resourceLocatorFactory: c.resourceLocatorFactory,
                 changeEventProducer: c.changeEventProducer,
@@ -305,14 +301,12 @@ const createContainer = function () {
         }));
     container.register('postRequestProcessor', (c) => new PostRequestProcessor(
         {
-            errorReporter: c.errorReporter,
             requestSpecificCache: c.requestSpecificCache
         }));
     container.register('auditLogger', (c) => new AuditLogger(
             {
                 postRequestProcessor: c.postRequestProcessor,
-                databaseBulkInserter: c.databaseBulkInserter,
-                errorReporter: c.errorReporter
+                databaseBulkInserter: c.databaseBulkInserter
             }
         )
     );
@@ -343,7 +337,6 @@ const createContainer = function () {
                 searchManager: c.searchManager,
                 resourceLocatorFactory: c.resourceLocatorFactory,
                 auditLogger: c.auditLogger,
-                errorReporter: c.errorReporter,
                 fhirLoggingManager: c.fhirLoggingManager,
                 scopesValidator: c.scopesValidator,
                 bundleManager: c.bundleManager,
@@ -357,7 +350,6 @@ const createContainer = function () {
                 searchManager: c.searchManager,
                 resourceLocatorFactory: c.resourceLocatorFactory,
                 auditLogger: c.auditLogger,
-                errorReporter: c.errorReporter,
                 fhirLoggingManager: c.fhirLoggingManager,
                 scopesValidator: c.scopesValidator,
                 bundleManager: c.bundleManager,

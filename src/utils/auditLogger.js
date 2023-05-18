@@ -8,10 +8,8 @@ const {isTrue} = require('./isTrue');
 const deepcopy = require('deepcopy');
 const {PostRequestProcessor} = require('./postRequestProcessor');
 const {DatabaseBulkInserter} = require('../dataLayer/databaseBulkInserter');
-const {ErrorReporter} = require('./slack.logger');
 const {assertTypeEquals} = require('./assertType');
 const {SecurityTagSystem} = require('./securityTagSystem');
-const {getCircularReplacer} = require('./getCircularReplacer');
 const {logError} = require('../operations/common/logging');
 const AuditEvent = require('../fhir/classes/4_0_0/resources/auditEvent');
 const Meta = require('../fhir/classes/4_0_0/complex_types/meta');
@@ -29,18 +27,15 @@ class AuditLogger {
      * constructor
      * @param {PostRequestProcessor} postRequestProcessor
      * @param {DatabaseBulkInserter} databaseBulkInserter
-     * @param {ErrorReporter} errorReporter
      * @param {string} base_version
      */
     constructor({
                     postRequestProcessor,
                     databaseBulkInserter,
-                    errorReporter,
                     base_version = '4_0_0'
                 }) {
         assertTypeEquals(postRequestProcessor, PostRequestProcessor);
         assertTypeEquals(databaseBulkInserter, DatabaseBulkInserter);
-        assertTypeEquals(errorReporter, ErrorReporter);
         /**
          * @type {PostRequestProcessor}
          */
@@ -49,10 +44,6 @@ class AuditLogger {
          * @type {DatabaseBulkInserter}
          */
         this.databaseBulkInserter = databaseBulkInserter;
-        /**
-         * @type {ErrorReporter}
-         */
-        this.errorReporter = errorReporter;
         /**
          * @type {Resource[]}
          */
@@ -240,16 +231,6 @@ class AuditLogger {
                         errors: mergeResultErrors
                     }
                 });
-                await this.errorReporter.reportErrorAsync(
-                    {
-                        source: 'flushAsync',
-                        message: `Error creating audit entries: ${JSON.stringify(mergeResultErrors, getCircularReplacer())}`,
-                        args: {
-                            requestId: requestId,
-                            errors: mergeResultErrors
-                        }
-                    }
-                );
             }
         });
     }
