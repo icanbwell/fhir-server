@@ -472,6 +472,17 @@ module.exports = {
                 options: {
                     name: 'organization_type_code_1'
                 }
+            },
+            {
+                keys: {
+                    'identifier.system': 1,
+                    'identifier.value': 1,
+                    '_sourceId': 1,
+                    '_uuid': 1
+                },
+                options: {
+                    name: 'organization.identifierSystemValue_sourceId_uuid'
+                }
             }
         ],
         'OrganizationAffiliation_4_0_0': [
