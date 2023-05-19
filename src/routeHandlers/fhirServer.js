@@ -6,7 +6,6 @@ const compression = require('compression');
 const bodyParser = require('body-parser');
 const env = require('var');
 const {htmlRenderer} = require('../middleware/htmlRenderer');
-const {errorReportingMiddleware} = require('../middleware/slackErrorHandler');
 const {isTrue} = require('../utils/isTrue');
 const {
     resolveSchema,
@@ -270,17 +269,6 @@ class MyFHIRServer {
                 res,
                 next
             }));
-        }
-        return this;
-    }
-
-    /**
-     * Configures the error handler to report any errors
-     * @return {MyFHIRServer}
-     */
-    configureSlackErrorHandler() {
-        if (env.SLACK_TOKEN && env.SLACK_CHANNEL) {
-            this.app.use(errorReportingMiddleware);
         }
         return this;
     }

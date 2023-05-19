@@ -27,7 +27,6 @@ services:
             CHECK_ACCESS_TAG_ON_SAVE: 1
             RENDER_HTML: 1
             REDIRECT_TO_LOGIN: 1
-            SLACK_STATUS_CODES_TO_IGNORE: '401,404'
             MAX_INDEX_NAME_LENGTH: 65
             ENV: local
             MONGO_TIMEOUT: 30000
@@ -37,8 +36,6 @@ services:
             EXTERNAL_AUTH_JWKS_URLS: 'https://cognito-idp.us-east-1.amazonaws.com/us-east-1_e4iVm1J4X/.well-known/jwks.json'
             SET_INDEX_HINTS: 0
             CREATE_INDEX_ON_COLLECTION_CREATION: 1
-            #      SLACK_TOKEN: ""
-            #      SLACK_CHANNEL: "#helix_pipeline_notifications_dev"
             #      HASH_REFERENCE: 1
             RETURN_BUNDLE: '1'
             USE_TWO_STEP_SEARCH_OPTIMIZATION: '0'
