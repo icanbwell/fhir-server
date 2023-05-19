@@ -296,3 +296,4 @@ The results are shown by [src/views/pages/SearchResult.ejs](src/views/pages/Sear
 
 Clicking on the search results is handled by [src/dist/js/searchResults.js](src/dist/js/searchResults.js).
 Helper functions are in [src/utils/searchForm.util.js](src/utils/searchForm.util.js).
+
