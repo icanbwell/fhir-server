@@ -1,6 +1,6 @@
 const {commonBeforeEach, commonAfterEach} = require('../../common');
 const {describe, beforeEach, afterEach, test} = require('@jest/globals');
-const {generateUUIDv5, convertFromMongoUuid, convertToMongoUuid} = require('../../../utils/uid.util');
+const {generateUUIDv5, convertFromMongoUuid, convertToMongoUuid, isUuid} = require('../../../utils/uid.util');
 
 describe('Patient Tests', () => {
     beforeEach(async () => {
@@ -22,6 +22,19 @@ describe('Patient Tests', () => {
             const mongoUuid = convertToMongoUuid(uuid);
             const uuid2 = convertFromMongoUuid(mongoUuid);
             expect(uuid2).toStrictEqual(uuid);
+        });
+        test('uuid.util isUuid works', async () => {
+            let uuid = '007ae95f-1ce4-43af-a881-7eeff3fd264e';
+            let isUuidResult = isUuid(uuid);
+            expect(isUuidResult).toBeTrue();
+
+            uuid = 'abc';
+            isUuidResult = isUuid(uuid);
+            expect(isUuidResult).toBeFalse();
+
+            uuid = 'HumanAPI-007ae95f-1ce4-43af-a881-7eeff3fd264e';
+            isUuidResult = isUuid(uuid);
+            expect(isUuidResult).toBeFalse();
         });
     });
 });
