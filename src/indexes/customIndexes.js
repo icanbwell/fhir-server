@@ -364,6 +364,15 @@ module.exports = {
         'MeasureReport_4_0_0': [
             {
                 keys: {
+                    'subject._sourceId': 1,
+                    '_uuid': 1
+                },
+                options: {
+                    name: 'measureReport.subject_sourceId_uuid'
+                }
+            },
+            {
+                keys: {
                     'subject._uuid': 1,
                     '_uuid': 1
                 },
