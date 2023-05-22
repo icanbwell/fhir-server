@@ -33,7 +33,6 @@ class MyApolloServerLoggingPlugin /*extends ApolloServerPlugin*/ {
 
         const req = requestContext.request;
         const user = context ? context.user : null;
-        const container = context ? context.container : null;
         const self = this;
 
         logInfo(
@@ -86,25 +85,6 @@ class MyApolloServerLoggingPlugin /*extends ApolloServerPlugin*/ {
                                         user
                                     }
                                 });
-                                if (container) {
-                                    /**
-                                     * @type {ErrorReporter}
-                                     */
-                                    const errorReporter = container.errorReporter;
-                                    if (errorReporter) {
-                                        await errorReporter.reportErrorAsync(
-                                            {
-                                                source: 'GraphQLv2',
-                                                message: `GraphQL Validation Error: ${err.message}`,
-                                                error: err,
-                                                args: {
-                                                    user,
-                                                    req,
-                                                }
-                                            }
-                                        );
-                                    }
-                                }
                             }
                         );
                     }
@@ -124,25 +104,6 @@ class MyApolloServerLoggingPlugin /*extends ApolloServerPlugin*/ {
                                     user
                                 }
                             });
-                            if (container) {
-                                /**
-                                 * @type {ErrorReporter}
-                                 */
-                                const errorReporter = container.errorReporter;
-                                if (errorReporter) {
-                                    await errorReporter.reportErrorAsync(
-                                        {
-                                            source: 'GraphQLv2',
-                                            message: `GraphQL Error: ${err.message}`,
-                                            error: err,
-                                            args: {
-                                                user,
-                                                req,
-                                            }
-                                        }
-                                    );
-                                }
-                            }
                         }
                     }
                 };

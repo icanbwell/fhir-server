@@ -260,7 +260,7 @@ Here you can see:
 ## Logging
 Logging in FHIR server is implemented using Winston[https://www.npmjs.com/package/winston] to log in JSON format. Reason to use this is to enhance & unify the fhir server logging.
 
-The default configuration for winston logger is in: https://github.com/icanbwell/fhir-server/blob/master/src/winstonInit.js. Child loggers are used to implement logging for admin logs, slack logs & fhir server logs.
+The default configuration for winston logger is in: https://github.com/icanbwell/fhir-server/blob/master/src/winstonInit.js. Child loggers are used to implement logging for admin logs & fhir server logs.
 
 ### How to use
 1. Import functions from: https://github.com/icanbwell/fhir-server/blob/master/src/operations/common/logging.js as per requirement. 
