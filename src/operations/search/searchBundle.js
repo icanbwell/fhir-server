@@ -316,10 +316,12 @@ class SearchBundleOperation {
                 query
             });
             /**
-             * id of last resource in the list
+             * id of last resource in the list it can be either _uuid or id depending on DEFAULT_SORT_ID passed
              * @type {?string}
              */
-            const last_id = resources.length > 0 ? resources[resources.length - 1].id : null;
+            const defaultSortId = this.configManager.defaultSortId;
+            // eslint-disable-next-line security/detect-object-injection
+            const last_id = resources.length > 0 ? resources[resources.length - 1][defaultSortId] : null;
             /**
              * @type {string[]}
              */

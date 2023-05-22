@@ -925,7 +925,8 @@ class SearchManager {
             res, user, scope,
             parsedArgs, resourceType,
             useAccessIndex,
-            batchObjectCount
+            batchObjectCount,
+            defaultSortId
         }
     ) {
         assertIsValid(requestId);
@@ -937,7 +938,7 @@ class SearchManager {
         /**
          * @type {FhirBundleWriter}
          */
-        const fhirBundleWriter = new FhirBundleWriter({fnBundle, url, signal: ac.signal});
+        const fhirBundleWriter = new FhirBundleWriter({fnBundle, url, signal: ac.signal, defaultSortId: defaultSortId});
 
         /**
          * @type {{id: string[]}}
