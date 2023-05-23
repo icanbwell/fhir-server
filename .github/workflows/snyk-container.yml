@@ -15,10 +15,12 @@ name: Snyk Container
 
 on:
   push:
-    branches: [ "master" ]
+    branches:
+      - main
   pull_request:
     # The branches below must be a subset of the branches above
-    branches: [ "master" ]
+    branches:
+      - main
   schedule:
     - cron: '39 21 * * 5'
 
