@@ -1,4 +1,3 @@
-const async = require('async');
 const {assertTypeEquals} = require('./assertType');
 const {DatabaseQueryFactory} = require('../dataLayer/databaseQueryFactory');
 
@@ -43,7 +42,7 @@ class PersonToPatientIdsExpander {
         // 2. Get that Person resource from the database
         let patientIds = await this.getPatientIdsFromPersonAsync(
             {
-                personId,
+                personIds: [ personId ],
                 databaseQueryManager,
                 level: 1
             }
@@ -67,13 +66,10 @@ class PersonToPatientIdsExpander {
      * @param {number} level
      * @return {Promise<string[]>}
      */
-    async getPatientIdsFromPersonAsync({personId, databaseQueryManager, level}) {
-        /**
-         * @type {Person|null}
-         */
-        const person = await databaseQueryManager.findOneAsync(
+    async getPatientIdsFromPersonAsync({personIds, databaseQueryManager, level}) {
+        const personResourceCursor = await databaseQueryManager.findAsync(
             {
-                query: {id: personId},
+                query: {id: {$in: personIds}},
                 options: {projection: {id: 1, link: 1, _id: 0}}
             }
         );
@@ -81,31 +77,30 @@ class PersonToPatientIdsExpander {
          * @type {string[]}
          */
         let patientIds = [];
-        if (person && person.link && person.link.length > 0) {
-            const patientIdsToAdd = person.link
-                .filter(l => l.target && l.target.reference &&
-                    (l.target.reference.startsWith(patientReferencePrefix) || l.target.type === 'Patient'))
-                .map(l => l.target.reference.replace(patientReferencePrefix, ''));
-            patientIds = patientIds.concat(patientIdsToAdd);
-            if (level < maximumRecursionDepth) { // avoid infinite loop
-                // now find any Person links and call them recursively
-                const personIdsToRecurse = person.link
+        while (await personResourceCursor.hasNext()) {
+            let person = await personResourceCursor.next();
+            if (person && person.link && person.link.length > 0) {
+                const patientIdsToAdd = person.link
                     .filter(l => l.target && l.target.reference &&
-                        (l.target.reference.startsWith(personReferencePrefix) || l.target.type === 'Person'))
-                    .map(l => l.target.reference.replace(personReferencePrefix, ''));
-                /**
-                 * @type {string[]}
-                 */
-                const patientIdsFromPersons = await async.flatMapSeries(
-                    personIdsToRecurse,
-                    async i => await this.getPatientIdsFromPersonAsync({
-                            personId: i,
-                            databaseQueryManager,
-                            level: level + 1
-                        }
-                    )
-                );
-                patientIds = patientIds.concat(patientIdsFromPersons);
+                        (l.target.reference.startsWith(patientReferencePrefix) || l.target.type === 'Patient'))
+                    .map(l => l.target.reference.replace(patientReferencePrefix, ''));
+                patientIds = patientIds.concat(patientIdsToAdd);
+                if (level < maximumRecursionDepth) { // avoid infinite loop
+                    // now find any Person links and call them recursively
+                    const personIdsToRecurse = person.link
+                        .filter(l => l.target && l.target.reference &&
+                            (l.target.reference.startsWith(personReferencePrefix) || l.target.type === 'Person'))
+                        .map(l => l.target.reference.replace(personReferencePrefix, ''));
+                    /**
+                     * @type {string[]}
+                     */
+                    const patientIdsFromPersons = await this.getPatientIdsFromPersonAsync({
+                        personIds: personIdsToRecurse,
+                        databaseQueryManager,
+                        level: level + 1
+                    });
+                    patientIds = patientIds.concat(patientIdsFromPersons);
+                }
             }
         }
 
