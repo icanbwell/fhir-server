@@ -208,7 +208,6 @@
     "ndjson-to-json-text": "^1.0.2",
     "nock": "^13.3.0",
     "npm-check-updates": "^16.7.10",
-    "pm2": "^5.2.2",
     "pre-commit": "^1.2.2",
     "prettier": "^2.8.4",
     "supertest": "^6.3.3",
