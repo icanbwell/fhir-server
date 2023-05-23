@@ -31,6 +31,7 @@ const {ProcessMultipleIdsAsyncResult} = require('./processMultipleIdsAsyncResult
 const {FhirResourceCreator} = require('../../fhir/fhirResourceCreator');
 const GraphDefinition = require('../../fhir/classes/4_0_0/resources/graphDefinition');
 const ResourceContainer = require('../../fhir/classes/4_0_0/simple_types/resourceContainer');
+const { logError } = require('../common/logging');
 const {sliceIntoChunks} = require('../../utils/list.util');
 const {ResourceIdentifier} = require('../../fhir/resourceIdentifier');
 const {DatabaseAttachmentManager} = require('../../dataLayer/databaseAttachmentManager');
@@ -417,6 +418,7 @@ class GraphHelper {
                 }
             );
         } catch (e) {
+            logError(`Error in getForwardReferencesAsync(): ${e.message}`, {error: e});
             throw new RethrownError({
                 message: `Error in getForwardReferencesAsync(): ${resourceType}, ` +
                     `parents:${parentEntities.map(p => p.entityId)}, property=${property}`,
@@ -651,6 +653,7 @@ class GraphHelper {
                 }
             );
         } catch (e) {
+            logError(`Error in getReverseReferencesAsync(): ${e.message}`, {error: e});
             throw new RethrownError({
                 message: 'Error in getReverseReferencesAsync(): ' +
                     `parentResourceType: ${parentResourceType} relatedResourceType:${relatedResourceType}, ` +
@@ -942,6 +945,7 @@ class GraphHelper {
             }
             return {queryItems, childEntries};
         } catch (e) {
+            logError(`Error in processLinkTargetAsync(): ${e.message}`, {error: e});
             throw new RethrownError({
                 message: 'Error in processLinkTargetAsync(): ' + `parentResourceType: ${parentResourceType}, `,
                 error: e,
@@ -1013,6 +1017,7 @@ class GraphHelper {
             const queryItems = result.flatMap(r => r.queryItems);
             return queryItems;
         } catch (e) {
+            logError(`Error in processOneGraphLinkAsync(): ${e.message}`, {error: e});
             throw new RethrownError({
                 message: 'Error in processOneGraphLinkAsync(): ' +
                     `parentResourceType: ${parentResourceType} , ` +
@@ -1087,6 +1092,7 @@ class GraphHelper {
             );
             return {entities: resultEntities, queryItems};
         } catch (e) {
+            logError(`Error in processGraphLinksAsync(): ${e.message}`, {error: e});
             throw new RethrownError({
                 message: 'Error in processGraphLinksAsync(): ' +
                     `parentResourceType: ${parentResourceType} , ` +
@@ -1129,6 +1135,7 @@ class GraphHelper {
             }
             return parent_entity;
         } catch (e) {
+            logError(`Error in convertToHashedReferencesAsync(): ${e.message}`, {error: e});
             throw new RethrownError({
                 message: 'Error in convertToHashedReferencesAsync(): ',
                 error: e,
@@ -1455,6 +1462,7 @@ class GraphHelper {
                 }
             );
         } catch (e) {
+            logError(`Error in processMultipleIdsAsync(): ${e.message}`, {error: e});
             throw new RethrownError({
                 message: 'Error in processMultipleIdsAsync(): ' + `resourceType: ${resourceType} , `,
                 error: e,
@@ -1613,6 +1621,7 @@ class GraphHelper {
             }
             return bundle;
         } catch (e) {
+            logError(`Error in processGraphAsync(): ${e.message}`, {error: e});
             throw new RethrownError({
                 message: 'Error in processGraphAsync(): ' + `resourceType: ${resourceType} , ` + e.message,
                 error: e,
@@ -1740,6 +1749,7 @@ class GraphHelper {
             }
             return deleteOperationBundle;
         } catch (e) {
+            logError(`Error in deleteGraphAsync(): ${e.message}`, {error: e});
             throw new RethrownError({
                 message: 'Error in deleteGraphAsync(): ' + `resourceType: ${resourceType} , ` + e.message,
                 error: e,
