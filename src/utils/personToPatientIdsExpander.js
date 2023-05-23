@@ -77,6 +77,7 @@ class PersonToPatientIdsExpander {
          * @type {string[]}
          */
         let patientIds = [];
+        let personIdsToRecurse = [];
         while (await personResourceCursor.hasNext()) {
             let person = await personResourceCursor.next();
             if (person && person.link && person.link.length > 0) {
@@ -87,24 +88,26 @@ class PersonToPatientIdsExpander {
                 patientIds = patientIds.concat(patientIdsToAdd);
                 if (level < maximumRecursionDepth) { // avoid infinite loop
                     // now find any Person links and call them recursively
-                    const personIdsToRecurse = person.link
+                    const personResourceWithPersonReferenceLink = person.link
                         .filter(l => l.target && l.target.reference &&
                             (l.target.reference.startsWith(personReferencePrefix) || l.target.type === 'Person'))
                         .map(l => l.target.reference.replace(personReferencePrefix, ''));
-                    /**
-                     * @type {string[]}
-                     */
-                    const patientIdsFromPersons = await this.getPatientIdsFromPersonAsync({
-                        personIds: personIdsToRecurse,
-                        databaseQueryManager,
-                        level: level + 1
-                    });
-                    patientIds = patientIds.concat(patientIdsFromPersons);
+                    personIdsToRecurse = personIdsToRecurse.concat(personResourceWithPersonReferenceLink);
                 }
             }
         }
-
-        return patientIds;
+        if (personIdsToRecurse.length === 0) {
+            return patientIds;
+        }
+        /**
+         * @type {string[]}
+         */
+        const patientIdsFromPersons = await this.getPatientIdsFromPersonAsync({
+            personIds: personIdsToRecurse,
+            databaseQueryManager,
+            level: level + 1
+        });
+        return patientIds.concat(patientIdsFromPersons);
     }
 }
 
