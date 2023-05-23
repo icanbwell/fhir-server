@@ -308,6 +308,7 @@ class SearchStreamingOperation {
                          * @type {Resource[]}
                          */
                         const resources1 = [];
+                        const defaultSortId = this.configManager.defaultSortId;
                         /**
                          * bundle
                          * @param {string|null} last_id
@@ -358,7 +359,8 @@ class SearchStreamingOperation {
                                 parsedArgs,
                                 resourceType,
                                 useAccessIndex,
-                                batchObjectCount
+                                batchObjectCount,
+                                defaultSortId
                             });
                     } else {
                         resourceIds = await this.searchManager.streamResourcesFromCursorAsync(
