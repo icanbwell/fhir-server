@@ -526,6 +526,7 @@ class SearchManager {
             return await this.personToPatientIdsExpander.getPatientIdsFromPersonAsync({
                 databaseQueryManager,
                 personIds: [ personIdFromJwtToken ],
+                totalProcessedPersonIds: new Set(),
                 level: 1
             });
         } catch (e) {
