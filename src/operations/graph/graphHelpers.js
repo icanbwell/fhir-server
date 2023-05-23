@@ -1525,8 +1525,6 @@ class GraphHelper {
              * @type {string[]|null}
              */
             const ids = idParsedArg.queryParameterValue.values;
-            console.log('ids');
-            console.dir(ids);
             /**
              * @type {string[][]}
              */
