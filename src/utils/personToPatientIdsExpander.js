@@ -61,7 +61,7 @@ class PersonToPatientIdsExpander {
 
     /**
      * gets patient ids (recursive) from a person
-     * @param {string} personId
+     * @param {string[]} personIds
      * @param {DatabaseQueryManager} databaseQueryManager
      * @param {number} level
      * @return {Promise<string[]>}
