@@ -1,5 +1,6 @@
 const {assertTypeEquals} = require('./assertType');
 const {DatabaseQueryFactory} = require('../dataLayer/databaseQueryFactory');
+const { logInfo } = require('../operations/common/logging');
 
 const patientReferencePrefix = 'Patient/';
 const personReferencePrefix = 'Person/';
@@ -94,6 +95,10 @@ class PersonToPatientIdsExpander {
                     .map(l => l.target.reference.replace(personReferencePrefix, ''));
                 personIdsToRecurse = personIdsToRecurse.concat(personResourceWithPersonReferenceLink);
             }
+        }
+        if (level === maximumRecursionDepth) {
+            logInfo(`Maximum recursion depth of ${maximumRecursionDepth} reached while recursively fetching patient ids from person links`, {});
+            return patientIds;
         }
         if (level < maximumRecursionDepth && personIdsToRecurse.length !== 0) {
             // avoid infinite loop
