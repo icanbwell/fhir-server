@@ -95,7 +95,7 @@ class PersonToPatientIdsExpander {
                 personIdsToRecurse = personIdsToRecurse.concat(personResourceWithPersonReferenceLink);
             }
         }
-        if (level < maximumRecursionDepth) {
+        if (level < maximumRecursionDepth && personIdsToRecurse.length !== 0) {
             // avoid infinite loop
             /**
              * @type {string[]}
