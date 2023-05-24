@@ -1,6 +1,6 @@
-const async = require('async');
 const {assertTypeEquals} = require('./assertType');
 const {DatabaseQueryFactory} = require('../dataLayer/databaseQueryFactory');
+const { logWarn } = require('../operations/common/logging');
 
 const patientReferencePrefix = 'Patient/';
 const personReferencePrefix = 'Person/';
@@ -43,7 +43,8 @@ class PersonToPatientIdsExpander {
         // 2. Get that Person resource from the database
         let patientIds = await this.getPatientIdsFromPersonAsync(
             {
-                personId,
+                personIds: [ personId ],
+                totalProcessedPersonIds: new Set(),
                 databaseQueryManager,
                 level: 1
             }
@@ -62,18 +63,16 @@ class PersonToPatientIdsExpander {
 
     /**
      * gets patient ids (recursive) from a person
-     * @param {string} personId
+     * @param {string[]} personIds
+     * @param {Set} totalProcessedPersonIds
      * @param {DatabaseQueryManager} databaseQueryManager
      * @param {number} level
      * @return {Promise<string[]>}
      */
-    async getPatientIdsFromPersonAsync({personId, databaseQueryManager, level}) {
-        /**
-         * @type {Person|null}
-         */
-        const person = await databaseQueryManager.findOneAsync(
+    async getPatientIdsFromPersonAsync({personIds, totalProcessedPersonIds, databaseQueryManager, level}) {
+        const personResourceCursor = await databaseQueryManager.findAsync(
             {
-                query: {id: personId},
+                query: {id: {$in: personIds}},
                 options: {projection: {id: 1, link: 1, _id: 0}}
             }
         );
@@ -81,34 +80,40 @@ class PersonToPatientIdsExpander {
          * @type {string[]}
          */
         let patientIds = [];
-        if (person && person.link && person.link.length > 0) {
-            const patientIdsToAdd = person.link
-                .filter(l => l.target && l.target.reference &&
-                    (l.target.reference.startsWith(patientReferencePrefix) || l.target.type === 'Patient'))
-                .map(l => l.target.reference.replace(patientReferencePrefix, ''));
-            patientIds = patientIds.concat(patientIdsToAdd);
-            if (level < maximumRecursionDepth) { // avoid infinite loop
-                // now find any Person links and call them recursively
-                const personIdsToRecurse = person.link
+        let personIdsToRecurse = [];
+        while (await personResourceCursor.hasNext()) {
+            let person = await personResourceCursor.next();
+            if (person && person.link && person.link.length > 0 && !totalProcessedPersonIds.has(person.id)) {
+                const patientIdsToAdd = person.link
+                    .filter(l => l.target && l.target.reference &&
+                        (l.target.reference.startsWith(patientReferencePrefix) || l.target.type === 'Patient'))
+                    .map(l => l.target.reference.replace(patientReferencePrefix, ''));
+                patientIds = patientIds.concat(patientIdsToAdd);
+                const personResourceWithPersonReferenceLink = person.link
                     .filter(l => l.target && l.target.reference &&
                         (l.target.reference.startsWith(personReferencePrefix) || l.target.type === 'Person'))
                     .map(l => l.target.reference.replace(personReferencePrefix, ''));
-                /**
-                 * @type {string[]}
-                 */
-                const patientIdsFromPersons = await async.flatMapSeries(
-                    personIdsToRecurse,
-                    async i => await this.getPatientIdsFromPersonAsync({
-                            personId: i,
-                            databaseQueryManager,
-                            level: level + 1
-                        }
-                    )
-                );
-                patientIds = patientIds.concat(patientIdsFromPersons);
+                personIdsToRecurse = personIdsToRecurse.concat(personResourceWithPersonReferenceLink);
             }
         }
-
+        if (level === maximumRecursionDepth) {
+            let message = `Maximum recursion depth of ${maximumRecursionDepth} reached while recursively fetching patient ids from person links`;
+            logWarn(message, {patientIds: patientIds, personIdsToRecurse: personIdsToRecurse, totalProcessedPersonIds: [...totalProcessedPersonIds]});
+            return patientIds;
+        }
+        if (level < maximumRecursionDepth && personIdsToRecurse.length !== 0) {
+            // avoid infinite loop
+            /**
+             * @type {string[]}
+             */
+            const patientIdsFromPersons = await this.getPatientIdsFromPersonAsync({
+                personIds: personIdsToRecurse,
+                totalProcessedPersonIds: new Set([...totalProcessedPersonIds, ...personIds]),
+                databaseQueryManager,
+                level: level + 1
+            });
+            return patientIds.concat(patientIdsFromPersons);
+        }
         return patientIds;
     }
 }
