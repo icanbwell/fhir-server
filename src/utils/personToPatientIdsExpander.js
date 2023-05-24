@@ -99,6 +99,7 @@ class PersonToPatientIdsExpander {
         if (level === maximumRecursionDepth) {
             let message = `Maximum recursion depth of ${maximumRecursionDepth} reached while recursively fetching patient ids from person links,
                 patientIds at last level: ${patientIds},
+                personIds at last level: ${personIdsToRecurse},
                 All processed patientIds: ${[...totalProcessedPersonIds]}`;
             logWarn(message, {});
             return patientIds;
