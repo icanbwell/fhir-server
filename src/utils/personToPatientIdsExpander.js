@@ -97,11 +97,8 @@ class PersonToPatientIdsExpander {
             }
         }
         if (level === maximumRecursionDepth) {
-            let message = `Maximum recursion depth of ${maximumRecursionDepth} reached while recursively fetching patient ids from person links,
-                patientIds at last level: ${patientIds},
-                personIds at last level: ${personIdsToRecurse},
-                All processed patientIds: ${[...totalProcessedPersonIds]}`;
-            logWarn(message, {});
+            let message = `Maximum recursion depth of ${maximumRecursionDepth} reached while recursively fetching patient ids from person links`;
+            logWarn(message, {patientIds: patientIds, personIdsToRecurse: personIdsToRecurse, totalProcessedPersonIds: [...totalProcessedPersonIds]});
             return patientIds;
         }
         if (level < maximumRecursionDepth && personIdsToRecurse.length !== 0) {
