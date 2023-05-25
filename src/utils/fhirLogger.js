@@ -1,10 +1,12 @@
 const env = require('var');
 const winston = require('winston');
 const {ElasticsearchTransport} = require('winston-elasticsearch');
+const {MongoDB} = require('winston-mongodb');
 const {Client} = require('@opensearch-project/opensearch');
 const {isTrue} = require('./isTrue');
 const Transport = require('winston-transport');
 const {assertIsValid} = require('./assertType');
+const {accessLogsMongoConfig} = require('../config');
 
 const Mutex = require('async-mutex').Mutex;
 const mutex = new Mutex();
@@ -167,6 +169,23 @@ class FhirLogger {
             const nullTransport = new NullTransport();
             // noinspection JSCheckFunctionSignatures
             logger.add(nullTransport);
+        }
+
+        if (isTrue(env.ENABLE_MONGODB_ACCESS_LOGS)) {
+            /**
+             * @type {require('winston-mongodb').MongoDB}
+             */
+            const mongodbTransport = new MongoDB({
+                db: accessLogsMongoConfig.connection,
+                options: accessLogsMongoConfig.options,
+                dbName: accessLogsMongoConfig.db_name,
+                name: 'mongodb_access_logs',
+                format: winston.format.combine(winston.format.metadata({
+                    fillExcept: ['message', 'level', 'timestamp']
+                }))
+            });
+
+            logger.add(mongodbTransport);
         }
 
         if (env.LOGLEVEL === 'DEBUG') {

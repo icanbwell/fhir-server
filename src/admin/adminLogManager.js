@@ -2,6 +2,9 @@ const env = require('var');
 const {assertIsValid} = require('../utils/assertType');
 const {Client} = require('@opensearch-project/opensearch');
 const {logInfo, logError} = require('../operations/common/logging');
+const {isTrue} = require('../utils/isTrue');
+const {accessLogsMongoConfig} = require('../config');
+const {MongoClient} = require('mongodb');
 
 class AdminLogManager {
 
@@ -11,6 +14,16 @@ class AdminLogManager {
      * @returns {Promise<Object[]>}
      */
     async getLogAsync(id) {
+        if (isTrue(env.ENABLE_MONGODB_ACCESS_LOGS_SEARCH)) {
+            /**
+             * @type {MongoClient}
+             */
+            const client = new MongoClient(accessLogsMongoConfig.connection, accessLogsMongoConfig.options);
+
+            const accessLogsCollection = client.db(accessLogsMongoConfig.db_name).collection('log');
+
+            return await accessLogsCollection.find({ 'meta.id': id }).toArray();
+        }
         if (!env.LOG_ELASTIC_SEARCH_URL){
             return [];
         }
