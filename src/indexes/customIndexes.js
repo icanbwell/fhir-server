@@ -1325,7 +1325,7 @@ module.exports = {
             {
                 keys: {
                     'actor._uuid': 1,
-                    '_uuid': 1
+                    '_sourceId': 1
                 },
                 options: {
                     name: 'actor.reference_uuid'
