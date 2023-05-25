@@ -1,5 +1,6 @@
 const patient = require('./fixtures/patient.json');
 const observation = require('./fixtures/observation.json');
+const consent = require('./fixtures/consent.json');
 const {describe, expect, beforeEach, afterEach, test} = require('@jest/globals');
 const moment = require('moment-timezone');
 const {commonBeforeEach, commonAfterEach} = require('../../common');
@@ -8,6 +9,7 @@ const {ChangeEventProducer} = require('../../../utils/changeEventProducer');
 const env = require('var');
 const Patient = require('../../../fhir/classes/4_0_0/resources/patient');
 const Observation = require('../../../fhir/classes/4_0_0/resources/observation');
+const Consent = require('../../../fhir/classes/4_0_0/resources/consent');
 const CodeSystem = require('../../../fhir/classes/4_0_0/resources/codeSystem');
 const Meta = require('../../../fhir/classes/4_0_0/complex_types/meta');
 const CodeSystemConcept = require('../../../fhir/classes/4_0_0/backbone_elements/codeSystemConcept');
@@ -28,8 +30,7 @@ class MockChangeEventProducer extends ChangeEventProducer {
      * @param {KafkaClientFactory} kafkaClientFactory
      * @param {ResourceManager} resourceManager
      * @param {string} patientChangeTopic
-     * @param {string} taskChangeTopic
-     * @param {string} observationChangeTopic
+     * @param {string} consentChangeTopic
      * @param {BwellPersonFinder} bwellPersonFinder
      * @param {RequestSpecificCache} requestSpecificCache
      */
@@ -37,8 +38,7 @@ class MockChangeEventProducer extends ChangeEventProducer {
                     kafkaClientFactory,
                     resourceManager,
                     patientChangeTopic,
-                    taskChangeTopic,
-                    observationChangeTopic,
+                    consentChangeTopic,
                     bwellPersonFinder,
                     requestSpecificCache
                 }) {
@@ -46,8 +46,7 @@ class MockChangeEventProducer extends ChangeEventProducer {
             kafkaClientFactory,
             resourceManager,
             patientChangeTopic,
-            taskChangeTopic,
-            observationChangeTopic,
+            consentChangeTopic,
             bwellPersonFinder,
             requestSpecificCache
         });
@@ -78,9 +77,7 @@ describe('databaseBulkInserter Tests', () => {
                             kafkaClientFactory: c.kafkaClientFactory,
                             resourceManager: c.resourceManager,
                             patientChangeTopic: env.KAFKA_PATIENT_CHANGE_TOPIC || 'business.events',
-                            taskChangeTopic: env.KAFKA_PATIENT_CHANGE_TOPIC || 'business.events',
-                            observationChangeTopic:
-                                env.KAFKA_PATIENT_CHANGE_TOPIC || 'business.events',
+                            consentChangeTopic: env.KAFKA_PATIENT_CHANGE_TOPIC || 'business.events',
                             bwellPersonFinder: c.bwellPersonFinder,
                             requestSpecificCache: c.requestSpecificCache
                         })
@@ -99,13 +96,13 @@ describe('databaseBulkInserter Tests', () => {
                 .mockImplementation(() => {
                 });
             // noinspection JSCheckFunctionSignatures
-            const onObservationCreateAsync = jest
-                .spyOn(MockChangeEventProducer.prototype, 'onObservationCreateAsync')
+            const onConsentCreateAsync = jest
+                .spyOn(MockChangeEventProducer.prototype, 'onConsentCreateAsync')
                 .mockImplementation(() => {
                 });
             // noinspection JSCheckFunctionSignatures
-            const onObservationChangeAsync = jest
-                .spyOn(MockChangeEventProducer.prototype, 'onObservationChangeAsync')
+            const onConsentChangeAsync = jest
+                .spyOn(MockChangeEventProducer.prototype, 'onConsentChangeAsync')
                 .mockImplementation(() => {
                 });
             /**
@@ -122,6 +119,11 @@ describe('databaseBulkInserter Tests', () => {
                 requestId: requestId,
                 resourceType: 'Observation',
                 doc: new Observation(observation),
+            });
+            await databaseBulkInserter.insertOneAsync({
+                requestId: requestId,
+                resourceType: 'Consent',
+                doc: new Consent(consent)
             });
 
             patient.birthDate = '2020-01-01';
@@ -171,9 +173,9 @@ describe('databaseBulkInserter Tests', () => {
             expect(observations[0].id).toStrictEqual('2354-InAgeCohort');
 
             expect(onPatientCreateAsyncMock).toBeCalledTimes(1);
-            expect(onPatientChangeAsyncMock).toBeCalledTimes(1);
-            expect(onObservationCreateAsync).toBeCalledTimes(1);
-            expect(onObservationChangeAsync).toBeCalledTimes(0);
+            expect(onPatientChangeAsyncMock).toBeCalledTimes(2);
+            expect(onConsentCreateAsync).toBeCalledTimes(1);
+            expect(onConsentChangeAsync).toBeCalledTimes(0);
         });
         test('execAsync handles mongo error', async () => {
             /**
@@ -189,9 +191,7 @@ describe('databaseBulkInserter Tests', () => {
                             kafkaClientFactory: c.kafkaClientFactory,
                             resourceManager: c.resourceManager,
                             patientChangeTopic: env.KAFKA_PATIENT_CHANGE_TOPIC || 'business.events',
-                            taskChangeTopic: env.KAFKA_PATIENT_CHANGE_TOPIC || 'business.events',
-                            observationChangeTopic:
-                                env.KAFKA_PATIENT_CHANGE_TOPIC || 'business.events',
+                            consentChangeTopic: env.KAFKA_PATIENT_CHANGE_TOPIC || 'business.events',
                             bwellPersonFinder: c.bwellPersonFinder,
                             requestSpecificCache: c.requestSpecificCache
                         })
@@ -210,13 +210,13 @@ describe('databaseBulkInserter Tests', () => {
                 .mockImplementation(() => {
                 });
             // noinspection JSCheckFunctionSignatures
-            const onObservationCreateAsync = jest
-                .spyOn(MockChangeEventProducer.prototype, 'onObservationCreateAsync')
+            const onConsentCreateAsync = jest
+                .spyOn(MockChangeEventProducer.prototype, 'onConsentCreateAsync')
                 .mockImplementation(() => {
                 });
             // noinspection JSCheckFunctionSignatures
-            const onObservationChangeAsync = jest
-                .spyOn(MockChangeEventProducer.prototype, 'onObservationChangeAsync')
+            const onConsentChangeAsync = jest
+                .spyOn(MockChangeEventProducer.prototype, 'onConsentChangeAsync')
                 .mockImplementation(() => {
                 });
             /**
@@ -260,6 +260,11 @@ describe('databaseBulkInserter Tests', () => {
                 resourceType: 'Observation',
                 doc: new Observation(observation),
             });
+            await databaseBulkInserter.insertOneAsync({
+                requestId: requestId,
+                resourceType: 'Consent',
+                doc: new Consent(consent)
+            });
 
             patient.birthDate = '2020-01-01';
             await databaseBulkInserter.mergeOneAsync({
@@ -299,9 +304,9 @@ describe('databaseBulkInserter Tests', () => {
             expect(observations.length).toStrictEqual(0);
 
             expect(onPatientCreateAsyncMock).toBeCalledTimes(1);
-            expect(onPatientChangeAsyncMock).toBeCalledTimes(1);
-            expect(onObservationCreateAsync).toBeCalledTimes(1);
-            expect(onObservationChangeAsync).toBeCalledTimes(0);
+            expect(onPatientChangeAsyncMock).toBeCalledTimes(2);
+            expect(onConsentCreateAsync).toBeCalledTimes(1);
+            expect(onConsentChangeAsync).toBeCalledTimes(0);
         });
     });
     describe('databaseBulkInserter CodeSystem concurrency Tests', () => {
@@ -319,9 +324,7 @@ describe('databaseBulkInserter Tests', () => {
                             kafkaClientFactory: c.kafkaClientFactory,
                             resourceManager: c.resourceManager,
                             patientChangeTopic: env.KAFKA_PATIENT_CHANGE_TOPIC || 'business.events',
-                            taskChangeTopic: env.KAFKA_PATIENT_CHANGE_TOPIC || 'business.events',
-                            observationChangeTopic:
-                                env.KAFKA_PATIENT_CHANGE_TOPIC || 'business.events',
+                            consentChangeTopic: env.KAFKA_PATIENT_CHANGE_TOPIC || 'business.events',
                             bwellPersonFinder: c.bwellPersonFinder,
                             requestSpecificCache: c.requestSpecificCache
                         })
@@ -781,9 +784,7 @@ describe('databaseBulkInserter Tests', () => {
                             kafkaClientFactory: c.kafkaClientFactory,
                             resourceManager: c.resourceManager,
                             patientChangeTopic: env.KAFKA_PATIENT_CHANGE_TOPIC || 'business.events',
-                            taskChangeTopic: env.KAFKA_PATIENT_CHANGE_TOPIC || 'business.events',
-                            observationChangeTopic:
-                                env.KAFKA_PATIENT_CHANGE_TOPIC || 'business.events',
+                            consentChangeTopic: env.KAFKA_PATIENT_CHANGE_TOPIC || 'business.events',
                             bwellPersonFinder: c.bwellPersonFinder,
                             requestSpecificCache: c.requestSpecificCache
                         })
@@ -1234,9 +1235,7 @@ describe('databaseBulkInserter Tests', () => {
                             kafkaClientFactory: c.kafkaClientFactory,
                             resourceManager: c.resourceManager,
                             patientChangeTopic: env.KAFKA_PATIENT_CHANGE_TOPIC || 'business.events',
-                            taskChangeTopic: env.KAFKA_PATIENT_CHANGE_TOPIC || 'business.events',
-                            observationChangeTopic:
-                                env.KAFKA_PATIENT_CHANGE_TOPIC || 'business.events',
+                            consentChangeTopic: env.KAFKA_PATIENT_CHANGE_TOPIC || 'business.events',
                             bwellPersonFinder: c.bwellPersonFinder,
                             requestSpecificCache: c.requestSpecificCache
                         })
@@ -1495,9 +1494,7 @@ describe('databaseBulkInserter Tests', () => {
                             kafkaClientFactory: c.kafkaClientFactory,
                             resourceManager: c.resourceManager,
                             patientChangeTopic: env.KAFKA_PATIENT_CHANGE_TOPIC || 'business.events',
-                            taskChangeTopic: env.KAFKA_PATIENT_CHANGE_TOPIC || 'business.events',
-                            observationChangeTopic:
-                                env.KAFKA_PATIENT_CHANGE_TOPIC || 'business.events',
+                            consentChangeTopic: env.KAFKA_PATIENT_CHANGE_TOPIC || 'business.events',
                             bwellPersonFinder: c.bwellPersonFinder,
                             requestSpecificCache: c.requestSpecificCache
                         })

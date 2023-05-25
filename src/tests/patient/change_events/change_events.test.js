@@ -3,6 +3,7 @@ const person1withlinkResource = require('./fixtures/person/person1_withlink.json
 const person1nolinkResource = require('./fixtures/person/person1_nolink.json');
 const observation1Resource = require('./fixtures/observation/observation1.json');
 const observation2Resource = require('./fixtures/observation/observation2.json');
+const consent1Resource = require('./fixtures/consent/consent.json');
 
 const {
     commonBeforeEach,
@@ -220,7 +221,7 @@ describe('Patient Change Event Tests', () => {
              * @type {KafkaClientMessage[]}
              */
             const messages = mockKafkaClient.getMessages();
-            expect(messages.length).toBe(3);
+            expect(messages.length).toBe(2);
             const messageValue = JSON.parse(messages[0].value);
             expect(messageValue.resourceType).toBe('AuditEvent');
             expect(messageValue.action).toBe('U');
@@ -229,10 +230,6 @@ describe('Patient Change Event Tests', () => {
             expect(messageValue2.resourceType).toBe('AuditEvent');
             expect(messageValue2.action).toBe('U');
             expect(messageValue2.agent[0].who.reference).toBe('Patient/person.81236');
-            const messageValue3 = JSON.parse(messages[2].value);
-            expect(messageValue3.resourceType).toBe('AuditEvent');
-            expect(messageValue3.action).toBe('C');
-            expect(messageValue3.agent[0].who.reference).toBe('Observation/2354-InAgeCohort');
         });
         test('creating a new observation updates patient if no associated proxy patient', async () => {
             const request = await createTestRequest();
@@ -270,15 +267,11 @@ describe('Patient Change Event Tests', () => {
              * @type {KafkaClientMessage[]}
              */
             const messages = mockKafkaClient.getMessages();
-            expect(messages.length).toBe(2);
+            expect(messages.length).toBe(1);
             const messageValue = JSON.parse(messages[0].value);
             expect(messageValue.resourceType).toBe('AuditEvent');
             expect(messageValue.action).toBe('U');
             expect(messageValue.agent[0].who.reference).toBe('Patient/2354');
-            const messageValue2 = JSON.parse(messages[1].value);
-            expect(messageValue2.resourceType).toBe('AuditEvent');
-            expect(messageValue2.action).toBe('C');
-            expect(messageValue2.agent[0].who.reference).toBe('Observation/2354-InAgeCohort');
         });
         test('creating a new observation includes sourceType, if any', async () => {
             const request = await createTestRequest();
@@ -325,11 +318,73 @@ describe('Patient Change Event Tests', () => {
              * @type {KafkaClientMessage[]}
              */
             const messages = mockKafkaClient.getMessages();
-            expect(messages.length).toBe(3);
+            expect(messages.length).toBe(2);
             for (let message of messages) {
                 const messageValue = JSON.parse(message.value);
                 expect(messageValue.source.type[0].code).toBe('cql-engine');
             }
+        });
+    });
+    describe('Consent Change Event Tests', () => {
+        test('creating a new consent updates patient and proxy patient', async () => {
+            const request = await createTestRequest();
+            /**
+             * @type {PostRequestProcessor}
+             */
+            const postRequestProcessor = getTestContainer().postRequestProcessor;
+            /**
+             * @type {MockKafkaClientFactory}
+             */
+            const mockKafkaClientFactory = getTestContainer().kafkaClientFactory;
+            /**
+             * @type {MockKafkaClient}
+             */
+            const mockKafkaClient = await mockKafkaClientFactory.createKafkaClientAsync();
+            assertTypeEquals(mockKafkaClient, MockKafkaClient);
+
+            let resp = await request
+                .post('/4_0_0/Person/81236/$merge')
+                .send(person1withlinkResource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
+
+            await postRequestProcessor.waitTillDoneAsync({requestId: getRequestId(resp)});
+            mockKafkaClient.clear();
+
+            resp = await request
+                .get('/4_0_0/Consent')
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResourceCount(0);
+
+            resp = await request
+                .post('/4_0_0/Consent/0/$merge')
+                .send(consent1Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
+
+            // wait for post request processing to finish
+            await postRequestProcessor.waitTillDoneAsync({requestId: getRequestId(resp)});
+            /**
+             * @type {KafkaClientMessage[]}
+             */
+            const messages = mockKafkaClient.getMessages();
+            expect(messages.length).toBe(3);
+            const messageValue = JSON.parse(messages[0].value);
+            expect(messageValue.resourceType).toBe('AuditEvent');
+            expect(messageValue.action).toBe('U');
+            expect(messageValue.agent[0].who.reference).toBe('Patient/2354');
+            const messageValue2 = JSON.parse(messages[1].value);
+            expect(messageValue2.resourceType).toBe('AuditEvent');
+            expect(messageValue2.action).toBe('U');
+            expect(messageValue2.agent[0].who.reference).toBe('Patient/person.81236');
+            const messageValue3 = JSON.parse(messages[2].value);
+            expect(messageValue3.resourceType).toBe('AuditEvent');
+            expect(messageValue3.action).toBe('C');
+            expect(messageValue3.agent[0].who.reference).toBe('Consent/1167dbd7-b5de-4843-b3aa-3804b28a7573');
+
         });
     });
 });

@@ -27,8 +27,7 @@ class ChangeEventProducer {
      * @param {KafkaClientFactory} kafkaClientFactory
      * @param {ResourceManager} resourceManager
      * @param {string} patientChangeTopic
-     * @param {string} taskChangeTopic
-     * @param {string} observationChangeTopic
+     * @param {string} consentChangeTopic
      * @param {BwellPersonFinder} bwellPersonFinder
      * @param {RequestSpecificCache} requestSpecificCache
      */
@@ -36,8 +35,7 @@ class ChangeEventProducer {
                     kafkaClientFactory,
                     resourceManager,
                     patientChangeTopic,
-                    taskChangeTopic,
-                    observationChangeTopic,
+                    consentChangeTopic,
                     bwellPersonFinder,
                     requestSpecificCache
                 }) {
@@ -59,13 +57,8 @@ class ChangeEventProducer {
         /**
          * @type {string}
          */
-        this.taskChangeTopic = taskChangeTopic;
-        assertIsValid(taskChangeTopic);
-        /**
-         * @type {string}
-         */
-        this.observationChangeTopic = observationChangeTopic;
-        assertIsValid(observationChangeTopic);
+        this.consentChangeTopic = consentChangeTopic;
+        assertIsValid(consentChangeTopic);
         /**
          * @type {BwellPersonFinder}
          */
@@ -88,21 +81,12 @@ class ChangeEventProducer {
     }
 
     /**
-     * This map stores an entry per task id
+     * This map stores an entry per consent id
      * @param {string} requestId
      * @return {Map<string, Object>} id, resource
      */
-    getTaskMessageMap({requestId}) {
-        return this.requestSpecificCache.getMap({requestId, name: 'TaskMessageMap'});
-    }
-
-    /**
-     * This map stores an entry per observation id
-     * @param {string} requestId
-     * @return {Map<string, Object>} id, resource
-     */
-    getObservationMessageMap({requestId}) {
-        return this.requestSpecificCache.getMap({requestId, name: 'ObservationMessageMap'});
+    getConsentMessageMap({requestId}) {
+        return this.requestSpecificCache.getMap({requestId, name: 'ConsentMessageMap'});
     }
 
     /**
@@ -230,15 +214,15 @@ class ChangeEventProducer {
     }
 
     /**
-     * Fire event for patient create
+     * Fire event for consent create
      * @param {string} requestId
      * @param {string} id
      * @param {string} resourceType
      * @param {string} timestamp
-     * @param {string|undefined} sourceType
+     * @param {string} sourceType
      * @return {Promise<void>}
      */
-    async onTaskCreateAsync({requestId, id, resourceType, timestamp, sourceType}) {
+    async onConsentCreateAsync({requestId, id, resourceType, timestamp, sourceType}) {
         const isCreate = true;
 
         const messageJson = this._createMessage({
@@ -247,108 +231,15 @@ class ChangeEventProducer {
             timestamp,
             isCreate,
             resourceType: resourceType,
-            eventName: 'Task Create',
+            eventName: 'Consent Create',
             sourceType
         });
         const key = `${id}`;
-        this.getTaskMessageMap({requestId}).set(key, messageJson);
+        this.getConsentMessageMap({requestId}).set(key, messageJson);
     }
 
     /**
-     * Fire event for patient change
-     * @param {string} requestId
-     * @param {string} id
-     * @param {string} resourceType
-     * @param {string} timestamp
-     * @param {string|undefined} sourceType
-     * @return {Promise<void>}
-     */
-    async onTaskChangeAsync({requestId, id, resourceType, timestamp, sourceType}) {
-        const isCreate = false;
-
-        const messageJson = this._createMessage({
-            requestId,
-            id,
-            timestamp,
-            isCreate,
-            resourceType: resourceType,
-            eventName: 'Task Change',
-            sourceType
-        });
-
-        const key = `${id}`;
-        const taskMessageMap = this.getTaskMessageMap({requestId});
-        const existingMessageEntry = taskMessageMap.get(key);
-        if (!existingMessageEntry || existingMessageEntry.action !== 'C') {
-            // if existing entry is a 'create' then leave it alone
-            taskMessageMap.set(key, messageJson);
-        }
-    }
-
-    /**
-     * Fire event for patient change
-     * @param {string} requestId
-     * @param {string} id
-     * @param {string} resourceType
-     * @param {string} timestamp
-     * @param {string|undefined} sourceType
-     * @return {Promise<void>}
-     */
-    async onTaskCompleteAsync({requestId, id, resourceType, timestamp, sourceType}) {
-        const isCreate = false;
-
-        const messageJson = this._createMessage({
-            requestId,
-            id,
-            timestamp,
-            isCreate,
-            resourceType: resourceType,
-            eventName: 'Task Complete',
-            sourceType
-        });
-
-        const key = `${id}`;
-        const taskMessageMap = this.getTaskMessageMap({requestId});
-        const existingMessageEntry = taskMessageMap.get(key);
-        if (!existingMessageEntry || existingMessageEntry.action !== 'C') {
-            // if existing entry is a 'create' then leave it alone
-            taskMessageMap.set(key, messageJson);
-        }
-    }
-
-    /**
-     * Fire event for patient change
-     * @param {string} requestId
-     * @param {string} id
-     * @param {string} resourceType
-     * @param {string} timestamp
-     * @param {string|undefined} sourceType
-     * @return {Promise<void>}
-     */
-    async onTaskCanceledAsync({requestId, id, resourceType, timestamp, sourceType}) {
-        const isCreate = false;
-
-        const messageJson = this._createMessage({
-            requestId,
-            id,
-            timestamp,
-            isCreate,
-            resourceType: resourceType,
-            eventName: 'Task Canceled',
-            sourceType
-        });
-
-        const key = `${id}`;
-        const taskMessageMap = this.getTaskMessageMap({requestId});
-        const existingMessageEntry = taskMessageMap.get(key);
-        if (!existingMessageEntry || existingMessageEntry.action !== 'C') {
-            // if existing entry is a 'create' then leave it alone
-            taskMessageMap.set(key, messageJson);
-        }
-    }
-
-    /**
-     * Fire event for patient create
+     * Fire event for consent change
      * @param {string} requestId
      * @param {string} id
      * @param {string} resourceType
@@ -356,32 +247,7 @@ class ChangeEventProducer {
      * @param {string} sourceType
      * @return {Promise<void>}
      */
-    async onObservationCreateAsync({requestId, id, resourceType, timestamp, sourceType}) {
-        const isCreate = true;
-
-        const messageJson = this._createMessage({
-            requestId,
-            id,
-            timestamp,
-            isCreate,
-            resourceType: resourceType,
-            eventName: 'Observation Create',
-            sourceType
-        });
-        const key = `${id}`;
-        this.getObservationMessageMap({requestId}).set(key, messageJson);
-    }
-
-    /**
-     * Fire event for patient change
-     * @param {string} requestId
-     * @param {string} id
-     * @param {string} resourceType
-     * @param {string} timestamp
-     * @param {string} sourceType
-     * @return {Promise<void>}
-     */
-    async onObservationChangeAsync({requestId, id, resourceType, timestamp, sourceType}) {
+    async onConsentChangeAsync({requestId, id, resourceType, timestamp, sourceType}) {
         const isCreate = false;
 
         const messageJson = this._createMessage({
@@ -390,78 +256,16 @@ class ChangeEventProducer {
             timestamp,
             isCreate,
             resourceType: resourceType,
-            eventName: 'Observation Change',
+            eventName: 'Consent Change',
             sourceType
         });
 
         const key = `${id}`;
-        const observationMessageMap = this.getObservationMessageMap({requestId});
-        const existingMessageEntry = observationMessageMap.get(key);
+        const consentMessageMap = this.getConsentMessageMap({requestId});
+        const existingMessageEntry = consentMessageMap.get(key);
         if (!existingMessageEntry || existingMessageEntry.action !== 'C') {
             // if existing entry is a 'create' then leave it alone
-            observationMessageMap.set(key, messageJson);
-        }
-    }
-
-    /**
-     * Fire event for patient change
-     * @param {string} requestId
-     * @param {string} id
-     * @param {string} resourceType
-     * @param {string} timestamp
-     * @param {string} sourceType
-     * @return {Promise<void>}
-     */
-    async onObservationCompleteAsync({requestId, id, resourceType, timestamp, sourceType}) {
-        const isCreate = false;
-
-        const messageJson = this._createMessage({
-            requestId,
-            id,
-            timestamp,
-            isCreate,
-            resourceType: resourceType,
-            eventName: 'Observation Complete',
-            sourceType
-        });
-
-        const key = `${id}`;
-        const observationMessageMap = this.getObservationMessageMap({requestId});
-        const existingMessageEntry = observationMessageMap.get(key);
-        if (!existingMessageEntry || existingMessageEntry.action !== 'C') {
-            // if existing entry is a 'create' then leave it alone
-            observationMessageMap.set(key, messageJson);
-        }
-    }
-
-    /**
-     * Fire event for patient change
-     * @param {string} requestId
-     * @param {string} id
-     * @param {string} resourceType
-     * @param {string} timestamp
-     * @param {string} sourceType
-     * @return {Promise<void>}
-     */
-    async onObservationCanceledAsync({requestId, id, resourceType, timestamp, sourceType}) {
-        const isCreate = false;
-
-        const messageJson = this._createMessage({
-            requestId,
-            id,
-            timestamp,
-            isCreate,
-            resourceType: resourceType,
-            eventName: 'Observation Canceled',
-            sourceType
-        });
-
-        const key = `${id}`;
-        const observationMessageMap = this.getObservationMessageMap({requestId});
-        const existingMessageEntry = observationMessageMap.get(key);
-        if (!existingMessageEntry || existingMessageEntry.action !== 'C') {
-            // if existing entry is a 'create' then leave it alone
-            observationMessageMap.set(key, messageJson);
+            consentMessageMap.set(key, messageJson);
         }
     }
 
@@ -537,40 +341,13 @@ class ChangeEventProducer {
                 );
             }
         }
-        if (resourceType === 'Task') {
+        if (resourceType === 'Consent') {
             if (eventType === 'C') {
-                await this.onTaskCreateAsync({
-                    requestId, id: doc.id, resourceType, timestamp: currentDate, sourceType
-                });
-            } else if (doc.status === 'completed') {
-                await this.onTaskCompleteAsync({
-                    requestId, id: doc.id, resourceType, timestamp: currentDate, sourceType
-                });
-            } else if (doc.status === 'cancelled') {
-                await this.onTaskCanceledAsync({
+                await this.onConsentCreateAsync({
                     requestId, id: doc.id, resourceType, timestamp: currentDate, sourceType
                 });
             } else {
-                await this.onTaskChangeAsync({
-                    requestId, id: doc.id, resourceType, timestamp: currentDate, sourceType
-                });
-            }
-        }
-        if (resourceType === 'Observation') {
-            if (eventType === 'C') {
-                await this.onObservationCreateAsync({
-                    requestId, id: doc.id, resourceType, timestamp: currentDate, sourceType
-                });
-            } else if (doc.status === 'final') {
-                await this.onObservationCompleteAsync({
-                    requestId, id: doc.id, resourceType, timestamp: currentDate, sourceType
-                });
-            } else if (doc.status === 'cancelled') {
-                await this.onObservationCanceledAsync({
-                    requestId, id: doc.id, resourceType, timestamp: currentDate, sourceType
-                });
-            } else {
-                await this.onObservationChangeAsync({
+                await this.onConsentChangeAsync({
                     requestId, id: doc.id, resourceType, timestamp: currentDate, sourceType
                 });
             }
@@ -595,9 +372,8 @@ class ChangeEventProducer {
         // find unique events
         const fhirVersion = 'R4';
         await mutex.runExclusive(async () => {
-                const taskMessageMap = this.getTaskMessageMap({requestId});
-                const observationMessageMap = this.getObservationMessageMap({requestId});
-                const numberOfMessagesBefore = patientMessageMap.size + taskMessageMap.size + observationMessageMap.size;
+                const consentMessageMap = this.getConsentMessageMap({requestId});
+                const numberOfMessagesBefore = patientMessageMap.size + consentMessageMap.size;
 
                 const createKafkaClientMessageFn = ([/** @type {string} */ id, /** @type {Object} */ messageJson]) => {
                     return {
@@ -624,29 +400,17 @@ class ChangeEventProducer {
 
                 patientMessageMap.clear();
 
-                // --- Process Task events ---
+                // --- Process Consent events ---
                 /**
                  * @type {KafkaClientMessage[]}
                  */
-                const taskMessages = Array.from(
-                    taskMessageMap.entries(), createKafkaClientMessageFn
+                const consentMessages = Array.from(
+                    consentMessageMap.entries(), createKafkaClientMessageFn
                 );
 
-                await kafkaClient.sendMessagesAsync(this.taskChangeTopic, taskMessages);
+                await kafkaClient.sendMessagesAsync(this.consentChangeTopic, consentMessages);
 
-                taskMessageMap.clear();
-
-                // --- Process Observation events ---
-                /**
-                 * @type {KafkaClientMessage[]}
-                 */
-                const observationMessages = Array.from(
-                    observationMessageMap.entries(), createKafkaClientMessageFn
-                );
-
-                await kafkaClient.sendMessagesAsync(this.observationChangeTopic, observationMessages);
-
-                observationMessageMap.clear();
+                consentMessageMap.clear();
 
                 if (numberOfMessagesBefore > 0) {
                     await logTraceSystemEventAsync(
@@ -655,10 +419,9 @@ class ChangeEventProducer {
                             message: 'Finished',
                             args: {
                                 numberOfMessagesBefore: numberOfMessagesBefore,
-                                numberOfMessagesAfter: patientMessageMap.size + taskMessageMap.size + observationMessageMap.size,
+                                numberOfMessagesAfter: patientMessageMap.size + consentMessageMap.size,
                                 patientTopic: this.patientChangeTopic,
-                                taskTopic: this.taskChangeTopic,
-                                observationTopic: this.observationChangeTopic
+                                consentTopic: this.consentChangeTopic
                             }
                         }
                     );
