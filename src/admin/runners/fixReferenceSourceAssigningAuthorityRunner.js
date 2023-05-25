@@ -597,6 +597,18 @@ class FixReferenceSourceAssigningAuthorityRunner extends BaseBulkOperationRunner
                         };
                     }
                 }
+                if (collectionName === 'Person_4_0_0') {
+                    query = {
+                        $and: [
+                            query,
+                            {
+                                'link.target._uuid': { $not: { $regex: '/' }, $exists: true },
+                                'link.target.reference': { $regex: '/' },
+
+                            },
+                        ],
+                    };
+                }
                 // const personCache = this.getCacheForResourceType(
                 //     {
                 //         collectionName: 'Person_4_0_0'
