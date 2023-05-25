@@ -143,6 +143,66 @@ module.exports = {
                 }
             }
         ],
+        'Account_4_0_0': [
+            {
+                keys: {
+                    'subject._uuid': 1,
+                    '_uuid': 1
+                },
+                options: {
+                    name: 'account_subject_uuid'
+                }
+            },
+            {
+                keys: {
+                    'subject._sourceId': 1,
+                    '_sourceId': 1
+                },
+                options: {
+                    name: 'account_subject_sourceid'
+                }
+            }
+        ],
+        'AllergyIntolerance_4_0_0': [
+            {
+                keys: {
+                    'patient._uuid': 1,
+                    '_uuid': 1
+                },
+                options: {
+                    name: 'allergy_intolerance_patient_uuid_uuid'
+                }
+            },
+            {
+                keys: {
+                    'patient._sourceId': 1,
+                    '_sourceId': 1
+                },
+                options: {
+                    name: 'allergy_intolerance_patient_sourceid_uuid'
+                }
+            }
+        ],
+        'Appointment_4_0_0': [
+            {
+                keys: {
+                    'participant.actor._uuid': 1,
+                    '_uuid': 1
+                },
+                options: {
+                    name: 'appointment_participant_actor_uuid'
+                }
+            },
+            {
+                keys: {
+                    'participant.actor._sourceId': 1,
+                    '_sourceId': 1
+                },
+                options: {
+                    name: 'appointment_participant_actor_sourceid'
+                }
+            }
+        ],
         'AuditEvent_4_0_0': [
             {
                 keys: {
@@ -203,6 +263,146 @@ module.exports = {
             },
 
         ],
+        'Basic_4_0_0': [
+            {
+                keys: {
+                    'subject._uuid': 1,
+                    '_uuid': 1
+                },
+                options: {
+                    name: 'basic_subject_uuid'
+                }
+            },
+            {
+                keys: {
+                    'subject._sourceId': 1,
+                    '_sourceId': 1
+                },
+                options: {
+                    name: 'basic_subject_sourceid'
+                }
+            }
+        ],
+        'CarePlan_4_0_0': [
+            {
+                keys: {
+                    'subject._uuid': 1,
+                    '_uuid': 1
+                },
+                options: {
+                    name: 'care_plan_subject_uuid'
+                }
+            },
+            {
+                keys: {
+                    'subject._sourceId': 1,
+                    '_sourceId': 1
+                },
+                options: {
+                    name: 'care_plan_subject_sourceid'
+                }
+            }
+        ],
+        'CareTeam_4_0_0': [
+            {
+                keys: {
+                    'subject._uuid': 1,
+                    '_uuid': 1
+                },
+                options: {
+                    name: 'care_team_subject_uuid'
+                }
+            },
+            {
+                keys: {
+                    'subject._sourceId': 1,
+                    '_sourceId': 1
+                },
+                options: {
+                    name: 'care_team_subject_sourceid'
+                }
+            }
+        ],
+        'ChargeItem_4_0_0': [
+            {
+                keys: {
+                    'subject._uuid': 1,
+                    '_uuid': 1
+                },
+                options: {
+                    name: 'charge_item_subject_uuid'
+                }
+            },
+            {
+                keys: {
+                    'subject._sourceId': 1,
+                    '_sourceId': 1
+                },
+                options: {
+                    name: 'charge_item_subject_sourceid'
+                }
+            }
+        ],
+        'Claim_4_0_0': [
+            {
+                keys: {
+                    'patient._uuid': 1,
+                    '_uuid': 1
+                },
+                options: {
+                    name: 'claim_patient_uuid'
+                }
+            },
+            {
+                keys: {
+                    'patient._sourceId': 1,
+                    '_sourceId': 1
+                },
+                options: {
+                    name: 'claim_patient_sourceid'
+                }
+            }
+        ],
+        'ClaimResponse_4_0_0': [
+            {
+                keys: {
+                    'patient._uuid': 1,
+                    '_uuid': 1
+                },
+                options: {
+                    name: 'claim_response_patient_uuid'
+                }
+            },
+            {
+                keys: {
+                    'patient._sourceId': 1,
+                    '_sourceId': 1
+                },
+                options: {
+                    name: 'claim_response_patient_sourceid'
+                }
+            }
+        ],
+        'Condition_4_0_0': [
+            {
+                keys: {
+                    'subject._uuid': 1,
+                    '_uuid': 1
+                },
+                options: {
+                    name: 'condition_subject_uuid'
+                }
+            },
+            {
+                keys: {
+                    'subject._sourceId': 1,
+                    '_sourceId': 1
+                },
+                options: {
+                    name: 'condition_subject_sourceid'
+                }
+            }
+        ],
         'Consent_4_0_0': [
             {
                keys: {
@@ -211,6 +411,26 @@ module.exports = {
                 },
                 options: {
                     name: 'consent_graphql_1'
+                }
+            }
+        ],
+        'Contract_4_0_0': [
+            {
+                keys: {
+                    'subject._uuid': 1,
+                    '_uuid': 1
+                },
+                options: {
+                    name: 'contract_subject_uuid'
+                }
+            },
+            {
+                keys: {
+                    'subject._sourceId': 1,
+                    '_sourceId': 1
+                },
+                options: {
+                    name: 'contract_subject_sourceid'
                 }
             }
         ],
@@ -245,6 +465,66 @@ module.exports = {
                 },
                 options: {
                     name: 'helix_coverage_uuid'
+                }
+            }
+        ],
+        'CoverageEligibilityRequest_4_0_0': [
+            {
+                keys: {
+                    'patient._uuid': 1,
+                    '_uuid': 1
+                },
+                options: {
+                    name: 'coverage_eligibility_request_patient_uuid'
+                }
+            },
+            {
+                keys: {
+                    'patient._sourceId': 1,
+                    '_sourceId': 1
+                },
+                options: {
+                    name: 'coverage_eligibility_request_patient_sourceid'
+                }
+            }
+        ],
+        'CoverageEligibilityResponse_4_0_0': [
+            {
+                keys: {
+                    'patient._uuid': 1,
+                    '_uuid': 1
+                },
+                options: {
+                    name: 'coverage_eligibility_response_patient_uuid'
+                }
+            },
+            {
+                keys: {
+                    'patient._sourceId': 1,
+                    '_sourceId': 1
+                },
+                options: {
+                    name: 'coverage_eligibility_response_patient_sourceid'
+                }
+            }
+        ],
+        'DiagnosticReport_4_0_0': [
+            {
+                keys: {
+                    'subject._uuid': 1,
+                    '_uuid': 1
+                },
+                options: {
+                    name: 'diagnotic_report_subject_uuid'
+                }
+            },
+            {
+                keys: {
+                    'subject._sourceId': 1,
+                    '_sourceId': 1
+                },
+                options: {
+                    name: 'diagnotic_report_subject_sourceid'
                 }
             }
         ],
@@ -290,6 +570,46 @@ module.exports = {
                 }
             }
         ],
+        'EnrollmentRequest_4_0_0': [
+            {
+                keys: {
+                    'candidate._uuid': 1,
+                    '_uuid': 1
+                },
+                options: {
+                    name: 'enrollment_request_candidate_uuid'
+                }
+            },
+            {
+                keys: {
+                    'candidate._sourceId': 1,
+                    '_sourceId': 1
+                },
+                options: {
+                    name: 'enrollment_request_candidate_sourceid'
+                }
+            }
+        ],
+        'EpisodeOfCare_4_0_0': [
+            {
+                keys: {
+                    'patient._uuid': 1,
+                    '_uuid': 1
+                },
+                options: {
+                    name: 'episode_of_care_patient_uuid'
+                }
+            },
+            {
+                keys: {
+                    'patient._sourceId': 1,
+                    '_sourceId': 1
+                },
+                options: {
+                    name: 'episode_of_care_patient_sourceid'
+                }
+            }
+        ],
         'ExplanationOfBenefit_4_0_0': [
             {
                 keys: {
@@ -320,6 +640,86 @@ module.exports = {
                 }
             }
         ],
+        'Flag_4_0_0': [
+            {
+                keys: {
+                    'subject._uuid': 1,
+                    '_uuid': 1
+                },
+                options: {
+                    name: 'flag_subject_uuid'
+                }
+            },
+            {
+                keys: {
+                    'subject._sourceId': 1,
+                    '_sourceId': 1
+                },
+                options: {
+                    name: 'flag_subject_sourceid'
+                }
+            }
+        ],
+        'ImagingStudy_4_0_0': [
+            {
+                keys: {
+                    'subject._uuid': 1,
+                    '_uuid': 1
+                },
+                options: {
+                    name: 'imaging_study_subject_uuid'
+                }
+            },
+            {
+                keys: {
+                    'subject._sourceId': 1,
+                    '_sourceId': 1
+                },
+                options: {
+                    name: 'imaging_study_subject_sourceid'
+                }
+            }
+        ],
+        'Immunization_4_0_0': [
+            {
+                keys: {
+                    'patient._uuid': 1,
+                    '_uuid': 1
+                },
+                options: {
+                    name: 'immunization_patient_uuid'
+                }
+            },
+            {
+                keys: {
+                    'patient._sourceId': 1,
+                    '_sourceId': 1
+                },
+                options: {
+                    name: 'immunization_patient_sourceId'
+                }
+            }
+        ],
+        'Invoice_4_0_0': [
+            {
+                keys: {
+                    'subject._uuid': 1,
+                    '_uuid': 1
+                },
+                options: {
+                    name: 'invoice_subject_uuid'
+                }
+            },
+            {
+                keys: {
+                    'subject._sourceId': 1,
+                    '_sourceId': 1
+                },
+                options: {
+                    name: 'invoice_subject_sourceid'
+                }
+            }
+        ],
         'HealthcareService_4_0_0': [
             {
                 keys: {
@@ -338,6 +738,26 @@ module.exports = {
                 },
                 options: {
                     name: 'healthcareService.providedBy_uuid_sourceId_uuid'
+                }
+            }
+        ],
+        'List_4_0_0': [
+            {
+                keys: {
+                    'subject._uuid': 1,
+                    '_uuid': 1
+                },
+                options: {
+                    name: 'list_subject_uuid'
+                }
+            },
+            {
+                keys: {
+                    'subject._sourceId': 1,
+                    '_sourceId': 1
+                },
+                options: {
+                    name: 'list_subject_sourceid'
                 }
             }
         ],
@@ -378,6 +798,26 @@ module.exports = {
                 },
                 options: {
                     name: 'measureReport.subject_uuid_uuid'
+                }
+            }
+        ],
+        'MedicationAdministration_4_0_0': [
+            {
+                keys: {
+                    'subject._uuid': 1,
+                    '_uuid': 1
+                },
+                options: {
+                    name: 'medication_administration_subject_uuid'
+                }
+            },
+            {
+                keys: {
+                    'subject._sourceId': 1,
+                    '_sourceId': 1
+                },
+                options: {
+                    name: 'medication_administration_subject_sourceid'
                 }
             }
         ],
@@ -798,6 +1238,46 @@ module.exports = {
                 }
             }
         ],
+        'Procedure_4_0_0': [
+            {
+                keys: {
+                    'subject._uuid': 1,
+                    '_uuid': 1
+                },
+                options: {
+                    name: 'procedure_subject_uuid'
+                }
+            },
+            {
+                keys: {
+                    'subject._sourceId': 1,
+                    '_sourceId': 1
+                },
+                options: {
+                    name: 'procedure_subject_sourceid'
+                }
+            }
+        ],
+        'Provenance': [
+            {
+                keys: {
+                    'target._uuid': 1,
+                    '_uuid': 1
+                },
+                options: {
+                    name: 'provenance_target_uuid'
+                }
+            },
+            {
+                keys: {
+                    'target._sourceId': 1,
+                    '_sourceId': 1
+                },
+                options: {
+                    name: 'provenance_target_sourceid'
+                }
+            }
+        ],
         'QuestionnaireResponse_4_0_0': [
             {
                 keys: {
@@ -809,6 +1289,26 @@ module.exports = {
                 },
                 options: {
                     name: 'consent_graphql_1'
+                }
+            }
+        ],
+        'RelatedPerson_4_0_0': [
+            {
+                keys: {
+                    'patient._uuid': 1,
+                    '_uuid': 1
+                },
+                options: {
+                    name: 'related_person_patient_uuid'
+                }
+            },
+            {
+                keys: {
+                    'patient._sourceId': 1,
+                    '_sourceId': 1
+                },
+                options: {
+                    name: 'related_person_patient_sourceId'
                 }
             }
         ],
@@ -829,6 +1329,66 @@ module.exports = {
                 },
                 options: {
                     name: 'actor.reference_uuid'
+                }
+            }
+        ],
+        'ServiceRequest_4_0_0': [
+            {
+                keys: {
+                    'subject._uuid': 1,
+                    '_uuid': 1
+                },
+                options: {
+                    name: 'service_request_subject_uuid'
+                }
+            },
+            {
+                keys: {
+                    'subject._sourceId': 1,
+                    '_sourceId': 1
+                },
+                options: {
+                    name: 'service_request_subject_sourceid'
+                }
+            }
+        ],
+        'Specimen': [
+            {
+                keys: {
+                    'subject._uuid': 1,
+                    '_uuid': 1
+                },
+                options: {
+                    name: 'speciment_subject_uuid'
+                }
+            },
+            {
+                keys: {
+                    'subject._sourceId': 1,
+                    '_sourceId': 1
+                },
+                options: {
+                    name: 'speciment_subject_sourceid'
+                }
+            }
+        ],
+        'SupplyDelivery_4_0_0': [
+            {
+                keys: {
+                    'patient._uuid': 1,
+                    '_uuid': 1
+                },
+                options: {
+                    name: 'supply_delivery_patient_uuid'
+                }
+            },
+            {
+                keys: {
+                    'patient._sourceId': 1,
+                    '_sourceId': 1
+                },
+                options: {
+                    name: 'supply_delivery_patient_sourceid'
                 }
             }
         ],
