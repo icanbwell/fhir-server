@@ -9,7 +9,7 @@ const {MongoClient} = require('mongodb');
 class AdminLogManager {
 
     /**
-     * gets lgos
+     * gets logs
      * @param id
      * @returns {Promise<Object[]>}
      */
@@ -22,7 +22,7 @@ class AdminLogManager {
 
             const accessLogsCollection = client.db(accessLogsMongoConfig.db_name).collection('log');
 
-            return await accessLogsCollection.find({ 'meta.id': id }).toArray();
+            return await accessLogsCollection.find({ 'meta.id': { $eq: id } }).toArray();
         }
         if (!env.LOG_ELASTIC_SEARCH_URL){
             return [];
