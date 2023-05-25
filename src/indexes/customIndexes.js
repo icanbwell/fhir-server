@@ -156,7 +156,7 @@ module.exports = {
             {
                 keys: {
                     'subject._sourceId': 1,
-                    '_sourceId': 1
+                    '_uuid': 1
                 },
                 options: {
                     name: 'account_subject_sourceid'
@@ -176,7 +176,7 @@ module.exports = {
             {
                 keys: {
                     'patient._sourceId': 1,
-                    '_sourceId': 1
+                    '_uuid': 1
                 },
                 options: {
                     name: 'allergy_intolerance_patient_sourceid_uuid'
@@ -196,7 +196,7 @@ module.exports = {
             {
                 keys: {
                     'participant.actor._sourceId': 1,
-                    '_sourceId': 1
+                    '_uuid': 1
                 },
                 options: {
                     name: 'appointment_participant_actor_sourceid'
@@ -276,7 +276,7 @@ module.exports = {
             {
                 keys: {
                     'subject._sourceId': 1,
-                    '_sourceId': 1
+                    '_uuid': 1
                 },
                 options: {
                     name: 'basic_subject_sourceid'
@@ -296,7 +296,7 @@ module.exports = {
             {
                 keys: {
                     'subject._sourceId': 1,
-                    '_sourceId': 1
+                    '_uuid': 1
                 },
                 options: {
                     name: 'care_plan_subject_sourceid'
@@ -316,7 +316,7 @@ module.exports = {
             {
                 keys: {
                     'subject._sourceId': 1,
-                    '_sourceId': 1
+                    '_uuid': 1
                 },
                 options: {
                     name: 'care_team_subject_sourceid'
@@ -336,7 +336,7 @@ module.exports = {
             {
                 keys: {
                     'subject._sourceId': 1,
-                    '_sourceId': 1
+                    '_uuid': 1
                 },
                 options: {
                     name: 'charge_item_subject_sourceid'
@@ -356,7 +356,7 @@ module.exports = {
             {
                 keys: {
                     'patient._sourceId': 1,
-                    '_sourceId': 1
+                    '_uuid': 1
                 },
                 options: {
                     name: 'claim_patient_sourceid'
@@ -376,7 +376,7 @@ module.exports = {
             {
                 keys: {
                     'patient._sourceId': 1,
-                    '_sourceId': 1
+                    '_uuid': 1
                 },
                 options: {
                     name: 'claim_response_patient_sourceid'
@@ -396,7 +396,7 @@ module.exports = {
             {
                 keys: {
                     'subject._sourceId': 1,
-                    '_sourceId': 1
+                    '_uuid': 1
                 },
                 options: {
                     name: 'condition_subject_sourceid'
@@ -427,7 +427,7 @@ module.exports = {
             {
                 keys: {
                     'subject._sourceId': 1,
-                    '_sourceId': 1
+                    '_uuid': 1
                 },
                 options: {
                     name: 'contract_subject_sourceid'
@@ -481,7 +481,7 @@ module.exports = {
             {
                 keys: {
                     'patient._sourceId': 1,
-                    '_sourceId': 1
+                    '_uuid': 1
                 },
                 options: {
                     name: 'coverage_eligibility_request_patient_sourceid'
@@ -501,7 +501,7 @@ module.exports = {
             {
                 keys: {
                     'patient._sourceId': 1,
-                    '_sourceId': 1
+                    '_uuid': 1
                 },
                 options: {
                     name: 'coverage_eligibility_response_patient_sourceid'
@@ -521,7 +521,7 @@ module.exports = {
             {
                 keys: {
                     'subject._sourceId': 1,
-                    '_sourceId': 1
+                    '_uuid': 1
                 },
                 options: {
                     name: 'diagnotic_report_subject_sourceid'
@@ -583,7 +583,7 @@ module.exports = {
             {
                 keys: {
                     'candidate._sourceId': 1,
-                    '_sourceId': 1
+                    '_uuid': 1
                 },
                 options: {
                     name: 'enrollment_request_candidate_sourceid'
@@ -603,7 +603,7 @@ module.exports = {
             {
                 keys: {
                     'patient._sourceId': 1,
-                    '_sourceId': 1
+                    '_uuid': 1
                 },
                 options: {
                     name: 'episode_of_care_patient_sourceid'
@@ -653,7 +653,7 @@ module.exports = {
             {
                 keys: {
                     'subject._sourceId': 1,
-                    '_sourceId': 1
+                    '_uuid': 1
                 },
                 options: {
                     name: 'flag_subject_sourceid'
@@ -673,7 +673,7 @@ module.exports = {
             {
                 keys: {
                     'subject._sourceId': 1,
-                    '_sourceId': 1
+                    '_uuid': 1
                 },
                 options: {
                     name: 'imaging_study_subject_sourceid'
@@ -693,7 +693,7 @@ module.exports = {
             {
                 keys: {
                     'patient._sourceId': 1,
-                    '_sourceId': 1
+                    '_uuid': 1
                 },
                 options: {
                     name: 'immunization_patient_sourceId'
@@ -713,7 +713,7 @@ module.exports = {
             {
                 keys: {
                     'subject._sourceId': 1,
-                    '_sourceId': 1
+                    '_uuid': 1
                 },
                 options: {
                     name: 'invoice_subject_sourceid'
@@ -754,7 +754,7 @@ module.exports = {
             {
                 keys: {
                     'subject._sourceId': 1,
-                    '_sourceId': 1
+                    '_uuid': 1
                 },
                 options: {
                     name: 'list_subject_sourceid'
@@ -814,7 +814,7 @@ module.exports = {
             {
                 keys: {
                     'subject._sourceId': 1,
-                    '_sourceId': 1
+                    '_uuid': 1
                 },
                 options: {
                     name: 'medication_administration_subject_sourceid'
@@ -1251,7 +1251,7 @@ module.exports = {
             {
                 keys: {
                     'subject._sourceId': 1,
-                    '_sourceId': 1
+                    '_uuid': 1
                 },
                 options: {
                     name: 'procedure_subject_sourceid'
@@ -1271,7 +1271,7 @@ module.exports = {
             {
                 keys: {
                     'target._sourceId': 1,
-                    '_sourceId': 1
+                    '_uuid': 1
                 },
                 options: {
                     name: 'provenance_target_sourceid'
@@ -1305,7 +1305,7 @@ module.exports = {
             {
                 keys: {
                     'patient._sourceId': 1,
-                    '_sourceId': 1
+                    '_uuid': 1
                 },
                 options: {
                     name: 'related_person_patient_sourceId'
@@ -1325,7 +1325,7 @@ module.exports = {
             {
                 keys: {
                     'actor._uuid': 1,
-                    '_sourceId': 1
+                    '_uuid': 1
                 },
                 options: {
                     name: 'actor.reference_uuid'
@@ -1345,7 +1345,7 @@ module.exports = {
             {
                 keys: {
                     'subject._sourceId': 1,
-                    '_sourceId': 1
+                    '_uuid': 1
                 },
                 options: {
                     name: 'service_request_subject_sourceid'
@@ -1365,7 +1365,7 @@ module.exports = {
             {
                 keys: {
                     'subject._sourceId': 1,
-                    '_sourceId': 1
+                    '_uuid': 1
                 },
                 options: {
                     name: 'speciment_subject_sourceid'
@@ -1385,7 +1385,7 @@ module.exports = {
             {
                 keys: {
                     'patient._sourceId': 1,
-                    '_sourceId': 1
+                    '_uuid': 1
                 },
                 options: {
                     name: 'supply_delivery_patient_sourceid'
