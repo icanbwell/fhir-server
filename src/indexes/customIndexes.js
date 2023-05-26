@@ -150,7 +150,7 @@ module.exports = {
                     '_uuid': 1
                 },
                 options: {
-                    name: 'account_subject_uuid'
+                    name: 'account.subjectUuid_uuid'
                 }
             },
             {
@@ -159,7 +159,7 @@ module.exports = {
                     '_uuid': 1
                 },
                 options: {
-                    name: 'account_subject_sourceid'
+                    name: 'account.subjectSourceid_uuid'
                 }
             }
         ],
@@ -170,7 +170,7 @@ module.exports = {
                     '_uuid': 1
                 },
                 options: {
-                    name: 'allergy_intolerance_patient_uuid_uuid'
+                    name: 'allergyIntolerance.patientUuid_uuid'
                 }
             },
             {
@@ -179,7 +179,7 @@ module.exports = {
                     '_uuid': 1
                 },
                 options: {
-                    name: 'allergy_intolerance_patient_sourceid_uuid'
+                    name: 'allergyIntolerance.patientSourceid_uuid'
                 }
             }
         ],
@@ -190,7 +190,7 @@ module.exports = {
                     '_uuid': 1
                 },
                 options: {
-                    name: 'appointment_participant_actor_uuid'
+                    name: 'appointment.participantActorUuid_uuid'
                 }
             },
             {
@@ -199,7 +199,7 @@ module.exports = {
                     '_uuid': 1
                 },
                 options: {
-                    name: 'appointment_participant_actor_sourceid'
+                    name: 'appointment_participantActorSourceid_uuid'
                 }
             }
         ],
@@ -270,7 +270,7 @@ module.exports = {
                     '_uuid': 1
                 },
                 options: {
-                    name: 'basic_subject_uuid'
+                    name: 'basic.subjectUuid_uuid'
                 }
             },
             {
@@ -279,7 +279,7 @@ module.exports = {
                     '_uuid': 1
                 },
                 options: {
-                    name: 'basic_subject_sourceid'
+                    name: 'basic.subjectSourceid_uuid'
                 }
             }
         ],
@@ -290,7 +290,7 @@ module.exports = {
                     '_uuid': 1
                 },
                 options: {
-                    name: 'care_plan_subject_uuid'
+                    name: 'carePlan.subjectUuid_uuid'
                 }
             },
             {
@@ -299,7 +299,7 @@ module.exports = {
                     '_uuid': 1
                 },
                 options: {
-                    name: 'care_plan_subject_sourceid'
+                    name: 'carePlan.subjectSourceid_uuid'
                 }
             }
         ],
@@ -310,7 +310,7 @@ module.exports = {
                     '_uuid': 1
                 },
                 options: {
-                    name: 'care_team_subject_uuid'
+                    name: 'careTeam.subjectUuid_uuid'
                 }
             },
             {
@@ -319,7 +319,7 @@ module.exports = {
                     '_uuid': 1
                 },
                 options: {
-                    name: 'care_team_subject_sourceid'
+                    name: 'careTeam.subjectSourceid_uuid'
                 }
             }
         ],
@@ -330,7 +330,7 @@ module.exports = {
                     '_uuid': 1
                 },
                 options: {
-                    name: 'charge_item_subject_uuid'
+                    name: 'chargeItem.subjectUuid_uuid'
                 }
             },
             {
@@ -339,7 +339,7 @@ module.exports = {
                     '_uuid': 1
                 },
                 options: {
-                    name: 'charge_item_subject_sourceid'
+                    name: 'chargeItem.subjectSourceid_uuid'
                 }
             }
         ],
@@ -350,7 +350,7 @@ module.exports = {
                     '_uuid': 1
                 },
                 options: {
-                    name: 'claim_patient_uuid'
+                    name: 'claim.patientUuid_uuid'
                 }
             },
             {
@@ -359,7 +359,7 @@ module.exports = {
                     '_uuid': 1
                 },
                 options: {
-                    name: 'claim_patient_sourceid'
+                    name: 'claim.patientSourceid_uuid'
                 }
             }
         ],
@@ -370,7 +370,7 @@ module.exports = {
                     '_uuid': 1
                 },
                 options: {
-                    name: 'claim_response_patient_uuid'
+                    name: 'claimResponse.patientUuid_uuid'
                 }
             },
             {
@@ -379,7 +379,7 @@ module.exports = {
                     '_uuid': 1
                 },
                 options: {
-                    name: 'claim_response_patient_sourceid'
+                    name: 'claimResponse.patientSourceid_uuid'
                 }
             }
         ],
@@ -390,7 +390,7 @@ module.exports = {
                     '_uuid': 1
                 },
                 options: {
-                    name: 'condition_subject_uuid'
+                    name: 'condition.subjectUuid_uuid'
                 }
             },
             {
@@ -399,7 +399,7 @@ module.exports = {
                     '_uuid': 1
                 },
                 options: {
-                    name: 'condition_subject_sourceid'
+                    name: 'condition.subjectSourceid_uuid'
                 }
             }
         ],
@@ -421,7 +421,7 @@ module.exports = {
                     '_uuid': 1
                 },
                 options: {
-                    name: 'contract_subject_uuid'
+                    name: 'contract.subjectUuid_uuid'
                 }
             },
             {
@@ -430,7 +430,7 @@ module.exports = {
                     '_uuid': 1
                 },
                 options: {
-                    name: 'contract_subject_sourceid'
+                    name: 'contract.subjectSourceid_uuid'
                 }
             }
         ],
@@ -475,7 +475,7 @@ module.exports = {
                     '_uuid': 1
                 },
                 options: {
-                    name: 'coverage_eligibility_request_patient_uuid'
+                    name: 'coverageEligibilityRequest.patientUuid_uuid'
                 }
             },
             {
@@ -484,7 +484,7 @@ module.exports = {
                     '_uuid': 1
                 },
                 options: {
-                    name: 'coverage_eligibility_request_patient_sourceid'
+                    name: 'coverageEligibilityRequest.patientSourceid_uuid'
                 }
             }
         ],
@@ -495,7 +495,7 @@ module.exports = {
                     '_uuid': 1
                 },
                 options: {
-                    name: 'coverage_eligibility_response_patient_uuid'
+                    name: 'coverageEligibilityResponse.patientUuid_uuid'
                 }
             },
             {
@@ -504,7 +504,7 @@ module.exports = {
                     '_uuid': 1
                 },
                 options: {
-                    name: 'coverage_eligibility_response_patient_sourceid'
+                    name: 'coverageEligibilityResponse.patientSourceid_uuid'
                 }
             }
         ],
@@ -515,7 +515,7 @@ module.exports = {
                     '_uuid': 1
                 },
                 options: {
-                    name: 'diagnotic_report_subject_uuid'
+                    name: 'diagnoticReport.subjectUuid_uuid'
                 }
             },
             {
@@ -524,7 +524,7 @@ module.exports = {
                     '_uuid': 1
                 },
                 options: {
-                    name: 'diagnotic_report_subject_sourceid'
+                    name: 'diagnoticReport.subjectSourceid_uuid'
                 }
             }
         ],
@@ -577,7 +577,7 @@ module.exports = {
                     '_uuid': 1
                 },
                 options: {
-                    name: 'enrollment_request_candidate_uuid'
+                    name: 'enrollmentRequest.candidateUuid_uuid'
                 }
             },
             {
@@ -586,7 +586,7 @@ module.exports = {
                     '_uuid': 1
                 },
                 options: {
-                    name: 'enrollment_request_candidate_sourceid'
+                    name: 'enrollmentRequest.candidateSourceid_uuid'
                 }
             }
         ],
@@ -597,7 +597,7 @@ module.exports = {
                     '_uuid': 1
                 },
                 options: {
-                    name: 'episode_of_care_patient_uuid'
+                    name: 'episodeOfCare.patientUuid_uuid'
                 }
             },
             {
@@ -606,7 +606,7 @@ module.exports = {
                     '_uuid': 1
                 },
                 options: {
-                    name: 'episode_of_care_patient_sourceid'
+                    name: 'episodeOfCare.patientSourceid_uuid'
                 }
             }
         ],
@@ -647,7 +647,7 @@ module.exports = {
                     '_uuid': 1
                 },
                 options: {
-                    name: 'flag_subject_uuid'
+                    name: 'flag.subjectUuid_uuid'
                 }
             },
             {
@@ -656,7 +656,7 @@ module.exports = {
                     '_uuid': 1
                 },
                 options: {
-                    name: 'flag_subject_sourceid'
+                    name: 'flag.subjectSourceid_uuid'
                 }
             }
         ],
@@ -667,7 +667,7 @@ module.exports = {
                     '_uuid': 1
                 },
                 options: {
-                    name: 'imaging_study_subject_uuid'
+                    name: 'imagingStudy.subjectUuid_uuid'
                 }
             },
             {
@@ -676,7 +676,7 @@ module.exports = {
                     '_uuid': 1
                 },
                 options: {
-                    name: 'imaging_study_subject_sourceid'
+                    name: 'imagingStudy.subjectSourceid_uuid'
                 }
             }
         ],
@@ -707,7 +707,7 @@ module.exports = {
                     '_uuid': 1
                 },
                 options: {
-                    name: 'invoice_subject_uuid'
+                    name: 'invoice.subjectUuid_uuid'
                 }
             },
             {
@@ -716,7 +716,7 @@ module.exports = {
                     '_uuid': 1
                 },
                 options: {
-                    name: 'invoice_subject_sourceid'
+                    name: 'invoice.subjectSourceid_uuid'
                 }
             }
         ],
@@ -748,7 +748,7 @@ module.exports = {
                     '_uuid': 1
                 },
                 options: {
-                    name: 'list_subject_uuid'
+                    name: 'list.subjectUuid_uuid'
                 }
             },
             {
@@ -757,7 +757,7 @@ module.exports = {
                     '_uuid': 1
                 },
                 options: {
-                    name: 'list_subject_sourceid'
+                    name: 'list.subjectSourceid_uuid'
                 }
             }
         ],
@@ -808,7 +808,7 @@ module.exports = {
                     '_uuid': 1
                 },
                 options: {
-                    name: 'medication_administration_subject_uuid'
+                    name: 'medicationAdministration.subjectUuid_uuid'
                 }
             },
             {
@@ -817,7 +817,7 @@ module.exports = {
                     '_uuid': 1
                 },
                 options: {
-                    name: 'medication_administration_subject_sourceid'
+                    name: 'medicationAdministration.subjectSourceid_uuid'
                 }
             }
         ],
@@ -1245,7 +1245,7 @@ module.exports = {
                     '_uuid': 1
                 },
                 options: {
-                    name: 'procedure_subject_uuid'
+                    name: 'procedure.subjectUuid_uuid'
                 }
             },
             {
@@ -1254,18 +1254,18 @@ module.exports = {
                     '_uuid': 1
                 },
                 options: {
-                    name: 'procedure_subject_sourceid'
+                    name: 'procedure.subjectSourceid_uuid'
                 }
             }
         ],
-        'Provenance': [
+        'Provenance_4_0_0': [
             {
                 keys: {
                     'target._uuid': 1,
                     '_uuid': 1
                 },
                 options: {
-                    name: 'provenance_target_uuid'
+                    name: 'provenance.targetUuid_uuid'
                 }
             },
             {
@@ -1274,7 +1274,7 @@ module.exports = {
                     '_uuid': 1
                 },
                 options: {
-                    name: 'provenance_target_sourceid'
+                    name: 'provenance.targetSourceid_uuid'
                 }
             }
         ],
@@ -1339,7 +1339,7 @@ module.exports = {
                     '_uuid': 1
                 },
                 options: {
-                    name: 'service_request_subject_uuid'
+                    name: 'serviceRequest.subjectUuid_uuid'
                 }
             },
             {
@@ -1348,18 +1348,18 @@ module.exports = {
                     '_uuid': 1
                 },
                 options: {
-                    name: 'service_request_subject_sourceid'
+                    name: 'serviceRequest.subjectSourceid_uuid'
                 }
             }
         ],
-        'Specimen': [
+        'Specimen_4_0_0': [
             {
                 keys: {
                     'subject._uuid': 1,
                     '_uuid': 1
                 },
                 options: {
-                    name: 'speciment_subject_uuid'
+                    name: 'specimen.subjectUuid_uuid'
                 }
             },
             {
@@ -1368,7 +1368,7 @@ module.exports = {
                     '_uuid': 1
                 },
                 options: {
-                    name: 'speciment_subject_sourceid'
+                    name: 'specimen.subjectSourceid_uuid'
                 }
             }
         ],
@@ -1379,7 +1379,7 @@ module.exports = {
                     '_uuid': 1
                 },
                 options: {
-                    name: 'supply_delivery_patient_uuid'
+                    name: 'supplyDelivery.patientUuid_uuid'
                 }
             },
             {
@@ -1388,7 +1388,7 @@ module.exports = {
                     '_uuid': 1
                 },
                 options: {
-                    name: 'supply_delivery_patient_sourceid'
+                    name: 'supplyDelivery.patientSourceid_uuid'
                 }
             }
         ],
