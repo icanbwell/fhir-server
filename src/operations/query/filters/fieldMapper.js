@@ -1,7 +1,5 @@
-const idToFieldNameMap = {
-    'id': '_sourceId',
-    '_uuid': '_uuid'
-};
+// const uuidFieldName = '_uuid';
+const sourceIdFieldName = '_sourceId';
 
 class FieldMapper {
     /**
@@ -12,8 +10,7 @@ class FieldMapper {
     constructor(
         {
             enableGlobalIdSupport,
-            useHistoryTable,
-            defaultSortId,
+            useHistoryTable
         }
     ) {
         /**
@@ -24,10 +21,6 @@ class FieldMapper {
          * @type {boolean|undefined}
          */
         this.useHistoryTable = useHistoryTable;
-        /**
-         * @type {string}
-         */
-        this.defaultSortId = defaultSortId;
     }
 
     /**
@@ -37,7 +30,7 @@ class FieldMapper {
      * @return {string}
      */
     getFieldName(field) {
-        const fieldName = field === 'id' ? idToFieldNameMap[this.defaultSortId] : field;
+        const fieldName = this.enableGlobalIdSupport && field === 'id' ? sourceIdFieldName : field;
         return this.useHistoryTable ? `resource.${fieldName}` : fieldName;
     }
 }
