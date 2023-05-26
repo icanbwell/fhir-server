@@ -20,7 +20,13 @@ class AdminLogManager {
              */
             const client = new MongoClient(accessLogsMongoConfig.connection, accessLogsMongoConfig.options);
 
-            const accessLogsCollection = client.db(accessLogsMongoConfig.db_name).collection('log');
+            const accessLogsCollectionName = String(env.MONGODB_ACCESS_LOGS_COLLECTION);
+
+            const accessLogsCollection = client.db(accessLogsMongoConfig.db_name).collection(accessLogsCollectionName);
+
+            if (!await accessLogsCollection.indexExists('meta.id_1')) {
+                await accessLogsCollection.createIndex({ 'meta.id': 1 }, { name: 'meta.id_1' });
+            }
 
             return await accessLogsCollection.find({ 'meta.id': { $eq: id } }).toArray();
         }

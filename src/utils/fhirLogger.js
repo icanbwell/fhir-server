@@ -179,13 +179,16 @@ class FhirLogger {
                 db: accessLogsMongoConfig.connection,
                 options: accessLogsMongoConfig.options,
                 dbName: accessLogsMongoConfig.db_name,
-                name: 'mongodb_access_logs',
-                format: winston.format.combine(winston.format.metadata({
-                    fillExcept: ['message', 'level', 'timestamp']
-                }))
+                label: env.LOG_MONGODB_PREFIX ? String(env.LOG_MONGODB_PREFIX).toLowerCase() : 'logs',
+                name: 'access_logs',
+                format: winston.format.metadata({ fillExcept: ['message', 'level', 'timestamp', 'dd'] })
             });
 
             logger.add(mongodbTransport);
+
+            mongodbTransport.on('error', (error) => {
+                console.error(JSON.stringify({message: 'Error in mongodbTransport caught', error}));
+            });
         }
 
         if (env.LOGLEVEL === 'DEBUG') {
