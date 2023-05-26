@@ -313,7 +313,7 @@ class SearchManager {
 
         // for consistency in results while paging, always sort by id
         // https://docs.mongodb.com/manual/reference/method/cursor.sort/#sort-cursor-consistent-sorting
-        const defaultSortId = this.configManager.defaultSortId;
+        const defaultSortId = env.DEFAULT_SORT_ID || 'id';
         columns.add(defaultSortId);
         if (!('sort' in options)) {
             options['sort'] = {};
@@ -926,8 +926,7 @@ class SearchManager {
             res, user, scope,
             parsedArgs, resourceType,
             useAccessIndex,
-            batchObjectCount,
-            defaultSortId
+            batchObjectCount
         }
     ) {
         assertIsValid(requestId);
@@ -939,7 +938,7 @@ class SearchManager {
         /**
          * @type {FhirBundleWriter}
          */
-        const fhirBundleWriter = new FhirBundleWriter({fnBundle, url, signal: ac.signal, defaultSortId: defaultSortId});
+        const fhirBundleWriter = new FhirBundleWriter({fnBundle, url, signal: ac.signal});
 
         /**
          * @type {{id: string[]}}
