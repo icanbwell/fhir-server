@@ -196,22 +196,22 @@ module.exports = {
             },
             {
                 keys: {
-                    'agent.what._uuid': 1,
+                    'entity.what._uuid': 1,
                     '_uuid': 1,
                     'recorded': 1
                 },
                 options: {
-                    name: 'auditEvent.agentWhat_uuid_uuidRecorded'
+                    name: 'auditEvent.entityWhat_uuid_uuidRecorded'
                 }
             },
             {
                 keys: {
-                    'agent.what._sourceId': 1,
+                    'entity.what._sourceId': 1,
                     '_uuid': 1,
                     'recorded': 1
                 },
                 options: {
-                    name: 'auditEvent.agentWhat_uuid_uuidRecorded'
+                    name: 'auditEvent.entityWhat_uuid_uuidRecorded'
                 }
             }
         ],
