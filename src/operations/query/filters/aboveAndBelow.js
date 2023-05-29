@@ -1,7 +1,6 @@
 const { isUuid } = require('../../../utils/uid.util');
 const {BaseFilter} = require('./baseFilter');
-
-const _uuidFieldName = '_uuid';
+const {UUID_FIELD_NAME} = require('../../../constants');
 
 /**
  * @classdesc filters by above FHIR search parameters
@@ -17,7 +16,7 @@ class FilterByAbove extends BaseFilter {
     filterByItem(field, value) {
         if (field === 'id' && isUuid(value)) {
             return {
-                [this.fieldMapper.getFieldName(_uuidFieldName)]: {
+                [this.fieldMapper.getFieldName(UUID_FIELD_NAME)]: {
                     $gt: value,
                 }
             };
@@ -43,7 +42,7 @@ class FilterByBelow extends BaseFilter {
     filterByItem(field, value) {
         if (field === 'id' && isUuid(value)) {
             return {
-                [this.fieldMapper.getFieldName(_uuidFieldName)]: {
+                [this.fieldMapper.getFieldName(UUID_FIELD_NAME)]: {
                     $lt: value,
                 }
             };

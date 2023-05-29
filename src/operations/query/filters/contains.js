@@ -10,6 +10,7 @@ const {
     tokenQueryContainsBuilder
 } = require('../../../utils/querybuilder.util');
 const { isUuid } = require('../../../utils/uid.util');
+const { UUID_FIELD_NAME } = require('../../../constants');
 
 /**
  * filters by contains
@@ -54,9 +55,8 @@ class FilterByContains extends BaseFilter {
             }
         }
         if (field === 'id' && isUuid(value)) {
-            const _uuidFieldName = '_uuid';
             return {
-                [this.fieldMapper.getFieldName(_uuidFieldName)]:
+                [this.fieldMapper.getFieldName(UUID_FIELD_NAME)]:
                     {
                         $regex: escapeRegExp(value),
                         $options: 'i',

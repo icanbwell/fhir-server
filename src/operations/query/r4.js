@@ -148,7 +148,6 @@ class R4SearchQueryCreator {
          */
         const totalColumns = MongoQuerySimplifier.findColumnsInFilter({filter: query});
 
-        console.log(query);
         return {
             query: query,
             columns: totalColumns,
