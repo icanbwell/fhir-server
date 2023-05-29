@@ -9,6 +9,7 @@ const {BaseFilter} = require('./baseFilter');
 const {
     tokenQueryContainsBuilder
 } = require('../../../utils/querybuilder.util');
+const { isUuid } = require('../../../utils/uid.util');
 
 /**
  * filters by contains
@@ -51,6 +52,9 @@ class FilterByContains extends BaseFilter {
                         }
                     );
             }
+        }
+        if (field === 'id' && isUuid(value)) {
+            return this.filterByUuid(value);
         }
         // Not a token so process like a string
         return {

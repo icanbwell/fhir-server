@@ -77,8 +77,7 @@ class R4SearchQueryCreator {
                 const fieldMapper = new FieldMapper(
                     {
                         enableGlobalIdSupport: this.configManager.enableGlobalIdSupport,
-                        useHistoryTable: useHistoryTable,
-                        defaultSortId: this.configManager.defaultSortId
+                        useHistoryTable: useHistoryTable
                     }
                 );
                 /**

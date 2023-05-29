@@ -1,3 +1,4 @@
+const { isUuid } = require('../../../utils/uid.util');
 const {BaseFilter} = require('./baseFilter');
 
 /**
@@ -12,6 +13,9 @@ class FilterByAbove extends BaseFilter {
      * @return {import('mongodb').Filter<import('mongodb').DefaultSchema>|import('mongodb').Filter<import('mongodb').DefaultSchema>[]}
      */
     filterByItem(field, value) {
+        if (field === 'id' && isUuid(value)) {
+            return this.filterByUuid(value);
+        }
         return {
             [this.fieldMapper.getFieldName(field)]: {
                 $gt: value,
@@ -31,6 +35,9 @@ class FilterByBelow extends BaseFilter {
      * @return {import('mongodb').Filter<import('mongodb').DefaultSchema>}
      */
     filterByItem(field, value) {
+        if (field === 'id' && isUuid(value)) {
+            return this.filterByUuid(value);
+        }
         return {
             [this.fieldMapper.getFieldName(field)]: {
                 $lt: value,
