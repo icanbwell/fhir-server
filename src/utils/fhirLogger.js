@@ -179,8 +179,8 @@ class FhirLogger {
                 db: accessLogsMongoConfig.connection,
                 options: accessLogsMongoConfig.options,
                 dbName: accessLogsMongoConfig.db_name,
-                label: env.LOG_MONGODB_PREFIX ? String(env.LOG_MONGODB_PREFIX).toLowerCase() : 'logs',
                 name: 'access_logs',
+                collection: env.ACCESS_LOGS_COLLECTION_NAME ? String(env.ACCESS_LOGS_COLLECTION_NAME) : 'access_logs',
                 format: winston.format.metadata({ fillExcept: ['message', 'level', 'timestamp', 'dd'] })
             });
 

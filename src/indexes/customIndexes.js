@@ -302,6 +302,19 @@ module.exports = {
                     name: 'auditEvent.agentWho_sourceId_uuidRecorded'
                 }
             },
+
+        ],
+        'access_logs': [
+            {
+                keys: {
+                    'meta.id': 1
+                },
+                options: {
+                    name: 'meta.id_1'
+                }
+            }
+        ],
+        'Consent_4_0_0': [
             {
                 keys: {
                     'entity.what._uuid': 1,
@@ -1003,16 +1016,6 @@ module.exports = {
                 },
                 options: {
                     name: 'health_vitals_1'
-                }
-            }
-        ],
-        'log': [
-            {
-                keys: {
-                    'meta.id': 1
-                },
-                options: {
-                    name: 'meta.id_1'
                 }
             }
         ]
