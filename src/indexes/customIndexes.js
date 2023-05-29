@@ -211,7 +211,7 @@ module.exports = {
                     'recorded': 1
                 },
                 options: {
-                    name: 'auditEvent.entityWhat_uuid_uuidRecorded'
+                    name: 'auditEvent.entityWhat_sourceId_uuidRecorded'
                 }
             }
         ],
