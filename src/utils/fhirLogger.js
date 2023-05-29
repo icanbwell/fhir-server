@@ -177,11 +177,14 @@ class FhirLogger {
              */
             const mongodbTransport = new MongoDB({
                 db: accessLogsMongoConfig.connection,
-                options: accessLogsMongoConfig.options,
+                options: {
+                    ...accessLogsMongoConfig.options,
+                    useUnifiedTopology: true
+                },
                 dbName: accessLogsMongoConfig.db_name,
                 name: 'access_logs',
                 collection: env.ACCESS_LOGS_COLLECTION_NAME ? String(env.ACCESS_LOGS_COLLECTION_NAME) : 'access_logs',
-                format: winston.format.metadata({ fillExcept: ['message', 'level', 'timestamp', 'dd'] })
+                format: winston.format.metadata({ fillExcept: ['message', 'level', 'timestamp'] })
             });
 
             logger.add(mongodbTransport);
