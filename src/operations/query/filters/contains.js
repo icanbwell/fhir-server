@@ -54,7 +54,14 @@ class FilterByContains extends BaseFilter {
             }
         }
         if (field === 'id' && isUuid(value)) {
-            return this.filterByUuid(value);
+            const _uuidFieldName = '_uuid';
+            return {
+                [this.fieldMapper.getFieldName(_uuidFieldName)]:
+                    {
+                        $regex: escapeRegExp(value),
+                        $options: 'i',
+                    }
+            };
         }
         // Not a token so process like a string
         return {

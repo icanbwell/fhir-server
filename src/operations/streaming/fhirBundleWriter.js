@@ -10,7 +10,7 @@ class FhirBundleWriter extends Transform {
      * @param {string | null} url
      * @param {AbortSignal} signal
      */
-    constructor({fnBundle, url, signal}) {
+    constructor({fnBundle, url, signal, defaultSortId}) {
         super({objectMode: true});
         /**
          * @type {function (string | null, number): Bundle}
@@ -42,6 +42,10 @@ class FhirBundleWriter extends Transform {
          * @type {AbortSignal}
          */
         this._signal = signal;
+        /**
+         * @type {string}
+         */
+        this.defaultSortId = defaultSortId;
     }
 
     /**
@@ -72,7 +76,8 @@ class FhirBundleWriter extends Transform {
                     // add comma at the beginning to make it legal json
                     this.push(',' + resourceJson, encoding);
                 }
-                this._lastid = chunk['id'];
+                // Depending on DEFAULT_SORT_ID, the last id can be either id or any other field.
+                this._lastid = chunk[this.defaultSortId];
             }
         } catch (e) {
             throw new AggregateError([e], 'FhirBundleWriter _transform: error');

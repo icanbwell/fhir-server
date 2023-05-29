@@ -1,7 +1,5 @@
 const {assertIsValid} = require('../../../utils/assertType');
 
-const _uuidFieldName = '_uuid';
-
 class BaseFilter {
     /**
      * constructor
@@ -53,14 +51,6 @@ class BaseFilter {
     filterByItem(field, value) {
         return {
             [this.fieldMapper.getFieldName(field)]: value,
-        };
-    }
-
-    filterByUuid(value) {
-        return {
-            [this.fieldMapper.getFieldName(_uuidFieldName)]: {
-                $gt: value,
-            }
         };
     }
 
