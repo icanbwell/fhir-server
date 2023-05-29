@@ -1,6 +1,4 @@
-const { isUuid } = require('../../../utils/uid.util');
 const {BaseFilter} = require('./baseFilter');
-const {UUID_FIELD_NAME} = require('../../../constants');
 
 /**
  * @classdesc filters by above FHIR search parameters
@@ -14,15 +12,8 @@ class FilterByAbove extends BaseFilter {
      * @return {import('mongodb').Filter<import('mongodb').DefaultSchema>|import('mongodb').Filter<import('mongodb').DefaultSchema>[]}
      */
     filterByItem(field, value) {
-        if (field === 'id' && isUuid(value)) {
-            return {
-                [this.fieldMapper.getFieldName(UUID_FIELD_NAME)]: {
-                    $gt: value,
-                }
-            };
-        }
         return {
-            [this.fieldMapper.getFieldName(field)]: {
+            [this.fieldMapper.getFieldName(field, value)]: {
                 $gt: value,
             }
         };
@@ -40,15 +31,8 @@ class FilterByBelow extends BaseFilter {
      * @return {import('mongodb').Filter<import('mongodb').DefaultSchema>}
      */
     filterByItem(field, value) {
-        if (field === 'id' && isUuid(value)) {
-            return {
-                [this.fieldMapper.getFieldName(UUID_FIELD_NAME)]: {
-                    $lt: value,
-                }
-            };
-        }
         return {
-            [this.fieldMapper.getFieldName(field)]: {
+            [this.fieldMapper.getFieldName(field, value)]: {
                 $lt: value,
             }
         };

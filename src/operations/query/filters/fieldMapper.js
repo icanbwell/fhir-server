@@ -1,4 +1,6 @@
-// const uuidFieldName = '_uuid';
+const { isUuid } = require('../../../utils/uid.util');
+
+const uuidFieldName = '_uuid';
 const sourceIdFieldName = '_sourceId';
 
 class FieldMapper {
@@ -27,10 +29,13 @@ class FieldMapper {
      * Gets field name (replacing if it is 'id' and enableGlobalIdSupport is enabled.
      * In case of useHistoryTable, prepends the field namewith 'resource.' since in history we store data as a BundleEntry
      * @param {string} field
+     * @param {string} [value]
      * @return {string}
      */
-    getFieldName(field) {
-        const fieldName = field === 'id' ? sourceIdFieldName : field;
+    getFieldName(field, value) {
+        const fieldName = field === 'id' ?
+            isUuid(value) ? uuidFieldName : sourceIdFieldName :
+            field;
         return this.useHistoryTable ? `resource.${fieldName}` : fieldName;
     }
 }

@@ -185,6 +185,5 @@ module.exports = {
         INSERT: 'INSERT',
         RETRIEVE: 'RETRIEVE',
         DELETE: 'DELETE',
-    },
-    UUID_FIELD_NAME: '_uuid',
+    }
 };
