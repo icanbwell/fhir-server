@@ -11,7 +11,6 @@ const {
 } = require('../operations/common/logging');
 const {ResourceManager} = require('../operations/common/resourceManager');
 const {PostRequestProcessor} = require('../utils/postRequestProcessor');
-const {ErrorReporter} = require('../utils/slack.logger');
 const {MongoCollectionManager} = require('../utils/mongoCollectionManager');
 const {ResourceLocatorFactory} = require('../operations/common/resourceLocatorFactory');
 const {assertTypeEquals, assertIsValid} = require('../utils/assertType');
@@ -47,7 +46,6 @@ class DatabaseBulkInserter extends EventEmitter {
      * Constructor
      * @param {ResourceManager} resourceManager
      * @param {PostRequestProcessor} postRequestProcessor
-     * @param {ErrorReporter} errorReporter
      * @param {MongoCollectionManager} mongoCollectionManager
      * @param {ResourceLocatorFactory} resourceLocatorFactory
      * @param {ChangeEventProducer} changeEventProducer
@@ -61,7 +59,6 @@ class DatabaseBulkInserter extends EventEmitter {
     constructor({
                     resourceManager,
                     postRequestProcessor,
-                    errorReporter,
                     mongoCollectionManager,
                     resourceLocatorFactory,
                     changeEventProducer,
@@ -85,12 +82,6 @@ class DatabaseBulkInserter extends EventEmitter {
          */
         this.postRequestProcessor = postRequestProcessor;
         assertTypeEquals(postRequestProcessor, PostRequestProcessor);
-
-        /**
-         * @type {ErrorReporter}
-         */
-        this.errorReporter = errorReporter;
-        assertTypeEquals(errorReporter, ErrorReporter);
 
         /**
          * @type {MongoCollectionManager}
@@ -339,13 +330,6 @@ class DatabaseBulkInserter extends EventEmitter {
                 });
             }
             if (doc._id) {
-                await this.errorReporter.reportMessageAsync({
-                    source: 'DatabaseBulkInserter.insertOneAsync',
-                    message: '_id still present',
-                    args: {
-                        doc: doc
-                    }
-                });
                 logInfo('_id still present', {args: {
                     source: 'DatabaseBulkInserter.insertOneAsync',
                     doc: doc
@@ -402,13 +386,6 @@ class DatabaseBulkInserter extends EventEmitter {
                 operationType: 'insert',
             });
             if (doc._id) {
-                await this.errorReporter.reportMessageAsync({
-                    source: 'DatabaseBulkInserter.insertOneAsync',
-                    message: '_id still present',
-                    args: {
-                        doc: doc
-                    }
-                });
                 logInfo('_id still present', {args: {
                     source: 'DatabaseBulkInserter.insertOneAsync',
                     doc: doc
@@ -883,15 +860,6 @@ class DatabaseBulkInserter extends EventEmitter {
                     }
 
                     if (!useHistoryCollection && resource._id) {
-                        await this.errorReporter.reportMessageAsync({
-                            source: 'DatabaseBulkInserter.performBulkForResourceTypeAsync',
-                            message: '_id still present',
-                            args: {
-                                doc: resource,
-                                collection: collectionName,
-                                operation
-                            }
-                        });
                         logInfo('_id still present', {args: {
                             source: 'DatabaseBulkInserter.performBulkForResourceTypeAsync',
                             doc: resource,
@@ -1072,17 +1040,6 @@ class DatabaseBulkInserter extends EventEmitter {
                             );
                         }
                     } catch (e) {
-                        await this.errorReporter.reportErrorAsync({
-                            source: 'databaseBulkInserter',
-                            message: 'databaseBulkInserter: Error bulkWrite',
-                            error: e,
-                            args: {
-                                requestId: requestId,
-                                operations: operationsByCollection,
-                                options: options,
-                                collection: collectionName
-                            }
-                        });
                         await logSystemErrorAsync({
                             event: 'databaseBulkInserter',
                             message: 'databaseBulkInserter: Error bulkWrite',
@@ -1181,19 +1138,6 @@ class DatabaseBulkInserter extends EventEmitter {
                     resourceType + '/' + bulkInsertUpdateEntry.uuid
                 ]
             });
-            await this.errorReporter.reportErrorAsync(
-                {
-                    source: 'databaseBulkInserter',
-                    message: `databaseBulkInserter: Error resource ${resourceType} with operation:` +
-                        ` ${JSON.stringify(bulkInsertUpdateEntry, getCircularReplacer())}`,
-                    error: bulkWriteResultError,
-                    args: {
-                        requestId: requestId,
-                        resourceType: resourceType,
-                        operation: bulkInsertUpdateEntry
-                    }
-                }
-            );
             logError(
                 `databaseBulkInserter: Error resource ${resourceType}`,
                 {

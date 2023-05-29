@@ -99,7 +99,10 @@ module.exports = {
                 },
                 options: {
                     name: 'uuid'
-                }
+                },
+                exclude: [
+                    'AuditEvent_4_0_0'
+                ]
             },
             {
                 keys: {
@@ -146,62 +149,71 @@ module.exports = {
         'AuditEvent_4_0_0': [
             {
                 keys: {
-                    'id': 1
+                    'recorded': 1,
                 },
                 options: {
-                    // unique: true,
-                    name: 'id_1'
+                    name: 'auditEvent.recorded'
                 }
             },
             {
                 keys: {
-                    'recorded': 1,
                     '_access.medstar': 1,
-                    '_sourceId': 1,
-                },
-                options: {
-                    name: 'helix_auditEvent_recorded_access_medstar'
-                }
-            },
-            {
-                keys: {
-                    'recorded': 1,
-                    'entity.what._sourceId': 1,
-                    '_sourceId': 1,
-                },
-                options: {
-                    name: 'helix_auditEvent_recorded_entity'
-                }
-            },
-            {
-                keys: {
-                    'recorded': 1,
-                    'agent.who._sourceId': 1,
-                    '_sourceId': 1,
-                },
-                options: {
-                    name: 'helix_auditEvent_recorded_who'
-                }
-            },
-            {
-                keys: {
-                    'recorded': 1,
                     '_uuid': 1,
+                    'recorded': 1,
                 },
                 options: {
-                    name: 'helix_auditEvent_recorded_uuid'
+                    name: 'auditEvent._accessMedstar_uuidRecorded'
                 }
             },
             {
                 keys: {
+                    '_uuid': 1,
                     'recorded': 1,
-                    '_sourceId': 1,
                 },
                 options: {
-                    name: 'helix_auditEvent_recorded_sourceId'
+                    name: 'auditEvent._uuidRecorded'
                 }
             },
-
+            {
+                keys: {
+                    'agent.who._uuid': 1,
+                    '_uuid': 1,
+                    'recorded': 1
+                },
+                options: {
+                    name: 'auditEvent.agentWho_uuid_uuidRecorded'
+                }
+            },
+            {
+                keys: {
+                    'agent.who._sourceId': 1,
+                    '_uuid': 1,
+                    'recorded': 1
+                },
+                options: {
+                    name: 'auditEvent.agentWho_sourceId_uuidRecorded'
+                }
+            },
+            {
+                keys: {
+                    'entity.what._uuid': 1,
+                    '_uuid': 1,
+                    'recorded': 1
+                },
+                options: {
+                    name: 'auditEvent.entityWhat_uuid_uuidRecorded'
+                }
+            },
+            {
+                keys: {
+                    'entity.what._sourceId': 1,
+                    '_uuid': 1,
+                    'recorded': 1
+                },
+                options: {
+                    name: 'auditEvent.entityWhat_uuid_uuidRecorded'
+                }
+            }
         ],
         'Consent_4_0_0': [
             {
@@ -358,6 +370,26 @@ module.exports = {
                 },
                 options: {
                     name: 'managingOrganization.reference_uuid'
+                }
+            }
+        ],
+        'MeasureReport_4_0_0': [
+            {
+                keys: {
+                    'subject._sourceId': 1,
+                    '_uuid': 1
+                },
+                options: {
+                    name: 'measureReport.subject_sourceId_uuid'
+                }
+            },
+            {
+                keys: {
+                    'subject._uuid': 1,
+                    '_uuid': 1
+                },
+                options: {
+                    name: 'measureReport.subject_uuid_uuid'
                 }
             }
         ],

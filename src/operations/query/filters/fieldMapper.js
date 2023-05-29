@@ -1,3 +1,4 @@
+// const uuidFieldName = '_uuid';
 const sourceIdFieldName = '_sourceId';
 
 class FieldMapper {
@@ -9,7 +10,7 @@ class FieldMapper {
     constructor(
         {
             enableGlobalIdSupport,
-            useHistoryTable,
+            useHistoryTable
         }
     ) {
         /**

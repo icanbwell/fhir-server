@@ -1,0 +1,50 @@
+{
+  "resourceType": "Patient",
+  "id": "person.00701751-032e-5b40-94c1-7265c0d547fe",
+  "meta": {
+    "source": "https://www.icanbwell.com",
+    "security": [
+      {
+        "system": "https://www.icanbwell.com/owner",
+        "code": "bwell"
+      },
+      {
+        "system": "https://www.icanbwell.com/access",
+        "code": "bwell"
+      }
+    ]
+  },
+  "name": [
+    {
+      "family": "Test",
+      "given": [
+          "User"
+      ],
+      "text": "User Test"
+    }
+  ],
+  "telecom": [
+    {
+      "system": "email",
+      "value": "test@user.com"
+    },
+    {
+      "system": "phone",
+      "value": "+18787878787"
+    }
+  ],
+  "gender": "male",
+  "birthDate": "1989-08-08",
+  "address": [
+    {
+      "id": "user-address",
+      "line": [
+        "New Horizon",
+        "Back Street"
+      ],
+      "city": "Dallas",
+      "state": "Texas",
+      "postalCode": "75001"
+    }
+  ]
+}

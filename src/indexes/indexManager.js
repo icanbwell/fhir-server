@@ -4,7 +4,6 @@
 
 const async = require('async');
 const {logSystemEventAsync, logSystemErrorAsync, logInfo} = require('../operations/common/logging');
-const {ErrorReporter} = require('../utils/slack.logger');
 const {assertTypeEquals, assertIsValid} = require('../utils/assertType');
 const {IndexProvider} = require('./indexProvider');
 const {MongoDatabaseManager} = require('../utils/mongoDatabaseManager');
@@ -24,21 +23,13 @@ const deepEqual = require('fast-deep-equal');
 class IndexManager {
     /**
      * constructor
-     * @param {ErrorReporter} errorReporter
      * @param {IndexProvider} indexProvider
      * @param {MongoDatabaseManager} mongoDatabaseManager
      */
     constructor({
-                    errorReporter,
                     indexProvider,
                     mongoDatabaseManager
                 }) {
-        assertTypeEquals(errorReporter, ErrorReporter);
-        /**
-         * @type {ErrorReporter}
-         */
-        this.errorReporter = errorReporter;
-
         /**
          * @type {IndexProvider}
          */
@@ -96,8 +87,6 @@ class IndexManager {
                         }
                     }
                 );
-                await this.errorReporter.reportMessageAsync(
-                    {source: 'createIndex', message: message});
                 await db.collection(collectionName).createIndex(indexSpec, indexConfig.options);
                 return true;
             }
@@ -114,7 +103,6 @@ class IndexManager {
                     error: e
                 }
             );
-            await this.errorReporter.reportMessageAsync({source: 'createIndex', message: message1});
         }
         return false;
     }
@@ -417,8 +405,6 @@ class IndexManager {
                 }
             }
         );
-        await this.errorReporter.reportMessageAsync(
-            {source: 'dropIndex', message: message});
         try {
             await db.collection(collectionName).dropIndex(indexName);
         } catch (e) {
@@ -433,7 +419,6 @@ class IndexManager {
                     error: e
                 }
             );
-            await this.errorReporter.reportMessageAsync({source: 'dropIndex', message: message1});
         }
     }
 

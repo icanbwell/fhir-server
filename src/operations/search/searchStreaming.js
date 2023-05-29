@@ -9,7 +9,6 @@ const {assertTypeEquals} = require('../../utils/assertType');
 const {SearchManager} = require('./searchManager');
 const {ResourceLocatorFactory} = require('../common/resourceLocatorFactory');
 const {AuditLogger} = require('../../utils/auditLogger');
-const {ErrorReporter} = require('../../utils/slack.logger');
 const {FhirLoggingManager} = require('../common/fhirLoggingManager');
 const {ScopesValidator} = require('../security/scopesValidator');
 const {BundleManager} = require('../common/bundleManager');
@@ -24,7 +23,6 @@ class SearchStreamingOperation {
      * @param {SearchManager} searchManager
      * @param {ResourceLocatorFactory} resourceLocatorFactory
      * @param {AuditLogger} auditLogger
-     * @param {ErrorReporter} errorReporter
      * @param {FhirLoggingManager} fhirLoggingManager
      * @param {ScopesValidator} scopesValidator
      * @param {BundleManager} bundleManager
@@ -35,7 +33,6 @@ class SearchStreamingOperation {
             searchManager,
             resourceLocatorFactory,
             auditLogger,
-            errorReporter,
             fhirLoggingManager,
             scopesValidator,
             bundleManager,
@@ -60,11 +57,6 @@ class SearchStreamingOperation {
         this.auditLogger = auditLogger;
         assertTypeEquals(auditLogger, AuditLogger);
 
-        /**
-         * @type {ErrorReporter}
-         */
-        this.errorReporter = errorReporter;
-        assertTypeEquals(errorReporter, ErrorReporter);
         /**
          * @type {FhirLoggingManager}
          */
@@ -316,7 +308,6 @@ class SearchStreamingOperation {
                          * @type {Resource[]}
                          */
                         const resources1 = [];
-                        const defaultSortId = this.configManager.defaultSortId;
                         /**
                          * bundle
                          * @param {string|null} last_id
@@ -367,8 +358,7 @@ class SearchStreamingOperation {
                                 parsedArgs,
                                 resourceType,
                                 useAccessIndex,
-                                batchObjectCount,
-                                defaultSortId
+                                batchObjectCount
                             });
                     } else {
                         resourceIds = await this.searchManager.streamResourcesFromCursorAsync(

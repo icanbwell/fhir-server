@@ -230,13 +230,6 @@ class ConfigManager {
     }
 
     /**
-     * The default sort id currently used
-     */
-    get defaultSortId() {
-        return env.DEFAULT_SORT_ID || 'id';
-    }
-
-    /**
      * whether to check access tags on save
      * @return {boolean}
      */

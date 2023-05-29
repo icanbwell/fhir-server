@@ -47,7 +47,6 @@ function createFhirApp(fnCreateContainer, app1) {
         .configureHtmlRenderer()
         .setPublicDirectory()
         .setProfileRoutes()
-        .configureSlackErrorHandler()
         .setErrorRoutes();
 }
 
