@@ -43,7 +43,7 @@ services:
             LOG_ELASTIC_SEARCH_ENABLE: '1'
             ENABLE_MONGODB_ACCESS_LOGS: '0'
             ENABLE_MONGODB_ACCESS_LOGS_SEARCH: '0'
-            MONGODB_ACCESS_LOGS_COLLECTION: 'log'
+            ACCESS_LOGS_COLLECTION_NAME: 'log'
             LOG_MONGODB_PREFIX: 'fhir-logs'
             LOG_ELASTIC_SEARCH_URL: 'https://elasticsearch:9200/'
             ELASTIC_SEARCH_USERNAME: 'admin'

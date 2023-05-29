@@ -1005,6 +1005,16 @@ module.exports = {
                     name: 'health_vitals_1'
                 }
             }
+        ],
+        'log': [
+            {
+                keys: {
+                    'meta.id': 1
+                },
+                options: {
+                    name: 'meta.id_1'
+                }
+            }
         ]
     }
 };

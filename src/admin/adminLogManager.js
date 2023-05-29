@@ -5,6 +5,10 @@ const {logInfo, logError} = require('../operations/common/logging');
 const {isTrue} = require('../utils/isTrue');
 const {accessLogsMongoConfig} = require('../config');
 const {MongoClient} = require('mongodb');
+const {IndexManager} = require('../indexes/indexManager');
+const { IndexProvider } = require('../indexes/indexProvider');
+const { ConfigManager } = require('../utils/configManager');
+const { MongoDatabaseManager } = require('../utils/mongoDatabaseManager');
 
 class AdminLogManager {
 
@@ -20,13 +24,20 @@ class AdminLogManager {
              */
             const client = new MongoClient(accessLogsMongoConfig.connection, accessLogsMongoConfig.options);
 
-            const accessLogsCollectionName = String(env.MONGODB_ACCESS_LOGS_COLLECTION);
+            const accessLogsCollectionName = String(env.ACCESS_LOGS_COLLECTION_NAME);
 
-            const accessLogsCollection = client.db(accessLogsMongoConfig.db_name).collection(accessLogsCollectionName);
+            const accessLogsDb = client.db(accessLogsMongoConfig.db_name);
 
-            if (!await accessLogsCollection.indexExists('meta.id_1')) {
-                await accessLogsCollection.createIndex({ 'meta.id': 1 }, { name: 'meta.id_1' });
-            }
+            const accessLogsCollection = accessLogsDb.collection(accessLogsCollectionName);
+
+            const indexManager = new IndexManager({
+                indexProvider: new IndexProvider({
+                    configManager: new ConfigManager()
+                }),
+                mongoDatabaseManager: new MongoDatabaseManager()
+            });
+
+            await indexManager.indexCollectionAsync({ collectionName: accessLogsCollectionName, db: accessLogsDb });
 
             return await accessLogsCollection.find({ 'meta.id': { $eq: id } }).toArray();
         }
