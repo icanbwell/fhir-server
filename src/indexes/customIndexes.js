@@ -95,6 +95,74 @@ module.exports = {
             },
             {
                 keys: {
+                    'subject._uuid': 1,
+                    '_uuid': 1
+                },
+                options: {
+                    name: 'subjectUuid_uuid'
+                },
+                include: [
+                    'Account_4_0_0', 'Basic_4_0_0', 'CarePlan_4_0_0', 'CareTeam_4_0_0', 'ChargeItem_4_0_0',
+                    'ClinicalImpression_4_0_0', 'Condition_4_0_0', 'Contract_4_0_0', 'CommunicationRequest_4_0_0',
+                    'Composition_4_0_0', 'DeviceRequest_4_0_0', 'DeviceUseStatement_4_0_0', 'DiagnosticReport_4_0_0',
+                    'DocumentManifest_4_0_0', 'DocumentReference_4_0_0', 'Flag_4_0_0', 'Goal_4_0_0', 'GuidanceResponse_4_0_0',
+                    'ImagingStudy_4_0_0', 'Invoice_4_0_0', 'List_4_0_0', 'MeasureReport_4_0_0', 'Media_4_0_0',
+                    'MedicationAdministration_4_0_0', 'Procedure_4_0_0', 'RequestGroup_4_0_0',
+                    'RiskAssessment_4_0_0', 'ServiceRequest_4_0_0', 'Specimen_4_0_0'
+                ]
+            },
+            {
+                keys: {
+                    'subject._sourceId': 1,
+                    '_uuid': 1
+                },
+                options: {
+                    name: 'subjectSourceId_uuid'
+                },
+                include: [
+                    'Account_4_0_0', 'Basic_4_0_0', 'CarePlan_4_0_0', 'CareTeam_4_0_0', 'ChargeItem_4_0_0',
+                    'ClinicalImpression_4_0_0', 'Condition_4_0_0', 'Contract_4_0_0', 'CommunicationRequest_4_0_0',
+                    'Composition_4_0_0', 'DeviceRequest_4_0_0', 'DeviceUseStatement_4_0_0', 'DiagnosticReport_4_0_0',
+                    'DocumentManifest_4_0_0', 'Flag_4_0_0', 'Goal_4_0_0', 'GuidanceResponse_4_0_0',
+                    'ImagingStudy_4_0_0', 'Invoice_4_0_0', 'List_4_0_0', 'MeasureReport_4_0_0', 'Media_4_0_0',
+                    'MedicationAdministration_4_0_0', 'Procedure_4_0_0', 'RequestGroup_4_0_0',
+                    'RiskAssessment_4_0_0', 'ServiceRequest_4_0_0', 'Specimen_4_0_0'
+                ]
+            },
+            {
+                keys: {
+                    'patient._uuid': 1,
+                    '_uuid': 1
+                },
+                options: {
+                    name: 'patientUuid_uuid'
+                },
+                include: [
+                    'AllergyIntolerance_4_0_0', 'BodyStructure_4_0_0', 'Claim_4_0_0', 'ClaimResponse_4_0_0', 'Consent_4_0_0',
+                    'CoverageEligibilityRequest_4_0_0', 'CoverageEligibilityResponse_4_0_0', 'DetectedIssue_4_0_0',
+                    'Device_4_0_0', 'EpisodeOfCare_4_0_0', 'FamilyMemberHistory_4_0_0', 'Immunization_4_0_0',
+                    'ImmunizationEvaluation_4_0_0', 'ImmunizationRecommendation_4_0_0', 'MolecularSequence_4_0_0',
+                    'NutritionOrder_4_0_0', 'RelatedPerson_4_0_0', 'SupplyDelivery_4_0_0', 'VisionPrescription_4_0_0'
+                ]
+            },
+            {
+                keys: {
+                    'patient._sourceId': 1,
+                    '_uuid': 1
+                },
+                options: {
+                    name: 'patientSourceId_uuid'
+                },
+                include: [
+                    'AllergyIntolerance_4_0_0', 'BodyStructure_4_0_0', 'Claim_4_0_0', 'ClaimResponse_4_0_0',
+                    'CoverageEligibilityRequest_4_0_0', 'CoverageEligibilityResponse_4_0_0', 'DetectedIssue_4_0_0',
+                    'Device_4_0_0', 'EpisodeOfCare_4_0_0', 'FamilyMemberHistory_4_0_0', 'Immunization_4_0_0',
+                    'ImmunizationEvaluation_4_0_0', 'ImmunizationRecommendation_4_0_0', 'MolecularSequence_4_0_0',
+                    'NutritionOrder_4_0_0', 'RelatedPerson_4_0_0', 'SupplyDelivery_4_0_0', ''
+                ]
+            },
+            {
+                keys: {
                     '_uuid': 1,
                 },
                 options: {
@@ -115,7 +183,7 @@ module.exports = {
                 exclude: [
                     'AuditEvent_4_0_0'
                 ]
-            },
+            }
         ],
         '*_History': [
             {
@@ -143,6 +211,46 @@ module.exports = {
                 },
                 options: {
                     name: 'history_resource_lastUpdated'
+                }
+            }
+        ],
+        'Appointment_4_0_0': [
+            {
+                keys: {
+                    'participant.actor._uuid': 1,
+                    '_uuid': 1
+                },
+                options: {
+                    name: 'appointment.participantActorUuid_uuid'
+                }
+            },
+            {
+                keys: {
+                    'participant.actor._sourceId': 1,
+                    '_uuid': 1
+                },
+                options: {
+                    name: 'appointment_participantActorSourceid_uuid'
+                }
+            }
+        ],
+        'AppointmentRespone_4_0_0': [
+            {
+                keys: {
+                    'actor._uuid': 1,
+                    '_uuid': 1
+                },
+                options: {
+                    name: 'appointmentResponse.actorUuid_uuid'
+                }
+            },
+            {
+                keys: {
+                    'actor._sourceId': 1,
+                    '_uuid': 1
+                },
+                options: {
+                    name: 'appointmentResponse_actorSourceid_uuid'
                 }
             }
         ],
@@ -215,17 +323,6 @@ module.exports = {
                 }
             }
         ],
-        'Consent_4_0_0': [
-            {
-               keys: {
-                    'patient._uuid': 1,
-                    '_uuid': 1
-                },
-                options: {
-                    name: 'consent_graphql_1'
-                }
-            }
-        ],
         'Communication_4_0_0': [
             {
                keys: {
@@ -260,17 +357,6 @@ module.exports = {
                 }
             }
         ],
-        'DocumentReference_4_0_0': [
-            {
-                keys: {
-                    'subject._uuid': 1,
-                    '_uuid': 1,
-                },
-                options: {
-                    name: 'patient_verification_1'
-                }
-            },
-        ],
         'Encounter_4_0_0': [
             {
                 keys: {
@@ -299,6 +385,26 @@ module.exports = {
                 },
                 options: {
                     name: 'access_Thedacare.meta_source.uuid.meta_lastUpdated'
+                }
+            }
+        ],
+        'EnrollmentRequest_4_0_0': [
+            {
+                keys: {
+                    'candidate._uuid': 1,
+                    '_uuid': 1
+                },
+                options: {
+                    name: 'enrollmentRequest.candidateUuid_uuid'
+                }
+            },
+            {
+                keys: {
+                    'candidate._sourceId': 1,
+                    '_uuid': 1
+                },
+                options: {
+                    name: 'enrollmentRequest.candidateSourceid_uuid'
                 }
             }
         ],
@@ -370,26 +476,6 @@ module.exports = {
                 },
                 options: {
                     name: 'managingOrganization.reference_uuid'
-                }
-            }
-        ],
-        'MeasureReport_4_0_0': [
-            {
-                keys: {
-                    'subject._sourceId': 1,
-                    '_uuid': 1
-                },
-                options: {
-                    name: 'measureReport.subject_sourceId_uuid'
-                }
-            },
-            {
-                keys: {
-                    'subject._uuid': 1,
-                    '_uuid': 1
-                },
-                options: {
-                    name: 'measureReport.subject_uuid_uuid'
                 }
             }
         ],
@@ -810,6 +896,26 @@ module.exports = {
                 }
             }
         ],
+        'Provenance_4_0_0': [
+            {
+                keys: {
+                    'target._uuid': 1,
+                    '_uuid': 1
+                },
+                options: {
+                    name: 'provenance.targetUuid_uuid'
+                }
+            },
+            {
+                keys: {
+                    'target._sourceId': 1,
+                    '_uuid': 1
+                },
+                options: {
+                    name: 'provenance.targetSourceid_uuid'
+                }
+            }
+        ],
         'QuestionnaireResponse_4_0_0': [
             {
                 keys: {
@@ -821,6 +927,26 @@ module.exports = {
                 },
                 options: {
                     name: 'consent_graphql_1'
+                }
+            }
+        ],
+        'ResearchSubject_4_0_0': [
+            {
+                keys: {
+                    'individual._uuid': 1,
+                    '_uuid': 1
+                },
+                options: {
+                    name: 'researchSubject.individualUuid_uuid'
+                }
+            },
+            {
+                keys: {
+                    'individual._sourceId': 1,
+                    '_uuid': 1
+                },
+                options: {
+                    name: 'researchSubject.individualSourceid_uuid'
                 }
             }
         ],

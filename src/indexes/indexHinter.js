@@ -69,7 +69,10 @@ class IndexHinter {
             of Object.entries(indexes)) {
             if (indexCollectionName === '*' || baseCollectionName === indexCollectionName) {
                 for (const /** @type {{keys:Object, options:Object, exclude: string[]}} */ indexConfig of indexConfigs) {
-                    if (!indexConfig.exclude || !indexConfig.exclude.includes(baseCollectionName)) {
+                    if (
+                        (!indexConfig.exclude || !indexConfig.exclude.includes(baseCollectionName)) &&
+                        (!indexConfig.include || indexConfig.include.includes(baseCollectionName))
+                    ) {
                         const indexColumns = Object.keys(indexConfig.keys);
                         if (this.eqSet(new Set(indexColumns), fieldsSet)) {
                             return indexConfig.options.name;
