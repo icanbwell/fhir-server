@@ -107,7 +107,7 @@ module.exports = {
                     'Composition_4_0_0', 'DeviceRequest_4_0_0', 'DeviceUseStatement_4_0_0', 'DiagnosticReport_4_0_0',
                     'DocumentManifest_4_0_0', 'DocumentReference_4_0_0', 'Flag_4_0_0', 'Goal_4_0_0', 'GuidanceResponse_4_0_0',
                     'ImagingStudy_4_0_0', 'Invoice_4_0_0', 'List_4_0_0', 'MeasureReport_4_0_0', 'Media_4_0_0',
-                    'MedicationAdministration_4_0_0', 'MedicationRequest_4_0_0', 'Procedure_4_0_0', 'RequestGroup_4_0_0',
+                    'MedicationAdministration_4_0_0', 'Procedure_4_0_0', 'RequestGroup_4_0_0',
                     'RiskAssessment_4_0_0', 'ServiceRequest_4_0_0', 'Specimen_4_0_0'
                 ]
             },
@@ -125,7 +125,7 @@ module.exports = {
                     'Composition_4_0_0', 'DeviceRequest_4_0_0', 'DeviceUseStatement_4_0_0', 'DiagnosticReport_4_0_0',
                     'DocumentManifest_4_0_0', 'Flag_4_0_0', 'Goal_4_0_0', 'GuidanceResponse_4_0_0',
                     'ImagingStudy_4_0_0', 'Invoice_4_0_0', 'List_4_0_0', 'MeasureReport_4_0_0', 'Media_4_0_0',
-                    'MedicationAdministration_4_0_0', 'MedicationRequest_4_0_0', 'Procedure_4_0_0', 'RequestGroup_4_0_0',
+                    'MedicationAdministration_4_0_0', 'Procedure_4_0_0', 'RequestGroup_4_0_0',
                     'RiskAssessment_4_0_0', 'ServiceRequest_4_0_0', 'Specimen_4_0_0'
                 ]
             },
@@ -464,6 +464,26 @@ module.exports = {
                 },
                 options: {
                     name: 'managingOrganization.reference_uuid'
+                }
+            }
+        ],
+        'MedicationRequest_4_0_0': [
+            {
+                keys: {
+                    'subject._sourceId': 1,
+                    '_sourceId': 1,
+                },
+                options: {
+                    name: 'helix_medication_request_1'
+                }
+            },
+            {
+                keys: {
+                    'subject._uuid': 1,
+                    '_sourceId': 1,
+                },
+                options: {
+                    name: 'helix_medication_request_uuid'
                 }
             }
         ],
