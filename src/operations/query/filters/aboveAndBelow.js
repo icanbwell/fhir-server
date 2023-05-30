@@ -13,7 +13,7 @@ class FilterByAbove extends BaseFilter {
      */
     filterByItem(field, value) {
         return {
-            [this.fieldMapper.getFieldName(field)]: {
+            [this.fieldMapper.getFieldName(field, value)]: {
                 $gt: value,
             }
         };
@@ -32,7 +32,7 @@ class FilterByBelow extends BaseFilter {
      */
     filterByItem(field, value) {
         return {
-            [this.fieldMapper.getFieldName(field)]: {
+            [this.fieldMapper.getFieldName(field, value)]: {
                 $lt: value,
             }
         };
