@@ -178,7 +178,7 @@ class IndexManager {
                 if (indexCollectionName === '*') {
                     for (const /** @type {IndexConfig} */ indexConfig of indexConfigs) {
                         if (
-                            (!indexConfig.exclude || !indexConfig.exclude.includes(baseCollectionName)) ||
+                            (!indexConfig.exclude || !indexConfig.exclude.includes(baseCollectionName)) &&
                             (!indexConfig.include || indexConfig.include.includes(baseCollectionName))
                         ) {
                             indexesToCreate.push(indexConfig);
