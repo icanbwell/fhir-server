@@ -1,10 +1,13 @@
 const env = require('var');
 const winston = require('winston');
 const {ElasticsearchTransport} = require('winston-elasticsearch');
+const {MongoDB} = require('winston-mongodb');
 const {Client} = require('@opensearch-project/opensearch');
 const {isTrue} = require('./isTrue');
 const Transport = require('winston-transport');
 const {assertIsValid} = require('./assertType');
+const {accessLogsMongoConfig} = require('../config');
+const {MongoClient} = require('mongodb');
 
 const Mutex = require('async-mutex').Mutex;
 const mutex = new Mutex();
@@ -167,6 +170,25 @@ class FhirLogger {
             const nullTransport = new NullTransport();
             // noinspection JSCheckFunctionSignatures
             logger.add(nullTransport);
+        }
+
+        if (isTrue(env.ENABLE_MONGODB_ACCESS_LOGS)) {
+            /**
+             * @type {require('winston-mongodb').MongoDB}
+             */
+            const mongodbTransport = new MongoDB({
+                db: new MongoClient(accessLogsMongoConfig.connection, accessLogsMongoConfig.options),
+                dbName: accessLogsMongoConfig.db_name,
+                name: 'access_logs',
+                collection: env.ACCESS_LOGS_COLLECTION_NAME ? String(env.ACCESS_LOGS_COLLECTION_NAME) : 'access_logs',
+                format: winston.format.metadata({ fillExcept: ['message', 'level', 'timestamp'] })
+            });
+
+            logger.add(mongodbTransport);
+
+            mongodbTransport.on('error', (error) => {
+                console.error(JSON.stringify({message: 'Error in mongodbTransport caught', error}));
+            });
         }
 
         if (env.LOGLEVEL === 'DEBUG') {
