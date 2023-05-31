@@ -1,9 +1,9 @@
+const env = require('var');
+
 /**
  * List of custom indexes to add.  (* means these indexes should be applied to all collections)
  * @description All options described here: https://www.mongodb.com/docs/manual/reference/method/db.collection.createIndex/
  */
-const env = require('var');
-
 module.exports = {
     customIndexes: {
         '*': [
@@ -304,19 +304,6 @@ module.exports = {
                     name: 'auditEvent.agentWho_sourceId_uuidRecorded'
                 }
             },
-
-        ],
-        [env.ACCESS_LOGS_COLLECTION_NAME]: [
-            {
-                keys: {
-                    'meta.id': 1
-                },
-                options: {
-                    name: `${env.ACCESS_LOGS_COLLECTION_NAME}.meta_id`
-                }
-            }
-        ],
-        'Consent_4_0_0': [
             {
                 keys: {
                     'entity.what._uuid': 1,
@@ -335,6 +322,16 @@ module.exports = {
                 },
                 options: {
                     name: 'auditEvent.entityWhat_sourceId_uuidRecorded'
+                }
+            }
+        ],
+        [env.ACCESS_LOGS_COLLECTION_NAME]: [
+            {
+                keys: {
+                    'meta.id': 1
+                },
+                options: {
+                    name: `${env.ACCESS_LOGS_COLLECTION_NAME}.meta_id`
                 }
             }
         ],
