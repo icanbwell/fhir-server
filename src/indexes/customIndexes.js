@@ -1,9 +1,9 @@
-const env = require('var');
-
 /**
  * List of custom indexes to add.  (* means these indexes should be applied to all collections)
  * @description All options described here: https://www.mongodb.com/docs/manual/reference/method/db.collection.createIndex/
  */
+const env = require('var');
+
 module.exports = {
     customIndexes: {
         '*': [
