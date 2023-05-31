@@ -3,6 +3,7 @@
 const {BadRequestError, NotFoundError} = require('../../utils/httpErrors');
 const {validate, applyPatch, compare} = require('fast-json-patch');
 const moment = require('moment-timezone');
+const { logInfo } = require('../common/logging');
 const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
 const {DatabaseQueryFactory} = require('../../dataLayer/databaseQueryFactory');
 const {ChangeEventProducer} = require('../../utils/changeEventProducer');
@@ -174,6 +175,8 @@ class PatchOperation {
                 let meta = foundResource.meta;
                 // noinspection JSUnresolvedVariable
                 meta.versionId = `${parseInt(foundResource.meta.versionId) + 1}`;
+                logInfo(`Updating versionId for ${resourceType}/${foundResource._uuid} from ` +
+                    `${foundResource.meta.versionId} to ${meta.versionId}`, {});
                 meta.lastUpdated = new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ssZ'));
                 meta.source = meta.source || resource.meta.source;
                 resource.meta = meta;
