@@ -60,8 +60,7 @@ class BwellPersonFinder {
         while (!foundPersonId && (await linkedPersons.hasNext())) {
             let nextPerson = await linkedPersons.next();
 
-            if (nextPerson.meta.security.find(s => s.system === SecurityTagSystem.access && s.code === BwellMasterPersonCode) &&
-                nextPerson.meta.security.find(s => s.system === SecurityTagSystem.owner && s.code === BwellMasterPersonCode)) {
+            if (this.isBwellPerson(nextPerson)) {
                 foundPersonId = nextPerson.id;
             }
             else {
@@ -75,6 +74,17 @@ class BwellPersonFinder {
         }
 
         return foundPersonId;
+    }
+
+    /**
+     * Check if the given Person document is a bwell master person or not
+     * @param {Resource} person
+     * @returns {boolean}
+     */
+    isBwellPerson(person){
+        return person.meta.security &&
+            person.meta.security.find(s => s.system === SecurityTagSystem.access && s.code === BwellMasterPersonCode) &&
+            person.meta.security.find(s => s.system === SecurityTagSystem.owner && s.code === BwellMasterPersonCode);
     }
 }
 
