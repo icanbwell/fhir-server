@@ -78,7 +78,7 @@ class BwellPersonFinder {
 
     /**
      * Check if the given Person document is a bwell master person or not
-     * @param person
+     * @param {Resource} person
      * @returns {boolean}
      */
     isBwellPerson(person){
