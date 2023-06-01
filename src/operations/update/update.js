@@ -382,7 +382,7 @@ class UpdateOperation {
                         await this.changeEventProducer.flushAsync({requestId});
                     }
                 });
-                if (this.configManager.enabledConsentUpdate) {
+                if (this.configManager.enabledSensitiveDataAccessUpdate) {
                     this.postRequestProcessor.add({
                         requestId,
                         fnTask: async() => {

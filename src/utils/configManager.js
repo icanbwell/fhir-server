@@ -289,8 +289,8 @@ class ConfigManager {
     /**
      * Whether consent needs to be updated for patients
      */
-    get enabledConsentUpdate() {
-        return isTrue(env.ENABLE_CONSENT_UPDATE);
+    get enabledSensitiveDataAccessUpdate() {
+        return isTrue(env.ENABLE_SENSITIVE_DATA_ACCESS_UPDATE);
     }
 }
 
