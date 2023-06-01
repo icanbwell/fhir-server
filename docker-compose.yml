@@ -61,7 +61,7 @@ services:
             PERSON_MATCHING_SERVICE_URL: "https://person-matching.dev.bwell.zone/$$match"
             WHITELIST: "https://embeddable-sandbox.cdn.apollographql.com"
             GRIDFS_RESOURCES: "DocumentReference"
-            ENABLE_CONSENT_UPDATE: '1'
+            ENABLE_SENSITIVE_DATA_ACCESS_UPDATE: '0'
         ports:
             - '3000:3000'
         volumes:

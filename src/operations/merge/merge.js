@@ -401,7 +401,7 @@ class MergeOperation {
                 requestId,
                 fnTask: async () => await this.changeEventProducer.flushAsync({requestId})
             });
-            if (this.configManager.enabledConsentUpdate) {
+            if (this.configManager.enabledSensitiveDataAccessUpdate) {
                 this.postRequestProcessor.add({
                     requestId,
                     fnTask: async() => {

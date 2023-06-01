@@ -101,12 +101,13 @@ class SensitiveDataProcessor {
     getListOfPatientFromResource(obj, paths, currentPath, patientIds) {
         if (Array.isArray(obj)) {
             for (let item of obj) {
-                // If
+                // If the current path is not included in the path where patient reference is present continue
                 if (!paths.includes(item)) {continue;}
                 this.getListOfPatientFromResource(item, paths, currentPath, patientIds);
             }
         } else if (typeof obj === 'object') {
             for (let key in obj) {
+                // Append current field we are operating to the new Path.
                 const newPath = currentPath ? `${currentPath}.${key}` : key;
                 if (paths === newPath && obj[key].startsWith('Patient/')) {
                     patientIds.add(obj[key]);
