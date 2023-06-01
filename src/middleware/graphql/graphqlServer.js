@@ -10,17 +10,22 @@ const {loadFilesSync} = require('@graphql-tools/load-files');
 const {mergeTypeDefs} = require('@graphql-tools/merge');
 const {FhirDataSource} = require('../../graphql/v2/dataSource');
 
+// const {
+//     ApolloServerPluginLandingPageGraphQLPlayground,
+//     // ApolloServerPluginLandingPageDisabled
+// } = require('@apollo/server-plugin-landing-page-graphql-playground');
 const {
-    ApolloServerPluginLandingPageGraphQLPlayground,
-    // ApolloServerPluginLandingPageDisabled
-} = require('@apollo/server-plugin-landing-page-graphql-playground');
+    ApolloServerPluginLandingPageLocalDefault,
+    // ApolloServerPluginLandingPageProductionDefault
+} = require('@apollo/server/plugin/landingPage/default');
+
 const {getBundleMetaApolloServerPlugin} = require('./plugins/graphqlBundleMetaPlugin');
 const {getApolloServerLoggingPlugin} = require('./plugins/graphqlLoggingPlugin');
 const {FhirRequestInfo} = require('../../utils/fhirRequestInfo');
 const {generateUUID} = require('../../utils/uid.util');
 const {getAddRequestIdToResponseHeadersPlugin} = require('./plugins/graphqlAddRequestIdToResponseHeadersPlugin');
 const contentType = require('content-type');
-const { getValidateMissingVariableValuesPlugin } = require('./plugins/graphqlValidateMissingVariableValuesPlugin');
+const {getValidateMissingVariableValuesPlugin} = require('./plugins/graphqlValidateMissingVariableValuesPlugin');
 const httpContext = require('express-http-context');
 // const {unwrapResolverError} = require('@apollo/server/errors');
 // const {ForbiddenError} = require('../../utils/httpErrors');
@@ -43,16 +48,18 @@ const graphql = async (fnCreateContainer) => {
         // request.credentials is set so we receive cookies
         // https://github.com/graphql/graphql-playground#settings
         // eslint-disable-next-line new-cap
-        ApolloServerPluginLandingPageGraphQLPlayground(
-            {
-                settings: {
-                    'request.credentials': 'same-origin',
-                    'schema.polling.enable': false, // enables automatic schema polling
-                },
-                cdnUrl: 'https://cdn.jsdelivr.net/npm',
-                faviconUrl: '',
-            }
-        ),
+        // ApolloServerPluginLandingPageGraphQLPlayground(
+        //     {
+        //         settings: {
+        //             'request.credentials': 'same-origin',
+        //             'schema.polling.enable': false, // enables automatic schema polling
+        //         },
+        //         cdnUrl: 'https://cdn.jsdelivr.net/npm',
+        //         faviconUrl: '',
+        //     }
+        // ),
+        // eslint-disable-next-line new-cap
+        ApolloServerPluginLandingPageLocalDefault(),
         // eslint-disable-next-line new-cap
         // ApolloServerPluginLandingPageLocalDefault({
         //     footer: false,
