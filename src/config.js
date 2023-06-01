@@ -110,7 +110,16 @@ if (env.AUDIT_EVENT_ONLINE_ARCHIVE_CLUSTER_MONGO_URL) {
  * @summary Configurations for our Mongo instance
  * @type {{connection: string, db_name: string, options: import('mongodb').MongoClientOptions }}
  */
-let accessLogsMongoConfig = { ...auditEventMongoConfig };
+let accessLogsMongoConfig = {
+    connection: auditEventMongoConfig.connection,
+    db_name: auditEventMongoConfig.db_name,
+    options: {
+        ...auditEventMongoConfig.options,
+        poolSize: auditEventMongoConfig.options.minPoolSize,
+        useUnifiedTopology: true
+    }
+};
+delete accessLogsMongoConfig.options.compressors;
 if (env.ACCESS_LOGS_MONGO_DB_NAME) {
     accessLogsMongoConfig.db_name = String(env.ACCESS_LOGS_MONGO_DB_NAME);
 }

@@ -7,7 +7,6 @@ const {isTrue} = require('./isTrue');
 const Transport = require('winston-transport');
 const {assertIsValid} = require('./assertType');
 const {accessLogsMongoConfig} = require('../config');
-const {MongoClient} = require('mongodb');
 
 const Mutex = require('async-mutex').Mutex;
 const mutex = new Mutex();
@@ -177,7 +176,8 @@ class FhirLogger {
              * @type {require('winston-mongodb').MongoDB}
              */
             const mongodbTransport = new MongoDB({
-                db: new MongoClient(accessLogsMongoConfig.connection, accessLogsMongoConfig.options),
+                db: accessLogsMongoConfig.connection,
+                options: accessLogsMongoConfig.options,
                 dbName: accessLogsMongoConfig.db_name,
                 name: 'access_logs',
                 collection: env.ACCESS_LOGS_COLLECTION_NAME ? String(env.ACCESS_LOGS_COLLECTION_NAME) : 'access_logs',
