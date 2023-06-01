@@ -26,7 +26,8 @@ const {PreSaveManager} = require('../../preSaveHandlers/preSave');
 const async = require('async');
 const {QueryItem} = require('../graph/queryItem');
 const {FhirResourceCreator} = require('../../fhir/fhirResourceCreator');
-
+const {SensitiveDataProcessor} = require('../../utils/sensitiveDataProcessor');
+const {ConfigManager} = require('../../utils/configManager');
 class MergeOperation {
     /**
      * @param {MergeManager} mergeManager
@@ -42,6 +43,8 @@ class MergeOperation {
      * @param {ResourceLocatorFactory} resourceLocatorFactory
      * @param {ResourceValidator} resourceValidator
      * @param {PreSaveManager} preSaveManager
+     * @param {SensitiveDataProcessor} sensitiveDataProcessor
+     * @param {ConfigManager} configManager
      */
     constructor(
         {
@@ -57,7 +60,9 @@ class MergeOperation {
             bundleManager,
             resourceLocatorFactory,
             resourceValidator,
-            preSaveManager
+            preSaveManager,
+            sensitiveDataProcessor,
+            configManager
         }
     ) {
         /**
@@ -128,6 +133,18 @@ class MergeOperation {
          */
         this.preSaveManager = preSaveManager;
         assertTypeEquals(preSaveManager, PreSaveManager);
+
+        /**
+         * @type {SensitiveDataProcessor}
+         */
+        this.sensitiveDataProcessor = sensitiveDataProcessor;
+        assertTypeEquals(sensitiveDataProcessor, SensitiveDataProcessor);
+
+        /**
+         * @type {ConfigManager}
+         */
+        this.configManager = configManager;
+        assertTypeEquals(configManager, ConfigManager);
     }
 
     /**
@@ -384,6 +401,15 @@ class MergeOperation {
                 requestId,
                 fnTask: async () => await this.changeEventProducer.flushAsync({requestId})
             });
+            if (this.configManager.enabledConsentUpdate) {
+                this.postRequestProcessor.add({
+                    requestId,
+                    fnTask: async() => {
+                        await this.sensitiveDataProcessor.addSensitiveDataAccessTags({resource: resourcesIncomingArray});
+                    }
+                });
+            }
+
 
             // add in any pre-merge failures
             mergeResults = mergeResults.concat(mergePreCheckErrors);

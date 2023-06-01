@@ -22,6 +22,7 @@ const {ParsedArgs} = require('../query/parsedArgs');
 const {ConfigManager} = require('../../utils/configManager');
 const {FhirResourceCreator} = require('../../fhir/fhirResourceCreator');
 const {DatabaseAttachmentManager} = require('../../dataLayer/databaseAttachmentManager');
+const {SensitiveDataProcessor} = require('../../utils/sensitiveDataProcessor');
 const {RETRIEVE} = require('../../constants').GRIDFS;
 
 /**
@@ -42,6 +43,7 @@ class UpdateOperation {
      * @param {ResourceMerger} resourceMerger
      * @param {ConfigManager} configManager
      * @param {DatabaseAttachmentManager} databaseAttachmentManager
+     * @param {SensitiveDataProcessor} sensitiveDataProcessor
      */
     constructor(
         {
@@ -56,7 +58,8 @@ class UpdateOperation {
             databaseBulkInserter,
             resourceMerger,
             configManager,
-            databaseAttachmentManager
+            databaseAttachmentManager,
+            sensitiveDataProcessor
         }
     ) {
         /**
@@ -122,6 +125,12 @@ class UpdateOperation {
          */
         this.databaseAttachmentManager = databaseAttachmentManager;
         assertTypeEquals(databaseAttachmentManager, DatabaseAttachmentManager);
+
+        /**
+         * @type {SensitiveDataProcessor}
+         */
+        this.sensitiveDataProcessor = sensitiveDataProcessor;
+        assertTypeEquals(sensitiveDataProcessor, SensitiveDataProcessor);
     }
 
     /**
@@ -377,6 +386,14 @@ class UpdateOperation {
                         await this.changeEventProducer.flushAsync({requestId});
                     }
                 });
+                if (this.configManager.enabledConsentUpdate) {
+                    this.postRequestProcessor.add({
+                        requestId,
+                        fnTask: async() => {
+                            await this.sensitiveDataProcessor.addSensitiveDataAccessTags({resource: doc});
+                        }
+                    });
+                }
                 return result;
             } else {
                 // not modified

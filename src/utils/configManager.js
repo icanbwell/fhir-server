@@ -285,6 +285,13 @@ class ConfigManager {
     get enabledGridFsResources() {
         return env.GRIDFS_RESOURCES ? env.GRIDFS_RESOURCES.split(',') : [];
     }
+
+    /**
+     * Whether consent needs to be updated for patients
+     */
+    get enabledConsentUpdate() {
+        return isTrue(env.ENABLE_CONSENT_UPDATE);
+    }
 }
 
 module.exports = {

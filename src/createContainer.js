@@ -81,6 +81,7 @@ const {GlobalIdEnrichmentProvider} = require('./enrich/providers/globalIdEnrichm
 const {ReferenceGlobalIdHandler} = require('./preSaveHandlers/handlers/referenceGlobalIdHandler');
 const {OwnerColumnHandler} = require('./preSaveHandlers/handlers/ownerColumnHandler');
 const {HashReferencesEnrichmentProvider} = require('./enrich/providers/hashedReferencesEnrichmentProvider');
+const { SensitiveDataProcessor } = require('./utils/sensitiveDataProcessor');
 
 /**
  * Creates a container and sets up all the services
@@ -167,6 +168,10 @@ const createContainer = function () {
             requestSpecificCache: c.requestSpecificCache
         }
     ));
+    container.register('sensitiveDataProcessor', (c) => new SensitiveDataProcessor({
+        databaseQueryFactory: c.databaseQueryFactory,
+        patientFilterManager: c.patientFilterManager
+    }));
 
     container.register('partitioningManager', (c) => new PartitioningManager(
         {
@@ -381,7 +386,8 @@ const createContainer = function () {
                 resourceValidator: c.resourceValidator,
                 databaseBulkInserter: c.databaseBulkInserter,
                 configManager: c.configManager,
-                databaseAttachmentManager: c.databaseAttachmentManager
+                databaseAttachmentManager: c.databaseAttachmentManager,
+                sensitiveDataProcessor: c.sensitiveDataProcessor
             }
         )
     );
@@ -400,7 +406,8 @@ const createContainer = function () {
                 databaseBulkInserter: c.databaseBulkInserter,
                 resourceMerger: c.resourceMerger,
                 configManager: c.configManager,
-                databaseAttachmentManager: c.databaseAttachmentManager
+                databaseAttachmentManager: c.databaseAttachmentManager,
+                sensitiveDataProcessor: c.sensitiveDataProcessor
             }
         )
     );
@@ -418,7 +425,9 @@ const createContainer = function () {
             bundleManager: c.bundleManager,
             resourceLocatorFactory: c.resourceLocatorFactory,
             resourceValidator: c.resourceValidator,
-            preSaveManager: c.preSaveManager
+            preSaveManager: c.preSaveManager,
+            sensitiveDataProcessor: c.sensitiveDataProcessor,
+            configManager: c.configManager
         }
     ));
     container.register('everythingOperation', (c) => new EverythingOperation({
@@ -488,7 +497,9 @@ const createContainer = function () {
             fhirLoggingManager: c.fhirLoggingManager,
             scopesValidator: c.scopesValidator,
             databaseBulkInserter: c.databaseBulkInserter,
-            databaseAttachmentManager: c.databaseAttachmentManager
+            databaseAttachmentManager: c.databaseAttachmentManager,
+            sensitiveDataProcessor: c.sensitiveDataProcessor,
+            configManager: c.configManager
         }
     ));
     container.register('validateOperation', (c) => new ValidateOperation(
