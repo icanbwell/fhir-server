@@ -114,8 +114,8 @@ let accessLogsMongoConfig = {
     connection: auditEventMongoConfig.connection,
     db_name: auditEventMongoConfig.db_name,
     options: {
-        ...auditEventMongoConfig.options,
-        poolSize: auditEventMongoConfig.options.minPoolSize,
+        ...options,
+        poolSize: options.minPoolSize,
         useUnifiedTopology: true
     }
 };
