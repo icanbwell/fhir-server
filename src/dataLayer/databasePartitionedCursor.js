@@ -382,8 +382,13 @@ class DatabasePartitionedCursor {
                     }
                 }
             );
-            // explanation is needed only from the first collection
-            return this._cursors.length > 0 ? [(await this._cursors[0].cursor.explain())] : [];
+            if (this.resourceType === 'AuditEvent') {
+                // due to online archiving, default of 'allPlansExecution' not available
+                return this._cursors.length > 0 ? [(await this._cursors[0].cursor.explain('queryPlanner'))] : [];
+            } else {
+                // explanation is needed only from the first collection
+                return this._cursors.length > 0 ? [(await this._cursors[0].cursor.explain())] : [];
+            }
         } catch (e) {
             throw new RethrownError({
                 collections: this._cursors.map(c => c.collection),
