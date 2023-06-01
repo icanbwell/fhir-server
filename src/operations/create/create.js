@@ -21,6 +21,7 @@ const {SecurityTagSystem} = require('../../utils/securityTagSystem');
 const {ConfigManager} = require('../../utils/configManager');
 const {FhirResourceCreator} = require('../../fhir/fhirResourceCreator');
 const { DatabaseAttachmentManager } = require('../../dataLayer/databaseAttachmentManager');
+const { SensitiveDataProcessor } = require('../../utils/sensitiveDataProcessor');
 
 class CreateOperation {
     /**
@@ -35,6 +36,7 @@ class CreateOperation {
      * @param {DatabaseBulkInserter} databaseBulkInserter
      * @param {ConfigManager} configManager
      * @param {DatabaseAttachmentManager} databaseAttachmentManager
+     * @param {SensitiveDataProcessor} sensitiveDataProcessor
      */
     constructor(
         {
@@ -47,7 +49,8 @@ class CreateOperation {
             resourceValidator,
             databaseBulkInserter,
             configManager,
-            databaseAttachmentManager
+            databaseAttachmentManager,
+            sensitiveDataProcessor
         }
     ) {
         /**
@@ -103,6 +106,12 @@ class CreateOperation {
          */
         this.databaseAttachmentManager = databaseAttachmentManager;
         assertTypeEquals(databaseAttachmentManager, DatabaseAttachmentManager);
+
+        /**
+         * @type {SensitiveDataProcessor}
+         */
+        this.sensitiveDataProcessor = sensitiveDataProcessor;
+        assertTypeEquals(sensitiveDataProcessor, SensitiveDataProcessor);
     }
 
     /**
@@ -302,6 +311,14 @@ class CreateOperation {
                     await this.changeEventProducer.flushAsync({requestId});
                 }
             });
+            if (this.configManager.enabledConsentUpdate) {
+                this.postRequestProcessor.add({
+                    requestId,
+                    fnTask: async() => {
+                        await this.sensitiveDataProcessor.addSensitiveDataAccessTags({resource: doc});
+                    }
+                });
+            }
 
             return doc;
         } catch (/** @type {Error} */ e) {

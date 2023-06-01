@@ -15,6 +15,8 @@ const {fhirContentTypes} = require('../../utils/contentTypes');
 const {ParsedArgs} = require('../query/parsedArgs');
 const {FhirResourceCreator} = require('../../fhir/fhirResourceCreator');
 const {DatabaseAttachmentManager} = require('../../dataLayer/databaseAttachmentManager');
+const {SensitiveDataProcessor} = require('../../utils/sensitiveDataProcessor');
+const {ConfigManager} = require('../../utils/configManager');
 const {DELETE, RETRIEVE} = require('../../constants').GRIDFS;
 
 class PatchOperation {
@@ -27,6 +29,8 @@ class PatchOperation {
      * @param {ScopesValidator} scopesValidator
      * @param {DatabaseBulkInserter} databaseBulkInserter
      * @param {DatabaseAttachmentManager} databaseAttachmentManager
+     * @param {SensitiveDataProcessor} sensitiveDataProcessor
+     * @param {ConfigManager} configManager
      */
     constructor(
         {
@@ -36,7 +40,9 @@ class PatchOperation {
             fhirLoggingManager,
             scopesValidator,
             databaseBulkInserter,
-            databaseAttachmentManager
+            databaseAttachmentManager,
+            sensitiveDataProcessor,
+            configManager
         }
     ) {
         /**
@@ -74,6 +80,18 @@ class PatchOperation {
          */
         this.databaseAttachmentManager = databaseAttachmentManager;
         assertTypeEquals(databaseAttachmentManager, DatabaseAttachmentManager);
+
+        /**
+         * @type {SensitiveDataProcessor}
+         */
+        this.sensitiveDataProcessor = sensitiveDataProcessor;
+        assertTypeEquals(sensitiveDataProcessor, SensitiveDataProcessor);
+
+        /**
+         * @type {ConfigManager}
+         */
+        this.configManager = configManager;
+        assertTypeEquals(configManager, ConfigManager);
     }
 
     /**
@@ -240,6 +258,14 @@ class PatchOperation {
                     await this.changeEventProducer.flushAsync({requestId});
                 }
             });
+            if (this.configManager.enabledConsentUpdate) {
+                this.postRequestProcessor.add({
+                    requestId,
+                    fnTask: async() => {
+                        await this.sensitiveDataProcessor.addSensitiveDataAccessTags({resource: resource});
+                    }
+                });
+            }
 
             // converting attachment._file_id to attachment.data for the response
             resource = await this.databaseAttachmentManager.transformAttachments(resource, RETRIEVE);
