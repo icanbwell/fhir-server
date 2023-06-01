@@ -957,13 +957,13 @@ class DatabaseBulkInserter extends EventEmitter {
                         /**
                          * @type {number}
                          */
-                        const actualInsertsByUniqueIdCount = bulkWriteResult.nUpserted;
+                        const actualInsertsByUniqueIdCount = bulkWriteResult.upsertedCount;
 
                         // 1. check if we got same number of inserts as we expected
                         //      If we did not, it means someone else inserted this resource.  Then we have to use update instead of insert
                         if (this.configManager.handleConcurrency &&
                             expectedInsertsByUniqueIdCount > 0 &&
-                            expectedInsertsByUniqueIdCount !== actualInsertsByUniqueIdCount
+                            expectedInsertsByUniqueIdCount > actualInsertsByUniqueIdCount
                         ) {
                             await logTraceSystemEventAsync(
                                 {
@@ -999,9 +999,9 @@ class DatabaseBulkInserter extends EventEmitter {
                         /**
                          * @type {number}
                          */
-                        const actualUpdatesCount = bulkWriteResult.nMatched - bulkWriteResult.nUpserted;
+                        const actualUpdatesCount = bulkWriteResult.modifiedCount;
                         if (this.configManager.handleConcurrency && expectedUpdatesCount > 0 &&
-                            actualUpdatesCount !== expectedUpdatesCount) {
+                            actualUpdatesCount < expectedUpdatesCount) {
                             // concurrency check failed (another parallel process updated atleast one resource)
                             // process one by one
                             await logTraceSystemEventAsync(

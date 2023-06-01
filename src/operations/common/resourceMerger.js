@@ -2,7 +2,6 @@ const deepEqual = require('fast-deep-equal');
 const {mergeObject} = require('../../utils/mergeHelper');
 const {compare, applyPatch} = require('fast-json-patch');
 const moment = require('moment-timezone');
-const { logInfo } = require('./logging');
 const {assertTypeEquals} = require('../../utils/assertType');
 const {PreSaveManager} = require('../../preSaveHandlers/preSave');
 const {IdentifierSystem} = require('../../utils/identifierSystem');
@@ -195,8 +194,6 @@ class ResourceMerger {
         meta.versionId = incrementVersion ?
             `${parseInt(currentResource.meta.versionId) + 1}` :
             currentResource.meta.versionId;
-        logInfo(`Updating versionId for ${currentResource.resourceType}/${currentResource._uuid} from ` +
-                    `${currentResource.meta.versionId} to ${meta.versionId}`, {});
         meta.lastUpdated = new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ssZ'));
         // set the source from the incoming resource
         meta.source = original_source;
