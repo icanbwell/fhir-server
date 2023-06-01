@@ -327,7 +327,7 @@ class ChangeEventProducer {
                 }
             }
         }
-        if (resourceType === 'Person') {
+        if (resourceType === 'Person' && this.bwellPersonFinder.isBwellPerson(doc)) {
             const proxyPatientId = `person.${doc.id}`;
             if (eventType === 'C') {
                 await this.onPatientCreateAsync({

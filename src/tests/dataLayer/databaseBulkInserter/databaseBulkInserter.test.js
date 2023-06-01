@@ -1,4 +1,6 @@
 const patient = require('./fixtures/patient.json');
+const bwellPerson = require('./fixtures/bwellPerson.json');
+const clientPerson = require('./fixtures/clientPerson.json');
 const observation = require('./fixtures/observation.json');
 const consent = require('./fixtures/consent.json');
 const {describe, expect, beforeEach, afterEach, test} = require('@jest/globals');
@@ -8,6 +10,7 @@ const {createTestContainer} = require('../../createTestContainer');
 const {ChangeEventProducer} = require('../../../utils/changeEventProducer');
 const env = require('var');
 const Patient = require('../../../fhir/classes/4_0_0/resources/patient');
+const Person = require('../../../fhir/classes/4_0_0/resources/person');
 const Observation = require('../../../fhir/classes/4_0_0/resources/observation');
 const Consent = require('../../../fhir/classes/4_0_0/resources/consent');
 const CodeSystem = require('../../../fhir/classes/4_0_0/resources/codeSystem');
@@ -176,6 +179,72 @@ describe('databaseBulkInserter Tests', () => {
             expect(onPatientChangeAsyncMock).toBeCalledTimes(2);
             expect(onConsentCreateAsync).toBeCalledTimes(1);
             expect(onConsentChangeAsync).toBeCalledTimes(0);
+        });
+        test('execAsync works for Person change events', async () => {
+            /**
+             * @type {string}
+             */
+            const currentDate = moment.utc().format('YYYY-MM-DD');
+
+            const container = createTestContainer((container1) => {
+                container1.register(
+                    'changeEventProducer',
+                    (c) =>
+                        new MockChangeEventProducer({
+                            kafkaClientFactory: c.kafkaClientFactory,
+                            resourceManager: c.resourceManager,
+                            patientChangeTopic: env.KAFKA_PATIENT_CHANGE_TOPIC || 'business.events',
+                            consentChangeTopic: env.KAFKA_PATIENT_CHANGE_TOPIC || 'business.events',
+                            bwellPersonFinder: c.bwellPersonFinder,
+                            requestSpecificCache: c.requestSpecificCache
+                        })
+                );
+                return container1;
+            });
+
+            // noinspection JSCheckFunctionSignatures
+            const onPatientCreateAsyncMock = jest
+                .spyOn(MockChangeEventProducer.prototype, 'onPatientCreateAsync')
+                .mockImplementation(() => {
+                });
+            // noinspection JSCheckFunctionSignatures
+            const onPatientChangeAsyncMock = jest
+                .spyOn(MockChangeEventProducer.prototype, 'onPatientChangeAsync')
+                .mockImplementation(() => {
+                });
+            /**
+             * @type {DatabaseBulkInserter}
+             */
+            const databaseBulkInserter = container.databaseBulkInserter;
+            const requestId = '1234';
+
+            await databaseBulkInserter.insertOneAsync({
+                requestId: requestId,
+                resourceType: 'Person', doc: new Person(bwellPerson)
+            });
+            await databaseBulkInserter.insertOneAsync({
+                requestId: requestId,
+                resourceType: 'Person', doc: new Person(clientPerson)
+            });
+
+            // now execute the bulk inserts
+            const base_version = '4_0_0';
+            await databaseBulkInserter.executeAsync({
+                requestId: requestId,
+                currentDate,
+                base_version,
+                method: 'POST'
+            });
+
+            /**
+             * @type {PostRequestProcessor}
+             */
+            const postRequestProcessor = container.postRequestProcessor;
+            await postRequestProcessor.executeAsync({requestId});
+            await postRequestProcessor.waitTillDoneAsync({requestId});
+
+            expect(onPatientCreateAsyncMock).toBeCalledTimes(1);
+            expect(onPatientChangeAsyncMock).toBeCalledTimes(0);
         });
         test('execAsync handles mongo error', async () => {
             /**
