@@ -27,7 +27,7 @@ up:
 	if [ "`docker inspect --format {{.State.Health.Status}} fhir-dev-fhir-1`" != "healthy" ]; then docker ps && docker logs fhir-dev-fhir-1 && printf "========== ERROR: fhir-dev-mongo-1 did not start. Run docker logs fhir-dev-fhir-1 =========\n" && exit 1; fi
 	@echo "\nElastic Search Kibana: http://localhost:5601/ (admin:admin)" && \
 	echo "Elastic Search: https://localhost:9200/fhir-logs-*/_search (admin:admin)" && \
-	echo FHIR server GraphQL: http://localhost:3000/graphqlv2 && \
+	echo FHIR server GraphQL: http://localhost:3000/graphql && \
 	echo FHIR server Metrics: http://localhost:3000/metrics && \
 	echo Kafka UI: http://localhost:9000 && \
 	echo FHIR server: http://localhost:3000
