@@ -936,7 +936,7 @@ module.exports = {
                 }
             }
         ],
-        'SupplyRequest': [
+        'SupplyRequest_4_0_0': [
             {
                 keys: {
                     'requester._uuid': 1,
