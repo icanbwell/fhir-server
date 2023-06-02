@@ -776,12 +776,12 @@ module.exports = {
                 keys: {
                     'meta.security.system': 1,
                     'meta.security.code': 1,
-                    '_sourceId': 1,
                     'id': 1,
-                    '_uuid': 1
+                    '_uuid': 1,
+                    '_sourceId': 1
                 },
                 options: {
-                    name: 'practitioner.metaSecuritySystemCode_sourceIdId_uuid'
+                    name: 'practitioner.metaSecuritySystemCodeId_uuid_sourceId'
                 },
             }
         ],
