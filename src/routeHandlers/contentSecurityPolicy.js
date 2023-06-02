@@ -7,7 +7,7 @@ module.exports.handleSecurityPolicy = function (req, res, next) {
     if (!res.headersSent) {
         res.setHeader(
             'Content-Security-Policy',
-            "default-src 'self'; " +
+            "default-src 'self' embeddable-sandbox.cdn.apollographql.com apollo-server-landing-page.cdn.apollographql.com; " +
             "object-src data: 'unsafe-eval'; " +
             "font-src 'self' https://fonts.gstatic.com; " +
             "img-src 'self' 'unsafe-inline' 'unsafe-hashes' 'unsafe-eval' data: http://cdn.jsdelivr.net https://embeddable-sandbox.cdn.apollographql.com https://apollo-server-landing-page.cdn.apollographql.com " + env.AUTH_CODE_FLOW_URL + ';' +
