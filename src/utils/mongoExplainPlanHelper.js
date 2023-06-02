@@ -61,7 +61,7 @@ class MongoExplainPlanHelper {
          */
         const winningPlan = explanation.executionStats && explanation.executionStats.executionStages ?
             explanation.executionStats.executionStages :
-            explanation.queryPlanner.winningPlan;
+            explanation.queryPlanner.winningPlan ? explanation.queryPlanner.winningPlan : {};
 
         const executionStats = explanation.executionStats;
         /**
