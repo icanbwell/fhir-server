@@ -10,7 +10,7 @@ const {
     getHeadersWithCustomToken,
     createTestRequest,
     getUnAuthenticatedHeaders,
-    getFullAccessToken, getHeadersWithCustomPayload, setMockOpenId,
+    getFullAccessToken, getHeadersWithCustomPayload, getTokenWithCustomPayload, setMockOpenIdServer,
 } = require('../../common');
 const {describe, beforeEach, afterEach, expect, test} = require('@jest/globals');
 const {logInfo} = require('../../../operations/common/logging');
@@ -96,13 +96,17 @@ describe('PatientReturnIdWithCustomBearerTokenTests', () => {
     describe('Patient Search By Id Tests With access Bearer Token only', () => {
         test('search by single id works', async () => {
             const request = await createTestRequest();
-            const headers = getHeadersWithCustomPayload({
+            const payload = {
                 'sub': 'f559569d-a6c8-4f70-8447-489b42f48b07',
                 'token_use': 'access',
                 'scope': 'launch/patient patient/Patient.read patient/*.read phone openid profile email',
                 'username': 'bwell-demo-provider'
-            });
-            setMockOpenId();
+            };
+            const headers = getHeadersWithCustomPayload(payload);
+            const token = getTokenWithCustomPayload(payload);
+            const patientId = '1';
+            const personId = '10';
+            setMockOpenIdServer({token, patientId, personId});
             let resp = await request
                 .get('/4_0_0/Patient')
                 .set(headers)

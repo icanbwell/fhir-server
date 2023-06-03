@@ -104,10 +104,20 @@ module.exports.commonBeforeEach = async () => {
     });
 };
 
-module.exports.setMockOpenId = () => {
+/**
+ * sets up mock OpenId server
+ * @param {string} token
+ * @param {string} patientId
+ * @param {string} personId
+ */
+module.exports.setMockOpenIdServer = ({token, patientId, personId}) => {
     const discoveryUrlObject = new URL(env.AUTH_ISSUER);
     jwksDiscoveryEndpoint(discoveryUrlObject.protocol + '//' + discoveryUrlObject.host);
-    jwksUserInfoEndpoint(discoveryUrlObject.protocol + '//' + discoveryUrlObject.host);
+    jwksUserInfoEndpoint(
+        {
+            host: discoveryUrlObject.protocol + '//' + discoveryUrlObject.host,
+            token, patientId, personId
+        });
 };
 
 /**
