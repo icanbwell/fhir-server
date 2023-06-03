@@ -38,6 +38,7 @@ class SecurityTagManager {
      * returns security tags to filter by based on the scope
      * @param {string} user
      * @param {string} scope
+     * @param {boolean} hasPatientScope
      * @return {string[]}
      */
     getSecurityTagsFromScope({user, scope, hasPatientScope}) {

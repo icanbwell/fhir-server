@@ -130,7 +130,7 @@ describe('PatientReturnIdWithCustomBearerTokenTests', () => {
 
             resp = await request.get('/4_0_0/Patient').set(headers);
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveStatusOk();
+            expect(resp).toHaveResourceCount(1);
 
             resp = await request
                 .get('/4_0_0/Patient/00100000000')
