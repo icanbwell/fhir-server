@@ -10,6 +10,7 @@ const {logDebug} = require('../operations/common/logging');
 const {isTrue} = require('../utils/isTrue');
 const async = require('async');
 const superagent = require('superagent');
+const {Issuer} = require('openid-client');
 
 const requiredJWTFields = [
     'custom:clientFhirPersonId',
@@ -62,14 +63,88 @@ const getExternalJwksAsync = async () => {
     return [];
 };
 
+const getUserInfo = async (accessToken) => {
+    // const issuerUrl = 'https://cognito-idp.us-east-1.amazonaws.com/us-east-1_yiNhNGXZ7'; // env.AUTH_ISSUER
+    const issuerUrl = env.AUTH_ISSUER;
+    const oauthIssuer = await Issuer.discover(issuerUrl);
+    // const accessToken = 'eyJraWQiOiJvY2NDUk9WMkRzVjY1T0wrQzFIWmNuZmpDQ2dKOFV2UEh6ZzhnVVwvajZuaz0iLCJhbGciOiJSUzI1NiJ9.eyJzdWIiOiI0b3BvY2ltZGhwcG9rbjFrczBocGJvOWZrdiIsInRva2VuX3VzZSI6ImFjY2VzcyIsInNjb3BlIjoiYWNjZXNzXC8qLiogdXNlclwvKi5yZWFkIiwiYXV0aF90aW1lIjoxNjg1ODE5Njk3LCJpc3MiOiJodHRwczpcL1wvY29nbml0by1pZHAudXMtZWFzdC0xLmFtYXpvbmF3cy5jb21cL3VzLWVhc3QtMV95Vjd3dkQ0eEQiLCJleHAiOjE2ODU4MjMyOTcsImlhdCI6MTY4NTgxOTY5NywidmVyc2lvbiI6MiwianRpIjoiYmFkYWJmNDMtMjVjZS00YzljLWFhNTAtOTE5MzlmZGZlNWViIiwiY2xpZW50X2lkIjoiNG9wb2NpbWRocHBva24xa3MwaHBibzlma3YifQ.FDWjOLAzVXFsYDtMPHFvSGu0Jx-ZRGEV2S1raRg-aZI-cMl3XDWFaAc2sRiZuUx9dlDM20DvDoani9BMYj3V6si6qmJrS12sXNlSLbzI1DxFXhxuYCLOz5Xa5Nqhbh7BGX3R3kT8Ww4GiNzllUcpwM6dMdYwBYHm0QS5xBaXiXSofj9IOs0of_hbQFycv0BpOA-5yptOE-sFN-2XgyWT3RHYH1G580iYZJuFdt6coIegCLHzvMqQrjI7BaoFvUh7e4U2n5sA-3eBzJFsKuNyq_UY4lXH6uECDQy7ji1o4TFIszXPllN6-mX9ix6M34DwunxTfcfFP0x62lfEat4fqA';
+    const client = new oauthIssuer.Client({
+        client_id: '10q3aoeileg6n66tkm1ibjrsdl' // env.AUTH_CODE_FLOW_CLIENT_ID,
+        // client_secret: 'TQV5U29k1gHibH5bx1layBo0OSAvAbRT3UYW3EWrSYBB5swxjVfWUa1BS8lqzxG/0v9wruMcrGadany3',
+        // redirect_uris: ['http://localhost:3000/cb'],
+        // response_types: ['code'],
+        // id_token_signed_response_alg (default "RS256")
+        // token_endpoint_auth_method (default "client_secret_basic")
+    }); // => Client
+    const userInfo = await client.userinfo(accessToken);
+    return userInfo;
+};
+
+/**
+ * This callback type is called `requestCallback` and is displayed as a global symbol.
+ *
+ * @callback requestCallback
+ * @param {Object} user
+ * @param {Object} info
+ * @param {Object} [details]
+ */
+
+/**
+ * parses user info from payload
+ * @param username
+ * @param subject
+ * @param isUser
+ * @param jwt_payload
+ * @param done
+ * @param client_id
+ * @param scope
+ * @return {*}
+ */
+function parseUserInfoFromPayload({username, subject, isUser, jwt_payload, done, client_id, scope}) {
+    const context = {};
+    if (username) {
+        context['username'] = username;
+    }
+    if (subject) {
+        context['subject'] = subject;
+    }
+    if (isUser) {
+        context['isUser'] = isUser;
+        // Test that required fields are populated
+        let validInput = true;
+        requiredJWTFields.forEach((field) => {
+            if (!jwt_payload[`${field}`]) {
+                logDebug(`Error: ${field} field is missing`, {user: ''});
+                validInput = false;
+            }
+        });
+        if (!validInput) {
+            return done(null, false);
+        }
+        const fhirPatientId = jwt_payload['custom:bwell_fhir_id'];
+        if (jwt_payload['custom:bwell_fhir_ids']) {
+            const patientIdsFromJwtToken = jwt_payload['custom:bwell_fhir_ids'].split('|');
+            if (patientIdsFromJwtToken && patientIdsFromJwtToken.length > 0) {
+                context['patientIdsFromJwtToken'] = patientIdsFromJwtToken;
+            }
+        } else if (fhirPatientId) {
+            context['patientIdsFromJwtToken'] = [fhirPatientId];
+        }
+        context['personIdFromJwtToken'] = jwt_payload['custom:bwellFhirPersonId'];
+    }
+
+    return done(null, {id: client_id, isUser, name: username}, {scope, context});
+}
+
 // noinspection OverlyComplexFunctionJS,FunctionTooLongJS
 /**
  * extracts the client_id and scope from the decoded token
+ * @param {import('http').IncomingMessage} request
  * @param {Object} jwt_payload
- * @param done
+ * @param {requestCallback} done
  * @return {*}
  */
-const verify = (jwt_payload, done) => {
+const verify = (request, jwt_payload, done) => {
     if (jwt_payload) {
         /**
          * @type {boolean}
@@ -98,43 +173,41 @@ const verify = (jwt_payload, done) => {
          */
         const subject = jwt_payload.subject ? jwt_payload.subject : jwt_payload[env.AUTH_CUSTOM_SUBJECT];
 
+        /**
+         * @type {string}
+         */
+        const tokenUse = jwt_payload.token_use ? jwt_payload.token_use : null;
+
         if (groups.length > 0) {
             scope = scope + ' ' + groups.join(' ');
         }
 
-        const context = {};
-        if (username) {
-            context['username'] = username;
-        }
-        if (subject) {
-            context['subject'] = subject;
-        }
-        if (isUser) {
-            context['isUser'] = isUser;
-            // Test that required fields are populated
-            let validInput = true;
-            requiredJWTFields.forEach((field) => {
-                if (!jwt_payload[`${field}`]) {
-                    logDebug(`Error: ${field} field is missing`, {user: ''});
-                    validInput = false;
+        // see if there is a patient scope
+        const scopes = scope.split(' ');
+        if (
+            scopes.some(s => s.toLowerCase().startsWith('patient/')) &&
+            scopes.some(s => s.toLowerCase().startsWith('openid')) &&
+            scopes.every(s => !s.toLowerCase().startsWith('user/')) &&
+            tokenUse === 'access'
+        ) {
+            // we were passed an access token for a user and now need to get the user's info from our
+            // OpenID Connect provider
+            const authorizationHeader = request.header('Authorization');
+            const accessToken = authorizationHeader.split(' ').pop();
+            return getUserInfo(accessToken).then(
+                id_token_payload => parseUserInfoFromPayload(
+                    {
+                        username, subject, isUser, jwt_payload: id_token_payload, done, client_id, scope
+                    }
+                )
+            );
+        } else {
+            return parseUserInfoFromPayload(
+                {
+                    username, subject, isUser, jwt_payload, done, client_id, scope
                 }
-            });
-            if (!validInput) {
-                return done(null, false);
-            }
-            const fhirPatientId = jwt_payload['custom:bwell_fhir_id'];
-            if (jwt_payload['custom:bwell_fhir_ids']) {
-                const patientIdsFromJwtToken = jwt_payload['custom:bwell_fhir_ids'].split('|');
-                if (patientIdsFromJwtToken && patientIdsFromJwtToken.length > 0) {
-                    context['patientIdsFromJwtToken'] = patientIdsFromJwtToken;
-                }
-            } else if (fhirPatientId) {
-                context['patientIdsFromJwtToken'] = [fhirPatientId];
-            }
-            context['personIdFromJwtToken'] = jwt_payload['custom:bwellFhirPersonId'];
+            );
         }
-
-        return done(null, {id: client_id, isUser, name: username}, {scope, context});
     }
 
     return done(null, false);
@@ -143,6 +216,7 @@ const verify = (jwt_payload, done) => {
 /**
  * @classdesc we use this to override the JwtStrategy and redirect to login
  *     instead of just failing and returning a 401
+ *     https://www.passportjs.org/packages/passport-jwt/
  */
 class MyJwtStrategy extends JwtStrategy {
     constructor(options, verifyFn) {
@@ -239,6 +313,8 @@ module.exports.strategy = new MyJwtStrategy(
         // audience: 'urn:my-resource-server',
         // issuer: env.AUTH_ISSUER,
         algorithms: ['RS256'],
+        // pass request to verify callback
+        passReqToCallback: true
     },
     verify
 );
