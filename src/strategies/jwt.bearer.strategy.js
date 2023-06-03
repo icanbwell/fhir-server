@@ -192,6 +192,7 @@ const verify = (request, jwt_payload, done) => {
         ) {
             // we were passed an access token for a user and now need to get the user's info from our
             // OpenID Connect provider
+            isUser = true;
             const authorizationHeader = request.header('Authorization');
             const accessToken = authorizationHeader.split(' ').pop();
             return getUserInfo(accessToken).then(
