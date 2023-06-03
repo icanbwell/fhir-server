@@ -62,6 +62,7 @@ const getExternalJwksAsync = async () => {
     return [];
 };
 
+// noinspection OverlyComplexFunctionJS,FunctionTooLongJS
 /**
  * extracts the client_id and scope from the decoded token
  * @param {Object} jwt_payload
