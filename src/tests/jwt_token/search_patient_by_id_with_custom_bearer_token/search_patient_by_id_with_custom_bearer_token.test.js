@@ -10,7 +10,7 @@ const {
     getHeadersWithCustomToken,
     createTestRequest,
     getUnAuthenticatedHeaders,
-    getFullAccessToken, getHeadersWithCustomPayload, getTokenWithCustomPayload, setMockOpenIdServer,
+    getFullAccessToken, getHeadersWithCustomPayload, getTokenWithCustomPayload, setMockOpenIdServer, getHeaders,
 } = require('../../common');
 const {describe, beforeEach, afterEach, expect, test} = require('@jest/globals');
 const {logInfo} = require('../../../operations/common/logging');
@@ -104,7 +104,7 @@ describe('PatientReturnIdWithCustomBearerTokenTests', () => {
             };
             const headers = getHeadersWithCustomPayload(payload);
             const token = getTokenWithCustomPayload(payload);
-            const patientId = '1';
+            const patientId = '1679033641';
             const personId = '10';
             setMockOpenIdServer({token, patientId, personId});
             let resp = await request
@@ -115,20 +115,17 @@ describe('PatientReturnIdWithCustomBearerTokenTests', () => {
             resp = await request
                 .post('/4_0_0/Patient/1679033641/$merge?validate=true')
                 .send(patient1Resource)
-                .set(headers)
-                .expect(200);
-            logInfo('------- response patient1Resource ------------');
-            logInfo('', {'resp': resp.body});
-            logInfo('------- end response  ------------');
-            expect(resp.body['created']).toBe(true);
-            resp = await request.get('/4_0_0/Patient').set(getHeadersWithCustomToken()).expect(200);
-            logInfo('------- response 3 ------------');
-            logInfo('', {'resp': resp.body});
-            logInfo('------- end response 3 ------------');
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
+
+            resp = await request.get('/4_0_0/Patient').set(headers);
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveStatusOk();
+
             resp = await request
                 .get('/4_0_0/Patient/00100000000')
-                .set(headers)
-                .expect(200);
+                .set(headers);
 
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedSinglePatientResource);

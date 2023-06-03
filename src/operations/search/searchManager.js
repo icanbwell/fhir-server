@@ -165,7 +165,7 @@ class SearchManager {
             /**
              * @type {string[]}
              */
-            let securityTags = this.securityTagManager.getSecurityTagsFromScope({user, scope});
+            let securityTags = this.securityTagManager.getSecurityTagsFromScope({user, scope, hasPatientScope});
             /**
              * @type {import('mongodb').Document}
              */
