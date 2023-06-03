@@ -10,7 +10,7 @@ const {
     getHeadersWithCustomToken,
     createTestRequest,
     getUnAuthenticatedHeaders,
-    getFullAccessToken, getHeadersWithCustomPayload,
+    getFullAccessToken, getHeadersWithCustomPayload, setMockOpenId,
 } = require('../../common');
 const {describe, beforeEach, afterEach, expect, test} = require('@jest/globals');
 const {logInfo} = require('../../../operations/common/logging');
@@ -102,6 +102,7 @@ describe('PatientReturnIdWithCustomBearerTokenTests', () => {
                 'scope': 'launch/patient patient/Patient.read patient/*.read phone openid profile email',
                 'username': 'bwell-demo-provider'
             });
+            setMockOpenId();
             let resp = await request
                 .get('/4_0_0/Patient')
                 .set(headers)

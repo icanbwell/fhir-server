@@ -87,9 +87,6 @@ module.exports.commonBeforeEach = async () => {
     jwksEndpoint(urlObject.protocol + '//' + urlObject.host, urlObject.pathname, [
         {pub: publicKey, kid: '123'},
     ]);
-    const discoveryUrlObject = new URL(env.AUTH_ISSUER);
-    jwksDiscoveryEndpoint(discoveryUrlObject.protocol + '//' + discoveryUrlObject.host);
-    jwksUserInfoEndpoint(discoveryUrlObject.protocol + '//' + discoveryUrlObject.host);
     /**
      * @type {string[]}
      */
@@ -105,6 +102,12 @@ module.exports.commonBeforeEach = async () => {
             ]);
         }
     });
+};
+
+module.exports.setMockOpenId = () => {
+    const discoveryUrlObject = new URL(env.AUTH_ISSUER);
+    jwksDiscoveryEndpoint(discoveryUrlObject.protocol + '//' + discoveryUrlObject.host);
+    jwksUserInfoEndpoint(discoveryUrlObject.protocol + '//' + discoveryUrlObject.host);
 };
 
 /**
