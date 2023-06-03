@@ -1,7 +1,7 @@
 const env = require('var');
 
 // const {getToken} = require('../../token');
-const {jwksEndpoint, jwksDiscoveryEndpoint} = require('./mocks/jwks');
+const {jwksEndpoint, jwksDiscoveryEndpoint, jwksUserInfoEndpoint} = require('./mocks/jwks');
 const {publicKey, privateKey} = require('./mocks/keys');
 const {createToken} = require('./mocks/tokens');
 const nock = require('nock');
@@ -89,6 +89,7 @@ module.exports.commonBeforeEach = async () => {
     ]);
     const discoveryUrlObject = new URL(env.AUTH_ISSUER);
     jwksDiscoveryEndpoint(discoveryUrlObject.protocol + '//' + discoveryUrlObject.host);
+    jwksUserInfoEndpoint(discoveryUrlObject.protocol + '//' + discoveryUrlObject.host);
     /**
      * @type {string[]}
      */
