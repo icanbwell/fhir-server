@@ -39,6 +39,7 @@ function jwksEndpoint(host, path, certs) {
  */
 function jwksDiscoveryEndpoint(host) {
     return nock(host)
+        .persist()
         .get('/.well-known/openid-configuration')
         .reply(200, {
             'id_token_signing_alg_values_supported': ['RS256'],

@@ -196,10 +196,16 @@ const verify = (request, jwt_payload, done) => {
             const authorizationHeader = request.header('Authorization');
             const accessToken = authorizationHeader.split(' ').pop();
             return getUserInfo(accessToken).then(
-                () => {
-                    return done(null, false);
+                (id_token_payload) => {
+                    return parseUserInfoFromPayload(
+                        {
+                            username, subject, isUser, jwt_payload: id_token_payload, done, client_id, scope
+                        }
+                    );
                 }
-            );
+            ).catch(error => {
+                console.error(error);
+            });
         } else {
             return parseUserInfoFromPayload(
                 {
