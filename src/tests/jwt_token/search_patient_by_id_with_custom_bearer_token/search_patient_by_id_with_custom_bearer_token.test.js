@@ -1,5 +1,6 @@
 // provider file
 const patient1Resource = require('./fixtures/patient/patient1.json');
+const person1Resource = require('./fixtures/person/person1.json');
 
 // expected
 const expectedSinglePatientResource = require('./fixtures/expected/expected_single_patient.json');
@@ -104,7 +105,7 @@ describe('PatientReturnIdWithCustomBearerTokenTests', () => {
             };
             const headers = getHeadersWithCustomPayload(payload);
             const token = getTokenWithCustomPayload(payload);
-            const patientId = '1679033641';
+            const patientId = '00100000000';
             const personId = '10';
             setMockOpenIdServer({token, patientId, personId});
             let resp = await request
@@ -112,9 +113,17 @@ describe('PatientReturnIdWithCustomBearerTokenTests', () => {
                 .set(headers);
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResourceCount(0);
+
             resp = await request
-                .post('/4_0_0/Patient/1679033641/$merge?validate=true')
+                .post('/4_0_0/Patient/00100000000/$merge?validate=true')
                 .send(patient1Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
+
+            resp = await request
+                .post('/4_0_0/Person/10/$merge?validate=true')
+                .send(person1Resource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveMergeResponse({created: true});
