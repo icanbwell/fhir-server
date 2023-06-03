@@ -139,7 +139,7 @@ class SearchManager {
      * @param {string} personIdFromJwtToken
      * @param {ParsedArgs} parsedArgs
      * @param {boolean|undefined} [useHistoryTable]
-     * @returns {{base_version, columns: Set, query: import('mongodb').Document}}
+     * @returns Promise<{{base_version, columns: Set, query: import('mongodb').Document}}>
      */
     async constructQueryAsync(
         {

@@ -68,7 +68,7 @@ function jwksUserInfoEndpoint({host, token, patientId, personId}) {
                 authorization: `Bearer ${token}`,
             },
         }
-    )
+    ).persist()
         .get('/userInfo')
         .reply(200, () => {
             return {
