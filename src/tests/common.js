@@ -287,7 +287,7 @@ module.exports.getUnAuthenticatedGraphQLHeaders = () => {
 module.exports.getUnAuthenticatedHeaders = () => {
     return {
         'Content-Type': 'application/fhir+json',
-        Accept: 'application/fhir+json',
+        'Accept': 'application/fhir+json',
     };
 };
 

@@ -71,8 +71,26 @@ const getUserInfo = async (accessToken) => {
     const client = new oauthIssuer.Client({
         client_id: env.AUTH_CODE_FLOW_CLIENT_ID,
     }); // => Client
-    const userInfo = await client.userinfo(accessToken);
-    return userInfo;
+    return await client.userinfo(accessToken);
+};
+
+/**
+ * This function is called to extract the token from the jwt cookie
+ * @param {import('http').IncomingMessage} req
+ * @return {{claims: {[p: string]: string|number|boolean|string[]}, scopes: string[]}|null}
+ */
+const cookieExtractor = function (req) {
+    /**
+     * @type {string|null}
+     */
+    let token = null;
+    if (req && req.cookies) {
+        token = req.cookies['jwt'];
+        logDebug('Found cookie jwt', {user: '', args: {token: token}});
+    } else {
+        logDebug('No cookies found', {user: ''});
+    }
+    return token;
 };
 
 /**
@@ -189,8 +207,8 @@ const verify = (request, jwt_payload, done) => {
             // OpenID Connect provider
             isUser = true;
             const authorizationHeader = request.header('Authorization');
-            if (authorizationHeader) {
-                const accessToken = authorizationHeader.split(' ').pop();
+            const accessToken = authorizationHeader ? authorizationHeader.split(' ').pop() : cookieExtractor(request);
+            if (accessToken) {
                 return getUserInfo(accessToken).then(
                     (id_token_payload) => {
                         return parseUserInfoFromPayload(
@@ -254,24 +272,6 @@ class MyJwtStrategy extends JwtStrategy {
     }
 }
 
-/**
- * This function is called to extract the token from the jwt cookie
- * @param {import('http').IncomingMessage} req
- * @return {{claims: {[p: string]: string|number|boolean|string[]}, scopes: string[]}|null}
- */
-const cookieExtractor = function (req) {
-    /**
-     * @type {{claims: {[p: string]: string | number | boolean | string[]}; scopes: string[]}|null}
-     */
-    let token = null;
-    if (req && req.accepts('text/html') && req.cookies) {
-        token = req.cookies['jwt'];
-        logDebug('Found cookie jwt', {user: '', args: {token: token}});
-    } else {
-        logDebug('No cookies found', {user: ''});
-    }
-    return token;
-};
 
 /**
  * Bearer Strategy
