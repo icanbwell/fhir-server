@@ -13,10 +13,10 @@ const superagent = require('superagent');
 const {Issuer} = require('openid-client');
 
 const requiredJWTFields = [
-    'custom:clientFhirPersonId',
-    'custom:clientFhirPatientId',
+    // 'custom:clientFhirPersonId',
+    // 'custom:clientFhirPatientId',
     'custom:bwellFhirPersonId',
-    'custom:bwellFhirPatientId',
+    // 'custom:bwellFhirPatientId',
 ];
 
 /**
