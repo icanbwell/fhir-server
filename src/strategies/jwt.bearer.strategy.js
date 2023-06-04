@@ -6,7 +6,7 @@ const JwtStrategy = require('passport-jwt').Strategy;
 const ExtractJwt = require('passport-jwt').ExtractJwt;
 const jwksRsa = require('jwks-rsa');
 const env = require('var');
-const {logDebug} = require('../operations/common/logging');
+const {logDebug, logError} = require('../operations/common/logging');
 const {isTrue} = require('../utils/isTrue');
 const async = require('async');
 const superagent = require('superagent');
@@ -64,10 +64,8 @@ const getExternalJwksAsync = async () => {
 };
 
 const getUserInfo = async (accessToken) => {
-    // const issuerUrl = 'https://cognito-idp.us-east-1.amazonaws.com/us-east-1_yiNhNGXZ7'; // env.AUTH_ISSUER
     const issuerUrl = env.AUTH_ISSUER;
     const oauthIssuer = await Issuer.discover(issuerUrl);
-    // const accessToken = 'eyJraWQiOiJvY2NDUk9WMkRzVjY1T0wrQzFIWmNuZmpDQ2dKOFV2UEh6ZzhnVVwvajZuaz0iLCJhbGciOiJSUzI1NiJ9.eyJzdWIiOiI0b3BvY2ltZGhwcG9rbjFrczBocGJvOWZrdiIsInRva2VuX3VzZSI6ImFjY2VzcyIsInNjb3BlIjoiYWNjZXNzXC8qLiogdXNlclwvKi5yZWFkIiwiYXV0aF90aW1lIjoxNjg1ODE5Njk3LCJpc3MiOiJodHRwczpcL1wvY29nbml0by1pZHAudXMtZWFzdC0xLmFtYXpvbmF3cy5jb21cL3VzLWVhc3QtMV95Vjd3dkQ0eEQiLCJleHAiOjE2ODU4MjMyOTcsImlhdCI6MTY4NTgxOTY5NywidmVyc2lvbiI6MiwianRpIjoiYmFkYWJmNDMtMjVjZS00YzljLWFhNTAtOTE5MzlmZGZlNWViIiwiY2xpZW50X2lkIjoiNG9wb2NpbWRocHBva24xa3MwaHBibzlma3YifQ.FDWjOLAzVXFsYDtMPHFvSGu0Jx-ZRGEV2S1raRg-aZI-cMl3XDWFaAc2sRiZuUx9dlDM20DvDoani9BMYj3V6si6qmJrS12sXNlSLbzI1DxFXhxuYCLOz5Xa5Nqhbh7BGX3R3kT8Ww4GiNzllUcpwM6dMdYwBYHm0QS5xBaXiXSofj9IOs0of_hbQFycv0BpOA-5yptOE-sFN-2XgyWT3RHYH1G580iYZJuFdt6coIegCLHzvMqQrjI7BaoFvUh7e4U2n5sA-3eBzJFsKuNyq_UY4lXH6uECDQy7ji1o4TFIszXPllN6-mX9ix6M34DwunxTfcfFP0x62lfEat4fqA';
     const client = new oauthIssuer.Client({
         client_id: env.AUTH_CODE_FLOW_CLIENT_ID,
     }); // => Client
@@ -84,7 +82,7 @@ const cookieExtractor = function (req) {
      * @type {string|null}
      */
     let token = null;
-    if (req && req.cookies) {
+    if (req && req.accepts('text/html') && req.cookies) {
         token = req.cookies['jwt'];
         logDebug('Found cookie jwt', {user: '', args: {token: token}});
     } else {
@@ -195,7 +193,7 @@ const verify = (request, jwt_payload, done) => {
             scope = scope + ' ' + groups.join(' ');
         }
 
-        // see if there is a patient scope
+        // see if there is a patient scope and no user scope
         const scopes = scope.split(' ');
         if (
             scopes.some(s => s.toLowerCase().startsWith('patient/')) &&
@@ -207,6 +205,7 @@ const verify = (request, jwt_payload, done) => {
             // OpenID Connect provider
             isUser = true;
             const authorizationHeader = request.header('Authorization');
+            // get token from either the request or the cookie
             const accessToken = authorizationHeader ? authorizationHeader.split(' ').pop() : cookieExtractor(request);
             if (accessToken) {
                 return getUserInfo(accessToken).then(
@@ -218,7 +217,7 @@ const verify = (request, jwt_payload, done) => {
                         );
                     }
                 ).catch(error => {
-                    console.error(error);
+                    logError('Error in parsing token for patient scope', error);
                 });
             }
         } else {
