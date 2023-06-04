@@ -69,12 +69,7 @@ const getUserInfo = async (accessToken) => {
     const oauthIssuer = await Issuer.discover(issuerUrl);
     // const accessToken = 'eyJraWQiOiJvY2NDUk9WMkRzVjY1T0wrQzFIWmNuZmpDQ2dKOFV2UEh6ZzhnVVwvajZuaz0iLCJhbGciOiJSUzI1NiJ9.eyJzdWIiOiI0b3BvY2ltZGhwcG9rbjFrczBocGJvOWZrdiIsInRva2VuX3VzZSI6ImFjY2VzcyIsInNjb3BlIjoiYWNjZXNzXC8qLiogdXNlclwvKi5yZWFkIiwiYXV0aF90aW1lIjoxNjg1ODE5Njk3LCJpc3MiOiJodHRwczpcL1wvY29nbml0by1pZHAudXMtZWFzdC0xLmFtYXpvbmF3cy5jb21cL3VzLWVhc3QtMV95Vjd3dkQ0eEQiLCJleHAiOjE2ODU4MjMyOTcsImlhdCI6MTY4NTgxOTY5NywidmVyc2lvbiI6MiwianRpIjoiYmFkYWJmNDMtMjVjZS00YzljLWFhNTAtOTE5MzlmZGZlNWViIiwiY2xpZW50X2lkIjoiNG9wb2NpbWRocHBva24xa3MwaHBibzlma3YifQ.FDWjOLAzVXFsYDtMPHFvSGu0Jx-ZRGEV2S1raRg-aZI-cMl3XDWFaAc2sRiZuUx9dlDM20DvDoani9BMYj3V6si6qmJrS12sXNlSLbzI1DxFXhxuYCLOz5Xa5Nqhbh7BGX3R3kT8Ww4GiNzllUcpwM6dMdYwBYHm0QS5xBaXiXSofj9IOs0of_hbQFycv0BpOA-5yptOE-sFN-2XgyWT3RHYH1G580iYZJuFdt6coIegCLHzvMqQrjI7BaoFvUh7e4U2n5sA-3eBzJFsKuNyq_UY4lXH6uECDQy7ji1o4TFIszXPllN6-mX9ix6M34DwunxTfcfFP0x62lfEat4fqA';
     const client = new oauthIssuer.Client({
-        client_id: '10q3aoeileg6n66tkm1ibjrsdl' // env.AUTH_CODE_FLOW_CLIENT_ID,
-        // client_secret: 'TQV5U29k1gHibH5bx1layBo0OSAvAbRT3UYW3EWrSYBB5swxjVfWUa1BS8lqzxG/0v9wruMcrGadany3',
-        // redirect_uris: ['http://localhost:3000/cb'],
-        // response_types: ['code'],
-        // id_token_signed_response_alg (default "RS256")
-        // token_endpoint_auth_method (default "client_secret_basic")
+        client_id: env.AUTH_CODE_FLOW_CLIENT_ID,
     }); // => Client
     const userInfo = await client.userinfo(accessToken);
     return userInfo;
