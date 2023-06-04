@@ -309,6 +309,14 @@ module.exports.getHeadersWithCustomPayload = (payload) => {
     };
 };
 
+module.exports.getUnAuthenticatedHtmlHeaders = () => {
+    return {
+        Accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
+        'User-Agent':
+            'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.74 Safari/537.36',
+    };
+};
+
 module.exports.getHtmlHeaders = (scope) => {
     return {
         Accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',

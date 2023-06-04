@@ -184,6 +184,7 @@ describe('PatientReturnIdWithCustomBearerTokenTests', () => {
 
             resp = await request
                 .get('/4_0_0/Patient/00100000000')
+                .set(getUnAuthenticatedHeaders())
                 .set('Cookie', [`jwt=${token}`]);
 
             // noinspection JSUnresolvedFunction
