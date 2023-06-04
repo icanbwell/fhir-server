@@ -275,8 +275,7 @@ class MyJwtStrategy extends JwtStrategy {
 /**
  * Bearer Strategy
  *
- * This strategy will handle requests with BearerTokens.  This is only a template and should be configured to
- * your AuthZ server specifications.
+ * This strategy will handle requests with BearerTokens.
  *
  * Requires ENV variables for introspecting the token
  */
