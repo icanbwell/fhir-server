@@ -265,7 +265,11 @@ class PatchOperation {
                 this.postRequestProcessor.add({
                     requestId,
                     fnTask: async() => {
-                        await this.sensitiveDataProcessor.addSensitiveDataAccessTags({resource: resource});
+                        await this.sensitiveDataProcessor.addSensitiveDataAccessTags({
+                            requestId: requestId,
+                            resource: resource,
+                            updateResources: this.configManager.updateResources
+                        });
                     }
                 });
             }

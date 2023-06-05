@@ -405,7 +405,11 @@ class MergeOperation {
                 this.postRequestProcessor.add({
                     requestId,
                     fnTask: async() => {
-                        await this.sensitiveDataProcessor.addSensitiveDataAccessTags({resource: resourcesIncomingArray});
+                        await this.sensitiveDataProcessor.addSensitiveDataAccessTags({
+                            requestId: requestId,
+                            resource: resourcesIncomingArray,
+                            updateResources: this.configManager.updateResources
+                        });
                     }
                 });
             }
