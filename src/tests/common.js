@@ -110,7 +110,9 @@ module.exports.commonBeforeEach = async () => {
  * @param {string} patientId
  * @param {string} personId
  */
-module.exports.setMockOpenIdServer = ({token, patientId, personId}) => {
+module.exports.setupMockOpenIdServer = ({token, patientId, personId}) => {
+    expect(env.AUTH_ISSUER).toBeDefined();
+    expect(env.AUTH_ISSUER.length).toBeGreaterThan(0);
     const discoveryUrlObject = new URL(env.AUTH_ISSUER);
     jwksDiscoveryEndpoint(discoveryUrlObject.protocol + '//' + discoveryUrlObject.host);
     jwksUserInfoEndpoint(
