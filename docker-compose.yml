@@ -39,6 +39,7 @@ services:
             #      HASH_REFERENCE: 1
             RETURN_BUNDLE: '1'
             USE_TWO_STEP_SEARCH_OPTIMIZATION: '0'
+            LOG_EXCLUDE_RESOURCES: 'Person,Patient'
             STREAM_RESPONSE: '1'
             LOG_ELASTIC_SEARCH_ENABLE: '1'
             ENABLE_MONGODB_ACCESS_LOGS: '0'
