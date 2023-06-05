@@ -172,7 +172,6 @@ const createContainer = function () {
     container.register('sensitiveDataProcessor', (c) => new SensitiveDataProcessor({
         databaseQueryFactory: c.databaseQueryFactory,
         patientFilterManager: c.patientFilterManager,
-        personToPatientIdsExpander: c.personToPatientIdsExpander,
         databaseBulkInserter: c.databaseBulkInserter
     }));
 
