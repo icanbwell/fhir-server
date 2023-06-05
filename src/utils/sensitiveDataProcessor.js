@@ -5,7 +5,6 @@ const { DatabaseBulkInserter } = require('../dataLayer/databaseBulkInserter');
 const { PatientFilterManager } = require('../fhir/patientFilterManager');
 const { logInfo, logWarn } = require('../operations/common/logging');
 const { assertTypeEquals } = require('./assertType');
-const { PersonToPatientIdsExpander } = require('./personToPatientIdsExpander');
 const { deepEqual } = require('assert');
 
 /**
@@ -15,13 +14,11 @@ class SensitiveDataProcessor {
     /**
      * @param {DatabaseQueryFactory} databaseQueryFactory
      * @param {PatientFilterManager} patientFilterManager
-     * @param {PersonToPatientIdsExpander} personToPatientIdsExpander
      * @param {DatabaseBulkInserter} databaseBulkInserter
      */
     constructor({
         databaseQueryFactory,
         patientFilterManager,
-        personToPatientIdsExpander,
         databaseBulkInserter
     }) {
         /**
@@ -35,12 +32,6 @@ class SensitiveDataProcessor {
          */
         this.patientFilterManager = patientFilterManager;
         assertTypeEquals(patientFilterManager, PatientFilterManager);
-
-        /**
-         * @type {PersonToPatientIdsExpander}
-         */
-        this.personToPatientIdsExpander = personToPatientIdsExpander;
-        assertTypeEquals(personToPatientIdsExpander, PersonToPatientIdsExpander);
 
         /**
          * @type {DatabaseBulkInserter}
@@ -127,8 +118,7 @@ class SensitiveDataProcessor {
      * @param {Resource} obj
      * @param {String} paths
      * @param {String} currentPath
-     * @param {Set} patientIds
-     * @returns List of patient ids for which consent resource is to be fetched.
+     * @returns {String} patient id for which consent resource is to be fetched.
      */
     getPatientIdFromResource(obj, paths, currentPath) {
         if (Array.isArray(obj)) {
