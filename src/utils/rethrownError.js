@@ -29,7 +29,7 @@ class RethrownError extends Error {
         this.stack_before_rethrow = this.stack;
         this.args = args;
         if (this.args) {
-            this.removeLogExcludeResources(this.args.parentEntities);
+            this.removeExcludedResources({ a: 'this.args.parentEntities'});
         }
         this.source = source;
 
@@ -62,7 +62,7 @@ class RethrownError extends Error {
      * returns list of resource not to be shown in error messages
      * @returns {string[]}
      */
-    getLogExcludeResources() {
+    getExcludedResources() {
         return env.LOG_EXCLUDE_RESOURCES ? env.LOG_EXCLUDE_RESOURCES.split(',') : [];
     }
 
@@ -70,11 +70,11 @@ class RethrownError extends Error {
      * remove sensitive resources from args passed
      * @param {Object|undefined} [args]
      */
-    removeLogExcludeResources(args) {
+    removeExcludedResources(args) {
         if (!args) {
             return;
         }
-        const logExcludeResources = this.getLogExcludeResources();
+        const logExcludeResources = this.getExcludedResources();
         if (args instanceof Object || Array.isArray(args)) {
             for (let prop in args) {
                 logExcludeResources.forEach(resource => {
@@ -82,7 +82,7 @@ class RethrownError extends Error {
                         delete args[String(prop)];
                     }
                 });
-                this.removeLogExcludeResources(args[String(prop)]);
+                this.removeExcludedResources(args[String(prop)]);
             }
         }
     }
