@@ -207,6 +207,8 @@ class SensitiveDataProcessor {
      * @description Remove and add the new access tags for each resource.
      * @param {Object} patientIdToResourceMap
      * @param {Object} requiredAccessTag
+     * @param {String} requestId
+     * @param {boolean} updateDocuments
      */
     updateAccessTags(patientIdToResourceMap, requiredAccessTag, requestId, updateDocuments) {
         // For each patient id remove any previod access tags and create a new one as per consent.
