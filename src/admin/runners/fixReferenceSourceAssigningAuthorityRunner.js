@@ -620,7 +620,7 @@ class FixReferenceSourceAssigningAuthorityRunner extends BaseBulkOperationRunner
                     referenceFieldNames.forEach(referenceFieldName => {
                         const fieldName = `${referenceFieldName}._sourceAssigningAuthority`;
                         referenceFieldQuery.push({ [fieldName]: '[object Object]' });
-                        referenceFieldQuery.push({ [fieldName]: { $not: { $type: 'string' } } });
+                        referenceFieldQuery.push({$and: [{ [fieldName]: { $not: { $type: 'string' } } }, { [fieldName]: { $exists: true } }]});
                     });
                     query = {
                         $and: [
