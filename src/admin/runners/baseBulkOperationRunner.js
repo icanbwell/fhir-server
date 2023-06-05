@@ -57,6 +57,7 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
      * @param {number|undefined} [skip]
      * @param {string[]|undefined} [filterToIds]
      * @param {string|undefined} [filterToIdProperty]
+     * @param {string[]|undefined} referenceFieldNames
      * @returns {Promise<string>}
      */
     async runForQueryBatchesAsync(
@@ -77,7 +78,8 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
             useTransaction,
             skip,
             filterToIds,
-            filterToIdProperty
+            filterToIdProperty,
+            referenceFieldNames
         }
     ) {
         try {
@@ -90,6 +92,21 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                 destinationCollection,
                 sourceCollection
             } = await this.createConnectionAsync({config, destinationCollectionName, sourceCollectionName});
+
+            let indexNames = [];
+            if (referenceFieldNames && referenceFieldNames.length){
+                const indexes = [];
+                referenceFieldNames.forEach(referenceField => {
+                    const indexFieldName = `${referenceField}._sourceAssigningAuthority`;
+                    indexes.push({
+                        key: {[indexFieldName]: 1},
+                        name: `fixReferenceScript_${indexFieldName}`
+                    });
+                });
+                this.adminLogger.logInfo(`Creating reference indexes for ${referenceFieldNames}`);
+                indexNames = await sourceCollection.createIndexes(indexes);
+                this.adminLogger.logInfo(`Created reference indexes ${indexNames}`);
+            }
 
             // this.adminLogger.logInfo(
             //     `Sending count query to Mongo: ${mongoQueryStringify(query)}. ` +
@@ -184,6 +201,14 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                 `Count in source distinct by id: ${numberOfSourceDocumentsWithDistinctId.toLocaleString('en-US')}, ` +
                 `destination: ${numberOfDestinationDocumentsAtEnd.toLocaleString('en-US')}`
             );
+
+            if (indexNames && indexNames.length){
+                for (const indexName of indexNames) {
+                    this.adminLogger.logInfo(`Removing index ${indexName}`);
+                    await sourceCollection.dropIndex(indexName);
+                    this.adminLogger.logInfo(`Removed index ${indexName}`);
+                }
+            }
 
             // end session
             this.adminLogger.logInfo('Ending session', {'Session Id': sessionId});

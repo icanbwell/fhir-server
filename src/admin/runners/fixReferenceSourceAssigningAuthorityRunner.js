@@ -7,6 +7,7 @@ const {DatabaseQueryFactory} = require('../../dataLayer/databaseQueryFactory');
 const {generateUUIDv5} = require('../../utils/uid.util');
 const deepEqual = require('fast-deep-equal');
 const moment = require('moment-timezone');
+const { searchParameterQueries } = require('../../searchParameters/searchParameters');
 const { isValidMongoObjectId } = require('../../utils/mongoIdValidator');
 const {ResourceLocatorFactory} = require('../../operations/common/resourceLocatorFactory');
 const {FhirResourceCreator} = require('../../fhir/fhirResourceCreator');
@@ -562,6 +563,21 @@ class FixReferenceSourceAssigningAuthorityRunner extends BaseBulkOperationRunner
 
             // if there is an exception, continue processing from the last id
             for (const collectionName of this.collections) {
+                const resourceName = collectionName.replace('_4_0_0', '');
+                /**
+                 * @type {Set<String>}
+                 */
+                let referenceFieldNames = new Set();
+                const resourceObj = searchParameterQueries[`${resourceName}`];
+                if (resourceObj) {
+                    for (const propertyObj of Object.values(resourceObj)) {
+                        if (propertyObj.type === 'reference') {
+                            for (const field of propertyObj.fields){
+                                referenceFieldNames.add(field);
+                            }
+                        }
+                    }
+                }
 
                 this.startFromIdContainer.startFromId = '';
                 /**
@@ -597,6 +613,22 @@ class FixReferenceSourceAssigningAuthorityRunner extends BaseBulkOperationRunner
                         };
                     }
                 }
+
+                if (referenceFieldNames && referenceFieldNames.size) {
+                    referenceFieldNames = Array.from(referenceFieldNames);
+                    const referenceFieldQuery = [];
+                    referenceFieldNames.forEach(referenceFieldName => {
+                        const fieldName = `${referenceFieldName}._sourceAssigningAuthority`;
+                        referenceFieldQuery.push({ [fieldName]: '[object Object]' });
+                        referenceFieldQuery.push({ [fieldName]: { $not: { $type: 'string' } } });
+                    });
+                    query = {
+                        $and: [
+                            query,
+                            { $or: referenceFieldQuery },
+                        ],
+                    };
+                }
                 // const personCache = this.getCacheForResourceType(
                 //     {
                 //         collectionName: 'Person_4_0_0'
@@ -624,6 +656,7 @@ class FixReferenceSourceAssigningAuthorityRunner extends BaseBulkOperationRunner
                             limit: this.limit,
                             useTransaction: this.useTransaction,
                             skip: this.skip,
+                            referenceFieldNames: referenceFieldNames,
                             // filterToIdProperty: '_uuid',
                             // filterToIds: uuidList
                         }
