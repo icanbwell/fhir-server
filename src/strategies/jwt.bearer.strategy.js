@@ -63,7 +63,12 @@ const getExternalJwksAsync = async () => {
     return [];
 };
 
-const getUserInfo = async (accessToken) => {
+/**
+ * Gets user info from OpenID Connect provider
+ * @param {string} accessToken
+ * @return {Promise<Object>}
+ */
+const getUserInfoAsync = async (accessToken) => {
     const issuerUrl = env.AUTH_ISSUER;
     const oauthIssuer = await Issuer.discover(issuerUrl);
     const client = new oauthIssuer.Client({
@@ -102,14 +107,14 @@ const cookieExtractor = function (req) {
 
 /**
  * parses user info from payload
- * @param username
- * @param subject
- * @param isUser
- * @param jwt_payload
- * @param done
- * @param client_id
- * @param scope
- * @return {*}
+ * @param {string} username
+ * @param {string} subject
+ * @param {boolean} isUser
+ * @param {Object} jwt_payload
+ * @param {requestCallback} done
+ * @param {string} client_id
+ * @param {string|null} scope
+ * @return {Object}
  */
 function parseUserInfoFromPayload({username, subject, isUser, jwt_payload, done, client_id, scope}) {
     const context = {};
@@ -194,7 +199,10 @@ const verify = (request, jwt_payload, done) => {
         }
 
         // see if there is a patient scope and no user scope
-        const scopes = scope.split(' ');
+        /**
+         * @type {string[]}
+         */
+        const scopes = scope ? scope.split(' ') : [];
         if (
             scopes.some(s => s.toLowerCase().startsWith('patient/')) &&
             scopes.some(s => s.toLowerCase().startsWith('openid')) &&
@@ -208,7 +216,7 @@ const verify = (request, jwt_payload, done) => {
             // get token from either the request or the cookie
             const accessToken = authorizationHeader ? authorizationHeader.split(' ').pop() : cookieExtractor(request);
             if (accessToken) {
-                return getUserInfo(accessToken).then(
+                return getUserInfoAsync(accessToken).then(
                     (id_token_payload) => {
                         return parseUserInfoFromPayload(
                             {
