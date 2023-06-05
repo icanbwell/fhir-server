@@ -12,7 +12,7 @@ services:
         environment:
             SERVER_PORT: 3000
             MONGO_DB_NAME: fhir
-            MONGO_URL: mongodb://mongo:27017
+            MONGO_URL: mongodb://mongo:27017?replicaSet=rs0
             AUDIT_EVENT_MONGO_DB_NAME: fhir
             AUDIT_EVENT_MONGO_URL: mongodb://mongo:27017
             RESOURCE_SERVER: http://localhost:3000/
@@ -78,6 +78,7 @@ services:
             - ALLOW_EMPTY_PASSWORD=yes
         volumes:
             - mongo_data:/data/db
+        command: "--replSet rs0"
         healthcheck:
             test: echo 'db.runCommand("ping").ok' | mongo mongo:27017/test --quiet
 
@@ -87,6 +88,34 @@ services:
     #      - '3010:3000'
     #    environment:
     #      MONGOCLIENT_DEFAULT_CONNECTION_URL: mongodb://mongo:27017
+
+    # The Mongo initialization server
+    # this runs the `rs.initiate` command to intialize
+    # the replica set
+    mongoinit:
+      image: mongo:5.0.14
+      # this container will exit after executing the command
+      restart: "no"
+      depends_on:
+        - mongo
+      command:
+        - bash
+        - -c
+        - |
+          sleep 10 && mongo --host mongo:27017 --eval \
+          '
+          var config = {
+              "_id": "rs0",
+              "version": 1,
+              "members": [
+                  {
+                      "_id": 1,
+                      "host": "mongo:27017"
+                  }
+              ]
+          };
+          rs.initiate(config, {force: true});
+          '
 
     elasticsearch:
         #    image: bitnami/elasticsearch:7.9.3  # AWS Elastic Search supports upto 7.9
@@ -175,6 +204,77 @@ services:
                     'zookeeper:2181',
                     '--list',
                 ]
+
+    schema-registry:
+      image: confluentinc/cp-schema-registry:6.2.0
+      container_name: schema-registry
+      ports:
+        - "8081:8081"
+      depends_on:
+        - kafka
+      environment:
+        SCHEMA_REGISTRY_HOST_NAME: schema-registry
+        SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: kafka:9092
+
+    kafka-connect:
+        image: 'confluentinc/cp-server-connect-base:7.4.0'
+        ports:
+            - '8083:8083'
+        environment:
+          CONNECT_BOOTSTRAP_SERVERS: "kafka:9092"
+          CONNECT_REST_PORT: 8083
+          CONNECT_GROUP_ID: kafka-connect
+          CONNECT_CONFIG_STORAGE_TOPIC: _connect-configs
+          CONNECT_OFFSET_STORAGE_TOPIC: _connect-offsets
+          CONNECT_STATUS_STORAGE_TOPIC: _connect-status
+          CONNECT_KEY_CONVERTER: org.apache.kafka.connect.storage.StringConverter
+          CONNECT_VALUE_CONVERTER: org.apache.kafka.connect.storage.StringConverter
+          CONNECT_VALUE_CONVERTER_SCHEMA_REGISTRY_URL: 'http://schema-registry:8081'
+          CONNECT_REST_ADVERTISED_HOST_NAME: "kafka-connect"
+          CONNECT_LOG4J_APPENDER_STDOUT_LAYOUT_CONVERSIONPATTERN: "[%d] %p %X{connector.context}%m (%c:%L)%n"
+          CONNECT_CONFIG_STORAGE_REPLICATION_FACTOR: "1"
+          CONNECT_OFFSET_STORAGE_REPLICATION_FACTOR: "1"
+          CONNECT_STATUS_STORAGE_REPLICATION_FACTOR: "1"
+          #  ---------------
+          CONNECT_PLUGIN_PATH: /usr/share/java,/usr/share/confluent-hub-components,/data/connect-jars
+        depends_on:
+            - kafka
+            - schema-registry
+        command:
+          - bash
+          - -c
+          - |
+            echo "Installing Connector"
+            confluent-hub install mongodb/kafka-connect-mongodb:1.10.0
+            #
+            echo "Launching Kafka Connect worker"
+            /etc/confluent/docker/run &
+            #
+            sleep infinity
+
+    kafka-connect-init:
+        image: 'confluentinc/cp-server-connect-base:7.4.0'
+        depends_on:
+            - kafka-connect
+        command:
+          - bash
+          - -c
+          - |
+            sleep 90 && curl -X POST -H "Content-Type: application/json" \
+            --data '
+                { "name": "patient-source",
+                  "config": {
+                     "connector.class":"com.mongodb.kafka.connect.MongoSourceConnector",
+                     "connection.uri":"mongodb://mongo:27017/",
+                     "database":"fhir",
+                     "collection":"Patient_4_0_0",
+                     "pipeline":"[{\"$$match\": {\"$$and\": [{ \"operationType\": {\"$$in\": [\"insert\", \"update\", \"replace\"]} }, {}]} }]",
+                     "topic.namespace.map": "{\"fhir\": \"fhir\"}",
+                     "topic.seperator": "."
+                  }
+                }
+                 ' http://kafka-connect:8083/connectors -w "\n"
+
 
     kafkaUI:
         image: 'obsidiandynamics/kafdrop:3.30.0'
