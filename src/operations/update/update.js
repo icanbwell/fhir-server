@@ -386,7 +386,11 @@ class UpdateOperation {
                     this.postRequestProcessor.add({
                         requestId,
                         fnTask: async() => {
-                            await this.sensitiveDataProcessor.addSensitiveDataAccessTags({resource: doc});
+                            await this.sensitiveDataProcessor.addSensitiveDataAccessTags({
+                                requestId: requestId,
+                                resource: doc,
+                                updateResources: this.configManager.updateResources
+                            });
                         }
                     });
                 }

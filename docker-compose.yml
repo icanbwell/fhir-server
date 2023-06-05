@@ -58,6 +58,7 @@ services:
             WHITELIST: "https://embeddable-sandbox.cdn.apollographql.com"
             GRIDFS_RESOURCES: "DocumentReference"
             ENABLE_SENSITIVE_DATA_ACCESS_UPDATE: '0'
+            UPDATE_SECURITY_TAGS: '0'
         ports:
             - '3000:3000'
         volumes:
