@@ -10,10 +10,6 @@ const {loadFilesSync} = require('@graphql-tools/load-files');
 const {mergeTypeDefs} = require('@graphql-tools/merge');
 const {FhirDataSource} = require('../../graphql/v2/dataSource');
 
-// const {
-//     ApolloServerPluginLandingPageGraphQLPlayground,
-//     // ApolloServerPluginLandingPageDisabled
-// } = require('@apollo/server-plugin-landing-page-graphql-playground');
 const {
     ApolloServerPluginLandingPageLocalDefault,
     // ApolloServerPluginLandingPageProductionDefault
@@ -27,10 +23,6 @@ const {getAddRequestIdToResponseHeadersPlugin} = require('./plugins/graphqlAddRe
 const contentType = require('content-type');
 const {getValidateMissingVariableValuesPlugin} = require('./plugins/graphqlValidateMissingVariableValuesPlugin');
 const httpContext = require('express-http-context');
-// const {unwrapResolverError} = require('@apollo/server/errors');
-// const {ForbiddenError} = require('../../utils/httpErrors');
-// const {ApolloServerPluginLandingPageLocalDefault} = require('@apollo/server/plugin/landingPage/default');
-// const {ApolloServerPluginLandingPageProductionDefault} = require('@apollo/server/plugin/landingPage/default');
 
 
 /**
@@ -48,36 +40,7 @@ const graphql = async (fnCreateContainer) => {
         // request.credentials is set so we receive cookies
         // https://github.com/graphql/graphql-playground#settings
         // eslint-disable-next-line new-cap
-        // ApolloServerPluginLandingPageGraphQLPlayground(
-        //     {
-        //         settings: {
-        //             'request.credentials': 'same-origin',
-        //             'schema.polling.enable': false, // enables automatic schema polling
-        //         },
-        //         cdnUrl: 'https://cdn.jsdelivr.net/npm',
-        //         faviconUrl: '',
-        //     }
-        // ),
-        // eslint-disable-next-line new-cap
         ApolloServerPluginLandingPageLocalDefault(),
-        // eslint-disable-next-line new-cap
-        // ApolloServerPluginLandingPageLocalDefault({
-        //     footer: false,
-        //     // version: '32950616741c2593d815f65b554f220e599c8ff4',
-        //     embed: true,
-        //     includeCookies: true,
-        //     headers: {
-        //         'Cross-Origin-Resource-Policy': 'cross-origin',
-        //         'Access-Control-Allow-Origin': 'https://apollo-server-landing-page.cdn.apollographql.com https://embeddable-sandbox.cdn.apollographql.com',
-        //         'Content-Security-Policy': 'default-src \'self\' embeddable-sandbox.cdn.apollographql.com apollo-server-landing-page.cdn.apollographql.com;' +
-        //             'frame-src \'self\' sandbox.embed.apollographql.com;',
-        //     },
-        // }),
-        // eslint-disable-next-line new-cap
-        // ApolloServerPluginLandingPageProductionDefault({
-        //     embed: true,
-        //     includeCookies: true
-        // }),
         getBundleMetaApolloServerPlugin(),
         getApolloServerLoggingPlugin('graphqlv2'),
         getAddRequestIdToResponseHeadersPlugin(),
