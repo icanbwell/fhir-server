@@ -82,7 +82,7 @@ const cookieExtractor = function (req) {
      * @type {string|null}
      */
     let token = null;
-    if (req && req.accepts('text/html') && req.cookies) {
+    if (req && req.cookies) {
         token = req.cookies['jwt'];
         logDebug('Found cookie jwt', {user: '', args: {token: token}});
     } else {
