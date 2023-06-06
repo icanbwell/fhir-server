@@ -195,7 +195,7 @@ const verify = (request, jwt_payload, done) => {
         const tokenUse = jwt_payload.token_use ? jwt_payload.token_use : null;
 
         if (groups.length > 0) {
-            scope = scope + ' ' + groups.join(' ');
+            scope = scope ? scope + ' ' + groups.join(' ') : groups.join(' ');
         }
 
         // see if there is a patient scope and no user scope
