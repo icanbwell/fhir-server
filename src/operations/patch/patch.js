@@ -3,6 +3,7 @@
 const {BadRequestError, NotFoundError} = require('../../utils/httpErrors');
 const {validate, applyPatch, compare} = require('fast-json-patch');
 const moment = require('moment-timezone');
+const { FieldMapper } = require('../query/filters/fieldMapper');
 const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
 const {DatabaseQueryFactory} = require('../../dataLayer/databaseQueryFactory');
 const {ChangeEventProducer} = require('../../utils/changeEventProducer');
@@ -140,7 +141,9 @@ class PatchOperation {
                 const databaseQueryManager = this.databaseQueryFactory.createQuery(
                     {resourceType, base_version}
                 );
-                foundResource = await databaseQueryManager.findOneAsync({query: {id: id.toString()}});
+                const idFieldMapper = new FieldMapper({useHistoryTable: false});
+                const idField = idFieldMapper.getFieldName('id', id.toString());
+                foundResource = await databaseQueryManager.findOneAsync({query: {[idField]: id.toString()}});
             } catch (e) {
                 throw new NotFoundError(new Error(`Resource not found: ${resourceType}/${id}`));
             }

@@ -6,19 +6,13 @@ const sourceIdFieldName = '_sourceId';
 class FieldMapper {
     /**
      *
-     * @param {boolean|undefined} enableGlobalIdSupport
      * @param {boolean|undefined} useHistoryTable
      */
     constructor(
         {
-            enableGlobalIdSupport,
             useHistoryTable
         }
     ) {
-        /**
-         * @type {boolean|undefined}
-         */
-        this.enableGlobalIdSupport = enableGlobalIdSupport;
         /**
          * @type {boolean|undefined}
          */
@@ -26,7 +20,7 @@ class FieldMapper {
     }
 
     /**
-     * Gets field name (replacing if it is 'id' and enableGlobalIdSupport is enabled.
+     * Gets field name (replacing if it is 'id')
      * In case of useHistoryTable, prepends the field namewith 'resource.' since in history we store data as a BundleEntry
      * @param {string} field
      * @param {string} [value]

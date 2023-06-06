@@ -1,6 +1,7 @@
 const env = require('var');
 const moment = require('moment-timezone');
 const sendToS3 = require('../../utils/aws-s3');
+const { FieldMapper } = require('../query/filters/fieldMapper');
 const {NotValidatedError, ForbiddenError, BadRequestError} = require('../../utils/httpErrors');
 const {isTrue} = require('../../utils/isTrue');
 const {validationsFailedCounter} = require('../../utils/prometheus.utils');
@@ -224,10 +225,13 @@ class UpdateOperation {
             const databaseQueryManager = this.databaseQueryFactory.createQuery(
                 {resourceType, base_version}
             );
+            const idFieldMapper = new FieldMapper({useHistoryTable: false});
+            const idField = idFieldMapper.getFieldName('id', id.toString());
+
             /**
              * @type {Resource | null}
              */
-            let data = await databaseQueryManager.findOneAsync({query: {id: id.toString()}});
+            let data = await databaseQueryManager.findOneAsync({query: {[idField]: id.toString()}});
             /**
              * @type {Resource|null}
              */

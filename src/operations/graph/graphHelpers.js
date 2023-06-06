@@ -612,13 +612,14 @@ class GraphHelper {
                     const properties = this.getPropertiesForEntity({
                         entity: resourceEntityAndContained, property: fieldForSearchParameter
                     });
-                    // the reference property can be a single item or an array.
+                    // the reference property can be a single item or an array. Remove the sourceAssigningAuthority
+                    // from references before matching.
                     /**
                      * @type {string[]}
                      */
                     const references = properties
                         .flatMap(r => this.getReferencesFromPropertyValue({propertyValue: r}))
-                        .filter(r => r !== undefined);
+                        .filter(r => r !== undefined).map(r => r.split('|')[0]);
                     /**
                      * @type {EntityAndContainedBase[]}
                      */
