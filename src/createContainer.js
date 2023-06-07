@@ -171,7 +171,9 @@ const createContainer = function () {
     container.register('sensitiveDataProcessor', (c) => new SensitiveDataProcessor({
         databaseQueryFactory: c.databaseQueryFactory,
         patientFilterManager: c.patientFilterManager,
-        databaseBulkInserter: c.databaseBulkInserter
+        databaseBulkInserter: c.databaseBulkInserter,
+        bwellPersonFinder: c.bwellPersonFinder,
+        personToPatientIdsExpander: c.personToPatientIdsExpander
     }));
 
     container.register('partitioningManager', (c) => new PartitioningManager(

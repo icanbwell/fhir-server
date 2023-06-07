@@ -185,5 +185,8 @@ module.exports = {
         INSERT: 'INSERT',
         RETRIEVE: 'RETRIEVE',
         DELETE: 'DELETE',
-    }
+    },
+    PATIENT_INITIATED_PIPELINE: [
+        'proa'
+    ]
 };

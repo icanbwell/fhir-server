@@ -236,21 +236,26 @@ class DatabaseQueryManager {
              */
             const cursors = [];
             for (const /** @type import('mongodb').Collection<import('mongodb').DefaultSchema> */ collection of collections) {
-                /**
+                let cursor;
+                if (extraInfo.matchQueryProvided) {
+                    cursor = collection.aggregate(query);
+                } else {
+                    /**
                  * @type {import('mongodb').AggregationCursor<Document>}
                  */
-                const cursor = collection.aggregate(
-                    [
-                        {
-                            $match: query,
-                        },
-                        {
-                            $project: projection,
+                    cursor = collection.aggregate(
+                        [
+                            {
+                                $match: query,
+                            },
+                            {
+                                $project: projection,
 
-                        }
-                    ],
-                    options,
-                );
+                            }
+                        ],
+                        options,
+                    );
+                }
                 cursors.push({cursor, db: collection.dbName, collection: collection.collectionName});
             }
             return new DatabasePartitionedCursor({

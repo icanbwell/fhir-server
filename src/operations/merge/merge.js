@@ -371,6 +371,13 @@ class MergeOperation {
                 }
             );
 
+            // The access tags are updated before updating the resources.
+            if (this.configManager.enabledPatientInitiatedPipelines) {
+                await this.sensitiveDataProcessor.addSensitiveDataAccessTags({
+                    resource: resourcesIncomingArray,
+                });
+            }
+
             // merge the resources
             await this.mergeManager.mergeResourceListAsync(
                 {
@@ -401,18 +408,6 @@ class MergeOperation {
                 requestId,
                 fnTask: async () => await this.changeEventProducer.flushAsync({requestId})
             });
-            if (this.configManager.enabledSensitiveDataAccessUpdate) {
-                this.postRequestProcessor.add({
-                    requestId,
-                    fnTask: async() => {
-                        await this.sensitiveDataProcessor.addSensitiveDataAccessTags({
-                            requestId: requestId,
-                            resource: resourcesIncomingArray,
-                            updateResources: this.configManager.updateResources
-                        });
-                    }
-                });
-            }
 
 
             // add in any pre-merge failures
