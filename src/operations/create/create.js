@@ -270,6 +270,13 @@ class CreateOperation {
             // noinspection JSValidateTypes
             logDebug('Inserting', {user, args: {doc: doc}});
 
+            // The access tags are updated before updating the resources.
+            if (this.configManager.enabledPatientInitiatedPipelines) {
+                await this.sensitiveDataProcessor.addSensitiveDataAccessTags({
+                    resource: doc,
+                });
+            }
+
             // Insert our resource record
             await this.databaseBulkInserter.insertOneAsync({requestId, resourceType, doc});
             /**
@@ -311,18 +318,6 @@ class CreateOperation {
                     await this.changeEventProducer.flushAsync({requestId});
                 }
             });
-            if (this.configManager.enabledSensitiveDataAccessUpdate) {
-                this.postRequestProcessor.add({
-                    requestId,
-                    fnTask: async() => {
-                        await this.sensitiveDataProcessor.addSensitiveDataAccessTags({
-                            requestId: requestId,
-                            resource: doc,
-                            updateResources: this.configManager.updateResources
-                        });
-                    }
-                });
-            }
 
             return doc;
         } catch (/** @type {Error} */ e) {

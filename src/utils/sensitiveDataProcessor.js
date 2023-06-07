@@ -3,9 +3,13 @@
 const { DatabaseQueryFactory } = require('../dataLayer/databaseQueryFactory');
 const { DatabaseBulkInserter } = require('../dataLayer/databaseBulkInserter');
 const { PatientFilterManager } = require('../fhir/patientFilterManager');
-const { logInfo, logWarn } = require('../operations/common/logging');
+const { logInfo, logWarn, logDebug } = require('../operations/common/logging');
 const { assertTypeEquals } = require('./assertType');
-const { deepEqual } = require('assert');
+const { PATIENT_INITIATED_PIPELINE } = require('../constants');
+const { BwellPersonFinder } = require('./bwellPersonFinder');
+const { PersonToPatientIdsExpander } = require('./personToPatientIdsExpander');
+
+const patientReferencePrefix = 'Patient/';
 
 /**
  * The class is used to add/remove sensitive data from a resource
@@ -15,11 +19,15 @@ class SensitiveDataProcessor {
      * @param {DatabaseQueryFactory} databaseQueryFactory
      * @param {PatientFilterManager} patientFilterManager
      * @param {DatabaseBulkInserter} databaseBulkInserter
+     * @param {BwellPersonFinder} bwellPersonFinder
+     * @param {PersonToPatientIdsExpander} personToPatientIdsExpander
      */
     constructor({
         databaseQueryFactory,
         patientFilterManager,
-        databaseBulkInserter
+        databaseBulkInserter,
+        bwellPersonFinder,
+        personToPatientIdsExpander
     }) {
         /**
          * @type {DatabaseQueryFactory}
@@ -38,45 +46,53 @@ class SensitiveDataProcessor {
          */
         this.databaseBulkInserter = databaseBulkInserter;
         assertTypeEquals(databaseBulkInserter, DatabaseBulkInserter);
+
+        /**
+         * @type {BwellPersonFinder}
+         */
+        this.bwellPersonFinder = bwellPersonFinder;
+        assertTypeEquals(bwellPersonFinder, BwellPersonFinder);
+
+        /**
+         * @type {PersonToPatientIdsExpander}
+         */
+        this.personToPatientIdsExpander = personToPatientIdsExpander;
+        assertTypeEquals(personToPatientIdsExpander, PersonToPatientIdsExpander);
     }
 
     /**
-     * @description Adds/Removes access tags for proa initiated pieplines.
-     * @param {String} requestId
+     * @description Adds/Removes access tags for patient initiated pieplines.
      * @param {Resource} resource
-     * @param {boolean} updateResources
      */
     async addSensitiveDataAccessTags({
-        requestId,
         resource,
-        updateResources = false
     }) {
         const resources = Array.isArray(resource) ? resource : [resource];
-        // Filter out resources that have been updated/created through the proa pipeline.
-        const proaInitiatedResources = this.filterProaInitiatedResources(resources);
-        if (proaInitiatedResources.length === 0) {
-            logInfo('No Resources have connectionType as Proa.');
+        // Filter out resources that have been updated/created through the patient initiated pipeline.
+        const patientInitiatedResources = this.filterPatientInitiatedResources(resources);
+        if (patientInitiatedResources.length === 0) {
+            logInfo('No Resources have connectionType as mentioned in patient pipelines.', {});
             return;
         }
         // eslint-disable-next-line no-unused-vars
-        const patientIdToResourceMap = this.getLinkedPatientRecords(proaInitiatedResources);
-        const consentDocuments = await this.getConsentDocuments(Object.keys(patientIdToResourceMap));
+        const patientIdToResourceMap = this.getLinkedPatientRecords(patientInitiatedResources);
+        const [consentDocuments, linkedClientPatientIdMap] = await this.getConsentDocuments(Object.keys(patientIdToResourceMap));
         // requiredAccessTag create an object were for each patientId the required access tag is present
-        const requiredAccessTag = this.getClientAccessTag(consentDocuments);
-        this.updateAccessTags(patientIdToResourceMap, requiredAccessTag, requestId, updateResources);
+        const requiredAccessTag = this.getClientAccessTag(consentDocuments, linkedClientPatientIdMap);
+        this.updateAccessTags(patientIdToResourceMap, requiredAccessTag);
     }
 
     /**
-     * @description Filters out a list of resources that have been updated/created using proa pipeline.
+     * @description Filters out a list of resources that have been updated/created using patient pipeline.
      * @param {Resource} resources
-     * @returns List of resources that are proa pipeline initiated
+     * @returns List of resources that are patient pipeline initiated
      */
-    filterProaInitiatedResources(resources) {
+    filterPatientInitiatedResources(resources) {
         return resources.filter((resource) => {
             return resource.meta.security.some(security => {
-                // If system is of connectionType and code is Proa,
-                // the resource has been created/updated using a proa pipeline.
-                return security.system === 'https://www.icanbwell.com/connectionType' && security.code === 'proa';
+                // If system is of connectionType and code is mentioned in list of patient initiated pieplines,
+                // the resource has been created/updated using a patient initiated pipeline pipeline.
+                return security.system === 'https://www.icanbwell.com/connectionType' && PATIENT_INITIATED_PIPELINE.includes(security.code);
             });
         });
     }
@@ -101,15 +117,19 @@ class SensitiveDataProcessor {
             if (resource.resourceType === 'Patient') {
                 patientId = `Patient/${patientId}`;
             }
+            logInfo(`For resource ${resource.resourceType} with _uuid ${resource._uuid}: Patient id is ${patientId}`, {});
 
             // Creating an array of resources that are linked to the same patient.
-            // eslint-disable no-prototype-builtins
             if (Object.prototype.hasOwnProperty.call(patientIdToResourceMap, patientId)) {
                 patientIdToResourceMap[patientId].push(resource);
             } else {
                 patientIdToResourceMap[patientId] = [resource];
             }
         });
+        logDebug(
+            `Number of patients for which access tag is to be updated: ${Object.keys(patientIdToResourceMap).length}`,
+            {'patientIdToResourceMap': patientIdToResourceMap}
+        );
         return patientIdToResourceMap;
     }
 
@@ -153,101 +173,138 @@ class SensitiveDataProcessor {
      */
     async getConsentDocuments(patientIds) {
         let consentDocuments = [];
-        const query = {
-            $and: [
-                {'patient.reference': {$in: patientIds}},
-                {'provision.type': {$eq: 'permit'}},
-            ]
-        };
+        let allLinkedPatientIds = [];
+        let linkedClientPatientIdMap = {};
+        for ( let patientId of patientIds) {
+            const patientIdWithOutPrefix = patientId.replace(patientReferencePrefix, '');
+            // Get the bwell master person from the client patient id
+            let bwellMasterPerson = await this.bwellPersonFinder.getBwellPersonIdAsync({patientId: patientIdWithOutPrefix});
+            // Fetch all patient linked with the bwell master person
+            let clientPatientIds = await this.personToPatientIdsExpander.getPatientProxyIdsAsync({
+                base_version: '4_0_0', id: `person.${bwellMasterPerson}`, includePatientPrefix: true
+            });
+            // All the patient ids for which consents are to be fetched
+            allLinkedPatientIds = [...allLinkedPatientIds, ...clientPatientIds];
+            // Map between the patient id and all the linked client patient ids.
+            linkedClientPatientIdMap[patientId] = clientPatientIds;
+        }
+        // Query to fetch only the must updated consents for any patient
+        const query = [
+            {
+                $match: {
+                    $and: [
+                        {'patient.reference': {$in: allLinkedPatientIds}},
+                        {'provision.type': {$eq: 'permit'}}
+                    ]
+                }
+            },
+            {
+                $sort: {
+                    'meta.lastUpdated': -1
+                }
+            },
+            {
+                $group: {
+                    _id: '$patient.reference',
+                    latestDocument: {
+                        $first: '$$ROOT'
+                    }
+                }
+            },
+            {
+                $replaceRoot: {
+                    newRoot: '$latestDocument'
+                }
+            }
+        ];
 
         const consentDataBaseQueryManager = this.databaseQueryFactory.createQuery({
             resourceType: 'Consent',
             base_version: '4_0_0',
         });
 
-        const cursor = await consentDataBaseQueryManager.findAsync({query: query});
+        // Match query is passed to determine if the whole aggregration pipeline is passed
+        const cursor = await consentDataBaseQueryManager.findUsingAggregationAsync({
+            query: query,
+            projection: {},
+            extraInfo: {matchQueryProvided: true}
+        });
         while (await cursor.hasNext()) {
             consentDocuments.push(await cursor.next());
         }
-        return consentDocuments;
+        logInfo(`Total consent documents: ${consentDocuments.length}`, {});
+        return [consentDocuments, linkedClientPatientIdMap];
     }
 
     /**
-     * @description Retrieve all the access tags for a patient using it linked consent.
-     * @param {Resource[]} consentDocument
-     * @returns {Object} Returns a key value pair for each patient and the simulaneous client that has access.
+     * @description Retrieve all the access tags for a patient using its linked consent.
+     * @param {Resource[]} consentDocuments - The consent documents containing access tags.
+     * @param {Object} linkedClientPatientIdMap - A map linking patient ID to all related client patient ids.
+     * @returns {Object} - Returns a key-value pair for each patient and the simultaneous client that has access.
      */
-    getClientAccessTag(consentDocuments) {
-        // Object to store the access tag for each patient.
-        // If patient 1 has provided access to walgreens a mapping for Patient/1 = [{system: access, code: walgreens}] is created
+    getClientAccessTag(consentDocuments, linkedClientPatientIdMap) {
+        // Object to store the access tags for each patient.
+        // If patient 1 has provided access to Walgreens, a mapping for patientId 1 = [{system: access, code: walgreens}] is created.
         const patientIdAndAccessTagMap = {};
-        consentDocuments.forEach((doc) => {
-            // Patient linked with the current patient
-            const consentPatientId = doc.patient.reference;
-            const clientWithAccessPermission = doc.provision.actor
-                .flatMap(consentActor => consentActor.role.coding)
-                .filter(coding => coding.system === 'https://www.icanbwell.com/access')
-                .map(coding => coding);
-            patientIdAndAccessTagMap[consentPatientId] = clientWithAccessPermission;
+
+        consentDocuments.forEach((consentDoc) => {
+            // Patient linked with the current consent document.
+            const consentPatientId = consentDoc.patient.reference;
+            const clientsWithAccessPermission = consentDoc.provision.actor
+                .flatMap((consentActor) => consentActor.role.coding)
+                .filter((coding) => coding.system === 'https://www.icanbwell.com/access')
+                .map((coding) => coding)[0];
+
+            // Find the corresponding main patient ID in the linkedClientPatientIdMap and add the access tags.
+            const correspondingMainPatientId = this.getMainPatientIdForConsent(linkedClientPatientIdMap, consentPatientId);
+
+            const existingAccessTags = patientIdAndAccessTagMap[correspondingMainPatientId] || [];
+            // Since there can be duplicate security access, filter out only the unique ones.
+            if (!existingAccessTags.some((existingTag) => existingTag.code === clientsWithAccessPermission.code)) {
+                patientIdAndAccessTagMap[correspondingMainPatientId] = [...existingAccessTags, clientsWithAccessPermission];
+            }
         });
+        logDebug(
+            'Access tags to be added for each patient:',
+            { patientIdAndAccessTagMap: patientIdAndAccessTagMap }
+        );
         return patientIdAndAccessTagMap;
+    }
+
+    /**
+     *
+     * @param {Object} linkedClientPatientIdMap - A map linking patient ID to all related client patient ids.
+     * @param {String} consentPatientId - The patient id for whome the consent belongs to
+     * @returns {String} The patient id for whome the current patient id links
+     */
+    getMainPatientIdForConsent(linkedClientPatientIdMap, consentPatientId) {
+        for (let mainPatientId in linkedClientPatientIdMap) {
+            const linkedPatientIds = linkedClientPatientIdMap[mainPatientId];
+            if (linkedPatientIds.includes(consentPatientId)) {
+                return mainPatientId;
+            }
+        }
     }
 
     /**
      * @description Remove and add the new access tags for each resource.
      * @param {Object} patientIdToResourceMap
      * @param {Object} requiredAccessTag
-     * @param {String} requestId
-     * @param {boolean} updateDocuments
      */
-    updateAccessTags(patientIdToResourceMap, requiredAccessTag, requestId, updateDocuments) {
+    updateAccessTags(patientIdToResourceMap, requiredAccessTag) {
         // For each patient id remove any previod access tags and create a new one as per consent.
         const patientIds = Object.keys(patientIdToResourceMap);
         patientIds.forEach((id) => {
             patientIdToResourceMap[id].forEach((resource) => {
+                resource.meta.security = this.removeAccessTag(resource.meta.security);
                 // If for the current patient id we need to create a access tag
                 // requiredAccessTag[id] tells for which patient is we need to update access tags
                 // first remove the current access tag.
                 if (Object.keys(requiredAccessTag).includes(id)) {
-                    const previousSecurityTags = resource.meta.security;
-                    resource.meta.security = this.removeAccessTag(resource.meta.security);
                     // Updating the security tag.
                     resource.meta.security = [...resource.meta.security, ...requiredAccessTag[id]];
-                    // If updateDocuments is true and there has been an update to security tags than only do a bulk insert
-                    if (
-                        updateDocuments &&
-                        deepEqual(resource.meta.security.toJson(), previousSecurityTags.toJson()) === false
-                    ) {
-                        const filter = {_uuid: resource._uuid};
-                        // Creates a queue of operations to be performed.
-                        this.databaseBulkInserter.addOperationForResourceType({
-                            requestId: requestId,
-                            resourceType: resource.resourceType,
-                            resource: resource,
-                            operationType: 'replace',
-                            operation: {
-                                replaceOne: {
-                                    filter: filter,
-                                    upsert: false,
-                                    replacement: resource.toJSONInternal()
-                                }
-                            },
-                            patches: [
-                                {
-                                    'op': 'replace',
-                                    'path': 'meta.security',
-                                    'value': resource.meta.security
-                                }
-                            ]
-                        });
-                    }
                 }
             });
-        });
-        // Asynchronously update all the security tags
-        this.databaseBulkInserter.executeAsync({
-            requestId: requestId,
-            base_version: '4_0_0'
         });
     }
 

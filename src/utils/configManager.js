@@ -289,15 +289,8 @@ class ConfigManager {
     /**
      * Whether access tags needs to be updated for resources
      */
-    get enabledSensitiveDataAccessUpdate() {
-        return isTrue(env.ENABLE_SENSITIVE_DATA_ACCESS_UPDATE);
-    }
-
-    /**
-     * Whether the resources needs to be updated after changes have been made to access tag
-     */
-    get updateResources() {
-        return isTrue(env.UPDATE_SECURITY_TAGS);
+    get enabledPatientInitiatedPipelines() {
+        return isTrue(env.ENABLE_PATINET_INITIATED_PIPELINES);
     }
 }
 

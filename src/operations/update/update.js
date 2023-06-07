@@ -318,6 +318,12 @@ class UpdateOperation {
                 // changing the attachment.data to attachment._file_id from request
                 doc = await this.databaseAttachmentManager.transformAttachments(resource_incoming);
 
+                // The access tags are updated before updating the resources.
+                if (this.configManager.enabledPatientInitiatedPipelines) {
+                    await this.sensitiveDataProcessor.addSensitiveDataAccessTags({
+                        resource: doc,
+                    });
+                }
                 await this.databaseBulkInserter.insertOneAsync({requestId, resourceType, doc});
             }
 
@@ -382,18 +388,6 @@ class UpdateOperation {
                         await this.changeEventProducer.flushAsync({requestId});
                     }
                 });
-                if (this.configManager.enabledSensitiveDataAccessUpdate) {
-                    this.postRequestProcessor.add({
-                        requestId,
-                        fnTask: async() => {
-                            await this.sensitiveDataProcessor.addSensitiveDataAccessTags({
-                                requestId: requestId,
-                                resource: doc,
-                                updateResources: this.configManager.updateResources
-                            });
-                        }
-                    });
-                }
                 return result;
             } else {
                 // not modified

@@ -209,6 +209,14 @@ class PatchOperation {
             // converting attachment.data to attachment._file_id for the response
             resource = await this.databaseAttachmentManager.transformAttachments(resource);
 
+            // The access tags are updated before updating the resources.
+            if (this.configManager.enabledPatientInitiatedPipelines) {
+                await this.sensitiveDataProcessor.addSensitiveDataAccessTags({
+                    resource: resource,
+                });
+                // TODO: Add meta.security if updated to patchContent
+            }
+
             // Same as update from this point on
             // Insert/update our resource record
             await this.databaseBulkInserter.replaceOneAsync(
@@ -258,18 +266,6 @@ class PatchOperation {
                     await this.changeEventProducer.flushAsync({requestId});
                 }
             });
-            if (this.configManager.enabledSensitiveDataAccessUpdate) {
-                this.postRequestProcessor.add({
-                    requestId,
-                    fnTask: async() => {
-                        await this.sensitiveDataProcessor.addSensitiveDataAccessTags({
-                            requestId: requestId,
-                            resource: resource,
-                            updateResources: this.configManager.updateResources
-                        });
-                    }
-                });
-            }
 
             // converting attachment._file_id to attachment.data for the response
             resource = await this.databaseAttachmentManager.transformAttachments(resource, RETRIEVE);
