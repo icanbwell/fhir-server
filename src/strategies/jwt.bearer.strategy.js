@@ -65,31 +65,24 @@ const getExternalJwksAsync = async () => {
 
 
 /**
- * stores the openid client
- * @type {import('openid-client').BaseClient}
+ * stores the openid client issuer
+ * @type {import('openid-client').Issuer<import('openid-client').BaseClient>}
  */
-let openIdClient = null;
+let openIdClientIssuer = null;
 
 /**
- * Gets or creates an OpenID client
- * @return {Promise<import('openid-client').BaseClient>}
+ * Gets or creates an OpenID client issuer
+ * @return {Promise<import('openid-client').Issuer<import('openid-client').BaseClient>>}
  */
-const getOrCreateOpenIdClientAsync = async () => {
-    if (!openIdClient) {
+const getOrCreateOpenIdClientIssuerAsync = async () => {
+    if (!openIdClientIssuer) {
         if (!env.AUTH_ISSUER) {
             logError('AUTH_ISSUER environment variable is not set', {});
         }
-        if (!env.AUTH_CODE_FLOW_CLIENT_ID) {
-            logError('AUTH_CODE_FLOW_CLIENT_ID environment variable is not set', {});
-        }
         const issuerUrl = env.AUTH_ISSUER;
-        const oauthIssuer = await Issuer.discover(issuerUrl);
-
-        openIdClient = new oauthIssuer.Client({
-            client_id: env.AUTH_CODE_FLOW_CLIENT_ID,
-        }); // => Client
+        openIdClientIssuer = await Issuer.discover(issuerUrl);
     }
-    return openIdClient;
+    return openIdClientIssuer;
 };
 
 /**
@@ -98,10 +91,21 @@ const getOrCreateOpenIdClientAsync = async () => {
  * @return {Promise<import('openid-client').UserinfoResponse<Object | undefined, import('openid-client').UnknownObject>|undefined>}
  */
 const getUserInfoAsync = async (accessToken) => {
+    const issuer = await getOrCreateOpenIdClientIssuerAsync();
+    if (!issuer) {
+        return undefined;
+    }
+    if (!env.AUTH_CODE_FLOW_CLIENT_ID) {
+        logError('AUTH_CODE_FLOW_CLIENT_ID environment variable is not set', {});
+    }
+
     /**
      * @type {import('openid-client').BaseClient}
      */
-    const client = await getOrCreateOpenIdClientAsync();
+    const client = new issuer.Client({
+        client_id: env.AUTH_CODE_FLOW_CLIENT_ID,
+    }); // => Client
+
     if (!client) {
         return undefined;
     }
