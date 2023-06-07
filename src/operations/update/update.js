@@ -319,7 +319,7 @@ class UpdateOperation {
                 doc = await this.databaseAttachmentManager.transformAttachments(resource_incoming);
 
                 // The access tags are updated before updating the resources.
-                // If access tags is to updated call the corresponding processor
+                // If access tags is to be updated call the corresponding processor
                 if (this.configManager.enabledAccessTagUpdate) {
                     await this.sensitiveDataProcessor.updateResourceSecurityAccessTag({
                         resource: doc,
