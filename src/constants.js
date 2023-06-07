@@ -186,7 +186,7 @@ module.exports = {
         RETRIEVE: 'RETRIEVE',
         DELETE: 'DELETE',
     },
-    PATIENT_INITIATED_PIPELINE: [
+    PATIENT_INITIATED_CONNECTION: [
         'proa'
     ]
 };

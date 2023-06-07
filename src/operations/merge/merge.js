@@ -372,8 +372,9 @@ class MergeOperation {
             );
 
             // The access tags are updated before updating the resources.
-            if (this.configManager.enabledPatientInitiatedPipelines) {
-                await this.sensitiveDataProcessor.addSensitiveDataAccessTags({
+            // If access tags is to updated call the corresponding processor
+            if (this.configManager.enabledAccessTagUpdate) {
+                await this.sensitiveDataProcessor.updateResourceSecurityAccessTag({
                     resource: resourcesIncomingArray,
                 });
             }

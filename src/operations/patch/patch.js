@@ -213,11 +213,11 @@ class PatchOperation {
             resource = await this.databaseAttachmentManager.transformAttachments(resource);
 
             // The access tags are updated before updating the resources.
-            if (this.configManager.enabledPatientInitiatedPipelines) {
-                await this.sensitiveDataProcessor.addSensitiveDataAccessTags({
+            // If access tags is to updated call the corresponding processor
+            if (this.configManager.enabledAccessTagUpdate) {
+                await this.sensitiveDataProcessor.updateResourceSecurityAccessTag({
                     resource: resource,
                 });
-                // TODO: Add meta.security if updated to patchContent
             }
 
             // Same as update from this point on

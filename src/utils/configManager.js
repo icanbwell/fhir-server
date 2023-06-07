@@ -287,10 +287,10 @@ class ConfigManager {
     }
 
     /**
-     * Whether access tags needs to be updated for resources
+     * Whether access tags needs to be updated for resources.
      */
-    get enabledPatientInitiatedPipelines() {
-        return isTrue(env.ENABLE_PATINET_INITIATED_PIPELINES);
+    get enabledAccessTagUpdate() {
+        return isTrue(env.ENABLE_ACCESS_TAG_UPDATE);
     }
 }
 
