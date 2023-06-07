@@ -139,7 +139,7 @@ class SearchManager {
      * @param {string} personIdFromJwtToken
      * @param {ParsedArgs} parsedArgs
      * @param {boolean|undefined} [useHistoryTable]
-     * @returns {{base_version, columns: Set, query: import('mongodb').Document}}
+     * @returns Promise<{{base_version, columns: Set, query: import('mongodb').Document}}>
      */
     async constructQueryAsync(
         {
@@ -165,7 +165,7 @@ class SearchManager {
             /**
              * @type {string[]}
              */
-            let securityTags = this.securityTagManager.getSecurityTagsFromScope({user, scope});
+            let securityTags = this.securityTagManager.getSecurityTagsFromScope({user, scope, hasPatientScope});
             /**
              * @type {import('mongodb').Document}
              */

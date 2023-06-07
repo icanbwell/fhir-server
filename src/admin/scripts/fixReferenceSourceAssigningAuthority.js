@@ -93,7 +93,7 @@ async function main() {
 
 /**
  * To run this:
- * nvm use 18.14.2
+ * nvm use 18.16.0
  * node src/admin/scripts/fixReferenceSourceAssigningAuthority.js --collections=Practitioner_4_0_0 --batchSize=10000
  * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/fixReferenceSourceAssigningAuthority.js --collections=all --batchSize=10000
  * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/fixReferenceSourceAssigningAuthority.js --collections=all --batchSize=10000 --startFromCollection FamilyMemberHistory_4_0_0
