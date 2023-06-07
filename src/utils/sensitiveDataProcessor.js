@@ -98,9 +98,9 @@ class SensitiveDataProcessor {
     }
 
     /**
-     * @description For each resource find the linked patient ids.
+     * @description For each resource find the linked patient id and create a map between patient and resource.
      * @param {Resource} resources
-     * @returns List of patient ids for which consent resource is to be fetched
+     * @returns {Object} - return a map between patient id and resource
      */
     getLinkedPatientRecords(resources) {
         let patientIdToResourceMap = {};
@@ -172,6 +172,7 @@ class SensitiveDataProcessor {
     /**
      * @description Fetches all the consent resources linked to a patient.
      * @param {String[]} patientIds
+     * @returns Consent resource and a map between the client patient and the actual patient for which consent is to be updated
      */
     async getConsentResources(patientIds) {
         let allLinkedPatientIds = [];
