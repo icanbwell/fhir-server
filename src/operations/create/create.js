@@ -21,6 +21,7 @@ const {SecurityTagSystem} = require('../../utils/securityTagSystem');
 const {ConfigManager} = require('../../utils/configManager');
 const {FhirResourceCreator} = require('../../fhir/fhirResourceCreator');
 const { DatabaseAttachmentManager } = require('../../dataLayer/databaseAttachmentManager');
+const { SensitiveDataProcessor } = require('../../utils/sensitiveDataProcessor');
 
 class CreateOperation {
     /**
@@ -35,6 +36,7 @@ class CreateOperation {
      * @param {DatabaseBulkInserter} databaseBulkInserter
      * @param {ConfigManager} configManager
      * @param {DatabaseAttachmentManager} databaseAttachmentManager
+     * @param {SensitiveDataProcessor} sensitiveDataProcessor
      */
     constructor(
         {
@@ -47,7 +49,8 @@ class CreateOperation {
             resourceValidator,
             databaseBulkInserter,
             configManager,
-            databaseAttachmentManager
+            databaseAttachmentManager,
+            sensitiveDataProcessor
         }
     ) {
         /**
@@ -103,6 +106,12 @@ class CreateOperation {
          */
         this.databaseAttachmentManager = databaseAttachmentManager;
         assertTypeEquals(databaseAttachmentManager, DatabaseAttachmentManager);
+
+        /**
+         * @type {SensitiveDataProcessor}
+         */
+        this.sensitiveDataProcessor = sensitiveDataProcessor;
+        assertTypeEquals(sensitiveDataProcessor, SensitiveDataProcessor);
     }
 
     /**
@@ -260,6 +269,14 @@ class CreateOperation {
             // the _id parameter in the original document
             // noinspection JSValidateTypes
             logDebug('Inserting', {user, args: {doc: doc}});
+
+            // The access tags are updated before updating the resources.
+            // If access tags is to be updated call the corresponding processor
+            if (this.configManager.enabledAccessTagUpdate) {
+                await this.sensitiveDataProcessor.updateResourceSecurityAccessTag({
+                    resource: doc,
+                });
+            }
 
             // Insert our resource record
             await this.databaseBulkInserter.insertOneAsync({requestId, resourceType, doc});

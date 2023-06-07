@@ -285,6 +285,14 @@ class ConfigManager {
     get enabledGridFsResources() {
         return env.GRIDFS_RESOURCES ? env.GRIDFS_RESOURCES.split(',') : [];
     }
+
+    /**
+     * Specifies whether to update access tags for resources.
+     * Updates the access tag depending on the consent shared by the user.
+     */
+    get enabledAccessTagUpdate() {
+        return isTrue(env.ENABLE_ACCESS_TAG_UPDATE);
+    }
 }
 
 module.exports = {
