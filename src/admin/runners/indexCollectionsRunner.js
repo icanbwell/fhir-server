@@ -14,6 +14,8 @@ class IndexCollectionsRunner extends BaseScriptRunner {
      * @param {boolean|undefined} [dropIndexes]
      * @param {boolean|undefined} [useAuditDatabase]
      * @param {boolean} includeHistoryCollections
+     * @param {boolean} addMissingOnly
+     * @param {boolean} removeExtraOnly
      * @param {AdminLogger} adminLogger
      * @param {boolean} synchronizeIndexes
      * @param {MongoDatabaseManager} mongoDatabaseManager
@@ -26,6 +28,8 @@ class IndexCollectionsRunner extends BaseScriptRunner {
             dropIndexes,
             useAuditDatabase,
             includeHistoryCollections,
+            addMissingOnly,
+            removeExtraOnly,
             adminLogger,
             synchronizeIndexes,
             mongoDatabaseManager,
@@ -66,6 +70,14 @@ class IndexCollectionsRunner extends BaseScriptRunner {
          * @type {boolean}
          */
         this.synchronizeIndexes = synchronizeIndexes;
+        /**
+         * @type {boolean}
+         */
+        this.addMissingOnly = addMissingOnly;
+        /**
+         * @type {boolean}
+         */
+        this.removeExtraOnly = removeExtraOnly;
     }
 
     /**
@@ -80,7 +92,19 @@ class IndexCollectionsRunner extends BaseScriptRunner {
              */
             const db = this.useAuditDatabase ? await this.mongoDatabaseManager.getAuditDbAsync() :
                 await this.mongoDatabaseManager.getClientDbAsync();
-            if (this.synchronizeIndexes) {
+            if (this.addMissingOnly) {
+                await this.indexManager.addMissingIndexesAsync(
+                    {
+                        audit: this.useAuditDatabase
+                    }
+                );
+            } else if (this.removeExtraOnly) {
+                await this.indexManager.removeExtraIndexesAsync(
+                    {
+                        audit: this.useAuditDatabase
+                    }
+                );
+            } else if (this.synchronizeIndexes) {
                 await this.indexManager.synchronizeIndexesWithConfigAsync(
                     {
                         audit: this.useAuditDatabase
