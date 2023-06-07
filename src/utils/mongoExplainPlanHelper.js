@@ -59,9 +59,14 @@ class MongoExplainPlanHelper {
          * if there are execution stages then use those since they have timing information
          * @type {{stage: string, transformBy: Object, inputStage: Object}}
          */
-        const winningPlan = explanation.executionStats && explanation.executionStats.executionStages ?
-            explanation.executionStats.executionStages :
-            explanation.queryPlanner.winningPlan ? explanation.queryPlanner.winningPlan : {};
+        let winningPlan;
+        if (explanation.executionStats && explanation.executionStats.executionStages) {
+            winningPlan = explanation.executionStats.executionStages;
+        } else if (explanation.queryPlanner.winningPlan === undefined) {
+            winningPlan = {};
+        } else {
+            winningPlan = explanation.queryPlanner.winningPlan;
+        }
 
         const executionStats = explanation.executionStats;
         /**
