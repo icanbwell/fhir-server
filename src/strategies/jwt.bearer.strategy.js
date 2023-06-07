@@ -63,17 +63,48 @@ const getExternalJwksAsync = async () => {
     return [];
 };
 
+
+/**
+ * stores the openid client
+ * @type {import('openid-client').BaseClient}
+ */
+let openIdClient = null;
+
+/**
+ * Gets or creates an OpenID client
+ * @return {Promise<import('openid-client').BaseClient>}
+ */
+const getOrCreateOpenIdClientAsync = async () => {
+    if (!openIdClient) {
+        if (!env.AUTH_ISSUER) {
+            logError('AUTH_ISSUER environment variable is not set', {});
+        }
+        if (!env.AUTH_CODE_FLOW_CLIENT_ID) {
+            logError('AUTH_CODE_FLOW_CLIENT_ID environment variable is not set', {});
+        }
+        const issuerUrl = env.AUTH_ISSUER;
+        const oauthIssuer = await Issuer.discover(issuerUrl);
+
+        openIdClient = new oauthIssuer.Client({
+            client_id: env.AUTH_CODE_FLOW_CLIENT_ID,
+        }); // => Client
+    }
+    return openIdClient;
+};
+
 /**
  * Gets user info from OpenID Connect provider
  * @param {string} accessToken
- * @return {Promise<Object>}
+ * @return {Promise<import('openid-client').UserinfoResponse<Object | undefined, import('openid-client').UnknownObject>|undefined>}
  */
 const getUserInfoAsync = async (accessToken) => {
-    const issuerUrl = env.AUTH_ISSUER;
-    const oauthIssuer = await Issuer.discover(issuerUrl);
-    const client = new oauthIssuer.Client({
-        client_id: env.AUTH_CODE_FLOW_CLIENT_ID,
-    }); // => Client
+    /**
+     * @type {import('openid-client').BaseClient}
+     */
+    const client = await getOrCreateOpenIdClientAsync();
+    if (!client) {
+        return undefined;
+    }
     return await client.userinfo(accessToken);
 };
 
