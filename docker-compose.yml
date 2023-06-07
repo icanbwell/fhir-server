@@ -24,7 +24,7 @@ services:
             AUTH_ISSUER: https://cognito-idp.us-east-1.amazonaws.com/us-east-1_yV7wvD4xD
             AUTH_CODE_FLOW_URL: https://bwell-dev.auth.us-east-1.amazoncognito.com
             AUTH_ENABLED: 1
-            CHECK_ACCESS_TAG_ON_SAVE: 1
+            CHECK_ACCESS_TAG_ON_SAVE: 0
             RENDER_HTML: 1
             REDIRECT_TO_LOGIN: 1
             MAX_INDEX_NAME_LENGTH: 65
@@ -57,7 +57,7 @@ services:
             PERSON_MATCHING_SERVICE_URL: "https://person-matching.dev.bwell.zone/$$match"
             WHITELIST: "https://embeddable-sandbox.cdn.apollographql.com"
             GRIDFS_RESOURCES: "DocumentReference"
-            ENABLE_PATINET_INITIATED_PIPELINES: '0'
+            ENABLE_ACCESS_TAG_UPDATE: '1'
         ports:
             - '3000:3000'
         volumes:
