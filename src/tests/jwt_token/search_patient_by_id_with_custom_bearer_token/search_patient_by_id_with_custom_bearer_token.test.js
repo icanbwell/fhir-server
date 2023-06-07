@@ -10,7 +10,7 @@ const {
     getHeadersWithCustomToken,
     createTestRequest,
     getUnAuthenticatedHeaders,
-    getFullAccessToken,
+    getFullAccessToken
 } = require('../../common');
 const {describe, beforeEach, afterEach, expect, test} = require('@jest/globals');
 const {logInfo} = require('../../../operations/common/logging');

@@ -286,16 +286,16 @@ function createApp({fnCreateContainer, trackMetrics}) {
     return app;
 }
 
-/**
- *
- * @param {import('express').Express} app
- * @return {boolean}
- */
-function unmountRoutes(app) {
-    // eslint-disable-next-line new-cap
-    app.use('/graphql', express.Router());
-    // eslint-disable-next-line new-cap
-    app.use('/graphqlv2', express.Router());
-}
+// /**
+//  *
+//  * @param {import('express').Express} app
+//  * @return {boolean}
+//  */
+// function unmountRoutes(app) {
+//     // eslint-disable-next-line new-cap
+//     app.use('/graphql', express.Router());
+//     // eslint-disable-next-line new-cap
+//     app.use('/graphqlv2', express.Router());
+// }
 
-module.exports = {createApp, unmountRoutes};
+module.exports = {createApp};

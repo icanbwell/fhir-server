@@ -6,16 +6,17 @@ const JwtStrategy = require('passport-jwt').Strategy;
 const ExtractJwt = require('passport-jwt').ExtractJwt;
 const jwksRsa = require('jwks-rsa');
 const env = require('var');
-const {logDebug} = require('../operations/common/logging');
+const {logDebug, logError} = require('../operations/common/logging');
 const {isTrue} = require('../utils/isTrue');
 const async = require('async');
 const superagent = require('superagent');
+const {Issuer} = require('openid-client');
 
 const requiredJWTFields = [
-    'custom:clientFhirPersonId',
-    'custom:clientFhirPatientId',
+    // 'custom:clientFhirPersonId',
+    // 'custom:clientFhirPatientId',
     'custom:bwellFhirPersonId',
-    'custom:bwellFhirPatientId',
+    // 'custom:bwellFhirPatientId',
 ];
 
 /**
@@ -62,13 +63,139 @@ const getExternalJwksAsync = async () => {
     return [];
 };
 
+
+/**
+ * stores the openid client issuer
+ * @type {import('openid-client').Issuer<import('openid-client').BaseClient>}
+ */
+let openIdClientIssuer = null;
+
+/**
+ * Gets or creates an OpenID client issuer
+ * @return {Promise<import('openid-client').Issuer<import('openid-client').BaseClient>>}
+ */
+const getOrCreateOpenIdClientIssuerAsync = async () => {
+    if (!openIdClientIssuer) {
+        if (!env.AUTH_ISSUER) {
+            logError('AUTH_ISSUER environment variable is not set', {});
+        }
+        const issuerUrl = env.AUTH_ISSUER;
+        openIdClientIssuer = await Issuer.discover(issuerUrl);
+    }
+    return openIdClientIssuer;
+};
+
+/**
+ * Gets user info from OpenID Connect provider
+ * @param {string} accessToken
+ * @return {Promise<import('openid-client').UserinfoResponse<Object | undefined, import('openid-client').UnknownObject>|undefined>}
+ */
+const getUserInfoAsync = async (accessToken) => {
+    const issuer = await getOrCreateOpenIdClientIssuerAsync();
+    if (!issuer) {
+        return undefined;
+    }
+    if (!env.AUTH_CODE_FLOW_CLIENT_ID) {
+        logError('AUTH_CODE_FLOW_CLIENT_ID environment variable is not set', {});
+    }
+
+    /**
+     * @type {import('openid-client').BaseClient}
+     */
+    const client = new issuer.Client({
+        client_id: env.AUTH_CODE_FLOW_CLIENT_ID,
+    }); // => Client
+
+    if (!client) {
+        return undefined;
+    }
+    return await client.userinfo(accessToken);
+};
+
+/**
+ * This function is called to extract the token from the jwt cookie
+ * @param {import('http').IncomingMessage} req
+ * @return {{claims: {[p: string]: string|number|boolean|string[]}, scopes: string[]}|null}
+ */
+const cookieExtractor = function (req) {
+    /**
+     * @type {string|null}
+     */
+    let token = null;
+    if (req && req.cookies) {
+        token = req.cookies['jwt'];
+        logDebug('Found cookie jwt', {user: '', args: {token: token}});
+    } else {
+        logDebug('No cookies found', {user: ''});
+    }
+    return token;
+};
+
+/**
+ * This callback type is called `requestCallback` and is displayed as a global symbol.
+ *
+ * @callback requestCallback
+ * @param {Object} user
+ * @param {Object} info
+ * @param {Object} [details]
+ */
+
+/**
+ * parses user info from payload
+ * @param {string} username
+ * @param {string} subject
+ * @param {boolean} isUser
+ * @param {Object} jwt_payload
+ * @param {requestCallback} done
+ * @param {string} client_id
+ * @param {string|null} scope
+ * @return {Object}
+ */
+function parseUserInfoFromPayload({username, subject, isUser, jwt_payload, done, client_id, scope}) {
+    const context = {};
+    if (username) {
+        context['username'] = username;
+    }
+    if (subject) {
+        context['subject'] = subject;
+    }
+    if (isUser) {
+        context['isUser'] = isUser;
+        // Test that required fields are populated
+        let validInput = true;
+        requiredJWTFields.forEach((field) => {
+            if (!jwt_payload[`${field}`]) {
+                logDebug(`Error: ${field} field is missing`, {user: ''});
+                validInput = false;
+            }
+        });
+        if (!validInput) {
+            return done(null, false);
+        }
+        const fhirPatientId = jwt_payload['custom:bwell_fhir_id'];
+        if (jwt_payload['custom:bwell_fhir_ids']) {
+            const patientIdsFromJwtToken = jwt_payload['custom:bwell_fhir_ids'].split('|');
+            if (patientIdsFromJwtToken && patientIdsFromJwtToken.length > 0) {
+                context['patientIdsFromJwtToken'] = patientIdsFromJwtToken;
+            }
+        } else if (fhirPatientId) {
+            context['patientIdsFromJwtToken'] = [fhirPatientId];
+        }
+        context['personIdFromJwtToken'] = jwt_payload['custom:bwellFhirPersonId'];
+    }
+
+    return done(null, {id: client_id, isUser, name: username}, {scope, context});
+}
+
+// noinspection OverlyComplexFunctionJS,FunctionTooLongJS
 /**
  * extracts the client_id and scope from the decoded token
+ * @param {import('http').IncomingMessage} request
  * @param {Object} jwt_payload
- * @param done
+ * @param {requestCallback} done
  * @return {*}
  */
-const verify = (jwt_payload, done) => {
+const verify = (request, jwt_payload, done) => {
     if (jwt_payload) {
         /**
          * @type {boolean}
@@ -97,43 +224,52 @@ const verify = (jwt_payload, done) => {
          */
         const subject = jwt_payload.subject ? jwt_payload.subject : jwt_payload[env.AUTH_CUSTOM_SUBJECT];
 
+        /**
+         * @type {string}
+         */
+        const tokenUse = jwt_payload.token_use ? jwt_payload.token_use : null;
+
         if (groups.length > 0) {
-            scope = scope + ' ' + groups.join(' ');
+            scope = scope ? scope + ' ' + groups.join(' ') : groups.join(' ');
         }
 
-        const context = {};
-        if (username) {
-            context['username'] = username;
-        }
-        if (subject) {
-            context['subject'] = subject;
-        }
-        if (isUser) {
-            context['isUser'] = isUser;
-            // Test that required fields are populated
-            let validInput = true;
-            requiredJWTFields.forEach((field) => {
-                if (!jwt_payload[`${field}`]) {
-                    logDebug(`Error: ${field} field is missing`, {user: ''});
-                    validInput = false;
-                }
-            });
-            if (!validInput) {
-                return done(null, false);
+        // see if there is a patient scope and no user scope
+        /**
+         * @type {string[]}
+         */
+        const scopes = scope ? scope.split(' ') : [];
+        if (
+            scopes.some(s => s.toLowerCase().startsWith('patient/')) &&
+            scopes.some(s => s.toLowerCase().startsWith('openid')) &&
+            scopes.every(s => !s.toLowerCase().startsWith('user/')) &&
+            tokenUse === 'access'
+        ) {
+            // we were passed an access token for a user and now need to get the user's info from our
+            // OpenID Connect provider
+            isUser = true;
+            const authorizationHeader = request.header('Authorization');
+            // get token from either the request or the cookie
+            const accessToken = authorizationHeader ? authorizationHeader.split(' ').pop() : cookieExtractor(request);
+            if (accessToken) {
+                return getUserInfoAsync(accessToken).then(
+                    (id_token_payload) => {
+                        return parseUserInfoFromPayload(
+                            {
+                                username, subject, isUser, jwt_payload: id_token_payload, done, client_id, scope
+                            }
+                        );
+                    }
+                ).catch(error => {
+                    logError('Error in parsing token for patient scope', error);
+                });
             }
-            const fhirPatientId = jwt_payload['custom:bwell_fhir_id'];
-            if (jwt_payload['custom:bwell_fhir_ids']) {
-                const patientIdsFromJwtToken = jwt_payload['custom:bwell_fhir_ids'].split('|');
-                if (patientIdsFromJwtToken && patientIdsFromJwtToken.length > 0) {
-                    context['patientIdsFromJwtToken'] = patientIdsFromJwtToken;
+        } else {
+            return parseUserInfoFromPayload(
+                {
+                    username, subject, isUser, jwt_payload, done, client_id, scope
                 }
-            } else if (fhirPatientId) {
-                context['patientIdsFromJwtToken'] = [fhirPatientId];
-            }
-            context['personIdFromJwtToken'] = jwt_payload['custom:bwellFhirPersonId'];
+            );
         }
-
-        return done(null, {id: client_id, isUser, name: username}, {scope, context});
     }
 
     return done(null, false);
@@ -142,6 +278,7 @@ const verify = (jwt_payload, done) => {
 /**
  * @classdesc we use this to override the JwtStrategy and redirect to login
  *     instead of just failing and returning a 401
+ *     https://www.passportjs.org/packages/passport-jwt/
  */
 class MyJwtStrategy extends JwtStrategy {
     constructor(options, verifyFn) {
@@ -177,30 +314,11 @@ class MyJwtStrategy extends JwtStrategy {
     }
 }
 
-/**
- * This function is called to extract the token from the jwt cookie
- * @param {import('http').IncomingMessage} req
- * @return {{claims: {[p: string]: string|number|boolean|string[]}, scopes: string[]}|null}
- */
-const cookieExtractor = function (req) {
-    /**
-     * @type {{claims: {[p: string]: string | number | boolean | string[]}; scopes: string[]}|null}
-     */
-    let token = null;
-    if (req && req.accepts('text/html') && req.cookies) {
-        token = req.cookies['jwt'];
-        logDebug('Found cookie jwt', {user: '', args: {token: token}});
-    } else {
-        logDebug('No cookies found', {user: ''});
-    }
-    return token;
-};
 
 /**
  * Bearer Strategy
  *
- * This strategy will handle requests with BearerTokens.  This is only a template and should be configured to
- * your AuthZ server specifications.
+ * This strategy will handle requests with BearerTokens.
  *
  * Requires ENV variables for introspecting the token
  */
@@ -238,6 +356,8 @@ module.exports.strategy = new MyJwtStrategy(
         // audience: 'urn:my-resource-server',
         // issuer: env.AUTH_ISSUER,
         algorithms: ['RS256'],
+        // pass request to verify callback
+        passReqToCallback: true
     },
     verify
 );

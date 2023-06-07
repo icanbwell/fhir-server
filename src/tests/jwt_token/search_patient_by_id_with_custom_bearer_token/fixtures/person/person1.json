@@ -1,0 +1,33 @@
+{
+  "resourceType": "Person",
+  "id": "10",
+  "meta": {
+    "id": "ec82e61a-f8b1-43c5-922e-f6e2060da170",
+    "versionId": "1",
+    "lastUpdated": "2022-09-27T16:52:08.000Z",
+    "source": "https://www.icanbwell.com",
+    "profile": [
+      "some-profile"
+    ],
+    "security": [
+      {
+        "system": "https://www.icanbwell.com/owner",
+        "code": "bwell"
+      },
+      {
+        "system": "https://www.icanbwell.com/access",
+        "code": "bwell"
+      }
+    ]
+  },
+  "active": true,
+  "link": [
+    {
+      "id": "00100000000",
+      "target": {
+        "reference": "Patient/00100000000"
+      },
+      "assurance": "level4"
+    }
+  ]
+}

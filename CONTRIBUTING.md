@@ -3,7 +3,7 @@
 You will need:
 
 1. Docker Desktop: https://docs.docker.com/desktop/mac/install/
-2. Node.js 18.14: https://nodejs.org/en/download/releases/ or use brew: https://nodejs.org/tr/download/package-manager/#macos
+2. Node.js 18.16: https://nodejs.org/en/download/releases/ or use brew: https://nodejs.org/tr/download/package-manager/#macos
 
 ## Common developer processes
 
@@ -151,8 +151,8 @@ curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash
 
 #### 4. install node
 ```shell
-nvm install 18.14.2
-nvm use 18.14.2
+nvm install 18.16.0
+nvm use 18.16.0
 npm install -g npm@latest
 ```
 

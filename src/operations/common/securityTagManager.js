@@ -38,9 +38,10 @@ class SecurityTagManager {
      * returns security tags to filter by based on the scope
      * @param {string} user
      * @param {string} scope
+     * @param {boolean} hasPatientScope
      * @return {string[]}
      */
-    getSecurityTagsFromScope({user, scope}) {
+    getSecurityTagsFromScope({user, scope, hasPatientScope}) {
         /**
          * @type {string[]}
          */
@@ -48,8 +49,8 @@ class SecurityTagManager {
         // add any access codes from scopes
         const accessCodes = this.scopesManager.getAccessCodesFromScopes('read', user, scope);
         if (env.AUTH_ENABLED === '1') {
-            // fail if there are no access codes
-            if (accessCodes.length === 0) {
+            // fail if there are no access codes unless we have a patient limiting scope
+            if (accessCodes.length === 0 && !hasPatientScope) {
                 let errorMessage = 'user ' + user + ' with scopes [' + scope + '] has no access scopes';
                 throw new ForbiddenError(errorMessage);
             }

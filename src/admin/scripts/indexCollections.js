@@ -48,7 +48,7 @@ async function main() {
 
 /**
  * To run this:
- * nvm use 18.14.2
+ * nvm use 18.16.0
  * Create .env file in root directory with these variables
  * MONGO_URL, MONGO_USERNAME, MONGO_PASSWORD, MONGO_DB_NAME
  * AUDIT_EVENT_MONGO_URL, AUDIT_EVENT_MONGO_USERNAME, AUDIT_EVENT_MONGO_PASSWORD, AUDIT_EVENT_MONGO_DB_NAME
