@@ -16,6 +16,8 @@ const {fhirContentTypes} = require('../../utils/contentTypes');
 const {ParsedArgs} = require('../query/parsedArgs');
 const {FhirResourceCreator} = require('../../fhir/fhirResourceCreator');
 const {DatabaseAttachmentManager} = require('../../dataLayer/databaseAttachmentManager');
+const {SensitiveDataProcessor} = require('../../utils/sensitiveDataProcessor');
+const {ConfigManager} = require('../../utils/configManager');
 const {DELETE, RETRIEVE} = require('../../constants').GRIDFS;
 
 class PatchOperation {
@@ -28,6 +30,8 @@ class PatchOperation {
      * @param {ScopesValidator} scopesValidator
      * @param {DatabaseBulkInserter} databaseBulkInserter
      * @param {DatabaseAttachmentManager} databaseAttachmentManager
+     * @param {SensitiveDataProcessor} sensitiveDataProcessor
+     * @param {ConfigManager} configManager
      */
     constructor(
         {
@@ -37,7 +41,9 @@ class PatchOperation {
             fhirLoggingManager,
             scopesValidator,
             databaseBulkInserter,
-            databaseAttachmentManager
+            databaseAttachmentManager,
+            sensitiveDataProcessor,
+            configManager
         }
     ) {
         /**
@@ -75,6 +81,18 @@ class PatchOperation {
          */
         this.databaseAttachmentManager = databaseAttachmentManager;
         assertTypeEquals(databaseAttachmentManager, DatabaseAttachmentManager);
+
+        /**
+         * @type {SensitiveDataProcessor}
+         */
+        this.sensitiveDataProcessor = sensitiveDataProcessor;
+        assertTypeEquals(sensitiveDataProcessor, SensitiveDataProcessor);
+
+        /**
+         * @type {ConfigManager}
+         */
+        this.configManager = configManager;
+        assertTypeEquals(configManager, ConfigManager);
     }
 
     /**
@@ -193,6 +211,14 @@ class PatchOperation {
 
             // converting attachment.data to attachment._file_id for the response
             resource = await this.databaseAttachmentManager.transformAttachments(resource);
+
+            // The access tags are updated before updating the resources.
+            // If access tags is to be updated call the corresponding processor
+            if (this.configManager.enabledAccessTagUpdate) {
+                await this.sensitiveDataProcessor.updateResourceSecurityAccessTag({
+                    resource: resource,
+                });
+            }
 
             // Same as update from this point on
             // Insert/update our resource record
