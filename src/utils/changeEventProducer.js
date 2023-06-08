@@ -351,6 +351,20 @@ class ChangeEventProducer {
                     requestId, id: doc.id, resourceType, timestamp: currentDate, sourceType
                 });
             }
+            // Send msg to redis
+            const { Queue } = require('bullmq');
+            const { randomUUID } = require('crypto');
+            try {
+                const queue = new Queue('fhir-server-resource-change-event', { connection: {
+                    host: 'dev-cache-platform-ue1.fi04rw.ng.0001.use1.cache.amazonaws.com',
+                    port: 6379
+                }});
+                const message = { 'Consent': [doc._uuid]};
+                await queue.add(randomUUID(), message);
+                console.log('Message sent to BullMQ:', JSON.stringify(message));
+            } catch (error) {
+                console.error('Failed to send message to BullMQ:', error);
+            }
         }
     }
 

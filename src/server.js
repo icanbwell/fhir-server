@@ -59,6 +59,16 @@ async function createServer(fnCreateContainer) {
         gracefulTerminationTimeout: 7000,
     });
 
+    // For testing added this here otherwise "worker.js"
+    const { Worker } = require('bullmq');
+
+    const worker = new Worker('fhir-server-resource-change-event', async job => {
+        console.log('JobName:' + job.name + ', Message:' + JSON.stringify(job.data));
+    }, { connection: {
+        host: 'dev-cache-platform-ue1.fi04rw.ng.0001.use1.cache.amazonaws.com',
+        port: 6379
+    }});
+
     process.on('SIGTERM', async function onSigterm() {
         logInfo('Beginning shutdown of server', {});
         await logSystemEventAsync({
@@ -68,6 +78,7 @@ async function createServer(fnCreateContainer) {
         });
         try {
             await httpTerminator.terminate();
+            worker.stop();
             logInfo('Successfully shut down server', {});
             process.exit(0);
         } catch (error) {
@@ -86,6 +97,7 @@ async function createServer(fnCreateContainer) {
         });
         try {
             await httpTerminator.terminate();
+            worker.stop();
             logInfo('Successfully shut down server for SIGINT', {});
             process.exit(0);
         } catch (error) {
