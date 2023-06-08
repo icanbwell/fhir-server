@@ -173,7 +173,7 @@ describe('Add Missing Index Tests', () => {
 
             expect(addMissingResults.created.length).toEqual(1);
 
-            const createdIndexes = addMissingResults.created[0].indexes;
+            const createdIndexes = addMissingResults.created[0].indexes.sort((a, b) => (a.options.name > b.options.name) ? 1 : -1);
 
             expect(createdIndexes.length).toEqual(3);
 

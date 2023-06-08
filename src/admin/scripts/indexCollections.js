@@ -30,8 +30,8 @@ async function main() {
             collections: collections,
             dropIndexes: parameters.drop ? true : false,
             useAuditDatabase: parameters.audit ? true : false,
-            addMissingOnly: parameters.missingOnly ? true : false,
-            removeExtraOnly: parameters.extraOnly ? true : false,
+            addMissingIndexesOnly: parameters.missingIndexesOnly ? true : false,
+            removeExtraIndexesOnly: parameters.extraIndexesOnly ? true : false,
             includeHistoryCollections: parameters.includeHistoryCollections ? true : false,
             adminLogger: new AdminLogger(),
             synchronizeIndexes: parameters.synchronize ? true : false,
@@ -57,8 +57,8 @@ async function main() {
  * Command: node -r dotenv/config src/admin/scripts/indexCollections --collections=Patient_4_0_0 --drop
  * Command: node -r dotenv/config src/admin/scripts/indexCollections --collections=all --drop
  * Command: node -r dotenv/config src/admin/scripts/indexCollections --synchronize
- * Command: node -r dotenv/config src/admin/scripts/indexCollections --missingOnly
- * Command: node -r dotenv/config src/admin/scripts/indexCollections --extraOnly
+ * Command: node -r dotenv/config src/admin/scripts/indexCollections --missingIndexesOnly
+ * Command: node -r dotenv/config src/admin/scripts/indexCollections --extraIndexesOnly
  * Command: node -r dotenv/config src/admin/scripts/indexCollections --audit --synchronize
  * Command: node -r dotenv/config src/admin/scripts/indexCollections --collections=AuditEvent_4_0_0 --drop --audit --includeHistoryCollections
  * Command: node -r dotenv/config src/admin/scripts/indexCollections --collections=AuditEvent_4_0_0 --drop --audit --includeHistoryCollections

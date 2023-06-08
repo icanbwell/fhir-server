@@ -14,8 +14,8 @@ class IndexCollectionsRunner extends BaseScriptRunner {
      * @param {boolean|undefined} [dropIndexes]
      * @param {boolean|undefined} [useAuditDatabase]
      * @param {boolean} includeHistoryCollections
-     * @param {boolean} addMissingOnly
-     * @param {boolean} removeExtraOnly
+     * @param {boolean} addMissingIndexesOnly
+     * @param {boolean} removeExtraIndexesOnly
      * @param {AdminLogger} adminLogger
      * @param {boolean} synchronizeIndexes
      * @param {MongoDatabaseManager} mongoDatabaseManager
@@ -28,8 +28,8 @@ class IndexCollectionsRunner extends BaseScriptRunner {
             dropIndexes,
             useAuditDatabase,
             includeHistoryCollections,
-            addMissingOnly,
-            removeExtraOnly,
+            addMissingIndexesOnly,
+            removeExtraIndexesOnly,
             adminLogger,
             synchronizeIndexes,
             mongoDatabaseManager,
@@ -73,11 +73,11 @@ class IndexCollectionsRunner extends BaseScriptRunner {
         /**
          * @type {boolean}
          */
-        this.addMissingOnly = addMissingOnly;
+        this.addMissingIndexesOnly = addMissingIndexesOnly;
         /**
          * @type {boolean}
          */
-        this.removeExtraOnly = removeExtraOnly;
+        this.removeExtraIndexesOnly = removeExtraIndexesOnly;
     }
 
     /**
@@ -92,13 +92,13 @@ class IndexCollectionsRunner extends BaseScriptRunner {
              */
             const db = this.useAuditDatabase ? await this.mongoDatabaseManager.getAuditDbAsync() :
                 await this.mongoDatabaseManager.getClientDbAsync();
-            if (this.addMissingOnly) {
+            if (this.addMissingIndexesOnly) {
                 await this.indexManager.addMissingIndexesAsync(
                     {
                         audit: this.useAuditDatabase
                     }
                 );
-            } else if (this.removeExtraOnly) {
+            } else if (this.removeExtraIndexesOnly) {
                 await this.indexManager.removeExtraIndexesAsync(
                     {
                         audit: this.useAuditDatabase

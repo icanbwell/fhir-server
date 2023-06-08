@@ -130,9 +130,8 @@ describe('Remove Extra Index Tests', () => {
             /**
              * @type {IndexConfig[]}
              */
-            const sortedIndexes = indexes.sort((a, b) => (a.options.name > b.options.name) ? 1 : -1);
-            expect(sortedIndexes.length).toBe(1);
-            expect(sortedIndexes[0]).toStrictEqual(
+            expect(indexes.length).toBe(1);
+            expect(indexes[0]).toStrictEqual(
                 {
                     keys: {
                         'meta.source': 1

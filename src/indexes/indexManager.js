@@ -564,6 +564,96 @@ class IndexManager {
     }
 
     /**
+     * creates indexes specified in the indexProblem
+     * @param {{indexes: {indexConfig: IndexConfig, missing?: boolean, extra?: boolean, [changed]: boolean}[], collectionName: string}} indexProblem
+     * @param {Boolean} includeChanged
+     * @param {Boolean} audit
+     * @param {{indexes: IndexConfig[], collectionName: string}[]} collectionIndexesCreated
+     * @returns {Promise<void>}
+     */
+    async createCollectionIndexAsync({
+        indexProblem, includeChanged = true, collectionIndexesCreated, audit
+    }) {
+        /**
+         * @type {import('mongodb').Db}
+         */
+        const db = audit ?
+            await this.mongoDatabaseManager.getAuditDbAsync() :
+            await this.mongoDatabaseManager.getClientDbAsync();
+
+        /**
+         * @type {IndexConfig[]}
+         */
+        const indexConfigsCreated = [];
+
+        for (const /** @type {{indexConfig: IndexConfig, missing?: boolean, extra?: boolean, [changed]: boolean}} */
+        index of indexProblem.indexes) {
+            // if index is missing or index is changed we must create
+            if (index.missing || (includeChanged && index.changed)) {
+                await this.createIndexIfNotExistsAsync({
+                    db,
+                    collectionName: indexProblem.collectionName,
+                    indexConfig: index.indexConfig
+                });
+
+                indexConfigsCreated.push(index.indexConfig);
+            }
+        }
+
+        if (indexConfigsCreated.length) {
+            collectionIndexesCreated.push({
+                collectionName: indexProblem.collectionName,
+                indexes: indexConfigsCreated
+            });
+        }
+    }
+
+    /**
+     * drops indexes specified in the indexProblem
+     * @param {{indexes: {indexConfig: IndexConfig, missing?: boolean, extra?: boolean, [changed]: boolean}[], collectionName: string}} indexProblem
+     * @param {Boolean} includeChanged
+     * @param {Boolean} audit
+     * @param {{indexes: IndexConfig[], collectionName: string}[]} collectionIndexesDropped
+     * @returns {Promise<void>}
+     */
+    async dropCollectionIndexAsync({
+        indexProblem, includeChanged = true, collectionIndexesDropped, audit
+    }) {
+        /**
+         * @type {import('mongodb').Db}
+         */
+        const db = audit ?
+            await this.mongoDatabaseManager.getAuditDbAsync() :
+            await this.mongoDatabaseManager.getClientDbAsync();
+
+        /**
+         * @type {IndexConfig[]}
+         */
+        const indexConfigsDropped = [];
+
+        for (const /** @type {{indexConfig: IndexConfig, missing?: boolean, extra?: boolean}} */
+        index of indexProblem.indexes) {
+            // if the index is extra or changed we must drop it
+            if (index.extra || (includeChanged && index.changed)) {
+                await this.deleteIndexInCollectionAsync({
+                    collectionName: indexProblem.collectionName,
+                    indexName: index.indexConfig.options.name,
+                    db
+                });
+
+                indexConfigsDropped.push(index.indexConfig);
+            }
+        }
+
+        if (indexConfigsDropped.length) {
+            collectionIndexesDropped.push({
+                collectionName: indexProblem.collectionName,
+                indexes: indexConfigsDropped
+            });
+        }
+    }
+
+    /**
      * adds any indexes missing from config and removes any indexes not in config
      * @param {boolean} [audit]
      * @returns {Promise<{created: {indexes: IndexConfig[], collectionName: string}[],dropped: {indexes: IndexConfig[], collectionName: string}[]}>}
@@ -577,60 +667,26 @@ class IndexManager {
          * @type {{indexes: IndexConfig[], collectionName: string}[]}
          */
         const collectionIndexesDropped = [];
-        /**
-         * @type {import('mongodb').Db}
-         */
-        const db = audit ?
-            await this.mongoDatabaseManager.getAuditDbAsync() :
-            await this.mongoDatabaseManager.getClientDbAsync();
+
         /**
          * @type {{indexes: {indexConfig: IndexConfig, missing?: boolean, extra?: boolean, [changed]: boolean}[], collectionName: string}[]}
          */
-        const indexProblems = await this.compareCurrentIndexesWithConfigurationInAllCollectionsAsync(
-            {
-                audit,
-                filterToProblems: true
-            }
-        );
+        const indexProblems = await this.compareCurrentIndexesWithConfigurationInAllCollectionsAsync({
+            audit,
+            filterToProblems: true
+        });
 
         for (
             const /** @type {{indexes: {indexConfig: IndexConfig, missing?: boolean, extra?: boolean, [changed]: boolean}[], collectionName: string}} */
             indexProblem of indexProblems
-            ) {
+        ) {
             assertIsValid(indexProblem.collectionName);
-            const indexesToDrop = indexProblem.indexes.filter(i => i.extra || i.changed);
-            for (const /** @type {{indexConfig: IndexConfig, missing?: boolean, extra?: boolean}} */
-            index of indexesToDrop) {
-                await this.deleteIndexInCollectionAsync({
-                    collectionName: indexProblem.collectionName,
-                    indexName: index.indexConfig.options.name,
-                    db
-                });
-            }
 
-            if (indexesToDrop.length > 0) {
-                collectionIndexesDropped.push({
-                    collectionName: indexProblem.collectionName,
-                    indexes: indexesToDrop.map(a => a.indexConfig)
-                });
-            }
+            // extra or changed indexes needs to be dropped
+            await this.dropCollectionIndexAsync({indexProblem, audit, collectionIndexesDropped});
 
-            const indexesToCreate = indexProblem.indexes.filter(i => i.missing || i.changed);
-            for (const /** @type {{indexConfig: IndexConfig, missing?: boolean, extra?: boolean}} */
-            index of indexesToCreate) {
-                await this.createIndexIfNotExistsAsync({
-                    collectionName: indexProblem.collectionName,
-                    indexConfig: index.indexConfig,
-                    db
-                });
-            }
-
-            if (indexesToCreate.length > 0) {
-                collectionIndexesCreated.push({
-                    collectionName: indexProblem.collectionName,
-                    indexes: indexesToCreate.map(a => a.indexConfig)
-                });
-            }
+            // missing or changed indexes needs to be created
+            await this.createCollectionIndexAsync({indexProblem, audit, collectionIndexesCreated});
         }
 
         return {
@@ -649,58 +705,24 @@ class IndexManager {
          * @type {{indexes: IndexConfig[], collectionName: string}[]}
          */
         const collectionIndexesCreated = [];
-        /**
-         * @type {import('mongodb').Db}
-         */
-        const db = audit ?
-            await this.mongoDatabaseManager.getAuditDbAsync() :
-            await this.mongoDatabaseManager.getClientDbAsync();
-        /**
-         * @type {{indexes: {indexConfig: IndexConfig, missing?: boolean, extra?: boolean, [changed]: boolean}[], collectionName: string}[]}
-         */
-        const indexProblems = await this.compareCurrentIndexesWithConfigurationInAllCollectionsAsync(
-            {
-                audit,
-                filterToProblems: true
-            }
-        );
 
-        // indexes to create
         /**
          * @type {{indexes: {indexConfig: IndexConfig, missing?: boolean, extra?: boolean, [changed]: boolean}[], collectionName: string}[]}
          */
-        const indexesToCreate = indexProblems.map(
-            c => {
-                return {
-                    collectionName: c.collectionName,
-                    indexes: c.indexes.filter(i => i.missing) // get only missing indexes
-                };
-            }
-        ).filter(c => c.indexes.length > 0);
+        const indexProblems = await this.compareCurrentIndexesWithConfigurationInAllCollectionsAsync({
+            audit,
+            filterToProblems: true
+        });
 
         for (
             const /** @type {{indexes: {indexConfig: IndexConfig, missing?: boolean, extra?: boolean, [changed]: boolean}[], collectionName: string}} */
-            indexToCreate of indexesToCreate
-            ) {
-            for (const /** @type {{indexConfig: IndexConfig, missing?: boolean, extra?: boolean, [changed]: boolean}} */
-            index of indexToCreate.indexes) {
-                assertIsValid(indexToCreate.collectionName);
-                await this.createIndexIfNotExistsAsync(
-                    {
-                        db,
-                        collectionName: indexToCreate.collectionName,
-                        indexConfig: index.indexConfig
-                    }
-                );
-            }
-            if (indexToCreate.indexes) {
-                collectionIndexesCreated.push(
-                    {
-                        collectionName: indexToCreate.collectionName,
-                        indexes: indexToCreate.indexes.map(a => a.indexConfig)
-                    }
-                );
-            }
+            indexProblem of indexProblems
+        ) {
+            assertIsValid(indexProblem.collectionName);
+
+            await this.createCollectionIndexAsync({
+                indexProblem, includeChanged: false, collectionIndexesCreated, audit
+            });
         }
 
         return {
@@ -718,58 +740,24 @@ class IndexManager {
          * @type {{indexes: IndexConfig[], collectionName: string}[]}
          */
         const collectionIndexesDropped = [];
-        /**
-         * @type {import('mongodb').Db}
-         */
-        const db = audit ?
-            await this.mongoDatabaseManager.getAuditDbAsync() :
-            await this.mongoDatabaseManager.getClientDbAsync();
-        /**
-         * @type {{indexes: {indexConfig: IndexConfig, missing?: boolean, extra?: boolean, [changed]: boolean}[], collectionName: string}[]}
-         */
-        const indexProblems = await this.compareCurrentIndexesWithConfigurationInAllCollectionsAsync(
-            {
-                audit,
-                filterToProblems: true
-            }
-        );
 
-        // indexes to remove
         /**
          * @type {{indexes: {indexConfig: IndexConfig, missing?: boolean, extra?: boolean, [changed]: boolean}[], collectionName: string}[]}
          */
-        const indexesToRemove = indexProblems.map(
-            c => {
-                return {
-                    collectionName: c.collectionName,
-                    indexes: c.indexes.filter(
-                        i => i.extra // drop changed inxdexes so they can be recreatd
-                    )
-                };
-            }
-        ).filter(c => c.indexes.length > 0);
+        const indexProblems = await this.compareCurrentIndexesWithConfigurationInAllCollectionsAsync({
+            audit,
+            filterToProblems: true
+        });
 
         for (
             const /** @type {{indexes: {indexConfig: IndexConfig, missing?: boolean, extra?: boolean, [changed]: boolean}[], collectionName: string}} */
-            indexToRemove of indexesToRemove
-            ) {
-            for (const /** @type {{indexConfig: IndexConfig, missing?: boolean, extra?: boolean}} */
-            index of indexToRemove.indexes) {
-                assertIsValid(indexToRemove.collectionName);
-                await this.deleteIndexInCollectionAsync({
-                    collectionName: indexToRemove.collectionName,
-                    indexName: index.indexConfig.options.name,
-                    db: db
-                });
-            }
-            if (indexToRemove.indexes) {
-                collectionIndexesDropped.push(
-                    {
-                        collectionName: indexToRemove.collectionName,
-                        indexes: indexToRemove.indexes.map(a => a.indexConfig)
-                    }
-                );
-            }
+            indexProblem of indexProblems
+        ) {
+            assertIsValid(indexProblem.collectionName);
+
+            await this.dropCollectionIndexAsync({
+                indexProblem, includeChanged: false, collectionIndexesDropped, audit
+            });
         }
 
         return {
