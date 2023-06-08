@@ -65,7 +65,7 @@ async function createServer(fnCreateContainer) {
     const worker = new Worker('fhir-server-resource-change-event', async job => {
         console.log('JobName:' + job.name + ', Message:' + JSON.stringify(job.data));
     }, { connection: {
-        host: 'dev-cache-platform-ue1.fi04rw.ng.0001.use1.cache.amazonaws.com',
+        host: 'fhir-bullmq-tst.fi04rw.ng.0001.use1.cache.amazonaws.com',
         port: 6379
     }});
 

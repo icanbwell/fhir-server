@@ -356,7 +356,7 @@ class ChangeEventProducer {
             const { randomUUID } = require('crypto');
             try {
                 const queue = new Queue('fhir-server-resource-change-event', { connection: {
-                    host: 'dev-cache-platform-ue1.fi04rw.ng.0001.use1.cache.amazonaws.com',
+                    host: 'fhir-bullmq-tst.fi04rw.ng.0001.use1.cache.amazonaws.com',
                     port: 6379
                 }});
                 const message = { 'Consent': [doc._uuid]};
