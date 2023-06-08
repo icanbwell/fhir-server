@@ -152,7 +152,7 @@ curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash
 #### 4. install node
 ```shell
 nvm install 18.16.0
-nvm use 18.16.0
+nvm use
 npm install -g npm@latest
 ```
 

@@ -68,7 +68,7 @@ async function main() {
 
 /**
  * To run this:
- * nvm use 18.16.0
+ * nvm use
  * node src/admin/scripts/fixPersonLinks.js --batchSize=10000 --preLoadCollections Person_4_0_0
  * node src/admin/scripts/fixPersonLinks.js --batchSize=10000 --minLinks 20 --0 Person_4_0_0
  */
