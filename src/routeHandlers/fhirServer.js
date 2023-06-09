@@ -155,12 +155,12 @@ class MyFHIRServer {
 
         // Log the incoming request
         this.app.use(
-            (
+            async (
                 /** @type {import('http').IncomingMessage} **/ req,
                 /** @type {import('http').ServerResponse} **/ res,
                 next
             ) => {
-                this.container.fhirLoggingManager.logOperationStartAsync(
+                await this.container.fhirLoggingManager.logOperationStartAsync(
                     {
                         requestInfo: this.container.fhirOperationsManager.getRequestInfo(req),
                         startTime: Date.now()
