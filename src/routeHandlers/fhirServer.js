@@ -160,7 +160,6 @@ class MyFHIRServer {
                 /** @type {import('http').ServerResponse} **/ res,
                 next
             ) => {
-                req.id = req.id || req.header(`${REQUEST_ID_HEADER}`) || generateUUID();
                 this.container.fhirLoggingManager.logOperationStartAsync(
                     {
                         requestInfo: this.container.fhirOperationsManager.getRequestInfo(req),
