@@ -109,6 +109,14 @@ class SearchByVersionIdOperation {
             // /** @type {string} */
             // requestId
         } = requestInfo;
+        await this.fhirLoggingManager.logOperationStartAsync(
+            {
+                requestInfo,
+                args: parsedArgs.getRawArgs(),
+                resourceType,
+                startTime,
+                action: currentOperationName,
+            });
 
         try {
 

@@ -137,6 +137,14 @@ class SearchBundleOperation {
             requestId,
             /** @type {string} */ method
         } = requestInfo;
+        await this.fhirLoggingManager.logOperationStartAsync(
+            {
+                requestInfo,
+                args: parsedArgs.getRawArgs(),
+                resourceType,
+                startTime,
+                action: currentOperationName,
+            });
 
         assertIsValid(requestId, 'requestId is null');
         await this.scopesValidator.verifyHasValidScopesAsync({

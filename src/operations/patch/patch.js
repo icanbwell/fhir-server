@@ -133,6 +133,14 @@ class PatchOperation {
          * @type {number}
          */
         const startTime = Date.now();
+        await this.fhirLoggingManager.logOperationStartAsync(
+            {
+                requestInfo,
+                args: parsedArgs.getRawArgs(),
+                resourceType,
+                startTime,
+                action: currentOperationName,
+            });
 
         await this.scopesValidator.verifyHasValidScopesAsync({
             requestInfo,

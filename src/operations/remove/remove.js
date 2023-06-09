@@ -112,6 +112,14 @@ class RemoveOperation {
          */
         const startTime = Date.now();
         const {user, scope, /** @type {string|null} */ requestId, /** @type {string} */ method} = requestInfo;
+        await this.fhirLoggingManager.logOperationStartAsync(
+            {
+                requestInfo,
+                args: parsedArgs.getRawArgs(),
+                resourceType,
+                startTime,
+                action: currentOperationName,
+            });
 
         if (parsedArgs.get('id') &&
             (

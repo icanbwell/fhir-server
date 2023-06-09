@@ -60,6 +60,14 @@ class ValidateOperation {
          */
         const startTime = Date.now();
         const path = requestInfo.path;
+        await this.fhirLoggingManager.logOperationStartAsync(
+            {
+                requestInfo,
+                args: parsedArgs.getRawArgs(),
+                resourceType,
+                startTime,
+                action: currentOperationName,
+            });
 
         /**
          * @type {string}

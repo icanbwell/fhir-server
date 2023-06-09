@@ -221,6 +221,14 @@ class MergeOperation {
             method
         } = requestInfo;
 
+        await this.fhirLoggingManager.logOperationStartAsync(
+            {
+                requestInfo,
+                args: parsedArgs.getRawArgs(),
+                resourceType,
+                startTime,
+                action: currentOperationName,
+            });
 
         await this.scopesValidator.verifyHasValidScopesAsync(
             {

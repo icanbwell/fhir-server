@@ -134,6 +134,15 @@ class CreateOperation {
         const startTime = Date.now();
         const {user, body, /** @type {string} */ requestId, /** @type {string} */ method} = requestInfo;
 
+        await this.fhirLoggingManager.logOperationStartAsync(
+            {
+                requestInfo,
+                args: parsedArgs.getRawArgs(),
+                resourceType,
+                startTime,
+                action: currentOperationName,
+            });
+
         await this.scopesValidator.verifyHasValidScopesAsync(
             {
                 requestInfo,
