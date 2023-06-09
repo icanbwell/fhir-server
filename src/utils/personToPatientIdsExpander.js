@@ -1,3 +1,4 @@
+const { FilterById } = require('../operations/query/filters/id');
 const {assertTypeEquals} = require('./assertType');
 const {DatabaseQueryFactory} = require('../dataLayer/databaseQueryFactory');
 const { logWarn } = require('../operations/common/logging');
@@ -72,7 +73,7 @@ class PersonToPatientIdsExpander {
     async getPatientIdsFromPersonAsync({personIds, totalProcessedPersonIds, databaseQueryManager, level}) {
         const personResourceCursor = await databaseQueryManager.findAsync(
             {
-                query: {id: {$in: personIds}},
+                query: FilterById.getListFilter(personIds),
                 options: {projection: {id: 1, link: 1, _id: 0}}
             }
         );
