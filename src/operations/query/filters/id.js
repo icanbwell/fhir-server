@@ -1,3 +1,4 @@
+const { FieldMapper } = require('./fieldMapper');
 const {isUuid} = require('../../../utils/uid.util');
 const {BaseFilter} = require('./baseFilter');
 const {IdParser} = require('../../../utils/idParser');
@@ -42,6 +43,28 @@ class FilterById extends BaseFilter {
                 [this.fieldMapper.getFieldName(field)]: value
             };
         }
+    }
+
+    /**
+     * Get filter for list of ids
+     * @param {String[]} values
+     * @returns {{_uuid: {$in}}|{_sourceId: {$in}}|{$or: ({_uuid: {$in}}|{_sourceId: {$in}})[]}}
+     */
+    static getListFilter(values){
+        const idFieldMapper = new FieldMapper({useHistoryTable: false});
+        let uuids = values.filter(value => idFieldMapper.getFieldName('id', value) === '_uuid');
+        let sourceIds = values.filter(value => idFieldMapper.getFieldName('id', value) === '_sourceId');
+        let query;
+        const uuidQuery = {'_uuid': {$in: uuids}};
+        const sourceIdQuery = {'_sourceId': {$in: sourceIds}};
+
+        if (uuids.length && sourceIds.length){
+            query = {$or: [uuidQuery, sourceIdQuery]};
+        } else {
+            query = uuids.length ? uuidQuery : sourceIdQuery;
+        }
+        return query;
+
     }
 }
 

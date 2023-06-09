@@ -153,6 +153,23 @@ class MyFHIRServer {
             })
         );
 
+        // Log the incoming request
+        this.app.use(
+            (
+                /** @type {import('http').IncomingMessage} **/ req,
+                /** @type {import('http').ServerResponse} **/ res,
+                next
+            ) => {
+                req.id = req.id || req.header(`${REQUEST_ID_HEADER}`) || generateUUID();
+                this.container.fhirLoggingManager.logOperationStartAsync(
+                    {
+                        requestInfo: this.container.fhirOperationsManager.getRequestInfo(req),
+                        startTime: Date.now()
+                    });
+                next();
+            }
+        );
+
         // add container to request
         // this.app.use((/** @type {import('http').IncomingMessage} **/ req, /** @type {import('http').ServerResponse} **/ res, next) => {
         //     req.container = this.fnCreateContainer();
