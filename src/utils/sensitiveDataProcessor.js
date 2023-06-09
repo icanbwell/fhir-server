@@ -320,6 +320,7 @@ class SensitiveDataProcessor {
      * @returns {Resource[]} returns all the resource whose security tags have been updated due to changes made to consent.
      */
     async updatePatientRelatedResources({resource}) {
+        const promises = [];
         let listOfResources = [];
         // Retriving the patient id from consent resource
         const consentPatientId = resource.patient.reference;
@@ -333,10 +334,14 @@ class SensitiveDataProcessor {
             const query = {
                 [pathToPatientReference]: { $eq: `${resourceType === 'Patient' ? consentPatientId.replace(patientReferencePrefix, '') : consentPatientId}` }
             };
-            const cursor = databaseQueryManager.findAsync({query: query});
-            const currentResources = await cursor.toArrayRawAsync();
+            // Creates a list of promises to getch all resources linked to a patient.
+            promises.push(databaseQueryManager.findAsync({query: query}));
+        }
+        // Fetches all the resource cursors.
+        const results = await Promise.all(promises);
+        for (let currentResources of results) {
             // Maintains a list of resources linked to the patient.
-            listOfResources = [...listOfResources, ...currentResources];
+            listOfResources = [...listOfResources, ...await currentResources.toArrayRawAsync()];
         }
         // Call the sensitive data processor on all the resources.
         return this.updateResourceSecurityAccessTag({
