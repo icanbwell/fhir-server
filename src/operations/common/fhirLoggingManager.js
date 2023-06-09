@@ -24,6 +24,39 @@ class FhirLoggingManager {
     }
 
     /**
+     * Logs a FHIR operation start
+     * @param {FhirRequestInfo} requestInfo
+     * @param {Object} args
+     * @param {string} resourceType
+     * @param {number|null} startTime
+     * @param {number|null|undefined} [stopTime]
+     * @param {string} action
+     * @param {string|undefined} [query]
+     * @param {string|undefined} [result]
+     */
+    async logOperationStartAsync(
+        {
+            /** @type {FhirRequestInfo} */ requestInfo,
+            args = {},
+            resourceType,
+            startTime,
+            action
+        }
+    ) {
+        await this.internalLogOperationAsync(
+            {
+                requestInfo,
+                args,
+                resourceType,
+                startTime,
+                stopTime: startTime,
+                message: 'operationStarted',
+                action
+            }
+        );
+    }
+
+    /**
      * Logs a FHIR operation
      * @param {FhirRequestInfo} requestInfo
      * @param {Object} args
