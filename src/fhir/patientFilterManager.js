@@ -120,6 +120,13 @@ class PatientFilterManager {
         return Object.hasOwn(this.patientFilterMapping, resourceType) ||
             this.resourcesWithoutPatientData.includes(resourceType);
     }
+
+    /**
+     * Returns the patient filter mapping
+     */
+    getAllResourcesLinkedWithPatient() {
+        return this.patientFilterMapping;
+    }
 }
 
 module.exports = {

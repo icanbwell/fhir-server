@@ -1,7 +1,6 @@
 /* eslint-disable security/detect-object-injection */
 
 const { DatabaseQueryFactory } = require('../dataLayer/databaseQueryFactory');
-const { DatabaseBulkInserter } = require('../dataLayer/databaseBulkInserter');
 const { PatientFilterManager } = require('../fhir/patientFilterManager');
 const { logInfo, logWarn, logDebug } = require('../operations/common/logging');
 const { assertTypeEquals } = require('./assertType');
@@ -18,14 +17,12 @@ class SensitiveDataProcessor {
     /**
      * @param {DatabaseQueryFactory} databaseQueryFactory
      * @param {PatientFilterManager} patientFilterManager
-     * @param {DatabaseBulkInserter} databaseBulkInserter
      * @param {BwellPersonFinder} bwellPersonFinder
      * @param {PersonToPatientIdsExpander} personToPatientIdsExpander
      */
     constructor({
         databaseQueryFactory,
         patientFilterManager,
-        databaseBulkInserter,
         bwellPersonFinder,
         personToPatientIdsExpander
     }) {
@@ -42,12 +39,6 @@ class SensitiveDataProcessor {
         assertTypeEquals(patientFilterManager, PatientFilterManager);
 
         /**
-         * @type {DatabaseBulkInserter}
-         */
-        this.databaseBulkInserter = databaseBulkInserter;
-        assertTypeEquals(databaseBulkInserter, DatabaseBulkInserter);
-
-        /**
          * @type {BwellPersonFinder}
          */
         this.bwellPersonFinder = bwellPersonFinder;
@@ -62,7 +53,7 @@ class SensitiveDataProcessor {
 
     /**
      * @description Updates access tags for patient initiated connection.
-     * STEPS:
+     * STEPS INVOLVED:
      * 1. Filters out resource that are patient initiated connection type.
      * 2. Fetch the bwell person for the specific patients and get all client patient.
      * 3. Fetch all the related consents.
@@ -72,16 +63,21 @@ class SensitiveDataProcessor {
      */
     async updateResourceSecurityAccessTag({
         resource,
+        removePreviousSecurityAccessTags = true,
+        returnUpdatedResources = false
     }) {
         const resources = Array.isArray(resource) ? resource : [resource];
-        const patientIdToResourceMap = this.getLinkedPatientRecords(resources);
+        const patientIdToResourceMap = await this.getLinkedPatientRecords(resources);
         if (Object.keys(patientIdToResourceMap).length === 0) {
             logInfo('No Resources have connectionType as mentioned in patient pipelines.', {});
             return;
         }
         // requiredSecurityAccessTag create an object were for each patientId the required access tag is present
         const requiredSecurityAccessTag = await this.getPatientSpecificSecurityAccessTag(patientIdToResourceMap);
-        this.updateSecurityAccessTags(patientIdToResourceMap, requiredSecurityAccessTag);
+        const updatedResources = this.updateSecurityAccessTags(patientIdToResourceMap, requiredSecurityAccessTag, removePreviousSecurityAccessTags);
+        if (returnUpdatedResources) {
+            return updatedResources;
+        }
     }
 
     /**
@@ -113,7 +109,6 @@ class SensitiveDataProcessor {
                 // The patient property returns the path on which the patient link is stored
                 // Example Procedure subject.reference. now subject can be a array. So we need to iterate over each subject and check if it has a patient reference.
                 let patientId = this.getPatientIdFromResource(resource, patientProperty, '');
-
                 // Id resource if of Patient type append a prefix Patient to filter out consent records.
                 if (resource.resourceType === 'Patient') {
                     patientId = `Patient/${patientId}`;
@@ -186,6 +181,11 @@ class SensitiveDataProcessor {
             let clientPatientIds = await this.personToPatientIdsExpander.getPatientProxyIdsAsync({
                 base_version: '4_0_0', id: `person.${bwellMasterPerson}`, includePatientPrefix: true
             });
+            if (typeof clientPatientIds === 'string') {
+                allLinkedPatientIds.push(clientPatientIds);
+                linkedClientPatientIdMap[clientPatientIds] = patientId;
+                continue;
+            }
             // All the patient ids for which consents are to be fetched
             allLinkedPatientIds = [...allLinkedPatientIds, ...clientPatientIds];
             // Create a reverse relation object between the client patient and the main patient
@@ -278,12 +278,15 @@ class SensitiveDataProcessor {
      * @param {Object} patientIdToResourceMap
      * @param {Object} requiredSecurityAccessTag
      */
-    updateSecurityAccessTags(patientIdToResourceMap, requiredSecurityAccessTag) {
+    updateSecurityAccessTags(patientIdToResourceMap, requiredSecurityAccessTag, removePreviousSecurityAccessTags) {
+        let updatedResources = [];
         // For each patient id remove any previod access tags and create a new one as per consent.
         const patientIds = Object.keys(patientIdToResourceMap);
         patientIds.forEach((id) => {
             patientIdToResourceMap[id].forEach((resource) => {
-                resource.meta.security = this.removeSecurityAccessTag(resource.meta.security);
+                if (removePreviousSecurityAccessTags) {
+                    resource.meta.security = this.removeSecurityAccessTag(resource.meta.security);
+                }
                 // If for the current patient id we need to create a access tag
                 // requiredSecurityAccessTag[id] tells for which patient is we need to update access tags
                 // first remove the current access tag.
@@ -291,8 +294,10 @@ class SensitiveDataProcessor {
                     // Updating the security tag.
                     resource.meta.security = [...resource.meta.security, ...requiredSecurityAccessTag[id]];
                 }
+                updatedResources.push(resource);
             });
         });
+        return updatedResources;
     }
 
     /**
@@ -303,6 +308,39 @@ class SensitiveDataProcessor {
     removeSecurityAccessTag(security) {
         return security.filter((coding) => {
             return !coding.system.endsWith('/access');
+        });
+    }
+
+    /**
+     * STEPS INVOLVED:
+     * 1. Fetch all resources related to the patient for which consent has been updated.
+     * 2. Upddates the security access tags.
+     * 3. Returns an array of resources that has been updated.
+     * @param {Resource} resource
+     * @returns {Resource[]} returns all the resource whose security tags have been updated due to changes made to consent.
+     */
+    async updatePatientRelatedResources({resource}) {
+        let listOfResources = [];
+        // Retriving the patient id from consent resource
+        const consentPatientId = resource.patient.reference;
+        // Fetching all resources linked with patient id
+        for (let [resourceType, pathToPatientReference] of Object.entries(this.patientFilterManager.getAllResourcesLinkedWithPatient())) {
+            const databaseQueryManager = await this.databaseQueryFactory.createQuery({
+                resourceType: resourceType,
+                base_version: '4_0_0'
+            });
+            // For patient resource type we just need to pass the _sourceId or _uuid without prefix.
+            const query = {
+                [pathToPatientReference]: { $eq: `${resourceType === 'Patient' ? consentPatientId.replace(patientReferencePrefix, '') : consentPatientId}` }
+            };
+            const cursor = databaseQueryManager.findAsync({query: query});
+            const currentResources = await cursor.toArrayRawAsync();
+            // Maintains a list of resources linked to the patient.
+            listOfResources = [...listOfResources, ...currentResources];
+        }
+        // Call the sensitive data processor on all the resources.
+        return this.updateResourceSecurityAccessTag({
+            resource: listOfResources, removePreviousSecurityAccessTags: false, returnUpdatedResources: true
         });
     }
 }

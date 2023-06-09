@@ -165,13 +165,16 @@ const createContainer = function () {
             patientChangeTopic: env.KAFKA_PATIENT_CHANGE_TOPIC || 'business.events',
             consentChangeTopic: env.KAFKA_PATIENT_CHANGE_TOPIC || 'business.events',
             bwellPersonFinder: c.bwellPersonFinder,
-            requestSpecificCache: c.requestSpecificCache
+            requestSpecificCache: c.requestSpecificCache,
+            configManager: c.configManager,
+            sensitiveDataProcessor: c.sensitiveDataProcessor,
+            patientFilterManager: c.patientFilterManager,
+            databaseBulkInserter: c.databaseBulkInserter
         }
     ));
     container.register('sensitiveDataProcessor', (c) => new SensitiveDataProcessor({
         databaseQueryFactory: c.databaseQueryFactory,
         patientFilterManager: c.patientFilterManager,
-        databaseBulkInserter: c.databaseBulkInserter,
         bwellPersonFinder: c.bwellPersonFinder,
         personToPatientIdsExpander: c.personToPatientIdsExpander
     }));
