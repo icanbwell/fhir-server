@@ -14,6 +14,10 @@ const Period = require('../fhir/classes/4_0_0/complex_types/period');
 const {BwellPersonFinder} = require('./bwellPersonFinder');
 const {RequestSpecificCache} = require('./requestSpecificCache');
 const {KafkaClientFactory} = require('./kafkaClientFactory');
+const { ConfigManager } = require('./configManager');
+const { SensitiveDataProcessor } = require('./sensitiveDataProcessor');
+const { PatientFilterManager } = require('../fhir/patientFilterManager');
+const { DatabaseBulkInserter } = require('../dataLayer/databaseBulkInserter');
 
 const Mutex = require('async-mutex').Mutex;
 const mutex = new Mutex();
@@ -30,6 +34,10 @@ class ChangeEventProducer {
      * @param {string} consentChangeTopic
      * @param {BwellPersonFinder} bwellPersonFinder
      * @param {RequestSpecificCache} requestSpecificCache
+     * @param {ConfigManager} configManager
+     * @param {SensitiveDataProcessor} sensitiveDataProcessor
+     * @param {PatientFilterManager} patientFilterManager
+    //  * @param {DatabaseBulkInserter} databaseBulkInserter
      */
     constructor({
                     kafkaClientFactory,
@@ -37,7 +45,11 @@ class ChangeEventProducer {
                     patientChangeTopic,
                     consentChangeTopic,
                     bwellPersonFinder,
-                    requestSpecificCache
+                    requestSpecificCache,
+                    configManager,
+                    sensitiveDataProcessor,
+                    patientFilterManager,
+                    databaseBulkInserter
                 }) {
         /**
          * @type {KafkaClientFactory}
@@ -69,6 +81,30 @@ class ChangeEventProducer {
          */
         this.requestSpecificCache = requestSpecificCache;
         assertTypeEquals(requestSpecificCache, RequestSpecificCache);
+
+        /**
+         * @type {ConfigManager}
+         */
+        this.configManager = configManager;
+        assertTypeEquals(configManager, ConfigManager);
+
+        /**
+         * @type {SensitiveDataProcessor}
+         */
+        this.sensitiveDataProcessor = sensitiveDataProcessor;
+        assertTypeEquals(sensitiveDataProcessor, SensitiveDataProcessor);
+
+        /**
+         * @type {PatientFilterManager}
+         */
+        this.patientFilterManager = patientFilterManager;
+        assertTypeEquals(patientFilterManager, PatientFilterManager);
+
+        /**
+         * @type {DatabaseBulkInserter}
+         */
+        this.databaseBulkInserter = databaseBulkInserter;
+        assertTypeEquals(databaseBulkInserter, DatabaseBulkInserter);
     }
 
     /**
@@ -349,6 +385,27 @@ class ChangeEventProducer {
             } else {
                 await this.onConsentChangeAsync({
                     requestId, id: doc.id, resourceType, timestamp: currentDate, sourceType
+                });
+            }
+            if (this.configManager.enabledAccessTagUpdate) {
+                const updatedResources = await this.sensitiveDataProcessor.updatePatientRelatedResources({
+                    resource: doc
+                });
+                updatedResources.forEach((resource) => {
+                    this.databaseBulkInserter.addOperationForResourceType({
+                        requestId: requestId,
+                        resourceType: resource.resourceType,
+                        resource: resource,
+                        opeartionType: eventType === 'C' ? 'insert' : 'update',
+                        operation: {
+                            insertOne: {
+                                document: resource.toJSONInternal()
+                            }
+                        }
+                    });
+                });
+                this.databaseBulkInserter.executeAsync({
+                    requestId: requestId
                 });
             }
         }
