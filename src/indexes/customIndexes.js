@@ -582,7 +582,7 @@ module.exports = {
                 keys: {
                     'identifier.value': 1,
                     'identifier.system': 1,
-                    '_sourceId': 1
+                    '_uuid': 1
                 },
                 options: {
                     name: 'identifier.value_1'
@@ -600,7 +600,7 @@ module.exports = {
             {
                 keys: {
                     'name.given': 1,
-                    '_sourceId': 1
+                    '_uuid': 1
                 },
                 options: {
                     name: 'name.given_1'
@@ -612,7 +612,7 @@ module.exports = {
                 keys: {
                     'telecom.system': 1,
                     'telecom.code': 1,
-                    '_sourceId': 1
+                    '_uuid': 1
                 },
                 options: {
                     name: 'telecom.system_code_1'
@@ -622,7 +622,7 @@ module.exports = {
                 keys: {
                     'identifier.value': 1,
                     'identifier.system': 1,
-                    '_sourceId': 1
+                    '_uuid': 1
                 },
                 options: {
                     name: 'identifier.value_1'
@@ -632,7 +632,7 @@ module.exports = {
                 keys: {
                     'name.family': 1,
                     'name.given': 1,
-                    '_sourceId': 1
+                    '_uuid': 1
                 },
                 options: {
                     name: 'name.family_1'
@@ -642,7 +642,7 @@ module.exports = {
                 keys: {
                     '_access.bwell': 1,
                     'name.text': 1,
-                    '_sourceId': 1
+                    '_uuid': 1
                 },
                 options: {
                     name: 'bwell_name.text_1'
@@ -652,7 +652,7 @@ module.exports = {
                 keys: {
                     '_access.bwell': 1,
                     'name.family': 1,
-                    '_sourceId': 1
+                    '_uuid': 1
                 },
                 options: {
                     name: 'bwell_name.family_1'
@@ -662,7 +662,7 @@ module.exports = {
                 keys: {
                     '_access.bwell': 1,
                     'name.suffix': 1,
-                    '_sourceId': 1
+                    '_uuid': 1
                 },
                 options: {
                     name: 'bwell_name.suffix_1'
@@ -672,7 +672,7 @@ module.exports = {
                 keys: {
                     '_access.bwell': 1,
                     'name.given': 1,
-                    '_sourceId': 1
+                    '_uuid': 1
                 },
                 options: {
                     name: 'bwell_name.given_1'
@@ -682,7 +682,7 @@ module.exports = {
                 keys: {
                     '_access.bwell': 1,
                     'name.prefix': 1,
-                    '_sourceId': 1
+                    '_uuid': 1
                 },
                 options: {
                     name: 'bwell_name.prefix_1'
