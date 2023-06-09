@@ -17,7 +17,6 @@ const {KafkaClientFactory} = require('./kafkaClientFactory');
 const { ConfigManager } = require('./configManager');
 const { SensitiveDataProcessor } = require('./sensitiveDataProcessor');
 const { PatientFilterManager } = require('../fhir/patientFilterManager');
-const { DatabaseBulkInserter } = require('../dataLayer/databaseBulkInserter');
 
 const Mutex = require('async-mutex').Mutex;
 const mutex = new Mutex();
@@ -37,7 +36,6 @@ class ChangeEventProducer {
      * @param {ConfigManager} configManager
      * @param {SensitiveDataProcessor} sensitiveDataProcessor
      * @param {PatientFilterManager} patientFilterManager
-    //  * @param {DatabaseBulkInserter} databaseBulkInserter
      */
     constructor({
                     kafkaClientFactory,
@@ -49,7 +47,6 @@ class ChangeEventProducer {
                     configManager,
                     sensitiveDataProcessor,
                     patientFilterManager,
-                    databaseBulkInserter
                 }) {
         /**
          * @type {KafkaClientFactory}
@@ -99,12 +96,6 @@ class ChangeEventProducer {
          */
         this.patientFilterManager = patientFilterManager;
         assertTypeEquals(patientFilterManager, PatientFilterManager);
-
-        /**
-         * @type {DatabaseBulkInserter}
-         */
-        this.databaseBulkInserter = databaseBulkInserter;
-        assertTypeEquals(databaseBulkInserter, DatabaseBulkInserter);
     }
 
     /**
@@ -388,25 +379,11 @@ class ChangeEventProducer {
                 });
             }
             if (this.configManager.enabledAccessTagUpdate) {
+                // eslint-disable-next-line no-unused-vars
                 const updatedResources = await this.sensitiveDataProcessor.updatePatientRelatedResources({
                     resource: doc
                 });
-                updatedResources.forEach((resource) => {
-                    this.databaseBulkInserter.addOperationForResourceType({
-                        requestId: requestId,
-                        resourceType: resource.resourceType,
-                        resource: resource,
-                        opeartionType: eventType === 'C' ? 'insert' : 'update',
-                        operation: {
-                            insertOne: {
-                                document: resource.toJSONInternal()
-                            }
-                        }
-                    });
-                });
-                this.databaseBulkInserter.executeAsync({
-                    requestId: requestId
-                });
+                // TODO: Update all resources returned, handle circular dependency.
             }
         }
     }

@@ -169,7 +169,6 @@ const createContainer = function () {
             configManager: c.configManager,
             sensitiveDataProcessor: c.sensitiveDataProcessor,
             patientFilterManager: c.patientFilterManager,
-            databaseBulkInserter: c.databaseBulkInserter
         }
     ));
     container.register('sensitiveDataProcessor', (c) => new SensitiveDataProcessor({
