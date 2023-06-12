@@ -46,13 +46,28 @@ class ParsedArgsItem {
          * @type {string[]}
          */
         this.modifiers = modifiers;
+        if (modifiers.length) {
+            this.applyModifierToQueryParameterValue();
+        }
+        /**
+         * @type {ParsedReferenceItem[]}
+         */
+        this.references = references;
+        if (!references) {
+            this.updateReferences();
+        }
+    }
 
-        modifiers.forEach(modifier => {
-            if (propertyObj.target.includes(modifier)) {
-                const queryParameterValues = queryParameterValue.value.split(',');
+    applyModifierToQueryParameterValue() {
+        if (!this.propertyObj || !this.queryParameterValue) {
+            return;
+        }
+        this.modifiers.forEach(modifier => {
+            if (this.propertyObj.target && this.propertyObj.target.includes(modifier) && this._queryParameterValue.value) {
+                const queryParameterValues = this._queryParameterValue.value.split(',');
                 let modifiedQueryParameterValues = '';
                 queryParameterValues.forEach((value, index) => {
-                    if (value.includes('/')) {
+                    if (value && value.includes('/')) {
                         modifiedQueryParameterValues += `${value}`;
                     } else {
                         modifiedQueryParameterValues += `${modifier}/${value}`;
@@ -62,18 +77,10 @@ class ParsedArgsItem {
                     }
                 });
                 this._queryParameterValue = new QueryParameterValue({
-                    value: modifiedQueryParameterValues, operator: queryParameterValue.operator
+                    value: modifiedQueryParameterValues, operator: this._queryParameterValue.operator
                 });
             }
         });
-
-        /**
-         * @type {ParsedReferenceItem[]}
-         */
-        this.references = references;
-        if (!references) {
-            this.updateReferences();
-        }
     }
 
     /**
