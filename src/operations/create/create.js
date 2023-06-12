@@ -319,6 +319,29 @@ class CreateOperation {
                     await this.changeEventProducer.flushAsync({requestId});
                 }
             });
+            if (this.configManager.enabledAccessTagUpdate) {
+                this.postRequestProcessor.add({
+                    requestId,
+                    fnTask: async () => {
+                        if (mergeResults[0].resourceType === 'Consent' && (mergeResults[0].created || mergeResults[0].updated)) {
+                            const updatedResources = await this.sensitiveDataProcessor.processPatientConsentChange({
+                                resources: doc
+                            });
+                            updatedResources.forEach((consentResource) => {
+                                consentResource = FhirResourceCreator.createByResourceType(consentResource, consentResource.resourceType);
+                                this.databaseBulkInserter.patchFieldAsync({
+                                    requestId: requestId, resource: consentResource, fieldName: 'meta.security', fieldValue: consentResource.meta.security, upsert: false
+                                });
+                            });
+                            await this.databaseBulkInserter.executeAsync({
+                                requestId, currentDate,
+                                base_version,
+                                method
+                            });
+                        }
+                    }
+                });
+            }
 
             return doc;
         } catch (/** @type {Error} */ e) {

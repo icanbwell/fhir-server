@@ -28,9 +28,6 @@ const OperationOutcomeIssue = require('../../../fhir/classes/4_0_0/backbone_elem
 const {generateUUIDv5} = require('../../../utils/uid.util');
 const Identifier = require('../../../fhir/classes/4_0_0/complex_types/identifier');
 const { Collection } = require('mongodb');
-const { ConfigManager } = require('../../../utils/configManager');
-const { SensitiveDataProcessor } = require('../../../utils/sensitiveDataProcessor');
-const { PatientFilterManager } = require('../../../fhir/patientFilterManager');
 
 class MockChangeEventProducer extends ChangeEventProducer {
     /**
@@ -41,9 +38,6 @@ class MockChangeEventProducer extends ChangeEventProducer {
      * @param {string} consentChangeTopic
      * @param {BwellPersonFinder} bwellPersonFinder
      * @param {RequestSpecificCache} requestSpecificCache
-     * @param {ConfigManager} configManager
-     * @param {SensitiveDataProcessor} sensitiveDataProcessor
-     * @param {PatientFilterManager} patientFilterManager
      */
     constructor({
                     kafkaClientFactory,
@@ -51,10 +45,7 @@ class MockChangeEventProducer extends ChangeEventProducer {
                     patientChangeTopic,
                     consentChangeTopic,
                     bwellPersonFinder,
-                    requestSpecificCache,
-                    configManager,
-                    sensitiveDataProcessor,
-                    patientFilterManager
+                    requestSpecificCache
                 }) {
         super({
             kafkaClientFactory,
@@ -62,10 +53,7 @@ class MockChangeEventProducer extends ChangeEventProducer {
             patientChangeTopic,
             consentChangeTopic,
             bwellPersonFinder,
-            requestSpecificCache,
-            configManager,
-            sensitiveDataProcessor,
-            patientFilterManager
+            requestSpecificCache
         });
     }
 }
@@ -96,10 +84,7 @@ describe('databaseBulkInserter Tests', () => {
                             patientChangeTopic: env.KAFKA_PATIENT_CHANGE_TOPIC || 'business.events',
                             consentChangeTopic: env.KAFKA_PATIENT_CHANGE_TOPIC || 'business.events',
                             bwellPersonFinder: c.bwellPersonFinder,
-                            requestSpecificCache: c.requestSpecificCache,
-                            configManager: c.configManager,
-                            sensitiveDataProcessor: c.sensitiveDataProcessor,
-                            patientFilterManager: c.patientFilterManager,
+                            requestSpecificCache: c.requestSpecificCache
                         })
                 );
                 return container1;
@@ -213,10 +198,7 @@ describe('databaseBulkInserter Tests', () => {
                             patientChangeTopic: env.KAFKA_PATIENT_CHANGE_TOPIC || 'business.events',
                             consentChangeTopic: env.KAFKA_PATIENT_CHANGE_TOPIC || 'business.events',
                             bwellPersonFinder: c.bwellPersonFinder,
-                            requestSpecificCache: c.requestSpecificCache,
-                            configManager: c.configManager,
-                            sensitiveDataProcessor: c.sensitiveDataProcessor,
-                            patientFilterManager: c.patientFilterManager,
+                            requestSpecificCache: c.requestSpecificCache
                         })
                 );
                 return container1;
@@ -282,10 +264,7 @@ describe('databaseBulkInserter Tests', () => {
                             patientChangeTopic: env.KAFKA_PATIENT_CHANGE_TOPIC || 'business.events',
                             consentChangeTopic: env.KAFKA_PATIENT_CHANGE_TOPIC || 'business.events',
                             bwellPersonFinder: c.bwellPersonFinder,
-                            requestSpecificCache: c.requestSpecificCache,
-                            configManager: c.configManager,
-                            sensitiveDataProcessor: c.sensitiveDataProcessor,
-                            patientFilterManager: c.patientFilterManager,
+                            requestSpecificCache: c.requestSpecificCache
                         })
                 );
                 return container1;
@@ -418,10 +397,7 @@ describe('databaseBulkInserter Tests', () => {
                             patientChangeTopic: env.KAFKA_PATIENT_CHANGE_TOPIC || 'business.events',
                             consentChangeTopic: env.KAFKA_PATIENT_CHANGE_TOPIC || 'business.events',
                             bwellPersonFinder: c.bwellPersonFinder,
-                            requestSpecificCache: c.requestSpecificCache,
-                            configManager: c.configManager,
-                            sensitiveDataProcessor: c.sensitiveDataProcessor,
-                            patientFilterManager: c.patientFilterManager,
+                            requestSpecificCache: c.requestSpecificCache
                         })
                 );
                 return container1;
@@ -881,10 +857,7 @@ describe('databaseBulkInserter Tests', () => {
                             patientChangeTopic: env.KAFKA_PATIENT_CHANGE_TOPIC || 'business.events',
                             consentChangeTopic: env.KAFKA_PATIENT_CHANGE_TOPIC || 'business.events',
                             bwellPersonFinder: c.bwellPersonFinder,
-                            requestSpecificCache: c.requestSpecificCache,
-                            configManager: c.configManager,
-                            sensitiveDataProcessor: c.sensitiveDataProcessor,
-                            patientFilterManager: c.patientFilterManager,
+                            requestSpecificCache: c.requestSpecificCache
                         })
                 );
                 return container1;
@@ -1335,10 +1308,7 @@ describe('databaseBulkInserter Tests', () => {
                             patientChangeTopic: env.KAFKA_PATIENT_CHANGE_TOPIC || 'business.events',
                             consentChangeTopic: env.KAFKA_PATIENT_CHANGE_TOPIC || 'business.events',
                             bwellPersonFinder: c.bwellPersonFinder,
-                            requestSpecificCache: c.requestSpecificCache,
-                            configManager: c.configManager,
-                            sensitiveDataProcessor: c.sensitiveDataProcessor,
-                            patientFilterManager: c.patientFilterManager,
+                            requestSpecificCache: c.requestSpecificCache
                         })
                 );
                 return container1;
@@ -1597,10 +1567,7 @@ describe('databaseBulkInserter Tests', () => {
                             patientChangeTopic: env.KAFKA_PATIENT_CHANGE_TOPIC || 'business.events',
                             consentChangeTopic: env.KAFKA_PATIENT_CHANGE_TOPIC || 'business.events',
                             bwellPersonFinder: c.bwellPersonFinder,
-                            requestSpecificCache: c.requestSpecificCache,
-                            configManager: c.configManager,
-                            sensitiveDataProcessor: c.sensitiveDataProcessor,
-                            patientFilterManager: c.patientFilterManager,
+                            requestSpecificCache: c.requestSpecificCache
                         })
                 );
                 return container1;

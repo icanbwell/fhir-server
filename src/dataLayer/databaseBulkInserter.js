@@ -1243,6 +1243,40 @@ class DatabaseBulkInserter extends EventEmitter {
             }
         }
     }
+
+    /**
+     * A function that adds a operation to be performed on any document to the requestSpecificCache
+     * @param {String} requestId
+     * @param {Resource} resource
+     * @param {String} fieldName - field that is to be patched
+     * @param {Object} fieldValue - The new document with which the field is to be updated
+     * @param {boolean} upsert - If true a new document is created if filter is not matched
+      */
+    async patchFieldAsync({
+        requestId, resource, fieldName, fieldValue, upsert = false
+    }) {
+        if (resource._id) {
+            delete resource._id;
+        }
+        this.addOperationForResourceType({
+            requestId: requestId,
+            resourceType: resource.resourceType,
+            resource: resource,
+            operationType: 'merge',
+            operation: {
+                updateOne: {
+                    filter: {
+                        id: resource.id
+                    },
+                    upsert: upsert,
+                    update: {
+                        $set: { [fieldName]: fieldValue }
+                    }
+                }
+            },
+            patches: null
+        });
+    }
 }
 
 module.exports = {
