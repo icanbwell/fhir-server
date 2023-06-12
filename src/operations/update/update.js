@@ -398,20 +398,8 @@ class UpdateOperation {
                         requestId,
                         fnTask: async () => {
                             if (mergeResults[0].resourceType === 'Consent' && (mergeResults[0].created || mergeResults[0].updated)) {
-                                const updatedResources = await this.sensitiveDataProcessor.processPatientConsentChange({
-                                    resources: doc
-                                });
-                                updatedResources.forEach((resource) => {
-                                    resource = FhirResourceCreator.createByResourceType(resource, resource.resourceType);
-                                    this.databaseBulkInserter.patchFieldAsync({
-                                        requestId: requestId, resource: resource, fieldName: 'meta.security', fieldValue: resource.meta.security, upsert: false
-                                    });
-                                });
-                                await this.databaseBulkInserter.executeAsync({
-                                    requestId, currentDate,
-                                    base_version,
-                                    method
-                                });
+                                await this.sensitiveDataProcessor.processPatientConsentChange({requestId: requestId, resources: doc});
+                                await this.databaseBulkInserter.executeAsync({requestId, currentDate, base_version, method});
                             }
                         }
                     });

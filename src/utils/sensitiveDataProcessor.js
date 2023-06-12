@@ -7,6 +7,8 @@ const { assertTypeEquals } = require('./assertType');
 const { PATIENT_INITIATED_CONNECTION } = require('../constants');
 const { BwellPersonFinder } = require('./bwellPersonFinder');
 const { PersonToPatientIdsExpander } = require('./personToPatientIdsExpander');
+const { DatabaseBulkInserter } = require('../dataLayer/databaseBulkInserter');
+const { FhirResourceCreator } = require('../fhir/fhirResourceCreator');
 
 const patientReferencePrefix = 'Patient/';
 
@@ -19,12 +21,14 @@ class SensitiveDataProcessor {
      * @param {PatientFilterManager} patientFilterManager
      * @param {BwellPersonFinder} bwellPersonFinder
      * @param {PersonToPatientIdsExpander} personToPatientIdsExpander
+     * @param {DatabaseBulkInserter} databaseBulkInserter
      */
     constructor({
         databaseQueryFactory,
         patientFilterManager,
         bwellPersonFinder,
-        personToPatientIdsExpander
+        personToPatientIdsExpander,
+        databaseBulkInserter
     }) {
         /**
          * @type {DatabaseQueryFactory}
@@ -49,6 +53,12 @@ class SensitiveDataProcessor {
          */
         this.personToPatientIdsExpander = personToPatientIdsExpander;
         assertTypeEquals(personToPatientIdsExpander, PersonToPatientIdsExpander);
+
+        /**
+         * @type {DatabaseBulkInserter}
+         */
+        this.databaseBulkInserter = databaseBulkInserter;
+        assertTypeEquals(databaseBulkInserter, DatabaseBulkInserter);
     }
 
     /**
@@ -354,7 +364,7 @@ class SensitiveDataProcessor {
      * @param {Resource} resource
      * @returns {Resource[]} returns all the resource whose security tags have been updated due to changes made to consent.
      */
-    async processPatientConsentChange({resources}) {
+    async processPatientConsentChange({requestId, resources}) {
         let clientPatientIds = [];
         resources = Array.isArray(resources) ? resources : [resources];
         // Retriving the patient id from consent resource
@@ -366,8 +376,15 @@ class SensitiveDataProcessor {
         // Fetch all the resources related to the client patients.
         const resourcesForPatient = await this.getAllResourcesRelatedToPatient({patientIds: clientPatientIds});
         // Call the sensitive data processor on all the resources.
-        return await this.updateResourceSecurityAccessTag({
+        const updatedResources = await this.updateResourceSecurityAccessTag({
             resource: resourcesForPatient, returnUpdatedResources: true
+        });
+
+        updatedResources.forEach((consentResource) => {
+            consentResource = FhirResourceCreator.createByResourceType(consentResource, consentResource.resourceType);
+            this.databaseBulkInserter.patchFieldAsync({
+                requestId: requestId, resource: consentResource, fieldName: 'meta.security', fieldValue: consentResource.meta.security, upsert: false
+            });
         });
     }
 }
