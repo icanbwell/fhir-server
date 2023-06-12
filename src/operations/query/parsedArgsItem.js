@@ -62,25 +62,29 @@ class ParsedArgsItem {
         if (!this.propertyObj || !this.queryParameterValue) {
             return;
         }
-        this.modifiers.forEach(modifier => {
-            if (this.propertyObj.target && this.propertyObj.target.includes(modifier) && this._queryParameterValue.value) {
-                const queryParameterValues = this._queryParameterValue.value.split(',');
-                let modifiedQueryParameterValues = '';
-                queryParameterValues.forEach((value, index) => {
-                    if (value && value.includes('/')) {
-                        modifiedQueryParameterValues += `${value}`;
-                    } else {
-                        modifiedQueryParameterValues += `${modifier}/${value}`;
-                    }
-                    if (index !== queryParameterValues.length - 1) {
-                        modifiedQueryParameterValues += ',';
-                    }
-                });
-                this._queryParameterValue = new QueryParameterValue({
-                    value: modifiedQueryParameterValues, operator: this._queryParameterValue.operator
-                });
-            }
+
+        let modifiedQueryParameterValues = '';
+        this.modifiers.forEach(modifierValue => {
+            modifierValue.split('|').forEach(modifier => {
+                if (this.propertyObj.target && this.propertyObj.target.includes(modifier) && this._queryParameterValue.value) {
+                    const queryParameterValues = this._queryParameterValue.value.split(',');
+                    queryParameterValues.forEach(value => {
+                        if (value && value.includes('/')) {
+                            modifiedQueryParameterValues += `${value},`;
+                        } else {
+                            modifiedQueryParameterValues += `${modifier}/${value},`;
+                        }
+                    });
+                }
+            });
         });
+
+        if (modifiedQueryParameterValues) {
+            modifiedQueryParameterValues = modifiedQueryParameterValues.slice(0, -1);
+            this._queryParameterValue = new QueryParameterValue({
+                value: modifiedQueryParameterValues, operator: this._queryParameterValue.operator
+            });
+        }
     }
 
     /**
