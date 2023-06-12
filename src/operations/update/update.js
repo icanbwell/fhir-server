@@ -393,6 +393,17 @@ class UpdateOperation {
                         await this.changeEventProducer.flushAsync({requestId});
                     }
                 });
+                if (this.configManager.enabledAccessTagUpdate) {
+                    this.postRequestProcessor.add({
+                        requestId,
+                        fnTask: async () => {
+                            if (mergeResults[0].resourceType === 'Consent' && (mergeResults[0].created || mergeResults[0].updated)) {
+                                await this.sensitiveDataProcessor.processPatientConsentChange({requestId: requestId, resources: doc});
+                                await this.databaseBulkInserter.executeAsync({requestId, currentDate, base_version, method});
+                            }
+                        }
+                    });
+                }
                 return result;
             } else {
                 // not modified

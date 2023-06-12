@@ -1,3 +1,5 @@
+/* eslint-disable no-unused-vars */
+
 const patient = require('./fixtures/patient.json');
 const bwellPerson = require('./fixtures/bwellPerson.json');
 const clientPerson = require('./fixtures/clientPerson.json');

@@ -269,6 +269,17 @@ class PatchOperation {
                     await this.changeEventProducer.flushAsync({requestId});
                 }
             });
+            if (this.configManager.enabledAccessTagUpdate) {
+                this.postRequestProcessor.add({
+                    requestId,
+                    fnTask: async () => {
+                        if (mergeResults[0].resourceType === 'Consent' && (mergeResults[0].created || mergeResults[0].updated)) {
+                            await this.sensitiveDataProcessor.processPatientConsentChange({requestId: requestId, resources: resource});
+                            await this.databaseBulkInserter.executeAsync({requestId, currentDate, base_version, method});
+                        }
+                    }
+                });
+            }
 
             // converting attachment._file_id to attachment.data for the response
             resource = await this.databaseAttachmentManager.transformAttachments(resource, RETRIEVE);

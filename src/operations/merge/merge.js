@@ -431,6 +431,24 @@ class MergeOperation {
                     action: currentOperationName,
                     result: JSON.stringify(mergeResults, getCircularReplacer())
                 });
+            if (this.configManager.enabledAccessTagUpdate) {
+                this.postRequestProcessor.add({
+                    requestId,
+                    fnTask: async () => {
+                        let changedConsentResources = [];
+                        mergeResults.forEach(mergeResult => {
+                            if (mergeResult.resourceType === 'Consent' && !mergeResult.issue && (mergeResult.created || mergeResult.updated)) {
+                                changedConsentResources.push(mergeResult.uuid);
+                            }
+                        });
+                        let consentResources = resourcesIncomingArray.filter((resources) => {
+                            return changedConsentResources.includes(resources._uuid);
+                        });
+                        await this.sensitiveDataProcessor.processPatientConsentChange({requestId: requestId, resources: consentResources});
+                        await this.databaseBulkInserter.executeAsync({requestId, currentDate, base_version, method});
+                    }
+                });
+            }
 
             /**
              * @type {number}

@@ -1,13 +1,14 @@
 /* eslint-disable security/detect-object-injection */
 
 const { DatabaseQueryFactory } = require('../dataLayer/databaseQueryFactory');
-const { DatabaseBulkInserter } = require('../dataLayer/databaseBulkInserter');
 const { PatientFilterManager } = require('../fhir/patientFilterManager');
 const { logInfo, logWarn, logDebug } = require('../operations/common/logging');
 const { assertTypeEquals } = require('./assertType');
 const { PATIENT_INITIATED_CONNECTION } = require('../constants');
 const { BwellPersonFinder } = require('./bwellPersonFinder');
 const { PersonToPatientIdsExpander } = require('./personToPatientIdsExpander');
+const { DatabaseBulkInserter } = require('../dataLayer/databaseBulkInserter');
+const { FhirResourceCreator } = require('../fhir/fhirResourceCreator');
 
 const patientReferencePrefix = 'Patient/';
 
@@ -18,16 +19,16 @@ class SensitiveDataProcessor {
     /**
      * @param {DatabaseQueryFactory} databaseQueryFactory
      * @param {PatientFilterManager} patientFilterManager
-     * @param {DatabaseBulkInserter} databaseBulkInserter
      * @param {BwellPersonFinder} bwellPersonFinder
      * @param {PersonToPatientIdsExpander} personToPatientIdsExpander
+     * @param {DatabaseBulkInserter} databaseBulkInserter
      */
     constructor({
         databaseQueryFactory,
         patientFilterManager,
-        databaseBulkInserter,
         bwellPersonFinder,
-        personToPatientIdsExpander
+        personToPatientIdsExpander,
+        databaseBulkInserter
     }) {
         /**
          * @type {DatabaseQueryFactory}
@@ -42,12 +43,6 @@ class SensitiveDataProcessor {
         assertTypeEquals(patientFilterManager, PatientFilterManager);
 
         /**
-         * @type {DatabaseBulkInserter}
-         */
-        this.databaseBulkInserter = databaseBulkInserter;
-        assertTypeEquals(databaseBulkInserter, DatabaseBulkInserter);
-
-        /**
          * @type {BwellPersonFinder}
          */
         this.bwellPersonFinder = bwellPersonFinder;
@@ -58,11 +53,17 @@ class SensitiveDataProcessor {
          */
         this.personToPatientIdsExpander = personToPatientIdsExpander;
         assertTypeEquals(personToPatientIdsExpander, PersonToPatientIdsExpander);
+
+        /**
+         * @type {DatabaseBulkInserter}
+         */
+        this.databaseBulkInserter = databaseBulkInserter;
+        assertTypeEquals(databaseBulkInserter, DatabaseBulkInserter);
     }
 
     /**
      * @description Updates access tags for patient initiated connection.
-     * STEPS:
+     * STEPS INVOLVED:
      * 1. Filters out resource that are patient initiated connection type.
      * 2. Fetch the bwell person for the specific patients and get all client patient.
      * 3. Fetch all the related consents.
@@ -72,16 +73,20 @@ class SensitiveDataProcessor {
      */
     async updateResourceSecurityAccessTag({
         resource,
+        returnUpdatedResources = false
     }) {
         const resources = Array.isArray(resource) ? resource : [resource];
-        const patientIdToResourceMap = this.getLinkedPatientRecords(resources);
+        const patientIdToResourceMap = await this.getLinkedPatientRecords(resources);
         if (Object.keys(patientIdToResourceMap).length === 0) {
             logInfo('No Resources have connectionType as mentioned in patient pipelines.', {});
             return;
         }
         // requiredSecurityAccessTag create an object were for each patientId the required access tag is present
         const requiredSecurityAccessTag = await this.getPatientSpecificSecurityAccessTag(patientIdToResourceMap);
-        this.updateSecurityAccessTags(patientIdToResourceMap, requiredSecurityAccessTag);
+        const updatedResources = this.updateSecurityAccessTags(patientIdToResourceMap, requiredSecurityAccessTag);
+        if (returnUpdatedResources) {
+            return updatedResources;
+        }
     }
 
     /**
@@ -113,7 +118,6 @@ class SensitiveDataProcessor {
                 // The patient property returns the path on which the patient link is stored
                 // Example Procedure subject.reference. now subject can be a array. So we need to iterate over each subject and check if it has a patient reference.
                 let patientId = this.getPatientIdFromResource(resource, patientProperty, '');
-
                 // Id resource if of Patient type append a prefix Patient to filter out consent records.
                 if (resource.resourceType === 'Patient') {
                     patientId = `Patient/${patientId}`;
@@ -170,6 +174,20 @@ class SensitiveDataProcessor {
     }
 
     /**
+     * For a patient find it's bwell master person and return all client patients
+     * @param {String} patientId
+     * @returns {String | String[]}
+     */
+    async getAllCLientPatientIds({patientId}) {
+        const patientIdWithOutPrefix = patientId.replace(patientReferencePrefix, '');
+        // Get the bwell master person from the client patient id
+        let bwellMasterPerson = await this.bwellPersonFinder.getBwellPersonIdAsync({patientId: patientIdWithOutPrefix});
+        // Fetch all patient linked with the bwell master person
+        return await this.personToPatientIdsExpander.getPatientProxyIdsAsync({
+            base_version: '4_0_0', id: `person.${bwellMasterPerson}`, includePatientPrefix: true
+        });
+    }
+    /**
      * @description Fetches all the consent resources linked to a patient.
      * @param {String[]} patientIds
      * @returns Consent resource and a map between the client patient and the actual patient for which consent is to be updated
@@ -179,13 +197,8 @@ class SensitiveDataProcessor {
         let linkedClientPatientIdMap = {};
         // TODO - Need to optimize
         for ( let patientId of patientIds) {
-            const patientIdWithOutPrefix = patientId.replace(patientReferencePrefix, '');
-            // Get the bwell master person from the client patient id
-            let bwellMasterPerson = await this.bwellPersonFinder.getBwellPersonIdAsync({patientId: patientIdWithOutPrefix});
-            // Fetch all patient linked with the bwell master person
-            let clientPatientIds = await this.personToPatientIdsExpander.getPatientProxyIdsAsync({
-                base_version: '4_0_0', id: `person.${bwellMasterPerson}`, includePatientPrefix: true
-            });
+            let clientPatientIds = await this.getAllCLientPatientIds({patientId: patientId});
+            clientPatientIds = Array.isArray(clientPatientIds) ? clientPatientIds : [clientPatientIds];
             // All the patient ids for which consents are to be fetched
             allLinkedPatientIds = [...allLinkedPatientIds, ...clientPatientIds];
             // Create a reverse relation object between the client patient and the main patient
@@ -279,6 +292,7 @@ class SensitiveDataProcessor {
      * @param {Object} requiredSecurityAccessTag
      */
     updateSecurityAccessTags(patientIdToResourceMap, requiredSecurityAccessTag) {
+        let updatedResources = [];
         // For each patient id remove any previod access tags and create a new one as per consent.
         const patientIds = Object.keys(patientIdToResourceMap);
         patientIds.forEach((id) => {
@@ -291,8 +305,10 @@ class SensitiveDataProcessor {
                     // Updating the security tag.
                     resource.meta.security = [...resource.meta.security, ...requiredSecurityAccessTag[id]];
                 }
+                updatedResources.push(resource);
             });
         });
+        return updatedResources;
     }
 
     /**
@@ -303,6 +319,72 @@ class SensitiveDataProcessor {
     removeSecurityAccessTag(security) {
         return security.filter((coding) => {
             return !coding.system.endsWith('/access');
+        });
+    }
+
+    /**
+     * For a list of patient ids returns the list of all resources for the patient.
+     * @param {String[] | String} patientIds
+     */
+    async getAllResourcesRelatedToPatient({patientIds}) {
+        patientIds = Array.isArray(patientIds) ? patientIds : [patientIds];
+        const promises = [];
+        let listOfResources = [];
+        // Fetching all resources linked with patient id
+        for (let [resourceType, pathToPatientReference] of Object.entries(this.patientFilterManager.getAllResourcesLinkedWithPatient())) {
+            const databaseQueryManager = await this.databaseQueryFactory.createQuery({
+                resourceType: resourceType,
+                base_version: '4_0_0'
+            });
+            // For patient resource type we just need to pass the _sourceId or _uuid without prefix.
+            let listOfIds = resourceType === 'Patient' ? patientIds.map((id) => id.replace(patientReferencePrefix, '')) : patientIds;
+            const query = {
+                $and: [
+                    {[pathToPatientReference]: { $in: listOfIds }},
+                    { 'meta.security.code': {$in: PATIENT_INITIATED_CONNECTION}}
+                ]
+            };
+            // Creates a list of promises to getch all resources linked to a patient.
+            promises.push(databaseQueryManager.findAsync({query: query}));
+        }
+        // Fetches all the resource cursors.
+        const results = await Promise.all(promises);
+        for (let currentResources of results) {
+            // Maintains a list of resources linked to the patient.
+            listOfResources = [...listOfResources, ...await currentResources.toArrayRawAsync()];
+        }
+        return listOfResources;
+    }
+
+    /**
+     * STEPS INVOLVED:
+     * 1. Fetch all resources related to the patient for which consent has been updated.
+     * 2. Upddates the security access tags.
+     * 3. Returns an array of resources that has been updated.
+     * @param {Resource} resource
+     * @returns {Resource[]} returns all the resource whose security tags have been updated due to changes made to consent.
+     */
+    async processPatientConsentChange({requestId, resources}) {
+        let clientPatientIds = [];
+        resources = Array.isArray(resources) ? resources : [resources];
+        // Retriving the patient id from consent resource
+        resources.forEach(async (resource) => {
+            let clientPatientIdForEachPatient = await this.getAllCLientPatientIds({patientId: resource.patient.reference});
+            clientPatientIds = [...clientPatientIds, ...clientPatientIdForEachPatient];
+        });
+
+        // Fetch all the resources related to the client patients.
+        const resourcesForPatient = await this.getAllResourcesRelatedToPatient({patientIds: clientPatientIds});
+        // Call the sensitive data processor on all the resources.
+        const updatedResources = await this.updateResourceSecurityAccessTag({
+            resource: resourcesForPatient, returnUpdatedResources: true
+        });
+
+        updatedResources.forEach((consentResource) => {
+            consentResource = FhirResourceCreator.createByResourceType(consentResource, consentResource.resourceType);
+            this.databaseBulkInserter.patchFieldAsync({
+                requestId: requestId, resource: consentResource, fieldName: 'meta.security', fieldValue: consentResource.meta.security, upsert: false
+            });
         });
     }
 }
