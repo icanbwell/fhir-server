@@ -47,6 +47,26 @@ class ParsedArgsItem {
          */
         this.modifiers = modifiers;
 
+        modifiers.forEach(modifier => {
+            if (propertyObj.target.includes(modifier)) {
+                const queryParameterValues = queryParameterValue.value.split(',');
+                let modifiedQueryParameterValues = '';
+                queryParameterValues.forEach((value, index) => {
+                    if (value.includes('/')) {
+                        modifiedQueryParameterValues += `${value}`;
+                    } else {
+                        modifiedQueryParameterValues += `${modifier}/${value}`;
+                    }
+                    if (index !== queryParameterValues.length - 1) {
+                        modifiedQueryParameterValues += ',';
+                    }
+                });
+                this._queryParameterValue = new QueryParameterValue({
+                    value: modifiedQueryParameterValues, operator: queryParameterValue.operator
+                });
+            }
+        });
+
         /**
          * @type {ParsedReferenceItem[]}
          */
