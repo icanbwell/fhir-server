@@ -63,7 +63,6 @@ class SensitiveDataProcessor {
      */
     async updateResourceSecurityAccessTag({
         resource,
-        removePreviousSecurityAccessTags = true,
         returnUpdatedResources = false
     }) {
         const resources = Array.isArray(resource) ? resource : [resource];
@@ -74,7 +73,7 @@ class SensitiveDataProcessor {
         }
         // requiredSecurityAccessTag create an object were for each patientId the required access tag is present
         const requiredSecurityAccessTag = await this.getPatientSpecificSecurityAccessTag(patientIdToResourceMap);
-        const updatedResources = this.updateSecurityAccessTags(patientIdToResourceMap, requiredSecurityAccessTag, removePreviousSecurityAccessTags);
+        const updatedResources = this.updateSecurityAccessTags(patientIdToResourceMap, requiredSecurityAccessTag);
         if (returnUpdatedResources) {
             return updatedResources;
         }
@@ -165,6 +164,20 @@ class SensitiveDataProcessor {
     }
 
     /**
+     * For a patient find it's bwell master person and return all client patients
+     * @param {String} patientId
+     * @returns {String | String[]}
+     */
+    async getAllCLientPatientIds({patientId}) {
+        const patientIdWithOutPrefix = patientId.replace(patientReferencePrefix, '');
+        // Get the bwell master person from the client patient id
+        let bwellMasterPerson = await this.bwellPersonFinder.getBwellPersonIdAsync({patientId: patientIdWithOutPrefix});
+        // Fetch all patient linked with the bwell master person
+        return await this.personToPatientIdsExpander.getPatientProxyIdsAsync({
+            base_version: '4_0_0', id: `person.${bwellMasterPerson}`, includePatientPrefix: true
+        });
+    }
+    /**
      * @description Fetches all the consent resources linked to a patient.
      * @param {String[]} patientIds
      * @returns Consent resource and a map between the client patient and the actual patient for which consent is to be updated
@@ -174,18 +187,8 @@ class SensitiveDataProcessor {
         let linkedClientPatientIdMap = {};
         // TODO - Need to optimize
         for ( let patientId of patientIds) {
-            const patientIdWithOutPrefix = patientId.replace(patientReferencePrefix, '');
-            // Get the bwell master person from the client patient id
-            let bwellMasterPerson = await this.bwellPersonFinder.getBwellPersonIdAsync({patientId: patientIdWithOutPrefix});
-            // Fetch all patient linked with the bwell master person
-            let clientPatientIds = await this.personToPatientIdsExpander.getPatientProxyIdsAsync({
-                base_version: '4_0_0', id: `person.${bwellMasterPerson}`, includePatientPrefix: true
-            });
-            if (typeof clientPatientIds === 'string') {
-                allLinkedPatientIds.push(clientPatientIds);
-                linkedClientPatientIdMap[clientPatientIds] = patientId;
-                continue;
-            }
+            let clientPatientIds = await this.getAllCLientPatientIds({patientId: patientId});
+            clientPatientIds = Array.isArray(clientPatientIds) ? clientPatientIds : [clientPatientIds];
             // All the patient ids for which consents are to be fetched
             allLinkedPatientIds = [...allLinkedPatientIds, ...clientPatientIds];
             // Create a reverse relation object between the client patient and the main patient
@@ -278,15 +281,13 @@ class SensitiveDataProcessor {
      * @param {Object} patientIdToResourceMap
      * @param {Object} requiredSecurityAccessTag
      */
-    updateSecurityAccessTags(patientIdToResourceMap, requiredSecurityAccessTag, removePreviousSecurityAccessTags) {
+    updateSecurityAccessTags(patientIdToResourceMap, requiredSecurityAccessTag) {
         let updatedResources = [];
         // For each patient id remove any previod access tags and create a new one as per consent.
         const patientIds = Object.keys(patientIdToResourceMap);
         patientIds.forEach((id) => {
             patientIdToResourceMap[id].forEach((resource) => {
-                if (removePreviousSecurityAccessTags) {
-                    resource.meta.security = this.removeSecurityAccessTag(resource.meta.security);
-                }
+                resource.meta.security = this.removeSecurityAccessTag(resource.meta.security);
                 // If for the current patient id we need to create a access tag
                 // requiredSecurityAccessTag[id] tells for which patient is we need to update access tags
                 // first remove the current access tag.
@@ -312,18 +313,13 @@ class SensitiveDataProcessor {
     }
 
     /**
-     * STEPS INVOLVED:
-     * 1. Fetch all resources related to the patient for which consent has been updated.
-     * 2. Upddates the security access tags.
-     * 3. Returns an array of resources that has been updated.
-     * @param {Resource} resource
-     * @returns {Resource[]} returns all the resource whose security tags have been updated due to changes made to consent.
+     * For a list of patient ids returns the list of all resources for the patient.
+     * @param {String[] | String} patientIds
      */
-    async updatePatientRelatedResources({resource}) {
+    async getAllResourcesRelatedToPatient({patientIds}) {
+        patientIds = Array.isArray(patientIds) ? patientIds : [patientIds];
         const promises = [];
         let listOfResources = [];
-        // Retriving the patient id from consent resource
-        const consentPatientId = resource.patient.reference;
         // Fetching all resources linked with patient id
         for (let [resourceType, pathToPatientReference] of Object.entries(this.patientFilterManager.getAllResourcesLinkedWithPatient())) {
             const databaseQueryManager = await this.databaseQueryFactory.createQuery({
@@ -331,8 +327,12 @@ class SensitiveDataProcessor {
                 base_version: '4_0_0'
             });
             // For patient resource type we just need to pass the _sourceId or _uuid without prefix.
+            let listOfIds = resourceType === 'Patient' ? patientIds.map((id) => id.replace(patientReferencePrefix, '')) : patientIds;
             const query = {
-                [pathToPatientReference]: { $eq: `${resourceType === 'Patient' ? consentPatientId.replace(patientReferencePrefix, '') : consentPatientId}` }
+                $and: [
+                    {[pathToPatientReference]: { $in: listOfIds }},
+                    { 'meta.security.code': {$in: PATIENT_INITIATED_CONNECTION}}
+                ]
             };
             // Creates a list of promises to getch all resources linked to a patient.
             promises.push(databaseQueryManager.findAsync({query: query}));
@@ -343,9 +343,31 @@ class SensitiveDataProcessor {
             // Maintains a list of resources linked to the patient.
             listOfResources = [...listOfResources, ...await currentResources.toArrayRawAsync()];
         }
+        return listOfResources;
+    }
+
+    /**
+     * STEPS INVOLVED:
+     * 1. Fetch all resources related to the patient for which consent has been updated.
+     * 2. Upddates the security access tags.
+     * 3. Returns an array of resources that has been updated.
+     * @param {Resource} resource
+     * @returns {Resource[]} returns all the resource whose security tags have been updated due to changes made to consent.
+     */
+    async processPatientConsentChange({resources}) {
+        let clientPatientIds = [];
+        resources = Array.isArray(resources) ? resources : [resources];
+        // Retriving the patient id from consent resource
+        resources.forEach(async (resource) => {
+            let clientPatientIdForEachPatient = await this.getAllCLientPatientIds({patientId: resource.patient.reference});
+            clientPatientIds = [...clientPatientIds, ...clientPatientIdForEachPatient];
+        });
+
+        // Fetch all the resources related to the client patients.
+        const resourcesForPatient = await this.getAllResourcesRelatedToPatient({patientIds: clientPatientIds});
         // Call the sensitive data processor on all the resources.
-        return this.updateResourceSecurityAccessTag({
-            resource: listOfResources, removePreviousSecurityAccessTags: false, returnUpdatedResources: true
+        return await this.updateResourceSecurityAccessTag({
+            resource: resourcesForPatient, returnUpdatedResources: true
         });
     }
 }

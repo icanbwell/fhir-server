@@ -14,9 +14,6 @@ const Period = require('../fhir/classes/4_0_0/complex_types/period');
 const {BwellPersonFinder} = require('./bwellPersonFinder');
 const {RequestSpecificCache} = require('./requestSpecificCache');
 const {KafkaClientFactory} = require('./kafkaClientFactory');
-const { ConfigManager } = require('./configManager');
-const { SensitiveDataProcessor } = require('./sensitiveDataProcessor');
-const { PatientFilterManager } = require('../fhir/patientFilterManager');
 
 const Mutex = require('async-mutex').Mutex;
 const mutex = new Mutex();
@@ -33,9 +30,6 @@ class ChangeEventProducer {
      * @param {string} consentChangeTopic
      * @param {BwellPersonFinder} bwellPersonFinder
      * @param {RequestSpecificCache} requestSpecificCache
-     * @param {ConfigManager} configManager
-     * @param {SensitiveDataProcessor} sensitiveDataProcessor
-     * @param {PatientFilterManager} patientFilterManager
      */
     constructor({
                     kafkaClientFactory,
@@ -43,10 +37,7 @@ class ChangeEventProducer {
                     patientChangeTopic,
                     consentChangeTopic,
                     bwellPersonFinder,
-                    requestSpecificCache,
-                    configManager,
-                    sensitiveDataProcessor,
-                    patientFilterManager,
+                    requestSpecificCache
                 }) {
         /**
          * @type {KafkaClientFactory}
@@ -78,24 +69,6 @@ class ChangeEventProducer {
          */
         this.requestSpecificCache = requestSpecificCache;
         assertTypeEquals(requestSpecificCache, RequestSpecificCache);
-
-        /**
-         * @type {ConfigManager}
-         */
-        this.configManager = configManager;
-        assertTypeEquals(configManager, ConfigManager);
-
-        /**
-         * @type {SensitiveDataProcessor}
-         */
-        this.sensitiveDataProcessor = sensitiveDataProcessor;
-        assertTypeEquals(sensitiveDataProcessor, SensitiveDataProcessor);
-
-        /**
-         * @type {PatientFilterManager}
-         */
-        this.patientFilterManager = patientFilterManager;
-        assertTypeEquals(patientFilterManager, PatientFilterManager);
     }
 
     /**
@@ -377,13 +350,6 @@ class ChangeEventProducer {
                 await this.onConsentChangeAsync({
                     requestId, id: doc.id, resourceType, timestamp: currentDate, sourceType
                 });
-            }
-            if (this.configManager.enabledAccessTagUpdate) {
-                // eslint-disable-next-line no-unused-vars
-                const updatedResources = await this.sensitiveDataProcessor.updatePatientRelatedResources({
-                    resource: doc
-                });
-                // TODO: Update all resources returned, handle circular dependency.
             }
         }
     }

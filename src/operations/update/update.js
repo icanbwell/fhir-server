@@ -393,6 +393,29 @@ class UpdateOperation {
                         await this.changeEventProducer.flushAsync({requestId});
                     }
                 });
+                if (this.configManager.enabledAccessTagUpdate) {
+                    this.postRequestProcessor.add({
+                        requestId,
+                        fnTask: async () => {
+                            if (mergeResults[0].resourceType === 'Consent' && (mergeResults[0].created || mergeResults[0].updated)) {
+                                const updatedResources = await this.sensitiveDataProcessor.processPatientConsentChange({
+                                    resources: doc
+                                });
+                                updatedResources.forEach((resource) => {
+                                    resource = FhirResourceCreator.createByResourceType(resource, resource.resourceType);
+                                    this.databaseBulkInserter.patchFieldAsync({
+                                        requestId: requestId, resource: resource, fieldName: 'meta.security', fieldValue: resource.meta.security, upsert: false
+                                    });
+                                });
+                                await this.databaseBulkInserter.executeAsync({
+                                    requestId, currentDate,
+                                    base_version,
+                                    method
+                                });
+                            }
+                        }
+                    });
+                }
                 return result;
             } else {
                 // not modified

@@ -431,6 +431,36 @@ class MergeOperation {
                     action: currentOperationName,
                     result: JSON.stringify(mergeResults, getCircularReplacer())
                 });
+            if (this.configManager.enabledAccessTagUpdate) {
+                this.postRequestProcessor.add({
+                    requestId,
+                    fnTask: async () => {
+                        let changedConsentResources = [];
+                        mergeResults.forEach(mergeResult => {
+                            if (mergeResult.resourceType === 'Consent' && !mergeResult.issue && (mergeResult.created || mergeResult.updated)) {
+                                changedConsentResources.push(mergeResult.uuid);
+                            }
+                        });
+                        let consentResources = resourcesIncomingArray.filter((resources) => {
+                            return changedConsentResources.includes(resources._uuid);
+                        });
+                        const updatedResources = await this.sensitiveDataProcessor.processPatientConsentChange({
+                            resources: consentResources
+                        });
+                        updatedResources.forEach((resource) => {
+                            resource = FhirResourceCreator.createByResourceType(resource, resource.resourceType);
+                            this.databaseBulkInserter.patchFieldAsync({
+                                requestId: requestId, resource: resource, fieldName: 'meta.security', fieldValue: resource.meta.security, upsert: false
+                            });
+                        });
+                        await this.databaseBulkInserter.executeAsync({
+                            requestId, currentDate,
+                            base_version,
+                            method
+                        });
+                    }
+                });
+            }
 
             /**
              * @type {number}
