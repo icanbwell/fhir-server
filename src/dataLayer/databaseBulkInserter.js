@@ -1266,7 +1266,7 @@ class DatabaseBulkInserter extends EventEmitter {
             operation: {
                 updateOne: {
                     filter: {
-                        id: resource.id
+                        _uuid: resource._uuid
                     },
                     upsert: upsert,
                     update: {

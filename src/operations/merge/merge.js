@@ -444,20 +444,8 @@ class MergeOperation {
                         let consentResources = resourcesIncomingArray.filter((resources) => {
                             return changedConsentResources.includes(resources._uuid);
                         });
-                        const updatedResources = await this.sensitiveDataProcessor.processPatientConsentChange({
-                            resources: consentResources
-                        });
-                        updatedResources.forEach((resource) => {
-                            resource = FhirResourceCreator.createByResourceType(resource, resource.resourceType);
-                            this.databaseBulkInserter.patchFieldAsync({
-                                requestId: requestId, resource: resource, fieldName: 'meta.security', fieldValue: resource.meta.security, upsert: false
-                            });
-                        });
-                        await this.databaseBulkInserter.executeAsync({
-                            requestId, currentDate,
-                            base_version,
-                            method
-                        });
+                        await this.sensitiveDataProcessor.processPatientConsentChange({requestId: requestId, resources: consentResources});
+                        await this.databaseBulkInserter.executeAsync({requestId, currentDate, base_version, method});
                     }
                 });
             }

@@ -172,7 +172,8 @@ const createContainer = function () {
         databaseQueryFactory: c.databaseQueryFactory,
         patientFilterManager: c.patientFilterManager,
         bwellPersonFinder: c.bwellPersonFinder,
-        personToPatientIdsExpander: c.personToPatientIdsExpander
+        personToPatientIdsExpander: c.personToPatientIdsExpander,
+        databaseBulkInserter: c.databaseBulkInserter
     }));
 
     container.register('partitioningManager', (c) => new PartitioningManager(

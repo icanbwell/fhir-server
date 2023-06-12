@@ -274,20 +274,8 @@ class PatchOperation {
                     requestId,
                     fnTask: async () => {
                         if (mergeResults[0].resourceType === 'Consent' && (mergeResults[0].created || mergeResults[0].updated)) {
-                            const updatedResources = await this.sensitiveDataProcessor.processPatientConsentChange({
-                                resources: resource
-                            });
-                            updatedResources.forEach((consentResource) => {
-                                consentResource = FhirResourceCreator.createByResourceType(consentResource, consentResource.resourceType);
-                                this.databaseBulkInserter.patchFieldAsync({
-                                    requestId: requestId, resource: consentResource, fieldName: 'meta.security', fieldValue: consentResource.meta.security, upsert: false
-                                });
-                            });
-                            await this.databaseBulkInserter.executeAsync({
-                                requestId, currentDate,
-                                base_version,
-                                method
-                            });
+                            await this.sensitiveDataProcessor.processPatientConsentChange({requestId: requestId, resources: resource});
+                            await this.databaseBulkInserter.executeAsync({requestId, currentDate, base_version, method});
                         }
                     }
                 });
