@@ -566,18 +566,10 @@ class IndexManager {
     /**
      * creates indexes specified in the indexProblem
      * @param {{indexes: {indexConfig: IndexConfig, missing?: boolean, extra?: boolean, [changed]: boolean}[], collectionName: string}} indexProblem
-     * @param {Boolean} includeChanged
-     * @param {Boolean} audit
+     * @param {import('mongodb').Db} db
      * @returns {Promise<IndexConfig[]>}
      */
-    async createCollectionIndexAsync({indexProblem, includeChanged = true, audit}) {
-        /**
-         * @type {import('mongodb').Db}
-         */
-        const db = audit ?
-            await this.mongoDatabaseManager.getAuditDbAsync() :
-            await this.mongoDatabaseManager.getClientDbAsync();
-
+    async createCollectionIndexAsync({indexProblem, db}) {
         /**
          * @type {IndexConfig[]}
          */
@@ -586,7 +578,7 @@ class IndexManager {
         for (const /** @type {{indexConfig: IndexConfig, missing?: boolean, extra?: boolean, [changed]: boolean}} */
         index of indexProblem.indexes) {
             // if index is missing or index is changed we must create
-            if (index.missing || (includeChanged && index.changed)) {
+            if (index.missing) {
                 await this.createIndexIfNotExistsAsync({
                     db,
                     collectionName: indexProblem.collectionName,
@@ -603,18 +595,10 @@ class IndexManager {
     /**
      * drops indexes specified in the indexProblem
      * @param {{indexes: {indexConfig: IndexConfig, missing?: boolean, extra?: boolean, [changed]: boolean}[], collectionName: string}} indexProblem
-     * @param {Boolean} includeChanged
-     * @param {Boolean} audit
+     * @param {import('mongodb').Db} db
      * @returns {Promise<IndexConfig[]>}
      */
-    async dropCollectionIndexAsync({indexProblem, includeChanged = true, audit}) {
-        /**
-         * @type {import('mongodb').Db}
-         */
-        const db = audit ?
-            await this.mongoDatabaseManager.getAuditDbAsync() :
-            await this.mongoDatabaseManager.getClientDbAsync();
-
+    async dropCollectionIndexAsync({indexProblem, db}) {
         /**
          * @type {IndexConfig[]}
          */
@@ -623,7 +607,7 @@ class IndexManager {
         for (const /** @type {{indexConfig: IndexConfig, missing?: boolean, extra?: boolean}} */
         index of indexProblem.indexes) {
             // if the index is extra or changed we must drop it
-            if (index.extra || (includeChanged && index.changed)) {
+            if (index.extra) {
                 await this.deleteIndexInCollectionAsync({
                     collectionName: indexProblem.collectionName,
                     indexName: index.indexConfig.options.name,
@@ -640,16 +624,33 @@ class IndexManager {
     /**
      * checks for indexes that are to be renamed and renames them
      * @param {{indexes: {indexConfig: IndexConfig, missing?: boolean, extra?: boolean, [changed]: boolean}[], collectionName: string}} indexProblem
-     * @param {Boolean} audit
+     * @param {boolean} audit
      * @returns {Promise<{indexConfigsCreated: IndexConfig[], indexConfigsDropped: IndexConfig[]}>}
      */
     async renameIndexes({indexProblem, audit}) {
         /**
+         * @type {{connection: string, db_name: string, options: import('mongodb').MongoClientOptions }}
+         */
+        const config = audit ?
+            await this.mongoDatabaseManager.getAuditConfigAsync() :
+            await this.mongoDatabaseManager.getClientConfigAsync();
+
+        /**
+         * @type {import('mongodb').MongoClient}
+         */
+        const client = await this.mongoDatabaseManager.createClientAsync(config);
+
+        /**
          * @type {import('mongodb').Db}
          */
-        const db = audit ?
-            await this.mongoDatabaseManager.getAuditDbAsync() :
-            await this.mongoDatabaseManager.getClientDbAsync();
+        const db = client.db(config.db_name);
+
+        /**
+         * @type {import('mongodb').ClientSession}
+         */
+        const session = client.startSession();
+
+        session.startTransaction();
 
         /**
          * @type {{string: string}}
@@ -665,49 +666,52 @@ class IndexManager {
          * @type {IndexConfig[]}
          */
         const indexConfigsDropped = [];
+        try {
+            for (const index of indexProblem.indexes) {
+                const key = JSON.stringify({keys: index.indexConfig.keys, exclude: index.indexConfig.exclude});
+                if (configsPresent[String(key)]) {
+                    // if this is missing index then we need to drop index present in configsPresent else current
+                    const indexNameToDrop = index.missing ? configsPresent[String(key)] : index.indexConfig.options.name;
 
-        for (const index of indexProblem.indexes) {
-            const key = JSON.stringify({keys: index.indexConfig.keys, exclude: index.indexConfig.exclude});
-            if (configsPresent[String(key)]) {
-                // if this is missing index then we need to drop index present in configsPresent else current
-                const indexNameToDrop = index.missing ? configsPresent[String(key)] : index.indexConfig.options.name;
+                    // if this is missing index then we need to create the index else
+                    // we change the index name with name present in configsPresent
+                    const indexConfigToCreate = index.missing ? index.indexConfig : {
+                        ...JSON.parse(key),
+                        options: {
+                            name: configsPresent[String(key)]
+                        }
+                    };
 
-                // if this is missing index then we need to create the index else
-                // we change the index name with name present in configsPresent
-                const indexConfigToCreate = index.missing ? index.indexConfig : {
-                    ...JSON.parse(key),
-                    options: {
-                        name: configsPresent[String(key)]
-                    }
-                };
+                    // drop the old index first
+                    await this.deleteIndexInCollectionAsync({
+                        collectionName: indexProblem.collectionName,
+                        indexName: indexNameToDrop,
+                        db
+                    });
 
-                // drop the old index first
-                await this.deleteIndexInCollectionAsync({
-                    collectionName: indexProblem.collectionName,
-                    indexName: indexNameToDrop,
-                    db
-                });
+                    indexConfigsDropped.push({
+                        keys: index.indexConfig.keys,
+                        options: {
+                            name: indexNameToDrop
+                        }
+                    });
 
-                indexConfigsDropped.push({
-                    keys: index.indexConfig.keys,
-                    options: {
-                        name: indexNameToDrop
-                    }
-                });
+                    // create the index with new name
+                    await this.createIndexIfNotExistsAsync({
+                        collectionName: indexProblem.collectionName,
+                        indexConfig: indexConfigToCreate,
+                        db
+                    });
 
-                // create the index with new name
-                await this.createIndexIfNotExistsAsync({
-                    collectionName: indexProblem.collectionName,
-                    indexConfig: indexConfigToCreate,
-                    db
-                });
-
-                indexConfigsCreated.push(indexConfigToCreate);
-            } else {
-                configsPresent[String(key)] = index.indexConfig.options.name;
+                    indexConfigsCreated.push(indexConfigToCreate);
+                } else {
+                    configsPresent[String(key)] = index.indexConfig.options.name;
+                }
             }
+            await session.commitTransaction();
+        } finally {
+            await session.endSession();
         }
-
         return {indexConfigsCreated, indexConfigsDropped};
     }
 
@@ -727,6 +731,13 @@ class IndexManager {
         const collectionIndexesDropped = [];
 
         /**
+         * @type {import('mongodb').Db}
+         */
+        const db = audit ?
+            await this.mongoDatabaseManager.getAuditDbAsync() :
+            await this.mongoDatabaseManager.getClientDbAsync();
+
+        /**
          * @type {{indexes: {indexConfig: IndexConfig, missing?: boolean, extra?: boolean, [changed]: boolean}[], collectionName: string}[]}
          */
         const indexProblems = await this.compareCurrentIndexesWithConfigurationInAllCollectionsAsync({
@@ -743,15 +754,36 @@ class IndexManager {
             // synchronize the name of the indexes first to avoid creating indexes with same config
             let {indexConfigsCreated, indexConfigsDropped} = await this.renameIndexes({indexProblem, audit});
 
-            // missing or changed indexes needs to be created
+            // missing indexes needs to be created
             indexConfigsCreated = [
-                ...indexConfigsCreated, ...(await this.createCollectionIndexAsync({indexProblem, audit}))
+                ...indexConfigsCreated, ...(await this.createCollectionIndexAsync({indexProblem, db}))
             ];
 
-            // extra or changed indexes needs to be dropped
+            // extra indexes needs to be dropped
             indexConfigsDropped = [
-                ...indexConfigsDropped, ...(await this.dropCollectionIndexAsync({indexProblem, audit}))
+                ...indexConfigsDropped, ...(await this.dropCollectionIndexAsync({indexProblem, db}))
             ];
+
+            // changed indexes needs to be dropped and created with new configurations
+            for (const index of indexProblem.indexes) {
+                if (index.changed) {
+                    await this.deleteIndexInCollectionAsync({
+                        collectionName: indexProblem.collectionName,
+                        indexName: index.indexConfig.options.name,
+                        db
+                    });
+
+                    indexConfigsDropped.push(index.indexConfig);
+
+                    await this.createIndexIfNotExistsAsync({
+                        collectionName: indexProblem.collectionName,
+                        indexConfig: index.indexConfig,
+                        db
+                    });
+
+                    indexConfigsCreated.push(index.indexConfig);
+                }
+            }
 
             if (indexConfigsCreated.length) {
                 collectionIndexesCreated.push({
@@ -779,11 +811,18 @@ class IndexManager {
      * @param {boolean} [audit]
      * @returns {Promise<{created: {indexes: IndexConfig[], collectionName: string}[]}>}
      */
-    async addMissingIndexesAsync({audit = false, includeChanged = false}) {
+    async addMissingIndexesAsync({audit = false}) {
         /**
          * @type {{indexes: IndexConfig[], collectionName: string}[]}
          */
         const collectionIndexesCreated = [];
+
+        /**
+         * @type {import('mongodb').Db}
+         */
+        const db = audit ?
+            await this.mongoDatabaseManager.getAuditDbAsync() :
+            await this.mongoDatabaseManager.getClientDbAsync();
 
         /**
          * @type {{indexes: {indexConfig: IndexConfig, missing?: boolean, extra?: boolean, [changed]: boolean}[], collectionName: string}[]}
@@ -799,7 +838,7 @@ class IndexManager {
         ) {
             assertIsValid(indexProblem.collectionName);
 
-            const indexConfigsCreated = await this.createCollectionIndexAsync({indexProblem, includeChanged, audit});
+            const indexConfigsCreated = await this.createCollectionIndexAsync({indexProblem, db});
 
             if (indexConfigsCreated.length) {
                 collectionIndexesCreated.push({
@@ -819,11 +858,18 @@ class IndexManager {
      * @param {boolean} [audit]
      * @returns {Promise<{dropped: {indexes: IndexConfig[], collectionName: string}[]}>}
      */
-    async removeExtraIndexesAsync({audit = false, includeChanged = false}) {
+    async removeExtraIndexesAsync({audit = false}) {
         /**
          * @type {{indexes: IndexConfig[], collectionName: string}[]}
          */
         const collectionIndexesDropped = [];
+
+        /**
+         * @type {import('mongodb').Db}
+         */
+        const db = audit ?
+            await this.mongoDatabaseManager.getAuditDbAsync() :
+            await this.mongoDatabaseManager.getClientDbAsync();
 
         /**
          * @type {{indexes: {indexConfig: IndexConfig, missing?: boolean, extra?: boolean, [changed]: boolean}[], collectionName: string}[]}
@@ -839,7 +885,7 @@ class IndexManager {
         ) {
             assertIsValid(indexProblem.collectionName);
 
-            const indexConfigsDropped = await this.dropCollectionIndexAsync({indexProblem, includeChanged, audit});
+            const indexConfigsDropped = await this.dropCollectionIndexAsync({indexProblem, db});
 
             if (indexConfigsDropped.length) {
                 collectionIndexesDropped.push({
