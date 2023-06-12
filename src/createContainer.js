@@ -165,10 +165,7 @@ const createContainer = function () {
             patientChangeTopic: env.KAFKA_PATIENT_CHANGE_TOPIC || 'business.events',
             consentChangeTopic: env.KAFKA_PATIENT_CHANGE_TOPIC || 'business.events',
             bwellPersonFinder: c.bwellPersonFinder,
-            requestSpecificCache: c.requestSpecificCache,
-            configManager: c.configManager,
-            sensitiveDataProcessor: c.sensitiveDataProcessor,
-            patientFilterManager: c.patientFilterManager,
+            requestSpecificCache: c.requestSpecificCache
         }
     ));
     container.register('sensitiveDataProcessor', (c) => new SensitiveDataProcessor({
