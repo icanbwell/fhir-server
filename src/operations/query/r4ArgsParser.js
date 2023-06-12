@@ -100,7 +100,7 @@ class R4ArgsParser {
             /**
              * @type {string | string[]}
              */
-            let queryParameterValue = args[`${argName}`];
+            let queryParameterValue = args[`${argName}`].replace('|', ',');
             if (!propertyObj) {
                 // In case of an unrecognized argument while searching and handling type is strict throw an error.
                 // https://www.hl7.org/fhir/search.html#errors
