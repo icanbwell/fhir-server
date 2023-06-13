@@ -58,6 +58,9 @@ class ParsedArgsItem {
         }
     }
 
+    /**
+     * Changes queryParameterValue if modifier contains resource types of target references
+     */
     applyModifierToQueryParameterValue() {
         if (!this.propertyObj || !this.queryParameterValue) {
             return;
