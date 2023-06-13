@@ -31,7 +31,7 @@ async function main() {
             dropIndexes: parameters.drop ? true : false,
             useAuditDatabase: parameters.audit ? true : false,
             addMissingIndexesOnly: parameters.addMissingIndexesOnly ? true : false,
-            removeExtraIndexesOnly: parameters.addExtraIndexesOnly ? true : false,
+            removeExtraIndexesOnly: parameters.dropExtraIndexesOnly ? true : false,
             includeHistoryCollections: parameters.includeHistoryCollections ? true : false,
             adminLogger: new AdminLogger(),
             synchronizeIndexes: parameters.synchronize ? true : false,
@@ -58,7 +58,7 @@ async function main() {
  * Command: node -r dotenv/config src/admin/scripts/indexCollections --collections=all --drop
  * Command: node -r dotenv/config src/admin/scripts/indexCollections --synchronize
  * Command: node -r dotenv/config src/admin/scripts/indexCollections --addMissingIndexesOnly
- * Command: node -r dotenv/config src/admin/scripts/indexCollections --addExtraIndexesOnly
+ * Command: node -r dotenv/config src/admin/scripts/indexCollections --dropExtraIndexesOnly
  * Command: node -r dotenv/config src/admin/scripts/indexCollections --audit --synchronize
  * Command: node -r dotenv/config src/admin/scripts/indexCollections --collections=AuditEvent_4_0_0 --drop --audit --includeHistoryCollections
  * Command: node -r dotenv/config src/admin/scripts/indexCollections --collections=AuditEvent_4_0_0 --drop --audit --includeHistoryCollections
