@@ -95,7 +95,19 @@ Run `make up` to bring up the fhir server in docker on your local machine. Click
 
 ## Indexing
 The process for adding/updating an index:
-1. Edit [src/indexes/customIndexes.js](src/indexes/customIndexes.js) to add your indexes
+1. Edit [src/indexes/customIndexes.js](src/indexes/customIndexes.js) to add your indexes, index format should be as mentioned below
+```javascript
+{
+    keys: {
+        // should contain all the configs to be added in the index
+    },
+    options: {
+        // should contain all the options of the index like name, etc
+    },
+    include: // list of collection names to be included while creating the index
+    exclude: // list of collection names to be excluded while creating the index
+}
+```
 2. Commit to main
 3. There are two ways to apply these indexes to Mongo:
    1. For small collections, you can run indexing by going to `/index/run` url endpoint. To drop and create indexes use the `/index/rebuild` endpoint.
