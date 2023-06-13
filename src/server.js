@@ -59,40 +59,28 @@ async function createServer(fnCreateContainer) {
         gracefulTerminationTimeout: 7000,
     });
 
-    process.on('SIGTERM', async function onSigterm() {
-        logInfo('Beginning shutdown of server', {});
+    const signalListener = eventName => async () => {
+        logInfo(`Beginning shutdown of server for ${eventName}`, {});
         await logSystemEventAsync({
-            event: 'SIGTERM',
-            message: 'Beginning shutdown of server for SIGTERM',
+            event: eventName,
+            message: `Beginning shutdown of server for ${eventName}`,
             args: {},
         });
         try {
             await httpTerminator.terminate();
-            logInfo('Successfully shut down server', {});
+            logInfo(`Successfully shut down server for ${eventName}`, {});
             process.exit(0);
         } catch (error) {
-            logError('Failed to shutdown server', {error: error});
+            logError(`Failed to shutdown server for ${eventName}`, {error: error});
             process.exit(1);
         }
-    });
+    };
+
+    process.on('SIGTERM', signalListener('SIGTERM'));
 
     // https://snyk.io/wp-content/uploads/10-best-practices-to-containerize-Node.js-web-applications-with-Docker.pdf
-    process.on('SIGINT', async function onSigInt() {
-        logInfo('Beginning shutdown of server for SIGINT', {});
-        await logSystemEventAsync({
-            event: 'SIGINT',
-            message: 'Beginning shutdown of server for SIGINT',
-            args: {},
-        });
-        try {
-            await httpTerminator.terminate();
-            logInfo('Successfully shut down server for SIGINT', {});
-            process.exit(0);
-        } catch (error) {
-            logError('Failed to shutdown server for SIGINT', {error: error});
-            process.exit(1);
-        }
-    });
+    process.on('SIGINT', signalListener('SIGINT'));
+    process.on('SIGQUIT', signalListener('SIGQUIT'));
 
     return server;
 }
