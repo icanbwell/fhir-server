@@ -104,7 +104,7 @@ The process for adding/updating an index:
     options: {
         // should contain all the options of the index like name, etc
     },
-    include: // list of collection names to be included while creating the index
+    include: // list of collection names to be included while creating the index,
     exclude: // list of collection names to be excluded while creating the index
 }
 ```
