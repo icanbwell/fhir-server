@@ -46,13 +46,44 @@ class ParsedArgsItem {
          * @type {string[]}
          */
         this.modifiers = modifiers;
-
+        if (modifiers.length) {
+            this.applyModifierToQueryParameterValue();
+        }
         /**
          * @type {ParsedReferenceItem[]}
          */
         this.references = references;
         if (!references) {
             this.updateReferences();
+        }
+    }
+
+    /**
+     * Changes queryParameterValue if modifier contains resource types of target references
+     */
+    applyModifierToQueryParameterValue() {
+        if (!this.propertyObj || !this.queryParameterValue) {
+            return;
+        }
+
+        let modifiedQueryParameterValues = [];
+        this.modifiers.forEach(modifier => {
+            if (this.propertyObj.target && this.propertyObj.target.includes(modifier) && this.queryParameterValue.value) {
+                const queryParameterValues = this.queryParameterValue.value.split(',');
+                queryParameterValues.forEach(value => {
+                    if (value && value.includes('/')) {
+                        modifiedQueryParameterValues.push(`${value}`);
+                    } else {
+                        modifiedQueryParameterValues.push(`${modifier}/${value}`);
+                    }
+                });
+            }
+        });
+
+        if (modifiedQueryParameterValues.length) {
+            this.queryParameterValue = new QueryParameterValue({
+                value: modifiedQueryParameterValues.join(), operator: this.queryParameterValue.operator
+            });
         }
     }
 
