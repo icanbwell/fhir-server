@@ -28,7 +28,7 @@ FROM node:18.16.0-bullseye-slim
 ARG NODE_ENV=production
 
 # Update everything on the OS
-RUN apt-get -y update && apt-get -y upgrade && apt-get -y --no-install-recommends install curl dumb-init && apt-get clean
+RUN apt-get -y update && apt-get -y upgrade && apt-get -y --no-install-recommends install curl && apt-get clean
 
 # update npm
 RUN npm install -g npm@latest && npm upgrade --global yarn
