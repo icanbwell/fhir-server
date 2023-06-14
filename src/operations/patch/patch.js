@@ -19,6 +19,7 @@ const {DatabaseAttachmentManager} = require('../../dataLayer/databaseAttachmentM
 const {SensitiveDataProcessor} = require('../../utils/sensitiveDataProcessor');
 const {ConfigManager} = require('../../utils/configManager');
 const {DELETE, RETRIEVE} = require('../../constants').GRIDFS;
+const { isEqual } = require('lodash');
 
 class PatchOperation {
     /**
@@ -275,8 +276,17 @@ class PatchOperation {
                     fnTask: async () => {
                         if (mergeResults[0].resourceType === 'Consent' && (mergeResults[0].created || mergeResults[0].updated)) {
                             await this.sensitiveDataProcessor.processPatientConsentChange({requestId: requestId, resources: resource});
-                            await this.databaseBulkInserter.executeAsync({requestId, currentDate, base_version, method});
                         }
+                        if (
+                            mergeResults[0].resourceType === 'Person' && (mergeResults[0].created || mergeResults[0].updated)
+                        ) {
+                            const sortedLinkCurrentResource = resource_incoming.link.slice().sort((a, b) => a.target.reference.localeCompare(b.target.reference));
+                            const sortedLinkPreviousResource = foundResource.link.slice().sort((a, b) => a.target.reference.localeCompare(b.target.reference));
+                            if (!isEqual(sortedLinkCurrentResource, sortedLinkPreviousResource)) {
+                                await this.sensitiveDataProcessor.processPersonLinkChange({requestId: requestId, resources: resource_incoming});
+                            }
+                        }
+                        await this.databaseBulkInserter.executeAsync({requestId, currentDate, base_version, method});
                     }
                 });
             }

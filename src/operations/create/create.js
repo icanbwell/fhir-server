@@ -325,8 +325,11 @@ class CreateOperation {
                     fnTask: async () => {
                         if (mergeResults[0].resourceType === 'Consent' && (mergeResults[0].created || mergeResults[0].updated)) {
                             await this.sensitiveDataProcessor.processPatientConsentChange({requestId: requestId, resources: doc});
-                            await this.databaseBulkInserter.executeAsync({requestId, currentDate, base_version, method});
                         }
+                        if (mergeResults[0].resourceType === 'Person' && (mergeResults[0].created || mergeResults[0].updated)) {
+                            await this.sensitiveDataProcessor.processPersonLinkChange({requestId: requestId, resources: doc});
+                        }
+                        await this.databaseBulkInserter.executeAsync({requestId, currentDate, base_version, method});
                     }
                 });
             }

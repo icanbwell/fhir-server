@@ -28,6 +28,8 @@ const {QueryItem} = require('../graph/queryItem');
 const {FhirResourceCreator} = require('../../fhir/fhirResourceCreator');
 const {SensitiveDataProcessor} = require('../../utils/sensitiveDataProcessor');
 const {ConfigManager} = require('../../utils/configManager');
+const { isEqual } = require('lodash');
+
 class MergeOperation {
     /**
      * @param {MergeManager} mergeManager
@@ -436,15 +438,45 @@ class MergeOperation {
                     requestId,
                     fnTask: async () => {
                         let changedConsentResources = [];
+                        let personChangedResources = [];
                         mergeResults.forEach(mergeResult => {
-                            if (mergeResult.resourceType === 'Consent' && !mergeResult.issue && (mergeResult.created || mergeResult.updated)) {
-                                changedConsentResources.push(mergeResult.uuid);
+                            const { currentResourceType, created, updated } = mergeResult;
+                            const resourceUUID = mergeResult.toJSON().uuid;
+
+                            if (currentResourceType === 'Consent' && (created || updated)) {
+                                changedConsentResources.push(resourceUUID);
+                            }
+                            if (currentResourceType === 'Person' && (created || updated)) {
+                                personChangedResources.push(resourceUUID);
                             }
                         });
-                        let consentResources = resourcesIncomingArray.filter((resources) => {
-                            return changedConsentResources.includes(resources._uuid);
+                        let consentResources = resourcesIncomingArray.filter((resource) => {
+                            return changedConsentResources.includes(resource._uuid);
                         });
-                        await this.sensitiveDataProcessor.processPatientConsentChange({requestId: requestId, resources: consentResources});
+                        let personResources = resourcesIncomingArray.filter((resource) => {
+                            if (resource.resourceType !== 'Person') {
+                                return false;
+                            }
+                            let previousResource = this.databaseBulkLoader.getResourceFromExistingList({
+                                requestId: requestId, resourceType: resource.resourceType, uuid: resource._uuid
+                            });
+                            if (!previousResource) {
+                                return true;
+                            }
+                            const sortedLinkPreviousResource = previousResource.link.slice().sort((a, b) => a.target.reference.localeCompare(b.target.reference));
+                            const sortedLinkCurrentResource = resource.link.slice().sort((a, b) => a.target.reference.localeCompare(b.target.reference));
+
+                            return (
+                                personChangedResources.includes(resource._uuid) &&
+                                !isEqual(sortedLinkCurrentResource, sortedLinkPreviousResource)
+                            );
+                        });
+                        if (consentResources.length > 0) {
+                            await this.sensitiveDataProcessor.processPatientConsentChange({ requestId: requestId, resources: consentResources });
+                        }
+                        if (personResources.length > 0) {
+                            await this.sensitiveDataProcessor.processPersonLinkChange({ requestId: requestId, resources: personResources });
+                        }
                         await this.databaseBulkInserter.executeAsync({requestId, currentDate, base_version, method});
                     }
                 });

@@ -202,8 +202,10 @@ class SensitiveDataProcessor {
             // All the patient ids for which consents are to be fetched
             allLinkedPatientIds = [...allLinkedPatientIds, ...clientPatientIds];
             // Create a reverse relation object between the client patient and the main patient
-            let clientPatientObj = clientPatientIds.reduce((o, key) => ({ ...o, [key]: patientId}), {});
-            linkedClientPatientIdMap = {...linkedClientPatientIdMap, ...clientPatientObj};
+            // TODO: Handle case when client patient ids are duplicate for patient ids.
+            clientPatientIds.forEach(clientPatientId => {
+                linkedClientPatientIdMap[clientPatientId] = patientId;
+            });
         }
         // Query to fetch only the must updated consents for any patient
         const query = [
@@ -318,7 +320,7 @@ class SensitiveDataProcessor {
      */
     removeSecurityAccessTag(security) {
         return security.filter((coding) => {
-            return !coding.system.endsWith('/access');
+            return !coding.system.endsWith('/access') || coding.code === 'bwell';
         });
     }
 
@@ -357,34 +359,69 @@ class SensitiveDataProcessor {
     }
 
     /**
+     * Fetches all the resources related to a patient and updates the security tag for each resource
+     * @param {String[]} patientIds
+     */
+    async processPatientRelatedResourcesAndUpdateSecurityTags({requestId, patientIds}) {
+        // Fetch all the resources related to the client patients.
+        const resourcesForPatient = await this.getAllResourcesRelatedToPatient({patientIds: patientIds});
+        logInfo(`Total resources linked with patientIds: ${patientIds} are ${resourcesForPatient.length}`, {});
+        // Call the sensitive data processor on all the resources.
+        const updatedResources = await this.updateResourceSecurityAccessTag({
+            resource: resourcesForPatient, returnUpdatedResources: true
+        });
+        updatedResources.forEach((resource) => {
+            resource = FhirResourceCreator.createByResourceType(resource, resource.resourceType);
+            this.databaseBulkInserter.patchFieldAsync({
+                requestId: requestId, resource: resource, fieldName: 'meta.security', fieldValue: resource.meta.security, upsert: false
+            });
+        });
+    }
+
+    /**
      * STEPS INVOLVED:
      * 1. Fetch all resources related to the patient for which consent has been updated.
      * 2. Upddates the security access tags.
-     * 3. Returns an array of resources that has been updated.
-     * @param {Resource} resource
-     * @returns {Resource[]} returns all the resource whose security tags have been updated due to changes made to consent.
+     * @param {String} requestId
+     * @param {Resource} resources
      */
     async processPatientConsentChange({requestId, resources}) {
         let clientPatientIds = [];
         resources = Array.isArray(resources) ? resources : [resources];
         // Retriving the patient id from consent resource
-        resources.forEach(async (resource) => {
+        for (let resource of resources) {
             let clientPatientIdForEachPatient = await this.getAllCLientPatientIds({patientId: resource.patient.reference});
             clientPatientIds = [...clientPatientIds, ...clientPatientIdForEachPatient];
+        }
+        await this.processPatientRelatedResourcesAndUpdateSecurityTags({
+            requestId: requestId, patientIds: clientPatientIds
         });
+    }
 
-        // Fetch all the resources related to the client patients.
-        const resourcesForPatient = await this.getAllResourcesRelatedToPatient({patientIds: clientPatientIds});
-        // Call the sensitive data processor on all the resources.
-        const updatedResources = await this.updateResourceSecurityAccessTag({
-            resource: resourcesForPatient, returnUpdatedResources: true
+    /**
+     * STEPS INVOLVED
+     * 1. Filter out bwell master person
+     * 2. Get all resources related to client patient of bwell master person
+     * 3. Update the security access tags
+     * @param {String} requestId
+     * @param {Resource[]} resources
+     */
+    async processPersonLinkChange({requestId, resources}) {
+        resources = Array.isArray(resources) ? resources : [resources];
+        // Filtering out person resources that are bwell person
+        const bwellMasterPersonResources = resources.filter((personResource) => {
+            return this.bwellPersonFinder.isBwellPerson(personResource) && this.isPatientInitiatedConnectionResource(personResource);
         });
-
-        updatedResources.forEach((consentResource) => {
-            consentResource = FhirResourceCreator.createByResourceType(consentResource, consentResource.resourceType);
-            this.databaseBulkInserter.patchFieldAsync({
-                requestId: requestId, resource: consentResource, fieldName: 'meta.security', fieldValue: consentResource.meta.security, upsert: false
+        logInfo(`In processPersonChange Total bwellMasterPerson Resources: ${bwellMasterPersonResources.length}`, {});
+        let clientPatientIds = [];
+        for (let personResource of bwellMasterPersonResources) {
+            let clientPatientIdForEachPerson = await this.personToPatientIdsExpander.getPatientProxyIdsAsync({
+                base_version: '4_0_0', id: personResource._uuid, includePatientPrefix: true
             });
+            clientPatientIds = [...clientPatientIds, ...clientPatientIdForEachPerson];
+        }
+        await this.processPatientRelatedResourcesAndUpdateSecurityTags({
+            requestId: requestId, patientIds: clientPatientIds
         });
     }
 }
