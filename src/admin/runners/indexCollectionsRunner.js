@@ -92,22 +92,27 @@ class IndexCollectionsRunner extends BaseScriptRunner {
              */
             const db = this.useAuditDatabase ? await this.mongoDatabaseManager.getAuditDbAsync() :
                 await this.mongoDatabaseManager.getClientDbAsync();
+
+            const collections = this.collections.length > 0 ? this.collections : ['all'];
             if (this.addMissingIndexesOnly) {
                 await this.indexManager.addMissingIndexesAsync(
                     {
-                        audit: this.useAuditDatabase
+                        audit: this.useAuditDatabase,
+                        collections
                     }
                 );
             } else if (this.removeExtraIndexesOnly) {
-                await this.indexManager.removeExtraIndexesAsync(
+                await this.indexManager.dropExtraIndexesAsync(
                     {
-                        audit: this.useAuditDatabase
+                        audit: this.useAuditDatabase,
+                        collections
                     }
                 );
             } else if (this.synchronizeIndexes) {
                 await this.indexManager.synchronizeIndexesWithConfigAsync(
                     {
-                        audit: this.useAuditDatabase
+                        audit: this.useAuditDatabase,
+                        collections
                     }
                 );
             } else {

@@ -72,9 +72,9 @@ describe('Remove Extra Index Tests', () => {
             });
             expect(extraIndexesResult.indexes.filter(ia => ia.extra).length).toStrictEqual(0);
 
-            const removeExtraResults = await indexManager.removeExtraIndexesAsync({});
+            const dropExtraResults = await indexManager.dropExtraIndexesAsync({});
 
-            expect(removeExtraResults.dropped.length).toEqual(0);
+            expect(dropExtraResults.dropped.length).toEqual(0);
         });
         test('Index is remove if Patient collection has extra indexes', async () => {
             /**
@@ -143,11 +143,11 @@ describe('Remove Extra Index Tests', () => {
                 }
             );
 
-            const removeExtraResults = await indexManager.removeExtraIndexesAsync({});
+            const dropExtraResults = await indexManager.dropExtraIndexesAsync({});
 
-            expect(removeExtraResults.dropped.length).toEqual(1);
+            expect(dropExtraResults.dropped.length).toEqual(1);
 
-            const droppedIndexes = removeExtraResults.dropped[0].indexes;
+            const droppedIndexes = dropExtraResults.dropped[0].indexes;
 
             expect(droppedIndexes.length).toEqual(1);
 
