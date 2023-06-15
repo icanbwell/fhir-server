@@ -415,6 +415,7 @@ class SensitiveDataProcessor {
             resourceType: 'Person',
             base_version: '4_0_0'
         });
+        // Fetch all patient ids linked to the bwell master person.
         let patientIds = await this.personToPatientIdsExpander.getPatientIdsFromPersonAsync({
             databaseQueryManager,
             personIds: personIds,
@@ -422,6 +423,7 @@ class SensitiveDataProcessor {
             level: 1,
             additionalQuery: { 'meta.security.code': {$in: PATIENT_INITIATED_CONNECTION}}
         });
+        // Since all patient ids don't include a Patient prefix, map each element and add a prefix.
         const patientIdsWithPrefix = patientIds.map(patientId => {
             return `Patient/${patientId}`;
         });
