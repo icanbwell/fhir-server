@@ -320,7 +320,7 @@ class SensitiveDataProcessor {
      */
     removeSecurityAccessTag(security) {
         return security.filter((coding) => {
-            return !coding.system.endsWith('/access') || coding.code === 'bwell';
+            return !coding.system.endsWith('/access');
         });
     }
 
@@ -376,6 +376,7 @@ class SensitiveDataProcessor {
                 requestId: requestId, resource: resource, fieldName: 'meta.security', fieldValue: resource.meta.security, upsert: false
             });
         });
+        await this.databaseBulkInserter.executeAsync({requestId, base_version: '4_0_0'});
     }
 
     /**
@@ -387,7 +388,6 @@ class SensitiveDataProcessor {
      */
     async processPatientConsentChange({requestId, resources}) {
         let clientPatientIds = [];
-        resources = Array.isArray(resources) ? resources : [resources];
         // Retriving the patient id from consent resource
         for (let resource of resources) {
             let clientPatientIdForEachPatient = await this.getAllCLientPatientIds({patientId: resource.patient.reference});
@@ -407,21 +407,26 @@ class SensitiveDataProcessor {
      * @param {Resource[]} resources
      */
     async processPersonLinkChange({requestId, resources}) {
-        resources = Array.isArray(resources) ? resources : [resources];
-        // Filtering out person resources that are bwell person
-        const bwellMasterPersonResources = resources.filter((personResource) => {
-            return this.bwellPersonFinder.isBwellPerson(personResource) && this.isPatientInitiatedConnectionResource(personResource);
+        logInfo(`In processPersonChange Total bwellMasterPerson Resources: ${resources.length}`, {});
+        let personIds = resources.map((resource) => {
+            return resource._uuid;
         });
-        logInfo(`In processPersonChange Total bwellMasterPerson Resources: ${bwellMasterPersonResources.length}`, {});
-        let clientPatientIds = [];
-        for (let personResource of bwellMasterPersonResources) {
-            let clientPatientIdForEachPerson = await this.personToPatientIdsExpander.getPatientProxyIdsAsync({
-                base_version: '4_0_0', id: personResource._uuid, includePatientPrefix: true
-            });
-            clientPatientIds = [...clientPatientIds, ...clientPatientIdForEachPerson];
-        }
+        const databaseQueryManager = this.databaseQueryFactory.createQuery({
+            resourceType: 'Person',
+            base_version: '4_0_0'
+        });
+        let patientIds = await this.personToPatientIdsExpander.getPatientIdsFromPersonAsync({
+            databaseQueryManager,
+            personIds: personIds,
+            totalProcessedPersonIds: new Set(),
+            level: 1,
+            additionalQuery: { 'meta.security.code': {$in: PATIENT_INITIATED_CONNECTION}}
+        });
+        const patientIdsWithPrefix = patientIds.map(patientId => {
+            return `Patient/${patientId}`;
+        });
         await this.processPatientRelatedResourcesAndUpdateSecurityTags({
-            requestId: requestId, patientIds: clientPatientIds
+            requestId: requestId, patientIds: patientIdsWithPrefix,
         });
     }
 }

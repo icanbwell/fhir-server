@@ -28,7 +28,8 @@ const {QueryItem} = require('../graph/queryItem');
 const {FhirResourceCreator} = require('../../fhir/fhirResourceCreator');
 const {SensitiveDataProcessor} = require('../../utils/sensitiveDataProcessor');
 const {ConfigManager} = require('../../utils/configManager');
-const { isEqual } = require('lodash');
+const {matchPersonLinks} = require('../../utils/personLinksMatcher');
+const {BwellPersonFinder} = require('../../utils/bwellPersonFinder');
 
 class MergeOperation {
     /**
@@ -47,6 +48,7 @@ class MergeOperation {
      * @param {PreSaveManager} preSaveManager
      * @param {SensitiveDataProcessor} sensitiveDataProcessor
      * @param {ConfigManager} configManager
+     * @param {BwellPersonFinder} bwellPersonFinder
      */
     constructor(
         {
@@ -64,7 +66,8 @@ class MergeOperation {
             resourceValidator,
             preSaveManager,
             sensitiveDataProcessor,
-            configManager
+            configManager,
+            bwellPersonFinder
         }
     ) {
         /**
@@ -147,6 +150,12 @@ class MergeOperation {
          */
         this.configManager = configManager;
         assertTypeEquals(configManager, ConfigManager);
+
+        /**
+         * @type {BwellPersonFinder}
+         */
+        this.bwellPersonFinder = bwellPersonFinder;
+        assertTypeEquals(bwellPersonFinder, BwellPersonFinder);
     }
 
     /**
@@ -463,12 +472,10 @@ class MergeOperation {
                             if (!previousResource) {
                                 return true;
                             }
-                            const sortedLinkPreviousResource = previousResource.link.slice().sort((a, b) => a.target.reference.localeCompare(b.target.reference));
-                            const sortedLinkCurrentResource = resource.link.slice().sort((a, b) => a.target.reference.localeCompare(b.target.reference));
-
                             return (
                                 personChangedResources.includes(resource._uuid) &&
-                                !isEqual(sortedLinkCurrentResource, sortedLinkPreviousResource)
+                                this.bwellPersonFinder.isBwellPerson(resource) &&
+                                !matchPersonLinks(previousResource.link, resource.link)
                             );
                         });
                         if (consentResources.length > 0) {
@@ -477,7 +484,6 @@ class MergeOperation {
                         if (personResources.length > 0) {
                             await this.sensitiveDataProcessor.processPersonLinkChange({ requestId: requestId, resources: personResources });
                         }
-                        await this.databaseBulkInserter.executeAsync({requestId, currentDate, base_version, method});
                     }
                 });
             }

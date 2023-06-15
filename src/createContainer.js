@@ -390,7 +390,8 @@ const createContainer = function () {
                 databaseBulkInserter: c.databaseBulkInserter,
                 configManager: c.configManager,
                 databaseAttachmentManager: c.databaseAttachmentManager,
-                sensitiveDataProcessor: c.sensitiveDataProcessor
+                sensitiveDataProcessor: c.sensitiveDataProcessor,
+                bwellPersonFinder: c.bwellPersonFinder
             }
         )
     );
@@ -410,7 +411,8 @@ const createContainer = function () {
                 resourceMerger: c.resourceMerger,
                 configManager: c.configManager,
                 databaseAttachmentManager: c.databaseAttachmentManager,
-                sensitiveDataProcessor: c.sensitiveDataProcessor
+                sensitiveDataProcessor: c.sensitiveDataProcessor,
+                bwellPersonFinder: c.bwellPersonFinder
             }
         )
     );
@@ -430,7 +432,8 @@ const createContainer = function () {
             resourceValidator: c.resourceValidator,
             preSaveManager: c.preSaveManager,
             sensitiveDataProcessor: c.sensitiveDataProcessor,
-            configManager: c.configManager
+            configManager: c.configManager,
+            bwellPersonFinder: c.bwellPersonFinder
         }
     ));
     container.register('everythingOperation', (c) => new EverythingOperation({
@@ -502,7 +505,8 @@ const createContainer = function () {
             databaseBulkInserter: c.databaseBulkInserter,
             databaseAttachmentManager: c.databaseAttachmentManager,
             sensitiveDataProcessor: c.sensitiveDataProcessor,
-            configManager: c.configManager
+            configManager: c.configManager,
+            bwellPersonFinder: c.bwellPersonFinder
         }
     ));
     container.register('validateOperation', (c) => new ValidateOperation(
