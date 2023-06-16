@@ -421,7 +421,7 @@ class SensitiveDataProcessor {
             personIds: personIds,
             totalProcessedPersonIds: new Set(),
             level: 1,
-            additionalQuery: { 'meta.security.code': {$in: PATIENT_INITIATED_CONNECTION}}
+            additionalQuery: {'meta.security': {'$elemMatch': {'system': 'https://www.icanbwell.com/connectionType', 'code': {'$in': PATIENT_INITIATED_CONNECTION}}}}
         });
         // Since all patient ids don't include a Patient prefix, map each element and add a prefix.
         const patientIdsWithPrefix = patientIds.map(patientId => {
