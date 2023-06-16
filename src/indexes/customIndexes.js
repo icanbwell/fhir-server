@@ -611,11 +611,11 @@ module.exports = {
             {
                 keys: {
                     'telecom.system': 1,
-                    'telecom.code': 1,
+                    'telecom.value': 1,
                     '_uuid': 1
                 },
                 options: {
-                    name: 'telecom.system_code_1'
+                    name: 'telecom.system_value_1'
                 }
             },
             {
