@@ -19,6 +19,8 @@ const {DatabaseAttachmentManager} = require('../../dataLayer/databaseAttachmentM
 const {SensitiveDataProcessor} = require('../../utils/sensitiveDataProcessor');
 const {ConfigManager} = require('../../utils/configManager');
 const {DELETE, RETRIEVE} = require('../../constants').GRIDFS;
+const { matchPersonLinks } = require('../../utils/personLinksMatcher');
+const { BwellPersonFinder } = require('../../utils/bwellPersonFinder');
 
 class PatchOperation {
     /**
@@ -32,6 +34,7 @@ class PatchOperation {
      * @param {DatabaseAttachmentManager} databaseAttachmentManager
      * @param {SensitiveDataProcessor} sensitiveDataProcessor
      * @param {ConfigManager} configManager
+     * @param {BwellPersonFinder} bwellPersonFinder
      */
     constructor(
         {
@@ -43,7 +46,8 @@ class PatchOperation {
             databaseBulkInserter,
             databaseAttachmentManager,
             sensitiveDataProcessor,
-            configManager
+            configManager,
+            bwellPersonFinder
         }
     ) {
         /**
@@ -93,6 +97,12 @@ class PatchOperation {
          */
         this.configManager = configManager;
         assertTypeEquals(configManager, ConfigManager);
+
+        /**
+         * @type {BwellPersonFinder}
+         */
+        this.bwellPersonFinder = bwellPersonFinder;
+        assertTypeEquals(bwellPersonFinder, BwellPersonFinder);
     }
 
     /**
@@ -274,8 +284,15 @@ class PatchOperation {
                     requestId,
                     fnTask: async () => {
                         if (mergeResults[0].resourceType === 'Consent' && (mergeResults[0].created || mergeResults[0].updated)) {
-                            await this.sensitiveDataProcessor.processPatientConsentChange({requestId: requestId, resources: resource});
-                            await this.databaseBulkInserter.executeAsync({requestId, currentDate, base_version, method});
+                            await this.sensitiveDataProcessor.processPatientConsentChange({requestId: requestId, resources: [resource]});
+                        }
+                        if (
+                            mergeResults[0].resourceType === 'Person' &&
+                            (mergeResults[0].created || mergeResults[0].updated) &&
+                            this.bwellPersonFinder.isBwellPerson(resource_incoming) &&
+                            !matchPersonLinks(resource_incoming.link, foundResource.link)
+                        ) {
+                            await this.sensitiveDataProcessor.processPersonLinkChange({requestId: requestId, resources: [resource]});
                         }
                     }
                 });

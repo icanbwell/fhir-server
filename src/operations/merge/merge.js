@@ -28,6 +28,9 @@ const {QueryItem} = require('../graph/queryItem');
 const {FhirResourceCreator} = require('../../fhir/fhirResourceCreator');
 const {SensitiveDataProcessor} = require('../../utils/sensitiveDataProcessor');
 const {ConfigManager} = require('../../utils/configManager');
+const {matchPersonLinks} = require('../../utils/personLinksMatcher');
+const {BwellPersonFinder} = require('../../utils/bwellPersonFinder');
+
 class MergeOperation {
     /**
      * @param {MergeManager} mergeManager
@@ -45,6 +48,7 @@ class MergeOperation {
      * @param {PreSaveManager} preSaveManager
      * @param {SensitiveDataProcessor} sensitiveDataProcessor
      * @param {ConfigManager} configManager
+     * @param {BwellPersonFinder} bwellPersonFinder
      */
     constructor(
         {
@@ -62,7 +66,8 @@ class MergeOperation {
             resourceValidator,
             preSaveManager,
             sensitiveDataProcessor,
-            configManager
+            configManager,
+            bwellPersonFinder
         }
     ) {
         /**
@@ -145,6 +150,12 @@ class MergeOperation {
          */
         this.configManager = configManager;
         assertTypeEquals(configManager, ConfigManager);
+
+        /**
+         * @type {BwellPersonFinder}
+         */
+        this.bwellPersonFinder = bwellPersonFinder;
+        assertTypeEquals(bwellPersonFinder, BwellPersonFinder);
     }
 
     /**
@@ -436,16 +447,43 @@ class MergeOperation {
                     requestId,
                     fnTask: async () => {
                         let changedConsentResources = [];
+                        let personChangedResources = [];
                         mergeResults.forEach(mergeResult => {
-                            if (mergeResult.resourceType === 'Consent' && !mergeResult.issue && (mergeResult.created || mergeResult.updated)) {
-                                changedConsentResources.push(mergeResult.uuid);
+                            const { currentResourceType, created, updated } = mergeResult;
+                            const resourceUUID = mergeResult.toJSON().uuid;
+
+                            if (currentResourceType === 'Consent' && (created || updated)) {
+                                changedConsentResources.push(resourceUUID);
+                            }
+                            if (currentResourceType === 'Person' && (created || updated)) {
+                                personChangedResources.push(resourceUUID);
                             }
                         });
-                        let consentResources = resourcesIncomingArray.filter((resources) => {
-                            return changedConsentResources.includes(resources._uuid);
+                        let consentResources = resourcesIncomingArray.filter((resource) => {
+                            return changedConsentResources.includes(resource._uuid);
                         });
-                        await this.sensitiveDataProcessor.processPatientConsentChange({requestId: requestId, resources: consentResources});
-                        await this.databaseBulkInserter.executeAsync({requestId, currentDate, base_version, method});
+                        let personResources = resourcesIncomingArray.filter((resource) => {
+                            if (resource.resourceType !== 'Person') {
+                                return false;
+                            }
+                            let previousResource = this.databaseBulkLoader.getResourceFromExistingList({
+                                requestId: requestId, resourceType: resource.resourceType, uuid: resource._uuid
+                            });
+                            if (!previousResource) {
+                                return true;
+                            }
+                            return (
+                                personChangedResources.includes(resource._uuid) &&
+                                this.bwellPersonFinder.isBwellPerson(resource) &&
+                                !matchPersonLinks(previousResource.link, resource.link)
+                            );
+                        });
+                        if (consentResources.length > 0) {
+                            await this.sensitiveDataProcessor.processPatientConsentChange({ requestId: requestId, resources: consentResources });
+                        }
+                        if (personResources.length > 0) {
+                            await this.sensitiveDataProcessor.processPersonLinkChange({ requestId: requestId, resources: personResources });
+                        }
                     }
                 });
             }

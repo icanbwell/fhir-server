@@ -22,6 +22,7 @@ const {ConfigManager} = require('../../utils/configManager');
 const {FhirResourceCreator} = require('../../fhir/fhirResourceCreator');
 const { DatabaseAttachmentManager } = require('../../dataLayer/databaseAttachmentManager');
 const { SensitiveDataProcessor } = require('../../utils/sensitiveDataProcessor');
+const { BwellPersonFinder } = require('../../utils/bwellPersonFinder');
 
 class CreateOperation {
     /**
@@ -37,6 +38,7 @@ class CreateOperation {
      * @param {ConfigManager} configManager
      * @param {DatabaseAttachmentManager} databaseAttachmentManager
      * @param {SensitiveDataProcessor} sensitiveDataProcessor
+     * @param {BwellPersonFinder} bwellPersonFinder
      */
     constructor(
         {
@@ -50,7 +52,8 @@ class CreateOperation {
             databaseBulkInserter,
             configManager,
             databaseAttachmentManager,
-            sensitiveDataProcessor
+            sensitiveDataProcessor,
+            bwellPersonFinder
         }
     ) {
         /**
@@ -112,6 +115,12 @@ class CreateOperation {
          */
         this.sensitiveDataProcessor = sensitiveDataProcessor;
         assertTypeEquals(sensitiveDataProcessor, SensitiveDataProcessor);
+
+        /**
+         * @type {BwellPersonFinder}
+         */
+        this.bwellPersonFinder = bwellPersonFinder;
+        assertTypeEquals(bwellPersonFinder, BwellPersonFinder);
     }
 
     /**
@@ -324,8 +333,14 @@ class CreateOperation {
                     requestId,
                     fnTask: async () => {
                         if (mergeResults[0].resourceType === 'Consent' && (mergeResults[0].created || mergeResults[0].updated)) {
-                            await this.sensitiveDataProcessor.processPatientConsentChange({requestId: requestId, resources: doc});
-                            await this.databaseBulkInserter.executeAsync({requestId, currentDate, base_version, method});
+                            await this.sensitiveDataProcessor.processPatientConsentChange({requestId: requestId, resources: [doc]});
+                        }
+                        if (
+                            mergeResults[0].resourceType === 'Person' &&
+                            (mergeResults[0].created || mergeResults[0].updated) &&
+                            this.bwellPersonFinder.isBwellPerson(doc)
+                        ) {
+                            await this.sensitiveDataProcessor.processPersonLinkChange({requestId: requestId, resources: [doc]});
                         }
                     }
                 });

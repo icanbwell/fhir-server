@@ -23,6 +23,8 @@ const {ConfigManager} = require('../../utils/configManager');
 const {FhirResourceCreator} = require('../../fhir/fhirResourceCreator');
 const {DatabaseAttachmentManager} = require('../../dataLayer/databaseAttachmentManager');
 const {SensitiveDataProcessor} = require('../../utils/sensitiveDataProcessor');
+const { matchPersonLinks } = require('../../utils/personLinksMatcher');
+const { BwellPersonFinder } = require('../../utils/bwellPersonFinder');
 const {RETRIEVE} = require('../../constants').GRIDFS;
 
 /**
@@ -44,6 +46,7 @@ class UpdateOperation {
      * @param {ConfigManager} configManager
      * @param {DatabaseAttachmentManager} databaseAttachmentManager
      * @param {SensitiveDataProcessor} sensitiveDataProcessor
+     * @param {BwellPersonFinder} bwellPersonFinder
      */
     constructor(
         {
@@ -59,7 +62,8 @@ class UpdateOperation {
             resourceMerger,
             configManager,
             databaseAttachmentManager,
-            sensitiveDataProcessor
+            sensitiveDataProcessor,
+            bwellPersonFinder
         }
     ) {
         /**
@@ -131,6 +135,12 @@ class UpdateOperation {
          */
         this.sensitiveDataProcessor = sensitiveDataProcessor;
         assertTypeEquals(sensitiveDataProcessor, SensitiveDataProcessor);
+
+        /**
+         * @type {BwellPersonFinder}
+         */
+        this.bwellPersonFinder = bwellPersonFinder;
+        assertTypeEquals(bwellPersonFinder, BwellPersonFinder);
     }
 
     /**
@@ -398,8 +408,15 @@ class UpdateOperation {
                         requestId,
                         fnTask: async () => {
                             if (mergeResults[0].resourceType === 'Consent' && (mergeResults[0].created || mergeResults[0].updated)) {
-                                await this.sensitiveDataProcessor.processPatientConsentChange({requestId: requestId, resources: doc});
-                                await this.databaseBulkInserter.executeAsync({requestId, currentDate, base_version, method});
+                                await this.sensitiveDataProcessor.processPatientConsentChange({requestId: requestId, resources: [doc]});
+                            }
+                            if (
+                                mergeResults[0].resourceType === 'Person' &&
+                                (mergeResults[0].created || mergeResults[0].updated) &&
+                                this.bwellPersonFinder.isBwellPerson(doc) &&
+                                !matchPersonLinks(doc.link, foundResource.link)
+                            ) {
+                                await this.sensitiveDataProcessor.processPersonLinkChange({requestId: requestId, resources: [doc]});
                             }
                         }
                     });

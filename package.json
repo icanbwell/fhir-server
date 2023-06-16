@@ -143,6 +143,7 @@
     "http-terminator": "^3.2.0",
     "jwks-rsa": "^3.0.1",
     "kafkajs": "^2.2.4",
+    "lodash": "^4.17.21",
     "moment": "^2.29.4",
     "moment-timezone": "^0.5.43",
     "mongodb": "^5.6.0",
