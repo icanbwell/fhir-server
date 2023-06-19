@@ -4,6 +4,7 @@ const env = require('var');
 const {logError, logInfo, logSystemEventAsync} = require('./operations/common/logging');
 const {createHttpTerminator} = require('http-terminator');
 const http = require('http');
+const { initErrorHandler } = require('./middleware/errorHandler');
 const { isTrue } = require('./utils/isTrue');
 const {getImageVersion} = require('./utils/getImageVersion');
 const {MongoDatabaseManager} = require('./utils/mongoDatabaseManager');
@@ -75,6 +76,8 @@ async function createServer(fnCreateContainer) {
             process.exit(1);
         }
     };
+
+    initErrorHandler(httpTerminator);
 
     process.on('SIGTERM', signalListener('SIGTERM'));
 
