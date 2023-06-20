@@ -269,12 +269,14 @@ class SensitiveDataProcessor {
         consentResources.forEach((consentDoc) => {
             // Patient linked with the current consent resource.
             const consentPatientId = consentDoc.patient.reference;
+            // Filtering out the consent's owner tags
             const clientsWithAccessPermission = consentDoc.meta.security
-                .filter((security) => {
-                    if (security.system === ownerTag) {
-                        security.system = accessTag;
-                        return true;
-                    }
+                .filter((security) => security.system === ownerTag)
+                // Currently consent owners will have access to resources, thus adding the owner as access
+                // By updating system to access type.
+                .map((security) => {
+                    security.system = accessTag;
+                    return security;
                 });
 
             // Find the corresponding main patient ID in the linkedClientPatientIdMap and add the access tags.
