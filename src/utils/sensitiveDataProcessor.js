@@ -378,13 +378,15 @@ class SensitiveDataProcessor {
         const updatedResources = await this.updateResourceSecurityAccessTag({
             resource: resourcesForPatient, returnUpdatedResources: true
         });
-        updatedResources.forEach((resource) => {
-            resource = FhirResourceCreator.createByResourceType(resource, resource.resourceType);
-            this.databaseBulkInserter.patchFieldAsync({
-                requestId: requestId, resource: resource, fieldName: 'meta.security', fieldValue: resource.meta.security, upsert: false
+        if (updatedResources) {
+            updatedResources.forEach((resource) => {
+                resource = FhirResourceCreator.createByResourceType(resource, resource.resourceType);
+                this.databaseBulkInserter.patchFieldAsync({
+                    requestId: requestId, resource: resource, fieldName: 'meta.security', fieldValue: resource.meta.security, upsert: false
+                });
             });
-        });
-        await this.databaseBulkInserter.executeAsync({requestId, base_version: '4_0_0'});
+            await this.databaseBulkInserter.executeAsync({requestId, base_version: '4_0_0'});
+        }
     }
 
     /**
