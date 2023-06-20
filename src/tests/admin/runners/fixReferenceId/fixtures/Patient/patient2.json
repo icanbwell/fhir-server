@@ -1,0 +1,23 @@
+{
+    "resourceType": "Patient",
+    "id": "proa-1",
+    "_sourceId": "proa-1",
+    "meta": {
+        "versionId": "1",
+        "source": "https://medstar.com/1",
+        "security": [
+            {
+                "system": "https://www.icanbwell.com/access",
+                "code": "proa"
+            },
+            {
+                "system": "https://www.icanbwell.com/owner",
+                "code": "proa"
+            }
+        ]
+    },
+    "managingOrganization": {
+        "reference": "Organization/1",
+        "display": "ACME Healthcare, Inc"
+    }
+}
