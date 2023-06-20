@@ -11,6 +11,8 @@ const { DatabaseBulkInserter } = require('../dataLayer/databaseBulkInserter');
 const { FhirResourceCreator } = require('../fhir/fhirResourceCreator');
 
 const patientReferencePrefix = 'Patient/';
+const ownerTag = 'https://www.icanbwell.com/owner';
+const accessTag = 'https://www.icanbwell.com/access';
 
 /**
  * The class is used to add/remove sensitive data from a resource
@@ -267,10 +269,13 @@ class SensitiveDataProcessor {
         consentResources.forEach((consentDoc) => {
             // Patient linked with the current consent resource.
             const consentPatientId = consentDoc.patient.reference;
-            const clientsWithAccessPermission = consentDoc.provision.actor
-                .flatMap((consentActor) => consentActor.role.coding)
-                .filter((coding) => coding.system === 'https://www.icanbwell.com/access')
-                .map((coding) => coding)[0];
+            const clientsWithAccessPermission = consentDoc.meta.security
+                .filter((security) => {
+                    if (security.system === ownerTag) {
+                        security.system = accessTag;
+                        return true;
+                    }
+                });
 
             // Find the corresponding main patient ID in the linkedClientPatientIdMap and add the access tags.
             const correspondingMainPatientId = linkedClientPatientIdMap[consentPatientId];
@@ -278,7 +283,7 @@ class SensitiveDataProcessor {
             const existingSecurityAccessTags = patientIdAndSecurityAccessTagMap[correspondingMainPatientId] || [];
             // Since there can be duplicate security access, filter out only the unique ones.
             if (!existingSecurityAccessTags.some((existingTag) => existingTag.code === clientsWithAccessPermission.code)) {
-                patientIdAndSecurityAccessTagMap[correspondingMainPatientId] = [...existingSecurityAccessTags, clientsWithAccessPermission];
+                patientIdAndSecurityAccessTagMap[correspondingMainPatientId] = [...existingSecurityAccessTags, ...clientsWithAccessPermission];
             }
         });
         logDebug(
