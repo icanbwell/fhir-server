@@ -9,6 +9,7 @@ const { BwellPersonFinder } = require('./bwellPersonFinder');
 const { PersonToPatientIdsExpander } = require('./personToPatientIdsExpander');
 const { DatabaseBulkInserter } = require('../dataLayer/databaseBulkInserter');
 const { FhirResourceCreator } = require('../fhir/fhirResourceCreator');
+const { SecurityTagSystem } = require('./securityTagSystem');
 
 const patientReferencePrefix = 'Patient/';
 
@@ -267,10 +268,17 @@ class SensitiveDataProcessor {
         consentResources.forEach((consentDoc) => {
             // Patient linked with the current consent resource.
             const consentPatientId = consentDoc.patient.reference;
-            const clientsWithAccessPermission = consentDoc.provision.actor
-                .flatMap((consentActor) => consentActor.role.coding)
-                .filter((coding) => coding.system === 'https://www.icanbwell.com/access')
-                .map((coding) => coding)[0];
+            // Filtering out the consent's owner tags
+            const clientsWithAccessPermission = consentDoc.meta.security
+                .filter((security) => security.system === SecurityTagSystem.owner)
+                // Currently consent owners will have access to resources, thus adding the owner as access
+                // By updating system to access type.
+                .map((security) => {
+                    return {
+                        'system': SecurityTagSystem.access,
+                        'code': security.code
+                    };
+                });
 
             // Find the corresponding main patient ID in the linkedClientPatientIdMap and add the access tags.
             const correspondingMainPatientId = linkedClientPatientIdMap[consentPatientId];
@@ -278,7 +286,7 @@ class SensitiveDataProcessor {
             const existingSecurityAccessTags = patientIdAndSecurityAccessTagMap[correspondingMainPatientId] || [];
             // Since there can be duplicate security access, filter out only the unique ones.
             if (!existingSecurityAccessTags.some((existingTag) => existingTag.code === clientsWithAccessPermission.code)) {
-                patientIdAndSecurityAccessTagMap[correspondingMainPatientId] = [...existingSecurityAccessTags, clientsWithAccessPermission];
+                patientIdAndSecurityAccessTagMap[correspondingMainPatientId] = [...existingSecurityAccessTags, ...clientsWithAccessPermission];
             }
         });
         logDebug(
