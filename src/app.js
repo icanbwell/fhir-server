@@ -146,6 +146,11 @@ function createApp({fnCreateContainer, trackMetrics}) {
 
     app.get('/version', handleVersion);
     app.get('/logout', handleLogout);
+    app.get('/sleeptest', async (req, res) => {
+        const t = req.query.timeout ? parseInt(req.query.timeout) : 30000;
+        await new Promise(resolve => setTimeout(resolve, t));
+        return res.json({ msg: `Slept for ${t} ms` });
+    });
     app.get('/logout_action', (req, res) => {
         const returnUrl = `${httpProtocol}`.concat('://', `${req.headers.host}`, '/logout');
         const logoutUrl = `${env.AUTH_CODE_FLOW_URL}/logout?client_id=${env.AUTH_CODE_FLOW_CLIENT_ID}&logout_uri=${returnUrl}`;
