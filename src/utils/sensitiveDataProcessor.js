@@ -150,8 +150,6 @@ class SensitiveDataProcessor {
     getPatientIdFromResource(obj, paths, currentPath) {
         if (Array.isArray(obj)) {
             for (let item of obj) {
-                // If the current path is not included in the path where patient reference is present continue
-                if (!paths.includes(item)) {continue;}
                 return this.getPatientIdFromResource(item, paths, currentPath);
             }
         } else if (typeof obj === 'object') {
@@ -378,7 +376,7 @@ class SensitiveDataProcessor {
         const updatedResources = await this.updateResourceSecurityAccessTag({
             resource: resourcesForPatient, returnUpdatedResources: true
         });
-        if (updatedResources) {
+        if (updatedResources && updatedResources.length > 0) {
             updatedResources.forEach((resource) => {
                 resource = FhirResourceCreator.createByResourceType(resource, resource.resourceType);
                 this.databaseBulkInserter.patchFieldAsync({
@@ -403,6 +401,7 @@ class SensitiveDataProcessor {
             let clientPatientIdForEachPatient = await this.getAllCLientPatientIds({patientId: resource.patient.reference});
             clientPatientIds = [...clientPatientIds, ...clientPatientIdForEachPatient];
         }
+        logInfo(`In processPatientConsentChange: total clientPatientIds: ${clientPatientIds.length}`, {});
         await this.processPatientRelatedResourcesAndUpdateSecurityTags({
             requestId: requestId, patientIds: clientPatientIds
         });
@@ -433,6 +432,7 @@ class SensitiveDataProcessor {
             level: 1,
             additionalQuery: {'meta.security': {'$elemMatch': {'system': 'https://www.icanbwell.com/connectionType', 'code': {'$in': PATIENT_INITIATED_CONNECTION}}}}
         });
+        logInfo(`In processPersonLinkChange: total patientIds: ${patientIds.length}`, {});
         // Since all patient ids don't include a Patient prefix, map each element and add a prefix.
         const patientIdsWithPrefix = patientIds.map(patientId => {
             return `Patient/${patientId}`;
