@@ -1,6 +1,7 @@
 {
     "resourceType": "Person",
     "id": "1",
+    "_sourceId": "1",
     "meta": {
         "source": "bwell",
         "security": [

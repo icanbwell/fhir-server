@@ -13,6 +13,13 @@ const {CommandLineParser} = require('./commandLineParser');
 const {AdminLogger} = require('../adminLogger');
 const {FixReferenceIdRunner} = require('../runners/fixReferenceIdRunner');
 
+const proaCollections = [
+    'Patient', 'Encounter', 'Condition', 'Procedure', 'Claim', 'EnrollmentRequest',
+    'Observation', 'AllergyIntolerance', 'ClaimResponse', 'ClinicalImpression',
+    'Condition', 'DetectedIssue', 'EnrollmentResponse', 'FamilyMemberHistory', 'PaymentNotice',
+    'PaymentReconciliation', 'RiskAssessment'
+];
+
 /**
  * main function
  * @returns {Promise<void>}
@@ -29,15 +36,11 @@ async function main() {
     let collections = parameters.collections ?
         parameters.collections.split(',').map(x => x.trim()) :
         [];
-    if (parameters.collections === 'all') {
-        collections = ['all'];
-    }
+
     let preLoadCollections = parameters.preLoadCollections ?
         parameters.preLoadCollections.split(',').map(x => x.trim()) : [
-            'Patient_4_0_0', 'Encounter_4_0_0', 'Condition_4_0_0', 'Procedure_4_0_0',
-            'Observation_4_0_0', 'AllergyIntolerance_4_0_0', 'Patient_4_0_0_History',
-            'Encounter_4_0_0_History', 'Condition_4_0_0_History', 'Procedure_4_0_0_History',
-            'Observation_4_0_0_History', 'AllergyIntolerance_4_0_0_History'
+            ...proaCollections.map(collection => `${collection}_4_0_0`),
+            ...proaCollections.map(collection => `${collection}_4_0_0_History`)
         ];
 
     let properties = parameters.properties ?
@@ -54,8 +57,9 @@ async function main() {
      */
     const afterLastUpdatedDate = parameters.after ? new Date(parameters.after) : undefined;
 
-    console.log(`[${currentDateTime}] ` +
-        `Running script for collections: ${collections.join(',')}`);
+    const adminLogger = new AdminLogger();
+
+    adminLogger.logInfo(`[${currentDateTime}] Running script for collections: ${collections.join(',')}`);
 
     // set up all the standard services in the container
     const container = createContainer();
@@ -67,7 +71,7 @@ async function main() {
                 collections: collections,
                 batchSize,
                 afterLastUpdatedDate,
-                adminLogger: new AdminLogger(),
+                adminLogger,
                 mongoDatabaseManager: c.mongoDatabaseManager,
                 preSaveManager: c.preSaveManager,
                 databaseQueryFactory: c.databaseQueryFactory,
@@ -91,7 +95,7 @@ async function main() {
     const fixReferenceIdRunner = container.fixReferenceIdRunner;
     await fixReferenceIdRunner.processAsync();
 
-    console.log('Exiting process');
+    adminLogger.logInfo('Exiting process');
     process.exit(0);
 }
 

@@ -17,61 +17,6 @@ const {searchParameterQueries} = require('../../searchParameters/searchParameter
 const referenceCollections = require('../utils/referenceCollections.json');
 
 /**
- * converts list of properties to a projection
- * @param {string[]} properties
- * @return {import('mongodb').Document}
- */
-function getProjection(properties) {
-    /**
-     * @type {import('mongodb').Document}
-     */
-    const projection = {};
-    for (const property of properties) {
-        projection[`${property}`] = 1;
-    }
-    // always add projection for needed properties
-    const neededProperties = ['resourceType', 'meta', 'identifier', '_uuid', '_sourceId', '_sourceAssigningAuthority'];
-    for (const property of neededProperties) {
-        projection[`${property}`] = 1;
-    }
-    return projection;
-}
-
-/**
- * converts list of properties to a projection
- * @param {string[]} properties
- * @return {import('mongodb').Filter<import('mongodb').Document>}
- */
-// eslint-disable-next-line no-unused-vars
-function getFilter(properties,) {
-    if (!properties || properties.length === 0) {
-        return {};
-    }
-    if (properties.length === 1) {
-        return {
-            [properties[0]]: {
-                $exists: true
-            }
-        };
-    }
-    /**
-     * @type {import('mongodb').Filter<import('mongodb').Document>}
-     */
-    const filter = {
-        $and: []
-    };
-
-    for (const property of properties) {
-        filter.$and.push({
-            [`${property}`]: {
-                $exists: true
-            }
-        });
-    }
-    return filter;
-}
-
-/**
  * @classdesc finds ids in references and updates sourceAssigningAuthority with found resource
  */
 class FixReferenceIdRunner extends BaseBulkOperationRunner {
@@ -212,11 +157,61 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
          * @type {Map<string, number>}
          */
         this.cacheMisses = new Map();
-        /**
-         * @type {Map<string, string[]>}
-         */
-        this.resourcesNotFound = new Map();
     }
+
+    /**
+     * converts list of properties to a projection
+     * @param {string[]} properties
+     * @return {import('mongodb').Filter<import('mongodb').Document>}
+     */
+    // eslint-disable-next-line no-unused-vars
+    getFilter(properties) {
+        if (!properties || properties.length === 0) {
+            return {};
+        }
+        if (properties.length === 1) {
+            return {
+                [properties[0]]: {
+                    $exists: true
+                }
+            };
+        }
+        /**
+         * @type {import('mongodb').Filter<import('mongodb').Document>}
+         */
+        const filter = {
+            $and: []
+        };
+
+        for (const property of properties) {
+            filter.$and.push({
+                [`${property}`]: {
+                    $exists: true
+                }
+            });
+        }
+        return filter;
+    }
+
+    /**
+     * converts list of properties to a projection
+     * @return {import('mongodb').Document}
+     */
+    getProjection() {
+        /**
+         * @type {import('mongodb').Document}
+         */
+        const projection = {};
+        for (const property of this.properties) {
+            projection[`${property}`] = 1;
+        }
+        // always add projection for needed properties
+        const neededProperties = ['resourceType', 'meta', 'identifier', '_uuid', '_sourceId', '_sourceAssigningAuthority'];
+        for (const property of neededProperties) {
+            projection[`${property}`] = 1;
+        }
+        return projection;
+}
 
     /**
      * @param {Reference} reference
@@ -306,12 +301,44 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
         }
     }
 
+    async updateRecordReferencesAsync(resource) {
+        await resource.updateReferencesAsync(
+            {
+                fnUpdateReferenceAsync: async (reference) => await this.updateReferenceAsync(
+                    reference,
+                    this.databaseQueryFactory
+                )
+            }
+        );
+
+        return resource;
+    }
+
+    async updateRecordIdAsync(resource) {
+        const originalId = this.getOriginalId({doc: resource});
+        const oldId = this.getOldId({originalId});
+
+        if (oldId === resource._sourceId) {
+            resource.id = originalId;
+            resource._sourceId = originalId;
+
+            if (resource.identifier) {
+                for (let identifier of resource.identifier) {
+                    if (identifier.id === 'sourceId') {
+                        identifier.value = originalId;
+                    }
+                }
+            }
+        }
+        return resource;
+    }
+
     /**
      * returns the bulk operation for this doc
      * @param {import('mongodb').DefaultSchema} doc
      * @returns {Promise<(import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>)[]>}
      */
-    async processRecordAsync(doc) {
+    async processRecordAsync(doc, updateRecord) {
         try {
             const isHistoryDoc = Boolean(doc.resource);
 
@@ -326,20 +353,13 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
              */
             const currentResource = resource.clone();
 
-            await resource.updateReferencesAsync(
-                {
-                    fnUpdateReferenceAsync: async (reference) => await this.updateReferenceAsync(
-                        reference,
-                        this.databaseQueryFactory
-                    )
-                }
-            );
+            resource = await updateRecord.call(this, resource);
 
             // for speed, first check if the incoming resource is exactly the same
             const updatedResourceJsonInternal = resource.toJSONInternal();
             const currentResourceJsonInternal = currentResource.toJSONInternal();
             if (deepEqual(updatedResourceJsonInternal, currentResourceJsonInternal) === true) {
-                // console.log('No change detected for ');
+                // this.adminLogger.logInfo('No change detected for ');
                 return operations;
             }
 
@@ -366,67 +386,6 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
                         resource: doc
                     },
                     source: 'FixReferenceIdRunner.processRecordAsync'
-                }
-            );
-        }
-    }
-
-    /**
-     * returns the bulk operation for this doc
-     * @param {import('mongodb').DefaultSchema} doc
-     * @returns {Promise<(import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>)[]>}
-     */
-    async updateIdAsync(doc) {
-        try {
-            const isHistoryDoc = Boolean(doc.resource);
-
-            const operations = [];
-            /**
-             * @type {Resource}
-             */
-            let resource = FhirResourceCreator.create(isHistoryDoc ? doc.resource : doc);
-
-            /**
-             * @type {Resource}
-             */
-            const currentResource = resource.clone();
-
-            const originalId = this.getOriginalId({ doc: isHistoryDoc ? doc.resource : doc});
-
-            resource.id = originalId;
-            resource._sourceId = originalId;
-
-            // for speed, first check if the incoming resource is exactly the same
-            const updatedResourceJsonInternal = resource.toJSONInternal();
-            const currentResourceJsonInternal = currentResource.toJSONInternal();
-            if (deepEqual(updatedResourceJsonInternal, currentResourceJsonInternal) === true) {
-                // console.log('No change detected for ');
-                return operations;
-            }
-
-            /**
-             * @type {import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>}
-             */
-            // batch up the calls to update
-            resource.meta.lastUpdated = new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ssZ'));
-            const result = {
-                replaceOne: {filter: {_id: doc._id},
-                replacement: isHistoryDoc ? { ...doc, resource: resource.toJSONInternal() }
-                    : resource.toJSONInternal()}
-            };
-
-            operations.push(result);
-
-            return operations;
-        } catch (e) {
-            throw new RethrownError(
-                {
-                    message: 'Error processing record',
-                    error: e,
-                    args: {
-                        resource: doc
-                    },
-                    source: 'FixReferenceIdRunner.updateIdAsync'
                 }
             );
         }
@@ -464,7 +423,7 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
             const mongoConfig = await this.mongoDatabaseManager.getClientConfigAsync();
 
             for (const preloadCollection of this.preloadCollections) {
-                console.log(`Preloading collection: ${preloadCollection}`);
+                this.adminLogger.logInfo(`Preloading collection: ${preloadCollection}`);
                 // preload person table
                 await this.preloadReferencesAsync({
                     mongoConfig,
@@ -473,10 +432,10 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
 
                 const count = this.getCacheForReference({collectionName: preloadCollection}).size;
 
-                console.log(`Done preloading collection: ${preloadCollection}: ${count.toLocaleString('en-US')}`);
+                this.adminLogger.logInfo(`Done preloading collection: ${preloadCollection}: ${count.toLocaleString('en-US')}`);
             }
 
-            console.log(`Starting loop for ${this.collections.join(',')}. useTransaction: ${this.useTransaction}`);
+            this.adminLogger.logInfo(`Starting loop for ${this.collections.join(',')}. useTransaction: ${this.useTransaction}`);
 
             // if there is an exception, continue processing from the last id
             for (const collectionName of this.collections) {
@@ -489,8 +448,8 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
                         $gt: this.afterLastUpdatedDate,
                     }
                 } : this.properties && this.properties.length > 0 ?
-                    getFilter(this.properties.concat(this.filterToRecordsWithFields || [])) :
-                    getFilter(this.filterToRecordsWithFields);
+                    this.getFilter(this.properties.concat(this.filterToRecordsWithFields || [])) :
+                    this.getFilter(this.filterToRecordsWithFields);
 
                 if (this.startFromId) {
                     const startId = isValidMongoObjectId(this.startFromId) ? new ObjectId(this.startFromId) : this.startFromId;
@@ -565,45 +524,38 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
 
                 if (Object.keys(query).length) {
                     try {
-                        console.log(`query: ${mongoQueryStringify(query)}`);
-                        await this.runForQueryBatchesAsync(
-                            {
-                                config: mongoConfig,
-                                sourceCollectionName: collectionName,
-                                destinationCollectionName: collectionName,
-                                query: query,
-                                projection: this.properties ? getProjection(this.properties) : undefined,
-                                startFromIdContainer: this.startFromIdContainer,
-                                fnCreateBulkOperationAsync: async (doc) => await this.processRecordAsync(doc),
-                                ordered: false,
-                                batchSize: this.batchSize,
-                                skipExistingIds: false,
-                                limit: this.limit,
-                                useTransaction: this.useTransaction,
-                                skip: this.skip,
-                                referenceFieldNames
-                                // filterToIdProperty: '_uuid',
-                                // filterToIds: uuidList
-                            }
-                        );
+                        await this.runForQueryBatchesAsync({
+                            config: mongoConfig,
+                            sourceCollectionName: collectionName,
+                            destinationCollectionName: collectionName,
+                            query,
+                            projection: this.properties ? this.getProjection() : undefined,
+                            startFromIdContainer: this.startFromIdContainer,
+                            fnCreateBulkOperationAsync: async (doc) =>
+                                await this.processRecordAsync(doc, this.updateRecordReferencesAsync),
+                            ordered: false,
+                            batchSize: this.batchSize,
+                            skipExistingIds: false,
+                            limit: this.limit,
+                            useTransaction: this.useTransaction,
+                            skip: this.skip,
+                            referenceFieldNames
+                            // filterToIdProperty: '_uuid',
+                            // filterToIds: uuidList
+                        });
 
                     } catch (e) {
-                        console.error(e);
-                        console.log(`Got error ${e}.  At ${this.startFromIdContainer.startFromId}`);
+                        this.adminLogger.logError(`Got error ${e}.  At ${this.startFromIdContainer.startFromId}`);
                     }
                 }
-                console.log(`Finished loop ${collectionName}`);
-                console.log(`Cache hits in ${this.cacheHits.size} collections`);
+                this.adminLogger.logInfo(`Finished loop ${collectionName}`);
+                this.adminLogger.logInfo(`Cache hits in ${this.cacheHits.size} collections`);
                 for (const [cacheCollectionName, cacheCount] of this.cacheHits.entries()) {
-                    console.log(`${cacheCollectionName} hits: ${cacheCount}`);
+                    this.adminLogger.logInfo(`${cacheCollectionName} hits: ${cacheCount}`);
                 }
-                console.log(`Cache misses in ${this.cacheMisses.size} collections`);
+                this.adminLogger.logInfo(`Cache misses in ${this.cacheMisses.size} collections`);
                 for (const [cacheCollectionName, cacheCount] of this.cacheMisses.entries()) {
-                    console.log(`${cacheCollectionName} misses: ${cacheCount}`);
-                }
-                console.log(`Resources not found in ${this.resourcesNotFound.size} collections`);
-                for (const [cacheCollectionName, resourceIds] of this.resourcesNotFound.entries()) {
-                    console.log(`${cacheCollectionName} not found (${resourceIds.length}): ${resourceIds.join(',')}`);
+                    this.adminLogger.logInfo(`${cacheCollectionName} misses: ${cacheCount}`);
                 }
             }
 
@@ -618,8 +570,8 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
                         $gt: this.afterLastUpdatedDate,
                     }
                 } : this.properties && this.properties.length > 0 ?
-                    getFilter(this.properties.concat(this.filterToRecordsWithFields || [])) :
-                    getFilter(this.filterToRecordsWithFields);
+                    this.getFilter(this.properties.concat(this.filterToRecordsWithFields || [])) :
+                    this.getFilter(this.filterToRecordsWithFields);
 
                 if (this.startFromId) {
                     const startId = isValidMongoObjectId(this.startFromId) ? new ObjectId(this.startFromId) : this.startFromId;
@@ -646,73 +598,63 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
 
                 const isHistoryCollection = collectionName.includes('History');
 
+                const filterQuery = [
+                    {[isHistoryCollection ? 'resource._sourceId' : '_sourceId']: {$type: 2, $regex: /^.{63,}$/}},
+                    {[isHistoryCollection ? 'resource.meta.security' : 'meta.security']: {$elemMatch: {code: 'proa'}}}
+                ];
+
                 if (Object.keys(query).length) {
                     query = {
-                        $and: [
-                            query,
-                            {[isHistoryCollection ? 'resource._sourceId' : '_sourceId']: {$type: 2, $regex: /^.{63,}$/}},
-                            {[isHistoryCollection ? 'resource.meta.security' : 'meta.security']: {$elemMatch: {code: 'proa'}}}
-                        ]
+                        $and: [query, ...filterQuery]
                     };
                 } else {
                     query = {
-                        $and: [
-                            {[isHistoryCollection ? 'resource._sourceId' : '_sourceId']: {$type: 2, $regex: /^.{63,}$/}},
-                            {[isHistoryCollection ? 'resource.meta.security' : 'meta.security']: {$elemMatch: {code: 'proa'}}}
-                        ]
+                        $and: filterQuery
                     };
                 }
 
 
                 if (Object.keys(query).length) {
                     try {
-                        console.log(`query: ${mongoQueryStringify(query)}`);
-                        await super.runForQueryBatchesAsync(
-                            {
-                                config: mongoConfig,
-                                sourceCollectionName: collectionName,
-                                destinationCollectionName: collectionName,
-                                query: query,
-                                projection: this.properties ? getProjection(this.properties) : undefined,
-                                startFromIdContainer: this.startFromIdContainer,
-                                fnCreateBulkOperationAsync: async (doc) => await this.updateIdAsync(doc),
-                                ordered: false,
-                                batchSize: this.batchSize,
-                                skipExistingIds: false,
-                                limit: this.limit,
-                                useTransaction: this.useTransaction,
-                                skip: this.skip,
-                                // filterToIdProperty: '_uuid',
-                                // filterToIds: uuidList
-                            }
-                        );
+                        this.adminLogger.logInfo(`query: ${mongoQueryStringify(query)}`);
+                        await super.runForQueryBatchesAsync({
+                            config: mongoConfig,
+                            sourceCollectionName: collectionName,
+                            destinationCollectionName: collectionName,
+                            query,
+                            projection: this.properties ? this.getProjection() : undefined,
+                            startFromIdContainer: this.startFromIdContainer,
+                            fnCreateBulkOperationAsync: async (doc) =>
+                                await this.processRecordAsync(doc, this.updateRecordIdAsync),
+                            ordered: false,
+                            batchSize: this.batchSize,
+                            skipExistingIds: false,
+                            limit: this.limit,
+                            useTransaction: this.useTransaction,
+                            skip: this.skip,
+                        });
 
                     } catch (e) {
-                        console.error(e);
-                        console.log(`Got error ${e}.  At ${this.startFromIdContainer.startFromId}`);
+                        this.adminLogger.logError(`Got error ${e}.  At ${this.startFromIdContainer.startFromId}`);
                     }
                 }
-                console.log(`Finished loop ${collectionName}`);
-                console.log(`Cache hits in ${this.cacheHits.size} collections`);
+                this.adminLogger.logInfo(`Finished loop ${collectionName}`);
+                this.adminLogger.logInfo(`Cache hits in ${this.cacheHits.size} collections`);
                 for (const [cacheCollectionName, cacheCount] of this.cacheHits.entries()) {
-                    console.log(`${cacheCollectionName} hits: ${cacheCount}`);
+                    this.adminLogger.logInfo(`${cacheCollectionName} hits: ${cacheCount}`);
                 }
-                console.log(`Cache misses in ${this.cacheMisses.size} collections`);
+                this.adminLogger.logInfo(`Cache misses in ${this.cacheMisses.size} collections`);
                 for (const [cacheCollectionName, cacheCount] of this.cacheMisses.entries()) {
-                    console.log(`${cacheCollectionName} misses: ${cacheCount}`);
-                }
-                console.log(`Resources not found in ${this.resourcesNotFound.size} collections`);
-                for (const [cacheCollectionName, resourceIds] of this.resourcesNotFound.entries()) {
-                    console.log(`${cacheCollectionName} not found (${resourceIds.length}): ${resourceIds.join(',')}`);
+                    this.adminLogger.logInfo(`${cacheCollectionName} misses: ${cacheCount}`);
                 }
             }
 
-            console.log('Finished script');
-            console.log('Shutting down');
+            this.adminLogger.logInfo('Finished script');
+            this.adminLogger.logInfo('Shutting down');
             await this.shutdown();
-            console.log('Shutdown finished');
+            this.adminLogger.logInfo('Shutdown finished');
         } catch (e) {
-            console.log(`ERROR: ${e}`);
+            this.adminLogger.logError(`ERROR: ${e}`);
         }
     }
 
@@ -731,30 +673,31 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
         });
 
         let indexNames = [];
-        // adding the indexes
-        if (referenceFieldNames && referenceFieldNames.length) {
-            const indexes = [];
-            referenceFieldNames.forEach(referenceField => {
-                const indexFieldName = `${referenceField}.reference`;
-                indexes.push({
-                    key: {[indexFieldName]: 1},
-                    name: `fixReferenceScript_${indexFieldName}`
+        try {
+            // adding the indexes
+            if (referenceFieldNames && referenceFieldNames.length) {
+                const indexes = [];
+                referenceFieldNames.forEach(referenceField => {
+                    const indexFieldName = `${referenceField}.reference`;
+                    indexes.push({
+                        key: {[indexFieldName]: 1, '_sourceId': 1},
+                        name: `fixReferenceIdScript_${indexFieldName}`
+                    });
                 });
-            });
-            this.adminLogger.logInfo(`Creating reference indexes for ${referenceFieldNames}`);
-            indexNames = await sourceCollection.createIndexes(indexes);
-            this.adminLogger.logInfo(`Created reference indexes ${indexNames}`);
-        }
-
-        // running parents runForQueryBatchesAsync
-        await super.runForQueryBatchesAsync(args);
-
-        // removing the indexes
-        if (indexNames && indexNames.length){
-            for (const indexName of indexNames) {
-                this.adminLogger.logInfo(`Removing index ${indexName}`);
-                await sourceCollection.dropIndex(indexName);
-                this.adminLogger.logInfo(`Removed index ${indexName}`);
+                this.adminLogger.logInfo(`Creating reference indexes for ${referenceFieldNames}`);
+                indexNames = await sourceCollection.createIndexes(indexes);
+                this.adminLogger.logInfo(`Created reference indexes ${indexNames}`);
+            }
+            // running parents runForQueryBatchesAsync
+            await super.runForQueryBatchesAsync(args);
+        } finally {
+            // removing the indexes
+            if (indexNames && indexNames.length){
+                for (const indexName of indexNames) {
+                    this.adminLogger.logInfo(`Removing index ${indexName}`);
+                    await sourceCollection.dropIndex(indexName);
+                    this.adminLogger.logInfo(`Removed index ${indexName}`);
+                }
             }
         }
     }
@@ -826,25 +769,37 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
     }
 
     /**
+     * Created old if from original id
+     * @param {string} originalId
+     * @returns {string}
+     */
+    getOldId({originalId}) {
+        return (`proa-${originalId}`).slice(0, 63);
+    }
+
+    /**
      * Caches old and new references
      * @param {Resource} doc
      * @param {string} collectionName
      */
     cacheReferenceFromResource({doc, collectionName}) {
         const originalId = this.getOriginalId({doc});
+        const oldId = this.getOldId({originalId});
 
-        collectionName = collectionName.replace('_History', '').replace('_4_0_0', '');
+        if (oldId === doc._sourceId) {
+            collectionName = collectionName.replace('_History', '').replace('_4_0_0', '');
 
-        if (originalId && doc._sourceId !== originalId) {
-            this.getCacheForReference({collectionName}).set(
-                `${collectionName}/${doc._sourceId}`,
-                `${collectionName}/${originalId}`
-            );
+            if (originalId && doc._sourceId !== originalId) {
+                this.getCacheForReference({collectionName}).set(
+                    `${collectionName}/${doc._sourceId}`,
+                    `${collectionName}/${originalId}`
+                );
 
-            this.getCacheForReference({collectionName}).set(
-                `${collectionName}/${doc._sourceId}|proa`,
-                `${collectionName}/${originalId}|proa`
-            );
+                this.getCacheForReference({collectionName}).set(
+                    `${collectionName}/${doc._sourceId}|proa`,
+                    `${collectionName}/${originalId}|proa`
+                );
+            }
         }
     }
 
