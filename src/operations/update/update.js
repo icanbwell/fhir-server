@@ -332,6 +332,10 @@ class UpdateOperation {
                 // changing the attachment.data to attachment._file_id from request
                 doc = await this.databaseAttachmentManager.transformAttachments(resource_incoming);
 
+                await this.databaseBulkInserter.insertOneAsync({requestId, resourceType, doc});
+            }
+
+            if (doc) {
                 // The access tags are updated before updating the resources.
                 // If access tags is to be updated call the corresponding processor
                 if (this.configManager.enabledAccessTagUpdate) {
@@ -339,10 +343,7 @@ class UpdateOperation {
                         resource: doc,
                     });
                 }
-                await this.databaseBulkInserter.insertOneAsync({requestId, resourceType, doc});
-            }
 
-            if (doc) {
                 /**
                  * @type {MergeResultEntry[]}
                  */
