@@ -100,7 +100,7 @@
     }
   },
   "dependencies": {
-    "@apollo/server": "^4.7.2",
+    "@apollo/server": "^4.7.4",
     "@asymmetrik/fhir-json-schema-validator": "^0.9.8",
     "@asymmetrik/sof-scope-checker": "^1.0.7",
     "@aws-sdk/client-s3": "^3.347.0",
