@@ -266,19 +266,12 @@ class SensitiveDataProcessor {
         consentResources.forEach((consentDoc) => {
             // Patient linked with the current consent resource.
             const consentPatientId = consentDoc.patient.reference;
-            // Filtering out the consent's owner tags
-            const clientsWithAccessPermission = consentDoc.meta.security
-                .filter((security) => security.system === SecurityTagSystem.owner)
-                // Currently consent owners will have access to resources, thus adding the owner as access
-                // By updating system to access type.
-                .map((security) => {
-                    return {
-                        'system': SecurityTagSystem.access,
-                        'code': security.code
-                    };
-                });
+            // If the consent has been denied than no access tags needs to be incuded.
+            const clientsWithAccessPermission = consentDoc.provision.type === 'deny' ?
+                [] :
+                this.getSecurityAccessTagFromConsentResource(consentDoc);
 
-            // Find the corresponding main patient ID in the linkedClientPatientIdMap and add the access tags.
+                // Find the corresponding main patient ID in the linkedClientPatientIdMap and add the access tags.
             const correspondingMainPatientId = linkedClientPatientIdMap[consentPatientId];
 
             const existingSecurityAccessTags = patientIdAndSecurityAccessTagMap[correspondingMainPatientId] || [];
@@ -292,6 +285,20 @@ class SensitiveDataProcessor {
             { patientIdAndSecurityAccessTagMap: patientIdAndSecurityAccessTagMap }
         );
         return patientIdAndSecurityAccessTagMap;
+    }
+
+    getSecurityAccessTagFromConsentResource(consentDoc) {
+        // Filtering out the consent's owner tags
+        return consentDoc.meta.security
+            .filter((security) => security.system === SecurityTagSystem.owner)
+            // Currently consent owners will have access to resources, thus adding the owner as access
+            // By updating system to access type.
+            .map((security) => {
+                return {
+                    'system': SecurityTagSystem.access,
+                    'code': security.code
+                };
+            });
     }
 
     /**
