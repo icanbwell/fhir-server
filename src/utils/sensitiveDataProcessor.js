@@ -417,28 +417,56 @@ class SensitiveDataProcessor {
      */
     async processPersonLinkChange({requestId, resources}) {
         logInfo(`In processPersonChange Total bwellMasterPerson Resources: ${resources.length}`, {});
-        let personIds = resources.map((resource) => {
+        const bwellMasterPersonIds = resources.map((resource) => {
             return resource._uuid;
         });
-        const databaseQueryManager = this.databaseQueryFactory.createQuery({
+        const patientIds = await this.getPatientInitiatedConnectionPatientIds(bwellMasterPersonIds);
+        logInfo(`In processPersonLinkChange: total patient initiated connection patientIds: ${patientIds.length}`, {});
+        await this.processPatientRelatedResourcesAndUpdateSecurityTags({
+            requestId: requestId, patientIds: patientIds,
+        });
+    }
+
+    /**
+     * @description Return list of patient ids that are patient data connection initiated and linked with bwell master person
+     * @param {String[]} bwellMasterPersonIds
+     * @returns {String[]}
+     */
+    async getPatientInitiatedConnectionPatientIds(bwellMasterPersonIds) {
+        // Creating a database query manager for person collection
+        const personDatabaseQueryManager = this.databaseQueryFactory.createQuery({
             resourceType: 'Person',
             base_version: '4_0_0'
         });
         // Fetch all patient ids linked to the bwell master person.
         let patientIds = await this.personToPatientIdsExpander.getPatientIdsFromPersonAsync({
-            databaseQueryManager,
-            personIds: personIds,
+            databaseQueryManager: personDatabaseQueryManager,
+            personIds: bwellMasterPersonIds,
             totalProcessedPersonIds: new Set(),
             level: 1,
-            additionalQuery: {'meta.security': {'$elemMatch': {'system': 'https://www.icanbwell.com/connectionType', 'code': {'$in': PATIENT_INITIATED_CONNECTION}}}}
         });
-        logInfo(`In processPersonLinkChange: total patientIds: ${patientIds.length}`, {});
-        // Since all patient ids don't include a Patient prefix, map each element and add a prefix.
-        const patientIdsWithPrefix = patientIds.map(patientId => {
-            return `Patient/${patientId}`;
+        logInfo(`Number of patientIds linked with bwellMasterPersonIds: ${bwellMasterPersonIds} are ${patientIds.length}`, {});
+
+        // Since patientIds can be either an uuid or normal id.
+        const uuidQuery = {_uuid: {$in: patientIds}};
+        const sourceIdQuery = {_sourceId: {$in: patientIds}};
+        // Query to fetch only specific patients out of patientIds that are patientInitiatedConnection
+        const query = {
+            $and: [
+                {$or: [uuidQuery, sourceIdQuery]},
+                { 'meta.security': {$elemMatch: {'system': 'https://www.icanbwell.com/connectionType', 'code': {$in: PATIENT_INITIATED_CONNECTION}}}}
+            ]
+        };
+        // Creating a database query manager for patient collection
+        const patientDataBaseQueryManager = this.databaseQueryFactory.createQuery({
+            resourceType: 'Patient',
+            base_version: '4_0_0',
         });
-        await this.processPatientRelatedResourcesAndUpdateSecurityTags({
-            requestId: requestId, patientIds: patientIdsWithPrefix,
+        const cursor = await patientDataBaseQueryManager.findAsync({query: query, options: { projection: {_id: 0, _uuid: 1}}});
+        const patientUuid = await cursor.toArrayRawAsync();
+        // Adding a prefix Patient to all patient resources.
+        return patientUuid.map((patient) => {
+            return `Patient/${patient._uuid}`;
         });
     }
 }
