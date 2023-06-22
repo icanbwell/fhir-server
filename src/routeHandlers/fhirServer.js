@@ -323,7 +323,7 @@ class MyFHIRServer {
                 const isValidBaseVersion = isValidVersion(base);
                 if (!isValidBaseVersion) {
                     res1.status(404);
-                    res1.end();
+                    res1.json({}).end();
                     return;
                 }
                 try {
