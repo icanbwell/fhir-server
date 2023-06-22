@@ -55,7 +55,7 @@ async function createServer(fnCreateContainer) {
     });
 
     const options = {
-        timeout: 7000, // number of milliseconds before forceful exiting
+        timeout: env.GRACEFUL_TIMEOUT_MS ? parseInt(env.GRACEFUL_TIMEOUT_MS) : 29000, // number of milliseconds before forceful exiting
         signals: ['SIGTERM', 'SIGINT', 'SIGQUIT'], // array of signals to listen for relative to shutdown
         beforeShutdown: async () => {
             logInfo('Beginning shutdown of server', {});
