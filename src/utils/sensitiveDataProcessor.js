@@ -430,15 +430,36 @@ class SensitiveDataProcessor {
             personIds: personIds,
             totalProcessedPersonIds: new Set(),
             level: 1,
-            additionalQuery: {'meta.security': {'$elemMatch': {'system': 'https://www.icanbwell.com/connectionType', 'code': {'$in': PATIENT_INITIATED_CONNECTION}}}}
         });
+        patientIds = await this.filterPatientInitiatedConnectionPatientIds(patientIds);
         logInfo(`In processPersonLinkChange: total patientIds: ${patientIds.length}`, {});
-        // Since all patient ids don't include a Patient prefix, map each element and add a prefix.
-        const patientIdsWithPrefix = patientIds.map(patientId => {
-            return `Patient/${patientId}`;
-        });
         await this.processPatientRelatedResourcesAndUpdateSecurityTags({
-            requestId: requestId, patientIds: patientIdsWithPrefix,
+            requestId: requestId, patientIds: patientIds,
+        });
+    }
+
+    /**
+     * @description Return list of patient ids that are patient data connection initiated
+     * @param {String[]} patientIds
+     * @returns {String[]}
+     */
+    async filterPatientInitiatedConnectionPatientIds(patientIds) {
+        // Query to fetch only specific patients out of patientIds that are patientInitiatedConnection
+        const query = {
+            $and: [
+                {_uuid: {$in: patientIds}},
+                { 'meta.security': {$elemMatch: {'system': 'https://www.icanbwell.com/connectionType', 'code': {$in: PATIENT_INITIATED_CONNECTION}}}}
+            ]
+        };
+        const patientDataBaseQueryManager = this.databaseQueryFactory.createQuery({
+            resourceType: 'Patient',
+            base_version: '4_0_0',
+        });
+        const cursor = await patientDataBaseQueryManager.findAsync({query: query, options: { projection: {_id: 0, _uuid: 1}}});
+        const patientUuid = await cursor.toArrayRawAsync();
+        return patientUuid.map((patient) => {
+            // Adding a prefix Patient to all patient resources.
+            return `Patient/${patient._uuid}`;
         });
     }
 }

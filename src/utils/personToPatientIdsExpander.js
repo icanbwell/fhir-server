@@ -68,21 +68,14 @@ class PersonToPatientIdsExpander {
      * @param {Set} totalProcessedPersonIds
      * @param {DatabaseQueryManager} databaseQueryManager
      * @param {number} level
-     * @param {Object} additionalQuery
      * @return {Promise<string[]>}
      */
     async getPatientIdsFromPersonAsync({
-        personIds, totalProcessedPersonIds, databaseQueryManager, level, additionalQuery = {}
+        personIds, totalProcessedPersonIds, databaseQueryManager, level
     }) {
-        const query = {
-            $and: [
-                FilterById.getListFilter(personIds),
-                additionalQuery
-            ]
-        };
         const personResourceCursor = await databaseQueryManager.findAsync(
             {
-                query: query,
+                query: FilterById.getListFilter(personIds),
                 options: {projection: {id: 1, link: 1, _id: 0}}
             }
         );
@@ -120,8 +113,7 @@ class PersonToPatientIdsExpander {
                 personIds: personIdsToRecurse,
                 totalProcessedPersonIds: new Set([...totalProcessedPersonIds, ...personIds]),
                 databaseQueryManager,
-                level: level + 1,
-                additionalQuery: additionalQuery
+                level: level + 1
             });
             return patientIds.concat(patientIdsFromPersons);
         }
