@@ -148,7 +148,7 @@ class FhirResponseWriter {
         if (req.headers.prefer && req.headers.prefer === 'return=representation') {
             res.status(201).json(resource).end();
         } else {
-            res.status(201).end();
+            res.status(201).json({}).end();
         }
         //TODO: handle return=OperationOutcome
     }
@@ -181,7 +181,7 @@ class FhirResponseWriter {
         }
         // https://hl7.org/fhir/http.html#ops
         if (req.headers.prefer && req.headers.prefer === 'return=minimal') {
-            res.status(status).end();
+            res.status(status).json({}).end();
         } else { // or return=representation
             res.status(status).json(result.resource.toJSON()).end();
         }
@@ -202,7 +202,7 @@ class FhirResponseWriter {
         if (req.id && !res.headersSent) {
             res.setHeader('X-Request-ID', String(req.id));
         }
-        res.status(204).end();
+        res.status(204).json({}).end();
     }
 
     /**
