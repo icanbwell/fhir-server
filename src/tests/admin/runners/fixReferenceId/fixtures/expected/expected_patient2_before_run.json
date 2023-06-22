@@ -1,7 +1,18 @@
 {
     "resourceType": "Patient",
-    "id": "proa-1",
-    "_sourceId": "proa-1",
+    "id": "1",
+    "identifier": [
+        {
+            "id": "sourceId",
+            "system": "https://www.icanbwell.com/sourceId",
+            "value": "1"
+        },
+        {
+            "id": "uuid",
+            "system": "https://www.icanbwell.com/uuid",
+            "value": "96eb1fd2-b2af-5315-9e09-dae5ee44056b"
+        }
+    ],
     "meta": {
         "versionId": "1",
         "source": "https://medstar.com/1",
@@ -13,10 +24,31 @@
             {
                 "system": "https://www.icanbwell.com/owner",
                 "code": "proa"
+            },
+            {
+                "code": "proa",
+                "system": "https://www.icanbwell.com/sourceAssigningAuthority"
             }
         ]
     },
     "managingOrganization": {
+        "extension": [
+            {
+                "id": "sourceId",
+                "url": "https://www.icanbwell.com/sourceId",
+                "valueString": "Organization/1"
+            },
+            {
+                "id": "uuid",
+                "url": "https://www.icanbwell.com/uuid",
+                "valueString": "Organization/96eb1fd2-b2af-5315-9e09-dae5ee44056b"
+            },
+            {
+                "id": "sourceAssigningAuthority",
+                "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                "valueString": "proa"
+            }
+        ],
         "reference": "Organization/1",
         "display": "ACME Healthcare, Inc"
     }

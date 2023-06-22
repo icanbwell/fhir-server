@@ -13,11 +13,11 @@ const {CommandLineParser} = require('./commandLineParser');
 const {AdminLogger} = require('../adminLogger');
 const {FixReferenceIdRunner} = require('../runners/fixReferenceIdRunner');
 
-const proaCollections = [
+const proaResources = [
     'Patient', 'Encounter', 'Condition', 'Procedure', 'Claim', 'EnrollmentRequest',
     'Observation', 'AllergyIntolerance', 'ClaimResponse', 'ClinicalImpression',
     'Condition', 'DetectedIssue', 'EnrollmentResponse', 'FamilyMemberHistory', 'PaymentNotice',
-    'PaymentReconciliation', 'RiskAssessment'
+    'PaymentReconciliation', 'RiskAssessment', 'ExplanationOfBenefit'
 ];
 
 /**
@@ -37,10 +37,10 @@ async function main() {
         parameters.collections.split(',').map(x => x.trim()) :
         [];
 
-    let preLoadCollections = parameters.preLoadCollections ?
-        parameters.preLoadCollections.split(',').map(x => x.trim()) : [
-            ...proaCollections.map(collection => `${collection}_4_0_0`),
-            ...proaCollections.map(collection => `${collection}_4_0_0_History`)
+    let proaCollections = parameters.proaCollections ?
+        parameters.proaCollections.split(',').map(x => x.trim()) : [
+            ...proaResources.map(collection => `${collection}_4_0_0`),
+            ...proaResources.map(collection => `${collection}_4_0_0_History`)
         ];
 
     let properties = parameters.properties ?
@@ -68,7 +68,7 @@ async function main() {
     container.register('fixReferenceIdRunner', (c) => new FixReferenceIdRunner(
             {
                 mongoCollectionManager: c.mongoCollectionManager,
-                collections: collections,
+                collections,
                 batchSize,
                 afterLastUpdatedDate,
                 adminLogger,
@@ -77,13 +77,13 @@ async function main() {
                 databaseQueryFactory: c.databaseQueryFactory,
                 startFromCollection: parameters.startFromCollection,
                 resourceLocatorFactory: c.resourceLocatorFactory,
-                preloadCollections: preLoadCollections,
+                proaCollections,
                 limit: parameters.limit,
-                properties: properties,
+                properties,
                 resourceMerger: c.resourceMerger,
                 useTransaction: parameters.useTransaction ? true : false,
                 skip: parameters.skip,
-                filterToRecordsWithFields: filterToRecordsWithFields,
+                filterToRecordsWithFields,
                 startFromId: parameters.startFromId
             }
         )
@@ -105,8 +105,8 @@ async function main() {
  * node src/admin/scripts/fixReferenceId.js --collections=Practitioner_4_0_0 --batchSize=10000
  * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/fixReferenceId.js --collections=all --batchSize=10000
  * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/fixReferenceId.js --collections=all --batchSize=10000 --startFromCollection FamilyMemberHistory_4_0_0
- * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/fixReferenceId.js --collections=Person_4_0_0 --batchSize=10000 --preLoadCollections=Person_4_0_0,Patient_4_0_0
- * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/fixReferenceId.js --collections=Person_4_0_0 --batchSize=10000 --preLoadCollections=Person_4_0_0,Patient_4_0_0 --useTransaction
+ * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/fixReferenceId.js --collections=Person_4_0_0 --batchSize=10000 --proaCollections=Person_4_0_0,Patient_4_0_0
+ * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/fixReferenceId.js --collections=Person_4_0_0 --batchSize=10000 --proaCollections=Person_4_0_0,Patient_4_0_0 --useTransaction
  * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/fixReferenceId.js --collections=Person_4_0_0 --batchSize=10000 --useTransaction --filterToRecordsWithFields link
  * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/fixReferenceId.js --collections=Person_4_0_0 --batchSize=10000 --useTransaction --filterToRecordsWithFields link --startFromId=123
  * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/fixReferenceId.js --collections=Person_4_0_0 --batchSize=10000 --useTransaction --skip 200000

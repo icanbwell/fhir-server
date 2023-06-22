@@ -1,7 +1,6 @@
 {
     "resourceType": "Patient",
-    "id": "proa-1",
-    "_sourceId": "proa-1",
+    "id": "1",
     "meta": {
         "versionId": "1",
         "source": "https://medstar.com/1",

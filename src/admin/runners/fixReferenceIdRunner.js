@@ -6,6 +6,7 @@ const {ReferenceParser} = require('../../utils/referenceParser');
 const {DatabaseQueryFactory} = require('../../dataLayer/databaseQueryFactory');
 const deepEqual = require('fast-deep-equal');
 const moment = require('moment-timezone');
+const {generateUUIDv5} = require('../../utils/uid.util');
 const { isValidMongoObjectId } = require('../../utils/mongoIdValidator');
 const {ResourceLocatorFactory} = require('../../operations/common/resourceLocatorFactory');
 const {FhirResourceCreator} = require('../../fhir/fhirResourceCreator');
@@ -17,7 +18,7 @@ const {searchParameterQueries} = require('../../searchParameters/searchParameter
 const referenceCollections = require('../utils/referenceCollections.json');
 
 /**
- * @classdesc finds ids in references and updates sourceAssigningAuthority with found resource
+ * @classdesc Finds proa resources whose id needs to be changed and changes the id along with its references
  */
 class FixReferenceIdRunner extends BaseBulkOperationRunner {
     /**
@@ -32,7 +33,7 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
      * @param {DatabaseQueryFactory} databaseQueryFactory
      * @param {string|undefined} [startFromCollection]
      * @param {ResourceLocatorFactory} resourceLocatorFactory
-     * @param {string[]} preloadCollections
+     * @param {string[]} proaCollections
      * @param {number|undefined} [limit]
      * @param {string[]|undefined} [properties]
      * @param {ResourceMerger} resourceMerger
@@ -53,7 +54,7 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
             databaseQueryFactory,
             startFromCollection,
             resourceLocatorFactory,
-            preloadCollections,
+            proaCollections,
             limit,
             properties,
             resourceMerger,
@@ -105,7 +106,7 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
         /**
          * @type {string[]}
          */
-        this.preloadCollections = preloadCollections;
+        this.proaCollections = proaCollections;
 
         /**
          * @type {number|undefined}
@@ -144,10 +145,15 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
         assertTypeEquals(resourceMerger, ResourceMerger);
 
         /**
-         * cache of caches
+         * caches currentReference with newReference collectionWise
          * @type {Map<string, Map<string, string>>}
          */
         this.caches = new Map();
+
+        /**
+         * caches currentId with newUuid
+         */
+        this.uuidCache = new Map();
 
         /**
          * @type {Map<string, number>}
@@ -211,9 +217,10 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
             projection[`${property}`] = 1;
         }
         return projection;
-}
+    }
 
     /**
+     * Updates the reference if it is present in cache
      * @param {Reference} reference
      * @param {DatabaseQueryFactory} databaseQueryFactory
      * @return {Promise<Reference>}
@@ -226,9 +233,17 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
             }
 
             // if the _uuid reference works then we're good
-            const {resourceType} = ReferenceParser.parseReference(reference.reference);
+            const {resourceType, id} = ReferenceParser.parseReference(reference.reference);
             if (!resourceType) {
                 return reference;
+            }
+
+            /**
+             * @type {string}
+             */
+            let uuid;
+            if (reference._uuid) {
+                ({id: uuid} = ReferenceParser.parseReference(reference._uuid));
             }
 
             // find collection for resource
@@ -256,9 +271,16 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
             const cache = this.getCacheForReference({ collectionName: referenceCollectionName });
 
             let foundInCache = false;
-            const oldReference = reference.reference;
+            const currentReference = `${resourceType}/${id}`;
+            let uuidReference;
+            if (uuid) {
+                uuidReference = `${resourceType}/${uuid}`;
+            }
 
-            if (cache.has(oldReference)) {
+            if (cache.has(currentReference)) {
+                const newReference = cache.get(currentReference);
+                const newUuidReference = `${resourceType}/${this.uuidCache.get(id)}`;
+
                 foundInCache = true;
                 if (this.cacheHits.has(referenceCollectionName)) {
                     this.cacheHits.set(referenceCollectionName, this.cacheHits.get(referenceCollectionName) + 1);
@@ -267,16 +289,22 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
                 }
 
                 if (reference._sourceId) {
-                    reference._sourceId = cache.get(oldReference);
+                    reference._sourceId = reference._sourceId.replace(currentReference, newReference);
+                }
+                if (reference._uuid) {
+                    reference._uuid = reference._uuid.replace(uuidReference, newUuidReference);
                 }
                 if (reference.extension) {
                     for (let element of reference.extension) {
                         if (element.id === 'sourceId') {
-                            element.valueString = cache.get(oldReference).split('|')[0];
+                            element.valueString = element.valueString.replace(currentReference, newReference);
+                        }
+                        if (element.id === 'uuid') {
+                            element.valueString = element.valueString.replace(uuidReference, newUuidReference);
                         }
                     }
                 }
-                reference.reference = cache.get(oldReference);
+                reference.reference = reference.reference.replace(currentReference, newReference);
             }
 
             if (!foundInCache) {
@@ -301,6 +329,11 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
         }
     }
 
+    /**
+     * Updates the references of the resource
+     * @param {Resource} resource
+     * @returns {Promise<Resource>}
+     */
     async updateRecordReferencesAsync(resource) {
         await resource.updateReferencesAsync(
             {
@@ -314,18 +347,28 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
         return resource;
     }
 
+    /**
+     * Updates the id, uuid, and sourceId of the resource provided
+     * @param {Resource} resource
+     * @returns {Promise<Resource>}
+     */
     async updateRecordIdAsync(resource) {
         const originalId = this.getOriginalId({doc: resource});
-        const oldId = this.getOldId({originalId});
+        const currentId = this.getCurrentId({originalId, _sourceAssigningAuthority: resource._sourceAssigningAuthority});
+        const newUuid = this.uuidCache.get(currentId);
 
-        if (oldId === resource._sourceId) {
+        if (currentId === resource._sourceId) {
             resource.id = originalId;
             resource._sourceId = originalId;
+            resource._uuid = newUuid;
 
             if (resource.identifier) {
                 for (let identifier of resource.identifier) {
                     if (identifier.id === 'sourceId') {
                         identifier.value = originalId;
+                    }
+                    if (identifier.id === 'uuid') {
+                        identifier.value = newUuid;
                     }
                 }
             }
@@ -336,10 +379,14 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
     /**
      * returns the bulk operation for this doc
      * @param {import('mongodb').DefaultSchema} doc
+     * @param {function(resource: Resource):Promise<Resource>}
      * @returns {Promise<(import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>)[]>}
      */
     async processRecordAsync(doc, updateRecord) {
         try {
+            /**
+             * @type {boolean}
+             */
             const isHistoryDoc = Boolean(doc.resource);
 
             const operations = [];
@@ -422,17 +469,17 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
              */
             const mongoConfig = await this.mongoDatabaseManager.getClientConfigAsync();
 
-            for (const preloadCollection of this.preloadCollections) {
-                this.adminLogger.logInfo(`Preloading collection: ${preloadCollection}`);
+            for (const proaCollection of this.proaCollections) {
+                this.adminLogger.logInfo(`Caching collection references: ${proaCollection}`);
                 // preload person table
-                await this.preloadReferencesAsync({
+                await this.cacheReferencesAsync({
                     mongoConfig,
-                    collectionName: preloadCollection
+                    collectionName: proaCollection
                 });
 
-                const count = this.getCacheForReference({collectionName: preloadCollection}).size;
+                const count = this.getCacheForReference({collectionName: proaCollection}).size;
 
-                this.adminLogger.logInfo(`Done preloading collection: ${preloadCollection}: ${count.toLocaleString('en-US')}`);
+                this.adminLogger.logInfo(`Done caching collection references: ${proaCollection}: ${count}`);
             }
 
             this.adminLogger.logInfo(`Starting loop for ${this.collections.join(',')}. useTransaction: ${this.useTransaction}`);
@@ -474,7 +521,7 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
                     }
                 }
 
-                const resourceName = collectionName.replace('_4_0_0', '').replace('_History', '');
+                const resourceName = collectionName.split('_')[0];
                 /**
                  * @type {Set<String>}
                  */
@@ -560,7 +607,7 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
             }
 
             // changing the id of the resources
-            for (const collectionName of this.preloadCollections) {
+            for (const collectionName of this.proaCollections) {
                 this.startFromIdContainer.startFromId = '';
                 /**
                  * @type {import('mongodb').Filter<import('mongodb').Document>}
@@ -599,7 +646,6 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
                 const isHistoryCollection = collectionName.includes('History');
 
                 const filterQuery = [
-                    {[isHistoryCollection ? 'resource._sourceId' : '_sourceId']: {$type: 2, $regex: /^.{63,}$/}},
                     {[isHistoryCollection ? 'resource.meta.security' : 'meta.security']: {$elemMatch: {code: 'proa'}}}
                 ];
 
@@ -664,12 +710,8 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
      * @param {Object} args
      */
     async runForQueryBatchesAsync({ referenceFieldNames, ...args}) {
-        let {
-            sourceCollection
-        } = await this.createConnectionAsync({
-            config: args.config,
-            destinationCollectionName: args.destinationCollectionName,
-            sourceCollectionName: args.sourceCollectionName
+        const collection = await this.createSingeConnectionAsync({
+            mongoConfig: args.config, collectionName: args.sourceCollectionName
         });
 
         let indexNames = [];
@@ -685,7 +727,7 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
                     });
                 });
                 this.adminLogger.logInfo(`Creating reference indexes for ${referenceFieldNames}`);
-                indexNames = await sourceCollection.createIndexes(indexes);
+                indexNames = await collection.createIndexes(indexes);
                 this.adminLogger.logInfo(`Created reference indexes ${indexNames}`);
             }
             // running parents runForQueryBatchesAsync
@@ -695,7 +737,7 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
             if (indexNames && indexNames.length){
                 for (const indexName of indexNames) {
                     this.adminLogger.logInfo(`Removing index ${indexName}`);
-                    await sourceCollection.dropIndex(indexName);
+                    await collection.dropIndex(indexName);
                     this.adminLogger.logInfo(`Removed index ${indexName}`);
                 }
             }
@@ -703,22 +745,45 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
     }
 
     /**
-     * preloads the references into cache
-     * @param mongoConfig
+     * Creates a single connection and returns the collection instance
+     * @param {require('mongodb').mongoConfig} mongoConfig
+     * @param {string} collectionName
+     * @returns {Promise<require('mongodb').collection>}
+     */
+    async createSingeConnectionAsync({mongoConfig, collectionName}) {
+        /**
+         * @type {require('mongodb').MongoClient}
+         */
+        const client = await this.mongoDatabaseManager.createClientAsync(mongoConfig);
+
+        /**
+         * @type {require('mongodb').db}
+         */
+        const db = client.db(mongoConfig.db_name);
+
+        /**
+         * @type {require('mongodb').collection}
+         */
+        const collection = db.collection(collectionName);
+
+        return collection;
+    }
+
+    /**
+     * Creates oldReference to newReference mapping collectionwise
+     * @param {require('mongodb').mongoConfig} mongoConfig
      * @param {string} collectionName
      * @return {Promise<void>}
      */
-    async preloadReferencesAsync({mongoConfig, collectionName}) {
-        let {
-            sourceCollection
-        } = await this.createConnectionAsync(
-            {
-                config: mongoConfig,
-                sourceCollectionName: collectionName,
-                destinationCollectionName: collectionName
-            }
-        );
+    async cacheReferencesAsync({mongoConfig, collectionName}) {
+        /**
+         * @type {require('mongodb').collection}
+         */
+        const collection = await this.createSingeConnectionAsync({mongoConfig, collectionName});
 
+        /**
+         * @type {boolean}
+         */
         const isHistoryCollection = collectionName.includes('History');
 
         let projection = {
@@ -740,12 +805,11 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
         /**
          * @type {import('mongodb').FindCursor<import('mongodb').WithId<import('mongodb').Document>>}
          */
-        const cursor = sourceCollection.find({
+        const cursor = collection.find({
             $and: [
-                {[isHistoryCollection ? 'resource._sourceId' : '_sourceId']: {$type: 2, $regex: /^.{63,}$/}},
                 {[isHistoryCollection ? 'resource.meta.security' : 'meta.security']: {$elemMatch: {code: 'proa'}}}
             ]
-        }).project(projection);
+        }, {projection});
 
         while (await cursor.hasNext()) {
             /**
@@ -771,10 +835,11 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
     /**
      * Created old if from original id
      * @param {string} originalId
+     * @param {string} _sourceAssigningAuthority
      * @returns {string}
      */
-    getOldId({originalId}) {
-        return (`proa-${originalId}`).slice(0, 63);
+    getCurrentId({originalId, _sourceAssigningAuthority}) {
+        return (`${_sourceAssigningAuthority}-${originalId}`).slice(0, 63);
     }
 
     /**
@@ -783,23 +848,26 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
      * @param {string} collectionName
      */
     cacheReferenceFromResource({doc, collectionName}) {
+        // originating id with which to replace the current id
+        /**
+         * @type {string}
+         */
         const originalId = this.getOriginalId({doc});
-        const oldId = this.getOldId({originalId});
+        // current id present in the resource
+        /**
+         * @type {string}
+         */
+        const currentId = this.getCurrentId({originalId, _sourceAssigningAuthority: doc._sourceAssigningAuthority});
 
-        if (oldId === doc._sourceId) {
-            collectionName = collectionName.replace('_History', '').replace('_4_0_0', '');
+        if (currentId === doc._sourceId) {
+            collectionName = collectionName.split('_')[0];
 
-            if (originalId && doc._sourceId !== originalId) {
-                this.getCacheForReference({collectionName}).set(
-                    `${collectionName}/${doc._sourceId}`,
-                    `${collectionName}/${originalId}`
-                );
+            this.getCacheForReference({collectionName}).set(
+                `${collectionName}/${doc._sourceId}`,
+                `${collectionName}/${originalId}`
+            );
 
-                this.getCacheForReference({collectionName}).set(
-                    `${collectionName}/${doc._sourceId}|proa`,
-                    `${collectionName}/${originalId}|proa`
-                );
-            }
+            this.uuidCache.set(currentId, generateUUIDv5(`${originalId}|${doc._sourceAssigningAuthority}`));
         }
     }
 
@@ -809,7 +877,7 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
      * @return {Map<string, Map<string, string>>}
      */
     getCacheForReference({collectionName}) {
-        collectionName = collectionName.replace('_History', '').replace('_4_0_0', '');
+        collectionName = collectionName.split('_')[0];
 
         if (!this.caches.has(collectionName)) {
             this.caches.set(collectionName, new Map());

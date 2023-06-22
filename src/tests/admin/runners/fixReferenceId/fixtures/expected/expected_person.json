@@ -1,27 +1,60 @@
 {
-    "resourceType": "Person",
     "id": "1",
-    "_sourceId": "1",
-    "meta": {
-        "source": "bwell",
-        "security": [
-            {
-                "system": "https://www.icanbwell.com/access",
-                "code": "bwell"
-            },
-            {
-                "system": "https://www.icanbwell.com/owner",
-                "code": "bwell"
-            }
-        ]
-    },
+    "identifier": [
+        {
+            "id": "sourceId",
+            "system": "https://www.icanbwell.com/sourceId",
+            "value": "1"
+        },
+        {
+            "id": "uuid",
+            "system": "https://www.icanbwell.com/uuid",
+            "value": "61abdd48-df46-5e98-ac6c-fde3cace4d07"
+        }
+    ],
     "link": [
         {
+            "assurance": "level3",
             "target": {
-                "reference": "Patient/11111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111",
-                "display": "Eve Everywoman"
-            },
-            "assurance": "level3"
+                "display": "Eve Everywoman",
+                "extension": [
+                    {
+                        "id": "sourceId",
+                        "url": "https://www.icanbwell.com/sourceId",
+                        "valueString": "Patient/11111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111"
+                    },
+                    {
+                        "id": "uuid",
+                        "url": "https://www.icanbwell.com/uuid",
+                        "valueString": "Patient/350fccba-0740-57e2-a088-4aba2a9b3aea"
+                    },
+                    {
+                        "id": "sourceAssigningAuthority",
+                        "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                        "valueString": "bwell"
+                    }
+                ],
+                "reference": "Patient/11111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111"
+            }
         }
-    ]
+    ],
+    "meta": {
+        "security": [
+            {
+                "code": "bwell",
+                "system": "https://www.icanbwell.com/access"
+            },
+            {
+                "code": "bwell",
+                "system": "https://www.icanbwell.com/owner"
+            },
+            {
+                "code": "bwell",
+                "system": "https://www.icanbwell.com/sourceAssigningAuthority"
+            }
+        ],
+        "source": "bwell",
+        "versionId": "1"
+    },
+    "resourceType": "Person"
 }
