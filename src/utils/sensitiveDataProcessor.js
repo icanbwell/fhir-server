@@ -447,10 +447,13 @@ class SensitiveDataProcessor {
         });
         logInfo(`Number of patientIds linked with bwellMasterPersonIds: ${bwellMasterPersonIds} are ${patientIds.length}`, {});
 
+        // Since patientIds can be either an uuid or normal id.
+        const uuidQuery = {_uuid: {$in: patientIds}};
+        const sourceIdQuery = {_sourceId: {$in: patientIds}};
         // Query to fetch only specific patients out of patientIds that are patientInitiatedConnection
         const query = {
             $and: [
-                {_uuid: {$in: patientIds}},
+                {$or: [uuidQuery, sourceIdQuery]},
                 { 'meta.security': {$elemMatch: {'system': 'https://www.icanbwell.com/connectionType', 'code': {$in: PATIENT_INITIATED_CONNECTION}}}}
             ]
         };
