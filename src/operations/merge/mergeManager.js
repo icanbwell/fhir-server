@@ -729,13 +729,13 @@ class MergeManager {
             // The FHIR validator wants meta.lastUpdated to be string instead of data
             // So we copy the resource and change meta.lastUpdated to string to pass the FHIR validator
             const resourceObjectToValidate = deepcopy(resourceToMerge.toJSON());
+            // Truncate id to 64 so it passes the validator since we support more than 64 internally
+            if (resourceObjectToValidate.id) {
+                resourceObjectToValidate.id = resourceObjectToValidate.id.slice(0, 64);
+            }
             if (resourceObjectToValidate.meta && resourceObjectToValidate.meta.lastUpdated) {
                 // noinspection JSValidateTypes
                 resourceObjectToValidate.meta.lastUpdated = new Date(resourceObjectToValidate.meta.lastUpdated).toISOString();
-                // also truncate id to 64 so it passes the validator since we support more than 64 internally
-                if (resourceObjectToValidate.id && resourceObjectToValidate.id.length > 64) {
-                    resourceObjectToValidate.id = resourceObjectToValidate.id.slice(0, 64);
-                }
             }
 
             /**
