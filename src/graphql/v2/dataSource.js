@@ -95,7 +95,7 @@ class FhirDataSource {
              * resources with this resourceType and id
              * @type {Resource[]}
              */
-            const items = resources.filter((r) => r.resourceType === resourceType && r._uuid === id);
+            const items = resources.filter((r) => r.resourceType === resourceType && (r._uuid === id || r.id === id));
             // IMPORTANT: This HAS to return nulls for missing resources or the ordering gets messed up
             resultsOrdered.push(items.length > 0 ? items[0] : null);
         }
@@ -219,7 +219,7 @@ class FhirDataSource {
             resourceType,
             /** @type {string} **/
             id,
-        } = ResourceWithId.getResourceTypeAndIdFromReference(reference._uuid);
+        } = ResourceWithId.getResourceTypeAndIdFromReference(reference._uuid || reference.reference);
         try {
             this.createDataLoader(args);
             // noinspection JSValidateTypes
