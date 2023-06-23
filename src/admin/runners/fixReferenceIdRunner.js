@@ -311,8 +311,6 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
                     }
                 }
                 reference.reference = reference.reference.replace(currentReference, newReference);
-
-                this.adminLogger.logInfo(reference);
             }
 
             // if currentReference is not present in the cache then increase the count of cacheMisses
@@ -323,7 +321,6 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
                 } else {
                     this.cacheMisses.set(referenceCollectionName, 1);
                 }
-                this.adminLogger.logInfo(reference);
             }
             return reference;
         } catch (e) {
@@ -357,7 +354,6 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
             }
         );
 
-        this.adminLogger.logInfo(resource);
         return resource;
     }
 
@@ -403,8 +399,6 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
             }
         }
 
-        this.adminLogger.logInfo(resource);
-
         return resource;
     }
 
@@ -447,9 +441,7 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
                 };
 
                 // if it is history doc then replace the id present in the url
-                if (isHistoryDoc && doc.request) {
-                    doc.request.url = doc.request.url.replace(currentResource.id, resource.id);
-                }
+                doc.request.url = doc.request.url.replace(currentResource.id, resource.id);
 
                 updatedResourceJsonInternal = {
                     resource: updatedResourceJsonInternal,
@@ -458,7 +450,6 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
             }
 
             if (deepEqual(updatedResourceJsonInternal, currentResourceJsonInternal) === true) {
-                // this.adminLogger.logInfo('No change detected for ');
                 return operations;
             }
 
@@ -636,7 +627,6 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
                                     limit: this.limit,
                                     useTransaction: this.useTransaction,
                                     skip: this.skip,
-                                    referenceFieldNames
                                 });
 
                             } catch (e) {
@@ -694,7 +684,7 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
                     if (Object.keys(query).length) {
                         try {
                             this.adminLogger.logInfo(`query: ${mongoQueryStringify(query)}`);
-                            await super.runForQueryBatchesAsync({
+                            await this.runForQueryBatchesAsync({
                                 config: mongoConfig,
                                 sourceCollectionName: collectionName,
                                 destinationCollectionName: collectionName,
@@ -735,54 +725,6 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
             this.adminLogger.logInfo('Shutdown finished');
         } catch (e) {
             this.adminLogger.logError(`ERROR: ${e}`);
-        }
-    }
-
-    /**
-     * Adding indexes to the collection to speed up execution and then removing the indexes
-     * @param {string[]} referenceFieldNames
-     * @param {Object} args
-     */
-    async runForQueryBatchesAsync({ referenceFieldNames, ...args }) {
-        // create the collection instance to create and drop indexes
-        /**
-         * @type {require('mongodb').Collection<import('mongodb').Document>}
-         */
-        const { collection } = await this.createSingeConnectionAsync({
-            mongoConfig: args.config, collectionName: args.sourceCollectionName
-        });
-
-        /**
-         * @type {Object[]}
-         */
-        let indexNames = [];
-        try {
-            // create the indexes on reference fields as we are going to query on them
-            if (referenceFieldNames && referenceFieldNames.length) {
-                const indexes = [];
-                referenceFieldNames.forEach(referenceField => {
-                    const indexFieldName = `${referenceField}._sourceId`;
-                    // add _sourceId in the index key to make the index unique
-                    indexes.push({
-                        key: { [indexFieldName]: 1, '_sourceId': 1 },
-                        name: `fixReferenceIdScript_${indexFieldName}`
-                    });
-                });
-                this.adminLogger.logInfo(`Creating reference indexes for ${referenceFieldNames}`);
-                indexNames = await collection.createIndexes(indexes);
-                this.adminLogger.logInfo(`Created reference indexes ${indexNames}`);
-            }
-            // running parents runForQueryBatchesAsync
-            await super.runForQueryBatchesAsync(args);
-        } finally {
-            // drop the indexes created for the collection
-            if (indexNames && indexNames.length) {
-                for (const indexName of indexNames) {
-                    this.adminLogger.logInfo(`Removing index ${indexName}`);
-                    await collection.dropIndex(indexName);
-                    this.adminLogger.logInfo(`Removed index ${indexName}`);
-                }
-            }
         }
     }
 
