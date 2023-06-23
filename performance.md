@@ -66,7 +66,7 @@ when possible, to always implement the better patterns since the data size may i
 2. Use data streaming [streaming.md](streaming.md)
 3. Or instead of data streaming, use parallel processing (e.g., threads) so you are making multiple requests at a time.  
    For example, you can request pages 1,2 and 3 at the same time.  
-   We recommend setting a page size of 10,000 in your requests.
+   We recommend setting a page size of 1,000 in your requests.
    We recommend doing 10 parallel requests. Too few will not give you a lot of benefit. Too many will slow down your system and result in timeouts.
 4. Use an async pattern so you're not blocking. This will give you better throughput.
 5. Once you have the ids, divide up the ids into chunks.  
