@@ -238,8 +238,7 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
                 return reference;
             }
 
-            // if the _uuid reference works then we're good
-            const { resourceType, id } = ReferenceParser.parseReference(reference.reference);
+            const { resourceType, id } = ReferenceParser.parseReference(reference._sourceId);
             if (!resourceType) {
                 return reference;
             }
