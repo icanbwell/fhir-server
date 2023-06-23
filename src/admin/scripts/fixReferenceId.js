@@ -57,6 +57,11 @@ async function main() {
      */
     const afterLastUpdatedDate = parameters.after ? new Date(parameters.after) : undefined;
 
+    /**
+     * @type {Date|undefined}
+     */
+    const beforeLastUpdatedDate = parameters.before ? new Date(parameters.before) : undefined;
+
     const adminLogger = new AdminLogger();
 
     adminLogger.logInfo(`[${currentDateTime}] Running script for collections: ${collections.join(',')}`);
@@ -71,6 +76,7 @@ async function main() {
                 collections,
                 batchSize,
                 afterLastUpdatedDate,
+                beforeLastUpdatedDate,
                 adminLogger,
                 mongoDatabaseManager: c.mongoDatabaseManager,
                 preSaveManager: c.preSaveManager,
@@ -113,6 +119,7 @@ async function main() {
  * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/fixReferenceId.js --collections=Person_4_0_0 --batchSize=10000 --limit 10
  * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/fixReferenceId.js --collections=Person_4_0_0 --batchSize=10000 --limit 10 --properties link
  * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/fixReferenceId.js --collections=all --batchSize=10000 --after 2021-12-31
+ * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/fixReferenceId.js --collections=all --batchSize=10000 --before 2021-12-31
  * node src/admin/scripts/fixReferenceId.js --collections=Account_4_0_0 --batchSize=10000
  */
 main().catch(reason => {
