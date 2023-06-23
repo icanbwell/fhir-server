@@ -1,5 +1,5 @@
 {
-    "Patient":[
+    "Patient": [
         "Account",
         "ActivityDefinition",
         "AdverseEvent",
@@ -89,7 +89,7 @@
         "Transport",
         "VisionPrescription"
     ],
-    "Encounter":[
+    "Encounter": [
         "AdverseEvent",
         "AllergyIntolerance",
         "AuditEvent",
@@ -136,7 +136,7 @@
         "Transport",
         "VisionPrescription"
     ],
-    "Condition":[
+    "Condition": [
         "Account",
         "AdverseEvent",
         "Appointment",
@@ -166,7 +166,7 @@
         "ServiceRequest",
         "SupplyRequest"
     ],
-    "Procedure":[
+    "Procedure": [
         "Account",
         "AdverseEvent",
         "Appointment",
@@ -193,7 +193,7 @@
         "QuestionnaireResponse",
         "Specimen"
     ],
-    "Observation":[
+    "Observation": [
         "AdverseEvent",
         "AllergyIntolerance",
         "Appointment",
@@ -223,10 +223,57 @@
         "ServiceRequest",
         "SupplyRequest"
     ],
-    "AllergyIntolerance":[
+    "AllergyIntolerance": [
         "AdverseEvent",
         "ClinicalImpression",
         "FamilyMemberHistory",
         "NutritionOrder"
+    ],
+    "Claim": [
+        "Claim",
+        "ClaimResponse",
+        "DeviceUsage",
+        "DocumentReference",
+        "ExplanationOfBenefit",
+        "GuidanceResponse",
+        "PaymentReconciliation"
+    ],
+    "ClaimResponse": [
+        "Claim",
+        "ClaimResponse",
+        "DeviceRequest",
+        "ExplanationOfBenefit",
+        "MedicationRequest",
+        "PaymentReconciliation",
+        "ServiceRequest",
+        "Task",
+        "Transport"
+    ],
+    "EnrollmentRequest": [
+        "DocumentReference",
+        "EnrollmentResponse",
+        "GuidanceResponse"
+    ],
+    "ClinicalImpression": [
+        "ClinicalImpression",
+        "Condition"
+    ],
+    "DetectedIssue": [
+        "DeviceDispense",
+        "MedicationDispense",
+        "ServiceRequest"
+    ],
+    "EnrollmentResponse": [
+        "Event"
+    ],
+    "FamilyMemberHistory": [
+        "AdverseEvent"
+    ],
+    "PaymentReconciliation": [
+        "PaymentNotice"
+    ],
+    "RiskAssessment": [
+        "ClinicalImpression",
+        "Goal"
     ]
 }

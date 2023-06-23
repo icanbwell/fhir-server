@@ -16,7 +16,7 @@ const {FixReferenceIdRunner} = require('../runners/fixReferenceIdRunner');
 const proaResources = [
     'Patient', 'Encounter', 'Condition', 'Procedure', 'Claim', 'EnrollmentRequest',
     'Observation', 'AllergyIntolerance', 'ClaimResponse', 'ClinicalImpression',
-    'Condition', 'DetectedIssue', 'EnrollmentResponse', 'FamilyMemberHistory', 'PaymentNotice',
+    'DetectedIssue', 'EnrollmentResponse', 'FamilyMemberHistory', 'PaymentNotice',
     'PaymentReconciliation', 'RiskAssessment', 'ExplanationOfBenefit'
 ];
 
