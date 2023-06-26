@@ -237,17 +237,6 @@ class ConfigManager {
     }
 
     /**
-     * whether to check access tags on save
-     * @return {boolean}
-     */
-    get checkAccessTagsOnSave() {
-        if (env.CHECK_ACCESS_TAG_ON_SAVE === null || env.CHECK_ACCESS_TAG_ON_SAVE === undefined) {
-            return true;
-        }
-        return isTrue(env.CHECK_ACCESS_TAG_ON_SAVE);
-    }
-
-    /**
      * whether to support legacy id support in queries
      * @return {boolean}
      */

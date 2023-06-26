@@ -17,7 +17,6 @@ const {isTrue} = require('../../utils/isTrue');
 const {DatabaseBulkInserter} = require('../../dataLayer/databaseBulkInserter');
 const {getCircularReplacer} = require('../../utils/getCircularReplacer');
 const {ParsedArgs} = require('../query/parsedArgs');
-const {SecurityTagSystem} = require('../../utils/securityTagSystem');
 const {ConfigManager} = require('../../utils/configManager');
 const {FhirResourceCreator} = require('../../fhir/fhirResourceCreator');
 const { DatabaseAttachmentManager } = require('../../dataLayer/databaseAttachmentManager');
@@ -224,30 +223,6 @@ class CreateOperation {
 
         try {
             // Get current record
-
-            if (this.configManager.checkAccessTagsOnSave) {
-                if (!this.scopesManager.doesResourceHaveAccessTags(resource)) {
-                    // noinspection ExceptionCaughtLocallyJS
-                    throw new BadRequestError(
-                        new Error(
-                            `Resource ${resourceType}` +
-                            ' is missing a security access tag with system: ' +
-                            `${SecurityTagSystem.access}`
-                        )
-                    );
-                }
-                if (!this.scopesManager.doesResourceHaveOwnerTags(resource)) {
-                    // noinspection ExceptionCaughtLocallyJS
-                    throw new BadRequestError(
-                        new Error(
-                            `Resource ${resourceType}` +
-                            ' is missing a security access tag with system: ' +
-                            `${SecurityTagSystem.owner}`
-                        )
-                    );
-                }
-            }
-
             // Check if meta & meta.source exists in resource
             if (this.configManager.requireMetaSourceTags && (!resource.meta || !resource.meta.source)) {
                 throw new BadRequestError(new Error('Unable to create resource. Missing either metadata or metadata source.'));

@@ -2,7 +2,6 @@ process.env.AUTH_ENABLED = '1';
 process.env.AUTH_JWKS_URL = 'http://foo:80/.well-known/jwks.json';
 process.env.AUTH_ISSUER = 'http://foo:80';
 process.env.NODE_ENV = 'production';
-process.env.CHECK_ACCESS_TAG_ON_SAVE = '1';
 process.env.VALIDATE_SCHEMA = '1';
 process.env.EXTERNAL_AUTH_JWKS_URLS = 'http://foo:80/bar/.well-known/jwks.json';
 process.env.AUTH_CUSTOM_GROUP = 'groups';
