@@ -89,6 +89,9 @@
         "Transport",
         "VisionPrescription"
     ],
+    "Person": [
+        "Person"
+    ],
     "Encounter": [
         "AdverseEvent",
         "AllergyIntolerance",

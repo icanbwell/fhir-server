@@ -329,7 +329,7 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
                     message: 'Error processing reference',
                     error: e,
                     args: {
-                        reference: reference
+                        reference
                     },
                     source: 'FixReferenceIdRunner.updateReferenceAsync'
                 }
@@ -630,6 +630,16 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
 
                             } catch (e) {
                                 this.adminLogger.logError(`Got error ${e}.  At ${this.startFromIdContainer.startFromId}`);
+                                throw new RethrownError(
+                                    {
+                                        message: `Error processing references of collection ${collectionName}`,
+                                        error: e,
+                                        args: {
+                                            query
+                                        },
+                                        source: 'FixReferenceIdRunner.processAsync'
+                                    }
+                                );
                             }
                         }
                     }
@@ -649,35 +659,12 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
                 for (const collectionName of this.proaCollections) {
                     this.startFromIdContainer.startFromId = '';
 
-                    // create a query from the parameters
-                    /**
-                     * @type {import('mongodb').Filter<import('mongodb').Document>}
-                     */
-                    let query = this.getQueryFromParameters({queryPrefix: collectionName.includes('History') ? 'resource.' : ''});
-
                     /**
                      * @type {boolean}
                      */
                     const isHistoryCollection = collectionName.includes('History');
 
-                    // query to get resources that needs to be changes
-                    /**
-                     * @type {import('mongodb').Filter<import('mongodb').Document>}
-                     */
-                    const filterQuery = [
-                        { [isHistoryCollection ? 'resource.meta.security' : 'meta.security']: { $elemMatch: { code: 'proa' } } }
-                    ];
-
-                    // merge query and filterQuery
-                    if (Object.keys(query).length) {
-                        query = {
-                            $and: [query, ...filterQuery]
-                        };
-                    } else {
-                        query = {
-                            $and: filterQuery
-                        };
-                    }
+                    const query = this.getQueryForResource(isHistoryCollection);
 
                     // if query is not empty then run the query and process the records
                     if (Object.keys(query).length) {
@@ -702,6 +689,16 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
 
                         } catch (e) {
                             this.adminLogger.logError(`Got error ${e}.  At ${this.startFromIdContainer.startFromId}`);
+                            throw new RethrownError(
+                                {
+                                    message: `Error processing ids of collection ${collectionName}`,
+                                    error: e,
+                                    args: {
+                                        query
+                                    },
+                                    source: 'FixReferenceIdRunner.processAsync'
+                                }
+                            );
                         }
                     }
                     this.adminLogger.logInfo(`Finished loop ${collectionName}`);
@@ -873,11 +870,7 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
         /**
          * @type {import('mongodb').FindCursor<import('mongodb').WithId<import('mongodb').Document>>}
          */
-        const cursor = collection.find({
-            $and: [
-                { [isHistoryCollection ? 'resource.meta.security' : 'meta.security']: { $elemMatch: { code: 'proa' } } }
-            ]
-        }, { projection });
+        const cursor = collection.find(this.getQueryForResource(isHistoryCollection), { projection });
 
         while (await cursor.hasNext()) {
             /**
@@ -891,6 +884,40 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
                 doc: isHistoryCollection ? doc.resource : doc, collectionName
             });
         }
+    }
+
+    /**
+     * Get query for the resources whose id might change
+     * @param {boolean} isHistoryCollection
+     * @returns {import('mongodb').Filter<import('mongodb').Document>}
+     */
+    getQueryForResource(isHistoryCollection) {
+        // create a query from the parameters
+        /**
+         * @type {import('mongodb').Filter<import('mongodb').Document>}
+         */
+        let query = this.getQueryFromParameters({queryPrefix: isHistoryCollection ? 'resource.' : ''});
+
+        // query to get resources that needs to be changes
+        /**
+         * @type {import('mongodb').Filter<import('mongodb').Document>}
+         */
+        const filterQuery = [
+            { [isHistoryCollection ? 'resource.meta.security' : 'meta.security']: { $elemMatch: { code: 'proa' } } }
+        ];
+
+        // merge query and filterQuery
+        if (Object.keys(query).length) {
+            query = {
+                $and: [query, ...filterQuery]
+            };
+        } else {
+            query = {
+                $and: filterQuery
+            };
+        }
+
+        return query;
     }
 
     /**
