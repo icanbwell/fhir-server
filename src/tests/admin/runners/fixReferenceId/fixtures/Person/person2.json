@@ -1,0 +1,26 @@
+{
+    "resourceType": "Person",
+    "id": "proa-1",
+    "meta": {
+        "source": "proa/1",
+        "security": [
+            {
+                "system": "https://www.icanbwell.com/access",
+                "code": "proa"
+            },
+            {
+                "system": "https://www.icanbwell.com/owner",
+                "code": "proa"
+            }
+        ]
+    },
+    "link": [
+        {
+            "target": {
+                "reference": "Patient/proa-1111111111111111111111111111111111111111111111111111111111",
+                "display": "Eve Everywoman"
+            },
+            "assurance": "level3"
+        }
+    ]
+}
