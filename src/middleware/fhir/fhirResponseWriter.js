@@ -145,10 +145,10 @@ class FhirResponseWriter {
         }
         res.set('Location', location);
         // https://hl7.org/fhir/http.html#ops
-        if (req.headers.prefer && req.headers.prefer === 'return=representation') {
-            res.status(201).json(resource).end();
-        } else {
+        if (req.headers.prefer && req.headers.prefer === 'return=minimal') {
             res.status(201).json({}).end();
+        } else {
+            res.status(201).json(resource).end();
         }
         //TODO: handle return=OperationOutcome
     }
