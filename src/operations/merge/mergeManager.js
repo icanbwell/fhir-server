@@ -23,7 +23,6 @@ const {ResourceValidator} = require('../common/resourceValidator');
 const {RethrownError} = require('../../utils/rethrownError');
 const {PreSaveManager} = require('../../preSaveHandlers/preSave');
 const {ConfigManager} = require('../../utils/configManager');
-const {SecurityTagSystem} = require('../../utils/securityTagSystem');
 const {MergeResultEntry} = require('../common/mergeResultEntry');
 const {MongoFilterGenerator} = require('../../utils/mongoFilterGenerator');
 const {DatabaseAttachmentManager} = require('../../dataLayer/databaseAttachmentManager');
@@ -218,26 +217,6 @@ class MergeManager {
                 args: {uuid: resourceToMerge._uuid, resource: resourceToMerge}
             }
         );
-        if (this.configManager.checkAccessTagsOnSave) {
-            if (!this.scopesManager.doesResourceHaveAccessTags(resourceToMerge)) {
-                throw new BadRequestError(
-                    new Error(
-                        `Resource ${resourceToMerge.resourceType}/${resourceToMerge.id}` +
-                        ' is missing a security access tag with system: ' +
-                        `${SecurityTagSystem.access}`
-                    )
-                );
-            }
-            if (!this.scopesManager.doesResourceHaveOwnerTags(resourceToMerge)) {
-                throw new BadRequestError(
-                    new Error(
-                        `Resource ${resourceToMerge.resourceType}/${resourceToMerge.id}` +
-                        ' is missing a security access tag with system: ' +
-                        `${SecurityTagSystem.owner}`
-                    )
-                );
-            }
-        }
 
         if (!(this.scopesManager.isAccessToResourceAllowedBySecurityTags({
             resource: resourceToMerge, user, scope
@@ -760,70 +739,6 @@ class MergeManager {
                     operationOutcome: validationOperationOutcome,
                     resourceType: resourceToMerge.resourceType
                 };
-            }
-
-            if (this.configManager.checkAccessTagsOnSave) {
-                if (!this.scopesManager.doesResourceHaveAccessTags(resourceToMerge)) {
-                    const accessTagOperationOutcome = new OperationOutcome({
-                        resourceType: 'OperationOutcome',
-                        issue: [
-                            new OperationOutcomeIssue({
-                                severity: 'error',
-                                code: 'exception',
-                                details: new CodeableConcept({
-                                    text: 'Error merging: ' + JSON.stringify(resourceToMerge.toJSON())
-                                }),
-                                diagnostics: 'Resource is missing a meta.security tag with system: ' +
-                                    `${SecurityTagSystem.access}`,
-                                expression: [
-                                    resourceToMerge.resourceType + '/' + id
-                                ]
-                            })
-                        ]
-                    });
-                    return new MergeResultEntry(
-                        {
-                            id: id,
-                            uuid: resourceToMerge._uuid,
-                            sourceAssigningAuthority: resourceToMerge._sourceAssigningAuthority,
-                            created: false,
-                            updated: false,
-                            issue: (accessTagOperationOutcome.issue && accessTagOperationOutcome.issue.length > 0) ? accessTagOperationOutcome.issue[0] : null,
-                            operationOutcome: accessTagOperationOutcome,
-                            resourceType: resourceToMerge.resourceType
-                        }
-                    );
-                }
-                if (!this.scopesManager.doesResourceHaveOwnerTags(resourceToMerge)) {
-                    const accessTagOperationOutcome = new OperationOutcome({
-                        resourceType: 'OperationOutcome',
-                        issue: [
-                            new OperationOutcomeIssue({
-                                severity: 'error',
-                                code: 'exception',
-                                details: new CodeableConcept({
-                                    text: 'Error merging: ' + JSON.stringify(resourceToMerge.toJSON())
-                                }),
-                                diagnostics: 'Resource is missing a meta.security tag with system: ' +
-                                    `${SecurityTagSystem.owner}`,
-                                expression: [
-                                    resourceToMerge.resourceType + '/' + id
-                                ]
-                            })
-                        ]
-                    });
-                    return new MergeResultEntry({
-                            id: id,
-                            uuid: resourceToMerge._uuid,
-                            sourceAssigningAuthority: resourceToMerge._sourceAssigningAuthority,
-                            created: false,
-                            updated: false,
-                            issue: (accessTagOperationOutcome.issue && accessTagOperationOutcome.issue.length > 0) ? accessTagOperationOutcome.issue[0] : null,
-                            operationOutcome: accessTagOperationOutcome,
-                            resourceType: resourceToMerge.resourceType
-                        }
-                    );
-                }
             }
 
             return null;

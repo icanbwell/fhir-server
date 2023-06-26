@@ -29,9 +29,6 @@ class ReferenceGlobalIdHandler extends PreSaveHandler {
      * @returns {Promise<Resource>}
      */
     async preSaveAsync({resource}) {
-        if (!this.configManager.checkAccessTagsOnSave) {
-            return resource;
-        }
         // get sourceAssigningAuthority of resource
         /**
          * @type {string[]}
