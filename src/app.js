@@ -140,6 +140,10 @@ function createApp({fnCreateContainer, trackMetrics}) {
         fnCreateContainer, req, res
     ));
 
+    app.get('/full-healthcheck', (req, res) => handleHealthCheck(
+        fnCreateContainer, req, res
+    ));
+
     app.get('/live', (req, res) => handleMemoryCheck(req, res));
 
     app.get('/ready', (req, res) => handleMemoryCheck(req, res));

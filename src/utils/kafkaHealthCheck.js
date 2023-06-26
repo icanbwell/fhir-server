@@ -1,3 +1,5 @@
+
+/* eslint-disable no-unused-vars */
 /**
  * This route handler implements the /health endpoint which returns the health of the system
  */
@@ -6,8 +8,6 @@ const env = require('var');
 const { isTrue } = require('../utils/isTrue');
 const {Kafka} = require('kafkajs');
 const {RethrownError} = require('../utils/rethrownError');
-const {handleKafkaHealthCheck} = require('../utils/kafkaHealthCheck');
-const {handleLogHealthCheck} = require('../utils/logHealthCheck');
 const {KAFKA_CONNECTION_HEALTHCHECK_INTERVAL} = require('../constants');
 
 let kafkaClientFactory;
@@ -21,33 +21,7 @@ let container;
 let config;
 
 // Does a health check for the app
-module.exports.handleHealthCheck = async (fnCreateContainer, req, res) => {
-    let status = {};
-    // check kafka connection
-    let kafkaOK = false;
-    try {
-        kafkaOK = await handleKafkaHealthCheck(fnCreateContainer, req, res);
-        if (kafkaOK) {
-            status.kafkaStatus = 'OK';
-        } else {
-            status.kafkaStatus = 'Failed';
-        }
-    } catch (e){
-        // kafka health check failed
-        status.kafkaStatus = 'Failed';
-    }
-    // check logging
-    let logOK = false;
-    try {
-        logOK = await handleLogHealthCheck();
-        if (logOK) {
-            status.logStatus = 'OK';
-        } else {
-            status.logStatus = 'Failed';
-        }
-    } catch (e) {
-        status.logStatus = 'Failed';
-    }
+module.exports.handleKafkaHealthCheck = async (fnCreateContainer, req, res) => {
     // If events is to be logged on kafka, check kafka connection
     if (isTrue(env.ENABLE_EVENTS_KAFKA) && isTrue(env.ENABLE_KAFKA_HEALTHCHECK)) {
         // Check Kafka connection at an interval of 30 seconds
@@ -70,7 +44,7 @@ module.exports.handleHealthCheck = async (fnCreateContainer, req, res) => {
                 await producer.connect();
                 // Calculates the time after which kafka is to be reconnected.
                 timeTillKafkaReconnection = new Date(new Date().getTime() + KAFKA_CONNECTION_HEALTHCHECK_INTERVAL);
-                return res.json({status: 'ok'});
+                return true;
             } catch (e) {
                 throw new RethrownError({
                     message: 'Kafka health check failed',
@@ -78,10 +52,10 @@ module.exports.handleHealthCheck = async (fnCreateContainer, req, res) => {
                 });
             } finally {
                 // Disconnects the connection between broker and producer
-                producer.disconnect();
+                await producer.disconnect();
             }
         }
-        return res.json({status: 'ok'});
+        return true;
     }
-    return res.json({status: 'ok'});
+    return true;
 };
