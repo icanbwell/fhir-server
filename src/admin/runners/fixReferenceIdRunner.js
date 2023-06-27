@@ -837,11 +837,6 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
      */
     async cacheReferencesAsync({ mongoConfig, collectionName }) {
         /**
-         * @type {require('mongodb').collection}
-         */
-        const { collection } = await this.createSingeConnectionAsync({ mongoConfig, collectionName });
-
-        /**
          * @type {boolean}
          */
         const isHistoryCollection = collectionName.includes('History');
@@ -867,22 +862,38 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
             projection = { _id: 0, resource: projection };
         }
 
-        /**
-         * @type {import('mongodb').FindCursor<import('mongodb').WithId<import('mongodb').Document>>}
-         */
-        const cursor = collection.find(this.getQueryForResource(isHistoryCollection), { projection });
-
-        while (await cursor.hasNext()) {
+        try {
             /**
-             * @type {import('mongodb').WithId<import('mongodb').Document>}
+             * @type {require('mongodb').collection}
              */
-            const doc = await cursor.next();
+            const { collection, session } = await this.createSingeConnectionAsync({ mongoConfig, collectionName });
 
-            // check if the resource id needs to changed and if it needs to changed
-            // then create its mapping in the cache
-            this.cacheReferenceFromResource({
-                doc: isHistoryCollection ? doc.resource : doc, collectionName
-            });
+            /**
+             * @type {import('mongodb').FindCursor<import('mongodb').WithId<import('mongodb').Document>>}
+             */
+            const cursor = collection.find(this.getQueryForResource(isHistoryCollection), { projection });
+
+            while (await cursor.hasNext()) {
+                /**
+                 * @type {import('mongodb').WithId<import('mongodb').Document>}
+                 */
+                const doc = await cursor.next();
+
+                // check if the resource id needs to changed and if it needs to changed
+                // then create its mapping in the cache
+                this.cacheReferenceFromResource({
+                    doc: isHistoryCollection ? doc.resource : doc, collectionName
+                });
+            }
+            session.endSession();
+        } catch (e) {
+            throw new RethrownError(
+                {
+                    message: `Error caching references for collection ${collectionName}`,
+                    error: e,
+                    source: 'FixReferenceIdRunner.cacheReferencesAsync'
+                }
+            );
         }
     }
 
