@@ -64,7 +64,7 @@
   "meta": {
     "tag": [
       {
-        "display": "db.Task_4_0_0.find({'$and':[{'_uuid':'195e0039-a4b1-4053-851c-7386c580a471'},{'for._uuid':{'$in':['Patient/dc4eed5a-0488-4fbd-b51b-e9e0cea632cd','Patient/49d410d2-b090-4f9c-ad9a-efac145bf81a','Patient/person.41db6857-b989-4617-ac8b-35d853250449']}}]}, {}).sort({'id':1}).limit(10000)",
+        "display": "db.Task_4_0_0.find({'$and':[{'_uuid':'195e0039-a4b1-4053-851c-7386c580a471'},{'for._uuid':{'$in':['Patient/dc4eed5a-0488-4fbd-b51b-e9e0cea632cd','Patient/49d410d2-b090-4f9c-ad9a-efac145bf81a','Patient/person.41db6857-b989-4617-ac8b-35d853250449']}}]}, {}).sort({'id':1}).limit(1000)",
         "system": "https://www.icanbwell.com/query"
       },
       {
@@ -72,7 +72,7 @@
         "system": "https://www.icanbwell.com/queryCollection"
       },
       {
-        "display": "{'limit':10000,'sort':{'id':1}}",
+        "display": "{'limit':1000,'sort':{'id':1}}",
         "system": "https://www.icanbwell.com/queryOptions"
       },
       {

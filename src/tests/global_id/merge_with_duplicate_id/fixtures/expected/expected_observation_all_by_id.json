@@ -178,7 +178,7 @@
   "meta": {
     "tag": [
       {
-        "display": "db.Observation_4_0_0.find({'_sourceId':'1'}, {}).sort({'id':1}).limit(10000)",
+        "display": "db.Observation_4_0_0.find({'_sourceId':'1'}, {}).sort({'id':1}).limit(1000)",
         "system": "https://www.icanbwell.com/query"
       },
       {
@@ -186,7 +186,7 @@
         "system": "https://www.icanbwell.com/queryCollection"
       },
       {
-        "display": "{'limit':10000,'sort':{'id':1}}",
+        "display": "{'limit':1000,'sort':{'id':1}}",
         "system": "https://www.icanbwell.com/queryOptions"
       },
       {
