@@ -16,7 +16,6 @@ class ResourceValidator {
      * @param {string} path
      * @param {string} currentDate
      * @param {Object} resourceObj
-     * @param {String} operationType
      * @returns {OperationOutcome | null}
      */
     async validateResourceAsync({id, resourceType, resourceToValidate, path, currentDate, resourceObj = null}) {

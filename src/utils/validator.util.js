@@ -39,7 +39,7 @@ const fhirValidator = new JSONValidator(schema, validatorConfig);
  * @param {Object} resourceObj - fhir resource object
  * @returns {OperationOutcome|null} Response<null|OperationOutcome> - either null if no errors or response to send client.
  */
-function validateResource(resourceBody, resourceName, path, operationType, resourceObj = null) {
+function validateResource(resourceBody, resourceName, path, resourceObj = null) {
     if (resourceBody.resourceType !== resourceName) {
         return new OperationOutcome({
             issue: [
