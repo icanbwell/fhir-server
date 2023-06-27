@@ -62,10 +62,13 @@ class MongoExplainPlanHelper {
         let winningPlan = {};
         if (explanation.executionStats && explanation.executionStats.executionStages) {
             winningPlan = explanation.executionStats.executionStages;
-        } else if (explanation.queryPlanner.winningPlan !== undefined) {
+        } else if (explanation && explanation.queryPlanner && explanation.queryPlanner.winningPlan) {
             winningPlan = explanation.queryPlanner.winningPlan;
         }
 
+        /**
+         * @type {Object}
+         */
         const executionStats = explanation.executionStats;
         /**
          * @type {ExplainExecutionStats}
