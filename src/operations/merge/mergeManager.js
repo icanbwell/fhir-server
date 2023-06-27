@@ -23,6 +23,7 @@ const {ResourceValidator} = require('../common/resourceValidator');
 const {RethrownError} = require('../../utils/rethrownError');
 const {PreSaveManager} = require('../../preSaveHandlers/preSave');
 const {ConfigManager} = require('../../utils/configManager');
+const {SecurityTagSystem} = require('../../utils/securityTagSystem');
 const {MergeResultEntry} = require('../common/mergeResultEntry');
 const {MongoFilterGenerator} = require('../../utils/mongoFilterGenerator');
 const {DatabaseAttachmentManager} = require('../../dataLayer/databaseAttachmentManager');
@@ -217,6 +218,17 @@ class MergeManager {
                 args: {uuid: resourceToMerge._uuid, resource: resourceToMerge}
             }
         );
+
+        // Check resource has a owner tag before inserting the document.
+        if (!this.scopesManager.doesResourceHaveOwnerTags(resourceToMerge)) {
+            throw new BadRequestError(
+                new Error(
+                    `Resource ${resourceToMerge.resourceType}/${resourceToMerge.id}` +
+                    ' is missing a security access tag with system: ' +
+                    `${SecurityTagSystem.owner}`
+                )
+            );
+        }
 
         if (!(this.scopesManager.isAccessToResourceAllowedBySecurityTags({
             resource: resourceToMerge, user, scope

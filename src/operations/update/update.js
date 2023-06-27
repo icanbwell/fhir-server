@@ -15,6 +15,7 @@ const {FhirLoggingManager} = require('../common/fhirLoggingManager');
 const {ScopesValidator} = require('../security/scopesValidator');
 const {ResourceValidator} = require('../common/resourceValidator');
 const {DatabaseBulkInserter} = require('../../dataLayer/databaseBulkInserter');
+const {SecurityTagSystem} = require('../../utils/securityTagSystem');
 const {ResourceMerger} = require('../common/resourceMerger');
 const {getCircularReplacer} = require('../../utils/getCircularReplacer');
 const {ParsedArgs} = require('../query/parsedArgs');
@@ -314,6 +315,17 @@ class UpdateOperation {
             }
 
             if (doc) {
+                // Check if the resource is missing owner tag
+                if (!this.scopesManager.doesResourceHaveOwnerTags(resource_incoming)) {
+                    // noinspection ExceptionCaughtLocallyJS
+                    throw new BadRequestError(
+                        new Error(
+                            `Resource ${resource_incoming.resourceType}/${resource_incoming.id}` +
+                            ' is missing a security access tag with system: ' +
+                            `${SecurityTagSystem.owner}`
+                        )
+                    );
+                }
                 // The access tags are updated before updating the resources.
                 // If access tags is to be updated call the corresponding processor
                 if (this.configManager.enabledAccessTagUpdate) {
