@@ -537,6 +537,7 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
 
                 // if there is an exception, continue processing from the last id
                 for (const collectionName of this.collections) {
+                    this.adminLogger.logInfo(`Starting reference updates for ${collectionName}`);
                     this.startFromIdContainer.startFromId = '';
 
                     // create a query from the parameters
@@ -586,6 +587,11 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
                                     referenceArray = [...referenceArray, ...references];
                                 }
                             }
+                        }
+
+                        if (!referenceArray.length){
+                            this.adminLogger.logInfo(`Procesing not required for ${collectionName}`);
+                            continue;
                         }
 
                         while (referenceArray.length > 0) {
@@ -664,6 +670,7 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
 
                 // changing the id of the resources
                 for (const collectionName of this.proaCollections) {
+                    this.adminLogger.logInfo(`Starting id updates for ${collectionName}`);
                     this.startFromIdContainer.startFromId = '';
 
                     /**
@@ -833,7 +840,7 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
         if (collectionName) {
             collection = db.collection(collectionName);
         }
-        return { collection, session };
+        return { collection, session, client };
     }
 
     /**
@@ -872,7 +879,7 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
         /**
          * @type {require('mongodb').collection}
          */
-        const { collection, session } = await this.createSingeConnectionAsync({ mongoConfig, collectionName });
+        const { collection, session, client } = await this.createSingeConnectionAsync({ mongoConfig, collectionName });
 
         try {
             /**
@@ -902,6 +909,7 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
             );
         } finally {
             await session.endSession();
+            await client.close();
         }
     }
 
