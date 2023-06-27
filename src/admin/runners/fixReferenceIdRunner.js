@@ -8,6 +8,8 @@ const deepEqual = require('fast-deep-equal');
 const { generateUUIDv5 } = require('../../utils/uid.util');
 const { isValidMongoObjectId } = require('../../utils/mongoIdValidator');
 const { ResourceLocatorFactory } = require('../../operations/common/resourceLocatorFactory');
+const { MongoJsonPatchHelper } = require('../../utils/mongoJsonPatchHelper');
+const {compare} = require('fast-json-patch');
 const { FhirResourceCreator } = require('../../fhir/fhirResourceCreator');
 const { ResourceMerger } = require('../../operations/common/resourceMerger');
 const { RethrownError } = require('../../utils/rethrownError');
@@ -436,7 +438,7 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
             if (isHistoryDoc && doc.request) {
                 currentResourceJsonInternal = {
                     resource: currentResourceJsonInternal,
-                    request: doc.request
+                    request: {...doc.request}
                 };
 
                 // if it is history doc then replace the id present in the url
@@ -456,15 +458,20 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
              * @type {import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>}
              */
             // batch up the calls to update
-            const result = {
-                replaceOne: {
-                    filter: { _id: doc._id },
-                    replacement: isHistoryDoc ? { ...doc, resource: resource.toJSONInternal() }
-                        : resource.toJSONInternal()
-                }
-            };
+            const patches = compare(currentResourceJsonInternal, updatedResourceJsonInternal);
 
-            operations.push(result);
+            const updateOperation = MongoJsonPatchHelper.convertJsonPatchesToMongoUpdateCommand({patches});
+
+            if (Object.keys(updateOperation).length > 0) {
+                operations.push({
+                    updateOne: {
+                        filter: {
+                            _id: doc._id
+                        },
+                        update: updateOperation
+                    }
+                });
+            }
 
             return operations;
         } catch (e) {
@@ -862,12 +869,12 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
             projection = { _id: 0, resource: projection };
         }
 
-        try {
-            /**
-             * @type {require('mongodb').collection}
-             */
-            const { collection, session } = await this.createSingeConnectionAsync({ mongoConfig, collectionName });
+        /**
+         * @type {require('mongodb').collection}
+         */
+        const { collection, session } = await this.createSingeConnectionAsync({ mongoConfig, collectionName });
 
+        try {
             /**
              * @type {import('mongodb').FindCursor<import('mongodb').WithId<import('mongodb').Document>>}
              */
@@ -885,7 +892,6 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
                     doc: isHistoryCollection ? doc.resource : doc, collectionName
                 });
             }
-            session.endSession();
         } catch (e) {
             throw new RethrownError(
                 {
@@ -894,6 +900,8 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
                     source: 'FixReferenceIdRunner.cacheReferencesAsync'
                 }
             );
+        } finally {
+            await session.endSession();
         }
     }
 
