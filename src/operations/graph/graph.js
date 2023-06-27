@@ -157,7 +157,8 @@ class GraphOperation {
                     resourceType: 'GraphDefinition',
                     resourceToValidate: graphDefinitionRaw,
                     path: path,
-                    currentDate: currentDate
+                    currentDate: currentDate,
+                    operationType: 'read',
                 }
             );
             if (validationOperationOutcome) {

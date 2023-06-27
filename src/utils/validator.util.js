@@ -40,7 +40,7 @@ const fhirValidator = new JSONValidator(schema, validatorConfig);
  * @param {Object} resourceObj - fhir resource object
  * @returns {OperationOutcome|null} Response<null|OperationOutcome> - either null if no errors or response to send client.
  */
-function validateResource(resourceBody, resourceName, path, resourceObj = null) {
+function validateResource(resourceBody, resourceName, path, operationType, resourceObj = null) {
     if (resourceBody.resourceType !== resourceName) {
         return new OperationOutcome({
             issue: [
@@ -58,7 +58,8 @@ function validateResource(resourceBody, resourceName, path, resourceObj = null) 
 
     const errors = fhirValidator.validate(resourceBody);
     const referenceErrors = resourceObj ? validateReferences(resourceObj) : null;
-    const ownerTagErrors = validateOwnerTag(resourceBody);
+    // For read type operations like GraphDefinition the request body does not contains meta tags.
+    const ownerTagErrors = operationType === 'write' ? validateOwnerTag(resourceBody) : [];
     let issue;
     if (errors && errors.length) {
         issue = errors.map((elm) => {
