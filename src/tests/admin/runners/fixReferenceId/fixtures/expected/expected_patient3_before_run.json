@@ -22,6 +22,10 @@
                 "code": "proa"
             },
             {
+                "system": "https://www.icanbwell.com/connectionType",
+                "code": "proa"
+            },
+            {
                 "system": "https://www.icanbwell.com/owner",
                 "code": "pr_o(.a"
             },
