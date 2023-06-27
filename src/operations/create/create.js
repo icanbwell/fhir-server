@@ -223,31 +223,17 @@ class CreateOperation {
         resource = await this.databaseAttachmentManager.transformAttachments(resource);
 
         try {
-            // Get current record
-
-            if (this.configManager.checkAccessTagsOnSave) {
-                if (!this.scopesManager.doesResourceHaveAccessTags(resource)) {
-                    // noinspection ExceptionCaughtLocallyJS
-                    throw new BadRequestError(
-                        new Error(
-                            `Resource ${resourceType}` +
-                            ' is missing a security access tag with system: ' +
-                            `${SecurityTagSystem.access}`
-                        )
-                    );
-                }
-                if (!this.scopesManager.doesResourceHaveOwnerTags(resource)) {
-                    // noinspection ExceptionCaughtLocallyJS
-                    throw new BadRequestError(
-                        new Error(
-                            `Resource ${resourceType}` +
-                            ' is missing a security access tag with system: ' +
-                            `${SecurityTagSystem.owner}`
-                        )
-                    );
-                }
+            // Check owner tag is present inside the resource.
+            if (!this.scopesManager.doesResourceHaveOwnerTags(resource)) {
+                // noinspection ExceptionCaughtLocallyJS
+                throw new BadRequestError(
+                    new Error(
+                        `Resource ${resourceType}` +
+                        ' is missing a security access tag with system: ' +
+                        `${SecurityTagSystem.owner}`
+                    )
+                );
             }
-
             // Check if meta & meta.source exists in resource
             if (this.configManager.requireMetaSourceTags && (!resource.meta || !resource.meta.source)) {
                 throw new BadRequestError(new Error('Unable to create resource. Missing either metadata or metadata source.'));

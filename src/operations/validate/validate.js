@@ -153,26 +153,6 @@ class ValidateOperation {
                 });
             return validationOperationOutcome;
         }
-
-        if (!this.scopesManager.doesResourceHaveAccessTags(resourceToValidate)) {
-            return new OperationOutcome({
-                resourceType: 'OperationOutcome',
-                issue: [
-                    new OperationOutcomeIssue({
-                        severity: 'error',
-                        code: 'invalid',
-                        details: new CodeableConcept({
-                            text: `Resource ${resourceToValidate.resourceType}/${resourceToValidate.id}` +
-                                ' is missing a security access tag with system: ' +
-                                `${SecurityTagSystem.access}`
-                        }),
-                        expression: [
-                            resourceType
-                        ]
-                    })
-                ]
-            });
-        }
         if (!this.scopesManager.doesResourceHaveOwnerTags(resourceToValidate)) {
             return new OperationOutcome({
                 resourceType: 'OperationOutcome',
@@ -192,6 +172,7 @@ class ValidateOperation {
                 ]
             });
         }
+
         await this.fhirLoggingManager.logOperationSuccessAsync(
             {
                 requestInfo,
