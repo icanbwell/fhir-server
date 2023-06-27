@@ -752,6 +752,36 @@ class MergeManager {
                     resourceType: resourceToMerge.resourceType
                 };
             }
+            if (!this.scopesManager.doesResourceHaveOwnerTags(resourceToMerge)) {
+                const accessTagOperationOutcome = new OperationOutcome({
+                    resourceType: 'OperationOutcome',
+                    issue: [
+                        new OperationOutcomeIssue({
+                            severity: 'error',
+                            code: 'exception',
+                            details: new CodeableConcept({
+                                text: 'Error merging: ' + JSON.stringify(resourceToMerge.toJSON())
+                            }),
+                            diagnostics: 'Resource is missing a meta.security tag with system: ' +
+                                `${SecurityTagSystem.owner}`,
+                            expression: [
+                                resourceToMerge.resourceType + '/' + id
+                            ]
+                        })
+                    ]
+                });
+                return new MergeResultEntry({
+                        id: id,
+                        uuid: resourceToMerge._uuid,
+                        sourceAssigningAuthority: resourceToMerge._sourceAssigningAuthority,
+                        created: false,
+                        updated: false,
+                        issue: (accessTagOperationOutcome.issue && accessTagOperationOutcome.issue.length > 0) ? accessTagOperationOutcome.issue[0] : null,
+                        operationOutcome: accessTagOperationOutcome,
+                        resourceType: resourceToMerge.resourceType
+                    }
+                );
+            }
 
             return null;
         } catch (e) {
