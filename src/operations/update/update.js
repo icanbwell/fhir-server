@@ -300,6 +300,17 @@ class UpdateOperation {
                 }
             } else {
                 // not found so insert
+                // Check if the resource is missing owner tag
+                if (!this.scopesManager.doesResourceHaveOwnerTags(resource_incoming)) {
+                    // noinspection ExceptionCaughtLocallyJS
+                    throw new BadRequestError(
+                        new Error(
+                            `Resource ${resource_incoming.resourceType}/${resource_incoming.id}` +
+                            ' is missing a security access tag with system: ' +
+                            `${SecurityTagSystem.owner}`
+                        )
+                    );
+                }
                 // Check if meta & meta.source exists in incoming resource
                 if (this.configManager.requireMetaSourceTags && (!resource_incoming.meta || !resource_incoming.meta.source)) {
                     throw new BadRequestError(new Error('Unable to update resource. Missing either metadata or metadata source.'));
@@ -315,17 +326,6 @@ class UpdateOperation {
             }
 
             if (doc) {
-                // Check if the resource is missing owner tag
-                if (!this.scopesManager.doesResourceHaveOwnerTags(resource_incoming)) {
-                    // noinspection ExceptionCaughtLocallyJS
-                    throw new BadRequestError(
-                        new Error(
-                            `Resource ${resource_incoming.resourceType}/${resource_incoming.id}` +
-                            ' is missing a security access tag with system: ' +
-                            `${SecurityTagSystem.owner}`
-                        )
-                    );
-                }
                 // The access tags are updated before updating the resources.
                 // If access tags is to be updated call the corresponding processor
                 if (this.configManager.enabledAccessTagUpdate) {
