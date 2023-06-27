@@ -8,6 +8,8 @@ const deepEqual = require('fast-deep-equal');
 const { generateUUIDv5 } = require('../../utils/uid.util');
 const { isValidMongoObjectId } = require('../../utils/mongoIdValidator');
 const { ResourceLocatorFactory } = require('../../operations/common/resourceLocatorFactory');
+const { MongoJsonPatchHelper } = require('../../utils/mongoJsonPatchHelper');
+const {compare} = require('fast-json-patch');
 const { FhirResourceCreator } = require('../../fhir/fhirResourceCreator');
 const { ResourceMerger } = require('../../operations/common/resourceMerger');
 const { RethrownError } = require('../../utils/rethrownError');
@@ -436,7 +438,7 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
             if (isHistoryDoc && doc.request) {
                 currentResourceJsonInternal = {
                     resource: currentResourceJsonInternal,
-                    request: doc.request
+                    request: {...doc.request}
                 };
 
                 // if it is history doc then replace the id present in the url
@@ -456,15 +458,20 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
              * @type {import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>}
              */
             // batch up the calls to update
-            const result = {
-                replaceOne: {
-                    filter: { _id: doc._id },
-                    replacement: isHistoryDoc ? { ...doc, resource: resource.toJSONInternal() }
-                        : resource.toJSONInternal()
-                }
-            };
+            const patches = compare(currentResourceJsonInternal, updatedResourceJsonInternal);
 
-            operations.push(result);
+            const updateOperation = MongoJsonPatchHelper.convertJsonPatchesToMongoUpdateCommand({patches});
+
+            if (Object.keys(updateOperation).length > 0) {
+                operations.push({
+                    updateOne: {
+                        filter: {
+                            _id: doc._id
+                        },
+                        update: updateOperation
+                    }
+                });
+            }
 
             return operations;
         } catch (e) {
@@ -530,6 +537,7 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
 
                 // if there is an exception, continue processing from the last id
                 for (const collectionName of this.collections) {
+                    this.adminLogger.logInfo(`Starting reference updates for ${collectionName}`);
                     this.startFromIdContainer.startFromId = '';
 
                     // create a query from the parameters
@@ -579,6 +587,11 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
                                     referenceArray = [...referenceArray, ...references];
                                 }
                             }
+                        }
+
+                        if (!referenceArray.length){
+                            this.adminLogger.logInfo(`Procesing not required for ${collectionName}`);
+                            continue;
                         }
 
                         while (referenceArray.length > 0) {
@@ -657,6 +670,7 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
 
                 // changing the id of the resources
                 for (const collectionName of this.proaCollections) {
+                    this.adminLogger.logInfo(`Starting id updates for ${collectionName}`);
                     this.startFromIdContainer.startFromId = '';
 
                     /**
@@ -826,7 +840,7 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
         if (collectionName) {
             collection = db.collection(collectionName);
         }
-        return { collection, session };
+        return { collection, session, client };
     }
 
     /**
@@ -836,11 +850,6 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
      * @return {Promise<void>}
      */
     async cacheReferencesAsync({ mongoConfig, collectionName }) {
-        /**
-         * @type {require('mongodb').collection}
-         */
-        const { collection } = await this.createSingeConnectionAsync({ mongoConfig, collectionName });
-
         /**
          * @type {boolean}
          */
@@ -868,21 +877,39 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
         }
 
         /**
-         * @type {import('mongodb').FindCursor<import('mongodb').WithId<import('mongodb').Document>>}
+         * @type {require('mongodb').collection}
          */
-        const cursor = collection.find(this.getQueryForResource(isHistoryCollection), { projection });
+        const { collection, session, client } = await this.createSingeConnectionAsync({ mongoConfig, collectionName });
 
-        while (await cursor.hasNext()) {
+        try {
             /**
-             * @type {import('mongodb').WithId<import('mongodb').Document>}
+             * @type {import('mongodb').FindCursor<import('mongodb').WithId<import('mongodb').Document>>}
              */
-            const doc = await cursor.next();
+            const cursor = collection.find(this.getQueryForResource(isHistoryCollection), { projection });
 
-            // check if the resource id needs to changed and if it needs to changed
-            // then create its mapping in the cache
-            this.cacheReferenceFromResource({
-                doc: isHistoryCollection ? doc.resource : doc, collectionName
-            });
+            while (await cursor.hasNext()) {
+                /**
+                 * @type {import('mongodb').WithId<import('mongodb').Document>}
+                 */
+                const doc = await cursor.next();
+
+                // check if the resource id needs to changed and if it needs to changed
+                // then create its mapping in the cache
+                this.cacheReferenceFromResource({
+                    doc: isHistoryCollection ? doc.resource : doc, collectionName
+                });
+            }
+        } catch (e) {
+            throw new RethrownError(
+                {
+                    message: `Error caching references for collection ${collectionName}`,
+                    error: e,
+                    source: 'FixReferenceIdRunner.cacheReferencesAsync'
+                }
+            );
+        } finally {
+            await session.endSession();
+            await client.close();
         }
     }
 
@@ -903,7 +930,10 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
          * @type {import('mongodb').Filter<import('mongodb').Document>}
          */
         const filterQuery = [
-            { [isHistoryCollection ? 'resource.meta.security' : 'meta.security']: { $elemMatch: { code: 'proa' } } }
+            {
+                [isHistoryCollection ? 'resource.meta.security.system' : 'meta.security.system']: 'https://www.icanbwell.com/connectionType',
+                [isHistoryCollection ? 'resource.meta.security.code' : 'meta.security.code']: 'proa',
+            },
         ];
 
         // merge query and filterQuery
