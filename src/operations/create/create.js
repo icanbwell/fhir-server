@@ -234,7 +234,6 @@ class CreateOperation {
                     )
                 );
             }
-            // Get current record
             // Check if meta & meta.source exists in resource
             if (this.configManager.requireMetaSourceTags && (!resource.meta || !resource.meta.source)) {
                 throw new BadRequestError(new Error('Unable to create resource. Missing either metadata or metadata source.'));

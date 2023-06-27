@@ -88,5 +88,4 @@ function validateResource(resourceBody, resourceName, path, resourceObj = null) 
     return null;
 }
 
-
 module.exports = {validateResource};
