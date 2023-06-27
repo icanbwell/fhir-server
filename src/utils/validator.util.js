@@ -7,7 +7,6 @@ const OperationOutcome = require('../fhir/classes/4_0_0/resources/operationOutco
 const OperationOutcomeIssue = require('../fhir/classes/4_0_0/backbone_elements/operationOutcomeIssue');
 const CodeableConcept = require('../fhir/classes/4_0_0/complex_types/codeableConcept');
 const {validateReferences} = require('./referenceValidator');
-const {validateOwnerTag} = require('./ownerTagValidator');
 
 // Create this once for the app since it is an expensive operation
 const validator = new JSONValidator();
@@ -58,9 +57,7 @@ function validateResource(resourceBody, resourceName, path, operationType, resou
 
     const errors = fhirValidator.validate(resourceBody);
     const referenceErrors = resourceObj ? validateReferences(resourceObj) : null;
-    // For read type operations like GraphDefinition the request body does not contains meta tags.
-    const ownerTagErrors = operationType === 'write' ? validateOwnerTag(resourceBody) : [];
-    let issue = [];
+    let issue;
     if (errors && errors.length) {
         issue = errors.map((elm) => {
             return new OperationOutcomeIssue({
@@ -75,14 +72,12 @@ function validateResource(resourceBody, resourceName, path, operationType, resou
         });
     }
     if (referenceErrors && referenceErrors.length) {
+        issue = issue || [];
         issue.push(...referenceErrors.map(err => new OperationOutcomeIssue({
             severity: 'error',
             code: 'invalid',
             details: new CodeableConcept({ text: err }),
         })));
-    }
-    if (ownerTagErrors && ownerTagErrors.length) {
-        issue = [...issue, ...ownerTagErrors];
     }
     if (issue && issue.length) {
         return new OperationOutcome({

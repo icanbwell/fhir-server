@@ -19,12 +19,12 @@ class ResourceValidator {
      * @param {String} operationType
      * @returns {OperationOutcome | null}
      */
-    async validateResourceAsync({id, resourceType, resourceToValidate, path, currentDate, resourceObj = null, operationType = 'write'}) {
+    async validateResourceAsync({id, resourceType, resourceToValidate, path, currentDate, resourceObj = null}) {
         resourceToValidate = (resourceToValidate instanceof Resource) ? resourceToValidate.toJSON() : resourceToValidate;
         /**
          * @type {OperationOutcome | null}
          */
-        const validationOperationOutcome = validateResource(resourceToValidate, resourceType, path, operationType, resourceObj);
+        const validationOperationOutcome = validateResource(resourceToValidate, resourceType, path, resourceObj);
         if (validationOperationOutcome) {
             validationsFailedCounter.inc({action: 'merge', resourceType: resourceType}, 1);
             validationOperationOutcome['expression'] = [
