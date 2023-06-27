@@ -922,7 +922,10 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
          * @type {import('mongodb').Filter<import('mongodb').Document>}
          */
         const filterQuery = [
-            { [isHistoryCollection ? 'resource.meta.security' : 'meta.security']: { $elemMatch: { code: 'proa' } } }
+            {
+                [isHistoryCollection ? 'resource.meta.security.system' : 'meta.security.system']: 'https://www.icanbwell.com/connectionType',
+                [isHistoryCollection ? 'resource.meta.security.code' : 'meta.security.code']: 'proa',
+            },
         ];
 
         // merge query and filterQuery
