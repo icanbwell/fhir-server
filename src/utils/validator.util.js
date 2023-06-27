@@ -60,7 +60,7 @@ function validateResource(resourceBody, resourceName, path, operationType, resou
     const referenceErrors = resourceObj ? validateReferences(resourceObj) : null;
     // For read type operations like GraphDefinition the request body does not contains meta tags.
     const ownerTagErrors = operationType === 'write' ? validateOwnerTag(resourceBody) : [];
-    let issue;
+    let issue = [];
     if (errors && errors.length) {
         issue = errors.map((elm) => {
             return new OperationOutcomeIssue({
@@ -74,7 +74,6 @@ function validateResource(resourceBody, resourceName, path, operationType, resou
             });
         });
     }
-    issue = issue || [];
     if (referenceErrors && referenceErrors.length) {
         issue.push(...referenceErrors.map(err => new OperationOutcomeIssue({
             severity: 'error',
