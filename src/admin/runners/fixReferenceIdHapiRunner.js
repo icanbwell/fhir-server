@@ -23,7 +23,6 @@ class FixReferenceIdHapiRunner extends FixReferenceIdRunner {
          * @type {import('mongodb').Filter<import('mongodb').Document>}
          */
         const filterQuery = [
-            { [`${queryPrefix}meta.security.system`]: 'https://www.icanbwell.com/connectionType' },
             { [`${queryPrefix}_sourceAssigningAuthority`]: 'humanapi' }
         ];
 
@@ -130,7 +129,7 @@ class FixReferenceIdHapiRunner extends FixReferenceIdRunner {
      * @returns {string}
      */
     getOriginalId({ doc }) {
-        // for observation resource we need to check
+        // for observation resource we need to check if the resource is observation and id length is 64
         if (doc.resourceType === 'Observation' && doc._sourceId.length === 64) {
             // to check if doc.code exists and the sourceId has some suffix at the end
             if (doc.code && doc._sourceId.split('-').length > 2) {
