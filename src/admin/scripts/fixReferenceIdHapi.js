@@ -34,7 +34,7 @@ async function main() {
      */
     let collections = parameters.collections ?
         parameters.collections.split(',').map(x => x.trim()) :
-        [];
+        ['all'];
 
     let hapiCollections = parameters.hapiCollections ?
         parameters.hapiCollections.split(',').map(x => x.trim()) : [
