@@ -1,0 +1,26 @@
+{
+    "resourceType": "Patient",
+    "id": "HumanApi-1",
+    "meta": {
+        "versionId": "1",
+        "source": "https://medstar.com/1",
+        "security": [
+            {
+                "system": "https://www.icanbwell.com/access",
+                "code": "humanapi"
+            },
+            {
+                "system": "https://www.icanbwell.com/connectionType",
+                "code": "humanapi"
+            },
+            {
+                "system": "https://www.icanbwell.com/owner",
+                "code": "humanapi"
+            }
+        ]
+    },
+    "managingOrganization": {
+        "reference": "Organization/1",
+        "display": "ACME Healthcare, Inc"
+    }
+}

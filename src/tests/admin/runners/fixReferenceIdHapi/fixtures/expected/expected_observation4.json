@@ -1,0 +1,70 @@
+{
+    "code": {
+        "coding": [
+            {
+                "id": "laboratory",
+                "system": "test-system"
+            }
+        ]
+    },
+    "effectiveDateTime": "2015-01-01T17:48:00.000Z",
+    "id": "1234567890123456789abcdef-Actin--Smooth-Muscle--Antibod",
+    "identifier": [
+        {
+            "id": "sourceId",
+            "system": "https://www.icanbwell.com/sourceId",
+            "value": "1234567890123456789abcdef-Actin--Smooth-Muscle--Antibod"
+        },
+        {
+            "id": "uuid",
+            "system": "https://www.icanbwell.com/uuid",
+            "value": "5b4750f7-9f03-53b1-865f-b5323827c95e"
+        }
+    ],
+    "meta": {
+        "security": [
+            {
+                "code": "humanapi",
+                "id": "owner",
+                "system": "https://www.icanbwell.com/owner"
+            },
+            {
+                "code": "humanapi",
+                "system": "https://www.icanbwell.com/access"
+            },
+            {
+                "code": "humanapi",
+                "system": "https://www.icanbwell.com/connectionType"
+            },
+            {
+                "code": "humanapi",
+                "system": "https://www.icanbwell.com/sourceAssigningAuthority"
+            }
+        ],
+        "source": "test_results",
+        "versionId": "1"
+    },
+    "performer": [
+        {
+            "display": "Kaiser S - Desert Valley Gastroenterology"
+        }
+    ],
+    "referenceRange": [
+        {
+            "high": {
+                "unit": "Units"
+            },
+            "id": "reference-range",
+            "low": {
+                "unit": "Units"
+            },
+            "text": "0-19"
+        }
+    ],
+    "resourceType": "Observation",
+    "status": "final",
+    "valueQuantity": {
+        "unit": "Units",
+        "value": 12
+    }
+}
