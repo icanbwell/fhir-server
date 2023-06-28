@@ -1,0 +1,16 @@
+{
+    "resourceType": "GraphDefinition",
+    "name": "Person_related_Patient",
+    "status": "active",
+    "start": "Patient",
+    "link": [
+        {
+            "path": "link[x].target",
+            "target": [
+                {
+                    "type": "Patient"
+                }
+            ]
+        }
+    ]
+}

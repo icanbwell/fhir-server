@@ -1,0 +1,87 @@
+{
+    "code": {
+        "text": "Actin (Smooth Muscle) Antibody"
+    },
+    "effectiveDateTime": "2015-01-01T17:48:00.000Z",
+    "id": "HumanApi-1",
+    "identifier": [
+        {
+            "id": "sourceId",
+            "system": "https://www.icanbwell.com/sourceId",
+            "value": "HumanApi-1"
+        },
+        {
+            "id": "uuid",
+            "system": "https://www.icanbwell.com/uuid",
+            "value": "28fe2916-1082-5650-a1bf-c5f8a836a289"
+        }
+    ],
+    "meta": {
+        "security": [
+            {
+                "code": "humanapi",
+                "id": "owner",
+                "system": "https://www.icanbwell.com/owner"
+            },
+            {
+                "code": "humanapi",
+                "system": "https://www.icanbwell.com/access"
+            },
+            {
+                "code": "humanapi",
+                "system": "https://www.icanbwell.com/connectionType"
+            },
+            {
+                "code": "humanapi",
+                "system": "https://www.icanbwell.com/sourceAssigningAuthority"
+            }
+        ],
+        "source": "test_results",
+        "versionId": "1"
+    },
+    "performer": [
+        {
+            "display": "Kaiser S - Desert Valley Gastroenterology"
+        }
+    ],
+    "referenceRange": [
+        {
+            "high": {
+                "unit": "Units"
+            },
+            "id": "reference-range",
+            "low": {
+                "unit": "Units"
+            },
+            "text": "0-19"
+        }
+    ],
+    "resourceType": "Observation",
+    "status": "final",
+    "valueQuantity": {
+        "unit": "Units",
+        "value": 12
+    },
+    "hasMember": [
+        {
+            "extension": [
+                {
+                    "id": "sourceId",
+                    "url": "https://www.icanbwell.com/sourceId",
+                    "valueString": "Observation/HumanApi-1234567890123456789abcdef-Actin--Smooth-Muscle--Antibod"
+                },
+                {
+                    "id": "uuid",
+                    "url": "https://www.icanbwell.com/uuid",
+                    "valueString": "Observation/5cea2fec-9402-5661-90f8-60ea8c2981a2"
+                },
+                {
+                    "id": "sourceAssigningAuthority",
+                    "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                    "valueString": "humanapi"
+                }
+            ],
+            "reference": "Observation/HumanApi-1234567890123456789abcdef-Actin--Smooth-Muscle--Antibod"
+        }
+    ]
+}
