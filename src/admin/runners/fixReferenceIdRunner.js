@@ -1007,7 +1007,7 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
             );
 
             // generate a new uuid based on the orginal id
-            this.uuidCache.set(currentId, generateUUIDv5(`${originalId}${sourceAssigningAuthority ? '|': ''}${sourceAssigningAuthority}`));
+            this.uuidCache.set(currentId, generateUUIDv5(`${originalId}${sourceAssigningAuthority ? '|' : ''}${sourceAssigningAuthority}`));
         }
     }
 
