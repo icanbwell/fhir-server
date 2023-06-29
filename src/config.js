@@ -118,6 +118,10 @@ if (env.ACCESS_LOGS_CLUSTER_MONGO_URL) {
             'mongodb://',
             `mongodb://${env.ACCESS_LOGS_MONGO_USERNAME}:${env.ACCESS_LOGS_MONGO_PASSWORD}@`
         );
+        accessLogsMongoUrl = accessLogsMongoUrl.replace(
+            'mongodb+srv://',
+            `mongodb+srv://${env.ACCESS_LOGS_MONGO_USERNAME}:${env.ACCESS_LOGS_MONGO_PASSWORD}@`
+        );
     }
     // url-encode the url
     accessLogsMongoUrl = accessLogsMongoUrl ? encodeURI(accessLogsMongoUrl) : accessLogsMongoUrl;
