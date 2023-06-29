@@ -15,7 +15,7 @@ const {
 } = require('../../common');
 const {describe, beforeEach, afterEach, test } = require('@jest/globals');
 
-describe('Practitioner Update Tests', () => {
+describe('Validate long id Tests', () => {
     beforeEach(async () => {
         await commonBeforeEach();
     });
@@ -24,7 +24,7 @@ describe('Practitioner Update Tests', () => {
         await commonAfterEach();
     });
 
-    describe('Practitioner Validate', () => {
+    describe('Validate with long id', () => {
         test('Valid resource', async () => {
             const request = await createTestRequest();
             let resp = await request
