@@ -100,11 +100,11 @@
     }
   },
   "dependencies": {
-    "@apollo/server": "^4.7.2",
+    "@apollo/server": "^4.7.4",
     "@asymmetrik/fhir-json-schema-validator": "^0.9.8",
     "@asymmetrik/sof-scope-checker": "^1.0.7",
-    "@aws-sdk/client-s3": "^3.347.0",
-    "@aws-sdk/client-sts": "^3.347.0",
+    "@aws-sdk/client-s3": "^3.354.0",
+    "@aws-sdk/client-sts": "^3.354.0",
     "@elastic/elasticsearch": "^8.8.0",
     "@godaddy/terminus": "^4.12.0",
     "@graphql-eslint/eslint-plugin": "^3.19.1",
