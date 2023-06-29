@@ -11,6 +11,7 @@ const moment = require('moment-timezone');
 const {ParsedArgs} = require('../query/parsedArgs');
 const {SecurityTagSystem} = require('../../utils/securityTagSystem');
 const {FhirResourceCreator} = require('../../fhir/fhirResourceCreator');
+const deepcopy = require('deepcopy');
 
 class ValidateOperation {
     /**
@@ -129,6 +130,18 @@ class ValidateOperation {
          */
         const resourceToValidate = FhirResourceCreator.createByResourceType(resource_incoming, resourceType);
 
+        // The FHIR validator wants meta.lastUpdated to be string instead of data
+        // So we copy the resource and change meta.lastUpdated to string to pass the FHIR validator
+        const resourceObjectToValidate = deepcopy(resource_incoming);
+        // Truncate id to 64 so it passes the validator since we support more than 64 internally
+        if (resourceObjectToValidate.id) {
+            resourceObjectToValidate.id = resourceObjectToValidate.id.slice(0, 64);
+        }
+        if (resourceObjectToValidate.meta && resourceObjectToValidate.meta.lastUpdated) {
+            // noinspection JSValidateTypes
+            resourceObjectToValidate.meta.lastUpdated = new Date(resourceObjectToValidate.meta.lastUpdated).toISOString();
+        }
+
         /**
          * @type {OperationOutcome|null}
          */
@@ -136,7 +149,7 @@ class ValidateOperation {
             {
                 id: resource_incoming.id,
                 resourceType,
-                resourceToValidate: resource_incoming,
+                resourceToValidate: resourceObjectToValidate,
                 path: path,
                 currentDate: currentDate,
                 resourceObj: resourceToValidate
