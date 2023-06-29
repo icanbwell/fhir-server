@@ -35,6 +35,7 @@ module.exports.handleHealthCheck = async (fnCreateContainer, req, res) => {
     } catch (e) {
         status.logStatus = 'Failed';
     }
+    // check mongoDB
     let mongoOK = false;
     try {
         container = container || fnCreateContainer();

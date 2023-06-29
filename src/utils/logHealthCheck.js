@@ -1,3 +1,6 @@
+/**
+ * helper function to do log health check
+ */
 const { logInfo, logSystemEventAsync} = require('../operations/common/logging');
 const { AdminLogger } = require('../admin/adminLogger');
 
