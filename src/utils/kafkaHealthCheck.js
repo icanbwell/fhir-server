@@ -1,13 +1,10 @@
-
-/* eslint-disable no-unused-vars */
 /**
- * This route handler implements the /health endpoint which returns the health of the system
+ * This utiilty does a health check on the Kafka connection
  */
 
 const env = require('var');
 const { isTrue } = require('../utils/isTrue');
 const {Kafka} = require('kafkajs');
-const {RethrownError} = require('../utils/rethrownError');
 const {KAFKA_CONNECTION_HEALTHCHECK_INTERVAL} = require('../constants');
 
 let kafkaClientFactory;
@@ -21,7 +18,8 @@ let container;
 let config;
 
 // Does a health check for the app
-module.exports.handleKafkaHealthCheck = async (fnCreateContainer, req, res) => {
+module.exports.handleKafkaHealthCheck = async (fnCreateContainer) => {
+    let healthy = true;
     // If events is to be logged on kafka, check kafka connection
     if (isTrue(env.ENABLE_EVENTS_KAFKA) && isTrue(env.ENABLE_KAFKA_HEALTHCHECK)) {
         // Check Kafka connection at an interval of 30 seconds
@@ -46,16 +44,12 @@ module.exports.handleKafkaHealthCheck = async (fnCreateContainer, req, res) => {
                 timeTillKafkaReconnection = new Date(new Date().getTime() + KAFKA_CONNECTION_HEALTHCHECK_INTERVAL);
                 return true;
             } catch (e) {
-                throw new RethrownError({
-                    message: 'Kafka health check failed',
-                    error: e,
-                });
+                healthy = false;
             } finally {
                 // Disconnects the connection between broker and producer
                 await producer.disconnect();
             }
         }
-        return true;
     }
-    return true;
+    return healthy;
 };
