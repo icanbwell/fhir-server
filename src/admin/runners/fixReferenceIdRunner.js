@@ -17,6 +17,7 @@ const { mongoQueryStringify } = require('../../utils/mongoQueryStringify');
 const { ObjectId } = require('mongodb');
 const { searchParameterQueries } = require('../../searchParameters/searchParameters');
 const referenceCollections = require('../utils/referenceCollections.json');
+const { SecurityTagSystem } = require('../../utils/securityTagSystem');
 
 /**
  * @classdesc Finds proa resources whose id needs to be changed and changes the id along with its references
@@ -900,6 +901,7 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
                 });
             }
         } catch (e) {
+            console.log(e);
             throw new RethrownError(
                 {
                     message: `Error caching references for collection ${collectionName}`,
@@ -980,11 +982,20 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
          * @type {string}
          */
         const originalId = this.getOriginalId({ doc });
+        let sourceAssigningAuthority = doc._sourceAssigningAuthority;
+        if (!sourceAssigningAuthority){
+            const authorityObj = doc.meta.security.find((obj) => obj.system === SecurityTagSystem.sourceAssigningAuthority);
+            if (authorityObj){
+                sourceAssigningAuthority = authorityObj.code;
+            }
+        } else {
+            sourceAssigningAuthority = '';
+        }
         // current id present in the resource
         /**
          * @type {string}
          */
-        const currentId = this.getCurrentId({ originalId, _sourceAssigningAuthority: doc._sourceAssigningAuthority });
+        const currentId = this.getCurrentId({ originalId, _sourceAssigningAuthority: sourceAssigningAuthority });
 
         // if currentId is equal to doc._sourceId then we need to change the id so cache it
         if (currentId === doc._sourceId) {
@@ -996,7 +1007,7 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
             );
 
             // generate a new uuid based on the orginal id
-            this.uuidCache.set(currentId, generateUUIDv5(`${originalId}|${doc._sourceAssigningAuthority}`));
+            this.uuidCache.set(currentId, generateUUIDv5(`${originalId}|${sourceAssigningAuthority}`));
         }
     }
 
