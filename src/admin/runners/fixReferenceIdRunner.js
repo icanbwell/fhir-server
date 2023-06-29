@@ -991,6 +991,9 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
                 sourceAssigningAuthority = '';
             }
         }
+        if (!sourceAssigningAuthority){
+            sourceAssigningAuthority = '';
+        }
         // current id present in the resource
         /**
          * @type {string}
