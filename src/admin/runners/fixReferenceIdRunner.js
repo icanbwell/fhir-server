@@ -968,7 +968,7 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
      * @returns {string}
      */
     getCurrentId({ originalId, _sourceAssigningAuthority }) {
-        return (`${_sourceAssigningAuthority.replace(/[^A-Za-z0-9\-.]/g, '-')}-${originalId}`).slice(0, 63);
+        return (`${_sourceAssigningAuthority.replace(/[^A-Za-z0-9\-.]/g, '-')}${_sourceAssigningAuthority ? '-' : ''}${originalId}`).slice(0, 63);
     }
 
     /**
@@ -987,9 +987,9 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
             const authorityObj = doc.meta.security.find((obj) => obj.system === SecurityTagSystem.sourceAssigningAuthority);
             if (authorityObj){
                 sourceAssigningAuthority = authorityObj.code;
+            } else {
+                sourceAssigningAuthority = '';
             }
-        } else {
-            sourceAssigningAuthority = '';
         }
         // current id present in the resource
         /**
@@ -1007,7 +1007,7 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
             );
 
             // generate a new uuid based on the orginal id
-            this.uuidCache.set(currentId, generateUUIDv5(`${originalId}|${sourceAssigningAuthority}`));
+            this.uuidCache.set(currentId, generateUUIDv5(`${originalId}${sourceAssigningAuthority ? '|': ''}${sourceAssigningAuthority}`));
         }
     }
 
