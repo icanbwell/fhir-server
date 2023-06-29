@@ -4,7 +4,6 @@
 
 const {handleKafkaHealthCheck} = require('../utils/kafkaHealthCheck');
 const {handleLogHealthCheck} = require('../utils/logHealthCheck');
-//const {MongoDBHealthCheck} = require('../utils/mongoDBHealthCheck');
 
 let container;
 
