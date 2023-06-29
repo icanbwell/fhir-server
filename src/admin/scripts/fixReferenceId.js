@@ -35,7 +35,7 @@ async function main() {
      */
     let collections = parameters.collections ?
         parameters.collections.split(',').map(x => x.trim()) :
-        [];
+        ['all'];
 
     let proaCollections = parameters.proaCollections ?
         parameters.proaCollections.split(',').map(x => x.trim()) : [
