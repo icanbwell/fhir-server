@@ -897,7 +897,7 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
                 // check if the resource id needs to changed and if it needs to changed
                 // then create its mapping in the cache
                 this.cacheReferenceFromResource({
-                    doc: isHistoryCollection ? doc.resource : doc, collectionName
+                    doc: (isHistoryCollection ? doc.resource : doc), collectionName
                 });
             }
         } catch (e) {
@@ -983,7 +983,7 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
          */
         const originalId = this.getOriginalId({ doc });
         let sourceAssigningAuthority = doc._sourceAssigningAuthority;
-        if (!sourceAssigningAuthority){
+        if (!sourceAssigningAuthority && doc.meta && doc.meta.security){
             const authorityObj = doc.meta.security.find((obj) => obj.system === SecurityTagSystem.sourceAssigningAuthority);
             if (authorityObj){
                 sourceAssigningAuthority = authorityObj.code;
