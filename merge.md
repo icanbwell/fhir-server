@@ -33,6 +33,7 @@ For each resource in the bundle, the FHIR server checks:
         - If new array contains one or more items that end in "-delete" then find those items in the old array and remove them.
 
     - Note this is done in a recursive manner so changes are detected in array any levels deep.
+    - Implementation: https://github.com/icanbwell/fhir-server/blob/main/src/utils/mergeHelper.js#L98
 
 4. The FHIR server returns a list showing the outcome for each passed in resource showing:
     - id
