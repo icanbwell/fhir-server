@@ -4,6 +4,7 @@
 
 const {handleKafkaHealthCheck} = require('../utils/kafkaHealthCheck');
 const {handleLogHealthCheck} = require('../utils/logHealthCheck');
+const {handleHealthCheckQuery} = require('../utils/mongoDBHealthCheck');
 
 let container;
 
@@ -11,10 +12,8 @@ let container;
 module.exports.handleHealthCheck = async (fnCreateContainer, req, res) => {
     let status = {};
     // check kafka connection
-    let kafkaOK = false;
     try {
-        kafkaOK = await handleKafkaHealthCheck(fnCreateContainer);
-        if (kafkaOK) {
+        if ( await handleKafkaHealthCheck(fnCreateContainer)) {
             status.kafkaStatus = 'OK';
         } else {
             status.kafkaStatus = 'Failed';
@@ -24,10 +23,8 @@ module.exports.handleHealthCheck = async (fnCreateContainer, req, res) => {
         status.kafkaStatus = 'Failed';
     }
     // check logging
-    let logOK = false;
     try {
-        logOK = await handleLogHealthCheck();
-        if (logOK) {
+        if (await handleLogHealthCheck()) {
             status.logStatus = 'OK';
         } else {
             status.logStatus = 'Failed';
@@ -36,15 +33,10 @@ module.exports.handleHealthCheck = async (fnCreateContainer, req, res) => {
         status.logStatus = 'Failed';
     }
     // check mongoDB
-    let mongoOK = false;
     try {
         container = container || fnCreateContainer();
-        /**
-         * @type {MongoDBHealthCheck}
-         */
-        const mongoDBHealthCheck = container.mongoDBHealthCheck;
-        mongoOK = await mongoDBHealthCheck.healthCheckQuery();
-        if (mongoOK) {
+        const databaseQueryFactory = container.databaseQueryFactory;
+        if (await handleHealthCheckQuery(databaseQueryFactory)) {
             status.mongoDBStatus = 'OK';
         } else {
             status.mongoDBStatus = 'Failed';
