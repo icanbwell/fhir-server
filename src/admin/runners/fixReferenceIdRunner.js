@@ -16,7 +16,6 @@ const { RethrownError } = require('../../utils/rethrownError');
 const { mongoQueryStringify } = require('../../utils/mongoQueryStringify');
 const { ObjectId } = require('mongodb');
 const { searchParameterQueries } = require('../../searchParameters/searchParameters');
-const referenceCollections = require('../utils/referenceCollections.json');
 const { SecurityTagSystem } = require('../../utils/securityTagSystem');
 
 /**
@@ -37,6 +36,7 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
      * @param {string|undefined} [startFromCollection]
      * @param {ResourceLocatorFactory} resourceLocatorFactory
      * @param {string[]} proaCollections
+     * @param {Object} referenceCollections
      * @param {number|undefined} [limit]
      * @param {string[]|undefined} [properties]
      * @param {ResourceMerger} resourceMerger
@@ -59,6 +59,7 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
             startFromCollection,
             resourceLocatorFactory,
             proaCollections,
+            referenceCollections,
             limit,
             properties,
             resourceMerger,
@@ -152,6 +153,11 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
          */
         this.resourceMerger = resourceMerger;
         assertTypeEquals(resourceMerger, ResourceMerger);
+
+        /**
+         * @type {Object}
+         */
+        this.referenceCollections = referenceCollections;
 
         /**
          * caches currentReference with newReference collectionWise
@@ -582,7 +588,7 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
                         // check which resources can be referenced by the current resource and
                         // create array of references that can be present in the resource
                         for (let key of this.caches.keys()) {
-                            if (referenceCollections[String(key)] && referenceCollections[String(key)].includes(resourceName)) {
+                            if (this.referenceCollections[String(key)] && this.referenceCollections[String(key)].includes(resourceName)) {
                                 const references = Array.from(this.caches.get(key), value => value[0]);
                                 if (references.length) {
                                     referenceArray = [...referenceArray, ...references];
