@@ -27,6 +27,7 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
      * @param {MongoCollectionManager} mongoCollectionManager
      * @param {string[]} collections
      * @param {number} batchSize
+     * @param {number} referenceBatchSize
      * @param {AdminLogger} adminLogger
      * @param {MongoDatabaseManager} mongoDatabaseManager
      * @param {PreSaveManager} preSaveManager
@@ -50,6 +51,7 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
             mongoCollectionManager,
             collections,
             batchSize,
+            referenceBatchSize,
             adminLogger,
             mongoDatabaseManager,
             preSaveManager,
@@ -82,6 +84,10 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
          * @type {number}
          */
         this.batchSize = batchSize;
+        /**
+         * @type {number}
+         */
+        this.referenceBatchSize = referenceBatchSize ? parseInt(referenceBatchSize) : 100;
 
         this.preSaveManager = preSaveManager;
         assertTypeEquals(preSaveManager, PreSaveManager);
@@ -609,7 +615,7 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
                         }
 
                         while (referenceArray.length > 0) {
-                            const referenceBatch = referenceArray.splice(0, this.batchSize);
+                            const referenceBatch = referenceArray.splice(0, this.referenceBatchSize);
 
                             const referenceFieldQuery = [];
 
