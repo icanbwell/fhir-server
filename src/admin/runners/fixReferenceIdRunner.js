@@ -27,6 +27,7 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
      * @param {MongoCollectionManager} mongoCollectionManager
      * @param {string[]} collections
      * @param {number} batchSize
+     * @param {number} referenceBatchSize
      * @param {AdminLogger} adminLogger
      * @param {MongoDatabaseManager} mongoDatabaseManager
      * @param {PreSaveManager} preSaveManager
@@ -50,6 +51,7 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
             mongoCollectionManager,
             collections,
             batchSize,
+            referenceBatchSize,
             adminLogger,
             mongoDatabaseManager,
             preSaveManager,
@@ -82,6 +84,10 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
          * @type {number}
          */
         this.batchSize = batchSize;
+        /**
+         * @type {number}
+         */
+        this.referenceBatchSize = referenceBatchSize ? parseInt(referenceBatchSize) : 100;
 
         this.preSaveManager = preSaveManager;
         assertTypeEquals(preSaveManager, PreSaveManager);
@@ -169,6 +175,10 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
          * caches currentId with newUuid
          */
         this.uuidCache = new Map();
+        /**
+         * caches current uuid for each non history collection to be used to update history collections
+         */
+        this.historyUuidCache = new Map();
 
         /**
          * @type {Map<string, number>}
@@ -540,18 +550,21 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
             }
 
             try {
+                // Move history collections to the last
+                this.collections.sort((a, _b) => a.includes('_History') ? 1 : -1);
                 this.adminLogger.logInfo(`Starting loop for ${this.collections.join(',')}. useTransaction: ${this.useTransaction}`);
 
                 // if there is an exception, continue processing from the last id
                 for (const collectionName of this.collections) {
                     this.adminLogger.logInfo(`Starting reference updates for ${collectionName}`);
                     this.startFromIdContainer.startFromId = '';
+                    const isHistoryCollection = collectionName.includes('_History');
 
                     // create a query from the parameters
                     /**
                      * @type {import('mongodb').Filter<import('mongodb').Document>}
                      */
-                    let parametersQuery = this.getQueryFromParameters({queryPrefix: collectionName.includes('History') ? 'resource.' : ''});
+                    let parametersQuery = this.getQueryFromParameters({queryPrefix: isHistoryCollection ? 'resource.' : ''});
 
                     // get resourceName from collection name
                     /**
@@ -571,7 +584,7 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
                         for (const propertyObj of Object.values(resourceObj)) {
                             if (propertyObj.type === 'reference') {
                                 for (const field of propertyObj.fields) {
-                                    referenceFieldNames.add(field);
+                                    referenceFieldNames.add({ field: field, target: propertyObj.target });
                                 }
                             }
                         }
@@ -591,7 +604,7 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
                             if (this.referenceCollections[String(key)] && this.referenceCollections[String(key)].includes(resourceName)) {
                                 const references = Array.from(this.caches.get(key), value => value[0]);
                                 if (references.length) {
-                                    referenceArray = [...referenceArray, ...references];
+                                    referenceArray.push(...references);
                                 }
                             }
                         }
@@ -600,27 +613,38 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
                             this.adminLogger.logInfo(`Procesing not required for ${collectionName}`);
                             continue;
                         }
+                        const totalLoops = Math.ceil(referenceArray.length / this.referenceBatchSize);
+                        this.adminLogger.logInfo(`Expecting ${totalLoops} loops for ${collectionName}`);
+                        let loopNumber = 0;
 
                         while (referenceArray.length > 0) {
-                            const referenceBatch = referenceArray.splice(0, this.batchSize);
+                            loopNumber += 1;
+                            this.adminLogger.logInfo(`${collectionName}: Loop ${loopNumber}/${totalLoops}`);
+                            const referenceBatch = referenceArray.splice(0, this.referenceBatchSize);
 
                             const referenceFieldQuery = [];
 
                             // iterate over all the reference field names
                             referenceFieldNames.forEach(referenceFieldName => {
-                                const fieldName = collectionName.includes('History') ?
-                                    `resource.${referenceFieldName}._sourceId`
-                                    : `${referenceFieldName}._sourceId`;
+                                const fieldName = isHistoryCollection ?
+                                    `resource.${referenceFieldName.field}._sourceId`
+                                    : `${referenceFieldName.field}._sourceId`;
 
                                 // create $in query with the reference array if it has some references
-                                if (referenceBatch.length) {
+                                const refValues = referenceBatch.filter(ref => referenceFieldName.target.includes(ref.split('/')[0]));
+                                if (refValues.length) {
                                     referenceFieldQuery.push({
                                         [fieldName]: {
-                                            $in: referenceBatch
+                                            $in: refValues
                                         }
                                     });
                                 }
                             });
+
+                            if (!referenceFieldQuery.length){
+                                this.adminLogger.logInfo('referenceFieldQuery is empty. Moving on');
+                                continue;
+                            }
 
                             // if $in queries are present in the referenceFieldQuery then merge it with current query
                             const query = Object.keys(parametersQuery).length ? {
@@ -646,8 +670,12 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
                                     limit: this.limit,
                                     useTransaction: this.useTransaction,
                                     skip: this.skip,
+                                    filterToIds: isHistoryCollection && this.historyUuidCache.has(resourceName) ? Array.from(this.historyUuidCache.get(resourceName)) : undefined,
+                                    filterToIdProperty: isHistoryCollection && this.historyUuidCache.has(resourceName) ? 'resource._uuid' : undefined
                                 });
-
+                                if (isHistoryCollection && this.historyUuidCache.has(resourceName)){
+                                    this.historyUuidCache.delete(resourceName);
+                                }
                             } catch (e) {
                                 this.adminLogger.logError(`Got error ${e}.  At ${this.startFromIdContainer.startFromId}`);
                                 throw new RethrownError(
@@ -676,6 +704,9 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
                 }
 
                 // changing the id of the resources
+                // Move history collections to the last
+                this.proaCollections.sort((a, _b) => a.includes('_History') ? 1 : -1);
+                this.historyUuidCache.clear();
                 for (const collectionName of this.proaCollections) {
                     this.adminLogger.logInfo(`Starting id updates for ${collectionName}`);
                     this.startFromIdContainer.startFromId = '';
@@ -683,9 +714,13 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
                     /**
                      * @type {boolean}
                      */
-                    const isHistoryCollection = collectionName.includes('History');
+                    const isHistoryCollection = collectionName.includes('_History');
 
                     const query = this.getQueryForResource(isHistoryCollection);
+                    /**
+                     * @type {string}
+                     */
+                    const resourceName = collectionName.split('_')[0];
 
                     // if query is not empty then run the query and process the records
                     if (Object.keys(query).length) {
@@ -706,7 +741,13 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
                                 limit: this.limit,
                                 useTransaction: this.useTransaction,
                                 skip: this.skip,
+                                filterToIds: isHistoryCollection && this.historyUuidCache.has(resourceName) ? Array.from(this.historyUuidCache.get(resourceName)) : undefined,
+                                filterToIdProperty: isHistoryCollection && this.historyUuidCache.has(resourceName) ? 'resource._uuid' : undefined,
                             });
+                            if (isHistoryCollection && this.historyUuidCache.has(resourceName)) {
+                                this.adminLogger.logInfo(`Removing history cache for ${resourceName} with size  ${this.historyUuidCache.get(resourceName).size}`);
+                                this.historyUuidCache.delete(resourceName);
+                            }
 
                         } catch (e) {
                             this.adminLogger.logError(`Got error ${e}.  At ${this.startFromIdContainer.startFromId}`);
@@ -860,7 +901,7 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
         /**
          * @type {boolean}
          */
-        const isHistoryCollection = collectionName.includes('History');
+        const isHistoryCollection = collectionName.includes('_History');
 
         /**
          * @type {Object}
