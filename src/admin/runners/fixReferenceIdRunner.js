@@ -172,7 +172,7 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
         /**
          * caches current uuid for each non history collection to be used to update history collections
          */
-        this.historyuuidCache = new Map();
+        this.historyUuidCache = new Map();
 
         /**
          * @type {Map<string, number>}
@@ -653,11 +653,11 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
                                     limit: this.limit,
                                     useTransaction: this.useTransaction,
                                     skip: this.skip,
-                                    filterToIds: isHistoryCollection && this.historyuuidCache.has(resourceName) ? Array.from(this.historyuuidCache.get(resourceName)) : undefined,
-                                    filterToIdProperty: isHistoryCollection && this.historyuuidCache.has(resourceName) ? 'resource._uuid' : undefined
+                                    filterToIds: isHistoryCollection && this.historyUuidCache.has(resourceName) ? Array.from(this.historyUuidCache.get(resourceName)) : undefined,
+                                    filterToIdProperty: isHistoryCollection && this.historyUuidCache.has(resourceName) ? 'resource._uuid' : undefined
                                 });
-                                if (isHistoryCollection && this.historyuuidCache.has(resourceName)){
-                                    this.historyuuidCache.delete(resourceName);
+                                if (isHistoryCollection && this.historyUuidCache.has(resourceName)){
+                                    this.historyUuidCache.delete(resourceName);
                                 }
                             } catch (e) {
                                 this.adminLogger.logError(`Got error ${e}.  At ${this.startFromIdContainer.startFromId}`);
@@ -689,7 +689,7 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
                 // changing the id of the resources
                 // Move history collections to the last
                 this.proaCollections.sort((a, _b) => a.includes('_History') ? 1 : -1);
-                this.historyuuidCache.clear();
+                this.historyUuidCache.clear();
                 for (const collectionName of this.proaCollections) {
                     this.adminLogger.logInfo(`Starting id updates for ${collectionName}`);
                     this.startFromIdContainer.startFromId = '';
@@ -724,12 +724,12 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
                                 limit: this.limit,
                                 useTransaction: this.useTransaction,
                                 skip: this.skip,
-                                filterToIds: isHistoryCollection && this.historyuuidCache.has(resourceName) ? Array.from(this.historyuuidCache.get(resourceName)) : undefined,
-                                filterToIdProperty: isHistoryCollection && this.historyuuidCache.has(resourceName) ? 'resource._uuid' : undefined,
+                                filterToIds: isHistoryCollection && this.historyUuidCache.has(resourceName) ? Array.from(this.historyUuidCache.get(resourceName)) : undefined,
+                                filterToIdProperty: isHistoryCollection && this.historyUuidCache.has(resourceName) ? 'resource._uuid' : undefined,
                             });
-                            if (isHistoryCollection && this.historyuuidCache.has(resourceName)) {
-                                this.adminLogger.logInfo(`Removing history cache for ${resourceName} with size  ${this.historyuuidCache.get(resourceName).size}`);
-                                this.historyuuidCache.delete(resourceName);
+                            if (isHistoryCollection && this.historyUuidCache.has(resourceName)) {
+                                this.adminLogger.logInfo(`Removing history cache for ${resourceName} with size  ${this.historyUuidCache.get(resourceName).size}`);
+                                this.historyUuidCache.delete(resourceName);
                             }
 
                         } catch (e) {
