@@ -23,6 +23,7 @@ const {convertErrorToOperationOutcome} = require('../utils/convertErrorToOperati
 const contentType = require('content-type');
 const {QueryRewriterManager} = require('../queryRewriters/queryRewriterManager');
 const {R4ArgsParser} = require('./query/r4ArgsParser');
+const { generateUUID } = require('../utils/uid.util');
 
 
 class FhirOperationsManager {
@@ -192,7 +193,11 @@ class FhirOperationsManager {
         /**
          * @type {string|null}
          */
-        const requestId = req.id;
+        const requestId = generateUUID();
+        /**
+         * @type {string|null}
+         */
+        const userRequestId = req.id;
         /**
          * @type {string}
          */
@@ -238,6 +243,7 @@ class FhirOperationsManager {
                 scope,
                 remoteIpAddress,
                 requestId,
+                userRequestId,
                 protocol,
                 originalUrl,
                 path,

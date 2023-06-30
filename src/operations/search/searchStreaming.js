@@ -318,7 +318,7 @@ class SearchStreamingOperation {
                         const fnBundle = (last_id, stopTime1) => this.bundleManager.createBundle(
                             {
                                 type: 'searchset',
-                                requestId: requestInfo.requestId,
+                                requestId: requestInfo.userRequestId,
                                 originalUrl,
                                 host,
                                 protocol,
