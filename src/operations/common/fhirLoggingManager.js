@@ -214,7 +214,7 @@ class FhirLoggingManager {
 
         // This uses the FHIR Audit Event schema: https://hl7.org/fhir/auditevent.html
         const logEntry = {
-            id: requestInfo.requestId,
+            id: requestInfo.userRequestId,
             type: {
                 code: 'operation'
             },
@@ -251,7 +251,7 @@ class FhirLoggingManager {
             ],
             message: error ? `${message}: ${JSON.stringify(error, getCircularReplacer())}` : message,
             request: {
-                id: requestInfo.requestId
+                id: requestInfo.userRequestId
             }
         };
         const fhirInSecureLogger = await fhirLogger.getInSecureLoggerAsync();

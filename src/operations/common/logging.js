@@ -18,7 +18,7 @@ const fhirLogger = require('../../utils/fhirLogger').FhirLogger;
  * @param {Object} args
  */
 const setRequestIdInLog = (args) => {
-    const reqId = httpContext.get('requestId');
+    const reqId = httpContext.get('userRequestId');
     if (reqId) {
         args.request = {
             ...args.request,
@@ -117,9 +117,10 @@ const logSystemEventAsync = async ({event, message, args}) => {
             }
         ],
     };
-    if (args.requestId) {
+    const reqId = httpContext.get('userRequestId');
+    if (reqId) {
         logEntry.request = {
-            id: args.requestId,
+            id: reqId,
         };
     }
     const fhirSecureLogger = await fhirLogger.getSecureLoggerAsync();
@@ -178,9 +179,10 @@ const logSystemErrorAsync = async ({event, message, args, error}) => {
             }
         ],
     };
-    if (args.requestId) {
+    const reqId = httpContext.get('userRequestId');
+    if (reqId) {
         logEntry.request = {
-            id: args.requestId,
+            id: reqId,
         };
     }
 

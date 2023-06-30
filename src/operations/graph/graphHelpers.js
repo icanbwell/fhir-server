@@ -1605,7 +1605,7 @@ class GraphHelper {
             const bundle = this.bundleManager.createBundle(
                 {
                     type: 'searchset',
-                    requestId: requestInfo.requestId,
+                    requestId: requestInfo.userRequestId,
                     originalUrl: requestInfo.originalUrl,
                     host: requestInfo.host,
                     protocol: requestInfo.protocol,
@@ -1732,7 +1732,7 @@ class GraphHelper {
                     }, ResourceContainer),
                     request: new BundleRequest(
                         {
-                            id: requestInfo.requestId,
+                            id: requestInfo.userRequestId,
                             method: 'DELETE',
                             url: `/${base_version}/${resultResourceType}/${resource.id}`
                         }
@@ -1744,7 +1744,7 @@ class GraphHelper {
                 }
             }
             const deleteOperationBundle = new Bundle({
-                id: requestInfo.requestId,
+                id: requestInfo.userRequestId,
                 type: 'batch-response',
                 entry: deleteOperationBundleEntries,
                 total: deleteOperationBundleEntries.length

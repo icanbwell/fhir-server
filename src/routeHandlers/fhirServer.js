@@ -133,7 +133,9 @@ class MyFHIRServer {
                 next
             ) => {
                 req.id = req.id || req.header(`${REQUEST_ID_HEADER}`) || generateUUID();
-                httpContext.set('requestId', req.id);
+                const uniqueRequestId = generateUUID();
+                httpContext.set('userRequestId', req.id);
+                httpContext.set('requestId', uniqueRequestId);
                 next();
             }
         );

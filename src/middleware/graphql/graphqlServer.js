@@ -58,7 +58,9 @@ const graphql = async (fnCreateContainer) => {
         const container = fnCreateContainer();
 
         req.id = req.id || req.header(`${REQUEST_ID_HEADER}`) || generateUUID();
-        httpContext.set('requestId', req.id);
+        const uniqueRequestId = generateUUID();
+        httpContext.set('userRequestId', req.id);
+        httpContext.set('requestId', uniqueRequestId);
         /**
          * @type {import('content-type').ContentType}
          */
@@ -74,7 +76,8 @@ const graphql = async (fnCreateContainer) => {
                 patientIdsFromJwtToken: req.authInfo && req.authInfo.context && req.authInfo.context.patientIdsFromJwtToken,
                 scope: req.authInfo && req.authInfo.scope,
                 remoteIpAddress: req.headers['x-forwarded-for'] || req.socket.remoteAddress,
-                requestId: req.id,
+                requestId: uniqueRequestId,
+                userRequestId: req.id,
                 protocol: req.protocol,
                 originalUrl: req.originalUrl,
                 path: req.path,
