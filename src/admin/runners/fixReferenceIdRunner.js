@@ -613,8 +613,13 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
                             this.adminLogger.logInfo(`Procesing not required for ${collectionName}`);
                             continue;
                         }
+                        const totalLoops = Math.ceil(referenceArray.length/this.referenceBatchSize);
+                        this.adminLogger.logInfo(`Expecting ${totalLoops} loops for ${collectionName}`);
+                        let loopNumber = 0;
 
                         while (referenceArray.length > 0) {
+                            loopNumber += 1;
+                            this.adminLogger.logInfo(`${collectionName}: Loop ${loopNumber}/${totalLoops}`);
                             const referenceBatch = referenceArray.splice(0, this.referenceBatchSize);
 
                             const referenceFieldQuery = [];
