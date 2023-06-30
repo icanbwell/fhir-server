@@ -82,7 +82,6 @@ const {ReferenceGlobalIdHandler} = require('./preSaveHandlers/handlers/reference
 const {OwnerColumnHandler} = require('./preSaveHandlers/handlers/ownerColumnHandler');
 const {HashReferencesEnrichmentProvider} = require('./enrich/providers/hashedReferencesEnrichmentProvider');
 const { SensitiveDataProcessor } = require('./utils/sensitiveDataProcessor');
-const {MongoDBHealthCheck} = require('./utils/mongoDBHealthCheck');
 
 /**
  * Creates a container and sets up all the services
@@ -638,7 +637,6 @@ const createContainer = function () {
         }
     ));
 
-
     container.register('mongoFilterGenerator', (c) => new MongoFilterGenerator(
         {
             configManager: c.configManager
@@ -650,10 +648,6 @@ const createContainer = function () {
     }));
 
     container.register('uuidToIdReplacer', (c) => new UuidToIdReplacer({
-        databaseQueryFactory: c.databaseQueryFactory
-    }));
-
-    container.register('mongoDBHealthCheck', (c) => new MongoDBHealthCheck({
         databaseQueryFactory: c.databaseQueryFactory
     }));
 

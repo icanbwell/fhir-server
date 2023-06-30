@@ -4,8 +4,15 @@
 const { createTestRequest } = require('./tests/common');
 
 const { Kafka } = require('kafkajs');
-const { describe, expect, test } = require('@jest/globals');
+const { describe, expect, test} = require('@jest/globals');
 const env = require('var');
+const statusOK = {
+  'status': {
+    'kafkaStatus': 'OK',
+    'logStatus': 'OK',
+    'mongoDBStatus': 'OK'
+  }
+};
 
 // Mocking connect and disconnect methods of prooducer class
 const mockProducerMethods = {
@@ -44,7 +51,7 @@ describe('#app', () => {
         const request = await createTestRequest();
         const response = await request.get('/health');
         expect(response.status).toBe(200);
-        expect(response.body).toMatchObject({ status: 'ok' });
+        expect(response.body).toMatchObject(statusOK);
     });
 
     test('it should startup check kafka health and return health check status ok', async () => {
@@ -58,7 +65,7 @@ describe('#app', () => {
         let response = await request.get('/health');
         expect(response.status).toBe(200);
         // If Kafka is healthy status returned is ok
-        expect(response.body).toMatchObject({ status: 'ok' });
+        expect(response.body).toMatchObject(statusOK);
         // Kafka class has been called
         expect(Kafka).toHaveBeenCalledTimes(1);
         // A connection request is being made
@@ -71,7 +78,7 @@ describe('#app', () => {
         response = await request.get('/health');
         expect(response.status).toBe(200);
         // If Kafka is healthy status returned is ok
-        expect(response.body).toMatchObject({ status: 'ok' });
+        expect(response.body).toMatchObject(statusOK);
         // Since the request has been made with 30 seconds of the previous request. Kafka class won't be called
         expect(Kafka).toHaveBeenCalledTimes(0);
         expect(mockProducerMethods.connect).toHaveBeenCalledTimes(0);
@@ -84,7 +91,7 @@ describe('#app', () => {
         response = await request.get('/health');
         expect(response.status).toBe(200);
         // If Kafka is healthy status returned is ok
-        expect(response.body).toMatchObject({ status: 'ok' });
+        expect(response.body).toMatchObject(statusOK);
         // Since the KafkaClient is being stored in a variable. Kafka class won't be called.
         expect(Kafka).toHaveBeenCalledTimes(0);
         // Ensuring the connect() is being called.
