@@ -411,6 +411,13 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                             `size: ${memoryManager.formatBytes(bytesLoaded)} ` +
                             `mem: ${memoryManager.memoryUsed} ` +
                             `lastId: ${previouslyCheckedId}`);
+                        if (Object.prototype.hasOwnProperty.call(this, 'historyuuidCache') && doc._uuid && !doc.resourceType.includes('_History')) {
+                            if (!this.historyuuidCache.has(doc.resourceType)) {
+                                this.historyuuidCache.set(doc.resourceType, new Set());
+                            }
+                            let historyuuidCacheSet = this.historyuuidCache.get(doc.resourceType);
+                            historyuuidCacheSet.add(doc._uuid);
+                        }
                         /**
                          * @type {import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>[]}
                          */
