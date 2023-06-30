@@ -631,7 +631,7 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
                                     : `${referenceFieldName.field}._sourceId`;
 
                                 // create $in query with the reference array if it has some references
-                                const refValues = referenceBatch.filter(ref => referenceFieldName.target.includes(ref.split('/')[0]))
+                                const refValues = referenceBatch.filter(ref => referenceFieldName.target.includes(ref.split('/')[0]));
                                 if (refValues.length) {
                                     referenceFieldQuery.push({
                                         [fieldName]: {
