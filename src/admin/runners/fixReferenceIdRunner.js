@@ -642,7 +642,7 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
                             });
 
                             if (!referenceFieldQuery.length){
-                                this.adminLogger.logInfo('referenceFieldQuery is empty. Moving on')
+                                this.adminLogger.logInfo('referenceFieldQuery is empty. Moving on');
                                 continue;
                             }
 
