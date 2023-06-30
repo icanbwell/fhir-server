@@ -49,7 +49,7 @@ class FixReferenceIdHapiRunner extends FixReferenceIdRunner {
         /**
          * @type {boolean}
          */
-        const isHistoryCollection = collectionName.includes('History');
+        const isHistoryCollection = collectionName.includes('_History');
 
         /**
          * @type {Object}
