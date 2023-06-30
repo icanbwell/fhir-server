@@ -304,7 +304,9 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                         sessionId,
                         sourceDb,
                         destinationCollection,
-                        sourceCollection
+                        sourceCollection,
+                        sourceClient,
+                        destinationClient
                     } = await this.createConnectionAsync(
                         {
                             config, destinationCollectionName, sourceCollectionName
@@ -514,6 +516,8 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                     }
                     continueLoop = false; // done
                     session.endSession();
+                    await this.mongoDatabaseManager.disconnectClientAsync(sourceClient);
+                    await this.mongoDatabaseManager.disconnectClientAsync(destinationClient);
                 }
                 this.adminLogger.logInfo('=== Finished ' +
                     `${sourceCollectionName} ` +
