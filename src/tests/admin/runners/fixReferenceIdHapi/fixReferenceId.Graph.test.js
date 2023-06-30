@@ -24,6 +24,7 @@ const {
 const { AdminLogger } = require('../../../../admin/adminLogger');
 const { FixReferenceIdHapiRunner } = require('../../../../admin/runners/fixReferenceIdHapiRunner');
 const { assertTypeEquals } = require('../../../../utils/assertType');
+const referenceCollections = require('../../../../admin/utils/referenceCollectionsHapi.json');
 
 describe('Person Tests', () => {
     beforeEach(async () => {
@@ -122,6 +123,7 @@ describe('Person Tests', () => {
                     useAuditDatabase: false,
                     adminLogger: new AdminLogger(),
                     proaCollections: ['Patient_4_0_0'],
+                    referenceCollections,
                     mongoDatabaseManager: c.mongoDatabaseManager,
                     preSaveManager: c.preSaveManager,
                     databaseQueryFactory: c.databaseQueryFactory,
@@ -274,6 +276,7 @@ describe('Person Tests', () => {
                     useAuditDatabase: false,
                     adminLogger: new AdminLogger(),
                     proaCollections: ['Patient_4_0_0'],
+                    referenceCollections,
                     mongoDatabaseManager: c.mongoDatabaseManager,
                     preSaveManager: c.preSaveManager,
                     databaseQueryFactory: c.databaseQueryFactory,

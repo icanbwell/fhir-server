@@ -24,6 +24,7 @@ const {
 const { AdminLogger } = require('../../../../admin/adminLogger');
 const { FixReferenceIdRunner } = require('../../../../admin/runners/fixReferenceIdRunner');
 const { assertTypeEquals } = require('../../../../utils/assertType');
+const referenceCollections = require('../../../../admin/utils/referenceCollections.json');
 
 describe('Person Tests', () => {
     beforeEach(async () => {
@@ -105,6 +106,7 @@ describe('Person Tests', () => {
                     useAuditDatabase: false,
                     adminLogger: new AdminLogger(),
                     proaCollections: ['Patient_4_0_0', 'Patient_4_0_0_History'],
+                    referenceCollections,
                     mongoDatabaseManager: c.mongoDatabaseManager,
                     preSaveManager: c.preSaveManager,
                     databaseQueryFactory: c.databaseQueryFactory,
@@ -219,6 +221,7 @@ describe('Person Tests', () => {
                     useAuditDatabase: false,
                     adminLogger: new AdminLogger(),
                     proaCollections: ['Patient_4_0_0'],
+                    referenceCollections,
                     mongoDatabaseManager: c.mongoDatabaseManager,
                     preSaveManager: c.preSaveManager,
                     databaseQueryFactory: c.databaseQueryFactory,
@@ -320,6 +323,7 @@ describe('Person Tests', () => {
                     useAuditDatabase: false,
                     adminLogger: new AdminLogger(),
                     proaCollections: ['Patient_4_0_0'],
+                    referenceCollections,
                     mongoDatabaseManager: c.mongoDatabaseManager,
                     preSaveManager: c.preSaveManager,
                     databaseQueryFactory: c.databaseQueryFactory,

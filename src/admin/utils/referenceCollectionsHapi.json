@@ -453,7 +453,7 @@
         "MedicationRequest",
         "MedicationStatement",
         "NutritionIntake",
-        "   ",
+        "Observation",
         "Procedure",
         "QuestionnaireResponse",
         "RequestOrchestration",

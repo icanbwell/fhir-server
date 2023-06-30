@@ -12,6 +12,7 @@ const {createContainer} = require('../../createContainer');
 const {CommandLineParser} = require('./commandLineParser');
 const {AdminLogger} = require('../adminLogger');
 const {FixReferenceIdHapiRunner} = require('../runners/fixReferenceIdHapiRunner');
+const referenceCollections = require('../utils/referenceCollectionsHapi.json');
 
 const hapiResources = [
     'AllergyIntolerance', 'CarePlan', 'Condition', 'Device', 'Patient', 'DiangosticReport',
@@ -85,6 +86,7 @@ async function main() {
                 proaCollections: hapiCollections,
                 limit: parameters.limit,
                 properties,
+                referenceCollections,
                 resourceMerger: c.resourceMerger,
                 useTransaction: parameters.useTransaction ? true : false,
                 skip: parameters.skip,
