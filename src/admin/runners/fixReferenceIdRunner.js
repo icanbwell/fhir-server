@@ -598,7 +598,7 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
                             if (this.referenceCollections[String(key)] && this.referenceCollections[String(key)].includes(resourceName)) {
                                 const references = Array.from(this.caches.get(key), value => value[0]);
                                 if (references.length) {
-                                    referenceArray = [...referenceArray, ...references];
+                                    referenceArray.push(...references);
                                 }
                             }
                         }
