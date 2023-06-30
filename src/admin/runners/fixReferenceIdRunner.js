@@ -641,6 +641,11 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
                                 }
                             });
 
+                            if (!referenceFieldQuery.length){
+                                this.adminLogger.logInfo('referenceFieldQuery is empty. Moving on')
+                                continue;
+                            }
+
                             // if $in queries are present in the referenceFieldQuery then merge it with current query
                             const query = Object.keys(parametersQuery).length ? {
                                     $and: [
