@@ -584,7 +584,7 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
                         for (const propertyObj of Object.values(resourceObj)) {
                             if (propertyObj.type === 'reference') {
                                 for (const field of propertyObj.fields) {
-                                    referenceFieldNames.add(field);
+                                    referenceFieldNames.add({ field: field, target: propertyObj.target });
                                 }
                             }
                         }
@@ -613,7 +613,7 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
                             this.adminLogger.logInfo(`Procesing not required for ${collectionName}`);
                             continue;
                         }
-                        const totalLoops = Math.ceil(referenceArray.length/this.referenceBatchSize);
+                        const totalLoops = Math.ceil(referenceArray.length / this.referenceBatchSize);
                         this.adminLogger.logInfo(`Expecting ${totalLoops} loops for ${collectionName}`);
                         let loopNumber = 0;
 
@@ -627,14 +627,14 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
                             // iterate over all the reference field names
                             referenceFieldNames.forEach(referenceFieldName => {
                                 const fieldName = isHistoryCollection ?
-                                    `resource.${referenceFieldName}._sourceId`
-                                    : `${referenceFieldName}._sourceId`;
+                                    `resource.${referenceFieldName.field}._sourceId`
+                                    : `${referenceFieldName.field}._sourceId`;
 
                                 // create $in query with the reference array if it has some references
                                 if (referenceBatch.length) {
                                     referenceFieldQuery.push({
                                         [fieldName]: {
-                                            $in: referenceBatch
+                                            $in: referenceBatch.filter(ref => referenceFieldName.target.includes(ref.split('/')[0]))
                                         }
                                     });
                                 }
