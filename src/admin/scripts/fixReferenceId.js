@@ -12,6 +12,7 @@ const {createContainer} = require('../../createContainer');
 const {CommandLineParser} = require('./commandLineParser');
 const {AdminLogger} = require('../adminLogger');
 const {FixReferenceIdRunner} = require('../runners/fixReferenceIdRunner');
+const referenceCollections = require('../utils/referenceCollections.json');
 
 const proaResources = [
     'Patient', 'Encounter', 'Condition', 'Procedure', 'Claim', 'EnrollmentRequest',
@@ -84,6 +85,7 @@ async function main() {
                 startFromCollection: parameters.startFromCollection,
                 resourceLocatorFactory: c.resourceLocatorFactory,
                 proaCollections,
+                referenceCollections,
                 limit: parameters.limit,
                 properties,
                 resourceMerger: c.resourceMerger,
