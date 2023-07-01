@@ -5,6 +5,7 @@ const { VERSIONS } = require('../../middleware/fhir/utils/constants');
 const { ReferenceParser } = require('../../utils/referenceParser');
 const { DatabaseQueryFactory } = require('../../dataLayer/databaseQueryFactory');
 const deepEqual = require('fast-deep-equal');
+const { IdentifierSystem } = require('../../utils/identifierSystem');
 const { generateUUIDv5 } = require('../../utils/uid.util');
 const { isValidMongoObjectId } = require('../../utils/mongoIdValidator');
 const { ResourceLocatorFactory } = require('../../operations/common/resourceLocatorFactory');
@@ -320,10 +321,10 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
                 }
                 if (reference.extension) {
                     for (let element of reference.extension) {
-                        if (element.id === 'sourceId') {
+                        if (element.url === IdentifierSystem.sourceId && element.valueString) {
                             element.valueString = element.valueString.replace(currentReference, newReference);
                         }
-                        if (element.id === 'uuid') {
+                        if (element.url === IdentifierSystem.uuid && element.valueString) {
                             element.valueString = element.valueString.replace(uuidReference, newUuidReference);
                         }
                     }
@@ -342,6 +343,7 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
             }
             return reference;
         } catch (e) {
+            console.log(e);
             this.adminLogger.logError(e);
             throw new RethrownError(
                 {
