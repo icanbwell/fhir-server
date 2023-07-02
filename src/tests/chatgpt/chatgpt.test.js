@@ -15,7 +15,7 @@ const {describe, test} = require('@jest/globals');
 
 describe('ChatGPT Tests', () => {
     describe('ChatGPT Tests', () => {
-        test('ChatGPT works', async () => {
+        test('ChatGPT works with sample', async () => {
             // https://js.langchain.com/docs/getting-started/guide-llm
             const model = new OpenAI({openAIApiKey: process.env.OPENAI_API_KEY, temperature: 0.9});
             const template = 'What is a good name for a company that makes {product}?';
@@ -23,8 +23,20 @@ describe('ChatGPT Tests', () => {
                 template: template,
                 inputVariables: ['product'],
             });
-            const chain = new LLMChain({ llm: model, prompt: prompt });
-            const res = await chain.call({ product: 'colorful socks' });
+            const chain = new LLMChain({llm: model, prompt: prompt});
+            const res = await chain.call({product: 'colorful socks'});
+            console.log(res);
+        });
+        test('ChatGPT works with English query', async () => {
+            // https://js.langchain.com/docs/getting-started/guide-llm
+            const model = new OpenAI({openAIApiKey: process.env.OPENAI_API_KEY, temperature: 0.9});
+            const template = 'You are a software program. You are talking to a FHIR server. The base url is fhir.icanbwell.com/4_0_0.  Patient id is {patientId}. how would I query for all FHIR {resource} that belong to this patient?';
+            const prompt = new PromptTemplate({
+                template: template,
+                inputVariables: ['patientId', 'resource'],
+            });
+            const chain = new LLMChain({llm: model, prompt: prompt});
+            const res = await chain.call({patientId: 'imran', resource: 'condition'});
             console.log(res);
         });
     });
