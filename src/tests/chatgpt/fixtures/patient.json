@@ -1,237 +1,2251 @@
 {
-  "resourceType": "Patient",
-  "id": "john-muir-health-e.k-4ea143ZrQGvdUvf-b2y.tdyiVMBWgblY4f6y2zis3",
-  "meta": {
-    "versionId": "2",
-    "lastUpdated": "2023-04-06T13:00:21.000Z",
-    "source": "https://vteapif1.aetna.com/fhirdemo/v2/patientaccess//Patient/aetna-sandbox-235672cf-a9e7-45cc-8983-ca797d4fa2a3",
-    "security": [
-      {
-        "system": "https://www.icanbwell.com/owner",
-        "code": "john_muir_health"
-      },
-      {
-        "system": "https://www.icanbwell.com/access",
-        "code": "john_muir_health"
-      },
-      {
-        "system": "https://www.icanbwell.com/vendor",
-        "code": "john_muir_health"
-      },
-      {
-        "system": "https://www.icanbwell.com/sourceAssigningAuthority",
-        "code": "aetna_sandbox"
-      },
-      {
-        "system": "https://www.icanbwell.com/connectionType",
-        "code": "proa"
-      }
-    ]
-  },
-  "language": "en",
-  "extension": [
+  "resourceType": "Bundle",
+  "entry": [
     {
+      "resourceType": "Patient",
+      "id": "john-muir-health-e.k-4ea143ZrQGvdUvf-b2y.tdyiVMBWgblY4f6y2zis3",
+      "meta": {
+        "versionId": "2",
+        "lastUpdated": "2023-04-06T13:00:21.000Z",
+        "source": "https://vteapif1.aetna.com/fhirdemo/v2/patientaccess//Patient/aetna-sandbox-235672cf-a9e7-45cc-8983-ca797d4fa2a3",
+        "security": [
+          {
+            "system": "https://www.icanbwell.com/owner",
+            "code": "john_muir_health"
+          },
+          {
+            "system": "https://www.icanbwell.com/access",
+            "code": "john_muir_health"
+          },
+          {
+            "system": "https://www.icanbwell.com/vendor",
+            "code": "john_muir_health"
+          },
+          {
+            "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+            "code": "aetna_sandbox"
+          },
+          {
+            "system": "https://www.icanbwell.com/connectionType",
+            "code": "proa"
+          }
+        ]
+      },
+      "language": "en",
       "extension": [
         {
-          "url": "ombCategory"
+          "extension": [
+            {
+              "url": "ombCategory"
+            },
+            {
+              "url": "text",
+              "valueString": "White"
+            }
+          ],
+          "url": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-race"
         },
         {
-          "url": "text",
-          "valueString": "White"
-        }
-      ],
-      "url": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-race"
-    },
-    {
-      "extension": [
-        {
-          "url": "ombCategory"
+          "extension": [
+            {
+              "url": "ombCategory"
+            },
+            {
+              "url": "text",
+              "valueString": "Hispanic or Latino"
+            }
+          ],
+          "url": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-ethnicity"
         },
         {
-          "url": "text",
-          "valueString": "Hispanic or Latino"
-        }
-      ],
-      "url": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-ethnicity"
-    },
-    {
-      "url": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-birthsex",
-      "valueCode": "F"
-    },
-    {
-      "url": "http://hl7.org/fhir/StructureDefinition/patient-birthPlace",
-      "valueAddress": {
-        "city": "San Juan",
-        "state": "Puerto Rico",
-        "country": "PR"
-      }
-    },
-    {
-      "url": "http://synthetichealth.github.io/synthea/disability-adjusted-life-years",
-      "valueDecimal": 0
-    },
-    {
-      "url": "http://synthetichealth.github.io/synthea/quality-adjusted-life-years",
-      "valueDecimal": 38
-    },
-    {
-      "extension": [
+          "url": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-birthsex",
+          "valueCode": "F"
+        },
         {
-          "url": "ombCategory",
-          "valueCoding": {
-            "system": "urn:oid:2.16.840.1.113883.6.238",
-            "code": "2106-3",
-            "display": "White"
+          "url": "http://hl7.org/fhir/StructureDefinition/patient-birthPlace",
+          "valueAddress": {
+            "city": "San Juan",
+            "state": "Puerto Rico",
+            "country": "PR"
           }
         },
         {
-          "url": "text",
-          "valueString": "White"
-        }
-      ],
-      "url": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-race"
-    },
-    {
-      "extension": [
-        {
-          "url": "ombCategory",
-          "valueCoding": {
-            "system": "urn:oid:2.16.840.1.113883.6.238",
-            "code": "2135-2",
-            "display": "Hispanic or Latino"
-          }
+          "url": "http://synthetichealth.github.io/synthea/disability-adjusted-life-years",
+          "valueDecimal": 0
         },
         {
-          "url": "text",
-          "valueString": "Hispanic or Latino"
+          "url": "http://synthetichealth.github.io/synthea/quality-adjusted-life-years",
+          "valueDecimal": 38
+        },
+        {
+          "extension": [
+            {
+              "url": "ombCategory",
+              "valueCoding": {
+                "system": "urn:oid:2.16.840.1.113883.6.238",
+                "code": "2106-3",
+                "display": "White"
+              }
+            },
+            {
+              "url": "text",
+              "valueString": "White"
+            }
+          ],
+          "url": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-race"
+        },
+        {
+          "extension": [
+            {
+              "url": "ombCategory",
+              "valueCoding": {
+                "system": "urn:oid:2.16.840.1.113883.6.238",
+                "code": "2135-2",
+                "display": "Hispanic or Latino"
+              }
+            },
+            {
+              "url": "text",
+              "valueString": "Hispanic or Latino"
+            }
+          ],
+          "url": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-ethnicity"
         }
       ],
-      "url": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-ethnicity"
-    }
-  ],
-  "identifier": [
+      "identifier": [
+        {
+          "type": {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+                "code": "MB",
+                "display": "Member Number"
+              }
+            ]
+          },
+          "system": "https://sources.aetna.com/patient/identifier/memberid/81",
+          "value": "111111111"
+        },
+        {
+          "id": "sourceId",
+          "system": "https://www.icanbwell.com/sourceId",
+          "value": "aetna-sandbox-235672cf-a9e7-45cc-8983-ca797d4fa2a3"
+        },
+        {
+          "id": "uuid",
+          "system": "https://www.icanbwell.com/uuid",
+          "value": "aetna-sandbox-235672cf-a9e7-45cc-8983-ca797d4fa2a3"
+        }
+      ],
+      "active": true,
+      "name": [
+        {
+          "use": "official",
+          "text": "Ashlee Newton",
+          "family": "Newton",
+          "given": [
+            "Ashlee"
+          ]
+        }
+      ],
+      "telecom": [
+        {
+          "system": "phone",
+          "value": "555-338-2918",
+          "use": "home",
+          "rank": 1
+        },
+        {
+          "system": "email",
+          "value": "ashlee_newton@test.com",
+          "use": "work",
+          "rank": 2
+        }
+      ],
+      "gender": "female",
+      "birthDate": "1983-12-01",
+      "address": [
+        {
+          "extension": [
+            {
+              "extension": [
+                {
+                  "url": "latitude",
+                  "valueDecimal": 41.785374
+                },
+                {
+                  "url": "longitude",
+                  "valueDecimal": -72.65838
+                }
+              ],
+              "url": "http://hl7.org/fhir/StructureDefinition/geolocation"
+            }
+          ],
+          "text": "257 Schoen Annex, Hartford, CT ",
+          "line": [
+            "257 Schoen Annex"
+          ],
+          "city": "Hartford",
+          "state": "CT",
+          "country": "US"
+        },
+        {
+          "extension": [
+            {
+              "extension": [
+                {
+                  "url": "latitude",
+                  "valueDecimal": 41.78537300919756
+                },
+                {
+                  "url": "longitude",
+                  "valueDecimal": -72.65837526144423
+                }
+              ],
+              "url": "http://hl7.org/fhir/StructureDefinition/geolocation"
+            }
+          ],
+          "text": "257 Schoen Annex, Hartford, CT ",
+          "line": [
+            "257 Schoen Annex"
+          ],
+          "city": "Hartford",
+          "state": "CT",
+          "country": "US"
+        }
+      ],
+      "maritalStatus": {
+        "coding": [
+          {
+            "system": "http://terminology.hl7.org/CodeSystem/v3-MaritalStatus",
+            "code": "S",
+            "display": "S"
+          }
+        ]
+      },
+      "multipleBirthBoolean": false,
+      "communication": [
+        {
+          "language": {
+            "coding": [
+              {
+                "system": "urn:ietf:bcp:47",
+                "code": "en",
+                "display": "English"
+              }
+            ]
+          }
+        }
+      ]
+    },
     {
+      "resourceType": "Condition",
+      "id": "john-muir-health-e6vIeMKuCsAXr-ZBHhvFUFM0NlOt19ai8L6tO0IRwIW83",
+      "meta": {
+        "versionId": "2",
+        "lastUpdated": "2023-05-02T15:27:28.000Z",
+        "source": "https://fhir.johnmuirhealth.com/fhir-prd/api/FHIR/R4//Condition/e6vIeMKuCsAXr-ZBHhvFUFM0NlOt19ai8L6tO0IRwIW83",
+        "security": [
+          {
+            "system": "https://www.icanbwell.com/owner",
+            "code": "john_muir_health"
+          },
+          {
+            "system": "https://www.icanbwell.com/access",
+            "code": "john_muir_health"
+          },
+          {
+            "system": "https://www.icanbwell.com/vendor",
+            "code": "john_muir_health"
+          },
+          {
+            "system": "https://www.icanbwell.com/connectionType",
+            "code": "proa"
+          },
+          {
+            "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+            "code": "john_muir_health"
+          }
+        ]
+      },
+      "identifier": [
+        {
+          "id": "sourceId",
+          "system": "https://www.icanbwell.com/sourceId",
+          "value": "john-muir-health-e6vIeMKuCsAXr-ZBHhvFUFM0NlOt19ai8L6tO0IRwIW83"
+        },
+        {
+          "id": "uuid",
+          "system": "https://www.icanbwell.com/uuid",
+          "value": "6496501c-906e-5c40-ab0e-392318bdc34a"
+        }
+      ],
+      "clinicalStatus": {
+        "coding": [
+          {
+            "system": "http://terminology.hl7.org/CodeSystem/condition-clinical",
+            "version": "4.0.0",
+            "code": "active",
+            "display": "Active"
+          }
+        ],
+        "text": "Active"
+      },
+      "verificationStatus": {
+        "coding": [
+          {
+            "system": "http://terminology.hl7.org/CodeSystem/condition-ver-status",
+            "version": "4.0.0",
+            "code": "confirmed",
+            "display": "Confirmed"
+          }
+        ],
+        "text": "Confirmed"
+      },
+      "category": [
+        {
+          "coding": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/condition-category",
+              "code": "problem-list-item",
+              "display": "Problem List Item"
+            }
+          ],
+          "text": "Problem List Item"
+        },
+        {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "75310-3",
+              "display": "Health concerns"
+            },
+            {
+              "system": "http://hl7.org/fhir/us/core/CodeSystem/condition-category",
+              "code": "health-concern",
+              "display": "Health Concern"
+            }
+          ],
+          "text": "Health Concern"
+        }
+      ],
+      "code": {
+        "coding": [
+          {
+            "system": "urn:oid:2.16.840.1.113883.6.90",
+            "code": "M67.969"
+          },
+          {
+            "system": "urn:oid:2.16.840.1.113883.6.96",
+            "code": "37785001"
+          },
+          {
+            "system": "http://hl7.org/fhir/sid/icd-10-cm",
+            "code": "M67.969"
+          },
+          {
+            "system": "http://snomed.info/sct",
+            "code": "37785001"
+          }
+        ],
+        "text": "Tendinopathy of patella"
+      },
+      "subject": {
+        "extension": [
+          {
+            "id": "sourceId",
+            "url": "https://www.icanbwell.com/sourceId",
+            "valueString": "Patient/john-muir-health-e.k-4ea143ZrQGvdUvf-b2y.tdyiVMBWgblY4f6y2zis3"
+          },
+          {
+            "id": "uuid",
+            "url": "https://www.icanbwell.com/uuid",
+            "valueString": "Patient/99af9c84-630a-4db8-a725-85c10fd340ca"
+          },
+          {
+            "id": "sourceAssigningAuthority",
+            "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+            "valueString": "john_muir_health"
+          }
+        ],
+        "reference": "Patient/99af9c84-630a-4db8-a725-85c10fd340ca"
+      },
+      "onsetPeriod": {
+        "start": "2019-09-26T00:00:00.000Z",
+        "end": "2019-09-26T00:00:00.000Z"
+      },
+      "recordedDate": "2019-09-26T00:00:00.000Z"
+    },
+    {
+      "resourceType": "Observation",
+      "id": "aetna-sandbox-72138539-13ba-4151-8546-c7181f4486a7",
+      "meta": {
+        "versionId": "2",
+        "lastUpdated": "2023-04-06T13:00:48.000Z",
+        "source": "https://vteapif1.aetna.com/fhirdemo/v2/patientaccess/Observation/1",
+        "security": [
+          {
+            "system": "https://www.icanbwell.com/owner",
+            "code": "john_muir_health"
+          },
+          {
+            "system": "https://www.icanbwell.com/access",
+            "code": "john_muir_health"
+          },
+          {
+            "system": "https://www.icanbwell.com/vendor",
+            "code": "john_muir_health"
+          },
+          {
+            "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+            "code": "john_muir_health"
+          },
+          {
+            "system": "https://www.icanbwell.com/connectionType",
+            "code": "proa"
+          }
+        ]
+      },
+      "identifier": [
+        {
+          "system": "https://sources.aetna.com/observation/identifier/memberobsid/50085",
+          "value": "M11111"
+        },
+        {
+          "id": "sourceId",
+          "system": "https://www.icanbwell.com/sourceId",
+          "value": "aetna-sandbox-72138539-13ba-4151-8546-c7181f4486a7"
+        },
+        {
+          "id": "uuid",
+          "system": "https://www.icanbwell.com/uuid",
+          "value": "aetna-sandbox-72138539-13ba-4151-8546-c7181f4486a7"
+        }
+      ],
+      "status": "final",
+      "category": [
+        {
+          "coding": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+              "code": "laboratory",
+              "display": "Laboratory"
+            }
+          ]
+        }
+      ],
+      "code": {
+        "coding": [
+          {
+            "system": "http://loinc.org",
+            "code": "82667-7",
+            "display": "Total score [DAST-10]"
+          }
+        ]
+      },
+      "subject": {
+        "extension": [
+          {
+            "id": "sourceId",
+            "url": "https://www.icanbwell.com/sourceId",
+            "valueString": "Patient/john-muir-health-e.k-4ea143ZrQGvdUvf-b2y.tdyiVMBWgblY4f6y2zis3"
+          },
+          {
+            "id": "uuid",
+            "url": "https://www.icanbwell.com/uuid",
+            "valueString": "Patient/99af9c84-630a-4db8-a725-85c10fd340ca"
+          },
+          {
+            "id": "sourceAssigningAuthority",
+            "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+            "valueString": "john_muir_health"
+          }
+        ],
+        "reference": "Patient/99af9c84-630a-4db8-a725-85c10fd340ca"
+      },
+      "effectiveDateTime": "2022-05-26T03:30:18-04:00",
+      "valueQuantity": {
+        "value": 2,
+        "unit": "{score}",
+        "system": "http://unitsofmeasure.org",
+        "code": "{score}"
+      }
+    },
+    {
+      "resourceType": "Observation",
+      "id": "aetna-sandbox-fe0f0b3b-74cd-4388-8ba1-c2c9d3059cfe",
+      "meta": {
+        "versionId": "2",
+        "lastUpdated": "2023-04-06T13:00:55.000Z",
+        "source": "https://vteapif1.aetna.com/fhirdemo/v2/patientaccess//Observation/fe0f0b3b-74cd-4388-8ba1-c2c9d3059cfe",
+        "security": [
+          {
+            "system": "https://www.icanbwell.com/owner",
+            "code": "john_muir_health"
+          },
+          {
+            "system": "https://www.icanbwell.com/access",
+            "code": "john_muir_health"
+          },
+          {
+            "system": "https://www.icanbwell.com/vendor",
+            "code": "john_muir_health"
+          },
+          {
+            "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+            "code": "john_muir_health"
+          },
+          {
+            "system": "https://www.icanbwell.com/connectionType",
+            "code": "proa"
+          }
+        ]
+      },
+      "identifier": [
+        {
+          "system": "https://sources.aetna.com/observation/identifier/memberobsid/50085",
+          "value": "M111"
+        },
+        {
+          "id": "sourceId",
+          "system": "https://www.icanbwell.com/sourceId",
+          "value": "aetna-sandbox-fe0f0b3b-74cd-4388-8ba1-c2c9d3059cfe"
+        },
+        {
+          "id": "uuid",
+          "system": "https://www.icanbwell.com/uuid",
+          "value": "aetna-sandbox-fe0f0b3b-74cd-4388-8ba1-c2c9d3059cfe"
+        }
+      ],
+      "status": "final",
+      "category": [
+        {
+          "coding": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+              "code": "laboratory",
+              "display": "Laboratory"
+            }
+          ]
+        }
+      ],
+      "code": {
+        "coding": [
+          {
+            "system": "http://loinc.org",
+            "code": "82667-7",
+            "display": "Total score [DAST-10]"
+          }
+        ]
+      },
+      "subject": {
+        "extension": [
+          {
+            "id": "sourceId",
+            "url": "https://www.icanbwell.com/sourceId",
+            "valueString": "Patient/john-muir-health-e.k-4ea143ZrQGvdUvf-b2y.tdyiVMBWgblY4f6y2zis3"
+          },
+          {
+            "id": "uuid",
+            "url": "https://www.icanbwell.com/uuid",
+            "valueString": "Patient/99af9c84-630a-4db8-a725-85c10fd340ca"
+          },
+          {
+            "id": "sourceAssigningAuthority",
+            "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+            "valueString": "john_muir_health"
+          }
+        ],
+        "reference": "Patient/99af9c84-630a-4db8-a725-85c10fd340ca"
+      },
+      "effectiveDateTime": "2019-05-09T03:36:21-04:00",
+      "valueQuantity": {
+        "value": 1,
+        "unit": "{score}",
+        "system": "http://unitsofmeasure.org",
+        "code": "{score}"
+      }
+    },
+    {
+      "resourceType": "Observation",
+      "id": "aetna-sandbox-be03f51a-bd9d-459a-8da0-d8650c600870",
+      "meta": {
+        "versionId": "2",
+        "lastUpdated": "2023-04-06T13:00:59.000Z",
+        "source": "https://vteapif1.aetna.com/fhirdemo/v2/patientaccess//Observation/be03f51a-bd9d-459a-8da0-d8650c600870",
+        "security": [
+          {
+            "system": "https://www.icanbwell.com/owner",
+            "code": "john_muir_health"
+          },
+          {
+            "system": "https://www.icanbwell.com/access",
+            "code": "john_muir_health"
+          },
+          {
+            "system": "https://www.icanbwell.com/vendor",
+            "code": "john_muir_health"
+          },
+          {
+            "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+            "code": "john_muir_health"
+          },
+          {
+            "system": "https://www.icanbwell.com/connectionType",
+            "code": "proa"
+          }
+        ]
+      },
+      "identifier": [
+        {
+          "system": "https://sources.aetna.com/observation/identifier/memberobsid/50085",
+          "value": "M111"
+        },
+        {
+          "id": "sourceId",
+          "system": "https://www.icanbwell.com/sourceId",
+          "value": "aetna-sandbox-be03f51a-bd9d-459a-8da0-d8650c600870"
+        },
+        {
+          "id": "uuid",
+          "system": "https://www.icanbwell.com/uuid",
+          "value": "aetna-sandbox-be03f51a-bd9d-459a-8da0-d8650c600870"
+        }
+      ],
+      "status": "final",
+      "category": [
+        {
+          "coding": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+              "code": "laboratory",
+              "display": "Laboratory"
+            }
+          ]
+        }
+      ],
+      "code": {
+        "coding": [
+          {
+            "system": "http://loinc.org",
+            "code": "82667-7",
+            "display": "Total score [DAST-10]"
+          }
+        ]
+      },
+      "subject": {
+        "extension": [
+          {
+            "id": "sourceId",
+            "url": "https://www.icanbwell.com/sourceId",
+            "valueString": "Patient/john-muir-health-e.k-4ea143ZrQGvdUvf-b2y.tdyiVMBWgblY4f6y2zis3"
+          },
+          {
+            "id": "uuid",
+            "url": "https://www.icanbwell.com/uuid",
+            "valueString": "Patient/99af9c84-630a-4db8-a725-85c10fd340ca"
+          },
+          {
+            "id": "sourceAssigningAuthority",
+            "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+            "valueString": "john_muir_health"
+          }
+        ],
+        "reference": "Patient/99af9c84-630a-4db8-a725-85c10fd340ca"
+      },
+      "effectiveDateTime": "2018-05-03T03:31:25-04:00",
+      "valueQuantity": {
+        "value": 2,
+        "unit": "{score}",
+        "system": "http://unitsofmeasure.org",
+        "code": "{score}"
+      }
+    },
+    {
+      "resourceType": "Observation",
+      "id": "aetna-sandbox-bb6c5139-1852-4eca-84a8-79b883cc0981",
+      "meta": {
+        "versionId": "2",
+        "lastUpdated": "2023-04-06T13:01:01.000Z",
+        "source": "https://vteapif1.aetna.com/fhirdemo/v2/patientaccess//Observation/bb6c5139-1852-4eca-84a8-79b883cc0981",
+        "security": [
+          {
+            "system": "https://www.icanbwell.com/owner",
+            "code": "john_muir_health"
+          },
+          {
+            "system": "https://www.icanbwell.com/access",
+            "code": "john_muir_health"
+          },
+          {
+            "system": "https://www.icanbwell.com/vendor",
+            "code": "john_muir_health"
+          },
+          {
+            "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+            "code": "john_muir_health"
+          },
+          {
+            "system": "https://www.icanbwell.com/connectionType",
+            "code": "proa"
+          }
+        ]
+      },
+      "identifier": [
+        {
+          "system": "https://sources.aetna.com/observation/identifier/memberobsid/50085",
+          "value": "M111"
+        },
+        {
+          "id": "sourceId",
+          "system": "https://www.icanbwell.com/sourceId",
+          "value": "aetna-sandbox-bb6c5139-1852-4eca-84a8-79b883cc0981"
+        },
+        {
+          "id": "uuid",
+          "system": "https://www.icanbwell.com/uuid",
+          "value": "aetna-sandbox-bb6c5139-1852-4eca-84a8-79b883cc0981"
+        }
+      ],
+      "status": "final",
+      "category": [
+        {
+          "coding": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+              "code": "laboratory",
+              "display": "Laboratory"
+            }
+          ]
+        }
+      ],
+      "code": {
+        "coding": [
+          {
+            "system": "http://loinc.org",
+            "code": "82667-7",
+            "display": "Total score [DAST-10]"
+          }
+        ]
+      },
+      "subject": {
+        "extension": [
+          {
+            "id": "sourceId",
+            "url": "https://www.icanbwell.com/sourceId",
+            "valueString": "Patient/john-muir-health-e.k-4ea143ZrQGvdUvf-b2y.tdyiVMBWgblY4f6y2zis3"
+          },
+          {
+            "id": "uuid",
+            "url": "https://www.icanbwell.com/uuid",
+            "valueString": "Patient/99af9c84-630a-4db8-a725-85c10fd340ca"
+          },
+          {
+            "id": "sourceAssigningAuthority",
+            "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+            "valueString": "john_muir_health"
+          }
+        ],
+        "reference": "Patient/99af9c84-630a-4db8-a725-85c10fd340ca"
+      },
+      "effectiveDateTime": "2017-04-27T03:04:24-04:00",
+      "valueQuantity": {
+        "value": 9,
+        "unit": "{score}",
+        "system": "http://unitsofmeasure.org",
+        "code": "{score}"
+      }
+    },
+    {
+      "resourceType": "Procedure",
+      "id": "aetna-sandbox-994e5bd2-3d50-4a14-be1d-53df89e161ad",
+      "meta": {
+        "versionId": "1",
+        "lastUpdated": "2023-04-06T13:15:55.000Z",
+        "source": "https://vteapif1.aetna.com/fhirdemo/v2/patientaccess//Procedure/994e5bd2-3d50-4a14-be1d-53df89e161ad",
+        "security": [
+          {
+            "system": "https://www.icanbwell.com/owner",
+            "code": "john_muir_health"
+          },
+          {
+            "system": "https://www.icanbwell.com/access",
+            "code": "john_muir_health"
+          },
+          {
+            "system": "https://www.icanbwell.com/vendor",
+            "code": "john_muir_health"
+          },
+          {
+            "system": "https://www.icanbwell.com/connectionType",
+            "code": "proa"
+          },
+          {
+            "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+            "code": "john_muir_health"
+          }
+        ]
+      },
+      "identifier": [
+        {
+          "system": "https://sources.aetna.com/procedure/identifier/memberdrid/50090",
+          "value": "M1111"
+        },
+        {
+          "id": "sourceId",
+          "system": "https://www.icanbwell.com/sourceId",
+          "value": "aetna-sandbox-994e5bd2-3d50-4a14-be1d-53df89e161ad"
+        },
+        {
+          "id": "uuid",
+          "system": "https://www.icanbwell.com/uuid",
+          "value": "aetna-sandbox-994e5bd2-3d50-4a14-be1d-53df89e161ad"
+        }
+      ],
+      "status": "completed",
+      "code": {
+        "coding": [
+          {
+            "system": "http://snomed.info/sct",
+            "code": "454711000124102",
+            "display": "Depression screening using Patient Health Questionnaire Two-Item score (procedure)"
+          }
+        ]
+      },
+      "subject": {
+        "extension": [
+          {
+            "id": "sourceId",
+            "url": "https://www.icanbwell.com/sourceId",
+            "valueString": "Patient/john-muir-health-e.k-4ea143ZrQGvdUvf-b2y.tdyiVMBWgblY4f6y2zis3"
+          },
+          {
+            "id": "uuid",
+            "url": "https://www.icanbwell.com/uuid",
+            "valueString": "Patient/99af9c84-630a-4db8-a725-85c10fd340ca"
+          },
+          {
+            "id": "sourceAssigningAuthority",
+            "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+            "valueString": "john_muir_health"
+          }
+        ],
+        "reference": "Patient/99af9c84-630a-4db8-a725-85c10fd340ca"
+      },
+      "encounter": {
+        "extension": [
+          {
+            "id": "sourceId",
+            "url": "https://www.icanbwell.com/sourceId",
+            "valueString": "Encounter/aetna-sandbox-1b087914-3de5-4fae-9c21-0e9b8f606969"
+          },
+          {
+            "id": "uuid",
+            "url": "https://www.icanbwell.com/uuid",
+            "valueString": "Encounter/aetna-sandbox-1b087914-3de5-4fae-9c21-0e9b8f606969"
+          },
+          {
+            "id": "sourceAssigningAuthority",
+            "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+            "valueString": "john_muir_health"
+          }
+        ],
+        "reference": "Encounter/aetna-sandbox-1b087914-3de5-4fae-9c21-0e9b8f606969"
+      },
+      "performedDateTime": "2019-03-21T02:33:30-04:00",
+      "location": {
+        "extension": [
+          {
+            "id": "sourceId",
+            "url": "https://www.icanbwell.com/sourceId",
+            "valueString": "Location/aetna-sandbox-3698b5b0-9d02-42c0-b38e-0867e30620fb"
+          },
+          {
+            "id": "uuid",
+            "url": "https://www.icanbwell.com/uuid",
+            "valueString": "Location/aetna-sandbox-3698b5b0-9d02-42c0-b38e-0867e30620fb"
+          },
+          {
+            "id": "sourceAssigningAuthority",
+            "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+            "valueString": "john_muir_health"
+          }
+        ],
+        "reference": "Location/aetna-sandbox-3698b5b0-9d02-42c0-b38e-0867e30620fb",
+        "display": "ST FRANCIS HOSPITAL & MEDICAL CENTER"
+      }
+    },
+    {
+      "resourceType": "MedicationDispense",
+      "id": "1808cbf7-cb3c-4249-b4ac-de07380c9fa2",
+      "meta": {
+        "versionId": "1",
+        "lastUpdated": "2023-02-24T13:53:14.000Z",
+        "source": "https://www.icanbwell.com",
+        "security": [
+          {
+            "system": "https://www.icanbwell.com/owner",
+            "code": "john_muir_health"
+          },
+          {
+            "system": "https://www.icanbwell.com/access",
+            "code": "john_muir_health"
+          },
+          {
+            "system": "https://www.icanbwell.com/vendor",
+            "code": "john_muir_health"
+          },
+          {
+            "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+            "code": "john_muir_health"
+          }
+        ]
+      },
+      "identifier": [
+        {
+          "id": "sourceId",
+          "system": "https://www.icanbwell.com/sourceId",
+          "value": "1808cbf7-cb3c-4249-b4ac-de07380c9fa2"
+        },
+        {
+          "id": "uuid",
+          "system": "https://www.icanbwell.com/uuid",
+          "value": "1808cbf7-cb3c-4249-b4ac-de07380c9fa2"
+        }
+      ],
+      "status": "completed",
+      "medicationCodeableConcept": {
+        "coding": [
+          {
+            "system": "http://www.nlm.nih.gov/research/umls/rxnorm",
+            "code": "308460",
+            "display": "Azithromycin 250 MG Oral Tablet"
+          },
+          {
+            "system": "http://hl7.org/fhir/sid/ndc",
+            "code": "68180-861-11",
+            "display": "Azithromycin (as azithromycin dihydrate) 250 mg oral tablet"
+          }
+        ],
+        "text": "Azithromycin 250 MG Oral Tablet"
+      },
+      "subject": {
+        "extension": [
+          {
+            "id": "sourceId",
+            "url": "https://www.icanbwell.com/sourceId",
+            "valueString": "Patient/john-muir-health-e.k-4ea143ZrQGvdUvf-b2y.tdyiVMBWgblY4f6y2zis3"
+          },
+          {
+            "id": "uuid",
+            "url": "https://www.icanbwell.com/uuid",
+            "valueString": "Patient/99af9c84-630a-4db8-a725-85c10fd340ca"
+          },
+          {
+            "id": "sourceAssigningAuthority",
+            "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+            "valueString": "john_muir_health"
+          }
+        ],
+        "reference": "Patient/99af9c84-630a-4db8-a725-85c10fd340ca"
+      },
+      "performer": [
+        {
+          "actor": {
+            "extension": [
+              {
+                "id": "sourceId",
+                "url": "https://www.icanbwell.com/sourceId",
+                "valueString": "Practitioner/e068b883-ad2d-43b9-90f0-205969953db7"
+              },
+              {
+                "id": "uuid",
+                "url": "https://www.icanbwell.com/uuid",
+                "valueString": "Practitioner/e068b883-ad2d-43b9-90f0-205969953db7"
+              },
+              {
+                "id": "sourceAssigningAuthority",
+                "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                "valueString": "john_muir_health"
+              }
+            ],
+            "reference": "Practitioner/e068b883-ad2d-43b9-90f0-205969953db7"
+          }
+        }
+      ],
+      "location": {
+        "extension": [
+          {
+            "id": "sourceId",
+            "url": "https://www.icanbwell.com/sourceId",
+            "valueString": "Location/2f3cf937-42b9-4805-9035-f6d88c427dc4"
+          },
+          {
+            "id": "uuid",
+            "url": "https://www.icanbwell.com/uuid",
+            "valueString": "Location/2f3cf937-42b9-4805-9035-f6d88c427dc4"
+          },
+          {
+            "id": "sourceAssigningAuthority",
+            "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+            "valueString": "john_muir_health"
+          }
+        ],
+        "reference": "Location/2f3cf937-42b9-4805-9035-f6d88c427dc4"
+      },
+      "authorizingPrescription": [
+        {
+          "extension": [
+            {
+              "id": "sourceId",
+              "url": "https://www.icanbwell.com/sourceId",
+              "valueString": "MedicationRequest/9e205ed9-0dfc-4514-943a-14c735c891b6"
+            },
+            {
+              "id": "uuid",
+              "url": "https://www.icanbwell.com/uuid",
+              "valueString": "MedicationRequest/9e205ed9-0dfc-4514-943a-14c735c891b6"
+            },
+            {
+              "id": "sourceAssigningAuthority",
+              "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+              "valueString": "john_muir_health"
+            }
+          ],
+          "reference": "MedicationRequest/9e205ed9-0dfc-4514-943a-14c735c891b6"
+        }
+      ],
       "type": {
         "coding": [
           {
-            "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
-            "code": "MB",
-            "display": "Member Number"
+            "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+            "code": "FFC",
+            "display": "First Fill - Complete"
           }
         ]
       },
-      "system": "https://sources.aetna.com/patient/identifier/memberid/81",
-      "value": "111111111"
-    },
-    {
-      "id": "sourceId",
-      "system": "https://www.icanbwell.com/sourceId",
-      "value": "aetna-sandbox-235672cf-a9e7-45cc-8983-ca797d4fa2a3"
-    },
-    {
-      "id": "uuid",
-      "system": "https://www.icanbwell.com/uuid",
-      "value": "aetna-sandbox-235672cf-a9e7-45cc-8983-ca797d4fa2a3"
-    }
-  ],
-  "active": true,
-  "name": [
-    {
-      "use": "official",
-      "text": "Ashlee Newton",
-      "family": "Newton",
-      "given": [
-        "Ashlee"
+      "quantity": {
+        "value": 6,
+        "system": "http://terminology.hl7.org/CodeSystem/v3-orderableDrugForm",
+        "code": "TAB"
+      },
+      "daysSupply": {
+        "value": 6,
+        "unit": "Day",
+        "system": "http://unitsofmeasure.org",
+        "code": "d"
+      },
+      "whenPrepared": "2020-07-09T17:13:00+05:00",
+      "whenHandedOver": "2020-07-09T17:13:00+05:00",
+      "note": [
+        {
+          "text": "Patient told to take with food"
+        }
+      ],
+      "dosageInstruction": [
+        {
+          "text": "One tablet at once",
+          "additionalInstruction": [
+            {
+              "coding": [
+                {
+                  "system": "http://snomed.info/sct",
+                  "code": "311504000",
+                  "display": "With or after food"
+                }
+              ]
+            }
+          ],
+          "timing": {
+            "repeat": {
+              "frequency": 1,
+              "period": 1,
+              "periodUnit": "d"
+            }
+          },
+          "route": {
+            "coding": [
+              {
+                "system": "http://snomed.info/sct",
+                "code": "26643006",
+                "display": "Oral Route"
+              }
+            ]
+          },
+          "method": {
+            "coding": [
+              {
+                "system": "http://snomed.info/sct",
+                "code": "421521009",
+                "display": "Swallow"
+              }
+            ]
+          }
+        }
       ]
-    }
-  ],
-  "telecom": [
-    {
-      "system": "phone",
-      "value": "555-338-2918",
-      "use": "home",
-      "rank": 1
     },
     {
-      "system": "email",
-      "value": "ashlee_newton@test.com",
-      "use": "work",
-      "rank": 2
-    }
-  ],
-  "gender": "female",
-  "birthDate": "1983-12-01",
-  "address": [
-    {
-      "extension": [
-        {
-          "extension": [
-            {
-              "url": "latitude",
-              "valueDecimal": 41.785374
-            },
-            {
-              "url": "longitude",
-              "valueDecimal": -72.65838
-            }
-          ],
-          "url": "http://hl7.org/fhir/StructureDefinition/geolocation"
-        }
-      ],
-      "text": "257 Schoen Annex, Hartford, CT ",
-      "line": [
-        "257 Schoen Annex"
-      ],
-      "city": "Hartford",
-      "state": "CT",
-      "country": "US"
-    },
-    {
-      "extension": [
-        {
-          "extension": [
-            {
-              "url": "latitude",
-              "valueDecimal": 41.78537300919756
-            },
-            {
-              "url": "longitude",
-              "valueDecimal": -72.65837526144423
-            }
-          ],
-          "url": "http://hl7.org/fhir/StructureDefinition/geolocation"
-        }
-      ],
-      "text": "257 Schoen Annex, Hartford, CT ",
-      "line": [
-        "257 Schoen Annex"
-      ],
-      "city": "Hartford",
-      "state": "CT",
-      "country": "US"
-    }
-  ],
-  "maritalStatus": {
-    "coding": [
-      {
-        "system": "http://terminology.hl7.org/CodeSystem/v3-MaritalStatus",
-        "code": "S",
-        "display": "S"
-      }
-    ]
-  },
-  "multipleBirthBoolean": false,
-  "communication": [
-    {
-      "language": {
-        "coding": [
+      "resourceType": "MedicationRequest",
+      "id": "9e205ed9-0dfc-4514-943a-14c735c891b6",
+      "meta": {
+        "versionId": "1",
+        "lastUpdated": "2023-02-24T13:53:33.000Z",
+        "source": "https://www.icanbwell.com",
+        "security": [
           {
-            "system": "urn:ietf:bcp:47",
-            "code": "en",
-            "display": "English"
+            "system": "https://www.icanbwell.com/owner",
+            "code": "memorial-health"
+          },
+          {
+            "system": "https://www.icanbwell.com/access",
+            "code": "memorial-health"
+          },
+          {
+            "system": "https://www.icanbwell.com/vendor",
+            "code": "memorial-health"
+          },
+          {
+            "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+            "code": "memorial-health"
           }
         ]
+      },
+      "identifier": [
+        {
+          "type": {
+            "coding": [
+              {
+                "system": "https://fhir.icanbwell.com/4_0_0/CodeSystem/vs-identifier-type",
+                "code": "RX"
+              }
+            ],
+            "text": "Prescription Number"
+          },
+          "value": "access-1234A"
+        },
+        {
+          "id": "sourceId",
+          "system": "https://www.icanbwell.com/sourceId",
+          "value": "9e205ed9-0dfc-4514-943a-14c735c891b6"
+        },
+        {
+          "id": "uuid",
+          "system": "https://www.icanbwell.com/uuid",
+          "value": "9e205ed9-0dfc-4514-943a-14c735c891b6"
+        }
+      ],
+      "status": "active",
+      "intent": "order",
+      "medicationCodeableConcept": {
+        "coding": [
+          {
+            "system": "http://www.nlm.nih.gov/research/umls/rxnorm",
+            "code": "308460",
+            "display": "Azithromycin 250 MG Oral Tablet"
+          },
+          {
+            "system": "http://hl7.org/fhir/sid/ndc",
+            "code": "68180-861-11",
+            "display": "Azithromycin (as azithromycin dihydrate) 250 mg oral tablet"
+          }
+        ],
+        "text": "Azithromycin 250 MG Oral Tablet"
+      },
+      "subject": {
+        "extension": [
+          {
+            "id": "sourceId",
+            "url": "https://www.icanbwell.com/sourceId",
+            "valueString": "Patient/john-muir-health-e.k-4ea143ZrQGvdUvf-b2y.tdyiVMBWgblY4f6y2zis3"
+          },
+          {
+            "id": "uuid",
+            "url": "https://www.icanbwell.com/uuid",
+            "valueString": "Patient/99af9c84-630a-4db8-a725-85c10fd340ca"
+          },
+          {
+            "id": "sourceAssigningAuthority",
+            "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+            "valueString": "john_muir_health"
+          }
+        ],
+        "reference": "Patient/99af9c84-630a-4db8-a725-85c10fd340ca"
+      },
+      "authoredOn": "2020-07-09",
+      "requester": {
+        "extension": [
+          {
+            "id": "sourceId",
+            "url": "https://www.icanbwell.com/sourceId",
+            "valueString": "Practitioner/e068b883-ad2d-43b9-90f0-205969953db7"
+          },
+          {
+            "id": "uuid",
+            "url": "https://www.icanbwell.com/uuid",
+            "valueString": "Practitioner/e068b883-ad2d-43b9-90f0-205969953db7"
+          },
+          {
+            "id": "sourceAssigningAuthority",
+            "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+            "valueString": "memorial-health"
+          }
+        ],
+        "reference": "Practitioner/e068b883-ad2d-43b9-90f0-205969953db7"
+      },
+      "reasonCode": [
+        {
+          "coding": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "11840006",
+              "display": "Traveler's diarrhea"
+            }
+          ]
+        }
+      ],
+      "dosageInstruction": [
+        {
+          "text": "One tablet at once",
+          "additionalInstruction": [
+            {
+              "coding": [
+                {
+                  "system": "http://snomed.info/sct",
+                  "code": "311504000",
+                  "display": "With or after food"
+                }
+              ]
+            }
+          ],
+          "timing": {
+            "repeat": {
+              "frequency": 1,
+              "period": 1,
+              "periodUnit": "d"
+            }
+          },
+          "route": {
+            "coding": [
+              {
+                "system": "http://snomed.info/sct",
+                "code": "26643006",
+                "display": "Oral Route"
+              }
+            ]
+          },
+          "method": {
+            "coding": [
+              {
+                "system": "http://snomed.info/sct",
+                "code": "421521009",
+                "display": "Swallow"
+              }
+            ]
+          },
+          "doseAndRate": [
+            {
+              "type": {
+                "coding": [
+                  {
+                    "system": "http://terminology.hl7.org/CodeSystem/dose-rate-type",
+                    "code": "ordered"
+                  }
+                ]
+              },
+              "doseQuantity": {
+                "value": 250,
+                "unit": "mg",
+                "system": "http://unitsofmeasure.org",
+                "code": "mg"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "resourceType": "Coverage",
+      "id": "3b8d95db-fa41-4d88-9769-9107293850e5",
+      "meta": {
+        "versionId": "1",
+        "lastUpdated": "2023-02-23T04:58:08.000Z",
+        "source": "https://www.icanbwell.com",
+        "security": [
+          {
+            "system": "https://www.icanbwell.com/access",
+            "code": "memorial-health"
+          },
+          {
+            "system": "https://www.icanbwell.com/owner",
+            "code": "medicare-bluebutton"
+          },
+          {
+            "system": "https://www.icanbwell.com/vendor",
+            "code": "medicare-bluebutton"
+          },
+          {
+            "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+            "code": "medicare-bluebutton"
+          }
+        ]
+      },
+      "identifier": [
+        {
+          "id": "mbi",
+          "type": {
+            "coding": [
+              {
+                "id": "type-mbi",
+                "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+                "code": "MBI"
+              }
+            ]
+          },
+          "system": "http://hl7.org/fhir/sid/us-mbi",
+          "value": "a"
+        },
+        {
+          "id": "sourceId",
+          "system": "https://www.icanbwell.com/sourceId",
+          "value": "3b8d95db-fa41-4d88-9769-9107293850e5"
+        },
+        {
+          "id": "uuid",
+          "system": "https://www.icanbwell.com/uuid",
+          "value": "3b8d95db-fa41-4d88-9769-9107293850e5"
+        }
+      ],
+      "status": "active",
+      "policyHolder": {
+        "extension": [
+          {
+            "id": "sourceId",
+            "url": "https://www.icanbwell.com/sourceId",
+            "valueString": "Patient/john-muir-health-e.k-4ea143ZrQGvdUvf-b2y.tdyiVMBWgblY4f6y2zis3"
+          },
+          {
+            "id": "uuid",
+            "url": "https://www.icanbwell.com/uuid",
+            "valueString": "Patient/99af9c84-630a-4db8-a725-85c10fd340ca"
+          },
+          {
+            "id": "sourceAssigningAuthority",
+            "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+            "valueString": "john_muir_health"
+          }
+        ],
+        "reference": "Patient/99af9c84-630a-4db8-a725-85c10fd340ca"
+      },
+      "subscriber": {
+        "extension": [
+          {
+            "id": "sourceId",
+            "url": "https://www.icanbwell.com/sourceId",
+            "valueString": "Patient/john-muir-health-e.k-4ea143ZrQGvdUvf-b2y.tdyiVMBWgblY4f6y2zis3"
+          },
+          {
+            "id": "uuid",
+            "url": "https://www.icanbwell.com/uuid",
+            "valueString": "Patient/99af9c84-630a-4db8-a725-85c10fd340ca"
+          },
+          {
+            "id": "sourceAssigningAuthority",
+            "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+            "valueString": "john_muir_health"
+          }
+        ],
+        "reference": "Patient/99af9c84-630a-4db8-a725-85c10fd340ca"
+      },
+      "subscriberId": "r",
+      "beneficiary": {
+        "extension": [
+          {
+            "id": "sourceId",
+            "url": "https://www.icanbwell.com/sourceId",
+            "valueString": "Patient/john-muir-health-e.k-4ea143ZrQGvdUvf-b2y.tdyiVMBWgblY4f6y2zis3"
+          },
+          {
+            "id": "uuid",
+            "url": "https://www.icanbwell.com/uuid",
+            "valueString": "Patient/99af9c84-630a-4db8-a725-85c10fd340ca"
+          },
+          {
+            "id": "sourceAssigningAuthority",
+            "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+            "valueString": "john_muir_health"
+          }
+        ],
+        "reference": "Patient/99af9c84-630a-4db8-a725-85c10fd340ca"
+      },
+      "relationship": {
+        "coding": [
+          {
+            "system": "http://terminology.hl7.org/CodeSystem/subscriber-relationship",
+            "code": "self"
+          }
+        ],
+        "text": "Self"
+      },
+      "period": {
+        "start": "2020-01-01"
+      },
+      "payor": [
+        {
+          "extension": [
+            {
+              "id": "sourceId",
+              "url": "https://www.icanbwell.com/sourceId",
+              "valueString": "Organization/f5d09486-9adb-4571-8357-711d919ae762"
+            },
+            {
+              "id": "uuid",
+              "url": "https://www.icanbwell.com/uuid",
+              "valueString": "Organization/f5d09486-9adb-4571-8357-711d919ae762"
+            },
+            {
+              "id": "sourceAssigningAuthority",
+              "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+              "valueString": "medicare-bluebutton"
+            }
+          ],
+          "reference": "Organization/f5d09486-9adb-4571-8357-711d919ae762"
+        }
+      ],
+      "class": [
+        {
+          "type": {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/coverage-class",
+                "code": "group",
+                "display": "Group"
+              }
+            ],
+            "text": "An employee group"
+          },
+          "value": "MCHMO1",
+          "name": "MEDICARE HMO PLAN"
+        },
+        {
+          "type": {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/coverage-class",
+                "code": "plan",
+                "display": "Plan"
+              }
+            ],
+            "text": "A specific suite of benefits."
+          },
+          "value": "GR5",
+          "name": "GR5-HMO DEDUCTIBLE"
+        }
+      ],
+      "network": "GR5-HMO DEDUCTIBLE"
+    },
+    {
+      "resourceType": "ExplanationOfBenefit",
+      "id": "6337d113-4778-4fb3-ab2e-6c3b82429348",
+      "meta": {
+        "versionId": "10",
+        "lastUpdated": "2023-02-23T10:37:54.000Z",
+        "source": "https://www.icanbwell.com",
+        "security": [
+          {
+            "system": "https://www.icanbwell.com/access",
+            "code": "memorial-health"
+          },
+          {
+            "system": "https://www.icanbwell.com/owner",
+            "code": "medicare-bluebutton"
+          },
+          {
+            "system": "https://www.icanbwell.com/vendor",
+            "code": "medicare-bluebutton"
+          },
+          {
+            "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+            "code": "medicare-bluebutton"
+          }
+        ]
+      },
+      "identifier": [
+        {
+          "type": {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+                "code": "claimnumber",
+                "display": "Claim Number"
+              }
+            ],
+            "text": "Claim Number"
+          },
+          "value": "4bba6a93-2475-438f-9034-2952393965dc"
+        },
+        {
+          "id": "sourceId",
+          "system": "https://www.icanbwell.com/sourceId",
+          "value": "6337d113-4778-4fb3-ab2e-6c3b82429348"
+        },
+        {
+          "id": "uuid",
+          "system": "https://www.icanbwell.com/uuid",
+          "value": "6337d113-4778-4fb3-ab2e-6c3b82429348"
+        }
+      ],
+      "status": "active",
+      "type": {
+        "coding": [
+          {
+            "system": "http://terminology.hl7.org/CodeSystem/claim-type",
+            "code": "professional"
+          }
+        ],
+        "text": "Professional"
+      },
+      "use": "claim",
+      "patient": {
+        "extension": [
+          {
+            "id": "sourceId",
+            "url": "https://www.icanbwell.com/sourceId",
+            "valueString": "Patient/john-muir-health-e.k-4ea143ZrQGvdUvf-b2y.tdyiVMBWgblY4f6y2zis3"
+          },
+          {
+            "id": "uuid",
+            "url": "https://www.icanbwell.com/uuid",
+            "valueString": "Patient/99af9c84-630a-4db8-a725-85c10fd340ca"
+          },
+          {
+            "id": "sourceAssigningAuthority",
+            "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+            "valueString": "john_muir_health"
+          }
+        ],
+        "reference": "Patient/99af9c84-630a-4db8-a725-85c10fd340ca"
+      },
+      "billablePeriod": {
+        "start": "2020-08-04",
+        "end": "2020-08-04"
+      },
+      "created": "2020-08-24T00:00:00-04:00",
+      "insurer": {
+        "extension": [
+          {
+            "id": "sourceId",
+            "url": "https://www.icanbwell.com/sourceId",
+            "valueString": "Organization/f5d09486-9adb-4571-8357-711d919ae762"
+          },
+          {
+            "id": "uuid",
+            "url": "https://www.icanbwell.com/uuid",
+            "valueString": "Organization/f5d09486-9adb-4571-8357-711d919ae762"
+          },
+          {
+            "id": "sourceAssigningAuthority",
+            "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+            "valueString": "medicare-bluebutton"
+          }
+        ],
+        "reference": "Organization/f5d09486-9adb-4571-8357-711d919ae762"
+      },
+      "provider": {
+        "extension": [
+          {
+            "id": "sourceId",
+            "url": "https://www.icanbwell.com/sourceId",
+            "valueString": "Practitioner/e068b883-ad2d-43b9-90f0-205969953db7"
+          },
+          {
+            "id": "uuid",
+            "url": "https://www.icanbwell.com/uuid",
+            "valueString": "Practitioner/e068b883-ad2d-43b9-90f0-205969953db7"
+          },
+          {
+            "id": "sourceAssigningAuthority",
+            "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+            "valueString": "medicare-bluebutton"
+          }
+        ],
+        "reference": "Practitioner/e068b883-ad2d-43b9-90f0-205969953db7"
+      },
+      "outcome": "complete",
+      "insurance": [
+        {
+          "coverage": {
+            "extension": [
+              {
+                "id": "sourceId",
+                "url": "https://www.icanbwell.com/sourceId",
+                "valueString": "Coverage/7dee7f29-43f2-4207-bda1-d9b374d0491d"
+              },
+              {
+                "id": "uuid",
+                "url": "https://www.icanbwell.com/uuid",
+                "valueString": "Coverage/7dee7f29-43f2-4207-bda1-d9b374d0491d"
+              },
+              {
+                "id": "sourceAssigningAuthority",
+                "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                "valueString": "medicare-bluebutton"
+              }
+            ],
+            "reference": "Coverage/7dee7f29-43f2-4207-bda1-d9b374d0491d"
+          }
+        }
+      ],
+      "item": [
+        {
+          "sequence": 1,
+          "productOrService": {
+            "coding": [
+              {
+                "system": "http://www.ama-assn.org/go/cpt",
+                "code": "75710",
+                "display": "Diagnostic Radiology Procedures of the Aorta and Arteries"
+              }
+            ]
+          },
+          "servicedDate": "2020-08-04",
+          "adjudication": [
+            {
+              "category": {
+                "coding": [
+                  {
+                    "system": "http://hl7.org/fhir/us/carin-bb/CodeSystem/C4BBAdjudication",
+                    "code": "paidbypatient",
+                    "display": "Paid by Patient"
+                  }
+                ]
+              },
+              "amount": {
+                "value": 5,
+                "currency": "USD"
+              }
+            },
+            {
+              "category": {
+                "coding": [
+                  {
+                    "system": "http://hl7.org/fhir/us/carin-bb/CodeSystem/C4BBAdjudication",
+                    "code": "paidtoprovider"
+                  }
+                ],
+                "text": "Paid by insurance"
+              },
+              "amount": {
+                "value": 40,
+                "currency": "USD"
+              }
+            },
+            {
+              "category": {
+                "coding": [
+                  {
+                    "system": "http://hl7.org/fhir/us/carin-bb/CodeSystem/C4BBAdjudication",
+                    "code": "deductible",
+                    "display": "Deductible"
+                  }
+                ]
+              },
+              "amount": {
+                "value": 5,
+                "currency": "USD"
+              }
+            },
+            {
+              "category": {
+                "coding": [
+                  {
+                    "system": "http://hl7.org/fhir/us/carin-bb/CodeSystem/C4BBPayerAdjudicationStatus",
+                    "code": "innetwork",
+                    "display": "In Network"
+                  }
+                ],
+                "text": "Indicates the claim or claim line was paid in network. This does not indicate the contracting status of the provider"
+              }
+            }
+          ]
+        },
+        {
+          "sequence": 2,
+          "productOrService": {
+            "coding": [
+              {
+                "system": "http://www.ama-assn.org/go/cpt",
+                "code": "37228",
+                "display": "Endovascular Revascularization"
+              }
+            ]
+          },
+          "servicedDate": "2020-08-04",
+          "adjudication": [
+            {
+              "category": {
+                "coding": [
+                  {
+                    "system": "http://hl7.org/fhir/us/carin-bb/CodeSystem/C4BBAdjudication",
+                    "code": "paidbypatient",
+                    "display": "Paid by Patient"
+                  }
+                ]
+              },
+              "amount": {
+                "value": 250,
+                "currency": "USD"
+              }
+            },
+            {
+              "category": {
+                "coding": [
+                  {
+                    "system": "http://hl7.org/fhir/us/carin-bb/CodeSystem/C4BBAdjudication",
+                    "code": "paidtoprovider"
+                  }
+                ],
+                "text": "Paid by insurance"
+              },
+              "amount": {
+                "value": 250,
+                "currency": "USD"
+              }
+            },
+            {
+              "category": {
+                "coding": [
+                  {
+                    "system": "http://hl7.org/fhir/us/carin-bb/CodeSystem/C4BBAdjudication",
+                    "code": "deductible",
+                    "display": "Deductible"
+                  }
+                ]
+              },
+              "amount": {
+                "value": 50,
+                "currency": "USD"
+              }
+            },
+            {
+              "category": {
+                "coding": [
+                  {
+                    "system": "http://hl7.org/fhir/us/carin-bb/CodeSystem/C4BBPayerAdjudicationStatus",
+                    "code": "innetwork",
+                    "display": "In Network"
+                  }
+                ],
+                "text": "Indicates the claim or claim line was paid in network. This does not indicate the contracting status of the provider"
+              }
+            }
+          ]
+        }
+      ],
+      "total": [
+        {
+          "category": {
+            "coding": [
+              {
+                "system": "http://hl7.org/fhir/us/carin-bb/CodeSystem/C4BBAdjudication",
+                "code": "paidbypatient",
+                "display": "Paid by Patient"
+              }
+            ]
+          },
+          "amount": {
+            "value": 255,
+            "currency": "USD"
+          }
+        },
+        {
+          "category": {
+            "coding": [
+              {
+                "system": "http://hl7.org/fhir/us/carin-bb/CodeSystem/C4BBAdjudication",
+                "code": "paidtoprovider"
+              }
+            ],
+            "text": "Paid by insurance"
+          },
+          "amount": {
+            "value": 290,
+            "currency": "USD"
+          }
+        },
+        {
+          "category": {
+            "coding": [
+              {
+                "system": "http://hl7.org/fhir/us/carin-bb/CodeSystem/C4BBAdjudication",
+                "code": "deductible",
+                "display": "Deductible"
+              }
+            ]
+          },
+          "amount": {
+            "value": 100,
+            "currency": "USD"
+          }
+        }
+      ],
+      "payment": {
+        "amount": {
+          "value": 290,
+          "currency": "USD"
+        }
       }
+    },
+    {
+      "resourceType": "Encounter",
+      "id": "aetna-sandbox-003c7931-ee0e-4c42-8627-61f46ecd5088",
+      "meta": {
+        "versionId": "1",
+        "lastUpdated": "2023-04-06T13:00:35.000Z",
+        "source": "https://vteapif1.aetna.com/fhirdemo/v2/patientaccess//Encounter/003c7931-ee0e-4c42-8627-61f46ecd5088",
+        "security": [
+          {
+            "system": "https://www.icanbwell.com/owner",
+            "code": "aetna_sandbox"
+          },
+          {
+            "system": "https://www.icanbwell.com/access",
+            "code": "aetna_sandbox"
+          },
+          {
+            "system": "https://www.icanbwell.com/vendor",
+            "code": "aetna_sandbox"
+          },
+          {
+            "system": "https://www.icanbwell.com/connectionType",
+            "code": "proa"
+          },
+          {
+            "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+            "code": "aetna_sandbox"
+          }
+        ]
+      },
+      "identifier": [
+        {
+          "system": "https://sources.aetna.com/encounter/identifier/memberenctid/50063",
+          "value": "M1111"
+        },
+        {
+          "id": "sourceId",
+          "system": "https://www.icanbwell.com/sourceId",
+          "value": "aetna-sandbox-003c7931-ee0e-4c42-8627-61f46ecd5088"
+        },
+        {
+          "id": "uuid",
+          "system": "https://www.icanbwell.com/uuid",
+          "value": "aetna-sandbox-003c7931-ee0e-4c42-8627-61f46ecd5088"
+        }
+      ],
+      "status": "unknown",
+      "class": {
+        "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+        "code": "AMB"
+      },
+      "type": [
+        {
+          "coding": [
+            {
+              "system": "http://www.ama-assn.org/go/cpt",
+              "code": "99234",
+              "display": "Observation or Inpatient Care Services (Including Admission and Discharge Services)"
+            }
+          ]
+        }
+      ],
+      "subject": {
+        "extension": [
+          {
+            "id": "sourceId",
+            "url": "https://www.icanbwell.com/sourceId",
+            "valueString": "Patient/john-muir-health-e.k-4ea143ZrQGvdUvf-b2y.tdyiVMBWgblY4f6y2zis3"
+          },
+          {
+            "id": "uuid",
+            "url": "https://www.icanbwell.com/uuid",
+            "valueString": "Patient/99af9c84-630a-4db8-a725-85c10fd340ca"
+          },
+          {
+            "id": "sourceAssigningAuthority",
+            "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+            "valueString": "john_muir_health"
+          }
+        ],
+        "reference": "Patient/99af9c84-630a-4db8-a725-85c10fd340ca"
+      },
+      "participant": [
+        {
+          "type": [
+            {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/v3-ParticipationType",
+                  "code": "PPRF",
+                  "display": "primary performer"
+                }
+              ]
+            }
+          ],
+          "period": {
+            "start": "2019-03-21T01:00:00-04:00",
+            "end": "2019-03-21T01:15:00-04:00"
+          },
+          "individual": {
+            "extension": [
+              {
+                "id": "sourceId",
+                "url": "https://www.icanbwell.com/sourceId",
+                "valueString": "Practitioner/aetna-sandbox-05492895-65d3-392b-9b5c-6bf70d8981f5"
+              },
+              {
+                "id": "uuid",
+                "url": "https://www.icanbwell.com/uuid",
+                "valueString": "Practitioner/aetna-sandbox-05492895-65d3-392b-9b5c-6bf70d8981f5"
+              },
+              {
+                "id": "sourceAssigningAuthority",
+                "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                "valueString": "aetna_sandbox"
+              }
+            ],
+            "reference": "Practitioner/aetna-sandbox-05492895-65d3-392b-9b5c-6bf70d8981f5",
+            "display": "Dr. Sarita Dibbert"
+          }
+        }
+      ],
+      "period": {
+        "start": "2019-03-21T01:00:00-04:00",
+        "end": "2019-03-21T01:15:00-04:00"
+      },
+      "location": [
+        {
+          "location": {
+            "extension": [
+              {
+                "id": "sourceId",
+                "url": "https://www.icanbwell.com/sourceId",
+                "valueString": "Location/aetna-sandbox-479a099c-7fbd-3877-9f33-dace3ab7f7e6"
+              },
+              {
+                "id": "uuid",
+                "url": "https://www.icanbwell.com/uuid",
+                "valueString": "Location/aetna-sandbox-479a099c-7fbd-3877-9f33-dace3ab7f7e6"
+              },
+              {
+                "id": "sourceAssigningAuthority",
+                "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                "valueString": "aetna_sandbox"
+              }
+            ],
+            "reference": "Location/aetna-sandbox-479a099c-7fbd-3877-9f33-dace3ab7f7e6",
+            "display": "ST FRANCIS HOSPITAL & MEDICAL CENTER"
+          }
+        }
+      ],
+      "serviceProvider": {
+        "extension": [
+          {
+            "id": "sourceId",
+            "url": "https://www.icanbwell.com/sourceId",
+            "valueString": "Organization/aetna-sandbox-d09a394f-fe5e-350a-87c6-96d65e0d08f8"
+          },
+          {
+            "id": "uuid",
+            "url": "https://www.icanbwell.com/uuid",
+            "valueString": "Organization/aetna-sandbox-d09a394f-fe5e-350a-87c6-96d65e0d08f8"
+          },
+          {
+            "id": "sourceAssigningAuthority",
+            "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+            "valueString": "aetna_sandbox"
+          }
+        ],
+        "reference": "Organization/aetna-sandbox-d09a394f-fe5e-350a-87c6-96d65e0d08f8",
+        "display": "ST FRANCIS HOSPITAL & MEDICAL CENTER"
+      }
+    },
+    {
+      "resourceType": "CarePlan",
+      "id": "38e041e3-88be-4dd5-a762-e0968f5f2b42",
+      "meta": {
+        "versionId": "4",
+        "lastUpdated": "2023-02-23T04:56:52.000Z",
+        "source": "https://www.icanbwell.com",
+        "security": [
+          {
+            "system": "https://www.icanbwell.com/owner",
+            "code": "Memorial Health"
+          },
+          {
+            "system": "https://www.icanbwell.com/access",
+            "code": "memorial-health"
+          },
+          {
+            "system": "https://www.icanbwell.com/vendor",
+            "code": "Memorial Health"
+          },
+          {
+            "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+            "code": "Memorial Health"
+          }
+        ]
+      },
+      "text": {
+        "status": "generated",
+        "div": "CarePlan"
+      },
+      "identifier": [
+        {
+          "id": "sourceId",
+          "system": "https://www.icanbwell.com/sourceId",
+          "value": "38e041e3-88be-4dd5-a762-e0968f5f2b42"
+        },
+        {
+          "id": "uuid",
+          "system": "https://www.icanbwell.com/uuid",
+          "value": "38e041e3-88be-4dd5-a762-e0968f5f2b42"
+        }
+      ],
+      "status": "active",
+      "intent": "order",
+      "category": [
+        {
+          "coding": [
+            {
+              "system": "http://hl7.org/fhir/us/core/CodeSystem/careplan-category",
+              "code": "assess-plan"
+            }
+          ]
+        },
+        {
+          "coding": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "698360004",
+              "display": "Diabetes self management plan"
+            }
+          ],
+          "text": "Diabetes self management plan"
+        }
+      ],
+      "title": "Diabetes self management plan",
+      "subject": {
+        "extension": [
+          {
+            "id": "sourceId",
+            "url": "https://www.icanbwell.com/sourceId",
+            "valueString": "Patient/john-muir-health-e.k-4ea143ZrQGvdUvf-b2y.tdyiVMBWgblY4f6y2zis3"
+          },
+          {
+            "id": "uuid",
+            "url": "https://www.icanbwell.com/uuid",
+            "valueString": "Patient/99af9c84-630a-4db8-a725-85c10fd340ca"
+          },
+          {
+            "id": "sourceAssigningAuthority",
+            "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+            "valueString": "john_muir_health"
+          }
+        ],
+        "reference": "Patient/99af9c84-630a-4db8-a725-85c10fd340ca"
+      },
+      "period": {
+        "start": "2012-03-03T01:45:51+00:00",
+        "end": "2013-03-03T01:45:51+00:00"
+      },
+      "activity": [
+        {
+          "detail": {
+            "code": {
+              "coding": [
+                {
+                  "system": "http://snomed.info/sct",
+                  "code": "160670007",
+                  "display": "Diabetic diet"
+                }
+              ],
+              "text": "Diabetic diet"
+            },
+            "status": "in-progress"
+          }
+        },
+        {
+          "detail": {
+            "code": {
+              "coding": [
+                {
+                  "system": "http://snomed.info/sct",
+                  "code": "229065009",
+                  "display": "Exercise therapy"
+                }
+              ],
+              "text": "Exercise therapy"
+            },
+            "status": "in-progress"
+          }
+        }
+      ]
+    },
+    {
+      "resourceType": "Immunization",
+      "id": "6b241c33-b485-45cb-9cba-57136d7d1031",
+      "meta": {
+        "versionId": "6",
+        "lastUpdated": "2023-05-02T13:52:36.000Z",
+        "source": "https://www.icanbwell.com",
+        "security": [
+          {
+            "system": "https://www.icanbwell.com/owner",
+            "code": "Memorial Health"
+          },
+          {
+            "system": "https://www.icanbwell.com/access",
+            "code": "bwell-test"
+          },
+          {
+            "system": "https://www.icanbwell.com/vendor",
+            "code": "bwell-test"
+          },
+          {
+            "system": "https://www.icanbwell.com/owner",
+            "code": "bwell-test"
+          },
+          {
+            "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+            "code": "Memorial Health"
+          }
+        ]
+      },
+      "identifier": [
+        {
+          "id": "sourceId",
+          "system": "https://www.icanbwell.com/sourceId",
+          "value": "6b241c33-b485-45cb-9cba-57136d7d1031"
+        },
+        {
+          "id": "uuid",
+          "system": "https://www.icanbwell.com/uuid",
+          "value": "6b241c33-b485-45cb-9cba-57136d7d1031"
+        }
+      ],
+      "status": "completed",
+      "vaccineCode": {
+        "coding": [
+          {
+            "system": "https://fhir.cerner.com/ec2458f2-1e24-41c8-b71b-0e701af7583d/codeSet/72",
+            "code": "2798767",
+            "display": "tetanus toxoid"
+          },
+          {
+            "system": "http://hl7.org/fhir/sid/cvx",
+            "code": "112",
+            "display": "tetanus toxoid, unspecified formulation"
+          },
+          {
+            "system": "http://hl7.org/fhir/sid/cvx",
+            "code": "CVX 212",
+            "display": "tetanus toxoid, unspecified formulation"
+          },
+          {
+            "system": "http://hl7.org/fhir/sid/cvx",
+            "code": "212",
+            "display": "tetanus toxoid, unspecified formulation"
+          }
+        ],
+        "text": "tetanus toxoid"
+      },
+      "patient": {
+        "extension": [
+          {
+            "id": "sourceId",
+            "url": "https://www.icanbwell.com/sourceId",
+            "valueString": "Patient/john-muir-health-e.k-4ea143ZrQGvdUvf-b2y.tdyiVMBWgblY4f6y2zis3"
+          },
+          {
+            "id": "uuid",
+            "url": "https://www.icanbwell.com/uuid",
+            "valueString": "Patient/99af9c84-630a-4db8-a725-85c10fd340ca"
+          },
+          {
+            "id": "sourceAssigningAuthority",
+            "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+            "valueString": "john_muir_health"
+          }
+        ],
+        "reference": "Patient/99af9c84-630a-4db8-a725-85c10fd340ca"
+      },
+      "encounter": {
+        "extension": [
+          {
+            "id": "sourceId",
+            "url": "https://www.icanbwell.com/sourceId",
+            "valueString": "Encounter/89798260-1481-487e-af7c-d687860b70c6"
+          },
+          {
+            "id": "uuid",
+            "url": "https://www.icanbwell.com/uuid",
+            "valueString": "Encounter/89798260-1481-487e-af7c-d687860b70c6"
+          },
+          {
+            "id": "sourceAssigningAuthority",
+            "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+            "valueString": "Memorial Health"
+          }
+        ],
+        "reference": "Encounter/89798260-1481-487e-af7c-d687860b70c6"
+      },
+      "occurrenceDateTime": "2012-10-20T00:00:00.000Z",
+      "doseQuantity": {
+        "value": 5,
+        "unit": "mL",
+        "system": "http://unitsofmeasure.org",
+        "code": "mL"
+      },
+      "protocolApplied": [
+        {
+          "targetDisease": [
+            {
+              "coding": [
+                {
+                  "system": "https://fhir.cerner.com/ec2458f2-1e24-41c8-b71b-0e701af7583d/codeSet/4003106",
+                  "code": "2289043429",
+                  "display": "COVID-19"
+                },
+                {
+                  "system": "http://hl7.org/fhir/sid/cvx",
+                  "code": "213",
+                  "display": "SARS-COV-2 (COVID-19) vaccine, UNSPECIFIED"
+                }
+              ],
+              "text": "COVID-19"
+            }
+          ],
+          "doseNumberPositiveInt": 1
+        },
+        {
+          "targetDisease": [
+            {
+              "coding": [
+                {
+                  "system": "https://fhir.cerner.com/ec2458f2-1e24-41c8-b71b-0e701af7583d/codeSet/4003106",
+                  "code": "2289043429",
+                  "display": "COVID-19"
+                },
+                {
+                  "system": "http://hl7.org/fhir/sid/cvx",
+                  "code": "213",
+                  "display": "SARS-COV-2 (COVID-19) vaccine, UNSPECIFIED"
+                }
+              ],
+              "text": "COVID-19"
+            }
+          ]
+        }
+      ]
     }
   ]
 }
