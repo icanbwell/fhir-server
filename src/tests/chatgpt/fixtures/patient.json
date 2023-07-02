@@ -1,0 +1,237 @@
+{
+  "resourceType": "Patient",
+  "id": "john-muir-health-e.k-4ea143ZrQGvdUvf-b2y.tdyiVMBWgblY4f6y2zis3",
+  "meta": {
+    "versionId": "2",
+    "lastUpdated": "2023-04-06T13:00:21.000Z",
+    "source": "https://vteapif1.aetna.com/fhirdemo/v2/patientaccess//Patient/aetna-sandbox-235672cf-a9e7-45cc-8983-ca797d4fa2a3",
+    "security": [
+      {
+        "system": "https://www.icanbwell.com/owner",
+        "code": "john_muir_health"
+      },
+      {
+        "system": "https://www.icanbwell.com/access",
+        "code": "john_muir_health"
+      },
+      {
+        "system": "https://www.icanbwell.com/vendor",
+        "code": "john_muir_health"
+      },
+      {
+        "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+        "code": "aetna_sandbox"
+      },
+      {
+        "system": "https://www.icanbwell.com/connectionType",
+        "code": "proa"
+      }
+    ]
+  },
+  "language": "en",
+  "extension": [
+    {
+      "extension": [
+        {
+          "url": "ombCategory"
+        },
+        {
+          "url": "text",
+          "valueString": "White"
+        }
+      ],
+      "url": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-race"
+    },
+    {
+      "extension": [
+        {
+          "url": "ombCategory"
+        },
+        {
+          "url": "text",
+          "valueString": "Hispanic or Latino"
+        }
+      ],
+      "url": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-ethnicity"
+    },
+    {
+      "url": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-birthsex",
+      "valueCode": "F"
+    },
+    {
+      "url": "http://hl7.org/fhir/StructureDefinition/patient-birthPlace",
+      "valueAddress": {
+        "city": "San Juan",
+        "state": "Puerto Rico",
+        "country": "PR"
+      }
+    },
+    {
+      "url": "http://synthetichealth.github.io/synthea/disability-adjusted-life-years",
+      "valueDecimal": 0
+    },
+    {
+      "url": "http://synthetichealth.github.io/synthea/quality-adjusted-life-years",
+      "valueDecimal": 38
+    },
+    {
+      "extension": [
+        {
+          "url": "ombCategory",
+          "valueCoding": {
+            "system": "urn:oid:2.16.840.1.113883.6.238",
+            "code": "2106-3",
+            "display": "White"
+          }
+        },
+        {
+          "url": "text",
+          "valueString": "White"
+        }
+      ],
+      "url": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-race"
+    },
+    {
+      "extension": [
+        {
+          "url": "ombCategory",
+          "valueCoding": {
+            "system": "urn:oid:2.16.840.1.113883.6.238",
+            "code": "2135-2",
+            "display": "Hispanic or Latino"
+          }
+        },
+        {
+          "url": "text",
+          "valueString": "Hispanic or Latino"
+        }
+      ],
+      "url": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-ethnicity"
+    }
+  ],
+  "identifier": [
+    {
+      "type": {
+        "coding": [
+          {
+            "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+            "code": "MB",
+            "display": "Member Number"
+          }
+        ]
+      },
+      "system": "https://sources.aetna.com/patient/identifier/memberid/81",
+      "value": "111111111"
+    },
+    {
+      "id": "sourceId",
+      "system": "https://www.icanbwell.com/sourceId",
+      "value": "aetna-sandbox-235672cf-a9e7-45cc-8983-ca797d4fa2a3"
+    },
+    {
+      "id": "uuid",
+      "system": "https://www.icanbwell.com/uuid",
+      "value": "aetna-sandbox-235672cf-a9e7-45cc-8983-ca797d4fa2a3"
+    }
+  ],
+  "active": true,
+  "name": [
+    {
+      "use": "official",
+      "text": "Ashlee Newton",
+      "family": "Newton",
+      "given": [
+        "Ashlee"
+      ]
+    }
+  ],
+  "telecom": [
+    {
+      "system": "phone",
+      "value": "555-338-2918",
+      "use": "home",
+      "rank": 1
+    },
+    {
+      "system": "email",
+      "value": "ashlee_newton@test.com",
+      "use": "work",
+      "rank": 2
+    }
+  ],
+  "gender": "female",
+  "birthDate": "1983-12-01",
+  "address": [
+    {
+      "extension": [
+        {
+          "extension": [
+            {
+              "url": "latitude",
+              "valueDecimal": 41.785374
+            },
+            {
+              "url": "longitude",
+              "valueDecimal": -72.65838
+            }
+          ],
+          "url": "http://hl7.org/fhir/StructureDefinition/geolocation"
+        }
+      ],
+      "text": "257 Schoen Annex, Hartford, CT ",
+      "line": [
+        "257 Schoen Annex"
+      ],
+      "city": "Hartford",
+      "state": "CT",
+      "country": "US"
+    },
+    {
+      "extension": [
+        {
+          "extension": [
+            {
+              "url": "latitude",
+              "valueDecimal": 41.78537300919756
+            },
+            {
+              "url": "longitude",
+              "valueDecimal": -72.65837526144423
+            }
+          ],
+          "url": "http://hl7.org/fhir/StructureDefinition/geolocation"
+        }
+      ],
+      "text": "257 Schoen Annex, Hartford, CT ",
+      "line": [
+        "257 Schoen Annex"
+      ],
+      "city": "Hartford",
+      "state": "CT",
+      "country": "US"
+    }
+  ],
+  "maritalStatus": {
+    "coding": [
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/v3-MaritalStatus",
+        "code": "S",
+        "display": "S"
+      }
+    ]
+  },
+  "multipleBirthBoolean": false,
+  "communication": [
+    {
+      "language": {
+        "coding": [
+          {
+            "system": "urn:ietf:bcp:47",
+            "code": "en",
+            "display": "English"
+          }
+        ]
+      }
+    }
+  ]
+}

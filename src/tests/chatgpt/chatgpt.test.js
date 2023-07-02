@@ -13,6 +13,7 @@ const {LLMChain} = require('langchain/chains');
 const {StructuredOutputParser, OutputFixingParser} = require('langchain/output_parsers');
 const {z} = require('zod');
 
+const patientResource = require('./fixtures/patient.json');
 
 const {describe, test} = require('@jest/globals');
 
@@ -133,6 +134,18 @@ describe('ChatGPT Tests', () => {
                 const url = firstField.url;
                 console.log(`url: ${url}`);
             }
+        });
+        test('ChatGPT explains a FHIR record', async () => {
+            // https://js.langchain.com/docs/getting-started/guide-llm
+            const model = new OpenAI({openAIApiKey: process.env.OPENAI_API_KEY, temperature: 0.9});
+            const template = 'Here\'s my data in FHIR schema. Write a clinical summary for a doctor: ```{data}```. ';
+            const prompt = new PromptTemplate({
+                template: template,
+                inputVariables: ['data'],
+            });
+            const chain = new LLMChain({llm: model, prompt: prompt});
+            const res = await chain.call({data: patientResource});
+            console.log(res);
         });
     });
 });
