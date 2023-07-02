@@ -4,12 +4,15 @@ const pathToEnv = path.resolve(__dirname, '.env');
 dotenv.config({
     path: pathToEnv
 });
-console.log(`Reading config from ${pathToEnv}`);
-console.log(`OPENAI_API_KEY=${process.env.OPENAI_API_KEY}`);
+// console.log(`Reading config from ${pathToEnv}`);
+// console.log(`OPENAI_API_KEY=${process.env.OPENAI_API_KEY}`);
 
 const {OpenAI} = require('langchain/llms/openai');
 const {PromptTemplate} = require('langchain/prompts');
 const {LLMChain} = require('langchain/chains');
+const {StructuredOutputParser, OutputFixingParser} = require('langchain/output_parsers');
+const {z} = require('zod');
+
 
 const {describe, test} = require('@jest/globals');
 
@@ -38,6 +41,46 @@ describe('ChatGPT Tests', () => {
             const chain = new LLMChain({llm: model, prompt: prompt});
             const res = await chain.call({patientId: 'imran', resource: 'condition'});
             console.log(res);
+        });
+        test('ChatGPT works with English query and structured output', async () => {
+            // https://js.langchain.com/docs/getting-started/guide-llm
+            // https://blog.langchain.dev/going-beyond-chatbots-how-to-make-gpt-4-output-structured-data-using-langchain/
+            // https://nathankjer.com/introduction-to-langchain/
+
+            const outputParser = StructuredOutputParser.fromZodSchema(
+                z.array(
+                    z.object({
+                        fields: z.object({
+                            Name: z.string().describe('The name of the country'),
+                            Capital: z.string().describe("The country's capital")
+                        })
+                    })
+                ).describe('An array of Airtable records, each representing a country')
+            );
+            const model = new OpenAI({
+                // modelName: 'gpt-4', // Or gpt-3.5-turbo
+                temperature: 0 // For best results with the output fixing parser
+            });
+            const outputFixingParser = OutputFixingParser.fromLLM(
+                model,
+                outputParser
+            );
+            const template = 'Answer the user\'s question as best you can:\n{format_instructions}\n{query}';
+            const prompt = new PromptTemplate({
+                template: template,
+                inputVariables: ['query'],
+                partialVariables: {
+                    format_instructions: outputFixingParser.getFormatInstructions()
+                }
+            });
+            const chain = new LLMChain(
+                {
+                    llm: model, prompt: prompt,
+                    outputKey: 'records', // For readability - otherwise the chain output will default to a property named "text"
+                    outputParser: outputFixingParser
+                });
+            const result = await chain.call({query: 'List 5 countries.'});
+            console.log(JSON.stringify(result.records, null, 2));
         });
     });
 });
