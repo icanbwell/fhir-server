@@ -9,9 +9,12 @@ dotenv.config({
 
 const {OpenAI} = require('langchain/llms/openai');
 const {PromptTemplate} = require('langchain/prompts');
-const {LLMChain} = require('langchain/chains');
+const {LLMChain, RetrievalQAChain, loadQAStuffChain} = require('langchain/chains');
 const {StructuredOutputParser, OutputFixingParser} = require('langchain/output_parsers');
 const {z} = require('zod');
+const {CharacterTextSplitter} = require('langchain/text_splitter');
+const {OpenAIEmbeddings} = require('langchain/embeddings/openai');
+const {HNSWLib} = require('langchain/vectorstores/hnswlib');
 
 const patientBundleResource = require('./fixtures/patient.json');
 
@@ -146,6 +149,48 @@ describe('ChatGPT Tests', () => {
             const chain = new LLMChain({llm: model, prompt: prompt});
             const res = await chain.call({data: patientBundleResource.entry[0]});
             console.log(res);
+        });
+        test('ChatGPT explains a FHIR record with input splitter', async () => {
+            const splitter = new CharacterTextSplitter({
+                chunkSize: 1536,
+                chunkOverlap: 200,
+            });
+
+            const jimDocs = await splitter.createDocuments(
+                ['My favorite color is blue.'],
+                [],
+                {
+                    chunkHeader: 'DOCUMENT NAME: Jim Interview\n\n---\n\n',
+                    appendChunkOverlapHeader: true,
+                }
+            );
+
+            const pamDocs = await splitter.createDocuments(
+                ['My favorite color is red.'],
+                [],
+                {
+                    chunkHeader: 'DOCUMENT NAME: Pam Interview\n\n---\n\n',
+                    appendChunkOverlapHeader: true,
+                }
+            );
+
+            const vectorStore = await HNSWLib.fromDocuments(
+                jimDocs.concat(pamDocs),
+                new OpenAIEmbeddings()
+            );
+
+            const model = new OpenAI({temperature: 0});
+
+            const chain = new RetrievalQAChain({
+                combineDocumentsChain: loadQAStuffChain(model),
+                retriever: vectorStore.asRetriever(),
+                returnSourceDocuments: true,
+            });
+            const res = await chain.call({
+                query: "What is Pam's favorite color?",
+            });
+
+            console.log(JSON.stringify(res, null, 2));
         });
     });
 });
