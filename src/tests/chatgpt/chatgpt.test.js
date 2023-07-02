@@ -73,6 +73,7 @@ describe('ChatGPT Tests', () => {
                     format_instructions: outputFixingParser.getFormatInstructions()
                 }
             });
+            console.log(prompt);
             const chain = new LLMChain(
                 {
                     llm: model, prompt: prompt,
