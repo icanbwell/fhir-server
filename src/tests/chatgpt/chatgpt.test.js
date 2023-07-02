@@ -105,24 +105,27 @@ describe('ChatGPT Tests', () => {
                 model,
                 outputParser
             );
-            const template = 'You are a software program. You are talking to a FHIR server. \n{format_instructions}\n The base url is fhir.icanbwell.com/4_0_0.  Patient id is {patientId}. how would I query for all FHIR {resource} that belong to this patient?';
+            const template = 'You are a software program. You are talking to a FHIR server. \n{format_instructions}\n The base url is {baseUrl}.  Patient id is {patientId}. Write FHIR query for ```{query}``` for this patient';
 
             // const template = 'Answer the user\'s question as best you can:\n{format_instructions}\n{query}';
             const prompt = new PromptTemplate({
                 template: template,
-                inputVariables: ['patientId', 'resource'],
+                inputVariables: ['baseUrl', 'patientId', 'query'],
                 partialVariables: {
                     format_instructions: outputFixingParser.getFormatInstructions()
                 }
             });
-            console.log(outputFixingParser.getFormatInstructions());
+            // console.log(outputFixingParser.getFormatInstructions());
             const chain = new LLMChain(
                 {
                     llm: model, prompt: prompt,
                     outputKey: 'records', // For readability - otherwise the chain output will default to a property named "text"
                     outputParser: outputFixingParser
                 });
-            const result = await chain.call({patientId: 'imran', resource: 'condition'});
+
+            const query = 'Find me all conditions';
+            const baseUrl = 'https://fhir.icanbwell.com/4_0_0';
+            const result = await chain.call({patientId: 'imran', query: query, baseUrl: baseUrl});
             console.log(JSON.stringify(result.records, null, 2));
             if (result.records.length > 0) {
                 const firstRecord = result.records[0];
