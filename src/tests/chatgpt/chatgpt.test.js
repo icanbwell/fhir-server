@@ -30,7 +30,7 @@ describe('ChatGPT Tests', () => {
         test('ChatGPT works with English query', async () => {
             // https://js.langchain.com/docs/getting-started/guide-llm
             const model = new OpenAI({openAIApiKey: process.env.OPENAI_API_KEY, temperature: 0.9});
-            const template = 'You are a software program. You are talking to a FHIR server. The base url is fhir.icanbwell.com/4_0_0.  Patient id is {patientId}. how would I query for all FHIR {resource} that belong to this patient?';
+            const template = 'You are a software program. You are talking to a FHIR server. The base url is fhir.icanbwell.com/4_0_0.  Patient id is {patientId}. how would I query for all FHIR {resource} that belong to this patient? Give me just the url.';
             const prompt = new PromptTemplate({
                 template: template,
                 inputVariables: ['patientId', 'resource'],
