@@ -115,7 +115,7 @@ describe('ChatGPT Tests', () => {
                     format_instructions: outputFixingParser.getFormatInstructions()
                 }
             });
-            console.log(prompt);
+            console.log(outputFixingParser.getFormatInstructions());
             const chain = new LLMChain(
                 {
                     llm: model, prompt: prompt,
@@ -124,6 +124,12 @@ describe('ChatGPT Tests', () => {
                 });
             const result = await chain.call({patientId: 'imran', resource: 'condition'});
             console.log(JSON.stringify(result.records, null, 2));
+            if (result.records.length > 0) {
+                const firstRecord = result.records[0];
+                const firstField = firstRecord.fields;
+                const url = firstField.url;
+                console.log(`url: ${url}`);
+            }
         });
     });
 });
