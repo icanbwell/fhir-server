@@ -209,7 +209,7 @@ describe('ChatGPT Tests', () => {
             );
 
             // https://js.langchain.com/docs/modules/indexes/vector_stores/#which-one-to-pick
-            const vectorStore = await HNSWLib.fromDocuments(
+            const vectorStore = await MemoryVectorStore.fromDocuments(
                 jimDocs.concat(pamDocs),
                 new OpenAIEmbeddings()
             );
