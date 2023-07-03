@@ -19,29 +19,7 @@ const {HNSWLib} = require('langchain/vectorstores/hnswlib');
 const patientBundleResource = require('./fixtures/patient.json');
 
 const {describe, test} = require('@jest/globals');
-
-function createIndexes() {
-    const {HierarchicalNSW} = require('hnswlib-node');
-
-    const numDimensions = 8; // the length of data point vector that will be indexed.
-    const maxElements = 10; // the maximum number of data points.
-
-// declaring and intializing index.
-    const index = new HierarchicalNSW('l2', numDimensions);
-    index.initIndex(maxElements);
-
-// // inserting data points to index.
-//     for (let i = 0; i < maxElements; i++) {
-//         const point = new Array(numDimensions);
-//         for (let j = 0; j < numDimensions; j++) {
-//             point[`${j}`] = Math.random();
-//         }
-//         index.addPoint(point, i);
-//     }
-//
-//     // saving index.
-//     index.writeIndexSync('foo.dat');
-}
+const {FaissStore} = require('langchain/vectorstores/faiss');
 
 describe('ChatGPT Tests', () => {
     describe('ChatGPT Tests', () => {
@@ -174,8 +152,18 @@ describe('ChatGPT Tests', () => {
             console.log(res);
         });
         test('HNSWLib test', async () => {
-            createIndexes();
+            // createIndexes();
             const vectorStore = await HNSWLib.fromTexts(
+                ['Hello world', 'Bye bye', 'hello nice world'],
+                [{id: 2}, {id: 1}, {id: 3}],
+                new OpenAIEmbeddings()
+            );
+
+            const resultOne = await vectorStore.similaritySearch('hello world', 1);
+            console.log(resultOne);
+        });
+        test('Faiss vector database test', async () => {
+            const vectorStore = await FaissStore.fromTexts(
                 ['Hello world', 'Bye bye', 'hello nice world'],
                 [{id: 2}, {id: 1}, {id: 3}],
                 new OpenAIEmbeddings()
