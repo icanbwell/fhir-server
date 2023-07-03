@@ -149,7 +149,7 @@ class FixReferenceIdHapiRunner extends FixReferenceIdRunner {
     }
 
     /**
-     * Created old if from original id
+     * Created old id from original id
      * @param {string} originalId
      * @returns {string}
      */

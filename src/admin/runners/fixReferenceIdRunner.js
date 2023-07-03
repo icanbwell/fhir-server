@@ -1006,11 +1006,11 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
      * @returns {string}
      */
     getOriginalId({ doc }) {
-        return doc.meta.source.split('/').pop();
+        return doc.meta.source.split('/').pop().replace(/[^A-Za-z0-9\-.]/g, '-');
     }
 
     /**
-     * Created old if from original id
+     * Created old id from original id
      * @param {string} originalId
      * @param {string} _sourceAssigningAuthority
      * @returns {string}
