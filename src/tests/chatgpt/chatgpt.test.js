@@ -22,6 +22,7 @@ const patientBundleResource = require('./fixtures/patient.json');
 const {describe, test} = require('@jest/globals');
 const {FaissStore} = require('langchain/vectorstores/faiss');
 const {MemoryVectorStore} = require('langchain/vectorstores/memory');
+const {Document} = require('langchain/document');
 
 describe('ChatGPT Tests', () => {
     describe('ChatGPT Tests', () => {
@@ -125,7 +126,8 @@ describe('ChatGPT Tests', () => {
             // console.log(outputFixingParser.getFormatInstructions());
             const chain = new LLMChain(
                 {
-                    llm: model, prompt: prompt,
+                    llm: model,
+                    prompt: prompt,
                     outputKey: 'records', // For readability - otherwise the chain output will default to a property named "text"
                     outputParser: outputFixingParser
                 });
@@ -184,7 +186,7 @@ describe('ChatGPT Tests', () => {
             const resultOne = await vectorStore.similaritySearch('hello world', 1);
             console.log(resultOne);
         });
-        test('ChatGPT explains a FHIR record with input splitter', async () => {
+        test('ChatGPT with sample with input splitter', async () => {
             const splitter = new CharacterTextSplitter({
                 chunkSize: 1536,
                 chunkOverlap: 200,
@@ -223,6 +225,53 @@ describe('ChatGPT Tests', () => {
             });
             const res = await chain.call({
                 query: "What is Pam's favorite color?",
+            });
+
+            console.log(JSON.stringify(res, null, 2));
+        });
+        test('ChatGPT with FHIR record with input splitter', async () => {
+            // https://horosin.com/extracting-pdf-and-generating-json-data-with-gpts-langchain-and-nodejs
+            // https://genesis-aka.net/information-technology/professional/2023/05/23/chatgpt-in-node-js-integrate-chatgpt-using-langchain-get-response-in-json/
+            // https://dagster.io/blog/chatgpt-langchain
+            // https://python.langchain.com/docs/modules/data_connection/document_loaders/how_to/json
+            // const splitter = new CharacterTextSplitter({
+            //     chunkSize: 1536,
+            //     chunkOverlap: 200,
+            // });
+            //
+            // const patientResources = await splitter.createDocuments(
+            //     patientBundleResource.entry,
+            //     [],
+            //     {
+            //         chunkHeader: 'DOCUMENT NAME: Jim Interview\n\n---\n\n',
+            //         appendChunkOverlapHeader: true,
+            //     }
+            // );
+            const patientResources = patientBundleResource.entry.map(
+                e => new Document(
+                    {
+                        pageContent: JSON.stringify(e),
+                        metadata: {
+                            'my_document_id': e.id,
+                        },
+                    }
+                ));
+
+            // https://js.langchain.com/docs/modules/indexes/vector_stores/#which-one-to-pick
+            const vectorStore = await MemoryVectorStore.fromDocuments(
+                patientResources,
+                new OpenAIEmbeddings()
+            );
+
+            const model = new OpenAI({temperature: 0});
+
+            const chain = new RetrievalQAChain({
+                combineDocumentsChain: loadQAStuffChain(model),
+                retriever: vectorStore.asRetriever(),
+                returnSourceDocuments: true,
+            });
+            const res = await chain.call({
+                query: 'When was this patient born?',
             });
 
             console.log(JSON.stringify(res, null, 2));
