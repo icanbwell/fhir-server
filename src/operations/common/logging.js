@@ -1,7 +1,7 @@
 const env = require('var');
 const moment = require('moment-timezone');
-const {getLogger} = require('../../winstonInit');
 const httpContext = require('express-http-context');
+const {getLogger} = require('../../winstonInit');
 
 /**
  * @type {import('winston').logger}

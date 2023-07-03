@@ -20,9 +20,9 @@ const {assertTypeEquals} = require('../utils/assertType');
 const passport = require('passport');
 const path = require('path');
 const contentType = require('content-type');
+const httpContext = require('express-http-context');
 const {REQUEST_ID_HEADER} = require('../constants');
 const {convertErrorToOperationOutcome} = require('../utils/convertErrorToOperationOutcome');
-const httpContext = require('express-http-context');
 
 class MyFHIRServer {
     /**
@@ -133,8 +133,9 @@ class MyFHIRServer {
                 next
             ) => {
                 req.id = req.id || req.header(`${REQUEST_ID_HEADER}`) || generateUUID();
-                const uniqueRequestId = generateUUID();
                 httpContext.set('userRequestId', req.id);
+
+                const uniqueRequestId = generateUUID();
                 httpContext.set('requestId', uniqueRequestId);
                 next();
             }

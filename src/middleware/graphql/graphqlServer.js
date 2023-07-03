@@ -58,8 +58,9 @@ const graphql = async (fnCreateContainer) => {
         const container = fnCreateContainer();
 
         req.id = req.id || req.header(`${REQUEST_ID_HEADER}`) || generateUUID();
-        const uniqueRequestId = generateUUID();
         httpContext.set('userRequestId', req.id);
+
+        const uniqueRequestId = generateUUID();
         httpContext.set('requestId', uniqueRequestId);
         /**
          * @type {import('content-type').ContentType}
