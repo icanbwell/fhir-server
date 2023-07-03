@@ -1,3 +1,4 @@
+const httpContext = require('express-http-context');
 const {FhirOperationsManager} = require('../../../../operations/fhirOperationsManager');
 const {PostRequestProcessor} = require('../../../../utils/postRequestProcessor');
 const {assertTypeEquals} = require('../../../../utils/assertType');
@@ -81,7 +82,7 @@ class CustomOperationsController {
             } catch (e) {
                 next(e);
             } finally {
-                const requestId = req.id;
+                const requestId = httpContext.get('requestId');
                 await this.postRequestProcessor.executeAsync({requestId});
                 await this.requestSpecificCache.clearAsync({requestId});
             }
@@ -120,7 +121,7 @@ class CustomOperationsController {
             } catch (e) {
                 next(e);
             } finally {
-                const requestId = req.id;
+                const requestId = httpContext.get('requestId');
                 await this.postRequestProcessor.executeAsync({requestId});
                 await this.requestSpecificCache.clearAsync({requestId});
             }
@@ -155,7 +156,7 @@ class CustomOperationsController {
             } catch (e) {
                 next(e);
             } finally {
-                const requestId = req.id;
+                const requestId = httpContext.get('requestId');
                 await this.postRequestProcessor.executeAsync({requestId});
                 await this.requestSpecificCache.clearAsync({requestId});
             }

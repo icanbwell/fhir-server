@@ -6,6 +6,7 @@ const {assertTypeEquals} = require('../../../../utils/assertType');
 const {FhirResponseWriter} = require('../../fhirResponseWriter');
 const {ConfigManager} = require('../../../../utils/configManager');
 const {RequestSpecificCache} = require('../../../../utils/requestSpecificCache');
+const httpContext = require('express-http-context');
 
 /**
  * @typedef FhirService
@@ -113,7 +114,7 @@ class GenericController {
             } catch (e) {
                 next(e);
             } finally {
-                const requestId = req.id;
+                const requestId = httpContext.get('requestId');
                 await this.postRequestProcessor.executeAsync({requestId});
                 await this.requestSpecificCache.clearAsync({requestId});
             }
@@ -141,7 +142,7 @@ class GenericController {
             } catch (e) {
                 next(e);
             } finally {
-                const requestId = req.id;
+                const requestId = httpContext.get('requestId');
                 await this.postRequestProcessor.executeAsync({requestId});
                 await this.requestSpecificCache.clearAsync({requestId});
             }
@@ -172,7 +173,7 @@ class GenericController {
             } catch (e) {
                 next(e);
             } finally {
-                const requestId = req.id;
+                const requestId = httpContext.get('requestId');
                 await this.postRequestProcessor.executeAsync({requestId});
                 await this.requestSpecificCache.clearAsync({requestId});
             }
@@ -206,7 +207,7 @@ class GenericController {
             } catch (e) {
                 next(e);
             } finally {
-                const requestId = req.id;
+                const requestId = httpContext.get('requestId');
                 await this.postRequestProcessor.executeAsync({requestId});
                 await this.requestSpecificCache.clearAsync({requestId});
             }
@@ -237,7 +238,7 @@ class GenericController {
             } catch (e) {
                 next(e);
             } finally {
-                const requestId = req.id;
+                const requestId = httpContext.get('requestId');
                 await this.postRequestProcessor.executeAsync({requestId});
                 await this.requestSpecificCache.clearAsync({requestId});
             }
@@ -271,7 +272,7 @@ class GenericController {
             } catch (e) {
                 next(e);
             } finally {
-                const requestId = req.id;
+                const requestId = httpContext.get('requestId');
                 await this.postRequestProcessor.executeAsync({requestId});
                 await this.requestSpecificCache.clearAsync({requestId});
             }
@@ -300,7 +301,7 @@ class GenericController {
             } catch (e) {
                 next(e);
             } finally {
-                const requestId = req.id;
+                const requestId = httpContext.get('requestId');
                 await this.postRequestProcessor.executeAsync({requestId});
                 await this.requestSpecificCache.clearAsync({requestId});
             }
@@ -336,7 +337,7 @@ class GenericController {
             } catch (e) {
                 next(e);
             } finally {
-                const requestId = req.id;
+                const requestId = httpContext.get('requestId');
                 await this.postRequestProcessor.executeAsync({requestId});
                 await this.requestSpecificCache.clearAsync({requestId});
             }
@@ -365,7 +366,7 @@ class GenericController {
             } catch (e) {
                 next(e);
             } finally {
-                const requestId = req.id;
+                const requestId = httpContext.get('requestId');
                 await this.postRequestProcessor.executeAsync({requestId});
                 await this.requestSpecificCache.clearAsync({requestId});
             }
@@ -394,7 +395,7 @@ class GenericController {
             } catch (e) {
                 next(e);
             } finally {
-                const requestId = req.id;
+                const requestId = httpContext.get('requestId');
                 await this.postRequestProcessor.executeAsync({requestId});
                 await this.requestSpecificCache.clearAsync({requestId});
             }
