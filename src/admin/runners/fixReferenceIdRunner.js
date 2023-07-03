@@ -343,8 +343,7 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
             }
             return reference;
         } catch (e) {
-            console.log(e);
-            this.adminLogger.logError(e);
+            this.adminLogger.logError(e.message, {stack: e.stack});
             throw new RethrownError(
                 {
                     message: 'Error processing reference',
