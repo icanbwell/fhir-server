@@ -32,7 +32,7 @@ For each resource in the bundle, the FHIR server checks:
         - Note: If an item does not have id or sequence AND it does not match any existing item exactly then the FHIR server will create a new item. There is no way for it to know that you want to update an item vs add an item. Hence we recommend using id or sequence on items in an array whenever possible to minimize the chance of duplications in array items.
         - If new array contains one or more items that end in "-delete" then find those items in the old array and remove them.
 
-    - Workaround to delete an object from an array property that does not contain an id column.
+    - How to delete an object from an array property that does not contain an id column.
 
         - In order to delete an object from the array, we need to add ID fields to each object within the array using the update/patch endpoint. Once that is done, we can utilize the merge endpoint and pass "-delete" with a specific ID to remove the object from the array.
         - The update and patch functions can be used to directly update the array fields without creating/modifying the id fields.
