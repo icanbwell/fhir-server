@@ -9,7 +9,7 @@ dotenv.config({
 
 const {OpenAI} = require('langchain/llms/openai');
 const {PromptTemplate} = require('langchain/prompts');
-const {LLMChain, RetrievalQAChain, loadQAStuffChain} = require('langchain/chains');
+const {LLMChain, RetrievalQAChain, loadQAStuffChain, ConversationalRetrievalQAChain} = require('langchain/chains');
 const {StructuredOutputParser, OutputFixingParser} = require('langchain/output_parsers');
 const {z} = require('zod');
 const {CharacterTextSplitter} = require('langchain/text_splitter');
@@ -23,6 +23,7 @@ const {describe, test} = require('@jest/globals');
 const {FaissStore} = require('langchain/vectorstores/faiss');
 const {MemoryVectorStore} = require('langchain/vectorstores/memory');
 const {Document} = require('langchain/document');
+const {VectorStoreRetrieverMemory} = require('langchain/memory');
 
 describe('ChatGPT Tests', () => {
     describe('ChatGPT Tests', () => {
@@ -229,11 +230,12 @@ describe('ChatGPT Tests', () => {
 
             console.log(JSON.stringify(res, null, 2));
         });
-        test('ChatGPT with FHIR record with input splitter', async () => {
+        test('ChatGPT with FHIR record with json documents', async () => {
             // https://horosin.com/extracting-pdf-and-generating-json-data-with-gpts-langchain-and-nodejs
             // https://genesis-aka.net/information-technology/professional/2023/05/23/chatgpt-in-node-js-integrate-chatgpt-using-langchain-get-response-in-json/
             // https://dagster.io/blog/chatgpt-langchain
             // https://python.langchain.com/docs/modules/data_connection/document_loaders/how_to/json
+            // https://nathankjer.com/introduction-to-langchain/
             // const splitter = new CharacterTextSplitter({
             //     chunkSize: 1536,
             //     chunkOverlap: 200,
@@ -268,10 +270,66 @@ describe('ChatGPT Tests', () => {
             const chain = new RetrievalQAChain({
                 combineDocumentsChain: loadQAStuffChain(model),
                 retriever: vectorStore.asRetriever(),
-                returnSourceDocuments: true,
+                // returnSourceDocuments: true,
             });
             const res = await chain.call({
                 query: 'When was this patient born?',
+            });
+
+            console.log(JSON.stringify(res, null, 2));
+        });
+        test('ChatGPT with FHIR record with json documents with conversation', async () => {
+            // https://horosin.com/extracting-pdf-and-generating-json-data-with-gpts-langchain-and-nodejs
+            // https://genesis-aka.net/information-technology/professional/2023/05/23/chatgpt-in-node-js-integrate-chatgpt-using-langchain-get-response-in-json/
+            // https://dagster.io/blog/chatgpt-langchain
+            // https://python.langchain.com/docs/modules/data_connection/document_loaders/how_to/json
+            // https://nathankjer.com/introduction-to-langchain/
+            // const splitter = new CharacterTextSplitter({
+            //     chunkSize: 1536,
+            //     chunkOverlap: 200,
+            // });
+            //
+            // const patientResources = await splitter.createDocuments(
+            //     patientBundleResource.entry,
+            //     [],
+            //     {
+            //         chunkHeader: 'DOCUMENT NAME: Jim Interview\n\n---\n\n',
+            //         appendChunkOverlapHeader: true,
+            //     }
+            // );
+            const patientResources = patientBundleResource.entry.map(
+                e => new Document(
+                    {
+                        pageContent: JSON.stringify(e),
+                        metadata: {
+                            'my_document_id': e.id,
+                        },
+                    }
+                ));
+
+            // https://js.langchain.com/docs/modules/indexes/vector_stores/#which-one-to-pick
+            const vectorStore = await MemoryVectorStore.fromDocuments(
+                patientResources,
+                new OpenAIEmbeddings()
+            );
+            // const memory = new BufferWindowMemory({k: 1, inputKey: 'question'});
+            const memory = new VectorStoreRetrieverMemory({
+                // 1 is how many documents to return, you might want to return more, eg. 4
+                vectorStoreRetriever: vectorStore.asRetriever(1),
+                memoryKey: 'history',
+                inputKey: 'question'
+            });
+            const model = new OpenAI({temperature: 0});
+
+            const chain = new ConversationalRetrievalQAChain({
+                combineDocumentsChain: loadQAStuffChain(model),
+                retriever: vectorStore.asRetriever(),
+                memory: memory
+                // returnSourceDocuments: true,
+            });
+            const res = await chain.call({
+                question: 'When was this patient born?',
+                chat_history: []
             });
 
             console.log(JSON.stringify(res, null, 2));
