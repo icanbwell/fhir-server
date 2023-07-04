@@ -560,6 +560,7 @@ describe('ChatGPT Tests', () => {
                     tags: ['example', 'callbacks', 'constructor'],
                     // This handler will be used for all calls made with this LLM.
                     callbacks: [new ConsoleCallbackHandler()],
+                    maxTokens: 3800
                 }
             );
             // const outputParser = StructuredOutputParser.fromZodSchema(
@@ -574,14 +575,13 @@ describe('ChatGPT Tests', () => {
             //     model,
             //     outputParser
             // );
-            const template_text = '\nUse the following FHIR resources to answer the question at the end. ' +
-                '\n```{context}```' +
-                '\nIf you don\'t know the answer, just say that you don\'t know, don\'t try to make up an answer.' +
-                '\nQuestion:\n{question}';
+            const template_text = '\nUse the following data in FHIR to answer the question at the end.' +
+                '\nQuestion:\n{question}' +
+                '\nReply in HTML with just the body';
             const prompt = new PromptTemplate({
                 // template: 'Answer the user\'s question as best you can:\n{format_instructions}\n{query}',
                 template: template_text,
-                inputVariables: ['question', 'context'],
+                inputVariables: ['question']
                 // partialVariables: {
                 //     format_instructions: outputFixingParser.getFormatInstructions()
                 // },
@@ -596,7 +596,7 @@ describe('ChatGPT Tests', () => {
             });
             try {
                 const res3 = await chain.call({
-                    query: 'Create a summary'
+                    query: 'Create a clinical summary to share with my doctor'
                 });
                 console.log(JSON.stringify(res3, null, 2));
             } catch (e) {
