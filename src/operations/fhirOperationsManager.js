@@ -25,6 +25,7 @@ const contentType = require('content-type');
 const {QueryRewriterManager} = require('../queryRewriters/queryRewriterManager');
 const {R4ArgsParser} = require('./query/r4ArgsParser');
 
+
 class FhirOperationsManager {
     /**
      * constructor

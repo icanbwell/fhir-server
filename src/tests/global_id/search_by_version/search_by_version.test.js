@@ -17,7 +17,6 @@ const {
     getHeaders,
     createTestRequest,
     getTestContainer,
-    getRequestId,
     mockHttpContext
 } = require('../../common');
 const {describe, beforeEach, afterEach, test} = require('@jest/globals');
@@ -86,7 +85,7 @@ describe('Observation Tests', () => {
             const observationHistoryCollection = fhirDb.collection(collectionName);
             const observationHistoryItem = await observationHistoryCollection.findOne({});
             expectedObservationHistoryInDatabase1._id = observationHistoryItem._id;
-            expectedObservationHistoryInDatabase1.request.id = getRequestId(resp);
+            expectedObservationHistoryInDatabase1.request.id = requestId;
             expectedObservationHistoryInDatabase1.id = observationHistoryItem.id;
             expectedObservationHistoryInDatabase1.resource.meta.lastUpdated = observationHistoryItem.resource.meta.lastUpdated;
             expect(observationHistoryItem).toStrictEqual(expectedObservationHistoryInDatabase1);
@@ -151,7 +150,7 @@ describe('Observation Tests', () => {
             const observationHistoryCollection = fhirDb.collection(collectionName);
             const observationHistoryItem = await observationHistoryCollection.findOne({});
             expectedObservationHistoryInDatabase2._id = observationHistoryItem._id;
-            expectedObservationHistoryInDatabase2.request.id = getRequestId(resp);
+            expectedObservationHistoryInDatabase2.request.id = requestId;
             expectedObservationHistoryInDatabase2.id = observationHistoryItem.id;
             expectedObservationHistoryInDatabase2.resource.meta.lastUpdated = observationHistoryItem.resource.meta.lastUpdated;
             expect(observationHistoryItem).toStrictEqual(expectedObservationHistoryInDatabase2);

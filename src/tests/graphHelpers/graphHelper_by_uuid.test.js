@@ -64,7 +64,8 @@ describe('graphHelper Tests', () => {
     const requestInfo = new FhirRequestInfo({
         user: 'user',
         scope: 'user/*.read access/*.*',
-        requestId: '1',
+        requestId: '12345678',
+        userRequestId: '1',
         protocol: 'https',
         originalUrl: '',
         host: 'host',

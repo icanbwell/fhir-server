@@ -121,8 +121,8 @@ const logSystemEventAsync = async ({event, message, args}) => {
         ],
     };
     logEntry.request = {
-        id: httpContext.get('requestId'),
-        userRequestId: httpContext.get('userRequestId')
+        id: httpContext.get('userRequestId'),
+        requestId: httpContext.get('requestId')
     };
     const fhirSecureLogger = await fhirLogger.getSecureLoggerAsync();
     fhirSecureLogger.info(logEntry);
@@ -181,8 +181,8 @@ const logSystemErrorAsync = async ({event, message, args, error}) => {
         ],
     };
     logEntry.request = {
-        id: httpContext.get('requestId'),
-        userRequestId: httpContext.get('userRequestId')
+        id: httpContext.get('userRequestId'),
+        requestId: httpContext.get('requestId')
     };
 
     const fhirSecureLogger = await fhirLogger.getSecureLoggerAsync();
