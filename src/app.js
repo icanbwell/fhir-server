@@ -240,7 +240,6 @@ function createApp({fnCreateContainer, trackMetrics}) {
                 router.use(function (req, res, next) {
                     res.once('finish', async () => {
                         const req1 = req;
-                        const requestId = req.id;
                         /**
                          * @type {SimpleContainer}
                          */
@@ -255,6 +254,7 @@ function createApp({fnCreateContainer, trackMetrics}) {
                              */
                             const requestSpecificCache = container.requestSpecificCache;
                             if (postRequestProcessor) {
+                                const requestId = httpContext.get('requestId');
                                 await postRequestProcessor.executeAsync({requestId});
                                 await requestSpecificCache.clearAsync({requestId});
                             }

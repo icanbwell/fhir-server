@@ -17,7 +17,8 @@ const {
     getHeaders,
     createTestRequest,
     getTestContainer,
-    getRequestId
+    getRequestId,
+    mockHttpContext
 } = require('../../common');
 const {describe, beforeEach, afterEach, test} = require('@jest/globals');
 const {ConfigManager} = require('../../../utils/configManager');
@@ -33,8 +34,10 @@ class MockConfigManager extends ConfigManager {
 }
 
 describe('Observation Tests', () => {
+    let requestId;
     beforeEach(async () => {
         await commonBeforeEach();
+        requestId = mockHttpContext();
     });
 
     afterEach(async () => {
@@ -65,7 +68,7 @@ describe('Observation Tests', () => {
              * @type {PostRequestProcessor}
              */
             const postRequestProcessor = container.postRequestProcessor;
-            await postRequestProcessor.waitTillDoneAsync({requestId: getRequestId(resp)});
+            await postRequestProcessor.waitTillDoneAsync({requestId: requestId});
             /**
              * @type {MongoDatabaseManager}
              */
@@ -130,7 +133,7 @@ describe('Observation Tests', () => {
              * @type {PostRequestProcessor}
              */
             const postRequestProcessor = container.postRequestProcessor;
-            await postRequestProcessor.waitTillDoneAsync({requestId: getRequestId(resp)});
+            await postRequestProcessor.waitTillDoneAsync({requestId: requestId});
             /**
              * @type {MongoDatabaseManager}
              */

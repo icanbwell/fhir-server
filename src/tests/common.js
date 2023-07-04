@@ -10,6 +10,7 @@ const supertest = require('supertest');
 const {createApp} = require('../app');
 const {createServer} = require('../server');
 const {TestMongoDatabaseManager} = require('./testMongoDatabaseManager');
+const httpContext = require('express-http-context');
 
 /**
  * @type {import('http').Server}
@@ -400,4 +401,21 @@ module.exports.wrapResourceInBundle = (resource) => {
  */
 module.exports.getRequestId = (resp) => {
     return resp.headers['x-request-id'];
+};
+
+/**
+ * @description Mocks the get method of express-http-context to override requestId and userRequestId
+ * @returns {string}
+ */
+module.exports.mockHttpContext = () => {
+    jest.spyOn(httpContext, 'get');
+    const values = {
+        'requestId': '12345678',
+        'userRequestId': '1234'
+    };
+    httpContext.get.mockImplementation((key) => {
+        // eslint-disable-next-line security/detect-object-injection
+        return values[key];
+    });
+    return values.requestId;
 };
