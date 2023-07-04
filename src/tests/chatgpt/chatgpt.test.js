@@ -455,8 +455,8 @@ describe('ChatGPT Tests', () => {
             // );
             const prompt = new PromptTemplate({
                 // template: 'Answer the user\'s question as best you can:\n{format_instructions}\n{query}',
-                template: 'Answer the user\'s question as best you can:\n{question}',
-                inputVariables: ['question'],
+                template: 'Use the following pieces of context to answer the question at the end. If you don\'t know the answer, just say that you don\'t know, don\'t try to make up an answer. ```{context}```. Question:\n{question}',
+                inputVariables: ['question', 'context'],
                 // partialVariables: {
                 //     format_instructions: outputFixingParser.getFormatInstructions()
                 // }
@@ -469,7 +469,7 @@ describe('ChatGPT Tests', () => {
             //         outputParser: outputFixingParser
             //     });
             const chain = new RetrievalQAChain({
-                combineDocumentsChain: loadQAStuffChain(model, { prompt: prompt}),
+                combineDocumentsChain: loadQAStuffChain(model, {prompt: prompt}),
                 retriever: vectorStore.asRetriever(),
                 // memory: memory,
                 // returnSourceDocuments: true,
