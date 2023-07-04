@@ -32,6 +32,11 @@ For each resource in the bundle, the FHIR server checks:
         - Note: If an item does not have id or sequence AND it does not match any existing item exactly then the FHIR server will create a new item. There is no way for it to know that you want to update an item vs add an item. Hence we recommend using id or sequence on items in an array whenever possible to minimize the chance of duplications in array items.
         - If new array contains one or more items that end in "-delete" then find those items in the old array and remove them.
 
+    - How to delete an object from an array property that does not contain an id column.
+
+        - In order to delete an object from the array, we need to add ID fields to each object within the array using the update/patch endpoint. Once that is done, we can utilize the merge endpoint and pass "-delete" with a specific ID to remove the object from the array.
+        - The update and patch functions can be used to directly update the array fields without creating/modifying the id fields.
+
     - Note this is done in a recursive manner so changes are detected in array any levels deep.
 
 4. The FHIR server returns a list showing the outcome for each passed in resource showing:
@@ -43,7 +48,7 @@ For each resource in the bundle, the FHIR server checks:
 ### Notes:
 
 A FHIR resource must be specified in the URL in order for the $merge call to be processed.
-    * ex. https://fhir-sandbox.dev.bwell.zone/4_0_0/Encounter/$merge (in this example, 'Encounter' is the FHIR resource) \* The FHIR resource passed in the URL is heterogeneous, although in the example we use 'Encounter' as the FHIR resource, that does not mean we can only pass in Encounters within the FHIR resource bundle. A user can pass in any valid FHIR resources within the bundle. (sample here: https://www.npoint.io/docs/f7efe4bb5e42355aaa1a).
+    * ex. https://fhir.icanbwell.com/4_0_0/Encounter/$merge (in this example, 'Encounter' is the FHIR resource) \* The FHIR resource passed in the URL is heterogeneous, although in the example we use 'Encounter' as the FHIR resource, that does not mean we can only pass in Encounters within the FHIR resource bundle. A user can pass in any valid FHIR resources within the bundle. (sample here: https://www.npoint.io/docs/f7efe4bb5e42355aaa1a).
 
 ### Implementation in FHIR server
 
@@ -52,3 +57,7 @@ A FHIR resource must be specified in the URL in order for the $merge call to be 
 ### unit tests
 
 [src/tests/claims](src/tests/claims)
+
+### Performance Analysis
+
+merge v/s patch while updating resources: https://icanbwell.atlassian.net/wiki/spaces/ENTFS/pages/4177133589/
