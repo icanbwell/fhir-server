@@ -1,4 +1,6 @@
 // test file
+require('dotenv').config();
+
 const topLevelPersonResource = require('./fixtures/Person/topLevelPerson.json');
 const person1Resource = require('./fixtures/Person/person1.json');
 const person2Resource = require('./fixtures/Person/person2.json');

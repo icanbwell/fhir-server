@@ -23,6 +23,7 @@ const {convertErrorToOperationOutcome} = require('../utils/convertErrorToOperati
 const contentType = require('content-type');
 const {QueryRewriterManager} = require('../queryRewriters/queryRewriterManager');
 const {R4ArgsParser} = require('./query/r4ArgsParser');
+// const {shouldStreamResponse} = require('../utils/requestHelpers');
 
 
 class FhirOperationsManager {
@@ -495,7 +496,7 @@ class FhirOperationsManager {
             /**
              * @type {Bundle}
              */
-            const result = await await this.everythingOperation.everythingAsync(
+            const result = await this.everythingOperation.everythingAsync(
                 {
                     requestInfo: this.getRequestInfo(req),
                     res,

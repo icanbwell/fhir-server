@@ -11,7 +11,7 @@ const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
 const {FhirLoggingManager} = require('../common/fhirLoggingManager');
 const {ParsedArgs} = require('../query/parsedArgs');
 const {ChatGPTManager} = require('../../chatgpt/chatgptManager');
-const {Narrative} = require('../../fhir/classes/4_0_0/complex_types/narrative');
+const Narrative = require('../../fhir/classes/4_0_0/complex_types/narrative');
 
 class EverythingOperation {
     /**
@@ -98,19 +98,27 @@ class EverythingOperation {
                 const html = await this.chatgptManager.answerQuestionAsync(
                     {
                         bundle: bundle.toJSON(),
-                        question: question
+                        question: question.queryParameterValue.value
                     }
                 );
                 // find the patient resource
                 /**
-                 * @type {Patient}
+                 * @type {BundleEntry}
                  */
-                const patient = bundle.entry.find(e => e.resourceType === 'Patient');
-                // return as text Narrative
-                patient.text = new Narrative({
-                    status: 'generated',
-                    div: html
-                });
+                const patientBundleEntry = bundle.entry.find(e => e.resource.resourceType === 'Patient');
+                if (patientBundleEntry) {
+                    // return as text Narrative
+                    patientBundleEntry.resource.text = new Narrative({
+                        status: 'generated',
+                        div: html
+                    });
+                }
+                // write only the Patient resource since we are providing the answer
+                await responseStreamer.writeBundleEntryAsync({bundleEntry: patientBundleEntry});
+
+                // for (const bundleEntry of bundle.entry) {
+                //     await responseStreamer.writeBundleEntryAsync({bundleEntry: bundleEntry});
+                // }
             }
             return bundle;
         } catch (err) {
