@@ -8,6 +8,7 @@ const {ContextualCompressionRetriever} = require('langchain/retrievers/contextua
 const {PromptTemplate} = require('langchain/prompts');
 const {RetrievalQAChain, loadQAStuffChain} = require('langchain/chains');
 const {ChatGPTError} = require('./chatgptError');
+const {encoding_for_model} = require('@dqbd/tiktoken');
 
 class ChatGPTManager {
     /**
@@ -102,6 +103,22 @@ class ChatGPTManager {
                 }
             });
         }
+    }
+
+    /**
+     * Given a list of documents, returns the sum of tokens in each document
+     * @param {{pageContent: string}[]} documents
+     * @return {Promise<number>}
+     */
+    async getTokenCountAsync({documents}) {
+        const tokenizer = await encoding_for_model('gpt-3.5-turbo');
+        const token_counts = documents.map(doc => tokenizer.encode(doc.pageContent).length);
+        tokenizer.free();
+        // noinspection UnnecessaryLocalVariableJS
+        const totalTokens = token_counts.reduce((accumulator, currentValue) => {
+            return accumulator + currentValue;
+        }, 0);
+        return totalTokens;
     }
 }
 

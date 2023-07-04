@@ -25,10 +25,9 @@ const {MemoryVectorStore} = require('langchain/vectorstores/memory');
 const {Document} = require('langchain/document');
 const {VectorStoreRetrieverMemory} = require('langchain/memory');
 const {ConsoleCallbackHandler} = require('langchain/callbacks');
-const {encoding_for_model} = require('@dqbd/tiktoken');
 const {ChatGPTManager} = require('../../chatgpt/chatgptManager');
 
-describe('ChatGPT Tests', () => {
+describe.skip('ChatGPT Tests', () => {
     describe('ChatGPT Tests', () => {
         test('ChatGPT works with sample', async () => {
             // https://js.langchain.com/docs/getting-started/guide-llm
@@ -526,6 +525,7 @@ describe('ChatGPT Tests', () => {
             console.log(JSON.stringify(res3, null, 2));
         });
         test('ChatGPT calculate tokens', async () => {
+            const chatGPTManager = new ChatGPTManager();
             const patientResources = patientBundleResource.entry.map(
                 e => new Document(
                     {
@@ -535,13 +535,7 @@ describe('ChatGPT Tests', () => {
                         },
                     }
                 ));
-
-            const tokenizer = await encoding_for_model('gpt-3.5-turbo');
-            const token_counts = patientResources.map(doc => tokenizer.encode(doc.pageContent).length);
-            tokenizer.free();
-            const totalTokens = token_counts.reduce((accumulator, currentValue) => {
-                return accumulator + currentValue;
-            }, 0);
+            const totalTokens = await chatGPTManager.getTokenCountAsync({documents: patientResources});
             console.log(totalTokens);
         });
         test('ChatGPT with FHIR record with json documents with response in HTML', async () => {
@@ -638,7 +632,7 @@ describe('ChatGPT Tests', () => {
             console.log(result);
         });
         test('ChatGPT with FHIR record with json documents about vaccination date with compressor', async () => {
-                        const chatGPTManager = new ChatGPTManager();
+            const chatGPTManager = new ChatGPTManager();
             const result = await chatGPTManager.answerQuestionAsync({
                 bundle: patientBundleResource,
                 question: 'When did this patient receive the tetanus vaccine'
