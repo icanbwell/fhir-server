@@ -24,6 +24,7 @@ const {FaissStore} = require('langchain/vectorstores/faiss');
 const {MemoryVectorStore} = require('langchain/vectorstores/memory');
 const {Document} = require('langchain/document');
 const {VectorStoreRetrieverMemory} = require('langchain/memory');
+const {ConsoleCallbackHandler} = require('langchain/callbacks');
 
 describe('ChatGPT Tests', () => {
     describe('ChatGPT Tests', () => {
@@ -430,43 +431,57 @@ describe('ChatGPT Tests', () => {
                 {
                     openAIApiKey: process.env.OPENAI_API_KEY,
                     temperature: 0,
-                    modelName: 'gpt-3.5-turbo'
+                    modelName: 'gpt-3.5-turbo',
+                    // These tags will be attached to all calls made with this LLM.
+                    tags: ['example', 'callbacks', 'constructor'],
+                    // This handler will be used for all calls made with this LLM.
+                    callbacks: [new ConsoleCallbackHandler()],
                 }
             );
-            const outputParser = StructuredOutputParser.fromZodSchema(
-                z.array(
-                    z.object({
-                        fields: z.object({
-                            date: z.string().describe('date'),
-                            id: z.string().describe('id'),
-                            value: z.string().describe('value'),
-                        })
-                    })
-                ).describe('An array of Airtable records, each representing an observation')
-            );
-            const outputFixingParser = OutputFixingParser.fromLLM(
-                model,
-                outputParser
-            );
+            // const outputParser = StructuredOutputParser.fromZodSchema(
+            //     z.array(
+            //         z.object({
+            //             fields: z.object({
+            //                 date: z.string().describe('date'),
+            //                 id: z.string().describe('id'),
+            //                 value: z.string().describe('value'),
+            //             })
+            //         })
+            //     ).describe('An array of Airtable records, each representing an observation')
+            // );
+            // const outputFixingParser = OutputFixingParser.fromLLM(
+            //     model,
+            //     outputParser
+            // );
             const prompt = new PromptTemplate({
-                template: 'Answer the user\'s question as best you can:\n{format_instructions}\n{query}',
-                inputVariables: ['query'],
-                partialVariables: {
-                    format_instructions: outputFixingParser.getFormatInstructions()
-                }
+                // template: 'Answer the user\'s question as best you can:\n{format_instructions}\n{query}',
+                template: 'Answer the user\'s question as best you can:\n{question}',
+                inputVariables: ['question'],
+                // partialVariables: {
+                //     format_instructions: outputFixingParser.getFormatInstructions()
+                // }
             });
-
+            // const llmChain = new LLMChain(
+            //     {
+            //         llm: model,
+            //         prompt: prompt,
+            //         outputKey: 'records', // For readability - otherwise the chain output will default to a property named "text"
+            //         outputParser: outputFixingParser
+            //     });
             const chain = new RetrievalQAChain({
-                prompt: prompt,
-                combineDocumentsChain: loadQAStuffChain(model),
+                combineDocumentsChain: loadQAStuffChain(model, { prompt: prompt}),
                 retriever: vectorStore.asRetriever(),
                 // memory: memory,
                 // returnSourceDocuments: true,
-                outputKey: 'records', // For readability - otherwise the chain output will default to a property named "text"
-                outputParser: outputFixingParser
+                // outputKey: 'records', // For readability - otherwise the chain output will default to a property named "text"
+                // outputParser: outputFixingParser
             });
+            // const chain = RetrievalQAChain.fromLLM(model, vectorStore.asRetriever(),
+            //     {
+            //         prompt: prompt
+            //     });
             const res3 = await chain.call({
-                query: 'Organize the observations into a timeline'
+                query: 'Organize these observations into a timeline'
             });
             console.log(JSON.stringify(res3, null, 2));
         });
