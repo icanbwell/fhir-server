@@ -438,28 +438,30 @@ describe('ChatGPT Tests', () => {
                     callbacks: [new ConsoleCallbackHandler()],
                 }
             );
-            // const outputParser = StructuredOutputParser.fromZodSchema(
-            //     z.array(
-            //         z.object({
-            //             fields: z.object({
-            //                 date: z.string().describe('date'),
-            //                 id: z.string().describe('id'),
-            //                 value: z.string().describe('value'),
-            //             })
-            //         })
-            //     ).describe('An array of Airtable records, each representing an observation')
-            // );
-            // const outputFixingParser = OutputFixingParser.fromLLM(
-            //     model,
-            //     outputParser
-            // );
+            const outputParser = StructuredOutputParser.fromZodSchema(
+                z.array(
+                    z.object({
+                        fields: z.object({
+                            date: z.string().describe('date'),
+                            id: z.string().describe('id'),
+                            value: z.string().describe('value'),
+                        })
+                    })
+                ).describe('An array of Airtable records, each representing an observation')
+            );
+            const outputFixingParser = OutputFixingParser.fromLLM(
+                model,
+                outputParser
+            );
             const prompt = new PromptTemplate({
                 // template: 'Answer the user\'s question as best you can:\n{format_instructions}\n{query}',
-                template: 'Use the following pieces of context to answer the question at the end. If you don\'t know the answer, just say that you don\'t know, don\'t try to make up an answer. ```{context}```. Question:\n{question}',
+                template: '\n{format_instructions}\nUse the following pieces of context to answer the question at the end. If you don\'t know the answer, just say that you don\'t know, don\'t try to make up an answer. ```{context}```. Question:\n{question}',
                 inputVariables: ['question', 'context'],
-                // partialVariables: {
-                //     format_instructions: outputFixingParser.getFormatInstructions()
-                // }
+                partialVariables: {
+                    format_instructions: outputFixingParser.getFormatInstructions()
+                },
+                outputKey: 'records', // For readability - otherwise the chain output will default to a property named "text"
+                outputParser: outputFixingParser
             });
             // const llmChain = new LLMChain(
             //     {
