@@ -25,6 +25,7 @@ const {MemoryVectorStore} = require('langchain/vectorstores/memory');
 const {Document} = require('langchain/document');
 const {VectorStoreRetrieverMemory} = require('langchain/memory');
 const {ConsoleCallbackHandler} = require('langchain/callbacks');
+const {encoding_for_model} = require('@dqbd/tiktoken');
 
 describe('ChatGPT Tests', () => {
     describe('ChatGPT Tests', () => {
@@ -522,6 +523,25 @@ describe('ChatGPT Tests', () => {
                 query: 'Organize these observations into a timeline'
             });
             console.log(JSON.stringify(res3, null, 2));
+        });
+        test('ChatGPT calculate tokens', async () => {
+            const patientResources = patientBundleResource.entry.map(
+                e => new Document(
+                    {
+                        pageContent: JSON.stringify(e),
+                        metadata: {
+                            'my_document_id': e.id,
+                        },
+                    }
+                ));
+
+            const tokenizer = await encoding_for_model('gpt-3.5-turbo');
+            const token_counts = patientResources.map(doc => tokenizer.encode(doc.pageContent).length);
+            tokenizer.free();
+            const totalTokens = token_counts.reduce((accumulator, currentValue) => {
+                return accumulator + currentValue;
+            }, 0);
+            console.log(totalTokens);
         });
         test('ChatGPT with FHIR record with json documents with response in HTML', async () => {
             // https://horosin.com/extracting-pdf-and-generating-json-data-with-gpts-langchain-and-nodejs
