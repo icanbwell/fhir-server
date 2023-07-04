@@ -81,22 +81,23 @@ class EverythingOperation {
         });
 
         try {
-            const bundle = await this.everythingBundleAsync({
-                requestInfo,
-                res,
-                parsedArgs,
-                resourceType,
-                responseStreamer
-            });
             // see if a _question arg is passed
             /**
              * @type {ParsedArgsItem|undefined}
              */
             const question = parsedArgs.get('_question');
-            if (question && bundle.entry) {
+
+            const bundle = await this.everythingBundleAsync({
+                requestInfo,
+                res,
+                parsedArgs,
+                resourceType,
+                responseStreamer: question ? undefined : responseStreamer // disable response streaming if we are answering a question
+            });
+            if (question) {
                 const html = await this.chatgptManager.answerQuestionAsync(
                     {
-                        bundle: bundle,
+                        bundle: bundle.toJSON(),
                         question: question
                     }
                 );
@@ -104,7 +105,7 @@ class EverythingOperation {
                 /**
                  * @type {Patient}
                  */
-                const patient = bundle.entry.find(e=> e.resourceType === 'Patient');
+                const patient = bundle.entry.find(e => e.resourceType === 'Patient');
                 // return as text Narrative
                 patient.text = new Narrative({
                     status: 'generated',
