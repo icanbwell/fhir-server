@@ -360,6 +360,72 @@ describe('ChatGPT Tests', () => {
             });
             console.log(JSON.stringify(res2, null, 2));
         });
+        test('ChatGPT with FHIR record with json documents with conversation', async () => {
+            // https://horosin.com/extracting-pdf-and-generating-json-data-with-gpts-langchain-and-nodejs
+            // https://genesis-aka.net/information-technology/professional/2023/05/23/chatgpt-in-node-js-integrate-chatgpt-using-langchain-get-response-in-json/
+            // https://dagster.io/blog/chatgpt-langchain
+            // https://python.langchain.com/docs/modules/data_connection/document_loaders/how_to/json
+            // https://nathankjer.com/introduction-to-langchain/
+            // const splitter = new CharacterTextSplitter({
+            //     chunkSize: 1536,
+            //     chunkOverlap: 200,
+            // });
+            //
+            // const patientResources = await splitter.createDocuments(
+            //     patientBundleResource.entry,
+            //     [],
+            //     {
+            //         chunkHeader: 'DOCUMENT NAME: Jim Interview\n\n---\n\n',
+            //         appendChunkOverlapHeader: true,
+            //     }
+            // );
+            const patientResources = patientBundleResource.entry.map(
+                e => new Document(
+                    {
+                        pageContent: JSON.stringify(e),
+                        metadata: {
+                            'my_document_id': e.id,
+                        },
+                    }
+                ));
+
+            // https://js.langchain.com/docs/modules/indexes/vector_stores/#which-one-to-pick
+            const vectorStore = await MemoryVectorStore.fromDocuments(
+                patientResources,
+                new OpenAIEmbeddings()
+            );
+            // const memory = new BufferWindowMemory({k: 1, inputKey: 'question'});
+            const memory = new VectorStoreRetrieverMemory({
+                // 1 is how many documents to return, you might want to return more, eg. 4
+                vectorStoreRetriever: vectorStore.asRetriever(1),
+                memoryKey: 'history',
+                inputKey: 'question'
+            });
+            const model = new OpenAI(
+                {
+                    openAIApiKey: process.env.OPENAI_API_KEY,
+                    temperature: 0,
+                    modelName: 'gpt-3.5-turbo'
+                }
+            );
+
+            const chain = new ConversationalRetrievalQAChain({
+                combineDocumentsChain: loadQAStuffChain(model),
+                retriever: vectorStore.asRetriever(),
+                memory: memory
+                // returnSourceDocuments: true,
+            });
+            const res1 = await chain.call({
+                question: 'When was this patient born?',
+                chat_history: []
+            });
+            console.log(JSON.stringify(res1, null, 2));
+            const res2 = await chain.call({
+                question: 'Summarize into a clinical summary for a doctor',
+                chat_history: []
+            });
+            console.log(JSON.stringify(res2, null, 2));
+        });
         test('ChatGPT with FHIR record with json documents with structured observations', async () => {
             // https://horosin.com/extracting-pdf-and-generating-json-data-with-gpts-langchain-and-nodejs
             // https://genesis-aka.net/information-technology/professional/2023/05/23/chatgpt-in-node-js-integrate-chatgpt-using-langchain-get-response-in-json/
@@ -432,6 +498,91 @@ describe('ChatGPT Tests', () => {
             const prompt = new PromptTemplate({
                 // template: 'Answer the user\'s question as best you can:\n{format_instructions}\n{query}',
                 template: '\n{format_instructions}\nUse the following pieces of context to answer the question at the end. If you don\'t know the answer, just say that you don\'t know, don\'t try to make up an answer. ```{context}```. Question:\n{question}',
+                inputVariables: ['question', 'context'],
+                partialVariables: {
+                    format_instructions: outputFixingParser.getFormatInstructions()
+                },
+                // outputKey: 'records', // For readability - otherwise the chain output will default to a property named "text"
+                outputParser: outputFixingParser
+            });
+            // const llmChain = new LLMChain(
+            //     {
+            //         llm: model,
+            //         prompt: prompt,
+            //         outputKey: 'records', // For readability - otherwise the chain output will default to a property named "text"
+            //         outputParser: outputFixingParser
+            //     });
+            const chain = new RetrievalQAChain({
+                combineDocumentsChain: loadQAStuffChain(model, {prompt: prompt}),
+                retriever: vectorStore.asRetriever(),
+                // memory: memory,
+                // returnSourceDocuments: true,
+            });
+            const res3 = await chain.call({
+                query: 'Organize these observations into a timeline'
+            });
+            console.log(JSON.stringify(res3, null, 2));
+        });
+        test('ChatGPT with FHIR record with json documents with response in HTML', async () => {
+            // https://horosin.com/extracting-pdf-and-generating-json-data-with-gpts-langchain-and-nodejs
+            // https://genesis-aka.net/information-technology/professional/2023/05/23/chatgpt-in-node-js-integrate-chatgpt-using-langchain-get-response-in-json/
+            // https://dagster.io/blog/chatgpt-langchain
+            // https://python.langchain.com/docs/modules/data_connection/document_loaders/how_to/json
+            // https://nathankjer.com/introduction-to-langchain/
+            const patientResources = patientBundleResource.entry.map(
+                e => new Document(
+                    {
+                        pageContent: JSON.stringify(e),
+                        metadata: {
+                            'my_document_id': e.id,
+                        },
+                    }
+                ));
+
+            // https://js.langchain.com/docs/modules/indexes/vector_stores/#which-one-to-pick
+            const vectorStore = await MemoryVectorStore.fromDocuments(
+                patientResources,
+                new OpenAIEmbeddings()
+            );
+            // const memory = new BufferWindowMemory({k: 1, inputKey: 'question'});
+            // const memory = new VectorStoreRetrieverMemory({
+            //     // 1 is how many documents to return, you might want to return more, eg. 4
+            //     vectorStoreRetriever: vectorStore.asRetriever(1),
+            //     memoryKey: 'history',
+            //     inputKey: 'question'
+            // });
+            const model = new OpenAI(
+                {
+                    openAIApiKey: process.env.OPENAI_API_KEY,
+                    temperature: 0,
+                    modelName: 'gpt-3.5-turbo',
+                    // These tags will be attached to all calls made with this LLM.
+                    tags: ['example', 'callbacks', 'constructor'],
+                    // This handler will be used for all calls made with this LLM.
+                    callbacks: [new ConsoleCallbackHandler()],
+                }
+            );
+            const outputParser = StructuredOutputParser.fromZodSchema(
+                    z.object({
+                        fields: z.object({
+                            html: z.string().describe('html'),
+                        })
+                    })
+                )
+            ;
+            const outputFixingParser = OutputFixingParser.fromLLM(
+                model,
+                outputParser
+            );
+            const template_text = '\n{format_instructions}' +
+                '\nUse the following pieces of context to answer the question at the end. ' +
+                '\nIf you don\'t know the answer, just say that you don\'t know, don\'t try to make up an answer.' +
+                '\n```{context}```' +
+                '\nQuestion:\n{question}' +
+                '\nGenerate the response in HTML';
+            const prompt = new PromptTemplate({
+                // template: 'Answer the user\'s question as best you can:\n{format_instructions}\n{query}',
+                template: template_text,
                 inputVariables: ['question', 'context'],
                 partialVariables: {
                     format_instructions: outputFixingParser.getFormatInstructions()
