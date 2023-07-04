@@ -29,7 +29,13 @@ describe('ChatGPT Tests', () => {
     describe('ChatGPT Tests', () => {
         test('ChatGPT works with sample', async () => {
             // https://js.langchain.com/docs/getting-started/guide-llm
-            const model = new OpenAI({openAIApiKey: process.env.OPENAI_API_KEY, temperature: 0.9});
+            const model = new OpenAI(
+                {
+                    openAIApiKey: process.env.OPENAI_API_KEY,
+                    temperature: 0.9,
+                    modelName: 'gpt-3.5-turbo'
+                }
+            );
             const template = 'What is a good name for a company that makes {product}?';
             const prompt = new PromptTemplate({
                 template: template,
@@ -41,7 +47,13 @@ describe('ChatGPT Tests', () => {
         });
         test('ChatGPT works with English query', async () => {
             // https://js.langchain.com/docs/getting-started/guide-llm
-            const model = new OpenAI({openAIApiKey: process.env.OPENAI_API_KEY, temperature: 0.9});
+            const model = new OpenAI(
+                {
+                    openAIApiKey: process.env.OPENAI_API_KEY,
+                    temperature: 0.9,
+                    modelName: 'gpt-3.5-turbo'
+                }
+            );
             const template = 'You are a software program. You are talking to a FHIR server. The base url is fhir.icanbwell.com/4_0_0.  Patient id is {patientId}. how would I query for all FHIR {resource} that belong to this patient? Give me just the url.';
             const prompt = new PromptTemplate({
                 template: template,
@@ -66,10 +78,13 @@ describe('ChatGPT Tests', () => {
                     })
                 ).describe('An array of Airtable records, each representing a country')
             );
-            const model = new OpenAI({
-                // modelName: 'gpt-4', // Or gpt-3.5-turbo
-                temperature: 0 // For best results with the output fixing parser
-            });
+            const model = new OpenAI(
+                {
+                    openAIApiKey: process.env.OPENAI_API_KEY,
+                    temperature: 0,
+                    modelName: 'gpt-3.5-turbo'
+                }
+            );
             const outputFixingParser = OutputFixingParser.fromLLM(
                 model,
                 outputParser
@@ -106,10 +121,13 @@ describe('ChatGPT Tests', () => {
                     })
                 ).describe('An array of Airtable records, each representing a url')
             );
-            const model = new OpenAI({
-                // modelName: 'gpt-4', // Or gpt-3.5-turbo
-                temperature: 0 // For best results with the output fixing parser
-            });
+            const model = new OpenAI(
+                {
+                    openAIApiKey: process.env.OPENAI_API_KEY,
+                    temperature: 0,
+                    // modelName: 'gpt-3.5-turbo'  // this part does not work with GPT 3.5
+                }
+            );
             const outputFixingParser = OutputFixingParser.fromLLM(
                 model,
                 outputParser
@@ -146,7 +164,13 @@ describe('ChatGPT Tests', () => {
         });
         test('ChatGPT explains a FHIR record', async () => {
             // https://js.langchain.com/docs/getting-started/guide-llm
-            const model = new OpenAI({openAIApiKey: process.env.OPENAI_API_KEY, temperature: 0.1});
+            const model = new OpenAI(
+                {
+                    openAIApiKey: process.env.OPENAI_API_KEY,
+                    temperature: 0,
+                    modelName: 'gpt-3.5-turbo'
+                }
+            );
             const template = 'Here\'s my data in FHIR schema. Write a clinical summary for a doctor: ```{data}```. ';
             const prompt = new PromptTemplate({
                 template: template,
@@ -217,7 +241,13 @@ describe('ChatGPT Tests', () => {
                 new OpenAIEmbeddings()
             );
 
-            const model = new OpenAI({temperature: 0});
+            const model = new OpenAI(
+                {
+                    openAIApiKey: process.env.OPENAI_API_KEY,
+                    temperature: 0,
+                    modelName: 'gpt-3.5-turbo'
+                }
+            );
 
             const chain = new RetrievalQAChain({
                 combineDocumentsChain: loadQAStuffChain(model),
@@ -265,7 +295,13 @@ describe('ChatGPT Tests', () => {
                 new OpenAIEmbeddings()
             );
 
-            const model = new OpenAI({temperature: 0});
+            const model = new OpenAI(
+                {
+                    openAIApiKey: process.env.OPENAI_API_KEY,
+                    temperature: 0,
+                    modelName: 'gpt-3.5-turbo'
+                }
+            );
 
             const chain = new RetrievalQAChain({
                 combineDocumentsChain: loadQAStuffChain(model),
@@ -319,7 +355,13 @@ describe('ChatGPT Tests', () => {
                 memoryKey: 'history',
                 inputKey: 'question'
             });
-            const model = new OpenAI({temperature: 0});
+            const model = new OpenAI(
+                {
+                    openAIApiKey: process.env.OPENAI_API_KEY,
+                    temperature: 0.9,
+                    modelName: 'gpt-3.5-turbo'
+                }
+            );
 
             const chain = new ConversationalRetrievalQAChain({
                 combineDocumentsChain: loadQAStuffChain(model),
