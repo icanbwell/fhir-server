@@ -380,11 +380,6 @@ describe('ChatGPT Tests', () => {
                 chat_history: []
             });
             console.log(JSON.stringify(res2, null, 2));
-            const res3 = await chain.call({
-                question: 'Organize the observations into a timeline',
-                chat_history: []
-            });
-            console.log(JSON.stringify(res3, null, 2));
         });
         test('ChatGPT with FHIR record with json documents with structured observations', async () => {
             // https://horosin.com/extracting-pdf-and-generating-json-data-with-gpts-langchain-and-nodejs
@@ -477,13 +472,7 @@ describe('ChatGPT Tests', () => {
                 retriever: vectorStore.asRetriever(),
                 // memory: memory,
                 // returnSourceDocuments: true,
-                // outputKey: 'records', // For readability - otherwise the chain output will default to a property named "text"
-                // outputParser: outputFixingParser
             });
-            // const chain = RetrievalQAChain.fromLLM(model, vectorStore.asRetriever(),
-            //     {
-            //         prompt: prompt
-            //     });
             const res3 = await chain.call({
                 query: 'Organize these observations into a timeline'
             });
