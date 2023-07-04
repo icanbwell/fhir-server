@@ -14,13 +14,13 @@ const {StructuredOutputParser, OutputFixingParser} = require('langchain/output_p
 const {z} = require('zod');
 const {CharacterTextSplitter} = require('langchain/text_splitter');
 const {OpenAIEmbeddings} = require('langchain/embeddings/openai');
-const {HNSWLib} = require('langchain/vectorstores/hnswlib');
+// const {HNSWLib} = require('langchain/vectorstores/hnswlib');
 // const {MongoDBAtlasVectorSearch} = require('langchain/vectorstores/mongodb_atlas');
 
 const patientBundleResource = require('./fixtures/patient.json');
 
 const {describe, test} = require('@jest/globals');
-const {FaissStore} = require('langchain/vectorstores/faiss');
+// const {FaissStore} = require('langchain/vectorstores/faiss');
 const {MemoryVectorStore} = require('langchain/vectorstores/memory');
 const {Document} = require('langchain/document');
 const {VectorStoreRetrieverMemory} = require('langchain/memory');
@@ -180,27 +180,6 @@ describe('ChatGPT Tests', () => {
             const chain = new LLMChain({llm: model, prompt: prompt});
             const res = await chain.call({data: patientBundleResource.entry[0]});
             console.log(res);
-        });
-        test.skip('HNSWLib test', async () => {
-            // createIndexes();
-            const vectorStore = await HNSWLib.fromTexts(
-                ['Hello world', 'Bye bye', 'hello nice world'],
-                [{id: 2}, {id: 1}, {id: 3}],
-                new OpenAIEmbeddings()
-            );
-
-            const resultOne = await vectorStore.similaritySearch('hello world', 1);
-            console.log(resultOne);
-        });
-        test.skip('Faiss vector database test', async () => {
-            const vectorStore = await FaissStore.fromTexts(
-                ['Hello world', 'Bye bye', 'hello nice world'],
-                [{id: 2}, {id: 1}, {id: 3}],
-                new OpenAIEmbeddings()
-            );
-
-            const resultOne = await vectorStore.similaritySearch('hello world', 1);
-            console.log(resultOne);
         });
         test('Memory vector database test', async () => {
             const vectorStore = await MemoryVectorStore.fromTexts(
@@ -457,7 +436,7 @@ describe('ChatGPT Tests', () => {
                 partialVariables: {
                     format_instructions: outputFixingParser.getFormatInstructions()
                 },
-                outputKey: 'records', // For readability - otherwise the chain output will default to a property named "text"
+                // outputKey: 'records', // For readability - otherwise the chain output will default to a property named "text"
                 outputParser: outputFixingParser
             });
             // const llmChain = new LLMChain(
