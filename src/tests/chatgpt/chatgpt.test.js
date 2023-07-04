@@ -445,6 +445,8 @@ describe('ChatGPT Tests', () => {
                             date: z.string().describe('date'),
                             id: z.string().describe('id'),
                             value: z.string().describe('value'),
+                            category: z.string().describe('category'),
+                            code: z.string().describe('code'),
                         })
                     })
                 ).describe('An array of Airtable records, each representing an observation')
