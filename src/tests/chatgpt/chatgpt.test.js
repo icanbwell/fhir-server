@@ -721,6 +721,330 @@ describe('ChatGPT Tests', () => {
                     console.log(e);
                 }
             }
+            try {
+                const res3 = await chain.call({
+                    query: 'When did this patient receive the tetanus vaccine'
+                });
+                console.log(JSON.stringify(res3, null, 2));
+            } catch (e) {
+                if (e.response && e.response.data && e.response.data.error) {
+                    console.log(e.response.data.error);
+                } else {
+                    console.log(e);
+                }
+            }
+        });
+        test('ChatGPT with FHIR record with json documents about vaccination date with compressor', async () => {
+            // https://horosin.com/extracting-pdf-and-generating-json-data-with-gpts-langchain-and-nodejs
+            // https://genesis-aka.net/information-technology/professional/2023/05/23/chatgpt-in-node-js-integrate-chatgpt-using-langchain-get-response-in-json/
+            // https://dagster.io/blog/chatgpt-langchain
+            // https://python.langchain.com/docs/modules/data_connection/document_loaders/how_to/json
+            // https://nathankjer.com/introduction-to-langchain/
+            const patientResources = patientBundleResource.entry.map(
+                e => new Document(
+                    {
+                        pageContent: JSON.stringify(e),
+                        metadata: {
+                            'my_document_id': e.id,
+                        },
+                    }
+                ));
+
+            // https://js.langchain.com/docs/modules/indexes/vector_stores/#which-one-to-pick
+            const embeddings = new OpenAIEmbeddings();
+
+            const vectorStore = await MemoryVectorStore.fromDocuments(
+                patientResources,
+                embeddings
+            );
+            // const memory = new BufferWindowMemory({k: 1, inputKey: 'question'});
+            // const memory = new VectorStoreRetrieverMemory({
+            //     // 1 is how many documents to return, you might want to return more, eg. 4
+            //     vectorStoreRetriever: vectorStore.asRetriever(1),
+            //     memoryKey: 'history',
+            //     inputKey: 'question'
+            // });
+            const model = new OpenAI(
+                {
+                    openAIApiKey: process.env.OPENAI_API_KEY,
+                    temperature: 0,
+                    modelName: 'gpt-3.5-turbo',
+                    // These tags will be attached to all calls made with this LLM.
+                    tags: ['example', 'callbacks', 'constructor'],
+                    // This handler will be used for all calls made with this LLM.
+                    callbacks: [new ConsoleCallbackHandler()],
+                    // maxTokens: 3800,
+                    verbose: true
+                }
+            );
+            const baseCompressor = LLMChainExtractor.fromLLM(model);
+            const retriever = new ContextualCompressionRetriever({
+                baseCompressor,
+                baseRetriever: vectorStore.asRetriever(),
+            });
+            // const outputParser = StructuredOutputParser.fromZodSchema(
+            //         z.object({
+            //             fields: z.object({
+            //                 html: z.string().describe('html'),
+            //             })
+            //         })
+            //     )
+            // ;
+            // const outputFixingParser = OutputFixingParser.fromLLM(
+            //     model,
+            //     outputParser
+            // );
+            const template_text = '\nUse the following data in FHIR to answer the question at the end.' +
+                '\nQuestion:\n{question}' +
+                '\nReply in HTML with just the body';
+            const prompt = new PromptTemplate({
+                // template: 'Answer the user\'s question as best you can:\n{format_instructions}\n{query}',
+                template: template_text,
+                inputVariables: ['question']
+                // partialVariables: {
+                //     format_instructions: outputFixingParser.getFormatInstructions()
+                // },
+                // outputKey: 'records', // For readability - otherwise the chain output will default to a property named "text"
+                // outputParser: outputFixingParser
+            });
+            const chain = new RetrievalQAChain({
+                combineDocumentsChain: loadQAStuffChain(model, {prompt: prompt}),
+                retriever: retriever,
+                // memory: memory,
+                // returnSourceDocuments: true,
+            });
+            try {
+                const res3 = await chain.call({
+                    query: 'Create a clinical summary to share with my doctor'
+                });
+                console.log(JSON.stringify(res3, null, 2));
+            } catch (e) {
+                if (e.response && e.response.data && e.response.data.error) {
+                    console.log(e.response.data.error);
+                } else {
+                    console.log(e);
+                }
+            }
+            try {
+                const res3 = await chain.call({
+                    query: 'When did this patient receive the tetanus vaccine'
+                });
+                console.log(JSON.stringify(res3, null, 2));
+            } catch (e) {
+                if (e.response && e.response.data && e.response.data.error) {
+                    console.log(e.response.data.error);
+                } else {
+                    console.log(e);
+                }
+            }
+        });
+        test('ChatGPT with FHIR record with json documents about vaccination date with compressor', async () => {
+            // https://horosin.com/extracting-pdf-and-generating-json-data-with-gpts-langchain-and-nodejs
+            // https://genesis-aka.net/information-technology/professional/2023/05/23/chatgpt-in-node-js-integrate-chatgpt-using-langchain-get-response-in-json/
+            // https://dagster.io/blog/chatgpt-langchain
+            // https://python.langchain.com/docs/modules/data_connection/document_loaders/how_to/json
+            // https://nathankjer.com/introduction-to-langchain/
+            const patientResources = patientBundleResource.entry.map(
+                e => new Document(
+                    {
+                        pageContent: JSON.stringify(e),
+                        metadata: {
+                            'my_document_id': e.id,
+                        },
+                    }
+                ));
+
+            // https://js.langchain.com/docs/modules/indexes/vector_stores/#which-one-to-pick
+            const embeddings = new OpenAIEmbeddings();
+
+            const vectorStore = await MemoryVectorStore.fromDocuments(
+                patientResources,
+                embeddings
+            );
+            // const memory = new BufferWindowMemory({k: 1, inputKey: 'question'});
+            // const memory = new VectorStoreRetrieverMemory({
+            //     // 1 is how many documents to return, you might want to return more, eg. 4
+            //     vectorStoreRetriever: vectorStore.asRetriever(1),
+            //     memoryKey: 'history',
+            //     inputKey: 'question'
+            // });
+            const model = new OpenAI(
+                {
+                    openAIApiKey: process.env.OPENAI_API_KEY,
+                    temperature: 0,
+                    modelName: 'gpt-3.5-turbo',
+                    // These tags will be attached to all calls made with this LLM.
+                    tags: ['example', 'callbacks', 'constructor'],
+                    // This handler will be used for all calls made with this LLM.
+                    callbacks: [new ConsoleCallbackHandler()],
+                    // maxTokens: 3800,
+                    verbose: true
+                }
+            );
+            const baseCompressor = LLMChainExtractor.fromLLM(model);
+            const retriever = new ContextualCompressionRetriever({
+                baseCompressor,
+                baseRetriever: vectorStore.asRetriever(),
+            });
+            // const outputParser = StructuredOutputParser.fromZodSchema(
+            //         z.object({
+            //             fields: z.object({
+            //                 html: z.string().describe('html'),
+            //             })
+            //         })
+            //     )
+            // ;
+            // const outputFixingParser = OutputFixingParser.fromLLM(
+            //     model,
+            //     outputParser
+            // );
+            const template_text = '\nUse the following data in FHIR to answer the question at the end.' +
+                '\nQuestion:\n{question}' +
+                '\nReply in HTML with just the body';
+            const prompt = new PromptTemplate({
+                // template: 'Answer the user\'s question as best you can:\n{format_instructions}\n{query}',
+                template: template_text,
+                inputVariables: ['question']
+                // partialVariables: {
+                //     format_instructions: outputFixingParser.getFormatInstructions()
+                // },
+                // outputKey: 'records', // For readability - otherwise the chain output will default to a property named "text"
+                // outputParser: outputFixingParser
+            });
+            const chain = new RetrievalQAChain({
+                combineDocumentsChain: loadQAStuffChain(model, {prompt: prompt}),
+                retriever: retriever,
+                // memory: memory,
+                // returnSourceDocuments: true,
+            });
+            try {
+                const res3 = await chain.call({
+                    query: 'Create a clinical summary to share with my doctor'
+                });
+                console.log(JSON.stringify(res3, null, 2));
+            } catch (e) {
+                if (e.response && e.response.data && e.response.data.error) {
+                    console.log(e.response.data.error);
+                } else {
+                    console.log(e);
+                }
+            }
+            try {
+                const res3 = await chain.call({
+                    query: 'When did this patient receive the tetanus vaccine'
+                });
+                console.log(JSON.stringify(res3, null, 2));
+            } catch (e) {
+                if (e.response && e.response.data && e.response.data.error) {
+                    console.log(e.response.data.error);
+                } else {
+                    console.log(e);
+                }
+            }
+        });
+        test('ChatGPT with FHIR record with json documents about vaccination date with compressor', async () => {
+            // https://horosin.com/extracting-pdf-and-generating-json-data-with-gpts-langchain-and-nodejs
+            // https://genesis-aka.net/information-technology/professional/2023/05/23/chatgpt-in-node-js-integrate-chatgpt-using-langchain-get-response-in-json/
+            // https://dagster.io/blog/chatgpt-langchain
+            // https://python.langchain.com/docs/modules/data_connection/document_loaders/how_to/json
+            // https://nathankjer.com/introduction-to-langchain/
+            const patientResources = patientBundleResource.entry.map(
+                e => new Document(
+                    {
+                        pageContent: JSON.stringify(e),
+                        metadata: {
+                            'my_document_id': e.id,
+                        },
+                    }
+                ));
+
+            // https://js.langchain.com/docs/modules/indexes/vector_stores/#which-one-to-pick
+            const embeddings = new OpenAIEmbeddings();
+
+            const vectorStore = await MemoryVectorStore.fromDocuments(
+                patientResources,
+                embeddings
+            );
+            // const memory = new BufferWindowMemory({k: 1, inputKey: 'question'});
+            // const memory = new VectorStoreRetrieverMemory({
+            //     // 1 is how many documents to return, you might want to return more, eg. 4
+            //     vectorStoreRetriever: vectorStore.asRetriever(1),
+            //     memoryKey: 'history',
+            //     inputKey: 'question'
+            // });
+            const model = new OpenAI(
+                {
+                    openAIApiKey: process.env.OPENAI_API_KEY,
+                    temperature: 0,
+                    modelName: 'gpt-3.5-turbo',
+                    // These tags will be attached to all calls made with this LLM.
+                    tags: ['example', 'callbacks', 'constructor'],
+                    // This handler will be used for all calls made with this LLM.
+                    callbacks: [new ConsoleCallbackHandler()],
+                    // maxTokens: 3800,
+                    verbose: true
+                }
+            );
+            const baseCompressor = LLMChainExtractor.fromLLM(model);
+            const retriever = new ContextualCompressionRetriever({
+                baseCompressor,
+                baseRetriever: vectorStore.asRetriever(),
+            });
+            // const outputParser = StructuredOutputParser.fromZodSchema(
+            //         z.object({
+            //             fields: z.object({
+            //                 html: z.string().describe('html'),
+            //             })
+            //         })
+            //     )
+            // ;
+            // const outputFixingParser = OutputFixingParser.fromLLM(
+            //     model,
+            //     outputParser
+            // );
+            const template_text = '\nUse the following data in FHIR to answer the question at the end.' +
+                '\nQuestion:\n{question}' +
+                '\nReply in HTML with just the body';
+            const prompt = new PromptTemplate({
+                // template: 'Answer the user\'s question as best you can:\n{format_instructions}\n{query}',
+                template: template_text,
+                inputVariables: ['question']
+                // partialVariables: {
+                //     format_instructions: outputFixingParser.getFormatInstructions()
+                // },
+                // outputKey: 'records', // For readability - otherwise the chain output will default to a property named "text"
+                // outputParser: outputFixingParser
+            });
+            const chain = new RetrievalQAChain({
+                combineDocumentsChain: loadQAStuffChain(model, {prompt: prompt}),
+                retriever: retriever,
+                // memory: memory,
+                // returnSourceDocuments: true,
+            });
+            try {
+                const res3 = await chain.call({
+                    query: 'Create a clinical summary to share with my doctor'
+                });
+                console.log(JSON.stringify(res3, null, 2));
+            } catch (e) {
+                if (e.response && e.response.data && e.response.data.error) {
+                    console.log(e.response.data.error);
+                } else {
+                    console.log(e);
+                }
+            }
+            try {
+                const res3 = await chain.call({
+                    query: 'When did this patient receive the tetanus vaccine'
+                });
+                console.log(JSON.stringify(res3, null, 2));
+            } catch (e) {
+                if (e.response && e.response.data && e.response.data.error) {
+                    console.log(e.response.data.error);
+                } else {
+                    console.log(e);
+                }
+            }
         });
     });
 });
