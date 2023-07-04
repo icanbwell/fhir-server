@@ -341,7 +341,7 @@ class MyFHIRServer {
                         res1.end();
                     } else {
                         if (req.id && !res.headersSent) {
-                            res1.setHeader('X-Request-ID', String(req.id));
+                            res1.setHeader('X-Request-ID', String(httpContext.get('userRequestId')));
                         }
                         // If there is an error and it is an OperationOutcome
                         if (err && err.resourceType === OperationOutcome.resourceType) {

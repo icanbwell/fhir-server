@@ -21,7 +21,8 @@ const {
     getGraphQLHeaders,
     getUnAuthenticatedGraphQLHeaders,
     createTestRequest,
-    getTestContainer, getRequestId, mockHttpContext,
+    getTestContainer,
+    mockHttpContext,
 } = require('../../common');
 const {describe, beforeEach, afterEach, expect, test} = require('@jest/globals');
 const env = require('var');
@@ -101,7 +102,7 @@ describe('GraphQL Patient Tests', () => {
             resp = await request.get('/4_0_0/Practitioner/').set(getHeaders()).expect(200);
             expect(resp.body.length).toBe(2);
 
-            expect(getRequestId(resp)).not.toBeUndefined();
+            expect(requestId).not.toBeUndefined();
             await postRequestProcessor.waitTillDoneAsync({requestId: requestId});
             const auditEntries = await internalAuditEventCollection.find({}).toArray();
             console.log(JSON.stringify(auditEntries));

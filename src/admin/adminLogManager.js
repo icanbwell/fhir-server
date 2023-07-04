@@ -28,7 +28,7 @@ class AdminLogManager {
 
             return await accessLogsCollection.find({
                 $or: [
-                    { 'meta.userRequestId': { $eq: id } },
+                    { 'meta.requestId': { $eq: id } },
                     { 'meta.id': { $eq: id } }
                 ]
             }).toArray();
