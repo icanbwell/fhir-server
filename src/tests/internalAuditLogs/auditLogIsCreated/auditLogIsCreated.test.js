@@ -13,7 +13,8 @@ const {
     commonAfterEach,
     getHeaders,
     createTestRequest,
-    getTestContainer, getRequestId,
+    getTestContainer,
+    mockHttpContext,
 } = require('../../common');
 const {describe, beforeEach, afterEach, expect, test} = require('@jest/globals');
 const env = require('var');
@@ -21,8 +22,10 @@ const moment = require('moment-timezone');
 const {YearMonthPartitioner} = require('../../../partitioners/yearMonthPartitioner');
 
 describe('InternalAuditLog Tests', () => {
+    let requestId;
     beforeEach(async () => {
         await commonBeforeEach();
+        requestId = mockHttpContext();
     });
 
     afterEach(async () => {
@@ -42,7 +45,7 @@ describe('InternalAuditLog Tests', () => {
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResourceCount(0);
 
-            await postRequestProcessor.waitTillDoneAsync({requestId: getRequestId(resp)});
+            await postRequestProcessor.waitTillDoneAsync({requestId: requestId});
             // check that InternalAuditLog is created
             /**
              * @type {MongoDatabaseManager}
@@ -86,7 +89,7 @@ describe('InternalAuditLog Tests', () => {
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveMergeResponse({created: true});
 
-            await postRequestProcessor.waitTillDoneAsync({requestId: getRequestId(resp)});
+            await postRequestProcessor.waitTillDoneAsync({requestId: requestId});
             let logs = await internalAuditEventCollection.find({}).toArray();
             expect(logs.length).toStrictEqual(1);
             logs.forEach((log) => {
@@ -116,7 +119,7 @@ describe('InternalAuditLog Tests', () => {
             expect(resp).toHaveMergeResponse({created: true});
 
             // wait for post request processing to finish
-            await postRequestProcessor.waitTillDoneAsync({requestId: getRequestId(resp)});
+            await postRequestProcessor.waitTillDoneAsync({requestId: requestId});
             // confirm the audit log is created in the AUDIT_EVENT_CLIENT_DB
             logs = await internalAuditEventCollection.find({}).toArray();
             expect(logs.length).toStrictEqual(2);
@@ -151,7 +154,7 @@ describe('InternalAuditLog Tests', () => {
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveMergeResponse({created: false, updated: false});
 
-            await postRequestProcessor.waitTillDoneAsync({requestId: getRequestId(resp)});
+            await postRequestProcessor.waitTillDoneAsync({requestId: requestId});
             logs = await internalAuditEventCollection.find({}).toArray();
             expect(logs.length).toStrictEqual(2);
             logs.forEach((log) => {
@@ -177,7 +180,7 @@ describe('InternalAuditLog Tests', () => {
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResourceCount(1);
 
-            await postRequestProcessor.waitTillDoneAsync({requestId: getRequestId(resp)});
+            await postRequestProcessor.waitTillDoneAsync({requestId: requestId});
             // one audit log should be created
             logs = await internalAuditEventCollection.find({}).toArray();
             expect(logs.length).toStrictEqual(3);

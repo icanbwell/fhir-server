@@ -404,7 +404,7 @@ class MyFHIRServer {
                 ],
             });
             if (req.id && !res.headersSent) {
-                res.setHeader('X-Request-ID', String(req.id));
+                res.setHeader('X-Request-ID', String(httpContext.get('userRequestId')));
             }
             res.status(404).json(error);
         });

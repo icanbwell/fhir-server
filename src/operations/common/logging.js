@@ -18,11 +18,14 @@ const fhirLogger = require('../../utils/fhirLogger').FhirLogger;
  * @param {Object} args
  */
 const setRequestIdInLog = (args) => {
-    const reqId = httpContext.get('userRequestId');
-    if (reqId) {
+    const reqId = httpContext.get('requestId');
+    const userRequestId = httpContext.get('userRequestId');
+    // eslint-disable-next-line no-prototype-builtins
+    if (reqId && args && args.hasOwnProperty('request')) {
         args.request = {
             ...args.request,
             id: reqId,
+            userRequestId: userRequestId
         };
     }
 };
@@ -117,12 +120,10 @@ const logSystemEventAsync = async ({event, message, args}) => {
             }
         ],
     };
-    const reqId = httpContext.get('userRequestId');
-    if (reqId) {
-        logEntry.request = {
-            id: reqId,
-        };
-    }
+    logEntry.request = {
+        id: httpContext.get('requestId'),
+        userRequestId: httpContext.get('userRequestId')
+    };
     const fhirSecureLogger = await fhirLogger.getSecureLoggerAsync();
     fhirSecureLogger.info(logEntry);
     const fhirInSecureLogger = await fhirLogger.getInSecureLoggerAsync();
@@ -179,12 +180,10 @@ const logSystemErrorAsync = async ({event, message, args, error}) => {
             }
         ],
     };
-    const reqId = httpContext.get('userRequestId');
-    if (reqId) {
-        logEntry.request = {
-            id: reqId,
-        };
-    }
+    logEntry.request = {
+        id: httpContext.get('requestId'),
+        userRequestId: httpContext.get('userRequestId')
+    };
 
     const fhirSecureLogger = await fhirLogger.getSecureLoggerAsync();
     if (error) {
@@ -236,7 +235,7 @@ const getRemoteAddress = (req) => {
  */
 const logErrorAndRequestAsync = async ({error, req}) => {
     const request = {
-        id: req.id,
+        id: httpContext.get('requestId'),
         statusCode: error.statusCode,
         method: req.method,
         url: req.url,
@@ -246,7 +245,8 @@ const logErrorAndRequestAsync = async ({error, req}) => {
         user: getUserName(req),
         remoteAddress: getRemoteAddress(req),
         request: {
-            id: req.id
+            id: httpContext.get('requestId'),
+            userRequestId: httpContext.get('userRequestId')
         }
     };
     const logData = {request, error};

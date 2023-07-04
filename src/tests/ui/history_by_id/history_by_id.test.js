@@ -6,14 +6,16 @@ const {
     commonAfterEach,
     getHeaders,
     getHtmlHeaders,
-    createTestRequest, getTestContainer, getRequestId,
+    createTestRequest, getTestContainer, mockHttpContext,
 } = require('../../common');
 const {describe, beforeEach, afterEach, expect, test} = require('@jest/globals');
 const {logInfo} = require('../../../operations/common/logging');
 
 describe('History UI Tests', () => {
+    let requestId;
     beforeEach(async () => {
         await commonBeforeEach();
+        requestId = mockHttpContext();
     });
 
     afterEach(async () => {
@@ -52,8 +54,8 @@ describe('History UI Tests', () => {
              * @type {PostRequestProcessor}
              */
             const postRequestProcessor = container.postRequestProcessor;
-            await postRequestProcessor.executeAsync({requestId: getRequestId(resp)});
-            await postRequestProcessor.waitTillDoneAsync({requestId: getRequestId(resp)});
+            await postRequestProcessor.executeAsync({requestId: requestId});
+            await postRequestProcessor.waitTillDoneAsync({requestId: requestId});
 
             resp = await request
                 .get('/4_0_0/Patient/00100000000/_history')
@@ -62,9 +64,9 @@ describe('History UI Tests', () => {
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveStatusOk();
 
-            logInfo('------- response Patient sorted ------------');
+            logInfo('------- response Patient sorted ------------', {});
             logInfo('', {resp});
-            logInfo('------- end response sort ------------');
+            logInfo('------- end response sort ------------', {});
             expect(resp.type).toStrictEqual('text/html');
             expect(resp.body).toStrictEqual({});
             expect(resp.text).not.toBeNull();
