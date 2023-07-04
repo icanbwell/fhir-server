@@ -580,7 +580,7 @@ describe('ChatGPT Tests', () => {
                     tags: ['example', 'callbacks', 'constructor'],
                     // This handler will be used for all calls made with this LLM.
                     callbacks: [new ConsoleCallbackHandler()],
-                    maxTokens: 3800,
+                    // maxTokens: 3800,
                     verbose: true
                 }
             );
