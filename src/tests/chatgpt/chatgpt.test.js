@@ -562,51 +562,50 @@ describe('ChatGPT Tests', () => {
                     callbacks: [new ConsoleCallbackHandler()],
                 }
             );
-            const outputParser = StructuredOutputParser.fromZodSchema(
-                    z.object({
-                        fields: z.object({
-                            html: z.string().describe('html'),
-                        })
-                    })
-                )
-            ;
-            const outputFixingParser = OutputFixingParser.fromLLM(
-                model,
-                outputParser
-            );
-            const template_text = '\n{format_instructions}' +
-                '\nUse the following pieces of context to answer the question at the end. ' +
-                '\nIf you don\'t know the answer, just say that you don\'t know, don\'t try to make up an answer.' +
+            // const outputParser = StructuredOutputParser.fromZodSchema(
+            //         z.object({
+            //             fields: z.object({
+            //                 html: z.string().describe('html'),
+            //             })
+            //         })
+            //     )
+            // ;
+            // const outputFixingParser = OutputFixingParser.fromLLM(
+            //     model,
+            //     outputParser
+            // );
+            const template_text = '\nUse the following FHIR resources to answer the question at the end. ' +
                 '\n```{context}```' +
-                '\nQuestion:\n{question}' +
-                '\nGenerate the response in HTML';
+                '\nIf you don\'t know the answer, just say that you don\'t know, don\'t try to make up an answer.' +
+                '\nQuestion:\n{question}';
             const prompt = new PromptTemplate({
                 // template: 'Answer the user\'s question as best you can:\n{format_instructions}\n{query}',
                 template: template_text,
                 inputVariables: ['question', 'context'],
-                partialVariables: {
-                    format_instructions: outputFixingParser.getFormatInstructions()
-                },
+                // partialVariables: {
+                //     format_instructions: outputFixingParser.getFormatInstructions()
+                // },
                 // outputKey: 'records', // For readability - otherwise the chain output will default to a property named "text"
-                outputParser: outputFixingParser
+                // outputParser: outputFixingParser
             });
-            // const llmChain = new LLMChain(
-            //     {
-            //         llm: model,
-            //         prompt: prompt,
-            //         outputKey: 'records', // For readability - otherwise the chain output will default to a property named "text"
-            //         outputParser: outputFixingParser
-            //     });
             const chain = new RetrievalQAChain({
                 combineDocumentsChain: loadQAStuffChain(model, {prompt: prompt}),
                 retriever: vectorStore.asRetriever(),
                 // memory: memory,
                 // returnSourceDocuments: true,
             });
-            const res3 = await chain.call({
-                query: 'Organize these observations into a timeline'
-            });
-            console.log(JSON.stringify(res3, null, 2));
+            try {
+                const res3 = await chain.call({
+                    query: 'Create a summary'
+                });
+                console.log(JSON.stringify(res3, null, 2));
+            } catch (e) {
+                if (e.response && e.response.data && e.response.data.error) {
+                    console.log(e.response.data.error);
+                } else {
+                    console.log(e);
+                }
+            }
         });
     });
 });
