@@ -10,6 +10,8 @@ const {ScopesValidator} = require('../security/scopesValidator');
 const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
 const {FhirLoggingManager} = require('../common/fhirLoggingManager');
 const {ParsedArgs} = require('../query/parsedArgs');
+const {ChatGPTManager} = require('../../chatgpt/chatgptManager');
+const {Narrative} = require('../../fhir/classes/4_0_0/complex_types/narrative');
 
 class EverythingOperation {
     /**
@@ -17,12 +19,14 @@ class EverythingOperation {
      * @param {GraphOperation} graphOperation
      * @param {FhirLoggingManager} fhirLoggingManager
      * @param {ScopesValidator} scopesValidator
+     * @param {ChatGPTManager} chatgptManager
      */
     constructor(
         {
             graphOperation,
             fhirLoggingManager,
-            scopesValidator
+            scopesValidator,
+            chatgptManager
         }
     ) {
         /**
@@ -41,6 +45,11 @@ class EverythingOperation {
          */
         this.scopesValidator = scopesValidator;
         assertTypeEquals(scopesValidator, ScopesValidator);
+        /**
+         * @type {ChatGPTManager}
+         */
+        this.chatgptManager = chatgptManager;
+        assertTypeEquals(chatgptManager, ChatGPTManager);
     }
 
     /**
@@ -53,6 +62,88 @@ class EverythingOperation {
      * @return {Promise<Bundle>}
      */
     async everythingAsync({requestInfo, res, parsedArgs, resourceType, responseStreamer}) {
+        assertIsValid(requestInfo !== undefined, 'requestInfo is undefined');
+        assertIsValid(res !== undefined, 'res is undefined');
+        assertIsValid(resourceType !== undefined, 'resourceType is undefined');
+        assertTypeEquals(parsedArgs, ParsedArgs);
+        const currentOperationName = 'everything';
+        /**
+         * @type {number}
+         */
+        const startTime = Date.now();
+        await this.scopesValidator.verifyHasValidScopesAsync({
+            requestInfo,
+            parsedArgs,
+            resourceType,
+            startTime,
+            action: currentOperationName,
+            accessRequested: 'read'
+        });
+
+        try {
+            const bundle = await this.everythingBundleAsync({
+                requestInfo,
+                res,
+                parsedArgs,
+                resourceType,
+                responseStreamer
+            });
+            // see if a _question arg is passed
+            /**
+             * @type {ParsedArgsItem|undefined}
+             */
+            const question = parsedArgs.get('_question');
+            if (question && bundle.entry) {
+                const html = await this.chatgptManager.answerQuestionAsync(
+                    {
+                        bundle: bundle,
+                        question: question
+                    }
+                );
+                // find the patient resource
+                /**
+                 * @type {Patient}
+                 */
+                const patient = bundle.entry.find(e=> e.resourceType === 'Patient');
+                // return as text Narrative
+                patient.text = new Narrative({
+                    status: 'generated',
+                    div: html
+                });
+            }
+            return bundle;
+        } catch (err) {
+            await this.fhirLoggingManager.logOperationFailureAsync(
+                {
+                    requestInfo,
+                    args: parsedArgs.getRawArgs(),
+                    resourceType,
+                    startTime,
+                    action: currentOperationName,
+                    error: err
+                });
+            throw err;
+        }
+    }
+
+    /**
+     * does a FHIR $everything
+     * @param {FhirRequestInfo} requestInfo
+     * @param {import('express').Response} res
+     * @param {ParsedArgs} parsedArgs
+     * @param {string} resourceType
+     * @param {BaseResponseStreamer|undefined} [responseStreamer]
+     * @return {Promise<Bundle>}
+     */
+    async everythingBundleAsync(
+        {
+            requestInfo,
+            res,
+            parsedArgs,
+            resourceType,
+            responseStreamer
+        }
+    ) {
         assertIsValid(requestInfo !== undefined, 'requestInfo is undefined');
         assertIsValid(res !== undefined, 'res is undefined');
         assertIsValid(resourceType !== undefined, 'resourceType is undefined');

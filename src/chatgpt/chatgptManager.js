@@ -92,7 +92,7 @@ class ChatGPTManager {
             const res3 = await chain.call({
                 query: question
             });
-            return res3.text;
+            return res3.text.replace('<body>', '').replace('</body>', '').replace('\n', '');
         } catch (e) {
             throw new ChatGPTError({
                 error: e,
