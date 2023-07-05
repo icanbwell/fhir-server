@@ -1,7 +1,8 @@
 const env = require('var');
 const moment = require('moment-timezone');
-const {getLogger} = require('../../winstonInit');
 const httpContext = require('express-http-context');
+const {getLogger} = require('../../winstonInit');
+const {REQUEST_ID_TYPE} = require('../../constants');
 
 /**
  * @type {import('winston').logger}
@@ -18,11 +19,16 @@ const fhirLogger = require('../../utils/fhirLogger').FhirLogger;
  * @param {Object} args
  */
 const setRequestIdInLog = (args) => {
-    const reqId = httpContext.get('requestId');
-    if (reqId) {
+    const reqId = httpContext.get(REQUEST_ID_TYPE.SYSTEM_GENERATED_REQUEST_ID);
+    const userRequestId = httpContext.get(REQUEST_ID_TYPE.USER_REQUEST_ID);
+    // eslint-disable-next-line no-prototype-builtins
+    if (reqId && args) {
         args.request = {
             ...args.request,
-            id: reqId,
+            // represents the id that is passed as header or req.id.
+            id: userRequestId,
+            // represents the server unique requestId and that is used in operations.
+            systemGeneratedRequestId: reqId
         };
     }
 };
@@ -117,11 +123,12 @@ const logSystemEventAsync = async ({event, message, args}) => {
             }
         ],
     };
-    if (args.requestId) {
-        logEntry.request = {
-            id: args.requestId,
-        };
-    }
+    logEntry.request = {
+        // represents the id that is passed as header or req.id.
+        id: httpContext.get(REQUEST_ID_TYPE.USER_REQUEST_ID),
+        // represents the server unique requestId and that is used in operations.
+        systemGeneratedRequestId: httpContext.get(REQUEST_ID_TYPE.SYSTEM_GENERATED_REQUEST_ID)
+    };
     const fhirSecureLogger = await fhirLogger.getSecureLoggerAsync();
     fhirSecureLogger.info(logEntry);
     const fhirInSecureLogger = await fhirLogger.getInSecureLoggerAsync();
@@ -178,11 +185,12 @@ const logSystemErrorAsync = async ({event, message, args, error}) => {
             }
         ],
     };
-    if (args.requestId) {
-        logEntry.request = {
-            id: args.requestId,
-        };
-    }
+    logEntry.request = {
+        // represents the id that is passed as header or req.id.
+        id: httpContext.get(REQUEST_ID_TYPE.USER_REQUEST_ID),
+        // represents the server unique requestId and that is used in operations.
+        systemGeneratedRequestId: httpContext.get(REQUEST_ID_TYPE.SYSTEM_GENERATED_REQUEST_ID)
+    };
 
     const fhirSecureLogger = await fhirLogger.getSecureLoggerAsync();
     if (error) {
@@ -234,7 +242,7 @@ const getRemoteAddress = (req) => {
  */
 const logErrorAndRequestAsync = async ({error, req}) => {
     const request = {
-        id: req.id,
+        id: httpContext.get(REQUEST_ID_TYPE.USER_REQUEST_ID),
         statusCode: error.statusCode,
         method: req.method,
         url: req.url,
@@ -244,7 +252,10 @@ const logErrorAndRequestAsync = async ({error, req}) => {
         user: getUserName(req),
         remoteAddress: getRemoteAddress(req),
         request: {
-            id: req.id
+            // represents the id that is passed as header or req.id.
+            id: httpContext.get(REQUEST_ID_TYPE.USER_REQUEST_ID),
+            // represents the server unique requestId and that is used in operations.
+            systemGeneratedRequestId: httpContext.get(REQUEST_ID_TYPE.SYSTEM_GENERATED_REQUEST_ID)
         }
     };
     const logData = {request, error};

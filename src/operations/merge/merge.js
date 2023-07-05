@@ -222,6 +222,8 @@ class MergeOperation {
             host,
             /** @type {string} */
             requestId,
+            /** @type {string} */
+            userRequestId,
             /** @type {Object} */
             headers,
             /** @type {string|null} */
@@ -548,7 +550,7 @@ class MergeOperation {
                 return this.bundleManager.createBundle(
                     {
                         type: 'batch-response',
-                        requestId: requestInfo.requestId,
+                        requestId: userRequestId,
                         originalUrl: url,
                         host,
                         protocol,

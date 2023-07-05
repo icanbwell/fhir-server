@@ -18,8 +18,8 @@ class AddRequestIdToResponseHeadersPlugin /*extends ApolloServerPlugin*/ {
                 if (!response) {
                     return;
                 }
-                if (context.fhirRequestInfo.requestId && !response.headersSent) {
-                    response.http.headers.set('X-Request-ID', String(context.fhirRequestInfo.requestId));
+                if (context.fhirRequestInfo.userRequestId && !response.headersSent) {
+                    response.http.headers.set('X-Request-ID', String(context.fhirRequestInfo.userRequestId));
                 } else if (context.req && context.req.id && !response.headersSent) {
                     response.http.headers.set('X-Request-ID', String(context.req.id));
                 }
