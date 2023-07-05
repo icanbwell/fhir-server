@@ -23,6 +23,8 @@ const {convertErrorToOperationOutcome} = require('../utils/convertErrorToOperati
 const contentType = require('content-type');
 const {QueryRewriterManager} = require('../queryRewriters/queryRewriterManager');
 const {R4ArgsParser} = require('./query/r4ArgsParser');
+const {shouldStreamResponse} = require('../utils/requestHelpers');
+
 // const {shouldStreamResponse} = require('../utils/requestHelpers');
 
 
@@ -486,13 +488,45 @@ class FhirOperationsManager {
             }
         );
 
-        const responseStreamer = new FhirResponseStreamer({
-            response: res,
-            requestId: req.id
-        });
-        await responseStreamer.startAsync();
+        if (shouldStreamResponse(req)) {
+            const responseStreamer = new FhirResponseStreamer({
+                response: res,
+                requestId: req.id
+            });
+            await responseStreamer.startAsync();
 
-        try {
+            try {
+                /**
+                 * @type {Bundle}
+                 */
+                const result = await this.everythingOperation.everythingAsync(
+                    {
+                        requestInfo: this.getRequestInfo(req),
+                        res,
+                        parsedArgs,
+                        resourceType,
+                        responseStreamer
+                    });
+                await responseStreamer.endAsync();
+                return result;
+            } catch (err) {
+                const status = err.statusCode || 500;
+                /**
+                 * @type {OperationOutcome}
+                 */
+                const operationOutcome = convertErrorToOperationOutcome({error: err});
+                await responseStreamer.writeBundleEntryAsync({
+                        bundleEntry: new BundleEntry({
+                                resource: operationOutcome
+                            }
+                        )
+                    }
+                );
+                await responseStreamer.setStatusCodeAsync({statusCode: status});
+                await responseStreamer.endAsync();
+            }
+        } else {
+            // noinspection UnnecessaryLocalVariableJS
             /**
              * @type {Bundle}
              */
@@ -502,25 +536,8 @@ class FhirOperationsManager {
                     res,
                     parsedArgs,
                     resourceType,
-                    responseStreamer
                 });
-            await responseStreamer.endAsync();
             return result;
-        } catch (err) {
-            const status = err.statusCode || 500;
-            /**
-             * @type {OperationOutcome}
-             */
-            const operationOutcome = convertErrorToOperationOutcome({error: err});
-            await responseStreamer.writeBundleEntryAsync({
-                    bundleEntry: new BundleEntry({
-                            resource: operationOutcome
-                        }
-                    )
-                }
-            );
-            await responseStreamer.setStatusCodeAsync({statusCode: status});
-            await responseStreamer.endAsync();
         }
     }
 

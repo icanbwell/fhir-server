@@ -94,7 +94,7 @@ class EverythingOperation {
                 resourceType,
                 responseStreamer: question ? undefined : responseStreamer // disable response streaming if we are answering a question
             });
-            if (question) {
+            if (question && resourceType === 'Patient') {
                 const html = await this.chatgptManager.answerQuestionAsync(
                     {
                         bundle: bundle.toJSON(),
@@ -112,13 +112,16 @@ class EverythingOperation {
                         status: 'generated',
                         div: html
                     });
+                    patientBundleEntry.resource.contained = null;
                 }
-                // write only the Patient resource since we are providing the answer
-                await responseStreamer.writeBundleEntryAsync({bundleEntry: patientBundleEntry});
+                if (responseStreamer) {
+                    // write only the Patient resource since we are providing the answer
+                    await responseStreamer.writeBundleEntryAsync({bundleEntry: patientBundleEntry});
 
-                // for (const bundleEntry of bundle.entry) {
-                //     await responseStreamer.writeBundleEntryAsync({bundleEntry: bundleEntry});
-                // }
+                    // for (const bundleEntry of bundle.entry) {
+                    //     await responseStreamer.writeBundleEntryAsync({bundleEntry: bundleEntry});
+                    // }
+                }
             }
             return bundle;
         } catch (err) {
