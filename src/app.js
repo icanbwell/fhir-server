@@ -31,6 +31,7 @@ const { handleMemoryCheck } = require('./routeHandlers/memoryChecker');
 const {handleAdmin} = require('./routeHandlers/admin');
 const {json} = require('body-parser');
 const { getImageVersion } = require('./utils/getImageVersion');
+const {REQUEST_ID_TYPE} = require('./constants');
 
 /**
  * Creates the FHIR app
@@ -240,7 +241,6 @@ function createApp({fnCreateContainer, trackMetrics}) {
                 router.use(function (req, res, next) {
                     res.once('finish', async () => {
                         const req1 = req;
-                        const requestId = req.id;
                         /**
                          * @type {SimpleContainer}
                          */
@@ -255,6 +255,7 @@ function createApp({fnCreateContainer, trackMetrics}) {
                              */
                             const requestSpecificCache = container.requestSpecificCache;
                             if (postRequestProcessor) {
+                                const requestId = httpContext.get(REQUEST_ID_TYPE.SYSTEM_GENERATED_REQUEST_ID);
                                 await postRequestProcessor.executeAsync({requestId});
                                 await requestSpecificCache.clearAsync({requestId});
                             }

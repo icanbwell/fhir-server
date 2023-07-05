@@ -17,13 +17,14 @@ const {FhirRequestInfo} = require('../utils/fhirRequestInfo');
 const {SearchStreamingOperation} = require('./search/searchStreaming');
 const {assertTypeEquals, assertIsValid} = require('../utils/assertType');
 const env = require('var');
+const httpContext = require('express-http-context');
 const {FhirResponseStreamer} = require('../utils/fhirResponseStreamer');
 const BundleEntry = require('../fhir/classes/4_0_0/backbone_elements/bundleEntry');
 const {convertErrorToOperationOutcome} = require('../utils/convertErrorToOperationOutcome');
 const contentType = require('content-type');
 const {QueryRewriterManager} = require('../queryRewriters/queryRewriterManager');
 const {R4ArgsParser} = require('./query/r4ArgsParser');
-
+const {REQUEST_ID_TYPE} = require('../constants');
 
 class FhirOperationsManager {
     /**
@@ -192,7 +193,11 @@ class FhirOperationsManager {
         /**
          * @type {string|null}
          */
-        const requestId = req.id;
+        const requestId = httpContext.get(REQUEST_ID_TYPE.SYSTEM_GENERATED_REQUEST_ID);
+        /**
+         * @type {string|null}
+         */
+        const userRequestId = httpContext.get(REQUEST_ID_TYPE.USER_REQUEST_ID);
         /**
          * @type {string}
          */
@@ -238,6 +243,7 @@ class FhirOperationsManager {
                 scope,
                 remoteIpAddress,
                 requestId,
+                userRequestId,
                 protocol,
                 originalUrl,
                 path,

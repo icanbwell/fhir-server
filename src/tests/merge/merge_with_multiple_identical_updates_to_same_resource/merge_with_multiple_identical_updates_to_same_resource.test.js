@@ -5,12 +5,14 @@ const personMergeResource = require('./fixtures/Person/person2.json');
 // expected
 const expectedPersonResources = require('./fixtures/expected/expected_person.json');
 
-const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest, getTestContainer, getRequestId} = require('../../common');
+const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest, getTestContainer, mockHttpContext} = require('../../common');
 const {describe, beforeEach, afterEach, test} = require('@jest/globals');
 
 describe('Person Tests', () => {
+    let requestId;
     beforeEach(async () => {
         await commonBeforeEach();
+        requestId = mockHttpContext();
     });
 
     afterEach(async () => {
@@ -34,8 +36,8 @@ describe('Person Tests', () => {
              * @type {PostRequestProcessor}
              */
             const postRequestProcessor = container.postRequestProcessor;
-            await postRequestProcessor.executeAsync({requestId: getRequestId(resp)});
-            await postRequestProcessor.waitTillDoneAsync({requestId: getRequestId(resp)});
+            await postRequestProcessor.executeAsync({requestId: requestId});
+            await postRequestProcessor.waitTillDoneAsync({requestId: requestId});
 
             resp = await request
                 .post('/4_0_0/Person/1/$merge?validate=true')

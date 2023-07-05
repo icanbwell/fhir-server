@@ -123,6 +123,8 @@ class SearchStreamingOperation {
             /** @type {string} */
             requestId,
             /** @type {string} */
+            userRequestId,
+            /** @type {string} */
             method
         } = requestInfo;
 
@@ -318,7 +320,7 @@ class SearchStreamingOperation {
                         const fnBundle = (last_id, stopTime1) => this.bundleManager.createBundle(
                             {
                                 type: 'searchset',
-                                requestId: requestInfo.requestId,
+                                requestId: requestInfo.userRequestId,
                                 originalUrl,
                                 host,
                                 protocol,
@@ -392,7 +394,7 @@ class SearchStreamingOperation {
             } else { // no records found
                 if (useNdJson) {
                     if (requestId && !res.headersSent) {
-                        res.setHeader('X-Request-ID', String(requestId));
+                        res.setHeader('X-Request-ID', String(userRequestId));
                     }
                     // empty response
                     res.type(fhirContentTypes.ndJson);
@@ -430,13 +432,13 @@ class SearchStreamingOperation {
                             }
                         );
                         if (requestId && !res.headersSent) {
-                            res.setHeader('X-Request-ID', String(requestId));
+                            res.setHeader('X-Request-ID', String(userRequestId));
                         }
                         // noinspection JSUnresolvedFunction
                         res.type(fhirContentTypes.fhirJson).json(bundle.toJSON());
                     } else {
                         if (requestId && !res.headersSent) {
-                            res.setHeader('X-Request-ID', String(requestId));
+                            res.setHeader('X-Request-ID', String(userRequestId));
                         }
                         res.type(fhirContentTypes.fhirJson).json([]);
                     }
