@@ -4,6 +4,7 @@ const {PostRequestProcessor} = require('../../../../utils/postRequestProcessor')
 const {assertTypeEquals} = require('../../../../utils/assertType');
 const {FhirResponseWriter} = require('../../fhirResponseWriter');
 const {RequestSpecificCache} = require('../../../../utils/requestSpecificCache');
+const {REQUEST_ID_TYPE} = require('../../../../constants');
 
 class CustomOperationsController {
     /**
@@ -82,7 +83,7 @@ class CustomOperationsController {
             } catch (e) {
                 next(e);
             } finally {
-                const requestId = httpContext.get('requestId');
+                const requestId = httpContext.get(REQUEST_ID_TYPE.SYSTEM_GENERATED_REQUEST_ID);
                 await this.postRequestProcessor.executeAsync({requestId});
                 await this.requestSpecificCache.clearAsync({requestId});
             }
@@ -121,7 +122,7 @@ class CustomOperationsController {
             } catch (e) {
                 next(e);
             } finally {
-                const requestId = httpContext.get('requestId');
+                const requestId = httpContext.get(REQUEST_ID_TYPE.SYSTEM_GENERATED_REQUEST_ID);
                 await this.postRequestProcessor.executeAsync({requestId});
                 await this.requestSpecificCache.clearAsync({requestId});
             }
@@ -156,7 +157,7 @@ class CustomOperationsController {
             } catch (e) {
                 next(e);
             } finally {
-                const requestId = httpContext.get('requestId');
+                const requestId = httpContext.get(REQUEST_ID_TYPE.SYSTEM_GENERATED_REQUEST_ID);
                 await this.postRequestProcessor.executeAsync({requestId});
                 await this.requestSpecificCache.clearAsync({requestId});
             }

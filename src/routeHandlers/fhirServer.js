@@ -21,7 +21,7 @@ const passport = require('passport');
 const path = require('path');
 const contentType = require('content-type');
 const httpContext = require('express-http-context');
-const {REQUEST_ID_HEADER} = require('../constants');
+const {REQUEST_ID_HEADER, REQUEST_ID_TYPE} = require('../constants');
 const {convertErrorToOperationOutcome} = require('../utils/convertErrorToOperationOutcome');
 
 class MyFHIRServer {
@@ -134,11 +134,11 @@ class MyFHIRServer {
             ) => {
                 // Generates a unique uuid that is used for operations
                 const uniqueRequestId = generateUUID();
-                httpContext.set('requestId', uniqueRequestId);
+                httpContext.set(REQUEST_ID_TYPE.SYSTEM_GENERATED_REQUEST_ID, uniqueRequestId);
 
                 // Stores the userRquestId in httpContext and later used for logging and creating bundles.
                 req.id = req.id || req.header(`${REQUEST_ID_HEADER}`) || uniqueRequestId;
-                httpContext.set('userRequestId', req.id);
+                httpContext.set(REQUEST_ID_TYPE.USER_REQUEST_ID, req.id);
 
                 next();
             }
@@ -344,7 +344,7 @@ class MyFHIRServer {
                         res1.end();
                     } else {
                         if (req.id && !res.headersSent) {
-                            res1.setHeader('X-Request-ID', String(httpContext.get('userRequestId')));
+                            res1.setHeader('X-Request-ID', String(httpContext.get(REQUEST_ID_TYPE.USER_REQUEST_ID)));
                         }
                         // If there is an error and it is an OperationOutcome
                         if (err && err.resourceType === OperationOutcome.resourceType) {
@@ -407,7 +407,7 @@ class MyFHIRServer {
                 ],
             });
             if (req.id && !res.headersSent) {
-                res.setHeader('X-Request-ID', String(httpContext.get('userRequestId')));
+                res.setHeader('X-Request-ID', String(httpContext.get(REQUEST_ID_TYPE.USER_REQUEST_ID)));
             }
             res.status(404).json(error);
         });
