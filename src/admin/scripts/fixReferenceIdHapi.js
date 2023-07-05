@@ -17,7 +17,8 @@ const referenceCollections = require('../utils/referenceCollectionsHapi.json');
 const hapiResources = [
     'AllergyIntolerance', 'CarePlan', 'Condition', 'Device', 'Patient', 'DiagnosticReport',
     'DocumentReference', 'Encounter', 'Immunization', 'Location', 'Procedure', 'Medication',
-    'MedicationDispense', 'MedicationRequest', 'MedicationStatement', 'Observation', 'Organization', 'Practitioner', 'ServiceRequest'
+    'MedicationDispense', 'MedicationRequest', 'MedicationStatement', 'Observation', 'Organization', 'Practitioner',
+    'ServiceRequest'
 ];
 
 /**
