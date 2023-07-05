@@ -721,13 +721,18 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
                     }
                 };
 
-                await async.parallelLimit(mainCollectionsList.map(coll => async function() {
-                    await updateCollectionReferences(coll);
-                }), 5);
-
-                await async.parallelLimit(historyCollectionsList.map(coll => async function() {
-                    await updateCollectionReferences(coll);
-                }), 5);
+                let queue = async.queue(updateCollectionReferences, 5);
+                let queueErrored = false;
+                queue.error(function() {
+                    queueErrored = true;
+                });
+                queue.push(mainCollectionsList);
+                await queue.drain();
+                queue.push(historyCollectionsList);
+                await queue.drain();
+                if (queueErrored){
+                    return;
+                }
 
                 // changing the id of the resources
                 const mainProaCollectionsList = this.proaCollections.filter(coll => !coll.endsWith('_History')).sort();
@@ -800,13 +805,14 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
                         this.adminLogger.logInfo(`${cacheCollectionName} misses: ${cacheCount}`);
                     }
                 };
-                await async.parallelLimit(mainProaCollectionsList.map(coll => async function() {
-                    await updateCollectionids(coll);
-                }), 5);
-
-                await async.parallelLimit(historyProaCollectionsList.map(coll => async function() {
-                    await updateCollectionids(coll);
-                }), 5);
+                queue = async.queue(updateCollectionids, 5);
+                queue.error(function(err) {
+                    throw err;
+                });
+                queue.push(mainProaCollectionsList);
+                await queue.drain();
+                queue.push(historyProaCollectionsList);
+                await queue.drain();
             } catch (err) {
                 this.adminLogger.logError(err);
             }
