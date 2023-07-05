@@ -15,10 +15,11 @@ const {FixReferenceIdRunner} = require('../runners/fixReferenceIdRunner');
 const referenceCollections = require('../utils/referenceCollections.json');
 
 const proaResources = [
-    'Patient', 'Encounter', 'Condition', 'Procedure', 'Claim', 'EnrollmentRequest',
-    'Observation', 'AllergyIntolerance', 'ClaimResponse', 'ClinicalImpression',
-    'DetectedIssue', 'EnrollmentResponse', 'FamilyMemberHistory', 'PaymentNotice',
-    'PaymentReconciliation', 'RiskAssessment', 'ExplanationOfBenefit', 'Person'
+    'AllergyIntolerance', 'Claim', 'ClaimResponse', 'Communication', 'Condition', 'Coverage',
+    'Encounter', 'EnrollmentRequest', 'ExplanationOfBenefit',
+    'FamilyMemberHistory', 'Flag', 'Immunization', 'Location', 'MedicationDispense', 'MedicationRequest',
+    'MedicationStatement', 'Observation', 'Organization', 'Patient',
+    'Person', 'Practitioner', 'PractitionerRole', 'Procedure',
 ];
 
 /**

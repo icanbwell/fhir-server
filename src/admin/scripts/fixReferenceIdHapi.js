@@ -15,9 +15,10 @@ const {FixReferenceIdHapiRunner} = require('../runners/fixReferenceIdHapiRunner'
 const referenceCollections = require('../utils/referenceCollectionsHapi.json');
 
 const hapiResources = [
-    'AllergyIntolerance', 'CarePlan', 'Condition', 'Device', 'Patient', 'DiangosticReport',
+    'AllergyIntolerance', 'CarePlan', 'Condition', 'Device', 'Patient', 'DiagnosticReport',
     'DocumentReference', 'Encounter', 'Immunization', 'Location', 'Procedure', 'Medication',
-    'Observation', 'ServiceRequest'
+    'MedicationDispense', 'MedicationRequest', 'MedicationStatement', 'Observation', 'Organization', 'Practitioner',
+    'ServiceRequest'
 ];
 
 /**

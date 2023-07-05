@@ -5,6 +5,7 @@ const { VERSIONS } = require('../../middleware/fhir/utils/constants');
 const { ReferenceParser } = require('../../utils/referenceParser');
 const { DatabaseQueryFactory } = require('../../dataLayer/databaseQueryFactory');
 const deepEqual = require('fast-deep-equal');
+const { isUuid } = require('../../utils/uid.util');
 const { IdentifierSystem } = require('../../utils/identifierSystem');
 const { generateUUIDv5 } = require('../../utils/uid.util');
 const { isValidMongoObjectId } = require('../../utils/mongoIdValidator');
@@ -386,30 +387,30 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
         /**
          * @type {string}
          */
-        const originalId = this.getOriginalId({ doc: resource });
+        const expectedOriginalId = this.getOriginalId({ doc: resource, _sanitize: false });
+        const currentOriginalId = this.getOriginalId({ doc: resource, _sanitize: true });
 
         // create currentId with originalId to check if the resource id needs to be changed
         /**
-         * @type {string}
+         * @type {[string]}
          */
-        const currentId = this.getCurrentId({ originalId, _sourceAssigningAuthority: resource._sourceAssigningAuthority });
-
-        // get the new uuid generated for the resource
-        /**
-         * @type {string|undefined}
-         */
-        const newUuid = this.uuidCache.get(currentId);
+        const currentIds = this.getCurrentIds({ originalId: currentOriginalId, _sourceAssigningAuthority: resource._sourceAssigningAuthority });
 
         // check if the currentId and resource id matches if yes then change the id and uuid
-        if (currentId === resource._sourceId) {
-            resource.id = originalId;
-            resource._sourceId = originalId;
+        if (currentIds.includes(resource._sourceId)) {
+            // get the new uuid generated for the resource
+            /**
+             * @type {string|undefined}
+             */
+            const newUuid = this.uuidCache.get(resource._sourceId);
+            resource.id = expectedOriginalId;
+            resource._sourceId = expectedOriginalId;
             resource._uuid = newUuid;
 
             if (resource.identifier) {
                 for (let identifier of resource.identifier) {
                     if (identifier.id === 'sourceId') {
-                        identifier.value = originalId;
+                        identifier.value = expectedOriginalId;
                     }
                     if (identifier.id === 'uuid') {
                         identifier.value = newUuid;
@@ -1003,20 +1004,30 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
     /**
      * Extracts id from document
      * @param {Resource} doc
+     * @param {boolean} _sanitize
      * @returns {string}
      */
-    getOriginalId({ doc }) {
-        return doc.meta.source.split('/').pop().replace(/[^A-Za-z0-9\-.]/g, '-');
+    getOriginalId({ doc, _sanitize }) {
+        const id = doc.meta?.source?.split('/').pop() || '';
+        if (_sanitize === null || _sanitize === undefined) {
+            _sanitize = false;
+        }
+        return _sanitize ? id.replace(/[^A-Za-z0-9\-.]/g, '-') : id;
     }
 
     /**
      * Created old id from original id
      * @param {string} originalId
      * @param {string} _sourceAssigningAuthority
-     * @returns {string}
+     * @returns {[string]}
      */
-    getCurrentId({ originalId, _sourceAssigningAuthority }) {
-        return (`${_sourceAssigningAuthority.replace(/[^A-Za-z0-9\-.]/g, '-')}${_sourceAssigningAuthority ? '-' : ''}${originalId}`).slice(0, 63);
+    getCurrentIds({ originalId, _sourceAssigningAuthority }) {
+        if (_sourceAssigningAuthority){
+            _sourceAssigningAuthority = _sourceAssigningAuthority.toString();
+        }
+        const sanitizedId = (`${(_sourceAssigningAuthority || '').replace(/[^A-Za-z0-9\-.]/g, '-')}${_sourceAssigningAuthority ? '-' : ''}${originalId}`).slice(0, 63);
+        const unsanitizedId = (`${_sourceAssigningAuthority}${_sourceAssigningAuthority ? '-' : ''}${originalId}`).slice(0, 63);
+        return [sanitizedId, unsanitizedId];
     }
 
     /**
@@ -1029,7 +1040,8 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
         /**
          * @type {string}
          */
-        const originalId = this.getOriginalId({ doc });
+        const currentOriginalId = this.getOriginalId({ doc, _sanitize: true });
+        const expectedOriginalId = this.getOriginalId({ doc, _sanitize: false });
         let sourceAssigningAuthority = doc._sourceAssigningAuthority;
         if (!sourceAssigningAuthority && doc.meta && doc.meta.security){
             const authorityObj = doc.meta.security.find((obj) => obj.system === SecurityTagSystem.sourceAssigningAuthority);
@@ -1044,21 +1056,27 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
         }
         // current id present in the resource
         /**
-         * @type {string}
+         * @type {[string]}
          */
-        const currentId = this.getCurrentId({ originalId, _sourceAssigningAuthority: sourceAssigningAuthority });
+        const currentIds = this.getCurrentIds({ originalId: currentOriginalId, _sourceAssigningAuthority: sourceAssigningAuthority });
 
         // if currentId is equal to doc._sourceId then we need to change the id so cache it
-        if (currentId === doc._sourceId) {
+        if (currentIds.includes(doc._sourceId)) {
             collectionName = collectionName.split('_')[0];
 
             this.getCacheForReference({ collectionName }).set(
                 `${collectionName}/${doc._sourceId}`,
-                `${collectionName}/${originalId}`
+                `${collectionName}/${expectedOriginalId}`
             );
 
             // generate a new uuid based on the orginal id
-            this.uuidCache.set(currentId, generateUUIDv5(`${originalId}${sourceAssigningAuthority ? '|' : ''}${sourceAssigningAuthority}`));
+            let newUUID;
+            if (isUuid(expectedOriginalId)){
+                newUUID = expectedOriginalId;
+            } else {
+                newUUID = generateUUIDv5(`${expectedOriginalId}${sourceAssigningAuthority ? '|' : ''}${sourceAssigningAuthority}`);
+            }
+            this.uuidCache.set(doc._sourceId, newUUID);
         }
     }
 
