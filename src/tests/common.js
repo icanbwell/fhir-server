@@ -410,12 +410,12 @@ module.exports.getRequestId = (resp) => {
 module.exports.mockHttpContext = () => {
     jest.spyOn(httpContext, 'get');
     const values = {
-        'requestId': '12345678',
+        'systemGeneratedRequestId': '12345678',
         'userRequestId': '1234'
     };
     httpContext.get.mockImplementation((key) => {
         // eslint-disable-next-line security/detect-object-injection
         return values[key];
     });
-    return values.requestId;
+    return values.systemGeneratedRequestId;
 };
