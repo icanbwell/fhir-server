@@ -9,6 +9,8 @@ const {PromptTemplate} = require('langchain/prompts');
 const {RetrievalQAChain, loadQAStuffChain} = require('langchain/chains');
 const {ChatGPTError} = require('./chatgptError');
 const {encoding_for_model} = require('@dqbd/tiktoken');
+const sanitize = require('sanitize-html');
+const {filterXSS} = require('xss');
 
 class ChatGPTManager {
     /**
@@ -92,7 +94,12 @@ class ChatGPTManager {
             const res3 = await chain.call({
                 query: question
             });
-            return res3.text.replace('<body>', '').replace('</body>', '').replace('\n', '');
+            /**
+             * @type {string}
+             */
+            let html = res3.text.replace('<body>', '').replace('</body>', '').replace('\n', '');
+            html = filterXSS(sanitize(html));
+            return html;
         } catch (e) {
             throw new ChatGPTError({
                 error: e,
