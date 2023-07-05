@@ -24,7 +24,7 @@ const {convertErrorToOperationOutcome} = require('../utils/convertErrorToOperati
 const contentType = require('content-type');
 const {QueryRewriterManager} = require('../queryRewriters/queryRewriterManager');
 const {R4ArgsParser} = require('./query/r4ArgsParser');
-
+const {REQUEST_ID_TYPE} = require('../constants');
 
 class FhirOperationsManager {
     /**
@@ -193,11 +193,11 @@ class FhirOperationsManager {
         /**
          * @type {string|null}
          */
-        const requestId = httpContext.get('requestId');
+        const requestId = httpContext.get(REQUEST_ID_TYPE.SYSTEM_GENERATED_REQUEST_ID);
         /**
          * @type {string|null}
          */
-        const userRequestId = httpContext.get('userRequestId');
+        const userRequestId = httpContext.get(REQUEST_ID_TYPE.USER_REQUEST_ID);
         /**
          * @type {string}
          */

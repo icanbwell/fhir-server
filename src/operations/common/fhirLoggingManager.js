@@ -5,6 +5,7 @@ const {assertTypeEquals} = require('../../utils/assertType');
 const {ScopesManager} = require('../security/scopesManager');
 const {getCircularReplacer} = require('../../utils/getCircularReplacer');
 const httpContext = require('express-http-context');
+const {REQUEST_ID_TYPE} = require('../../constants');
 
 class FhirLoggingManager {
     /**
@@ -253,9 +254,9 @@ class FhirLoggingManager {
             message: error ? `${message}: ${JSON.stringify(error, getCircularReplacer())}` : message,
             request: {
                 // represents the id that is passed as header or req.id.
-                id: httpContext.get('userRequestId'),
+                id: httpContext.get(REQUEST_ID_TYPE.USER_REQUEST_ID),
                 // represents the server unique requestId and that is used in operations.
-                requestId: httpContext.get('requestId')
+                systemGeneratedRequestId: httpContext.get(REQUEST_ID_TYPE.SYSTEM_GENERATED_REQUEST_ID)
             }
         };
         const fhirInSecureLogger = await fhirLogger.getInSecureLoggerAsync();
