@@ -252,7 +252,7 @@ class FhirLoggingManager {
             ],
             message: error ? `${message}: ${JSON.stringify(error, getCircularReplacer())}` : message,
             request: {
-                id: httpContext.get('userRequestId'),
+                userRequestId: httpContext.get('userRequestId'),
                 requestId: httpContext.get('requestId')
             }
         };

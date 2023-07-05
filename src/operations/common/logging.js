@@ -121,7 +121,7 @@ const logSystemEventAsync = async ({event, message, args}) => {
         ],
     };
     logEntry.request = {
-        id: httpContext.get('userRequestId'),
+        userRequestId: httpContext.get('userRequestId'),
         requestId: httpContext.get('requestId')
     };
     const fhirSecureLogger = await fhirLogger.getSecureLoggerAsync();
@@ -181,7 +181,7 @@ const logSystemErrorAsync = async ({event, message, args, error}) => {
         ],
     };
     logEntry.request = {
-        id: httpContext.get('userRequestId'),
+        userRequestId: httpContext.get('userRequestId'),
         requestId: httpContext.get('requestId')
     };
 
@@ -235,7 +235,7 @@ const getRemoteAddress = (req) => {
  */
 const logErrorAndRequestAsync = async ({error, req}) => {
     const request = {
-        id: httpContext.get('requestId'),
+        id: httpContext.get('userRequestId'),
         statusCode: error.statusCode,
         method: req.method,
         url: req.url,
@@ -245,7 +245,7 @@ const logErrorAndRequestAsync = async ({error, req}) => {
         user: getUserName(req),
         remoteAddress: getRemoteAddress(req),
         request: {
-            id: httpContext.get('requestId'),
+            requestId: httpContext.get('requestId'),
             userRequestId: httpContext.get('userRequestId')
         }
     };
