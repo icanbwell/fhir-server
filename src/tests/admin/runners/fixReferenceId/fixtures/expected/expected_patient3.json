@@ -1,16 +1,16 @@
 {
     "resourceType": "Patient",
-    "id": "1-1",
+    "id": "1(1",
     "identifier": [
         {
             "id": "sourceId",
             "system": "https://www.icanbwell.com/sourceId",
-            "value": "1-1"
+            "value": "1(1"
         },
         {
             "id": "uuid",
             "system": "https://www.icanbwell.com/uuid",
-            "value": "7cf11581-f989-5de2-8306-f4ee16f5f1a3"
+            "value": "f231828a-f3b3-565c-8fb4-d0c40c248ba0"
         }
     ],
     "meta": {
