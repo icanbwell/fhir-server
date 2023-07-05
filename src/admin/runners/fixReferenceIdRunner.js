@@ -5,6 +5,7 @@ const { VERSIONS } = require('../../middleware/fhir/utils/constants');
 const { ReferenceParser } = require('../../utils/referenceParser');
 const { DatabaseQueryFactory } = require('../../dataLayer/databaseQueryFactory');
 const deepEqual = require('fast-deep-equal');
+const { isUuid } = require('../../utils/uid.util');
 const { IdentifierSystem } = require('../../utils/identifierSystem');
 const { generateUUIDv5 } = require('../../utils/uid.util');
 const { isValidMongoObjectId } = require('../../utils/mongoIdValidator');
@@ -1069,7 +1070,13 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
             );
 
             // generate a new uuid based on the orginal id
-            this.uuidCache.set(doc._sourceId, generateUUIDv5(`${expectedOriginalId}${sourceAssigningAuthority ? '|' : ''}${sourceAssigningAuthority}`));
+            let newUUID;
+            if (isUuid(expectedOriginalId)){
+                newUUID = expectedOriginalId;
+            } else {
+                newUUID = generateUUIDv5(`${expectedOriginalId}${sourceAssigningAuthority ? '|' : ''}${sourceAssigningAuthority}`);
+            }
+            this.uuidCache.set(doc._sourceId, newUUID);
         }
     }
 
