@@ -1007,7 +1007,7 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
      * @returns {string}
      */
     getOriginalId({ doc, _sanitize }) {
-        const id = doc.meta.source.split('/').pop();
+        const id = doc.meta?.source?.split('/').pop() || '';
         if (_sanitize === null || _sanitize === undefined) {
             _sanitize = false;
         }
