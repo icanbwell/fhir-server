@@ -1021,6 +1021,9 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
      * @returns {[string]}
      */
     getCurrentIds({ originalId, _sourceAssigningAuthority }) {
+        if (_sourceAssigningAuthority){
+            _sourceAssigningAuthority = _sourceAssigningAuthority.toString();
+        }
         const sanitizedId = (`${(_sourceAssigningAuthority || '').replace(/[^A-Za-z0-9\-.]/g, '-')}${_sourceAssigningAuthority ? '-' : ''}${originalId}`).slice(0, 63);
         const unsanitizedId = (`${_sourceAssigningAuthority}${_sourceAssigningAuthority ? '-' : ''}${originalId}`).slice(0, 63);
         return [sanitizedId, unsanitizedId];
