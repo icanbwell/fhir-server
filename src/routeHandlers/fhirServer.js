@@ -132,11 +132,14 @@ class MyFHIRServer {
                 /** @type {import('http').ServerResponse} **/ res,
                 next
             ) => {
-                req.id = req.id || req.header(`${REQUEST_ID_HEADER}`) || generateUUID();
-                httpContext.set('userRequestId', req.id);
-
+                // Generates a unique uuid that is used for operations
                 const uniqueRequestId = generateUUID();
                 httpContext.set('requestId', uniqueRequestId);
+
+                // Stores the userRquestId in httpContext and later used for logging and creating bundles.
+                req.id = req.id || req.header(`${REQUEST_ID_HEADER}`) || uniqueRequestId;
+                httpContext.set('userRequestId', req.id);
+
                 next();
             }
         );

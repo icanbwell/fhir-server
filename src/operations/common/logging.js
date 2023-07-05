@@ -24,8 +24,10 @@ const setRequestIdInLog = (args) => {
     if (reqId && args && args.hasOwnProperty('request')) {
         args.request = {
             ...args.request,
-            id: reqId,
-            userRequestId: userRequestId
+            // represents the id that is passed as header or req.id.
+            id: userRequestId,
+            // represents the server unique requestId and that is used in operations.
+            requestId: reqId
         };
     }
 };
@@ -121,7 +123,9 @@ const logSystemEventAsync = async ({event, message, args}) => {
         ],
     };
     logEntry.request = {
-        userRequestId: httpContext.get('userRequestId'),
+        // represents the id that is passed as header or req.id.
+        id: httpContext.get('userRequestId'),
+        // represents the server unique requestId and that is used in operations.
         requestId: httpContext.get('requestId')
     };
     const fhirSecureLogger = await fhirLogger.getSecureLoggerAsync();
@@ -181,7 +185,9 @@ const logSystemErrorAsync = async ({event, message, args, error}) => {
         ],
     };
     logEntry.request = {
-        userRequestId: httpContext.get('userRequestId'),
+        // represents the id that is passed as header or req.id.
+        id: httpContext.get('userRequestId'),
+        // represents the server unique requestId and that is used in operations.
         requestId: httpContext.get('requestId')
     };
 
@@ -245,8 +251,10 @@ const logErrorAndRequestAsync = async ({error, req}) => {
         user: getUserName(req),
         remoteAddress: getRemoteAddress(req),
         request: {
-            requestId: httpContext.get('requestId'),
-            userRequestId: httpContext.get('userRequestId')
+            // represents the id that is passed as header or req.id.
+            id: httpContext.get('userRequestId'),
+            // represents the server unique requestId and that is used in operations.
+            requestId: httpContext.get('requestId')
         }
     };
     const logData = {request, error};
