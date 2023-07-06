@@ -76,6 +76,8 @@ async function main() {
                 mongoCollectionManager: c.mongoCollectionManager,
                 collections,
                 batchSize,
+                referenceBatchSize: parameters.referenceBatchSize,
+                collectionConcurrency: parameters.collectionConcurrency,
                 afterLastUpdatedDate,
                 beforeLastUpdatedDate,
                 adminLogger,

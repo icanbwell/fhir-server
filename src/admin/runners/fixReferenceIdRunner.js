@@ -596,7 +596,7 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
 
                     // to store all the reference field names of the resource
                     /**
-                     * @type {Set<String>}
+                     * @type {Set<Object>}
                      */
                     let referenceFieldNames = new Set();
 

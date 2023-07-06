@@ -1,0 +1,87 @@
+{
+    "code": {
+        "text": "Actin (Smooth Muscle) Antibody"
+    },
+    "effectiveDateTime": "2015-01-01T17:48:00.000Z",
+    "id": "thedacare-12345678901234567890123-Actin--Smooth-Muscle--Antibody",
+    "identifier": [
+        {
+            "id": "sourceId",
+            "system": "https://www.icanbwell.com/sourceId",
+            "value": "thedacare-12345678901234567890123-Actin--Smooth-Muscle--Antibody"
+        },
+        {
+            "id": "uuid",
+            "system": "https://www.icanbwell.com/uuid",
+            "value": "b1486791-969a-57b0-884c-135be43db4f5"
+        }
+    ],
+    "meta": {
+        "security": [
+            {
+                "code": "thedacare",
+                "id": "owner",
+                "system": "https://www.icanbwell.com/owner"
+            },
+            {
+                "code": "thedacare",
+                "system": "https://www.icanbwell.com/access"
+            },
+            {
+                "code": "thedacare",
+                "system": "https://www.icanbwell.com/connectionType"
+            },
+            {
+                "code": "thedacare",
+                "system": "https://www.icanbwell.com/sourceAssigningAuthority"
+            }
+        ],
+        "source": "test_results",
+        "versionId": "1"
+    },
+    "performer": [
+        {
+            "display": "Kaiser S - Desert Valley Gastroenterology"
+        }
+    ],
+    "referenceRange": [
+        {
+            "high": {
+                "unit": "Units"
+            },
+            "id": "reference-range",
+            "low": {
+                "unit": "Units"
+            },
+            "text": "0-19"
+        }
+    ],
+    "resourceType": "Observation",
+    "status": "final",
+    "valueQuantity": {
+        "unit": "Units",
+        "value": 12
+    },
+    "hasMember": [
+        {
+            "extension": [
+                {
+                    "id": "sourceId",
+                    "url": "https://www.icanbwell.com/sourceId",
+                    "valueString": "Observation/thedacare-1234567890123456789abcd-Actin--Smooth-Muscle--Antibody"
+                },
+                {
+                    "id": "uuid",
+                    "url": "https://www.icanbwell.com/uuid",
+                    "valueString": "Observation/2b9bfc23-06f4-521d-a1ff-43c3fc8e694a"
+                },
+                {
+                    "id": "sourceAssigningAuthority",
+                    "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                    "valueString": "thedacare"
+                }
+            ],
+            "reference": "Observation/thedacare-1234567890123456789abcd-Actin--Smooth-Muscle--Antibody"
+        }
+    ]
+}
