@@ -134,11 +134,15 @@ class MyFHIRServer {
             ) => {
                 // Generates a unique uuid that is used for operations
                 const uniqueRequestId = generateUUID();
-                httpContext.set(REQUEST_ID_TYPE.SYSTEM_GENERATED_REQUEST_ID, uniqueRequestId);
+                if (!httpContext.get(REQUEST_ID_TYPE.SYSTEM_GENERATED_REQUEST_ID)) {
+                    httpContext.set(REQUEST_ID_TYPE.SYSTEM_GENERATED_REQUEST_ID, uniqueRequestId);
+                }
 
-                // Stores the userRquestId in httpContext and later used for logging and creating bundles.
-                req.id = req.id || req.header(`${REQUEST_ID_HEADER}`) || uniqueRequestId;
-                httpContext.set(REQUEST_ID_TYPE.USER_REQUEST_ID, req.id);
+                if (!httpContext.get(REQUEST_ID_TYPE.USER_REQUEST_ID)) {
+                    // Stores the userRquestId in httpContext and later used for logging and creating bundles.
+                    req.id = req.id || req.header(`${REQUEST_ID_HEADER}`) || uniqueRequestId;
+                    httpContext.set(REQUEST_ID_TYPE.USER_REQUEST_ID, req.id);
+                }
 
                 next();
             }
@@ -160,20 +164,20 @@ class MyFHIRServer {
         );
 
         // Log the incoming request
-        this.app.use(
-            async (
-                /** @type {import('http').IncomingMessage} **/ req,
-                /** @type {import('http').ServerResponse} **/ res,
-                next
-            ) => {
-                await this.container.fhirLoggingManager.logOperationStartAsync(
-                    {
-                        requestInfo: this.container.fhirOperationsManager.getRequestInfo(req),
-                        startTime: Date.now()
-                    });
-                next();
-            }
-        );
+        // this.app.use(
+        //     async (
+        //         /** @type {import('http').IncomingMessage} **/ req,
+        //         /** @type {import('http').ServerResponse} **/ res,
+        //         next
+        //     ) => {
+        //         await this.container.fhirLoggingManager.logOperationStartAsync(
+        //             {
+        //                 requestInfo: this.container.fhirOperationsManager.getRequestInfo(req),
+        //                 startTime: Date.now()
+        //             });
+        //         next();
+        //     }
+        // );
 
         // add container to request
         // this.app.use((/** @type {import('http').IncomingMessage} **/ req, /** @type {import('http').ServerResponse} **/ res, next) => {

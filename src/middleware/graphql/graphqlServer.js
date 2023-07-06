@@ -58,11 +58,16 @@ const graphql = async (fnCreateContainer) => {
 
         // Generates a unique uuid that is used for operations
         const uniqueRequestId = generateUUID();
-        httpContext.set(REQUEST_ID_TYPE.SYSTEM_GENERATED_REQUEST_ID, uniqueRequestId);
+        if (!httpContext.get(REQUEST_ID_TYPE.SYSTEM_GENERATED_REQUEST_ID)) {
+            // if value is not set then set it.
+            httpContext.set(REQUEST_ID_TYPE.SYSTEM_GENERATED_REQUEST_ID, uniqueRequestId);
+        }
 
-        // Stores the userRquestId in httpContext and later used for logging and creating bundles.
-        req.id = req.id || req.header(`${REQUEST_ID_HEADER}`) || uniqueRequestId;
-        httpContext.set(REQUEST_ID_TYPE.USER_REQUEST_ID, req.id);
+        if (!httpContext.get(REQUEST_ID_TYPE.SYSTEM_GENERATED_REQUEST_ID)) {
+            // Stores the userRquestId in httpContext and later used for logging and creating bundles.
+            req.id = req.id || req.header(`${REQUEST_ID_HEADER}`) || uniqueRequestId;
+            httpContext.set(REQUEST_ID_TYPE.USER_REQUEST_ID, req.id);
+        }
 
         /**
          * @type {import('content-type').ContentType}
