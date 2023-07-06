@@ -5,7 +5,7 @@ const {ApolloServer} = require('@apollo/server');
 const {expressMiddleware} = require('@apollo/server/express4');
 const {join} = require('path');
 const resolvers = require('../../graphql/v2/resolvers');
-const {REQUEST_ID_HEADER, REQUEST_ID_TYPE} = require('../../constants');
+const { REQUEST_ID_TYPE} = require('../../constants');
 const {loadFilesSync} = require('@graphql-tools/load-files');
 const {mergeTypeDefs} = require('@graphql-tools/merge');
 const {FhirDataSource} = require('../../graphql/v2/dataSource');
@@ -18,12 +18,10 @@ const {
 const {getBundleMetaApolloServerPlugin} = require('./plugins/graphqlBundleMetaPlugin');
 const {getApolloServerLoggingPlugin} = require('./plugins/graphqlLoggingPlugin');
 const {FhirRequestInfo} = require('../../utils/fhirRequestInfo');
-const {generateUUID} = require('../../utils/uid.util');
 const {getAddRequestIdToResponseHeadersPlugin} = require('./plugins/graphqlAddRequestIdToResponseHeadersPlugin');
 const contentType = require('content-type');
 const {getValidateMissingVariableValuesPlugin} = require('./plugins/graphqlValidateMissingVariableValuesPlugin');
 const httpContext = require('express-http-context');
-
 /**
  * @param {function (): SimpleContainer} fnCreateContainer
  * @return {Promise<e.Router>}
@@ -55,19 +53,6 @@ const graphql = async (fnCreateContainer) => {
      */
     async function getContext({req, res}) {
         const container = fnCreateContainer();
-
-        // Generates a unique uuid that is used for operations
-        const uniqueRequestId = generateUUID();
-        if (!httpContext.get(REQUEST_ID_TYPE.SYSTEM_GENERATED_REQUEST_ID)) {
-            // if value is not set then set it.
-            httpContext.set(REQUEST_ID_TYPE.SYSTEM_GENERATED_REQUEST_ID, uniqueRequestId);
-        }
-
-        if (!httpContext.get(REQUEST_ID_TYPE.USER_REQUEST_ID)) {
-            // Stores the userRquestId in httpContext and later used for logging and creating bundles.
-            req.id = req.id || req.header(`${REQUEST_ID_HEADER}`) || uniqueRequestId;
-            httpContext.set(REQUEST_ID_TYPE.USER_REQUEST_ID, req.id);
-        }
 
         /**
          * @type {import('content-type').ContentType}
