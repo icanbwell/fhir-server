@@ -9,6 +9,7 @@
     "node": "18.16.x"
   },
   "scripts": {
+    "build": "cd web && npm run build",
     "start": "NODE_ENV=production node src/index.js",
     "dev": "NODE_ENV=development ./node_modules/pm2/bin/pm2-dev start ./src/index.js;",
     "dev_debug": "NODE_ENV=development DEBUG=express:router ./node_modules/pm2/bin/pm2-dev start ./src/index.js;",

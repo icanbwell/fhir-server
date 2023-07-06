@@ -27,10 +27,10 @@ const {handleStats} = require('./routeHandlers/stats');
 const {handleSmartConfiguration} = require('./routeHandlers/smartConfiguration');
 const {isTrue} = require('./utils/isTrue');
 const cookieParser = require('cookie-parser');
-const { handleMemoryCheck } = require('./routeHandlers/memoryChecker');
+const {handleMemoryCheck} = require('./routeHandlers/memoryChecker');
 const {handleAdmin} = require('./routeHandlers/admin');
 const {json} = require('body-parser');
-const { getImageVersion } = require('./utils/getImageVersion');
+const {getImageVersion} = require('./utils/getImageVersion');
 const {REQUEST_ID_TYPE} = require('./constants');
 
 /**
@@ -116,6 +116,8 @@ function createApp({fnCreateContainer, trackMetrics}) {
     app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument, options));
 
     app.use(express.static(path.join(__dirname, 'oauth')));
+    // Serve static files from the React app
+    app.use(express.static(path.join(__dirname, 'client/build')));
 
     // handles when the user is redirected by the OpenIDConnect/OAuth provider
     app.get('/authcallback', (req, res) => {
@@ -217,6 +219,11 @@ function createApp({fnCreateContainer, trackMetrics}) {
     adminRouter.get('/admin/:op?', adminHandler);
     adminRouter.post('/admin/:op?', adminHandler);
     app.use(adminRouter);
+
+    // Always serve the React app for any other request
+    app.get('web', (req, res) => {
+        res.sendFile(path.join(__dirname, 'client/build/index.html'));
+    });
 
     if (isTrue(env.AUTH_ENABLED)) {
         // noinspection JSCheckFunctionSignatures
