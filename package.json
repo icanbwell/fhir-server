@@ -9,7 +9,7 @@
     "node": "18.16.x"
   },
   "scripts": {
-    "build": "cd web && npm run build",
+    "build": "cd src/web && npm run build",
     "start": "NODE_ENV=production node src/index.js",
     "dev": "NODE_ENV=development ./node_modules/pm2/bin/pm2-dev start ./src/index.js;",
     "dev_debug": "NODE_ENV=development DEBUG=express:router ./node_modules/pm2/bin/pm2-dev start ./src/index.js;",
@@ -179,6 +179,7 @@
     "zod": "^3.21.4"
   },
   "devDependencies": {
+    "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
     "@jest/globals": "^29.6.0",
     "@types/async": "^3.2.20",
     "@types/ejs": "^3.1.2",

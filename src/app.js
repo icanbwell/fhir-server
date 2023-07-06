@@ -116,8 +116,6 @@ function createApp({fnCreateContainer, trackMetrics}) {
     app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument, options));
 
     app.use(express.static(path.join(__dirname, 'oauth')));
-    // Serve static files from the React app
-    app.use(express.static(path.join(__dirname, 'client/build')));
 
     // handles when the user is redirected by the OpenIDConnect/OAuth provider
     app.get('/authcallback', (req, res) => {
@@ -220,9 +218,11 @@ function createApp({fnCreateContainer, trackMetrics}) {
     adminRouter.post('/admin/:op?', adminHandler);
     app.use(adminRouter);
 
+    // Serve static files from the React app
+    app.use('web', express.static(path.join(__dirname, 'web/build')));
     // Always serve the React app for any other request
     app.get('web', (req, res) => {
-        res.sendFile(path.join(__dirname, 'client/build/index.html'));
+        res.sendFile(path.join(__dirname, 'web/build', 'index.html'));
     });
 
     if (isTrue(env.AUTH_ENABLED)) {
