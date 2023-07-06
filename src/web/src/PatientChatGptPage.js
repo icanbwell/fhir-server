@@ -24,8 +24,8 @@ function PatientChatGptPage() {
 
     return (
         <div>
-            <input type="text" value={textInput} onChange={handleInputChange}/>
-            <button onClick={callApi}>Ask</button>
+            {/*<input type="text" value={textInput} onChange={handleInputChange}/>*/}
+            {/*<button onClick={callApi}>Ask</button>*/}
         </div>
     );
 }
