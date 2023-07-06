@@ -1,3 +1,4 @@
+const async = require('async');
 const { BaseBulkOperationRunner } = require('./baseBulkOperationRunner');
 const { assertTypeEquals } = require('../../utils/assertType');
 const { PreSaveManager } = require('../../preSaveHandlers/preSave');
@@ -30,6 +31,7 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
      * @param {string[]} collections
      * @param {number} batchSize
      * @param {number} referenceBatchSize
+     * @param {number} collectionConcurrency
      * @param {AdminLogger} adminLogger
      * @param {MongoDatabaseManager} mongoDatabaseManager
      * @param {PreSaveManager} preSaveManager
@@ -54,6 +56,7 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
             collections,
             batchSize,
             referenceBatchSize,
+            collectionConcurrency,
             adminLogger,
             mongoDatabaseManager,
             preSaveManager,
@@ -90,6 +93,8 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
          * @type {number}
          */
         this.referenceBatchSize = referenceBatchSize ? parseInt(referenceBatchSize) : 100;
+
+        this.collectionConcurrency = collectionConcurrency ? parseInt(collectionConcurrency) : 3;
 
         this.preSaveManager = preSaveManager;
         assertTypeEquals(preSaveManager, PreSaveManager);
@@ -538,7 +543,7 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
              */
             const mongoConfig = await this.mongoDatabaseManager.getClientConfigAsync();
 
-            for (const proaCollection of this.proaCollections) {
+            const cacheCollectionReferences = async (proaCollection) => {
                 this.adminLogger.logInfo(`Caching collection references: ${proaCollection}`);
 
                 await this.cacheReferencesAsync({
@@ -549,15 +554,30 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
                 const count = this.getCacheForReference({ collectionName: proaCollection }).size;
 
                 this.adminLogger.logInfo(`Done caching collection references: ${proaCollection}: ${count}`);
+            };
+
+            // Cache collection ids in async promises since they are IO heavy
+            let promises = [];
+            const chunkSize = 3;
+            for (let i = 0; i < this.proaCollections.length; i += chunkSize) {
+                const chunk = this.proaCollections.slice(i, i + chunkSize);
+                if (chunk.length) {
+                    this.adminLogger.logInfo(`Started caching references of collections ${chunk.join(',')}`);
+                    promises.push(...chunk.map(proaCollection => cacheCollectionReferences(proaCollection)));
+                    await Promise.all(promises);
+                    this.adminLogger.logInfo(`Completed caching references of collections ${chunk.join(',')}`);
+                    promises = [];
+                }
             }
 
             try {
-                // Move history collections to the last
-                this.collections.sort((a, _b) => a.includes('_History') ? 1 : -1);
+                const mainCollectionsList = this.collections.filter(coll => !coll.endsWith('_History')).sort();
+                const historyCollectionsList = this.collections.filter(coll => coll.endsWith('_History')).sort();
+
                 this.adminLogger.logInfo(`Starting loop for ${this.collections.join(',')}. useTransaction: ${this.useTransaction}`);
 
                 // if there is an exception, continue processing from the last id
-                for (const collectionName of this.collections) {
+                const updateCollectionReferences = async (collectionName) => {
                     this.adminLogger.logInfo(`Starting reference updates for ${collectionName}`);
                     this.startFromIdContainer.startFromId = '';
                     const isHistoryCollection = collectionName.includes('_History');
@@ -613,7 +633,7 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
 
                         if (!referenceArray.length){
                             this.adminLogger.logInfo(`Procesing not required for ${collectionName}`);
-                            continue;
+                            return;
                         }
                         const totalLoops = Math.ceil(referenceArray.length / this.referenceBatchSize);
                         this.adminLogger.logInfo(`Expecting ${totalLoops} loops for ${collectionName}`);
@@ -703,13 +723,27 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
                     for (const [cacheCollectionName, cacheCount] of this.cacheMisses.entries()) {
                         this.adminLogger.logInfo(`${cacheCollectionName} misses: ${cacheCount}`);
                     }
+                };
+
+                let queue = async.queue(updateCollectionReferences, this.collectionConcurrency);
+                let queueErrored = false;
+                queue.error(function() {
+                    queueErrored = true;
+                });
+                queue.push(mainCollectionsList);
+                await queue.drain();
+                queue.push(historyCollectionsList);
+                await queue.drain();
+                if (queueErrored){
+                    return;
                 }
 
                 // changing the id of the resources
-                // Move history collections to the last
-                this.proaCollections.sort((a, _b) => a.includes('_History') ? 1 : -1);
+                const mainProaCollectionsList = this.proaCollections.filter(coll => !coll.endsWith('_History')).sort();
+                const historyProaCollectionsList = this.proaCollections.filter(coll => coll.endsWith('_History')).sort();
                 this.historyUuidCache.clear();
-                for (const collectionName of this.proaCollections) {
+
+                const updateCollectionids = async (collectionName) => {
                     this.adminLogger.logInfo(`Starting id updates for ${collectionName}`);
                     this.startFromIdContainer.startFromId = '';
 
@@ -774,7 +808,15 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
                     for (const [cacheCollectionName, cacheCount] of this.cacheMisses.entries()) {
                         this.adminLogger.logInfo(`${cacheCollectionName} misses: ${cacheCount}`);
                     }
-                }
+                };
+                queue = async.queue(updateCollectionids, this.collectionConcurrency);
+                queue.error(function(err) {
+                    throw err;
+                });
+                queue.push(mainProaCollectionsList);
+                await queue.drain();
+                queue.push(historyProaCollectionsList);
+                await queue.drain();
             } catch (err) {
                 this.adminLogger.logError(err);
             }
