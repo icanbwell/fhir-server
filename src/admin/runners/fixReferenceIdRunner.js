@@ -554,7 +554,7 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
 
             // Cache collection ids in async promises since they are IO heavy
             let promises = [];
-            const chunkSize = 10;
+            const chunkSize = 3;
             for (let i = 0; i < this.proaCollections.length; i += chunkSize) {
                 const chunk = this.proaCollections.slice(i, i + chunkSize);
                 if (chunk.length) {
@@ -721,7 +721,7 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
                     }
                 };
 
-                let queue = async.queue(updateCollectionReferences, 5);
+                let queue = async.queue(updateCollectionReferences, 3);
                 let queueErrored = false;
                 queue.error(function() {
                     queueErrored = true;
@@ -805,7 +805,7 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
                         this.adminLogger.logInfo(`${cacheCollectionName} misses: ${cacheCount}`);
                     }
                 };
-                queue = async.queue(updateCollectionids, 5);
+                queue = async.queue(updateCollectionids, 3);
                 queue.error(function(err) {
                     throw err;
                 });
