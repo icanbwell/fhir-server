@@ -31,6 +31,7 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
      * @param {string[]} collections
      * @param {number} batchSize
      * @param {number} referenceBatchSize
+     * @param {number} collectionConcurrency
      * @param {AdminLogger} adminLogger
      * @param {MongoDatabaseManager} mongoDatabaseManager
      * @param {PreSaveManager} preSaveManager
@@ -55,6 +56,7 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
             collections,
             batchSize,
             referenceBatchSize,
+            collectionConcurrency,
             adminLogger,
             mongoDatabaseManager,
             preSaveManager,
@@ -91,6 +93,8 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
          * @type {number}
          */
         this.referenceBatchSize = referenceBatchSize ? parseInt(referenceBatchSize) : 100;
+
+        this.collectionConcurrency = collectionConcurrency ? parseInt(collectionConcurrency) : 3;
 
         this.preSaveManager = preSaveManager;
         assertTypeEquals(preSaveManager, PreSaveManager);
@@ -721,7 +725,7 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
                     }
                 };
 
-                let queue = async.queue(updateCollectionReferences, 3);
+                let queue = async.queue(updateCollectionReferences, this.collectionConcurrency);
                 let queueErrored = false;
                 queue.error(function() {
                     queueErrored = true;
@@ -805,7 +809,7 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
                         this.adminLogger.logInfo(`${cacheCollectionName} misses: ${cacheCount}`);
                     }
                 };
-                queue = async.queue(updateCollectionids, 3);
+                queue = async.queue(updateCollectionids, this.collectionConcurrency);
                 queue.error(function(err) {
                     throw err;
                 });

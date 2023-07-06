@@ -78,6 +78,7 @@ async function main() {
                 collections,
                 batchSize,
                 referenceBatchSize: parameters.referenceBatchSize,
+                collectionConcurrency: parameters.collectionConcurrency,
                 afterLastUpdatedDate,
                 beforeLastUpdatedDate,
                 adminLogger,
@@ -112,7 +113,7 @@ async function main() {
 /**
  * To run this:
  * nvm use
- * node src/admin/scripts/fixReferenceId.js --collections=Practitioner_4_0_0 --batchSize=10000 --referenceBatchSize=50
+ * node src/admin/scripts/fixReferenceId.js --collections=Practitioner_4_0_0 --batchSize=10000 --referenceBatchSize=50 --collectionConcurrency=3
  * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/fixReferenceId.js --collections=all --batchSize=10000
  * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/fixReferenceId.js --collections=all --batchSize=10000 --startFromCollection FamilyMemberHistory_4_0_0
  * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/fixReferenceId.js --collections=Person_4_0_0 --batchSize=10000 --proaCollections=Person_4_0_0,Patient_4_0_0
