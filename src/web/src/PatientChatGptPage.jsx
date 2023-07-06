@@ -1,3 +1,4 @@
+import './App.css';
 import React, {useState} from 'react';
 
 function PatientChatGptPage() {
@@ -48,13 +49,11 @@ function PatientChatGptPage() {
     };
 
     return (
-        <div>
-            <input type="text" value={textInput} onChange={handleInputChange}/>
+        <div className="App">
+            <textarea value={textInput} onChange={handleInputChange} rows="4" cols="50"/>
             <button onClick={callApi}>Ask</button>
             {textResponse ? (
-                <div>
-                    {textResponse}
-                </div>
+                <div dangerouslySetInnerHTML={{__html: textResponse}}/>
             ) : (
                 <p>Waiting...</p>
             )}
