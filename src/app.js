@@ -198,12 +198,6 @@ function createApp({fnCreateContainer, trackMetrics}) {
     );
     app.use('/js', express.static(path.join(__dirname, '../node_modules/bootstrap/dist/js')));
 
-    // Serve static files from the React app
-    app.use('/web', express.static(path.join(__dirname, 'web/build')));
-    // Always serve the React app for any other request
-    app.get('/web', (req, res) => {
-        res.sendFile(path.join(__dirname, 'web/build', 'index.html'));
-    });
 
     if (isTrue(env.AUTH_ENABLED)) {
         // Set up admin routes
@@ -211,6 +205,21 @@ function createApp({fnCreateContainer, trackMetrics}) {
         passport.use('adminStrategy', strategy);
         app.use(cors(fhirServerConfig.server.corsOptions));
     }
+
+    // eslint-disable-next-line new-cap
+    const webRouter = express.Router();
+    if (isTrue(env.AUTH_ENABLED)) {
+        webRouter.use(passport.initialize());
+        webRouter.use(passport.authenticate('adminStrategy', {session: false}, null));
+    }
+
+    // Serve static files from the React app
+    webRouter.use('/web', express.static(path.join(__dirname, 'web/build')));
+    // Always serve the React app for any other request
+    webRouter.get('/web', (req, res) => {
+        res.sendFile(path.join(__dirname, 'web/build', 'index.html'));
+    });
+    app.use(webRouter);
 
     // eslint-disable-next-line new-cap
     const adminRouter = express.Router();

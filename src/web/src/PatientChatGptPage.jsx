@@ -35,13 +35,13 @@ function PatientChatGptPage() {
             const data = await response.json();
             console.log(data);
             setApiData(data);
-            // if (data.entry && data.entry.length > 0) {
-            //     const patient = data.entry[0].resource;
-            //     if (patient && patient.text && patient.text.div) {
-            //         console.log(patient.text.div);
-            //         // setTextResponse(patient.text.div);
-            //     }
-            // }
+            if (data.entry && data.entry.length > 0) {
+                const patient = data.entry[0].resource;
+                if (patient && patient.text && patient.text.div) {
+                    console.log(patient.text.div);
+                    setTextResponse(patient.text.div);
+                }
+            }
         } catch (error) {
             console.error(error);
         }
@@ -51,6 +51,13 @@ function PatientChatGptPage() {
         <div>
             <input type="text" value={textInput} onChange={handleInputChange}/>
             <button onClick={callApi}>Ask</button>
+            {textResponse ? (
+                <div>
+                    {textResponse}
+                </div>
+            ) : (
+                <p>Waiting...</p>
+            )}
             {apiData ? (
                 <div>
                     <h2>API Response:</h2>

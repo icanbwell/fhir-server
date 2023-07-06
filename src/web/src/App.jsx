@@ -19,7 +19,7 @@ function App() {
                         <Link to="/about">About</Link>
                     </li>
                     <li>
-                        <Link to="/patient">Patient ChatGPT</Link>
+                        <Link to="/web/patient">Patient ChatGPT</Link>
                     </li>
                 </ul>
             </nav>
@@ -27,7 +27,7 @@ function App() {
             <Routes>
                 <Route path="/" element={<HomePage/>}/>
                 <Route path="/about" element={<AboutPage/>}/>
-                <Route path="/patient" element={<PatientChatGptPage/>}/>
+                <Route path="/web/patient" element={<PatientChatGptPage/>}/>
             </Routes>
         </BrowserRouter>
     );
