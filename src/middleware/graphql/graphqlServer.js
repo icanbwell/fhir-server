@@ -63,7 +63,7 @@ const graphql = async (fnCreateContainer) => {
             httpContext.set(REQUEST_ID_TYPE.SYSTEM_GENERATED_REQUEST_ID, uniqueRequestId);
         }
 
-        if (!httpContext.get(REQUEST_ID_TYPE.SYSTEM_GENERATED_REQUEST_ID)) {
+        if (!httpContext.get(REQUEST_ID_TYPE.USER_REQUEST_ID)) {
             // Stores the userRquestId in httpContext and later used for logging and creating bundles.
             req.id = req.id || req.header(`${REQUEST_ID_HEADER}`) || uniqueRequestId;
             httpContext.set(REQUEST_ID_TYPE.USER_REQUEST_ID, req.id);
