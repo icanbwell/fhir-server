@@ -1,5 +1,8 @@
 import logo from './logo.svg';
 import './App.css';
+import { BrowserRouter, Route, Link } from 'react-router-dom';
+import HomePage from './HomePage';
+import PatientChatGptPage from './PatientChatGptPage';
 
 function App() {
   return (
