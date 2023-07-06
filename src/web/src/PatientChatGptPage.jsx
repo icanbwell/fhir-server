@@ -50,21 +50,22 @@ function PatientChatGptPage() {
 
     return (
         <div className="App">
-            <textarea value={textInput} onChange={handleInputChange} rows="4" cols="50"/>
+            <textarea value={textInput} onChange={handleInputChange} rows="4" cols="100"/>
+            <br/>
             <button onClick={callApi}>Ask</button>
             {textResponse ? (
                 <div dangerouslySetInnerHTML={{__html: textResponse}}/>
             ) : (
-                <p>Waiting...</p>
+                <p></p>
             )}
-            {apiData ? (
-                <div>
-                    <h2>API Response:</h2>
-                    <pre>{JSON.stringify(apiData, null, 2)}</pre>
-                </div>
-            ) : (
-                <p>Loading...</p>
-            )}
+            {/*{apiData ? (*/}
+            {/*    <div>*/}
+            {/*        <h2>API Response:</h2>*/}
+            {/*        <pre>{JSON.stringify(apiData, null, 2)}</pre>*/}
+            {/*    </div>*/}
+            {/*) : (*/}
+            {/*    <p>Loading...</p>*/}
+            {/*)}*/}
         </div>
     );
 }
