@@ -1,27 +1,31 @@
 import logo from './logo.svg';
 import './App.css';
-import {BrowserRouter as Router, Route, Link, Routes} from 'react-router-dom';
-
+import {BrowserRouter, Routes, Route, Link} from 'react-router-dom';
 import HomePage from './HomePage';
-// import PatientChatGptPage from './PatientChatGptPage';
+import AboutPage from './AboutPage';
+
+import PatientChatGptPage from './PatientChatGptPage';
+import ErrorPage from "./error-page";
 
 function App() {
     return (
-        <Router>
-            <div>
-                <nav>
-                    <ul>
-                        <li>
-                            <Link to="/">Home</Link>
-                        </li>
-                    </ul>
-                </nav>
+        <BrowserRouter>
+            <nav>
+                <ul>
+                    <li>
+                        <Link to="/">Home</Link>
+                    </li>
+                    <li>
+                        <Link to="/about">About</Link>
+                    </li>
+                </ul>
+            </nav>
 
-                <Routes>
-                    <Route exact path="/" component={HomePage}/>
-                </Routes>
-            </div>
-        </Router>
+            <Routes>
+                <Route path="/" element={<HomePage/>}/>
+                <Route path="/about" element={<AboutPage/>}/>
+            </Routes>
+        </BrowserRouter>
     );
 }
 
