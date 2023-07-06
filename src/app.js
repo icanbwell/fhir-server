@@ -198,6 +198,13 @@ function createApp({fnCreateContainer, trackMetrics}) {
     );
     app.use('/js', express.static(path.join(__dirname, '../node_modules/bootstrap/dist/js')));
 
+    // Serve static files from the React app
+    app.use('/web', express.static(path.join(__dirname, 'web/build')));
+    // Always serve the React app for any other request
+    app.get('/web', (req, res) => {
+        res.sendFile(path.join(__dirname, 'web/build', 'index.html'));
+    });
+
     if (isTrue(env.AUTH_ENABLED)) {
         // Set up admin routes
         // noinspection JSCheckFunctionSignatures
@@ -217,13 +224,6 @@ function createApp({fnCreateContainer, trackMetrics}) {
     adminRouter.get('/admin/:op?', adminHandler);
     adminRouter.post('/admin/:op?', adminHandler);
     app.use(adminRouter);
-
-    // Serve static files from the React app
-    app.use('web', express.static(path.join(__dirname, 'web/build')));
-    // Always serve the React app for any other request
-    app.get('web', (req, res) => {
-        res.sendFile(path.join(__dirname, 'web/build', 'index.html'));
-    });
 
     if (isTrue(env.AUTH_ENABLED)) {
         // noinspection JSCheckFunctionSignatures
