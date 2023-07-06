@@ -1,11 +1,11 @@
-import logo from './logo.svg';
+// import logo from './logo.svg';
 import './App.css';
 import {BrowserRouter, Routes, Route, Link} from 'react-router-dom';
 import HomePage from './HomePage';
 import AboutPage from './AboutPage';
 
 import PatientChatGptPage from './PatientChatGptPage';
-import ErrorPage from "./error-page";
+// import ErrorPage from "./error-page";
 
 function App() {
     return (
