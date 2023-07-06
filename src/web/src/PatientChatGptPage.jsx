@@ -4,10 +4,16 @@ function PatientChatGptPage() {
     const [
         textInput,
         setTextInput,
+    ] = useState("What is the age of this patient?");
+
+    const [
         textResponse,
         setTextResponse,
-        data,
-        setData
+    ] = useState('');
+
+    const [
+        apiData,
+        setApiData
     ] = useState('');
 
     const handleInputChange = (event) => {
@@ -28,7 +34,7 @@ function PatientChatGptPage() {
                 });
             const data = await response.json();
             console.log(data);
-            // setData(data);
+            setApiData(data);
             // if (data.entry && data.entry.length > 0) {
             //     const patient = data.entry[0].resource;
             //     if (patient && patient.text && patient.text.div) {
@@ -43,13 +49,12 @@ function PatientChatGptPage() {
 
     return (
         <div>
-            <input type="text" value={textInput} onChange={handleInputChange}
-                   defaultValue="What is the age of this patient?"/>
+            <input type="text" value={textInput} onChange={handleInputChange}/>
             <button onClick={callApi}>Ask</button>
-            {data ? (
+            {apiData ? (
                 <div>
                     <h2>API Response:</h2>
-                    <pre>{JSON.stringify(data, null, 2)}</pre>
+                    <pre>{JSON.stringify(apiData, null, 2)}</pre>
                 </div>
             ) : (
                 <p>Loading...</p>
