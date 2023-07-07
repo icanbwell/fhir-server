@@ -6,15 +6,16 @@ const {VERSIONS} = require('../middleware/fhir/utils/constants');
 
     /**
      * Makes a simple DB query to validate mongoDB connection
-     * @param databaseQueryFactory
+     * @param container
      * @return {Promise<boolean>
      */
-module.exports.handleHealthCheckQuery = async (databaseQueryFactory) => {
+module.exports.handleHealthCheckQuery = async (container) => {
     let healthy = true;
     try {
         /**
          * @type {DatabaseQueryManager}
          */
+        const databaseQueryFactory = container.databaseQueryFactory;
         const databaseQueryManager = databaseQueryFactory.createQuery({
             resourceType: 'Patient',
             base_version: VERSIONS['4_0_0']
