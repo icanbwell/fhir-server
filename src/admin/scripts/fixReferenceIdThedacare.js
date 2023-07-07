@@ -68,7 +68,7 @@ async function main() {
         undefined;
 
     const batchSize = parameters.batchSize || process.env.BULK_BUFFER_SIZE || 10000;
-    const s3QueryBatchSize = parameters.s3QueryBatchSize || process.env.BULK_BUFFER_SIZE || 10000;
+    const s3QueryBatchSize = parameters.s3QueryBatchSize || 3000;
     /**
      * @type {Date|undefined}
      */

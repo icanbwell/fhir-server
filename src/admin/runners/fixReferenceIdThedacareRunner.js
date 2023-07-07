@@ -17,7 +17,7 @@ class FixReferenceIdThedacareRunner extends FixReferenceIdRunner {
      * @param {string} AWS_REGION
      * @param {Object} args
      */
-    constructor({s3QueryBatchSize, AWS_BUCKET, AWS_FOLDER, AWS_REGION, ...args}) {
+    constructor({ s3QueryBatchSize, AWS_BUCKET, AWS_FOLDER, AWS_REGION, ...args }) {
         super(args);
 
         /**
@@ -88,7 +88,29 @@ class FixReferenceIdThedacareRunner extends FixReferenceIdRunner {
      * Loads data from S3 bucket and caches the references
      * @returns {Promise<void>}
      */
-    async preloadReferencesAsync({_mongoConfig}) {
+    async preloadReferencesAsync({ _mongoConfig }) {
+        if (fs.existsSync('./cachedResourceIds.json')) {
+            const cachedResourceIds = fs.readFileSync('./cachedResourceids.json', 'utf-8');
+
+            const { uuids, ids } = { ...JSON.parse(cachedResourceIds) };
+
+            // populating uuid cache with currentIds to new uuid map
+            this.uuidCache = new Map(Object.entries(uuids));
+
+            for (const key of ids) {
+                // populating idCache with currentId to originalId map
+                this.idCache[String(key)] = new Map(Object.entries(ids[String(key)]));
+
+                // populating caches with old to new reference map
+                this.caches[String(key)] = new Map(
+                        Object.entries(ids[String(key)]).map(
+                            pair => [`${key}/${pair[0]}`, `${key}/${pair[1]}`]
+                        )
+                    );
+            }
+
+            return;
+        }
         /**
          * @type {require('@aws-sdk/client-s3').S3}
          */
@@ -154,8 +176,6 @@ class FixReferenceIdThedacareRunner extends FixReferenceIdRunner {
                             }).then(resp => {
                                 // if resp.Body doesn't exists we cannot proceed with extracting the data so resolve the promise here
                                 if (!resp.Body) {
-                                    // setting the patientId as explored here
-                                    exploredPatientIdsMap.set(patientId, true);
                                     resolve();
                                 }
 
@@ -165,8 +185,6 @@ class FixReferenceIdThedacareRunner extends FixReferenceIdRunner {
                                 this.extractDataFromS3Response(resp.Body).then(s3Data => {
                                     // if data is not present then resolve without caching
                                     if (!s3Data) {
-                                        // setting the patientId as explored here
-                                        exploredPatientIdsMap.set(patientId, true);
                                         resolve();
                                     }
 
@@ -206,13 +224,18 @@ class FixReferenceIdThedacareRunner extends FixReferenceIdRunner {
             );
         }
         // converting idCache to json to store it into a file
-        const cachedData = {};
+        const cachedData = {
+            ids: {},
+            uuids: {}
+        };
 
         for (const [key, value] of this.idCache) {
-            cachedData[String(key)] = Object.fromEntries(value);
+            cachedData.ids[String(key)] = Object.fromEntries(value);
         }
 
-        fs.writeFileSync('../../../cacheResourceIds.json', JSON.stringify(cachedData));
+        cachedData.uuids = Object.fromEntries(this.uuidCache);
+
+        fs.writeFileSync('./cachedResourceIds.json', JSON.stringify(cachedData));
     }
 
     /**
