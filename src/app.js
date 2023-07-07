@@ -20,6 +20,7 @@ const {handleAlert} = require('./routeHandlers/alert');
 const {MyFHIRServer} = require('./routeHandlers/fhirServer');
 const {handleSecurityPolicy} = require('./routeHandlers/contentSecurityPolicy');
 const {handleHealthCheck} = require('./routeHandlers/healthCheck.js');
+const {handleFullHealthCheck} = require('./routeHandlers/healthFullCheck.js');
 const {handleVersion} = require('./routeHandlers/version');
 const {handleLogout} = require('./routeHandlers/logout');
 const {handleClean} = require('./routeHandlers/clean');
@@ -172,7 +173,7 @@ function createApp({fnCreateContainer, trackMetrics}) {
         fnCreateContainer, req, res
     ));
 
-    app.get('/full-healthcheck', (req, res) => handleHealthCheck(
+    app.get('/full-healthcheck', (req, res) => handleFullHealthCheck(
         fnCreateContainer, req, res
     ));
 
