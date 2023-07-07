@@ -12,7 +12,6 @@ const {createContainer} = require('../../createContainer');
 const {CommandLineParser} = require('./commandLineParser');
 const {AdminLogger} = require('../adminLogger');
 const {FixReferenceIdHapiRunner} = require('../runners/fixReferenceIdHapiRunner');
-const referenceCollections = require('../utils/referenceCollectionsHapi.json');
 
 const hapiResources = [
     'AllergyIntolerance', 'CarePlan', 'Condition', 'Device', 'Patient', 'DiagnosticReport',
@@ -65,7 +64,7 @@ async function main() {
 
     const adminLogger = new AdminLogger();
 
-    adminLogger.logInfo(`[${currentDateTime}] Running script for collections: ${collections.join(',')}`);
+    adminLogger.logInfo(`[${currentDateTime}] Running script for collections: ${hapiCollections.join(',')}`);
 
     // set up all the standard services in the container
     const container = createContainer();
@@ -89,7 +88,6 @@ async function main() {
                 proaCollections: hapiCollections,
                 limit: parameters.limit,
                 properties,
-                referenceCollections,
                 resourceMerger: c.resourceMerger,
                 useTransaction: parameters.useTransaction ? true : false,
                 skip: parameters.skip,

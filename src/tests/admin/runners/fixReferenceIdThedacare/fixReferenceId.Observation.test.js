@@ -19,7 +19,6 @@ const {
 const { AdminLogger } = require('../../../../admin/adminLogger');
 const { FixReferenceIdThedacareRunner } = require('../../../../admin/runners/fixReferenceIdThedacareRunner');
 const { assertTypeEquals } = require('../../../../utils/assertType');
-const referenceCollections = require('../../../../admin/utils/referenceCollectionsThedacare.json');
 
 class MockFixReferenceIdThedacareRunner extends FixReferenceIdThedacareRunner {
     async preloadReferencesAsync() {
@@ -69,7 +68,7 @@ describe('Observation Tests', () => {
     });
 
     describe('Observation fixReferenceId Tests', () => {
-        test('fixReferenceId works for observation', async () => {
+        test('fixReferenceId works for observation with history', async () => {
             // eslint-disable-next-line no-unused-vars
             const request = await createTestRequest();
 
@@ -100,6 +99,18 @@ describe('Observation Tests', () => {
             expect(observation1BeforeRun).toEqual(expectedObservation1BeforeRun);
 
             resp = await request
+                .get(`/4_0_0/Observation/_history?id=${observation1Resource.id}`)
+                .set(getHeaders())
+                .expect(200);
+
+            expect(resp.body.entry).toBeDefined();
+            expect(resp.body.entry.length).toEqual(1);
+            expect(resp.body.entry[0].request.url).toInclude(expectedObservation1BeforeRun.id);
+            const observation1HistoryBeforeRun = resp.body.entry[0].resource;
+            delete observation1HistoryBeforeRun.meta.lastUpdated;
+            expect(observation1HistoryBeforeRun).toEqual(expectedObservation1BeforeRun);
+
+            resp = await request
                 .get(`/4_0_0/Observation/${observation2Resource.id}`)
                 .set(getHeaders())
                 .expect(200);
@@ -107,6 +118,18 @@ describe('Observation Tests', () => {
             const observation2BeforeRun = resp.body;
             delete observation2BeforeRun.meta.lastUpdated;
             expect(observation2BeforeRun).toEqual(expectedObservation2BeforeRun);
+
+            resp = await request
+                .get(`/4_0_0/Observation/_history?id=${observation2Resource.id}`)
+                .set(getHeaders())
+                .expect(200);
+
+            expect(resp.body.entry).toBeDefined();
+            expect(resp.body.entry.length).toEqual(1);
+            expect(resp.body.entry[0].request.url).toInclude(expectedObservation2BeforeRun.id);
+            const observation2HistoryBeforeRun = resp.body.entry[0].resource;
+            delete observation2HistoryBeforeRun.meta.lastUpdated;
+            expect(observation2HistoryBeforeRun).toEqual(expectedObservation2BeforeRun);
 
             const container = getTestContainer();
 
@@ -121,8 +144,7 @@ describe('Observation Tests', () => {
                     batchSize,
                     useAuditDatabase: false,
                     adminLogger: new AdminLogger(),
-                    proaCollections: ['Observation_4_0_0'],
-                    referenceCollections,
+                    proaCollections: ['Observation_4_0_0', 'Observation_4_0_0_History'],
                     mongoDatabaseManager: c.mongoDatabaseManager,
                     preSaveManager: c.preSaveManager,
                     databaseQueryFactory: c.databaseQueryFactory,
@@ -148,6 +170,18 @@ describe('Observation Tests', () => {
             expect(observation1AfterRun).toEqual(expectedObservation1AfterRun);
 
             resp = await request
+                .get(`/4_0_0/Observation/_history?id=${expectedObservation1AfterRun.id}`)
+                .set(getHeaders())
+                .expect(200);
+
+            expect(resp.body.entry).toBeDefined();
+            expect(resp.body.entry.length).toEqual(1);
+            expect(resp.body.entry[0].request.url).toInclude(expectedObservation1AfterRun.id);
+            const observation1HistoryAfterRun = resp.body.entry[0].resource;
+            delete observation1HistoryAfterRun.meta.lastUpdated;
+            expect(observation1HistoryAfterRun).toEqual(expectedObservation1AfterRun);
+
+            resp = await request
                 .get(`/4_0_0/Observation/${expectedObservation2AfterRun.id}`)
                 .set(getHeaders())
                 .expect(200);
@@ -156,13 +190,35 @@ describe('Observation Tests', () => {
             delete observation2AfterRun.meta.lastUpdated;
             expect(observation2AfterRun).toEqual(expectedObservation2AfterRun);
 
+            resp = await request
+                .get(`/4_0_0/Observation/_history?id=${expectedObservation2AfterRun.id}`)
+                .set(getHeaders())
+                .expect(200);
+
+            expect(resp.body.entry).toBeDefined();
+            expect(resp.body.entry.length).toEqual(1);
+            expect(resp.body.entry[0].request.url).toInclude(expectedObservation2AfterRun.id);
+            const observation2HistoryAfterRun = resp.body.entry[0].resource;
+            delete observation2HistoryAfterRun.meta.lastUpdated;
+            expect(observation2HistoryAfterRun).toEqual(expectedObservation2AfterRun);
+
             await request
                 .get(`/4_0_0/Observation/${expectedObservation1BeforeRun.id}`)
                 .set(getHeaders())
                 .expect(404);
 
             await request
+                .get(`/4_0_0/Observation/_history?id=${expectedObservation1BeforeRun.id}`)
+                .set(getHeaders())
+                .expect(404);
+
+            await request
                 .get(`/4_0_0/Observation/${expectedObservation2BeforeRun.id}`)
+                .set(getHeaders())
+                .expect(404);
+
+            await request
+                .get(`/4_0_0/Observation/_history?id=${expectedObservation2BeforeRun.id}`)
                 .set(getHeaders())
                 .expect(404);
         });

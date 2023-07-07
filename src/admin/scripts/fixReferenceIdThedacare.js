@@ -12,9 +12,12 @@ const {createContainer} = require('../../createContainer');
 const {CommandLineParser} = require('./commandLineParser');
 const {AdminLogger} = require('../adminLogger');
 const {FixReferenceIdThedacareRunner} = require('../runners/fixReferenceIdThedacareRunner');
-const referenceCollections = require('../utils/referenceCollectionsThedacare.json');
 
-const thedacareResources = ['Observation'];
+const thedacareResources = [
+    'AllergyIntolerance', 'CarePlan', 'Condition', 'Patient', 'DiagnosticReport',
+    'Encounter', 'Immunization', 'Procedure', 'Medication', 'MedicationRequest',
+    'Observation', 'Organization', 'Practitioner', 'PractitionerRole', 'RelatedPerson'
+];
 
 /**
  * main function
@@ -25,6 +28,23 @@ async function main() {
      * @type {Object}
      */
     const parameters = CommandLineParser.parseCommandLine();
+
+    /**
+     * @type {string}
+     */
+    const AWS_BUCKET = parameters.AWS_BUCKET;
+    if (!AWS_BUCKET) {
+        throw Error('AWS_BUCKET is a required parameter');
+    }
+    /**
+     * @type {string}
+     */
+    const AWS_REGION = parameters.AWS_REGION || 'us-east-1';
+    /**
+     * @type {string}
+     */
+    const AWS_FOLDER = parameters.AWS_FOLDER || 'fhir/epic/patient/';
+
     let currentDateTime = new Date();
     /**
      * @type {string[]}
@@ -48,6 +68,7 @@ async function main() {
         undefined;
 
     const batchSize = parameters.batchSize || process.env.BULK_BUFFER_SIZE || 10000;
+    const s3QueryBatchSize = parameters.s3QueryBatchSize || process.env.BULK_BUFFER_SIZE || 10000;
     /**
      * @type {Date|undefined}
      */
@@ -60,7 +81,7 @@ async function main() {
 
     const adminLogger = new AdminLogger();
 
-    adminLogger.logInfo(`[${currentDateTime}] Running script for collections: ${collections.join(',')}`);
+    adminLogger.logInfo(`[${currentDateTime}] Running script for collections: ${thedacareCollections.join(',')}`);
 
     // set up all the standard services in the container
     const container = createContainer();
@@ -71,6 +92,7 @@ async function main() {
                 mongoCollectionManager: c.mongoCollectionManager,
                 collections,
                 batchSize,
+                s3QueryBatchSize,
                 referenceBatchSize: parameters.referenceBatchSize,
                 collectionConcurrency: parameters.collectionConcurrency,
                 afterLastUpdatedDate,
@@ -82,9 +104,11 @@ async function main() {
                 startFromCollection: parameters.startFromCollection,
                 resourceLocatorFactory: c.resourceLocatorFactory,
                 proaCollections: thedacareCollections,
-                referenceCollections,
                 limit: parameters.limit,
                 properties,
+                AWS_BUCKET,
+                AWS_FOLDER,
+                AWS_REGION,
                 resourceMerger: c.resourceMerger,
                 useTransaction: parameters.useTransaction ? true : false,
                 skip: parameters.skip,
@@ -107,19 +131,19 @@ async function main() {
 /**
  * To run this:
  * nvm use
- * node src/admin/scripts/fixReferenceIdThedacare.js --collections=Practitioner_4_0_0 --batchSize=10000
- * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/fixReferenceIdThedacare.js --collections=all --batchSize=10000
- * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/fixReferenceIdThedacare.js --collections=all --batchSize=10000 --startFromCollection FamilyMemberHistory_4_0_0
- * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/fixReferenceIdThedacare.js --collections=Person_4_0_0 --batchSize=10000 --thedacareCollections=Person_4_0_0,Patient_4_0_0
- * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/fixReferenceIdThedacare.js --collections=Person_4_0_0 --batchSize=10000 --thedacareCollections=Person_4_0_0,Patient_4_0_0 --useTransaction
- * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/fixReferenceIdThedacare.js --collections=Person_4_0_0 --batchSize=10000 --useTransaction --filterToRecordsWithFields link
- * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/fixReferenceIdThedacare.js --collections=Person_4_0_0 --batchSize=10000 --useTransaction --filterToRecordsWithFields link --startFromId=123
- * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/fixReferenceIdThedacare.js --collections=Person_4_0_0 --batchSize=10000 --useTransaction --skip 200000
- * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/fixReferenceIdThedacare.js --collections=Person_4_0_0 --batchSize=10000 --limit 10
- * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/fixReferenceIdThedacare.js --collections=Person_4_0_0 --batchSize=10000 --limit 10 --properties link
- * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/fixReferenceIdThedacare.js --collections=all --batchSize=10000 --after 2021-12-31
- * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/fixReferenceIdThedacare.js --collections=all --batchSize=10000 --before 2021-12-31
- * node src/admin/scripts/fixReferenceIdThedacare.js --collections=Account_4_0_0 --batchSize=10000
+ * node src/admin/scripts/fixReferenceIdThedacare.js --AWS_BUCKET=bucket_name --collections=Practitioner_4_0_0 --batchSize=10000
+ * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/fixReferenceIdThedacare.js --AWS_BUCKET=bucket_name --collections=all --batchSize=10000
+ * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/fixReferenceIdThedacare.js --AWS_BUCKET=bucket_name --collections=all --batchSize=10000 --startFromCollection FamilyMemberHistory_4_0_0
+ * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/fixReferenceIdThedacare.js --AWS_BUCKET=bucket_name --collections=Person_4_0_0 --batchSize=10000 --thedacareCollections=Person_4_0_0,Patient_4_0_0
+ * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/fixReferenceIdThedacare.js --AWS_BUCKET=bucket_name --collections=Person_4_0_0 --batchSize=10000 --thedacareCollections=Person_4_0_0,Patient_4_0_0 --useTransaction
+ * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/fixReferenceIdThedacare.js --AWS_BUCKET=bucket_name --collections=Person_4_0_0 --batchSize=10000 --useTransaction --filterToRecordsWithFields link
+ * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/fixReferenceIdThedacare.js --AWS_BUCKET=bucket_name --collections=Person_4_0_0 --batchSize=10000 --useTransaction --filterToRecordsWithFields link --startFromId=123
+ * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/fixReferenceIdThedacare.js --AWS_BUCKET=bucket_name --collections=Person_4_0_0 --batchSize=10000 --useTransaction --skip 200000
+ * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/fixReferenceIdThedacare.js --AWS_BUCKET=bucket_name --collections=Person_4_0_0 --batchSize=10000 --limit 10
+ * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/fixReferenceIdThedacare.js --AWS_BUCKET=bucket_name --collections=Person_4_0_0 --batchSize=10000 --limit 10 --properties link
+ * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/fixReferenceIdThedacare.js --AWS_BUCKET=bucket_name --collections=all --batchSize=10000 --after 2021-12-31
+ * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/fixReferenceIdThedacare.js --AWS_BUCKET=bucket_name --collections=all --batchSize=10000 --before 2021-12-31
+ * node src/admin/scripts/fixReferenceIdThedacare.js --AWS_BUCKET=bucket_name --collections=Account_4_0_0 --batchSize=10000
  */
 main().catch(reason => {
     console.error(reason);
