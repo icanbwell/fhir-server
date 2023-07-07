@@ -1,10 +1,10 @@
 const { FixReferenceIdRunner } = require('./fixReferenceIdRunner');
 const { isUuid } = require('../../utils/uid.util');
 const { generateUUIDv5 } = require('../../utils/uid.util');
-const { SecurityTagSystem } = require('../../utils/securityTagSystem');
 const { S3 } = require('@aws-sdk/client-s3');
 const zlib = require('zlib');
 const fs = require('fs');
+const { RethrownError } = require('../../utils/rethrownError');
 
 /**
  * @classdesc Finds humanApi resources whose id needs to be changed and changes the id along with its references
@@ -89,153 +89,151 @@ class FixReferenceIdThedacareRunner extends FixReferenceIdRunner {
      * @returns {Promise<void>}
      */
     async preloadReferencesAsync({ _mongoConfig }) {
-        if (fs.existsSync('./cachedResourceIds.json')) {
-            const cachedResourceIds = fs.readFileSync('./cachedResourceids.json', 'utf-8');
+        try {
+            if (fs.existsSync('./cachedResourceIds.json')) {
+                this.adminLogger.logInfo('Logging cache from cachedResourceIds.json');
+                const cachedResourceIds = JSON.parse(fs.readFileSync('./cachedResourceIds.json', 'utf-8'));
 
-            const { uuids, ids } = { ...JSON.parse(cachedResourceIds) };
+                for (const [collectionName, idMap] of Object.entries(cachedResourceIds)) {
+                    for (const ids of Object.entries(idMap)) {
+                        this.cacheReferenceFromResource({
+                            doc: { _sourceId: ids[1] },
+                            collectionName
+                        });
+                    }
+                }
 
-            // populating uuid cache with currentIds to new uuid map
-            this.uuidCache = new Map(Object.entries(uuids));
-
-            for (const key of ids) {
-                // populating idCache with currentId to originalId map
-                this.idCache[String(key)] = new Map(Object.entries(ids[String(key)]));
-
-                // populating caches with old to new reference map
-                this.caches[String(key)] = new Map(
-                        Object.entries(ids[String(key)]).map(
-                            pair => [`${key}/${pair[0]}`, `${key}/${pair[1]}`]
-                        )
-                    );
+                return;
             }
-
-            return;
-        }
-        /**
-         * @type {require('@aws-sdk/client-s3').S3}
-         */
-        const client = new S3({ region: this.AWS_REGION });
-
-        /**
-         * @type {string|undefined}
-         */
-        let continuationToken;
-        /**
-         * @type {{Key: string, lastModified: date}[]}
-         */
-        const listObjects = [];
-        do {
             /**
-             * @type {{Prefix: string, Bucket: string, ContinuationToken: string|undefined}}
+             * @type {require('@aws-sdk/client-s3').S3}
              */
-            const listObjectsParams = {
-                Prefix: this.AWS_FOLDER,
-                Bucket: this.AWS_BUCKET,
-                ContinuationToken: continuationToken
-            };
+            const client = new S3({ region: this.AWS_REGION });
 
-            const data = await client.listObjects(listObjectsParams);
+            /**
+             * @type {string|undefined}
+             */
+            let continuationToken;
+            /**
+             * @type {{Key: string, lastModified: date}[]}
+             */
+            const listObjects = [];
+            do {
+                /**
+                 * @type {{Prefix: string, Bucket: string, ContinuationToken: string|undefined}}
+                 */
+                const listObjectsParams = {
+                    Prefix: this.AWS_FOLDER,
+                    Bucket: this.AWS_BUCKET,
+                    ContinuationToken: continuationToken
+                };
 
-            listObjects.push(...data.Contents.map(content => ({ Key: content.Key, lastModified: content.LastModified })).filter(content => (content.Key && content.Key.endsWith('.json.gz'))));
+                const data = await client.listObjects(listObjectsParams);
 
-            continuationToken = data.NextContinuationToken;
-        } while (continuationToken);
+                listObjects.push(...data.Contents.map(content => ({ Key: content.Key, lastModified: content.LastModified })).filter(content => (content.Key && content.Key.endsWith('.json.gz'))));
 
-        // sorting the listObjects on the basis of lastModified to get the latest updated patient files first
-        listObjects.sort((object1, object2) => object1.lastModified > object2.lastModified);
+                continuationToken = data.NextContinuationToken;
+            } while (continuationToken);
 
-        /**
-         * @type {Map<string, string>}
-         */
-        const exploredPatientIdsMap = new Map();
+            // sorting the listObjects on the basis of lastModified to get the latest updated patient files first
+            listObjects.sort((object1, object2) => object1.lastModified > object2.lastModified);
 
-        // Processing listObjects in batches
-        while (listObjects.length > 0) {
-            await Promise.all(
-                listObjects.splice(0, this.s3QueryBatchSize).map(content => new Promise(
-                    (resolve, reject) => {
-                        try {
-                            // getting the patient id from content.Key if it contents the patient id
-                            // expected content.Key is of type fhir/epic/patient/<patient-id>/bwell_platform_epic_patient_data_fetcher/*.json.gz
-                            /**
-                             * @type {string}
-                             */
-                            const patientId = content.Key.split('/')[3];
+            /**
+             * @type {Map<string, string>}
+             */
+            const exploredPatientIdsMap = new Map();
 
-                            // if patientId is not defined or it has already been cached then resolve the promise
-                            if (!patientId || exploredPatientIdsMap.has(patientId)) {
-                                resolve();
-                            }
+            // Processing listObjects in batches
+            while (listObjects.length > 0) {
+                await Promise.all(
+                    listObjects.splice(0, this.s3QueryBatchSize).map(content => new Promise(
+                        (resolve, reject) => {
+                            try {
+                                // getting the patient id from content.Key if it contents the patient id
+                                // expected content.Key is of type fhir/epic/patient/<patient-id>/bwell_platform_epic_patient_data_fetcher/*.json.gz
+                                /**
+                                 * @type {string}
+                                 */
+                                const patientId = content.Key.split('/')[3];
 
-                            this.adminLogger.logInfo(`Fetching file with Key: ${content.Key}`);
-
-                            // getting the file object from s3 bucket
-                            client.getObject({
-                                Bucket: this.AWS_BUCKET,
-                                Key: content.Key
-                            }).then(resp => {
-                                // if resp.Body doesn't exists we cannot proceed with extracting the data so resolve the promise here
-                                if (!resp.Body) {
+                                // if patientId is not defined or it has already been cached then resolve the promise
+                                if (!patientId || exploredPatientIdsMap.has(patientId)) {
                                     resolve();
                                 }
 
-                                this.adminLogger.logInfo(`Extracting data from ${content.Key}`);
+                                this.adminLogger.logInfo(`Fetching file with Key: ${content.Key}`);
 
-                                // Get the data from resp.Body and extract the json from it
-                                this.extractDataFromS3Response(resp.Body).then(s3Data => {
-                                    // if data is not present then resolve without caching
-                                    if (!s3Data) {
+                                // getting the file object from s3 bucket
+                                client.getObject({
+                                    Bucket: this.AWS_BUCKET,
+                                    Key: content.Key
+                                }).then(resp => {
+                                    // if resp.Body doesn't exists we cannot proceed with extracting the data so resolve the promise here
+                                    if (!resp.Body) {
                                         resolve();
                                     }
 
-                                    this.adminLogger.logInfo(`Caching resource ids for patient: ${patientId}`);
-                                    for (const collectionName of this.proaCollections) {
-                                        // as we are caching the data from patient files
-                                        // we just need to iterate over each resourceName once
-                                        if (!collectionName.includes('_History')) {
-                                            const resourceName = collectionName.split('_')[0];
-                                            const resourceBundle = s3Data.filter(bundle => (
-                                                bundle.entry?.length > 0 &&
-                                                bundle.entry[0].resource?.resourceType === resourceName
-                                            ));
+                                    this.adminLogger.logInfo(`Extracting data from ${content.Key}`);
 
-                                            if (resourceBundle.length) {
-                                                resourceBundle[0].entry.forEach(entry => {
-                                                    if (entry?.resource?.id?.length > 63) {
-                                                        this.cacheReferenceFromResource({ doc: entry.resource, collectionName });
-                                                    }
-                                                });
+                                    // Get the data from resp.Body and extract the json from it
+                                    this.extractDataFromS3Response(resp.Body).then(s3Data => {
+                                        // if data is not present then resolve without caching
+                                        if (!s3Data) {
+                                            resolve();
+                                        }
+
+                                        this.adminLogger.logInfo(`Caching resource ids for patient: ${patientId}`);
+                                        for (const collectionName of this.proaCollections) {
+                                            // as we are caching the data from patient files
+                                            // we just need to iterate over each resourceName once
+                                            if (!collectionName.includes('_History')) {
+                                                const resourceName = collectionName.split('_')[0];
+                                                const resourceBundle = s3Data.filter(bundle => (
+                                                    bundle.entry?.length > 0 &&
+                                                    bundle.entry[0].resource?.resourceType === resourceName
+                                                ));
+
+                                                if (resourceBundle.length) {
+                                                    resourceBundle[0].entry.forEach(entry => {
+                                                        if (entry?.resource?.id?.length > 63) {
+                                                            this.cacheReferenceFromResource({ doc: entry.resource, collectionName });
+                                                        }
+                                                    });
+                                                }
                                             }
                                         }
-                                    }
-                                    this.adminLogger.logInfo(`Finished caching resource ids for patient: ${patientId}`);
+                                        this.adminLogger.logInfo(`Finished caching resource ids for patient: ${patientId}`);
 
-                                    // setting the patientId as explored here
-                                    exploredPatientIdsMap.set(patientId, true);
-                                    resolve();
+                                        // setting the patientId as explored here
+                                        exploredPatientIdsMap.set(patientId, true);
+                                        resolve();
+                                    });
                                 });
-                            });
 
-                        } catch (err) {
-                            reject(err);
+                            } catch (err) {
+                                reject(err);
+                            }
                         }
-                    }
-                ))
+                    ))
+                );
+            }
+            // converting idCache to json to store it into a file
+            const cachedData = {};
+
+            for (const [key, value] of this.idCache) {
+                cachedData[String(key)] = Object.fromEntries(value);
+            }
+            fs.writeFileSync('./cachedResourceIds.json', JSON.stringify(cachedData));
+        } catch (err) {
+            this.adminLogger.logError(err);
+            throw new RethrownError(
+                {
+                    message: 'Error caching references',
+                    error: err,
+                    source: 'FixReferenceIdThedacareRunner.preloadReferencesAsync'
+                }
             );
         }
-        // converting idCache to json to store it into a file
-        const cachedData = {
-            ids: {},
-            uuids: {}
-        };
-
-        for (const [key, value] of this.idCache) {
-            cachedData.ids[String(key)] = Object.fromEntries(value);
-        }
-
-        cachedData.uuids = Object.fromEntries(this.uuidCache);
-
-        fs.writeFileSync('./cachedResourceIds.json', JSON.stringify(cachedData));
     }
 
     /**
@@ -248,28 +246,23 @@ class FixReferenceIdThedacareRunner extends FixReferenceIdRunner {
         /**
          * @type {string}
          */
-        const currentOriginalId = doc.id.replace(/[^A-Za-z0-9\-.]/g, '-');
-        const expectedOriginalId = doc.id;
-        let sourceAssigningAuthority = doc._sourceAssigningAuthority;
-        if (!sourceAssigningAuthority && doc.meta && doc.meta.security) {
-            const authorityObj = doc.meta.security.find((obj) => obj.system === SecurityTagSystem.sourceAssigningAuthority);
-            if (authorityObj) {
-                sourceAssigningAuthority = authorityObj.code;
-            } else {
-                sourceAssigningAuthority = '';
-            }
-        }
-        if (!sourceAssigningAuthority) {
-            sourceAssigningAuthority = '';
-        }
+        const currentOriginalId = doc._sourceId.replace(/[^A-Za-z0-9\-.]/g, '-');
+        /**
+         * @type {string}
+         */
+        const expectedOriginalId = doc._sourceId;
+
+        // we are sure the sourceAssigningAuthority here will be thedacare
+        const sourceAssigningAuthority = 'thedacare';
         // current id present in the resource
         /**
          * @type {[string]}
          */
         const currentIds = this.getCurrentIds({ originalId: currentOriginalId });
 
-        // if currentId is equal to doc._sourceId then we need to change the id so cache it
-        if (currentIds.includes(doc._sourceId)) {
+        // if currentId is not equal to doc._sourceId then we need to change the id as doc
+        // here is the doc from s3 resource which has the original id so it should not match currentId
+        if (!currentIds.includes(doc._sourceId)) {
             collectionName = collectionName.split('_')[0];
 
             this.getCacheForReference({ collectionName }).set(
@@ -277,7 +270,8 @@ class FixReferenceIdThedacareRunner extends FixReferenceIdRunner {
                 `${collectionName}/${expectedOriginalId}`
             );
 
-            this.getCacheForId({ collectionName }).set(doc._sourceId, expectedOriginalId);
+            // caching currentId with expected originalId
+            this.getCacheForId({ collectionName }).set(currentIds[0], expectedOriginalId);
 
             // generate a new uuid based on the orginal id
             let newUUID;
@@ -366,7 +360,9 @@ class FixReferenceIdThedacareRunner extends FixReferenceIdRunner {
      * @returns {[string]}
      */
     getCurrentIds({ originalId }) {
-        return [originalId.slice(0, 64), originalId.slice(0, 64).replace(/[^A-Za-z0-9\-.]/g, '-')];
+        // we only need to check for originalId sliced to 64 characters as
+        // sourceAssigningAuthority is not present in thedacare ids
+        return [originalId.slice(0, 64)];
     }
 }
 
