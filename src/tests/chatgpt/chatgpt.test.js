@@ -134,7 +134,12 @@ describe.skip('ChatGPT Tests', () => {
                 model,
                 outputParser
             );
-            const template = 'You are a software program. You are talking to a FHIR server. \n{format_instructions}\n The base url is {baseUrl}.  Patient id is {patientId}. Write FHIR query for ```{query}``` for this patient';
+            const template = 'You are a software program. ' +
+                'You are talking to a FHIR server. ' +
+                '\n{format_instructions}' +
+                '\nThe base url is {baseUrl}.' +
+                '\nPatient id is {patientId}.' +
+                '\n Write FHIR query for ```{query}``` for this patient';
 
             // const template = 'Answer the user\'s question as best you can:\n{format_instructions}\n{query}';
             const prompt = new PromptTemplate({
@@ -153,7 +158,7 @@ describe.skip('ChatGPT Tests', () => {
                     outputParser: outputFixingParser
                 });
 
-            const query = 'Find me all conditions';
+            const query = 'Find me all conditions that are diabetes';
             const baseUrl = 'https://fhir.icanbwell.com/4_0_0';
             const result = await chain.call({patientId: 'imran', query: query, baseUrl: baseUrl});
             console.log(JSON.stringify(result.records, null, 2));
