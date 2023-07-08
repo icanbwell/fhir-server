@@ -31,7 +31,9 @@ const {handleMemoryCheck} = require('./routeHandlers/memoryChecker');
 const {handleAdmin} = require('./routeHandlers/admin');
 const {json} = require('body-parser');
 const {getImageVersion} = require('./utils/getImageVersion');
-const {REQUEST_ID_TYPE} = require('./constants');
+const {REQUEST_ID_TYPE, REQUEST_ID_HEADER} = require('./constants');
+const {generateUUID} = require('./utils/uid.util');
+const {logInfo} = require('./operations/common/logging');
 
 /**
  * Creates the FHIR app
@@ -111,6 +113,35 @@ function createApp({fnCreateContainer, trackMetrics}) {
             },
         },
     };
+
+    /**
+     * Generate a unique ID for each request at earliest.
+     * Use x-request-id in header if sent.
+     */
+    app.use(
+        (
+            /** @type {import('http').IncomingMessage} **/ req,
+            /** @type {import('http').ServerResponse} **/ res,
+            next
+        ) => {
+            // Generates a unique uuid that is used for operations
+            const uniqueRequestId = generateUUID();
+            httpContext.set(REQUEST_ID_TYPE.SYSTEM_GENERATED_REQUEST_ID, uniqueRequestId);
+
+            // Stores the userRquestId in httpContext and later used for logging and creating bundles.
+            req.id = req.id || req.header(`${REQUEST_ID_HEADER}`) || uniqueRequestId;
+            httpContext.set(REQUEST_ID_TYPE.USER_REQUEST_ID, req.id);
+            next();
+        }
+    );
+
+    // log every incoming request
+    app.use(async (req, res, next) => {
+        const reqPath = req.originalUrl;
+        const reqMethod = req.method.toUpperCase();
+        logInfo('Incoming Request', {path: reqPath, method: reqMethod});
+        next();
+    });
 
     // noinspection JSCheckFunctionSignatures
     app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument, options));

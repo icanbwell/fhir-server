@@ -12,7 +12,6 @@ const {
     isValidVersion,
 } = require('../middleware/fhir/utils/schema.utils');
 const {VERSIONS} = require('../middleware/fhir/utils/constants');
-const {generateUUID} = require('../utils/uid.util');
 const helmet = require('helmet');
 const express = require('express');
 const {FhirRouter} = require('../middleware/fhir/router');
@@ -21,9 +20,8 @@ const passport = require('passport');
 const path = require('path');
 const contentType = require('content-type');
 const httpContext = require('express-http-context');
-const {REQUEST_ID_HEADER, REQUEST_ID_TYPE} = require('../constants');
+const { REQUEST_ID_TYPE} = require('../constants');
 const {convertErrorToOperationOutcome} = require('../utils/convertErrorToOperationOutcome');
-
 class MyFHIRServer {
     /**
      * constructor
@@ -125,25 +123,6 @@ class MyFHIRServer {
             }
         });
 
-        // generate a unique ID for each request.  Use x-request-id in header if sent.
-        this.app.use(
-            (
-                /** @type {import('http').IncomingMessage} **/ req,
-                /** @type {import('http').ServerResponse} **/ res,
-                next
-            ) => {
-                // Generates a unique uuid that is used for operations
-                const uniqueRequestId = generateUUID();
-                httpContext.set(REQUEST_ID_TYPE.SYSTEM_GENERATED_REQUEST_ID, uniqueRequestId);
-
-                // Stores the userRquestId in httpContext and later used for logging and creating bundles.
-                req.id = req.id || req.header(`${REQUEST_ID_HEADER}`) || uniqueRequestId;
-                httpContext.set(REQUEST_ID_TYPE.USER_REQUEST_ID, req.id);
-
-                next();
-            }
-        );
-
         // Enable the body parser
         this.app.use(
             bodyParser.urlencoded({
@@ -157,22 +136,6 @@ class MyFHIRServer {
                 type: allowedContentTypes,
                 limit: '50mb',
             })
-        );
-
-        // Log the incoming request
-        this.app.use(
-            async (
-                /** @type {import('http').IncomingMessage} **/ req,
-                /** @type {import('http').ServerResponse} **/ res,
-                next
-            ) => {
-                await this.container.fhirLoggingManager.logOperationStartAsync(
-                    {
-                        requestInfo: this.container.fhirOperationsManager.getRequestInfo(req),
-                        startTime: Date.now()
-                    });
-                next();
-            }
         );
 
         // add container to request
