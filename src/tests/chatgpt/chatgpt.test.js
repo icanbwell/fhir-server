@@ -27,6 +27,8 @@ const {VectorStoreRetrieverMemory} = require('langchain/memory');
 const {ConsoleCallbackHandler} = require('langchain/callbacks');
 const {ChatGPTManager} = require('../../chatgpt/chatgptManager');
 
+// const describeIf = process.env.OPENAI_API_KEY ? describe : describe.skip;
+
 describe.skip('ChatGPT Tests', () => {
     describe('ChatGPT Tests', () => {
         test('ChatGPT works with sample', async () => {

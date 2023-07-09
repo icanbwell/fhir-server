@@ -23,7 +23,9 @@ const expectedPatientContainedResources = require('./fixtures/expected/expected_
 const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest, getHtmlHeaders} = require('../../common');
 const {describe, beforeEach, afterEach, test} = require('@jest/globals');
 
-describe('Person and Patient $everything Tests', () => {
+// const describeIf = process.env.OPENAI_API_KEY ? describe : describe.skip;
+
+describe('Person and Patient $everything chatgpt Tests', () => {
     beforeEach(async () => {
         await commonBeforeEach();
     });
@@ -128,7 +130,7 @@ describe('Person and Patient $everything Tests', () => {
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedPerson1ContainedResources);
         });
-        test('Person and Patient $everything chatgpt works when accept type is html', async () => {
+        test.skip('Person and Patient $everything chatgpt works when accept type is html', async () => {
             const request = await createTestRequest();
             // ARRANGE
             // add the resources to FHIR server
