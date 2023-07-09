@@ -21,11 +21,14 @@ function PatientChatGptPage() {
         setTextInput(event.target.value);
     };
 
+    // noinspection JSCheckFunctionSignatures
     const callApi = async () => {
         try {
             const urlEncodedQuestion = encodeURIComponent(textInput);
             const patientId = `john-muir-health-e.k-4ea143ZrQGvdUvf-b2y.tdyiVMBWgblY4f6y2zis3`;
             const url = `/4_0_0/Patient/${patientId}/$everything?_question=${urlEncodedQuestion}`;
+            setApiData({});
+            setTextResponse('Running...');
             const response = await fetch(url,
                 {
                     method: 'GET',
@@ -53,19 +56,24 @@ function PatientChatGptPage() {
             <textarea value={textInput} onChange={handleInputChange} rows="4" cols="100"/>
             <br/>
             <button onClick={callApi}>Ask</button>
-            {textResponse ? (
-                <div dangerouslySetInnerHTML={{__html: textResponse}}/>
-            ) : (
-                <p></p>
-            )}
-            {/*{apiData ? (*/}
-            {/*    <div>*/}
-            {/*        <h2>API Response:</h2>*/}
-            {/*        <pre>{JSON.stringify(apiData, null, 2)}</pre>*/}
-            {/*    </div>*/}
-            {/*) : (*/}
-            {/*    <p>Loading...</p>*/}
-            {/*)}*/}
+            <div>
+                {textResponse ? (
+                    <div dangerouslySetInnerHTML={{__html: textResponse}}/>
+                ) : (
+                    <p></p>
+                )}
+            </div>
+            <hr/>
+            <div>
+                {apiData ? (
+                    <div>
+                        <h2>API Response:</h2>
+                        <pre>{JSON.stringify(apiData, null, 2)}</pre>
+                    </div>
+                ) : (
+                    <p>Loading...</p>
+                )}
+            </div>
         </div>
     );
 }
