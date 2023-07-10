@@ -182,6 +182,16 @@ class RunPreSaveRunner extends BaseBulkOperationRunner {
                         }
                     };
                 }
+                query = {
+                    $and: [
+                        query,
+                        {
+                            $expr: { '_sourceId': { $not: '$_uuid' } },
+                            'meta.security.code': 'proa',
+                            'meta.security.system': 'https://www.icanbwell.com/connectionType',
+                        }
+                    ]
+                };
                 try {
                     await this.runForQueryBatchesAsync(
                         {

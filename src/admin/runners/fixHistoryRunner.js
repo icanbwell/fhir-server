@@ -132,7 +132,18 @@ class FixHistoryRunner extends BaseBulkOperationRunner {
                  */
 
 
-                const query = this.skipIfResourcePresent ? {resource: null} : {};
+                let query = this.skipIfResourcePresent ? {resource: null} : {};
+                query = {
+                    $and: [
+                        query,
+                        {
+                            $expr: { 'resource._sourceId': { $not: '$resource._uuid' } },
+                            'resource.meta.security.code': 'proa',
+                            'resource.meta.security.system': 'https://www.icanbwell.com/connectionType',
+                        },
+                    ],
+                };
+
                 try {
                     await this.runForQueryBatchesAsync(
                         {
