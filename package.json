@@ -75,6 +75,10 @@
       "<rootDir>/src/graphql/v2/resolvers",
       "<rootDir>/src/graphql/v1/resolvers"
     ],
+    "testPathIgnorePatterns": [
+      "<rootDir>/node_modules/",
+      "<rootDir>/src/web"
+    ],
     "setupFiles": [
       "<rootDir>/jest/setEnvVars.js"
     ],
