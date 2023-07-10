@@ -30,7 +30,6 @@ const {isTrue} = require('./utils/isTrue');
 const cookieParser = require('cookie-parser');
 const {handleMemoryCheck} = require('./routeHandlers/memoryChecker');
 const {handleAdmin} = require('./routeHandlers/admin');
-const {json} = require('body-parser');
 const {getImageVersion} = require('./utils/getImageVersion');
 const {REQUEST_ID_TYPE, REQUEST_ID_HEADER} = require('./constants');
 const {generateUUID} = require('./utils/uid.util');
@@ -290,7 +289,7 @@ function createApp({fnCreateContainer, trackMetrics}) {
                     router.use(passport.authenticate('graphqlStrategy', {session: false}, null));
                 }
                 router.use(cors(fhirServerConfig.server.corsOptions));
-                router.use(json());
+                router.use(express.json());
                 router.use(handleSecurityPolicy);
                 router.use(function (req, res, next) {
                     res.once('finish', async () => {
