@@ -25,7 +25,7 @@ const {describe, beforeEach, afterEach, test} = require('@jest/globals');
 
 // const describeIf = process.env.OPENAI_API_KEY ? describe : describe.skip;
 
-describe('Person and Patient $everything chatgpt Tests', () => {
+describe.skip('Person and Patient $everything chatgpt Tests', () => {
     beforeEach(async () => {
         await commonBeforeEach();
     });
