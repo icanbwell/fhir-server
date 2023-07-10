@@ -3,17 +3,17 @@
         "text": "Actin (Smooth Muscle) Antibody"
     },
     "effectiveDateTime": "2015-01-01T17:48:00.000Z",
-    "id": "thedacare-12345678901234567890123-Actin--Smooth-Muscle--Antibody",
+    "id": "thedacare-12345678901234567890123-Actin--Smooth-Muscle--Antibod",
     "identifier": [
         {
             "id": "sourceId",
             "system": "https://www.icanbwell.com/sourceId",
-            "value": "thedacare-12345678901234567890123-Actin--Smooth-Muscle--Antibody"
+            "value": "thedacare-12345678901234567890123-Actin--Smooth-Muscle--Antibod"
         },
         {
             "id": "uuid",
             "system": "https://www.icanbwell.com/uuid",
-            "value": "b1486791-969a-57b0-884c-135be43db4f5"
+            "value": "3bf63522-c9ce-5fb9-ac02-231672ca2f80"
         }
     ],
     "meta": {
@@ -68,12 +68,12 @@
                 {
                     "id": "sourceId",
                     "url": "https://www.icanbwell.com/sourceId",
-                    "valueString": "Observation/thedacare-1234567890123456789abcd-Actin--Smooth-Muscle--Antibody"
+                    "valueString": "Observation/thedacare-1234567890123456789abcd-Actin--Smooth-Muscle--Antibod"
                 },
                 {
                     "id": "uuid",
                     "url": "https://www.icanbwell.com/uuid",
-                    "valueString": "Observation/2b9bfc23-06f4-521d-a1ff-43c3fc8e694a"
+                    "valueString": "Observation/a6ccae3f-f14a-5a3f-8efc-fa6fd71953c4"
                 },
                 {
                     "id": "sourceAssigningAuthority",
@@ -81,7 +81,7 @@
                     "valueString": "thedacare"
                 }
             ],
-            "reference": "Observation/thedacare-1234567890123456789abcd-Actin--Smooth-Muscle--Antibody"
+            "reference": "Observation/thedacare-1234567890123456789abcd-Actin--Smooth-Muscle--Antibod"
         }
     ]
 }

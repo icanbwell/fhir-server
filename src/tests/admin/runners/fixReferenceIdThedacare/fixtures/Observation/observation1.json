@@ -1,5 +1,5 @@
 {
-    "id": "thedacare-12345678901234567890123-Actin--Smooth-Muscle--Antibody",
+    "id": "thedacare-12345678901234567890123-Actin--Smooth-Muscle--Antibod",
     "resourceType": "Observation",
     "code": {
         "text": "Actin (Smooth Muscle) Antibody"
@@ -48,7 +48,7 @@
     },
     "hasMember": [
         {
-            "reference": "Observation/thedacare-1234567890123456789abcd-Actin--Smooth-Muscle--Antibody"
+            "reference": "Observation/thedacare-1234567890123456789abcd-Actin--Smooth-Muscle--Antibod"
         }
     ]
 }

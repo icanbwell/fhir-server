@@ -44,7 +44,9 @@ describe('Observation Tests', () => {
 
     afterEach(async () => {
         // to remove the cache file stored after running the script
-        fs.unlinkSync('./cachedResourceIds.json');
+        if (fs.existsSync('./cachedResourceIds.json')) {
+            fs.unlinkSync('./cachedResourceIds.json');
+        }
 
         await commonAfterEach();
     });
