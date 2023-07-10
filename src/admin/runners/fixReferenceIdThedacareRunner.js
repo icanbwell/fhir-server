@@ -382,9 +382,9 @@ class FixReferenceIdThedacareRunner extends FixReferenceIdRunner {
      * @returns {[string]}
      */
     getCurrentIds({ originalId }) {
-        // we only need to check for originalId sliced to 64 characters as
+        // we only need to check for originalId sliced to 63 characters as
         // sourceAssigningAuthority is not present in thedacare ids
-        return [originalId.slice(0, 64)];
+        return [originalId.slice(0, 63)];
     }
 }
 
