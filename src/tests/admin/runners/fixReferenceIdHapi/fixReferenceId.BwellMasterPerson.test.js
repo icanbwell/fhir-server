@@ -82,15 +82,6 @@ describe('Person Tests', () => {
             // run admin runner
             const collections = ['all'];
             const batchSize = 1;
-            const referenceCollections = {
-                Patient: [
-                    'Patient',
-                    'Person'
-                ],
-                Person: [
-                    'Person'
-                ]
-            };
 
             container.register('fixReferenceIdHapiRunner', (c) => new FixReferenceIdHapiRunner(
                 {
@@ -100,7 +91,6 @@ describe('Person Tests', () => {
                     useAuditDatabase: false,
                     adminLogger: new AdminLogger(),
                     proaCollections: ['Person_4_0_0', 'Patient_4_0_0'],
-                    referenceCollections,
                     mongoDatabaseManager: c.mongoDatabaseManager,
                     preSaveManager: c.preSaveManager,
                     databaseQueryFactory: c.databaseQueryFactory,
