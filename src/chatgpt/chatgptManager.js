@@ -30,9 +30,9 @@ class ChatGPTManager {
         const patientResources = bundle.entry.map(
             e => new Document(
                 {
-                    pageContent: JSON.stringify(e),
+                    pageContent: JSON.stringify(e.resource),
                     metadata: {
-                        'my_document_id': e.id,
+                        'my_document_id': e.resource.id,
                     },
                 }
             ));
