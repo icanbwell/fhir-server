@@ -88,7 +88,7 @@ class ParsedArgs {
     /**
      * get Arg
      * @param {string} argName
-     * @return {ParsedArgsItem}
+     * @return {ParsedArgsItem|undefined}
      */
     get(argName) {
         return this.parsedArgItems.find(a => a.queryParameter === argName);
@@ -97,7 +97,7 @@ class ParsedArgs {
     /**
      * get original Arg i.e., before query rewrites
      * @param {string} argName
-     * @return {ParsedArgsItem}
+     * @return {ParsedArgsItem|undefined}
      */
     getOriginal(argName) {
         return this.originalParsedArgItems.find(a => a.queryParameter === argName);

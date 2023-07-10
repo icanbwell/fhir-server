@@ -110,7 +110,7 @@ class PatchOperation {
      * @param {FhirRequestInfo} requestInfo
      * @param {ParsedArgs} parsedArgs
      * @param {string} resourceType
-     * @returns {{id: string,created: boolean, resource_version: string, resource: Resource}}
+     * @returns {Promise<{id: string,created: boolean, resource_version: string, resource: Resource}>}
      */
     async patchAsync({requestInfo, parsedArgs, resourceType}) {
         assertIsValid(requestInfo !== undefined);
