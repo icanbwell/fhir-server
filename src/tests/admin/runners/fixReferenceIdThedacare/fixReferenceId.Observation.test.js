@@ -19,21 +19,10 @@ const {
 const { AdminLogger } = require('../../../../admin/adminLogger');
 const { FixReferenceIdThedacareRunner } = require('../../../../admin/runners/fixReferenceIdThedacareRunner');
 const { assertTypeEquals } = require('../../../../utils/assertType');
+const fs = require('fs');
 
 class MockFixReferenceIdThedacareRunner extends FixReferenceIdThedacareRunner {
-    async preloadReferencesAsync() {
-        this.caches.set('Observation', new Map());
-
-        this.caches.get('Observation').set(
-            'Observation/thedacare-12345678901234567890123-Actin--Smooth-Muscle--Antibody',
-            'Observation/thedacare-12345678901234567890123-Actin--Smooth-Muscle--Antibody-1'
-        );
-
-        this.caches.get('Observation').set(
-            'Observation/thedacare-1234567890123456789abcd-Actin--Smooth-Muscle--Antibody',
-            'Observation/thedacare-1234567890123456789abcd-Actin--Smooth-Muscle--Antibody-2'
-        );
-
+    async getDataFromS3() {
         this.idCache.set('Observation', new Map());
 
         this.idCache.get('Observation').set(
@@ -45,16 +34,6 @@ class MockFixReferenceIdThedacareRunner extends FixReferenceIdThedacareRunner {
             'thedacare-1234567890123456789abcd-Actin--Smooth-Muscle--Antibody',
             'thedacare-1234567890123456789abcd-Actin--Smooth-Muscle--Antibody-2'
         );
-
-        this.uuidCache.set(
-            'thedacare-12345678901234567890123-Actin--Smooth-Muscle--Antibody',
-            '56448d75-d587-554f-9a52-a36e228f3398'
-        );
-
-        this.uuidCache.set(
-            'thedacare-1234567890123456789abcd-Actin--Smooth-Muscle--Antibody',
-            '67456812-0565-5174-b766-36d3708ab906'
-        );
     }
 }
 
@@ -64,6 +43,9 @@ describe('Observation Tests', () => {
     });
 
     afterEach(async () => {
+        // to remove the cache file stored after running the script
+        fs.unlinkSync('./cachedResourceIds.json');
+
         await commonAfterEach();
     });
 
