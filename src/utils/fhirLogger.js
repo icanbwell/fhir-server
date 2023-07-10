@@ -1,11 +1,8 @@
 const env = require('var');
 const winston = require('winston');
-const {ElasticsearchTransport} = require('winston-elasticsearch');
 const {MongoDB} = require('winston-mongodb');
-const {Client} = require('@opensearch-project/opensearch');
 const {isTrue} = require('./isTrue');
 const Transport = require('winston-transport');
-const {assertIsValid} = require('./assertType');
 const {accessLogsMongoConfig} = require('../config');
 
 const Mutex = require('async-mutex').Mutex;
@@ -35,7 +32,6 @@ class NullTransport extends Transport {
 let fhirLoggerInstance;
 
 class FhirLogger {
-    // https://github.com/vanthome/winston-elasticsearch
     // https://stackoverflow.com/questions/58371284/how-can-i-fix-error-configurationerror-missing-nodes-option-for-winston-elas
 
     /**
@@ -120,57 +116,6 @@ class FhirLogger {
             transports: []
         });
 
-        if (isTrue(env.LOG_ELASTIC_SEARCH_ENABLE)) {
-            // https://www.elastic.co/guide/en/elasticsearch/client/javascript-api/current/basic-config.html
-            let node = env.LOG_ELASTIC_SEARCH_URL;
-            assertIsValid(node, 'LOG_ELASTIC_SEARCH_URL environment variable is not defined but LOG_ELASTIC_SEARCH_ENABLE is set');
-            console.info(JSON.stringify({message: `Logging to ${node}`}));
-            const username = env.ELASTIC_SEARCH_USERNAME;
-            const password = env.ELASTIC_SEARCH_PASSWORD;
-            assertIsValid(username);
-            assertIsValid(typeof username === 'string');
-            assertIsValid(password);
-            assertIsValid(typeof password === 'string');
-            console.info(JSON.stringify({message: `Logging to ${node} with username: ${username}`}));
-            node = node.replace('https://', `https://${username}:${password}@`);
-
-            /**
-             * @type {Client}
-             */
-            const client = new Client({
-                node: node,
-                ssl: {
-                    rejectUnauthorized: env.NODE_ENV !== 'development' // skip cert verification on local
-                }
-            });
-            /**
-             * @type {import('winston-elasticsearch').ElasticsearchTransportOptions}
-             */
-            const esTransportOpts = {
-                level: 'info',
-                client: client,
-                indexPrefix: env.LOG_ELASTIC_SEARCH_PREFIX ?
-                    String(env.LOG_ELASTIC_SEARCH_PREFIX).toLowerCase() :
-                    'logs'
-            };
-
-            /**
-             * @type {ElasticsearchTransport}
-             */
-            const elasticsearchTransport = new ElasticsearchTransport(esTransportOpts);
-            logger.add(elasticsearchTransport);
-            elasticsearchTransport.on('error', (error) => {
-                console.error(JSON.stringify({message: 'Error in elasticsearchTransport caught', error}));
-            });
-        } else {
-            /**
-             * @type {NullTransport}
-             */
-            const nullTransport = new NullTransport();
-            // noinspection JSCheckFunctionSignatures
-            logger.add(nullTransport);
-        }
-
         if (isTrue(env.ENABLE_MONGODB_ACCESS_LOGS)) {
             /**
              * @type {import('winston-mongodb').MongoDBTransportInstance}
@@ -190,6 +135,13 @@ class FhirLogger {
             mongodbTransport.on('error', (error) => {
                 console.error(JSON.stringify({message: 'Error in mongodbTransport caught', error}));
             });
+        } else {
+            /**
+             * @type {NullTransport}
+             */
+            const nullTransport = new NullTransport();
+            // noinspection JSCheckFunctionSignatures
+            logger.add(nullTransport);
         }
 
         if (env.LOGLEVEL === 'DEBUG') {

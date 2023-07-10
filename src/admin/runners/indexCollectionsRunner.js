@@ -13,6 +13,7 @@ class IndexCollectionsRunner extends BaseScriptRunner {
      * @param {string[]|undefined} [collections]
      * @param {boolean|undefined} [dropIndexes]
      * @param {boolean|undefined} [useAuditDatabase]
+     * @param {boolean|undefined} [useAccessLogsDatabase]
      * @param {boolean} includeHistoryCollections
      * @param {boolean} addMissingIndexesOnly
      * @param {boolean} removeExtraIndexesOnly
@@ -27,6 +28,7 @@ class IndexCollectionsRunner extends BaseScriptRunner {
             collections,
             dropIndexes,
             useAuditDatabase,
+            useAccessLogsDatabase,
             includeHistoryCollections,
             addMissingIndexesOnly,
             removeExtraIndexesOnly,
@@ -63,6 +65,11 @@ class IndexCollectionsRunner extends BaseScriptRunner {
         this.useAuditDatabase = useAuditDatabase;
 
         /**
+         * @type {boolean|undefined}
+         */
+        this.useAccessLogsDatabase = useAccessLogsDatabase;
+
+        /**
          * @type {boolean}
          */
         this.includeHistoryCollections = includeHistoryCollections;
@@ -91,13 +98,15 @@ class IndexCollectionsRunner extends BaseScriptRunner {
              * @type {import('mongodb').Db}
              */
             const db = this.useAuditDatabase ? await this.mongoDatabaseManager.getAuditDbAsync() :
-                await this.mongoDatabaseManager.getClientDbAsync();
+                this.useAccessLogsDatabase ? await this.mongoDatabaseManager.getAccessLogsDbAsync() :
+                    await this.mongoDatabaseManager.getClientDbAsync();
 
             const collections = this.collections.length > 0 ? this.collections : ['all'];
             if (this.addMissingIndexesOnly) {
                 await this.indexManager.addMissingIndexesAsync(
                     {
                         audit: this.useAuditDatabase,
+                        accessLogs: this.useAccessLogsDatabase,
                         collections
                     }
                 );
@@ -105,6 +114,7 @@ class IndexCollectionsRunner extends BaseScriptRunner {
                 await this.indexManager.dropExtraIndexesAsync(
                     {
                         audit: this.useAuditDatabase,
+                        accessLogs: this.useAccessLogsDatabase,
                         collections
                     }
                 );
@@ -112,6 +122,7 @@ class IndexCollectionsRunner extends BaseScriptRunner {
                 await this.indexManager.synchronizeIndexesWithConfigAsync(
                     {
                         audit: this.useAuditDatabase,
+                        accessLogs: this.useAccessLogsDatabase,
                         collections
                     }
                 );
@@ -120,6 +131,7 @@ class IndexCollectionsRunner extends BaseScriptRunner {
                     this.collections = await this.getAllCollectionNamesAsync(
                         {
                             useAuditDatabase: this.useAuditDatabase,
+                            useAccessLogsDatabase: this.useAccessLogsDatabase,
                             includeHistoryCollections: this.includeHistoryCollections
                         });
                     this.collections = this.collections.sort();

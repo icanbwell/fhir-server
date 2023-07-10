@@ -30,6 +30,7 @@ async function main() {
             collections: collections,
             dropIndexes: parameters.drop ? true : false,
             useAuditDatabase: parameters.audit ? true : false,
+            useAccessLogsDatabase: parameters.accessLogs ? true : false,
             addMissingIndexesOnly: parameters.addMissingIndexesOnly ? true : false,
             removeExtraIndexesOnly: parameters.dropExtraIndexesOnly ? true : false,
             includeHistoryCollections: parameters.includeHistoryCollections ? true : false,

@@ -323,6 +323,16 @@ module.exports = {
                 }
             }
         ],
+        'access_logs': [
+            {
+                keys: {
+                    'meta.id': 1
+                },
+                options: {
+                    name: 'meta.id_1'
+                }
+            }
+        ],
         'BiologicallyDerivedProduct_4_0_0': [
             {
                 keys: {
