@@ -192,5 +192,6 @@ module.exports = {
     REQUEST_ID_TYPE: {
         USER_REQUEST_ID: 'userRequestId',
         SYSTEM_GENERATED_REQUEST_ID: 'systemGeneratedRequestId',
-    }
+    },
+    ACCESS_LOGS: 'access_logs'
 };
