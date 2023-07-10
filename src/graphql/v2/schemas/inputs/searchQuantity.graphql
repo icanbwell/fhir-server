@@ -5,4 +5,5 @@ input SearchQuantity {
     system: String
     code: String
     missing: Boolean
+    notEquals: decimal
 }

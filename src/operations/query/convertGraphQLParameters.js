@@ -123,10 +123,16 @@ function convertGraphQLParameters(queryParameterValue, args, queryParameter) {
                     }
                     break;
             }
-            if (queryParameterValue['missing'] !== null) {
+            if (queryParameterValue['missing'] !== null) { //TODO: fix this???
                 args[`${queryParameter}:missing`] = queryParameterValue['missing'];
             }
+            if (queryParameterValue['notEquals'] !== null) { //TODO: fix this???
+                args[`${queryParameter}:not`] = queryParameterValue['notEquals'];
+            }
         }
+    }
+    if (queryParameterValue['notEquals'] !== null) {
+        args[`${queryParameter}:not`] = queryParameterValue['notEquals'];
     }
     return queryParameterValue;
 }

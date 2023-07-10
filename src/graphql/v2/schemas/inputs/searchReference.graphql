@@ -3,4 +3,5 @@ input SearchReference {
     value: String
     target: String
     missing: Boolean
+    notEquals: String
 }

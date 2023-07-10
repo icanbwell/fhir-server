@@ -5,4 +5,5 @@ input SearchString {
     missing: Boolean
     above: Boolean
     below: Boolean
+    notEquals: String
 }

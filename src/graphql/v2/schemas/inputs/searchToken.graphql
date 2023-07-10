@@ -8,4 +8,5 @@ input SearchToken {
     value: SearchTokenValue
     values: [SearchTokenValue]
     missing: Boolean
+    notEquals: String
 }

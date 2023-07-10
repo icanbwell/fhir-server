@@ -20,6 +20,11 @@ const patientQuery = fs.readFileSync(
     'utf8'
 );
 // eslint-disable-next-line security/detect-non-literal-fs-filename
+const patientNotQuery = fs.readFileSync(
+    path.resolve(__dirname, './fixtures/query_not.graphql'),
+    'utf8'
+);
+// eslint-disable-next-line security/detect-non-literal-fs-filename
 const patientQueryWithExplain = fs.readFileSync(
     path.resolve(__dirname, './fixtures/query_explain.graphql'),
     'utf8'
@@ -67,6 +72,86 @@ describe('GraphQL Patient Tests', () => {
         test('GraphQL Patient properly', async () => {
             const request = await createTestRequest();
             const graphqlQueryText = patientQuery.replace(/\\n/g, '');
+
+            let resp = await request
+                .get('/4_0_0/ExplanationOfBenefit')
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResourceCount(0);
+
+            resp = await request
+                .get('/4_0_0/AllergyIntolerance')
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResourceCount(0);
+
+            resp = await request
+                .post('/4_0_0/Patient/1/$merge')
+                .send(patientBundleResource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse([{created: true}, {created: true}]);
+
+            resp = await request
+                .post('/4_0_0/Organization/1/$merge')
+                .send(organizationBundleResource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse([{created: true}, {created: true}]);
+
+            resp = await request
+                .post('/4_0_0/ExplanationOfBenefit/1/$merge')
+                .send(explanationOfBenefitBundleResource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse([{created: true}, {created: true}]);
+
+            resp = await request
+                .post('/4_0_0/AllergyIntolerance/1/$merge')
+                .send(allergyIntoleranceBundleResource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse([{created: true}, {created: true}]);
+
+            resp = await request
+                .post('/4_0_0/CareTeam/1/$merge')
+                .send(careTeamBundleResource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse([{created: true}, {created: true}]);
+
+            resp = await request
+                .get('/4_0_0/Patient/')
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResourceCount(2);
+
+            resp = await request
+                .get('/4_0_0/ExplanationOfBenefit/')
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResourceCount(2);
+
+            resp = await request
+                .post('/graphqlv2')
+                .send({
+                    operationName: null,
+                    variables: {},
+                    query: graphqlQueryText,
+                })
+                .set(getGraphQLHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedGraphQlResponse, r => {
+                r.explanationOfBenefit.forEach(resource => {
+                    cleanMeta(resource);
+                });
+                return r;
+            });
+            expect(resp.headers['x-request-id']).toBeDefined();
+        });
+        test('GraphQL Patient with not equals', async () => {
+            const request = await createTestRequest();
+            const graphqlQueryText = patientNotQuery.replace(/\\n/g, '');
 
             let resp = await request
                 .get('/4_0_0/ExplanationOfBenefit')
