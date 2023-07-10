@@ -20,6 +20,7 @@ const { mongoQueryStringify } = require('../../utils/mongoQueryStringify');
 const { ObjectId } = require('mongodb');
 const { searchParameterQueries } = require('../../searchParameters/searchParameters');
 const { SecurityTagSystem } = require('../../utils/securityTagSystem');
+const referenceCollections = require('../utils/referenceCollections.json');
 
 /**
  * @classdesc Finds proa resources whose id needs to be changed and changes the id along with its references
@@ -41,7 +42,6 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
      * @param {string|undefined} [startFromCollection]
      * @param {ResourceLocatorFactory} resourceLocatorFactory
      * @param {string[]} proaCollections
-     * @param {Object} referenceCollections
      * @param {number|undefined} [limit]
      * @param {string[]|undefined} [properties]
      * @param {ResourceMerger} resourceMerger
@@ -66,7 +66,6 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
             startFromCollection,
             resourceLocatorFactory,
             proaCollections,
-            referenceCollections,
             limit,
             properties,
             resourceMerger,
@@ -166,11 +165,6 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
          */
         this.resourceMerger = resourceMerger;
         assertTypeEquals(resourceMerger, ResourceMerger);
-
-        /**
-         * @type {Object}
-         */
-        this.referenceCollections = referenceCollections;
 
         /**
          * caches currentReference with newReference collectionWise
@@ -513,6 +507,40 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
     }
 
     /**
+     * Caches references and ids of the resources whose ids need to changed
+     * @param {{connection: string, db_name: string, options: import('mongodb').MongoClientOptions}} mongoConfig
+     * @returns {Promise<void>}
+     */
+    async preloadReferencesAsync({mongoConfig}) {
+        const cacheCollectionReferences = async (proaCollection) => {
+            this.adminLogger.logInfo(`Caching collection references: ${proaCollection}`);
+
+            await this.cacheReferencesAsync({
+                mongoConfig,
+                collectionName: proaCollection
+            });
+
+            const count = this.getCacheForReference({ collectionName: proaCollection }).size;
+
+            this.adminLogger.logInfo(`Done caching collection references: ${proaCollection}: ${count}`);
+        };
+
+        // Cache collection ids in async promises since they are IO heavy
+        let promises = [];
+        const chunkSize = 3;
+        for (let i = 0; i < this.proaCollections.length; i += chunkSize) {
+            const chunk = this.proaCollections.slice(i, i + chunkSize);
+            if (chunk.length) {
+                this.adminLogger.logInfo(`Started caching references of collections ${chunk.join(',')}`);
+                promises.push(...chunk.map(proaCollection => cacheCollectionReferences(proaCollection)));
+                await Promise.all(promises);
+                this.adminLogger.logInfo(`Completed caching references of collections ${chunk.join(',')}`);
+                promises = [];
+            }
+        }
+    }
+
+    /**
      * Runs a loop to process all the documents
      * @returns {Promise<void>}
      */
@@ -543,32 +571,7 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
              */
             const mongoConfig = await this.mongoDatabaseManager.getClientConfigAsync();
 
-            const cacheCollectionReferences = async (proaCollection) => {
-                this.adminLogger.logInfo(`Caching collection references: ${proaCollection}`);
-
-                await this.cacheReferencesAsync({
-                    mongoConfig,
-                    collectionName: proaCollection
-                });
-
-                const count = this.getCacheForReference({ collectionName: proaCollection }).size;
-
-                this.adminLogger.logInfo(`Done caching collection references: ${proaCollection}: ${count}`);
-            };
-
-            // Cache collection ids in async promises since they are IO heavy
-            let promises = [];
-            const chunkSize = 3;
-            for (let i = 0; i < this.proaCollections.length; i += chunkSize) {
-                const chunk = this.proaCollections.slice(i, i + chunkSize);
-                if (chunk.length) {
-                    this.adminLogger.logInfo(`Started caching references of collections ${chunk.join(',')}`);
-                    promises.push(...chunk.map(proaCollection => cacheCollectionReferences(proaCollection)));
-                    await Promise.all(promises);
-                    this.adminLogger.logInfo(`Completed caching references of collections ${chunk.join(',')}`);
-                    promises = [];
-                }
-            }
+            await this.preloadReferencesAsync({ mongoConfig });
 
             try {
                 const mainCollectionsList = this.collections.filter(coll => !coll.endsWith('_History')).sort();
@@ -596,7 +599,7 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
 
                     // to store all the reference field names of the resource
                     /**
-                     * @type {Set<String>}
+                     * @type {Set<Object>}
                      */
                     let referenceFieldNames = new Set();
 
@@ -623,7 +626,7 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
                         // check which resources can be referenced by the current resource and
                         // create array of references that can be present in the resource
                         for (let key of this.caches.keys()) {
-                            if (this.referenceCollections[String(key)] && this.referenceCollections[String(key)].includes(resourceName)) {
+                            if (referenceCollections[String(key)] && referenceCollections[String(key)].includes(resourceName)) {
                                 const references = Array.from(this.caches.get(key), value => value[0]);
                                 if (references.length) {
                                     referenceArray.push(...references);

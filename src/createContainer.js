@@ -643,7 +643,6 @@ const createContainer = function () {
         }
     ));
 
-
     container.register('mongoFilterGenerator', (c) => new MongoFilterGenerator(
         {
             configManager: c.configManager

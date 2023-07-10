@@ -25,7 +25,6 @@ const {
 const { AdminLogger } = require('../../../../admin/adminLogger');
 const { FixReferenceIdHapiRunner } = require('../../../../admin/runners/fixReferenceIdHapiRunner');
 const { assertTypeEquals } = require('../../../../utils/assertType');
-const referenceCollections = require('../../../../admin/utils/referenceCollectionsHapi.json');
 
 describe('Observation Tests', () => {
     beforeEach(async () => {
@@ -90,7 +89,6 @@ describe('Observation Tests', () => {
                     useAuditDatabase: false,
                     adminLogger: new AdminLogger(),
                     proaCollections: ['Observation_4_0_0'],
-                    referenceCollections,
                     mongoDatabaseManager: c.mongoDatabaseManager,
                     preSaveManager: c.preSaveManager,
                     databaseQueryFactory: c.databaseQueryFactory,
@@ -171,7 +169,6 @@ describe('Observation Tests', () => {
                     useAuditDatabase: false,
                     adminLogger: new AdminLogger(),
                     proaCollections: ['Observation_4_0_0'],
-                    referenceCollections,
                     mongoDatabaseManager: c.mongoDatabaseManager,
                     preSaveManager: c.preSaveManager,
                     databaseQueryFactory: c.databaseQueryFactory,
@@ -238,7 +235,6 @@ describe('Observation Tests', () => {
                     useAuditDatabase: false,
                     adminLogger: new AdminLogger(),
                     proaCollections: ['Observation_4_0_0'],
-                    referenceCollections,
                     mongoDatabaseManager: c.mongoDatabaseManager,
                     preSaveManager: c.preSaveManager,
                     databaseQueryFactory: c.databaseQueryFactory,
@@ -305,7 +301,6 @@ describe('Observation Tests', () => {
                     useAuditDatabase: false,
                     adminLogger: new AdminLogger(),
                     proaCollections: ['Observation_4_0_0'],
-                    referenceCollections,
                     mongoDatabaseManager: c.mongoDatabaseManager,
                     preSaveManager: c.preSaveManager,
                     databaseQueryFactory: c.databaseQueryFactory,
