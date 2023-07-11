@@ -14,7 +14,7 @@ class AdminLogManager {
      */
     async getLogAsync(id) {
         try {
-            if (isTrue(env.ENABLE_MONGODB_ACCESS_LOGS_SEARCH)) {
+            if (isTrue(env.ENABLE_MONGODB_ACCESS_LOGS)) {
                 /**
                  * @type {MongoClient}
                  */
