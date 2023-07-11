@@ -913,7 +913,6 @@ class SearchManager {
 
     /**
      * Reads resources from Mongo cursor and writes to response
-     * @type {object}
      * @param {DatabasePartitionedCursor} cursor
      * @param {string|null} requestId
      * @param {string | null} url
@@ -924,118 +923,17 @@ class SearchManager {
      * @param {ParsedArgs|null} parsedArgs
      * @param {string} resourceType
      * @param {boolean} useAccessIndex
-     * @param {number} batchObjectCount
-     * @param {string} defaultSortId
-     * @returns {Promise<string[]>}
-     */
-    async streamBundleFromCursorAsync(
-        {
-            requestId,
-            cursor,
-            url,
-            fnBundle,
-            res, user, scope,
-            parsedArgs, resourceType,
-            useAccessIndex,
-            batchObjectCount,
-            defaultSortId
-        }
-    ) {
-        assertIsValid(requestId);
-        /**
-         * @type {AbortController}
-         */
-        const ac = new AbortController();
-
-        /**
-         * @type {FhirBundleWriter}
-         */
-        const fhirBundleWriter = new FhirBundleWriter({fnBundle, url, signal: ac.signal, defaultSortId: defaultSortId});
-
-        /**
-         * @type {{id: string[]}}
-         */
-        const tracker = {
-            id: []
-        };
-
-        function onResponseClose() {
-            ac.abort();
-        }
-
-        // if response is closed then abort the pipeline
-        res.on('close', onResponseClose);
-
-        /**
-         * @type {HttpResponseWriter}
-         */
-        const responseWriter = new HttpResponseWriter(
-            {
-                requestId, response: res, contentType: 'application/fhir+json', signal: ac.signal
-            }
-        );
-
-        const resourcePreparerTransform = new ResourcePreparerTransform(
-            {
-                user, scope, parsedArgs, resourceType, useAccessIndex, signal: ac.signal,
-                resourcePreparer: this.resourcePreparer
-            }
-        );
-        const resourceIdTracker = new ResourceIdTracker({tracker, signal: ac.signal});
-
-        const objectChunker = new ObjectChunker({chunkSize: batchObjectCount, signal: ac.signal});
-
-        try {
-            const readableMongoStream = createReadableMongoStream({
-                cursor, signal: ac.signal, databaseAttachmentManager: this.databaseAttachmentManager
-            });
-            // readableMongoStream.on('close', () => {
-            //     // logInfo('Mongo read stream was closed');
-            //     // ac.abort();
-            // });
-            // https://nodejs.org/docs/latest-v16.x/api/stream.html#streams-compatibility-with-async-generators-and-async-iterators
-            await pipeline(
-                readableMongoStream,
-                objectChunker,
-                resourcePreparerTransform,
-                resourceIdTracker,
-                fhirBundleWriter,
-                responseWriter
-            );
-        } catch (e) {
-            logError('', {user, error: e});
-            ac.abort();
-            throw new RethrownError({
-                message: `Error reading resources for ${resourceType} with query: ${mongoQueryStringify(cursor.getQuery())}`,
-                error: e
-            });
-        } finally {
-            res.removeListener('close', onResponseClose);
-        }
-        if (!res.writableEnded) {
-            res.end();
-        }
-        return tracker.id;
-    }
-
-    /**
-     * Reads resources from Mongo cursor and writes to response
-     * @param {DatabasePartitionedCursor} cursor
-     * @param {string|null} requestId
-     * @param {import('http').ServerResponse} res
-     * @param {string | null} user
-     * @param {string | null} scope
-     * @param {ParsedArgs|null} parsedArgs
-     * @param {string} resourceType
-     * @param {boolean} useAccessIndex
      * @param {string[]|null} accepts
      * @param {number} batchObjectCount
+     * @param {string} defaultSortId
      * @returns {Promise<string[]>} ids of resources streamed
      */
     async streamResourcesFromCursorAsync(
         {
             requestId,
             cursor,
+            url,
+            fnBundle,
             res,
             user,
             scope,
@@ -1043,7 +941,8 @@ class SearchManager {
             resourceType,
             useAccessIndex,
             accepts,
-            batchObjectCount = 1
+            batchObjectCount = 1,
+            defaultSortId
         }
     ) {
         assertIsValid(requestId);
@@ -1069,13 +968,17 @@ class SearchManager {
         /**
          * @type {FhirResourceWriterBase}
          */
-        const fhirWriter = this.fhirResourceWriterFactory.createResourceWriter(
+        let fhirWriter = this.fhirResourceWriterFactory.createResourceWriter(
             {
                 accepts: accepts,
                 signal: ac.signal,
                 format: parsedArgs.get('_format') ? parsedArgs.get('_format').queryParameterValue.value : undefined
             }
         );
+
+        if (this.configManager.enableReturnBundle || parsedArgs['_bundle']) {
+            fhirWriter = new FhirBundleWriter({fnBundle, url, signal: ac.signal, defaultSortId: defaultSortId});
+        }
 
         /**
          * @type {HttpResponseWriter}

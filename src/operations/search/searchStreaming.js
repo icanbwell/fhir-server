@@ -289,77 +289,65 @@ class SearchStreamingOperation {
             const allCollectionsToSearch = cursor ? cursor.getAllCollections() : [];
 
             if (cursor !== null) { // usually means the two-step optimization found no results
-                // if env.RETURN_BUNDLE is set then return as a Bundle
-                if (this.configManager.enableReturnBundle || parsedArgs['_bundle']) {
-                    /**
-                     * @type {Resource[]}
-                     */
-                    const resources1 = [];
-                    const defaultSortId = this.configManager.defaultSortId;
-                    /**
-                     * bundle
-                     * @param {string|null} last_id
-                     * @param {number} stopTime1
-                     * @return {Bundle}
-                     */
-                    const fnBundle = (last_id, stopTime1) => this.bundleManager.createBundle(
-                        {
-                            type: 'searchset',
-                            requestId: requestInfo.userRequestId,
-                            originalUrl,
-                            host,
-                            protocol,
-                            last_id,
-                            resources: resources1,
-                            base_version,
-                            total_count,
-                            originalQuery: new QueryItem(
-                                {
-                                    query,
-                                    resourceType,
-                                    collectionName
-                                }
-                            ),
-                            databaseName,
-                            originalOptions,
-                            columns,
-                            stopTime: stopTime1,
-                            startTime,
-                            useTwoStepSearchOptimization,
-                            indexHint,
-                            cursorBatchSize,
-                            user,
-                            explanations,
-                            allCollectionsToSearch,
-                            parsedArgs
-                        }
-                    );
-                    resourceIds = await this.searchManager.streamBundleFromCursorAsync(
-                        {
-                            requestId,
-                            cursor,
-                            url: originalUrl,
-                            fnBundle,
-                            res,
-                            user,
-                            scope,
-                            parsedArgs,
-                            resourceType,
-                            useAccessIndex,
-                            batchObjectCount,
-                            defaultSortId
-                        });
-                } else {
-                    resourceIds = await this.searchManager.streamResourcesFromCursorAsync(
-                        {
-                            requestId,
-                            cursor, res, user, scope, parsedArgs,
-                            resourceType,
-                            useAccessIndex,
-                            accepts: requestInfo.accept,
-                            batchObjectCount
-                        });
-                }
+                /**
+                 * @type {Resource[]}
+                 */
+                const resources1 = [];
+                const defaultSortId = this.configManager.defaultSortId;
+                /**
+                 * bundle
+                 * @param {string|null} last_id
+                 * @param {number} stopTime1
+                 * @return {Bundle}
+                 */
+                const fnBundle = (last_id, stopTime1) => this.bundleManager.createBundle(
+                    {
+                        type: 'searchset',
+                        requestId: requestInfo.userRequestId,
+                        originalUrl,
+                        host,
+                        protocol,
+                        last_id,
+                        resources: resources1,
+                        base_version,
+                        total_count,
+                        originalQuery: new QueryItem(
+                            {
+                                query,
+                                resourceType,
+                                collectionName
+                            }
+                        ),
+                        databaseName,
+                        originalOptions,
+                        columns,
+                        stopTime: stopTime1,
+                        startTime,
+                        useTwoStepSearchOptimization,
+                        indexHint,
+                        cursorBatchSize,
+                        user,
+                        explanations,
+                        allCollectionsToSearch,
+                        parsedArgs
+                    }
+                );
+                resourceIds = await this.searchManager.streamResourcesFromCursorAsync(
+                    {
+                        requestId,
+                        cursor,
+                        url: originalUrl,
+                        fnBundle,
+                        res,
+                        user,
+                        scope,
+                        parsedArgs,
+                        resourceType,
+                        useAccessIndex,
+                        batchObjectCount,
+                        defaultSortId,
+                        accepts: requestInfo.accept,
+                    });
 
                 if (resourceIds.length > 0) {
                     // log access to audit logs
