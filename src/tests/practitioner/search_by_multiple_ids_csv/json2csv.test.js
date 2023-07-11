@@ -3,7 +3,9 @@ const {Transform} = require('@json2csv/node');
 const {flatten} = require('@json2csv/transforms');
 const {createReadStream, createWriteStream} = require('fs');
 const path = require('path');
-// Constructing finished from stream
+const {Readable} = require('stream');
+const practitionerResource = require('./fixtures/practitioner/practitioner.json');
+
 
 describe('JSON 2 CSV', () => {
     test('json2csv tests', async () => {
@@ -47,6 +49,45 @@ describe('JSON 2 CSV', () => {
 
         const parser = new MyTransform();
         const processor = input.pipe(parser).pipe(output);
+        await new Promise(fulfill => processor.on('finish', fulfill));
+    });
+    test('json2csv tests with custom Transform in objectMode', async () => {
+        class MyTransform extends Transform {
+            constructor() {
+                const opts = {
+                    transforms: [
+                        flatten({objects: true, arrays: true, separator: '_'}),
+                    ]
+                };
+                const transformOpts = {
+                    objectMode: true
+                };
+                const asyncOpts = {
+                    objectMode: true
+                };
+
+                super(opts, transformOpts, asyncOpts);
+            }
+
+            _transform(chunk, encoding, done) {
+                super._transform(chunk, encoding, done);
+            }
+        }
+
+        const outputPath = path.resolve(__dirname, './fixtures/practitioner/practitioner_out.json');
+        const output = createWriteStream(outputPath, {encoding: 'utf8'});
+
+        const objectReadableStream = new Readable({
+            objectMode: true,
+            read() {
+                // Push your object(s) to the stream
+                this.push(practitionerResource);
+                this.push(null); // Signal the end of the stream
+            }
+        });
+
+        const parser = new MyTransform();
+        const processor = objectReadableStream.pipe(parser).pipe(output);
         await new Promise(fulfill => processor.on('finish', fulfill));
     });
 });
