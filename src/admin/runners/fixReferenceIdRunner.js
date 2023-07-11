@@ -258,7 +258,24 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
                 return reference;
             }
 
-            const { resourceType, id } = ReferenceParser.parseReference(reference._sourceId);
+            // current reference with id
+            let currentReference = reference._sourceId;
+
+            if (!currentReference) {
+                if (reference.extension) {
+                    reference.extension.forEach(element => {
+                        if (element.url === IdentifierSystem.sourceId && element.valueString) {
+                            currentReference = element.valueString;
+                        }
+                    });
+                }
+
+                if (!currentReference) {
+                    currentReference = reference.reference;
+                }
+            }
+
+            const { resourceType, id } = ReferenceParser.parseReference(currentReference);
             if (!resourceType) {
                 return reference;
             }
@@ -292,8 +309,6 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
              */
             let foundInCache = false;
 
-            // create current reference with id
-            const currentReference = reference._sourceId;
             const uuidReference = reference._uuid;
 
             // check if the current reference is present in cache if present then replace it
