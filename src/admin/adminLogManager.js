@@ -3,6 +3,7 @@ const { logInfo, logError } = require('../operations/common/logging');
 const { isTrue } = require('../utils/isTrue');
 const { accessLogsMongoConfig } = require('../config');
 const { MongoClient } = require('mongodb');
+const { ACCESS_LOGS_COLLECTION_NAME } = require('../constants');
 
 class AdminLogManager {
 
@@ -19,7 +20,7 @@ class AdminLogManager {
                  */
                 const client = new MongoClient(accessLogsMongoConfig.connection, accessLogsMongoConfig.options);
 
-                const accessLogsCollectionName = env.ACCESS_LOGS_COLLECTION_NAME ? String(env.ACCESS_LOGS_COLLECTION_NAME) : 'access_logs';
+                const accessLogsCollectionName = env.ACCESS_LOGS_COLLECTION_NAME ? String(env.ACCESS_LOGS_COLLECTION_NAME) : ACCESS_LOGS_COLLECTION_NAME;
 
                 const accessLogsDb = client.db(accessLogsMongoConfig.db_name);
 

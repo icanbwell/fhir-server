@@ -4,6 +4,7 @@ const {MongoDB} = require('winston-mongodb');
 const {isTrue} = require('./isTrue');
 const Transport = require('winston-transport');
 const {accessLogsMongoConfig} = require('../config');
+const {ACCESS_LOGS_COLLECTION_NAME} = require('../constants');
 
 const Mutex = require('async-mutex').Mutex;
 const mutex = new Mutex();
@@ -124,7 +125,7 @@ class FhirLogger {
                 db: accessLogsMongoConfig.connection,
                 options: accessLogsMongoConfig.options,
                 dbName: accessLogsMongoConfig.db_name,
-                name: 'access_logs',
+                name: ACCESS_LOGS_COLLECTION_NAME,
                 expireAfterSeconds: env.ACCESS_LOGS_EXPIRE_TIME ? Number(env.ACCESS_LOGS_EXPIRE_TIME) : 30 * 24 * 60 * 60,
                 collection: env.ACCESS_LOGS_COLLECTION_NAME ? String(env.ACCESS_LOGS_COLLECTION_NAME) : 'access_logs',
                 format: winston.format.metadata({ fillExcept: ['message', 'level', 'timestamp'] })

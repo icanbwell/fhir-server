@@ -9,7 +9,7 @@ const {assertTypeEquals, assertIsValid} = require('../utils/assertType');
 const {IndexProvider} = require('./indexProvider');
 const {MongoDatabaseManager} = require('../utils/mongoDatabaseManager');
 const deepEqual = require('fast-deep-equal');
-const {ACCESS_LOGS} = require('../constants');
+const {ACCESS_LOGS_COLLECTION_NAME} = require('../constants');
 
 /**
  * @typedef IndexConfig
@@ -150,7 +150,7 @@ class IndexManager {
      * @returns {Promise<{collectionName: string, indexes: IndexConfig[]}>}
      */
     async getIndexesToCreateForCollectionAsync({collectionName}) {
-        const baseCollectionName = collectionName.endsWith('_4_0_0') || collectionName === ACCESS_LOGS ?
+        const baseCollectionName = collectionName.endsWith('_4_0_0') || collectionName === ACCESS_LOGS_COLLECTION_NAME ?
             collectionName : collectionName.substring(0, collectionName.indexOf('_4_0_0') + 6);
 
         // if this is a history collection then we only create an index on id
