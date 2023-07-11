@@ -1,7 +1,6 @@
 const {Document} = require('langchain/document');
 const {OpenAIEmbeddings} = require('langchain/embeddings/openai');
 const {MemoryVectorStore} = require('langchain/vectorstores/memory');
-const {OpenAI} = require('langchain/llms/openai');
 const {ConsoleCallbackHandler} = require('langchain/callbacks');
 const {LLMChainExtractor} = require('langchain/retrievers/document_compressors/chain_extract');
 const {ContextualCompressionRetriever} = require('langchain/retrievers/contextual_compression');
@@ -14,6 +13,7 @@ const {filterXSS} = require('xss');
 const {StructuredOutputParser, OutputFixingParser} = require('langchain/output_parsers');
 const {z} = require('zod');
 const {ChatGPTContextLengthExceededError} = require('./chatgptContextLengthExceededError');
+const {ChatOpenAI} = require('langchain/chat_models/openai');
 
 class ChatGPTManager {
     /**
@@ -49,7 +49,7 @@ class ChatGPTManager {
         );
 
         // Now create an OpenAI model.
-        const model = new OpenAI(
+        const model = new ChatOpenAI(
             {
                 openAIApiKey: process.env.OPENAI_API_KEY,
                 temperature: 0,
@@ -103,7 +103,7 @@ class ChatGPTManager {
             const res3 = await chain.call(parameters);
             return filterXSS(sanitize(res3.text.replace('<body>', '').replace('</body>', '').replace(/\n/g, '')));
         } catch (e) {
-            if (e.response.data.error.code === 'context_length_exceeded') {
+            if (e.response.data && e.response.data.error && e.response.data.error.code === 'context_length_exceeded') {
                 throw new ChatGPTContextLengthExceededError({
                     error: e,
                     args: {
@@ -136,15 +136,13 @@ class ChatGPTManager {
         // https://nathankjer.com/introduction-to-langchain/
 
         const outputParser = StructuredOutputParser.fromZodSchema(
-            z.array(
-                z.object({
-                    fields: z.object({
-                        url: z.string().describe('url')
-                    })
+            z.object({
+                fields: z.object({
+                    url: z.string().describe('url')
                 })
-            ).describe('An array of Airtable records, each representing a url')
+            })
         );
-        const model = new OpenAI(
+        const model = new ChatOpenAI(
             {
                 openAIApiKey: process.env.OPENAI_API_KEY,
                 temperature: 0,
@@ -153,7 +151,7 @@ class ChatGPTManager {
                 tags: ['example', 'callbacks', 'constructor'],
                 // This handler will be used for all calls made with this LLM.
                 callbacks: [new ConsoleCallbackHandler()],
-                maxTokens: 3800,
+                // maxTokens: 3800,
                 verbose: true
             }
         );
@@ -161,7 +159,7 @@ class ChatGPTManager {
             model,
             outputParser
         );
-        const template = 'You are a software program. ' +
+        const template = 'You are an AI assistant. Please provide short responses. ' +
             'You are talking to a FHIR server. ' +
             '\n{format_instructions}' +
             '\nDon’t justify your answers. Don’t give information not mentioned in the CONTEXT INFORMATION.' +
@@ -199,13 +197,13 @@ class ChatGPTManager {
         // Finally run the chain and get the result
         try {
             const result = await chain.call(parameters);
-            if (result.records.length > 0) {
-                const firstRecord = result.records[0];
+            if (result.records) {
+                const firstRecord = result.records;
                 const firstField = firstRecord.fields;
                 return firstField.url;
             }
         } catch (e) {
-            if (e.response.data.error.code === 'context_length_exceeded') {
+            if (e.response.data && e.response.data.error && e.response.data.error.code === 'context_length_exceeded') {
                 throw new ChatGPTContextLengthExceededError({
                     error: e,
                     args: {
