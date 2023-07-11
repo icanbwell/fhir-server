@@ -6,11 +6,13 @@ const {ConsoleCallbackHandler} = require('langchain/callbacks');
 const {LLMChainExtractor} = require('langchain/retrievers/document_compressors/chain_extract');
 const {ContextualCompressionRetriever} = require('langchain/retrievers/contextual_compression');
 const {PromptTemplate} = require('langchain/prompts');
-const {RetrievalQAChain, loadQAStuffChain} = require('langchain/chains');
+const {RetrievalQAChain, loadQAStuffChain, LLMChain} = require('langchain/chains');
 const {ChatGPTError} = require('./chatgptError');
 const {encoding_for_model} = require('@dqbd/tiktoken');
 const sanitize = require('sanitize-html');
 const {filterXSS} = require('xss');
+const {StructuredOutputParser, OutputFixingParser} = require('langchain/output_parsers');
+const {z} = require('zod');
 
 class ChatGPTManager {
     /**
@@ -105,6 +107,83 @@ class ChatGPTManager {
                 }
             });
         }
+    }
+
+    /**
+     * Gets the fhir query
+     * @param {string} query
+     * @param {string} baseUrl baseUrl of the FHIR server
+     * @param {string|undefined} [patientId] restrict query to this patient
+     * @return {Promise<string|undefined>}
+     */
+    async getFhirQueryAsync({query, baseUrl, patientId}) {
+        // https://js.langchain.com/docs/getting-started/guide-llm
+        // https://blog.langchain.dev/going-beyond-chatbots-how-to-make-gpt-4-output-structured-data-using-langchain/
+        // https://nathankjer.com/introduction-to-langchain/
+
+        const outputParser = StructuredOutputParser.fromZodSchema(
+            z.array(
+                z.object({
+                    fields: z.object({
+                        url: z.string().describe('url')
+                    })
+                })
+            ).describe('An array of Airtable records, each representing a url')
+        );
+        const model = new OpenAI(
+            {
+                openAIApiKey: process.env.OPENAI_API_KEY,
+                temperature: 0,
+                // modelName: 'gpt-3.5-turbo'  // this part does not work with GPT 3.5
+            }
+        );
+        const outputFixingParser = OutputFixingParser.fromLLM(
+            model,
+            outputParser
+        );
+            const template = 'You are a software program. ' +
+            'You are talking to a FHIR server. ' +
+            '\n{format_instructions}' +
+            '\nThe base url is {baseUrl}.' +
+            (patientId ? '\nPatient id is {patientId}.' : '') +
+            '\n Write FHIR query for ```{query}```';
+
+        // const template = 'Answer the user\'s question as best you can:\n{format_instructions}\n{query}';
+        const inputVariables = ['baseUrl', 'query'];
+        if (patientId) {
+            inputVariables.push('patientId');
+        }
+        const prompt = new PromptTemplate({
+            template: template,
+            inputVariables: inputVariables,
+            partialVariables: {
+                format_instructions: outputFixingParser.getFormatInstructions()
+            }
+        });
+        // console.log(outputFixingParser.getFormatInstructions());
+        const chain = new LLMChain(
+            {
+                llm: model,
+                prompt: prompt,
+                outputKey: 'records', // For readability - otherwise the chain output will default to a property named "text"
+                outputParser: outputFixingParser
+            });
+
+        // const baseUrl = 'https://fhir.icanbwell.com/4_0_0';
+        const parameters = {query: query, baseUrl: baseUrl};
+        if (patientId) {
+            parameters['patientId'] = patientId;
+        }
+        const result = await chain.call(parameters);
+        console.log(JSON.stringify(result.records, null, 2));
+        if (result.records.length > 0) {
+            const firstRecord = result.records[0];
+            const firstField = firstRecord.fields;
+            const url = firstField.url;
+            console.log(`url: ${url}`);
+            return url;
+        }
+        return undefined;
     }
 
     /**

@@ -29,7 +29,7 @@ const {ChatGPTManager} = require('../../chatgpt/chatgptManager');
 
 // const describeIf = process.env.OPENAI_API_KEY ? describe : describe.skip;
 
-describe.skip('ChatGPT Tests', () => {
+describe('ChatGPT Tests', () => {
     describe('ChatGPT Tests', () => {
         test('ChatGPT works with sample', async () => {
             // https://js.langchain.com/docs/getting-started/guide-llm
@@ -112,64 +112,21 @@ describe.skip('ChatGPT Tests', () => {
             console.log(JSON.stringify(result.records, null, 2));
         });
         test('ChatGPT works with English FHIR query and structured output', async () => {
-            // https://js.langchain.com/docs/getting-started/guide-llm
-            // https://blog.langchain.dev/going-beyond-chatbots-how-to-make-gpt-4-output-structured-data-using-langchain/
-            // https://nathankjer.com/introduction-to-langchain/
-
-            const outputParser = StructuredOutputParser.fromZodSchema(
-                z.array(
-                    z.object({
-                        fields: z.object({
-                            url: z.string().describe('url')
-                        })
-                    })
-                ).describe('An array of Airtable records, each representing a url')
-            );
-            const model = new OpenAI(
-                {
-                    openAIApiKey: process.env.OPENAI_API_KEY,
-                    temperature: 0,
-                    // modelName: 'gpt-3.5-turbo'  // this part does not work with GPT 3.5
-                }
-            );
-            const outputFixingParser = OutputFixingParser.fromLLM(
-                model,
-                outputParser
-            );
-            const template = 'You are a software program. ' +
-                'You are talking to a FHIR server. ' +
-                '\n{format_instructions}' +
-                '\nThe base url is {baseUrl}.' +
-                '\nPatient id is {patientId}.' +
-                '\n Write FHIR query for ```{query}``` for this patient';
-
-            // const template = 'Answer the user\'s question as best you can:\n{format_instructions}\n{query}';
-            const prompt = new PromptTemplate({
-                template: template,
-                inputVariables: ['baseUrl', 'patientId', 'query'],
-                partialVariables: {
-                    format_instructions: outputFixingParser.getFormatInstructions()
-                }
+            const chatGPTManager = new ChatGPTManager();
+            const result = await chatGPTManager.getFhirQueryAsync({
+                baseUrl: 'https://fhir.icanbwell.com/4_0_0',
+                query: 'Find me all conditions that are diabetes'
             });
-            // console.log(outputFixingParser.getFormatInstructions());
-            const chain = new LLMChain(
-                {
-                    llm: model,
-                    prompt: prompt,
-                    outputKey: 'records', // For readability - otherwise the chain output will default to a property named "text"
-                    outputParser: outputFixingParser
-                });
-
-            const query = 'Find me all conditions that are diabetes';
-            const baseUrl = 'https://fhir.icanbwell.com/4_0_0';
-            const result = await chain.call({patientId: 'imran', query: query, baseUrl: baseUrl});
-            console.log(JSON.stringify(result.records, null, 2));
-            if (result.records.length > 0) {
-                const firstRecord = result.records[0];
-                const firstField = firstRecord.fields;
-                const url = firstField.url;
-                console.log(`url: ${url}`);
-            }
+            console.log(result);
+        });
+        test('ChatGPT works with English FHIR query for specific patient and structured output', async () => {
+            const chatGPTManager = new ChatGPTManager();
+            const result = await chatGPTManager.getFhirQueryAsync({
+                baseUrl: 'https://fhir.icanbwell.com/4_0_0',
+                query: 'Find me all conditions that are diabetes for this patient',
+                patientId: 'john-muir-health-e.k-4ea143ZrQGvdUvf-b2y.tdyiVMBWgblY4f6y2zis3'
+            });
+            console.log(result);
         });
         test('ChatGPT explains a FHIR record', async () => {
             // https://js.langchain.com/docs/getting-started/guide-llm
