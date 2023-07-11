@@ -10,13 +10,13 @@ class ChatGPTError extends Error {
      */
     constructor({message, error, args}) {
         let errorMessage = !message && error && error.message ? error.message : message;
-        if (error.response && error.response.data && error.response.data.error) {
-            errorMessage += ' ' + error.response.data.error;
+        if (error.response && error.response.data && error.response.data.error && error.response.data.error.message) {
+            errorMessage += '. ' + error.response.data.error.message;
         }
 
         super(errorMessage);
         this.args = args;
-        this.response = error.response;
+        this.data = error.response.data;
     }
 }
 

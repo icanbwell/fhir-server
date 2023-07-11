@@ -134,19 +134,24 @@ class ChatGPTManager {
             {
                 openAIApiKey: process.env.OPENAI_API_KEY,
                 temperature: 0,
-                // modelName: 'gpt-3.5-turbo'  // this part does not work with GPT 3.5
+                modelName: 'gpt-3.5-turbo',
+                // These tags will be attached to all calls made with this LLM.
+                tags: ['example', 'callbacks', 'constructor'],
+                // This handler will be used for all calls made with this LLM.
+                callbacks: [new ConsoleCallbackHandler()],
+                maxTokens: 3800,
+                verbose: true
             }
         );
         const outputFixingParser = OutputFixingParser.fromLLM(
             model,
             outputParser
         );
-            const template = 'You are a software program. ' +
+        const template = 'You are a software program. ' +
             'You are talking to a FHIR server. ' +
             '\n{format_instructions}' +
-            '\nThe base url is {baseUrl}.' +
-            (patientId ? '\nPatient id is {patientId}.' : '') +
-            '\n Write FHIR query for ```{query}```';
+            '\n Write FHIR query for ```{query}``` using the base url of {baseUrl}' +
+            (patientId ? '\n and patient id of {patientId}.' : '');
 
         // const template = 'Answer the user\'s question as best you can:\n{format_instructions}\n{query}';
         const inputVariables = ['baseUrl', 'query'];
@@ -174,14 +179,24 @@ class ChatGPTManager {
         if (patientId) {
             parameters['patientId'] = patientId;
         }
-        const result = await chain.call(parameters);
-        console.log(JSON.stringify(result.records, null, 2));
-        if (result.records.length > 0) {
-            const firstRecord = result.records[0];
-            const firstField = firstRecord.fields;
-            const url = firstField.url;
-            console.log(`url: ${url}`);
-            return url;
+
+        // Finally run the chain and get the result
+        try {
+            const result = await chain.call(parameters);
+            if (result.records.length > 0) {
+                const firstRecord = result.records[0];
+                const firstField = firstRecord.fields;
+                const url = firstField.url;
+                // console.log(`url: ${url}`);
+                return url;
+            }
+        } catch (e) {
+            throw new ChatGPTError({
+                error: e,
+                args: {
+                    prompt: prompt.format(parameters)
+                }
+            });
         }
         return undefined;
     }

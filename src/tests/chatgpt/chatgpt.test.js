@@ -118,6 +118,16 @@ describe('ChatGPT Tests', () => {
                 query: 'Find me all conditions that are diabetes'
             });
             console.log(result);
+            expect(result).toStrictEqual('https://fhir.icanbwell.com/4_0_0/Condition?code=http://snomed.info/sct|73211009');
+        });
+        test('ChatGPT works with English FHIR query for all patients and structured output', async () => {
+            const chatGPTManager = new ChatGPTManager();
+            const result = await chatGPTManager.getFhirQueryAsync({
+                baseUrl: 'https://fhir.icanbwell.com/4_0_0',
+                query: 'Find all patients that are older than 10'
+            });
+            console.log(result);
+            expect(result).toStrictEqual('https://fhir.icanbwell.com/4_0_0/Condition?code=http://snomed.info/sct|73211009');
         });
         test('ChatGPT works with English FHIR query for specific patient and structured output', async () => {
             const chatGPTManager = new ChatGPTManager();
