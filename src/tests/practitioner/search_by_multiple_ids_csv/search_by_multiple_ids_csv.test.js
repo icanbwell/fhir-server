@@ -23,7 +23,7 @@ describe('PractitionerReturnIdTests', () => {
         await commonAfterEach();
     });
 
-    describe('Practitioner Search By Multiple Ids Tests', () => {
+    describe('Practitioner Search By Multiple Ids csv Tests', () => {
         test('search by single id works', async () => {
             const request = await createTestRequest();
             let resp = await request
