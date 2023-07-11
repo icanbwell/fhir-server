@@ -1,0 +1,65 @@
+{
+    "code": {
+        "text": "Actin (Smooth Muscle) Antibody"
+    },
+    "effectiveDateTime": "2015-01-01T17:48:00.000Z",
+    "id": "thedacare-1234567890123456789abcd-Actin--Smooth-Muscle--Antibody-2",
+    "identifier": [
+        {
+            "id": "sourceId",
+            "system": "https://www.icanbwell.com/sourceId",
+            "value": "thedacare-1234567890123456789abcd-Actin--Smooth-Muscle--Antibody-2"
+        },
+        {
+            "id": "uuid",
+            "system": "https://www.icanbwell.com/uuid",
+            "value": "67456812-0565-5174-b766-36d3708ab906"
+        }
+    ],
+    "meta": {
+        "security": [
+            {
+                "code": "thedacare",
+                "id": "owner",
+                "system": "https://www.icanbwell.com/owner"
+            },
+            {
+                "code": "thedacare",
+                "system": "https://www.icanbwell.com/access"
+            },
+            {
+                "code": "thedacare",
+                "system": "https://www.icanbwell.com/connectionType"
+            },
+            {
+                "code": "thedacare",
+                "system": "https://www.icanbwell.com/sourceAssigningAuthority"
+            }
+        ],
+        "source": "test_results",
+        "versionId": "1"
+    },
+    "performer": [
+        {
+            "display": "Kaiser S - Desert Valley Gastroenterology"
+        }
+    ],
+    "referenceRange": [
+        {
+            "high": {
+                "unit": "Units"
+            },
+            "id": "reference-range",
+            "low": {
+                "unit": "Units"
+            },
+            "text": "0-19"
+        }
+    ],
+    "resourceType": "Observation",
+    "status": "final",
+    "valueQuantity": {
+        "unit": "Units",
+        "value": 12
+    }
+}

@@ -81,7 +81,8 @@ const {GlobalIdEnrichmentProvider} = require('./enrich/providers/globalIdEnrichm
 const {ReferenceGlobalIdHandler} = require('./preSaveHandlers/handlers/referenceGlobalIdHandler');
 const {OwnerColumnHandler} = require('./preSaveHandlers/handlers/ownerColumnHandler');
 const {HashReferencesEnrichmentProvider} = require('./enrich/providers/hashedReferencesEnrichmentProvider');
-const { SensitiveDataProcessor } = require('./utils/sensitiveDataProcessor');
+const {SensitiveDataProcessor} = require('./utils/sensitiveDataProcessor');
+const {ChatGPTManager} = require('./chatgpt/chatgptManager');
 
 /**
  * Creates a container and sets up all the services
@@ -439,7 +440,8 @@ const createContainer = function () {
     container.register('everythingOperation', (c) => new EverythingOperation({
         graphOperation: c.graphOperation,
         fhirLoggingManager: c.fhirLoggingManager,
-        scopesValidator: c.scopesValidator
+        scopesValidator: c.scopesValidator,
+        chatgptManager: c.chatgptManager
     }));
 
     container.register('removeOperation', (c) => new RemoveOperation(
@@ -641,7 +643,6 @@ const createContainer = function () {
         }
     ));
 
-
     container.register('mongoFilterGenerator', (c) => new MongoFilterGenerator(
         {
             configManager: c.configManager
@@ -655,6 +656,8 @@ const createContainer = function () {
     container.register('uuidToIdReplacer', (c) => new UuidToIdReplacer({
         databaseQueryFactory: c.databaseQueryFactory
     }));
+
+    container.register('chatgptManager', () => new ChatGPTManager());
 
     return container;
 };
