@@ -5,7 +5,6 @@ const {ConsoleCallbackHandler} = require('langchain/callbacks');
 const {LLMChainExtractor} = require('langchain/retrievers/document_compressors/chain_extract');
 const {ContextualCompressionRetriever} = require('langchain/retrievers/contextual_compression');
 const {
-    PromptTemplate,
     ChatPromptTemplate,
     SystemMessagePromptTemplate,
     HumanMessagePromptTemplate
@@ -73,18 +72,18 @@ class ChatGPTManager {
             baseRetriever: vectorStore.asRetriever(),
         });
 
-        // now create the prompt to send to OpenAI
-        const template_text = '\nUse the following data in FHIR to answer the question at the end.' +
-            '\nQuestion:\n{question}' +
-            '\nReply in HTML with just the body';
-        const prompt = new PromptTemplate({
-            template: template_text,
-            inputVariables: ['question']
-            // partialVariables: {
-            //     format_instructions: outputFixingParser.getFormatInstructions()
-            // },
-            // outputKey: 'records', // For readability - otherwise the chain output will default to a property named "text"
-            // outputParser: outputFixingParser
+        const inputVariables = ['question'];
+        const prompt = new ChatPromptTemplate({
+            promptMessages: [
+                SystemMessagePromptTemplate.fromTemplate(
+                    'You are an AI assistant. Please provide short responses. ' +
+                    '\nYou are talking to a FHIR server. Today\'s date is 2023-07-10' +
+                    '\nReply in HTML with just the body' +
+                    '\nUse the following data in FHIR to answer the user\'s question'
+                ),
+                HumanMessagePromptTemplate.fromTemplate('{question}'),
+            ],
+            inputVariables: inputVariables,
         });
 
         // Create the chain to chain all the above processes
@@ -93,10 +92,12 @@ class ChatGPTManager {
             retriever: retriever,
             // memory: memory,
             // returnSourceDocuments: true,
+            verbose: true
         });
 
         const parameters = {
-            query: question
+            query: question,
+            question: question
         };
         const fullPrompt = await prompt.format(parameters);
         const numberTokens = await this.getTokenCountAsync({documents: [{pageContent: fullPrompt}]});
@@ -104,7 +105,7 @@ class ChatGPTManager {
         // Finally run the chain and get the result
         try {
             const res3 = await chain.call(parameters);
-            return filterXSS(sanitize(res3.text.replace('<body>', '').replace('</body>', '').replace(/\n/g, '')));
+            return filterXSS(sanitize(res3.text.replace('<body>', '').replace('</body>', '').replace(/\n/g, '').trim()));
         } catch (e) {
             if (e.response && e.response.data && e.response.data.error && e.response.data.error.code === 'context_length_exceeded') {
                 throw new ChatGPTContextLengthExceededError({
