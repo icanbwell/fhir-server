@@ -120,6 +120,8 @@
     "@graphql-tools/load-files": "^7.0.0",
     "@graphql-tools/merge": "^9.0.0",
     "@graphql-tools/schema": "^10.0.0",
+    "@json2csv/node": "^7.0.1",
+    "@json2csv/transforms": "^7.0.1",
     "@mongodb-js/zstd": "^1.1.0",
     "@opensearch-project/opensearch": "^2.2.0",
     "@popperjs/core": "^2.11.8",

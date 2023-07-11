@@ -1,10 +1,7 @@
-const {isTrue} = require('../../../utils/isTrue');
-const env = require('var');
-const {convertErrorToOperationOutcome} = require('../../../utils/convertErrorToOperationOutcome');
-const {logInfo} = require('../../common/logging');
-const {FhirResourceWriterBase} = require('./fhirResourceWriterBase');
+const {Transform} = require('@json2csv/node');
+const {flatten} = require('@json2csv/transforms');
 
-class FhirResourceCsvWriter extends FhirResourceWriterBase {
+class FhirResourceCsvWriter extends Transform {
     /**
      * Streams the incoming data as json
      *
@@ -13,7 +10,21 @@ class FhirResourceCsvWriter extends FhirResourceWriterBase {
      * @param {string} contentType
      */
     constructor({signal, delimiter, contentType}) {
-        super({objectMode: true, contentType: contentType});
+        const opts = {
+            delimiter: delimiter,
+            transforms: [
+                // unwind(),
+                flatten({objects: true, arrays: true, separator: '.'}),
+            ]
+        };
+        const transformOpts = {
+            objectMode: true
+        };
+        const asyncOpts = {
+            objectMode: true
+        };
+
+        super(opts, transformOpts, asyncOpts);
 
         /**
          * @type {AbortSignal}
@@ -26,54 +37,29 @@ class FhirResourceCsvWriter extends FhirResourceWriterBase {
          * @private
          */
         this._delimiter = delimiter;
+
+        /**
+         * @type {string}
+         * @private
+         */
+        this._contentType = contentType;
     }
 
-    /**
-     * transforms a chunk
-     * @param {Object} chunk
-     * @param {import('stream').BufferEncoding} encoding
-     * @param {import('stream').TransformCallBack} callback
-     * @private
-     */
-    _transform(chunk, encoding, callback) {
-        if (this._signal.aborted) {
-            callback();
-            return;
-        }
-        try {
-            if (chunk !== null && chunk !== undefined) {
-                if (isTrue(env.LOG_STREAM_STEPS)) {
-                    logInfo(`FhirResourceNdJsonWriter: _transform ${chunk['id']}`, {});
-                }
-                const resourceJson = JSON.stringify(chunk);
-                this.push(resourceJson + '\n', encoding);
-            }
-        } catch (e) {
-            const operationOutcome = convertErrorToOperationOutcome({error: e});
-            this.writeOperationOutcome({operationOutcome, encoding});
-        }
-        callback();
-    }
-
-    /**
-     * @param {import('stream').TransformCallBack} callback
-     * @private
-     */
-    _flush(callback) {
-        if (isTrue(env.LOG_STREAM_STEPS)) {
-            logInfo('FhirResourceNdJsonWriter: _flush', {});
-        }
-        callback();
-    }
+    // _transform(chunk, encoding, done) {
+    //     super._transform(chunk, encoding, done);
+    // }
 
     /**
      * writes an OperationOutcome
      * @param {OperationOutcome} operationOutcome
      * @param {import('stream').BufferEncoding|null} [encoding]
      */
+    // eslint-disable-next-line no-unused-vars
     writeOperationOutcome({operationOutcome, encoding}) {
-        const operationOutcomeJson = JSON.stringify(operationOutcome.toJSON());
-        this.push(operationOutcomeJson + '\n', encoding);
+    }
+
+    getContentType() {
+        return this._contentType;
     }
 }
 
