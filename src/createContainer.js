@@ -1,3 +1,5 @@
+// noinspection JSUnresolvedReference
+
 const {SimpleContainer} = require('./utils/simpleContainer');
 const env = require('var');
 const {ChangeEventProducer} = require('./utils/changeEventProducer');
@@ -83,6 +85,7 @@ const {OwnerColumnHandler} = require('./preSaveHandlers/handlers/ownerColumnHand
 const {HashReferencesEnrichmentProvider} = require('./enrich/providers/hashedReferencesEnrichmentProvider');
 const {SensitiveDataProcessor} = require('./utils/sensitiveDataProcessor');
 const {ChatGPTManager} = require('./chatgpt/chatgptManager');
+const {FhirResourceWriterFactory} = require('./operations/streaming/resourceWriters/fhirResourceWriterFactory');
 
 /**
  * Creates a container and sets up all the services
@@ -256,7 +259,8 @@ const createContainer = function () {
                 queryRewriterManager: c.queryRewriterManager,
                 personToPatientIdsExpander: c.personToPatientIdsExpander,
                 scopesManager: c.scopesManager,
-                databaseAttachmentManager: c.databaseAttachmentManager
+                databaseAttachmentManager: c.databaseAttachmentManager,
+                fhirResourceWriterFactory: c.fhirResourceWriterFactory
             }
         )
     );
@@ -658,6 +662,7 @@ const createContainer = function () {
     }));
 
     container.register('chatgptManager', () => new ChatGPTManager());
+    container.register('fhirResourceWriterFactory', () => new FhirResourceWriterFactory());
 
     return container;
 };

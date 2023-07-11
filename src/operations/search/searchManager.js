@@ -11,13 +11,10 @@ const {pipeline} = require('stream/promises');
 const {ResourcePreparerTransform} = require('../streaming/resourcePreparerTransform');
 const {Transform} = require('stream');
 const {IndexHinter} = require('../../indexes/indexHinter');
-const {FhirBundleWriter} = require('../streaming/fhirBundleWriter');
+const {FhirBundleWriter} = require('../streaming/resourceWriters/fhirBundleWriter');
 const {HttpResponseWriter} = require('../streaming/responseWriter');
 const {ResourceIdTracker} = require('../streaming/resourceIdTracker');
 const {ObjectChunker} = require('../streaming/objectChunker');
-const {fhirContentTypes} = require('../../utils/contentTypes');
-const {FhirResourceWriter} = require('../streaming/fhirResourceWriter');
-const {FhirResourceNdJsonWriter} = require('../streaming/fhirResourceNdJsonWriter');
 const {DatabaseQueryFactory} = require('../../dataLayer/databaseQueryFactory');
 const {ResourceLocatorFactory} = require('../common/resourceLocatorFactory');
 const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
@@ -35,7 +32,8 @@ const {ScopesManager} = require('../security/scopesManager');
 const {convertErrorToOperationOutcome} = require('../../utils/convertErrorToOperationOutcome');
 const {GetCursorResult} = require('./getCursorResult');
 const {QueryItem} = require('../graph/queryItem');
-const { DatabaseAttachmentManager } = require('../../dataLayer/databaseAttachmentManager');
+const {DatabaseAttachmentManager} = require('../../dataLayer/databaseAttachmentManager');
+const {FhirResourceWriterFactory} = require('../streaming/resourceWriters/fhirResourceWriterFactory');
 
 class SearchManager {
     /**
@@ -51,6 +49,7 @@ class SearchManager {
      * @param {PersonToPatientIdsExpander} personToPatientIdsExpander
      * @param {ScopesManager} scopesManager
      * @param {DatabaseAttachmentManager} databaseAttachmentManager
+     * @param {FhirResourceWriterFactory} fhirResourceWriterFactory
      */
     constructor(
         {
@@ -64,7 +63,8 @@ class SearchManager {
             queryRewriterManager,
             personToPatientIdsExpander,
             scopesManager,
-            databaseAttachmentManager
+            databaseAttachmentManager,
+            fhirResourceWriterFactory
         }
     ) {
         /**
@@ -126,8 +126,15 @@ class SearchManager {
          */
         this.databaseAttachmentManager = databaseAttachmentManager;
         assertTypeEquals(databaseAttachmentManager, DatabaseAttachmentManager);
+
+        /**
+         * @type {FhirResourceWriterFactory}
+         */
+        this.fhirResourceWriterFactory = fhirResourceWriterFactory;
+        assertTypeEquals(fhirResourceWriterFactory, FhirResourceWriterFactory);
     }
 
+    // noinspection ExceptionCaughtLocallyJS
     /**
      * constructs a mongo query
      * @param {string | null} user
@@ -525,7 +532,7 @@ class SearchManager {
             });
             return await this.personToPatientIdsExpander.getPatientIdsFromPersonAsync({
                 databaseQueryManager,
-                personIds: [ personIdFromJwtToken ],
+                personIds: [personIdFromJwtToken],
                 totalProcessedPersonIds: new Set(),
                 level: 1
             });
@@ -918,6 +925,7 @@ class SearchManager {
      * @param {string} resourceType
      * @param {boolean} useAccessIndex
      * @param {number} batchObjectCount
+     * @param {string} defaultSortId
      * @returns {Promise<string[]>}
      */
     async streamBundleFromCursorAsync(
@@ -1020,7 +1028,7 @@ class SearchManager {
      * @param {ParsedArgs|null} parsedArgs
      * @param {string} resourceType
      * @param {boolean} useAccessIndex
-     * @param {string} contentType
+     * @param {string[]|null} accepts
      * @param {number} batchObjectCount
      * @returns {Promise<string[]>} ids of resources streamed
      */
@@ -1034,16 +1042,11 @@ class SearchManager {
             parsedArgs,
             resourceType,
             useAccessIndex,
-            contentType = 'application/fhir+json',
+            accepts,
             batchObjectCount = 1
         }
     ) {
         assertIsValid(requestId);
-        /**
-         * @type {boolean}
-         */
-        const useJson = contentType !== fhirContentTypes.ndJson;
-
         /**
          * @type {{id: *[]}}
          */
@@ -1064,18 +1067,21 @@ class SearchManager {
         res.on('close', onResponseClose);
 
         /**
-         * @type {FhirResourceWriter|FhirResourceNdJsonWriter}
+         * @type {FhirResourceWriterBase}
          */
-        const fhirWriter = useJson ?
-            new FhirResourceWriter({signal: ac.signal}) :
-            new FhirResourceNdJsonWriter({signal: ac.signal});
+        const fhirWriter = this.fhirResourceWriterFactory.createResourceWriter(
+            {
+                accepts: accepts,
+                signal: ac.signal
+            }
+        );
 
         /**
          * @type {HttpResponseWriter}
          */
         const responseWriter = new HttpResponseWriter(
             {
-                requestId, response: res, contentType, signal: ac.signal
+                requestId, response: res, contentType: fhirWriter.getContentType(), signal: ac.signal
             }
         );
         /**
@@ -1218,7 +1224,8 @@ class SearchManager {
     /**
      * @description Validates that all the required parameters for AuditEvent are present in parsedArgs
      * @param {ParsedArgs} parsedArgs
-    */
+     * @param {string[]|null} requiredFiltersForAuditEvent
+     */
     auditEventValidateRequiredFilters(parsedArgs, requiredFiltersForAuditEvent) {
         if (requiredFiltersForAuditEvent && requiredFiltersForAuditEvent.length > 0) {
             if (requiredFiltersForAuditEvent.filter(r => parsedArgs[`${r}`]).length === 0) {
