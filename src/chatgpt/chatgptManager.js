@@ -13,6 +13,7 @@ const sanitize = require('sanitize-html');
 const {filterXSS} = require('xss');
 const {StructuredOutputParser, OutputFixingParser} = require('langchain/output_parsers');
 const {z} = require('zod');
+const {ChatGPTContextLengthExceededError} = require('./chatgptContextLengthExceededError');
 
 class ChatGPTManager {
     /**
@@ -91,21 +92,34 @@ class ChatGPTManager {
             // returnSourceDocuments: true,
         });
 
+        const parameters = {
+            query: question
+        };
+        const fullPrompt = await prompt.format(parameters);
+        const numberTokens = await this.getTokenCountAsync({documents: [{pageContent: fullPrompt}]});
+
         // Finally run the chain and get the result
         try {
-            const res3 = await chain.call({
-                query: question
-            });
+            const res3 = await chain.call(parameters);
             return filterXSS(sanitize(res3.text.replace('<body>', '').replace('</body>', '').replace(/\n/g, '')));
         } catch (e) {
-            throw new ChatGPTError({
-                error: e,
-                args: {
-                    prompt: prompt.format({
-                        query: question
-                    })
-                }
-            });
+            if (e.response.data.error.code === 'context_length_exceeded') {
+                throw new ChatGPTContextLengthExceededError({
+                    error: e,
+                    args: {
+                        prompt: fullPrompt,
+                        numberOfTokens: numberTokens
+                    }
+                });
+            } else {
+                throw new ChatGPTError({
+                    error: e,
+                    args: {
+                        prompt: fullPrompt,
+                        numberOfTokens: numberTokens
+                    }
+                });
+            }
         }
     }
 
@@ -179,24 +193,34 @@ class ChatGPTManager {
         if (patientId) {
             parameters['patientId'] = patientId;
         }
-
+        const fullPrompt = await prompt.format(parameters);
+        const numberTokens = await this.getTokenCountAsync({documents: [{pageContent: fullPrompt}]});
         // Finally run the chain and get the result
         try {
             const result = await chain.call(parameters);
             if (result.records.length > 0) {
                 const firstRecord = result.records[0];
                 const firstField = firstRecord.fields;
-                const url = firstField.url;
-                // console.log(`url: ${url}`);
-                return url;
+                return firstField.url;
             }
         } catch (e) {
-            throw new ChatGPTError({
-                error: e,
-                args: {
-                    prompt: prompt.format(parameters)
-                }
-            });
+            if (e.response.data.error.code === 'context_length_exceeded') {
+                throw new ChatGPTContextLengthExceededError({
+                    error: e,
+                    args: {
+                        prompt: fullPrompt,
+                        numberOfTokens: numberTokens
+                    }
+                });
+            } else {
+                throw new ChatGPTError({
+                    error: e,
+                    args: {
+                        prompt: fullPrompt,
+                        numberOfTokens: numberTokens
+                    }
+                });
+            }
         }
         return undefined;
     }
