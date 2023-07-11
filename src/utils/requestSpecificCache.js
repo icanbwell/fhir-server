@@ -1,5 +1,5 @@
 const {assertIsValid} = require('./assertType');
-const {logTraceSystemEventAsync} = require('../operations/common/logging');
+const {logTraceSystemEventAsync} = require('../operations/common/systemEventLogging');
 
 class RequestSpecificCache {
     constructor() {
