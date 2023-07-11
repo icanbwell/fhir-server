@@ -110,7 +110,7 @@ describe('PractitionerReturnIdTests', () => {
         test('search by multiple id works with _format parameter', async () => {
             const request = await createTestRequest();
             let resp = await request
-                .get(`/4_0_0/Practitioner?_streamResponse=1&_format=${fhirContentTypes.csv}`)
+                .get(`/4_0_0/Practitioner?_format=${fhirContentTypes.csv}`)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResourceCount(0);
@@ -137,7 +137,7 @@ describe('PractitionerReturnIdTests', () => {
             expect(resp).toHaveMergeResponse({created: true});
 
             resp = await request
-                .get('/4_0_0/Practitioner?_streamResponse=1')
+                .get(`/4_0_0/Practitioner?_format=${fhirContentTypes.csv}`)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResourceCount(3);
@@ -147,7 +147,7 @@ describe('PractitionerReturnIdTests', () => {
                 'utf8'
             );
             resp = await request
-                .get(`/4_0_0/Practitioner?id=0,1679033641&_sort=id&_streamResponse=1&_format=${fhirContentTypes.csv}`)
+                .get(`/4_0_0/Practitioner?id=0,1679033641&_sort=id&_format=${fhirContentTypes.csv}`)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedPractitionerCsv);
