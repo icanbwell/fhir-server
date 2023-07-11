@@ -25,7 +25,7 @@ function hasJsonMimeTypeInFormatQuery({query}) {
 function hasJsonMimeTypeInAcceptsHeader({req}) {
     // https://www.npmjs.com/package/accepts
     const acceptHeader = accepts(req);
-    return acceptHeader.type(jsonMimeTypes) === false ? false : true;
+    return acceptHeader.type(jsonMimeTypes) !== false;
 }
 
 /**

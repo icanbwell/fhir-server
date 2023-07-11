@@ -1072,7 +1072,8 @@ class SearchManager {
         const fhirWriter = this.fhirResourceWriterFactory.createResourceWriter(
             {
                 accepts: accepts,
-                signal: ac.signal
+                signal: ac.signal,
+                format: parsedArgs.get('_format') ? parsedArgs.get('_format').queryParameterValue.value : undefined
             }
         );
 
