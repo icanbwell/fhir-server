@@ -20,11 +20,9 @@ class AdminLogManager {
                  */
                 const client = new MongoClient(accessLogsMongoConfig.connection, accessLogsMongoConfig.options);
 
-                const accessLogsCollectionName = env.ACCESS_LOGS_COLLECTION_NAME ? String(env.ACCESS_LOGS_COLLECTION_NAME) : ACCESS_LOGS_COLLECTION_NAME;
-
                 const accessLogsDb = client.db(accessLogsMongoConfig.db_name);
 
-                const accessLogsCollection = accessLogsDb.collection(accessLogsCollectionName);
+                const accessLogsCollection = accessLogsDb.collection(ACCESS_LOGS_COLLECTION_NAME);
 
                 const result = await accessLogsCollection.find({ 'meta.id': { $eq: id } }).toArray();
                 logInfo('', { result });

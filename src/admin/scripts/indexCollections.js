@@ -64,6 +64,7 @@ async function main() {
  * Command: node -r dotenv/config src/admin/scripts/indexCollections --dropExtraIndexesOnly
  * Command: node -r dotenv/config src/admin/scripts/indexCollections --dropExtraIndexesOnly --collections=all
  * Command: node -r dotenv/config src/admin/scripts/indexCollections --audit --synchronize
+ * Command: node -r dotenv/config src/admin/scripts/indexCollections --accessLogs --synchronize
  * Command: node -r dotenv/config src/admin/scripts/indexCollections --collections=AuditEvent_4_0_0 --drop --audit --includeHistoryCollections
  * Command: node -r dotenv/config src/admin/scripts/indexCollections --collections=AuditEvent_4_0_0 --drop --audit --includeHistoryCollections
  * collection can be a regex

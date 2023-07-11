@@ -127,7 +127,7 @@ class FhirLogger {
                 dbName: accessLogsMongoConfig.db_name,
                 name: ACCESS_LOGS_COLLECTION_NAME,
                 expireAfterSeconds: env.ACCESS_LOGS_EXPIRE_TIME ? Number(env.ACCESS_LOGS_EXPIRE_TIME) : 30 * 24 * 60 * 60,
-                collection: env.ACCESS_LOGS_COLLECTION_NAME ? String(env.ACCESS_LOGS_COLLECTION_NAME) : 'access_logs',
+                collection: ACCESS_LOGS_COLLECTION_NAME,
                 format: winston.format.metadata({ fillExcept: ['message', 'level', 'timestamp'] })
             });
 

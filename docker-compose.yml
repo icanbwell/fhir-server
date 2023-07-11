@@ -43,7 +43,7 @@ services:
             LOG_EXCLUDE_RESOURCES: 'Person,Patient'
             STREAM_RESPONSE: '1'
             ENABLE_MONGODB_ACCESS_LOGS: '1'
-            ACCESS_LOGS_COLLECTION_NAME: 'access_logs'
+            ACCESS_LOGS_COLLECTION_NAME: 'access-logs'
             LOG_STREAM_STEPS: '0'
             ENABLE_EVENTS_KAFKA: '1'
             ENABLE_KAFKA_HEALTHCHECK: '1'
