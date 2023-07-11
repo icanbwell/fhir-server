@@ -119,7 +119,7 @@ class ResourcePreparerTransform extends Transform {
                                 if (isTrue(env.LOG_STREAM_STEPS)) {
                                     logInfo(`ResourcePreparerTransform: push ${resource['id']}`, {});
                                 }
-                                this.push(resource);
+                                this.push(resource.toJSON());
                                 this.resourcesProcessed.push(
                                     resource
                                 );
