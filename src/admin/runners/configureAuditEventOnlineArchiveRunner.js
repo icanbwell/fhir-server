@@ -89,7 +89,7 @@ class ConfigureAuditEventOnlineArchiveRunner extends BaseScriptRunner {
         const auditEventClient = await this.mongoDatabaseManager.createClientAsync(auditEventConfig);
         // Creating a db instance for audit event cluster
         const auditEventDatabase = auditEventClient.db(auditEventConfig.db_name);
-        this.adminLogger.logInfo(`Db instance created, database name = ${auditEventConfig.db_name} `);
+        await this.adminLogger.logInfo(`Db instance created, database name = ${auditEventConfig.db_name} `);
 
         // If collection name has been passed from shell tha filter only the audit event collections
         // else get all collection names from audit event cluster database.
@@ -98,7 +98,7 @@ class ConfigureAuditEventOnlineArchiveRunner extends BaseScriptRunner {
             await this.mongoCollectionManager.getAllCollectionNames({db: auditEventDatabase});
 
         const collectionNames = this.filterAuditEventCollections(allCollectionNames);
-        this.adminLogger.logInfo(`The list of collections to be created on audit event online archive are ${collectionNames}`);
+        await this.adminLogger.logInfo(`The list of collections to be created on audit event online archive are ${collectionNames}`);
 
         for (const collectionName of collectionNames) {
             await this.createCollection({
