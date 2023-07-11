@@ -88,7 +88,7 @@ class FhirRequestInfo {
          */
         this.body = body;
         /**
-         * @type {string | null}
+         * @type {string[] | null}
          */
         this.accept = accept;
         /**

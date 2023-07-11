@@ -11,13 +11,9 @@ const {pipeline} = require('stream/promises');
 const {ResourcePreparerTransform} = require('../streaming/resourcePreparerTransform');
 const {Transform} = require('stream');
 const {IndexHinter} = require('../../indexes/indexHinter');
-const {FhirBundleWriter} = require('../streaming/fhirBundleWriter');
 const {HttpResponseWriter} = require('../streaming/responseWriter');
 const {ResourceIdTracker} = require('../streaming/resourceIdTracker');
 const {ObjectChunker} = require('../streaming/objectChunker');
-const {fhirContentTypes} = require('../../utils/contentTypes');
-const {FhirResourceWriter} = require('../streaming/fhirResourceWriter');
-const {FhirResourceNdJsonWriter} = require('../streaming/fhirResourceNdJsonWriter');
 const {DatabaseQueryFactory} = require('../../dataLayer/databaseQueryFactory');
 const {ResourceLocatorFactory} = require('../common/resourceLocatorFactory');
 const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
@@ -35,7 +31,8 @@ const {ScopesManager} = require('../security/scopesManager');
 const {convertErrorToOperationOutcome} = require('../../utils/convertErrorToOperationOutcome');
 const {GetCursorResult} = require('./getCursorResult');
 const {QueryItem} = require('../graph/queryItem');
-const { DatabaseAttachmentManager } = require('../../dataLayer/databaseAttachmentManager');
+const {DatabaseAttachmentManager} = require('../../dataLayer/databaseAttachmentManager');
+const {FhirResourceWriterFactory} = require('../streaming/resourceWriters/fhirResourceWriterFactory');
 
 class SearchManager {
     /**
@@ -51,6 +48,7 @@ class SearchManager {
      * @param {PersonToPatientIdsExpander} personToPatientIdsExpander
      * @param {ScopesManager} scopesManager
      * @param {DatabaseAttachmentManager} databaseAttachmentManager
+     * @param {FhirResourceWriterFactory} fhirResourceWriterFactory
      */
     constructor(
         {
@@ -64,7 +62,8 @@ class SearchManager {
             queryRewriterManager,
             personToPatientIdsExpander,
             scopesManager,
-            databaseAttachmentManager
+            databaseAttachmentManager,
+            fhirResourceWriterFactory
         }
     ) {
         /**
@@ -126,8 +125,15 @@ class SearchManager {
          */
         this.databaseAttachmentManager = databaseAttachmentManager;
         assertTypeEquals(databaseAttachmentManager, DatabaseAttachmentManager);
+
+        /**
+         * @type {FhirResourceWriterFactory}
+         */
+        this.fhirResourceWriterFactory = fhirResourceWriterFactory;
+        assertTypeEquals(fhirResourceWriterFactory, FhirResourceWriterFactory);
     }
 
+    // noinspection ExceptionCaughtLocallyJS
     /**
      * constructs a mongo query
      * @param {string | null} user
@@ -525,7 +531,7 @@ class SearchManager {
             });
             return await this.personToPatientIdsExpander.getPatientIdsFromPersonAsync({
                 databaseQueryManager,
-                personIds: [ personIdFromJwtToken ],
+                personIds: [personIdFromJwtToken],
                 totalProcessedPersonIds: new Set(),
                 level: 1
             });
@@ -906,7 +912,6 @@ class SearchManager {
 
     /**
      * Reads resources from Mongo cursor and writes to response
-     * @type {object}
      * @param {DatabasePartitionedCursor} cursor
      * @param {string|null} requestId
      * @param {string | null} url
@@ -917,133 +922,29 @@ class SearchManager {
      * @param {ParsedArgs|null} parsedArgs
      * @param {string} resourceType
      * @param {boolean} useAccessIndex
+     * @param {string[]|null} accepts
      * @param {number} batchObjectCount
-     * @returns {Promise<string[]>}
-     */
-    async streamBundleFromCursorAsync(
-        {
-            requestId,
-            cursor,
-            url,
-            fnBundle,
-            res, user, scope,
-            parsedArgs, resourceType,
-            useAccessIndex,
-            batchObjectCount,
-            defaultSortId
-        }
-    ) {
-        assertIsValid(requestId);
-        /**
-         * @type {AbortController}
-         */
-        const ac = new AbortController();
-
-        /**
-         * @type {FhirBundleWriter}
-         */
-        const fhirBundleWriter = new FhirBundleWriter({fnBundle, url, signal: ac.signal, defaultSortId: defaultSortId});
-
-        /**
-         * @type {{id: string[]}}
-         */
-        const tracker = {
-            id: []
-        };
-
-        function onResponseClose() {
-            ac.abort();
-        }
-
-        // if response is closed then abort the pipeline
-        res.on('close', onResponseClose);
-
-        /**
-         * @type {HttpResponseWriter}
-         */
-        const responseWriter = new HttpResponseWriter(
-            {
-                requestId, response: res, contentType: 'application/fhir+json', signal: ac.signal
-            }
-        );
-
-        const resourcePreparerTransform = new ResourcePreparerTransform(
-            {
-                user, scope, parsedArgs, resourceType, useAccessIndex, signal: ac.signal,
-                resourcePreparer: this.resourcePreparer
-            }
-        );
-        const resourceIdTracker = new ResourceIdTracker({tracker, signal: ac.signal});
-
-        const objectChunker = new ObjectChunker({chunkSize: batchObjectCount, signal: ac.signal});
-
-        try {
-            const readableMongoStream = createReadableMongoStream({
-                cursor, signal: ac.signal, databaseAttachmentManager: this.databaseAttachmentManager
-            });
-            // readableMongoStream.on('close', () => {
-            //     // logInfo('Mongo read stream was closed');
-            //     // ac.abort();
-            // });
-            // https://nodejs.org/docs/latest-v16.x/api/stream.html#streams-compatibility-with-async-generators-and-async-iterators
-            await pipeline(
-                readableMongoStream,
-                objectChunker,
-                resourcePreparerTransform,
-                resourceIdTracker,
-                fhirBundleWriter,
-                responseWriter
-            );
-        } catch (e) {
-            logError('', {user, error: e});
-            ac.abort();
-            throw new RethrownError({
-                message: `Error reading resources for ${resourceType} with query: ${mongoQueryStringify(cursor.getQuery())}`,
-                error: e
-            });
-        } finally {
-            res.removeListener('close', onResponseClose);
-        }
-        if (!res.writableEnded) {
-            res.end();
-        }
-        return tracker.id;
-    }
-
-    /**
-     * Reads resources from Mongo cursor and writes to response
-     * @param {DatabasePartitionedCursor} cursor
-     * @param {string|null} requestId
-     * @param {import('http').ServerResponse} res
-     * @param {string | null} user
-     * @param {string | null} scope
-     * @param {ParsedArgs|null} parsedArgs
-     * @param {string} resourceType
-     * @param {boolean} useAccessIndex
-     * @param {string} contentType
-     * @param {number} batchObjectCount
+     * @param {string} defaultSortId
      * @returns {Promise<string[]>} ids of resources streamed
      */
     async streamResourcesFromCursorAsync(
         {
             requestId,
             cursor,
+            url,
+            fnBundle,
             res,
             user,
             scope,
             parsedArgs,
             resourceType,
             useAccessIndex,
-            contentType = 'application/fhir+json',
-            batchObjectCount = 1
+            accepts,
+            batchObjectCount = 1,
+            defaultSortId
         }
     ) {
         assertIsValid(requestId);
-        /**
-         * @type {boolean}
-         */
-        const useJson = contentType !== fhirContentTypes.ndJson;
-
         /**
          * @type {{id: *[]}}
          */
@@ -1064,18 +965,26 @@ class SearchManager {
         res.on('close', onResponseClose);
 
         /**
-         * @type {FhirResourceWriter|FhirResourceNdJsonWriter}
+         * @type {FhirResourceWriterBase}
          */
-        const fhirWriter = useJson ?
-            new FhirResourceWriter({signal: ac.signal}) :
-            new FhirResourceNdJsonWriter({signal: ac.signal});
+        const fhirWriter = this.fhirResourceWriterFactory.createResourceWriter(
+            {
+                accepts: accepts,
+                signal: ac.signal,
+                format: parsedArgs['_format'],
+                url,
+                bundle: parsedArgs['_bundle'],
+                fnBundle,
+                defaultSortId
+            }
+        );
 
         /**
          * @type {HttpResponseWriter}
          */
         const responseWriter = new HttpResponseWriter(
             {
-                requestId, response: res, contentType, signal: ac.signal
+                requestId, response: res, contentType: fhirWriter.getContentType(), signal: ac.signal
             }
         );
         /**
@@ -1218,7 +1127,8 @@ class SearchManager {
     /**
      * @description Validates that all the required parameters for AuditEvent are present in parsedArgs
      * @param {ParsedArgs} parsedArgs
-    */
+     * @param {string[]|null} requiredFiltersForAuditEvent
+     */
     auditEventValidateRequiredFilters(parsedArgs, requiredFiltersForAuditEvent) {
         if (requiredFiltersForAuditEvent && requiredFiltersForAuditEvent.length > 0) {
             if (requiredFiltersForAuditEvent.filter(r => parsedArgs[`${r}`]).length === 0) {
