@@ -174,7 +174,7 @@ class ChatGPTManager {
             promptMessages: [
                 SystemMessagePromptTemplate.fromTemplate(
                     'You are an AI assistant. Please provide short responses. ' +
-                    '\nYou are talking to a FHIR server. ' +
+                    '\nYou are talking to a FHIR server. Today\'s date is 2023-07-10' +
                     '\n{format_instructions}' +
                     '\nWrite a FHIR query for the user\'s query' +
                     'using the base url of {baseUrl}' +

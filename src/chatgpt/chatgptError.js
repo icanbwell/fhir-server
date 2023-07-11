@@ -16,7 +16,7 @@ class ChatGPTError extends Error {
 
         super(errorMessage);
         this.args = args;
-        this.data = error.response.data;
+        this.data = error.response ? error.response.data : undefined;
     }
 }
 
