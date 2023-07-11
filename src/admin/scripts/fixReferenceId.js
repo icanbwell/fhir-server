@@ -12,7 +12,6 @@ const {createContainer} = require('../../createContainer');
 const {CommandLineParser} = require('./commandLineParser');
 const {AdminLogger} = require('../adminLogger');
 const {FixReferenceIdRunner} = require('../runners/fixReferenceIdRunner');
-const referenceCollections = require('../utils/referenceCollections.json');
 
 const proaResources = [
     'AllergyIntolerance', 'Claim', 'ClaimResponse', 'Communication', 'Condition', 'Coverage',
@@ -66,7 +65,7 @@ async function main() {
 
     const adminLogger = new AdminLogger();
 
-    adminLogger.logInfo(`[${currentDateTime}] Running script for collections: ${collections.join(',')}`);
+    adminLogger.logInfo(`[${currentDateTime}] Running script for collections: ${proaCollections.join(',')}`);
 
     // set up all the standard services in the container
     const container = createContainer();
@@ -88,7 +87,6 @@ async function main() {
                 startFromCollection: parameters.startFromCollection,
                 resourceLocatorFactory: c.resourceLocatorFactory,
                 proaCollections,
-                referenceCollections,
                 limit: parameters.limit,
                 properties,
                 resourceMerger: c.resourceMerger,

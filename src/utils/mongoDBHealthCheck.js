@@ -7,7 +7,7 @@ const {VERSIONS} = require('../middleware/fhir/utils/constants');
     /**
      * Makes a simple DB query to validate mongoDB connection
      * @param container
-     * @return {Promise<boolean>
+     * @return {Promise<boolean>}
      */
 module.exports.handleHealthCheckQuery = async (container) => {
     let healthy = true;

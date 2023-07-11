@@ -20,6 +20,7 @@ const { mongoQueryStringify } = require('../../utils/mongoQueryStringify');
 const { ObjectId } = require('mongodb');
 const { searchParameterQueries } = require('../../searchParameters/searchParameters');
 const { SecurityTagSystem } = require('../../utils/securityTagSystem');
+const referenceCollections = require('../utils/referenceCollections.json');
 
 /**
  * @classdesc Finds proa resources whose id needs to be changed and changes the id along with its references
@@ -41,7 +42,6 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
      * @param {string|undefined} [startFromCollection]
      * @param {ResourceLocatorFactory} resourceLocatorFactory
      * @param {string[]} proaCollections
-     * @param {Object} referenceCollections
      * @param {number|undefined} [limit]
      * @param {string[]|undefined} [properties]
      * @param {ResourceMerger} resourceMerger
@@ -66,7 +66,6 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
             startFromCollection,
             resourceLocatorFactory,
             proaCollections,
-            referenceCollections,
             limit,
             properties,
             resourceMerger,
@@ -168,11 +167,6 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
         assertTypeEquals(resourceMerger, ResourceMerger);
 
         /**
-         * @type {Object}
-         */
-        this.referenceCollections = referenceCollections;
-
-        /**
          * caches currentReference with newReference collectionWise
          * @type {Map<string, Map<string, string>>}
          */
@@ -260,11 +254,28 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
     async updateReferenceAsync(reference, databaseQueryFactory) {
         try {
             assertTypeEquals(databaseQueryFactory, DatabaseQueryFactory);
-            if (!reference.reference) {
+            if (!reference || !reference.reference) {
                 return reference;
             }
 
-            const { resourceType, id } = ReferenceParser.parseReference(reference._sourceId);
+            // current reference with id
+            let currentReference = reference._sourceId;
+
+            if (!currentReference) {
+                if (reference.extension) {
+                    reference.extension.forEach(element => {
+                        if (element.url === IdentifierSystem.sourceId && element.valueString) {
+                            currentReference = element.valueString;
+                        }
+                    });
+                }
+
+                if (!currentReference) {
+                    currentReference = reference.reference;
+                }
+            }
+
+            const { resourceType, id } = ReferenceParser.parseReference(currentReference);
             if (!resourceType) {
                 return reference;
             }
@@ -298,8 +309,6 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
              */
             let foundInCache = false;
 
-            // create current reference with id
-            const currentReference = reference._sourceId;
             const uuidReference = reference._uuid;
 
             // check if the current reference is present in cache if present then replace it
@@ -352,7 +361,7 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
             this.adminLogger.logError(e.message, {stack: e.stack});
             throw new RethrownError(
                 {
-                    message: 'Error processing reference',
+                    message: `Error processing reference ${e.message}`,
                     error: e,
                     args: {
                         reference
@@ -501,7 +510,7 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
         } catch (e) {
             throw new RethrownError(
                 {
-                    message: 'Error processing record',
+                    message: `Error processing record ${e.message}`,
                     error: e,
                     args: {
                         resource: doc
@@ -509,6 +518,40 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
                     source: 'FixReferenceIdRunner.processRecordAsync'
                 }
             );
+        }
+    }
+
+    /**
+     * Caches references and ids of the resources whose ids need to changed
+     * @param {{connection: string, db_name: string, options: import('mongodb').MongoClientOptions}} mongoConfig
+     * @returns {Promise<void>}
+     */
+    async preloadReferencesAsync({mongoConfig}) {
+        const cacheCollectionReferences = async (proaCollection) => {
+            this.adminLogger.logInfo(`Caching collection references: ${proaCollection}`);
+
+            await this.cacheReferencesAsync({
+                mongoConfig,
+                collectionName: proaCollection
+            });
+
+            const count = this.getCacheForReference({ collectionName: proaCollection }).size;
+
+            this.adminLogger.logInfo(`Done caching collection references: ${proaCollection}: ${count}`);
+        };
+
+        // Cache collection ids in async promises since they are IO heavy
+        let promises = [];
+        const chunkSize = 3;
+        for (let i = 0; i < this.proaCollections.length; i += chunkSize) {
+            const chunk = this.proaCollections.slice(i, i + chunkSize);
+            if (chunk.length) {
+                this.adminLogger.logInfo(`Started caching references of collections ${chunk.join(',')}`);
+                promises.push(...chunk.map(proaCollection => cacheCollectionReferences(proaCollection)));
+                await Promise.all(promises);
+                this.adminLogger.logInfo(`Completed caching references of collections ${chunk.join(',')}`);
+                promises = [];
+            }
         }
     }
 
@@ -543,32 +586,7 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
              */
             const mongoConfig = await this.mongoDatabaseManager.getClientConfigAsync();
 
-            const cacheCollectionReferences = async (proaCollection) => {
-                this.adminLogger.logInfo(`Caching collection references: ${proaCollection}`);
-
-                await this.cacheReferencesAsync({
-                    mongoConfig,
-                    collectionName: proaCollection
-                });
-
-                const count = this.getCacheForReference({ collectionName: proaCollection }).size;
-
-                this.adminLogger.logInfo(`Done caching collection references: ${proaCollection}: ${count}`);
-            };
-
-            // Cache collection ids in async promises since they are IO heavy
-            let promises = [];
-            const chunkSize = 3;
-            for (let i = 0; i < this.proaCollections.length; i += chunkSize) {
-                const chunk = this.proaCollections.slice(i, i + chunkSize);
-                if (chunk.length) {
-                    this.adminLogger.logInfo(`Started caching references of collections ${chunk.join(',')}`);
-                    promises.push(...chunk.map(proaCollection => cacheCollectionReferences(proaCollection)));
-                    await Promise.all(promises);
-                    this.adminLogger.logInfo(`Completed caching references of collections ${chunk.join(',')}`);
-                    promises = [];
-                }
-            }
+            await this.preloadReferencesAsync({ mongoConfig });
 
             try {
                 const mainCollectionsList = this.collections.filter(coll => !coll.endsWith('_History')).sort();
@@ -596,7 +614,7 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
 
                     // to store all the reference field names of the resource
                     /**
-                     * @type {Set<String>}
+                     * @type {Set<Object>}
                      */
                     let referenceFieldNames = new Set();
 
@@ -623,7 +641,7 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
                         // check which resources can be referenced by the current resource and
                         // create array of references that can be present in the resource
                         for (let key of this.caches.keys()) {
-                            if (this.referenceCollections[String(key)] && this.referenceCollections[String(key)].includes(resourceName)) {
+                            if (referenceCollections[String(key)] && referenceCollections[String(key)].includes(resourceName)) {
                                 const references = Array.from(this.caches.get(key), value => value[0]);
                                 if (references.length) {
                                     referenceArray.push(...references);
@@ -702,7 +720,7 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
                                 this.adminLogger.logError(`Got error ${e}.  At ${this.startFromIdContainer.startFromId}`);
                                 throw new RethrownError(
                                     {
-                                        message: `Error processing references of collection ${collectionName}`,
+                                        message: `Error processing references of collection ${collectionName} ${e.message}`,
                                         error: e,
                                         args: {
                                             query
@@ -789,7 +807,7 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
                             this.adminLogger.logError(`Got error ${e}.  At ${this.startFromIdContainer.startFromId}`);
                             throw new RethrownError(
                                 {
-                                    message: `Error processing ids of collection ${collectionName}`,
+                                    message: `Error processing ids of collection ${collectionName} ${e.message}`,
                                     error: e,
                                     args: {
                                         query
@@ -995,7 +1013,7 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
             console.log(e);
             throw new RethrownError(
                 {
-                    message: `Error caching references for collection ${collectionName}`,
+                    message: `Error caching references for collection ${collectionName}, ${e.message}`,
                     error: e,
                     source: 'FixReferenceIdRunner.cacheReferencesAsync'
                 }

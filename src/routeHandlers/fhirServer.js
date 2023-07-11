@@ -3,7 +3,6 @@
  */
 
 const compression = require('compression');
-const bodyParser = require('body-parser');
 const env = require('var');
 const {htmlRenderer} = require('../middleware/htmlRenderer');
 const {isTrue} = require('../utils/isTrue');
@@ -89,7 +88,7 @@ class MyFHIRServer {
         const allowedContentTypes = ['application/fhir+json', 'application/json+fhir', 'application/json-patch+json'];
 
         // reject any requests that don't have correct content type
-        this.app.use(function (req, res, next) {
+        this.app.use((req, res, next) => {
             // if methods are for GET or DELETE then no need to check content-type
             if (req.method && (req.method.toLowerCase() === 'get' || req.method.toLowerCase() === 'delete')) {
                 next();
@@ -125,14 +124,14 @@ class MyFHIRServer {
 
         // Enable the body parser
         this.app.use(
-            bodyParser.urlencoded({
+            express.urlencoded({
                 extended: true,
                 limit: '50mb',
                 parameterLimit: 50000,
             })
         );
         this.app.use(
-            bodyParser.json({
+            express.json({
                 type: allowedContentTypes,
                 limit: '50mb',
             })

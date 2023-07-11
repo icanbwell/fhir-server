@@ -9,6 +9,8 @@ services:
             dockerfile: Dockerfile
             args:
                 NODE_ENV: development
+        env_file:
+          - .env
         environment:
             SERVER_PORT: 3000
             MONGO_DB_NAME: fhir
@@ -61,6 +63,7 @@ services:
             WHITELIST: "https://embeddable-sandbox.cdn.apollographql.com"
             GRIDFS_RESOURCES: "DocumentReference"
             ENABLE_ACCESS_TAG_UPDATE: '0'
+            DD_TRACE_ENABLED: 'False'
         ports:
             - '3000:3000'
         volumes:

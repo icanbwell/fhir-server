@@ -73,8 +73,12 @@ class FhirResponseWriter {
      * @param {import('express').Response} res - Express response object
      * @param {Resource|Object} result - json to send to client
      */
-    everything({req, res}) {
+    everything({req, res, result}) {
         this.setBaseResponseHeaders({req, res});
+        // don't write if we're streaming the response
+        if (!res.headersSent) {
+            res.status(200).json(result);
+        }
     }
 
     /**
@@ -110,10 +114,10 @@ class FhirResponseWriter {
         if (req.id && !res.headersSent) {
             res.setHeader('X-Request-ID', String(httpContext.get(REQUEST_ID_TYPE.USER_REQUEST_ID)));
         }
-        if (!resource) {
-            res.sendStatus(404);
-        } else {
+        if (resource) {
             res.status(200).json(resource);
+        } else {
+            res.sendStatus(404);
         }
     }
 
@@ -229,7 +233,7 @@ class FhirResponseWriter {
      * @param {import('http').IncomingMessage} req - Express request object
      * @param {import('express').Response} res - Express response object
      */
-    setBaseResponseHeaders({ req, res }) {
+    setBaseResponseHeaders({req, res}) {
         if (!res.headersSent) {
             let fhirVersion = req.params.base_version;
             res.type(this.getContentType(fhirVersion));
