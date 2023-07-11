@@ -5,6 +5,8 @@ const {createReadStream, createWriteStream} = require('fs');
 const path = require('path');
 const {Readable} = require('stream');
 const practitionerResource = require('./fixtures/practitioner/practitioner.json');
+const practitionerResource2 = require('./fixtures/practitioner/practitioner2.json');
+const practitionerResource3 = require('./fixtures/practitioner/practitioner3.json');
 const {FhirResourceCsvWriter} = require('../../../operations/streaming/resourceWriters/fhirResourceCsvWriter');
 const {fhirContentTypes} = require('../../../utils/contentTypes');
 
@@ -101,6 +103,34 @@ describe('JSON 2 CSV', () => {
             read() {
                 // Push your object(s) to the stream
                 this.push(practitionerResource);
+                this.push(null); // Signal the end of the stream
+            }
+        });
+
+        /**
+         * @type {AbortController}
+         */
+        const ac = new AbortController();
+
+        const parser = new FhirResourceCsvWriter({
+            signal: ac.signal,
+            delimiter: ',',
+            contentType: fhirContentTypes.csv
+        });
+        const processor = objectReadableStream.pipe(parser).pipe(output);
+        await new Promise(fulfill => processor.on('finish', fulfill));
+    });
+    test('json2csv tests with multiple rows with FhirCsvResoureWriter Transform in objectMode', async () => {
+        const outputPath = path.resolve(__dirname, './fixtures/practitioner/practitioner_out.json');
+        const output = createWriteStream(outputPath, {encoding: 'utf8'});
+
+        const objectReadableStream = new Readable({
+            objectMode: true,
+            read() {
+                // Push your object(s) to the stream
+                this.push(practitionerResource);
+                this.push(practitionerResource2);
+                this.push(practitionerResource3);
                 this.push(null); // Signal the end of the stream
             }
         });
