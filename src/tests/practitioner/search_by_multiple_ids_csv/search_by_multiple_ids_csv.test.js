@@ -7,7 +7,7 @@ const {
     commonBeforeEach,
     commonAfterEach,
     getHeaders,
-    createTestRequest, getHeadersCsv, getHeadersCsvFormUrlEncoded,
+    createTestRequest, getHeadersCsv, getHeadersCsvFormUrlEncoded, getHtmlHeaders,
 } = require('../../common');
 const {describe, beforeEach, afterEach, expect, test} = require('@jest/globals');
 const path = require('path');
@@ -149,6 +149,51 @@ describe('PractitionerReturnIdTests', () => {
             resp = await request
                 .get(`/4_0_0/Practitioner?id=0,1679033641&_sort=id&_format=${fhirContentTypes.csv}`)
                 .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedPractitionerCsv);
+        });
+        test('search by multiple id works with _format parameter from browser', async () => {
+            const request = await createTestRequest();
+            let resp = await request
+                .get(`/4_0_0/Practitioner?_format=${fhirContentTypes.csv}`)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResourceCount(0);
+
+            resp = await request
+                .post('/4_0_0/Practitioner/1679033641/$merge')
+                .send(practitionerResource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
+
+            resp = await request
+                .post('/4_0_0/Practitioner/0/$merge')
+                .send(practitionerResource2)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
+
+            resp = await request
+                .post('/4_0_0/Practitioner/1/$merge')
+                .send(practitionerResource3)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
+
+            resp = await request
+                .get(`/4_0_0/Practitioner?_format=${fhirContentTypes.csv}`)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResourceCount(3);
+
+            const expectedPractitionerCsv = fs.readFileSync(
+                path.resolve(__dirname, './fixtures/expected/expected_practitioner.csv'),
+                'utf8'
+            );
+            resp = await request
+                .get(`/4_0_0/Practitioner?id=0,1679033641&_sort=id&_format=${fhirContentTypes.csv}`)
+                .set(getHtmlHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedPractitionerCsv);
         });
