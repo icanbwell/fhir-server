@@ -368,7 +368,7 @@ class DatabasePartitionedCursor {
     }
 
     /**
-     * @return {import('mongodb').Document[]}
+     * @return {Promise<import('mongodb').Document[]>}
      */
     async explainAsync() {
         try {
