@@ -28,4 +28,25 @@ describe('JSON 2 CSV', () => {
         const processor = input.pipe(parser).pipe(output);
         await new Promise(fulfill => processor.on('finish', fulfill));
     });
+    test('json2csv tests with custom Transform', async () => {
+        class MyTransform extends Transform {
+            constructor() {
+                const opts = {
+                    transforms: [
+                        flatten({objects: true, arrays: true, separator: '_'}),
+                    ]
+                };
+                super(opts);
+            }
+        }
+
+        const inputPath = path.resolve(__dirname, './fixtures/practitioner/practitioner.json');
+        const outputPath = path.resolve(__dirname, './fixtures/practitioner/practitioner_out.json');
+        const input = createReadStream(inputPath, {encoding: 'utf8'});
+        const output = createWriteStream(outputPath, {encoding: 'utf8'});
+
+        const parser = new MyTransform();
+        const processor = input.pipe(parser).pipe(output);
+        await new Promise(fulfill => processor.on('finish', fulfill));
+    });
 });
