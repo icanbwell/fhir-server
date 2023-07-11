@@ -1,14 +1,14 @@
 const {BaseScriptRunner} = require('./baseScriptRunner');
 const env = require('var');
-const request = require('request');
+const request = require('superagent');
 
 class ConfigureAuditEventOnlineArchiveRunner extends BaseScriptRunner {
     constructor({
-        mongoDatabaseManager,
-        mongoCollectionManager,
-        adminLogger,
-        collections
-    }) {
+                    mongoDatabaseManager,
+                    mongoCollectionManager,
+                    adminLogger,
+                    collections
+                }) {
         super({
             mongoCollectionManager: mongoCollectionManager,
             adminLogger: adminLogger,
@@ -62,14 +62,21 @@ class ConfigureAuditEventOnlineArchiveRunner extends BaseScriptRunner {
             json: data
         };
         return new Promise((resolve, reject) => {
-            // eslint-disable-next-line no-unused-vars
-            request(options, (error, response, body) => {
-                if (response.statusCode === 200) {
-                    resolve(response);
-                } else {
-                    reject(response);
-                }
-            });
+            request
+                .post(options.url)
+                .auth(options.auth.username, options.auth.password)
+                .set(options.headers)
+                .send(options.body)
+                .then((response) => {
+                    if (response.status === 200) {
+                        resolve(response);
+                    } else {
+                        reject(response);
+                    }
+                })
+                .catch((error) => {
+                    reject(error);
+                });
         });
     }
 
