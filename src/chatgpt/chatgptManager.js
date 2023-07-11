@@ -4,7 +4,12 @@ const {MemoryVectorStore} = require('langchain/vectorstores/memory');
 const {ConsoleCallbackHandler} = require('langchain/callbacks');
 const {LLMChainExtractor} = require('langchain/retrievers/document_compressors/chain_extract');
 const {ContextualCompressionRetriever} = require('langchain/retrievers/contextual_compression');
-const {PromptTemplate} = require('langchain/prompts');
+const {
+    PromptTemplate,
+    ChatPromptTemplate,
+    SystemMessagePromptTemplate,
+    HumanMessagePromptTemplate
+} = require('langchain/prompts');
 const {RetrievalQAChain, loadQAStuffChain, LLMChain} = require('langchain/chains');
 const {ChatGPTError} = require('./chatgptError');
 const {encoding_for_model} = require('@dqbd/tiktoken');
@@ -159,26 +164,30 @@ class ChatGPTManager {
             model,
             outputParser
         );
-        const template = 'You are an AI assistant. Please provide short responses. ' +
-            'You are talking to a FHIR server. ' +
-            '\n{format_instructions}' +
-            '\nDon’t justify your answers. Don’t give information not mentioned in the CONTEXT INFORMATION.' +
-            '\n Write FHIR query for ```{query}``` using the base url of {baseUrl}' +
-            (patientId ? '\n and patient id of {patientId}.' : '');
 
-        // const template = 'Answer the user\'s question as best you can:\n{format_instructions}\n{query}';
         const inputVariables = ['baseUrl', 'query'];
         if (patientId) {
             inputVariables.push('patientId');
         }
-        const prompt = new PromptTemplate({
-            template: template,
+
+        const prompt = new ChatPromptTemplate({
+            promptMessages: [
+                SystemMessagePromptTemplate.fromTemplate(
+                    'You are an AI assistant. Please provide short responses. ' +
+                    '\nYou are talking to a FHIR server. ' +
+                    '\n{format_instructions}' +
+                    '\nWrite a FHIR query for the user\'s query' +
+                    'using the base url of {baseUrl}' +
+                    (patientId ? '\n and patient id of {patientId}.' : '')
+                ),
+                HumanMessagePromptTemplate.fromTemplate('{query}'),
+            ],
             inputVariables: inputVariables,
             partialVariables: {
                 format_instructions: outputFixingParser.getFormatInstructions()
             }
         });
-        // console.log(outputFixingParser.getFormatInstructions());
+
         const chain = new LLMChain(
             {
                 llm: model,
@@ -203,7 +212,7 @@ class ChatGPTManager {
                 return firstField.url;
             }
         } catch (e) {
-            if (e.response.data && e.response.data.error && e.response.data.error.code === 'context_length_exceeded') {
+            if (e.response && e.response.data && e.response.data.error && e.response.data.error.code === 'context_length_exceeded') {
                 throw new ChatGPTContextLengthExceededError({
                     error: e,
                     args: {
