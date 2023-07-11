@@ -1,6 +1,6 @@
 const {Kafka} = require('kafkajs');
 const {assertIsValid} = require('./assertType');
-const {logSystemErrorAsync, logTraceSystemEventAsync} = require('../operations/common/logging');
+const {logSystemErrorAsync, logTraceSystemEventAsync} = require('../operations/common/systemEventLogging');
 const env = require('var');
 const {RethrownError} = require('./rethrownError');
 

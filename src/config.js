@@ -2,6 +2,7 @@
  * Configuration for the app
  */
 const env = require('var');
+const Sentry = require('@sentry/node');
 const {profiles} = require('./profiles');
 
 let mongoUrl = env.MONGO_URL || `mongodb://${env.MONGO_HOSTNAME}:${env.MONGO_PORT}`;
@@ -179,6 +180,8 @@ let fhirServerConfig = {
         level: env.LOGLEVEL,
     },
     errorTracking: {
+        requestHandler: Sentry.Handlers.requestHandler,
+        errorHandler: Sentry.Handlers.errorHandler,
     },
     //
     // If you want to set up conformance statement with security enabled

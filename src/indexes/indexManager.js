@@ -3,7 +3,8 @@
  */
 
 const async = require('async');
-const {logSystemEventAsync, logSystemErrorAsync, logInfo} = require('../operations/common/logging');
+const {logInfo} = require('../operations/common/logging');
+const {logSystemEventAsync, logSystemErrorAsync} = require('../operations/common/systemEventLogging');
 const {assertTypeEquals, assertIsValid} = require('../utils/assertType');
 const {IndexProvider} = require('./indexProvider');
 const {MongoDatabaseManager} = require('../utils/mongoDatabaseManager');

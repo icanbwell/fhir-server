@@ -1,7 +1,8 @@
 const {createApp} = require('./app');
 const {fhirServerConfig} = require('./config');
 const env = require('var');
-const {logError, logInfo, logSystemEventAsync} = require('./operations/common/logging');
+const {logError, logInfo} = require('./operations/common/logging');
+const {logSystemEventAsync} = require('./operations/common/systemEventLogging');
 const http = require('http');
 const { isTrue } = require('./utils/isTrue');
 const {getImageVersion} = require('./utils/getImageVersion');
