@@ -3,9 +3,6 @@ const practitionerResource = require('./fixtures/practitioner/practitioner.json'
 const practitionerResource2 = require('./fixtures/practitioner/practitioner2.json');
 const practitionerResource3 = require('./fixtures/practitioner/practitioner3.json');
 
-// expected
-const expectedPractitionerResource = require('./fixtures/expected/expected_practitioner.json');
-
 const {
     commonBeforeEach,
     commonAfterEach,
@@ -99,11 +96,15 @@ describe('PractitionerReturnIdTests', () => {
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResourceCount(3);
 
+            const expectedPractitionerCsv = fs.readFileSync(
+                path.resolve(__dirname, './fixtures/expected/expected_practitioner.csv'),
+                'utf8'
+            );
             resp = await request
                 .get('/4_0_0/Practitioner?id=0,1679033641&_sort=id&_streamResponse=1')
                 .set(getHeadersCsv());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse(expectedPractitionerResource);
+            expect(resp).toHaveResponse(expectedPractitionerCsv);
         });
         test('search by multiple id works via POST', async () => {
             const request = await createTestRequest();
@@ -128,12 +129,17 @@ describe('PractitionerReturnIdTests', () => {
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveMergeResponse({created: true});
 
+            const expectedPractitionerCsv = fs.readFileSync(
+                path.resolve(__dirname, './fixtures/expected/expected_practitioner.csv'),
+                'utf8'
+            );
+
             resp = await request
                 .post('/4_0_0/Practitioner/_search?_sort=id&_streamResponse=1')
                 .send({id: '0,1679033641'})
                 .set(getHeadersCsv());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse(expectedPractitionerResource);
+            expect(resp).toHaveResponse(expectedPractitionerCsv);
         });
         test('search by multiple id works via POST (x-www-form-urlencoded)', async () => {
             const request = await createTestRequest();
@@ -163,8 +169,12 @@ describe('PractitionerReturnIdTests', () => {
                 .send('id=0,1679033641')
                 .set(getHeadersCsvFormUrlEncoded());
 
+            const expectedPractitionerCsv = fs.readFileSync(
+                path.resolve(__dirname, './fixtures/expected/expected_practitioner.csv'),
+                'utf8'
+            );
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse(expectedPractitionerResource);
+            expect(resp).toHaveResponse(expectedPractitionerCsv);
         });
     });
 });
