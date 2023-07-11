@@ -4,11 +4,13 @@ const sendToS3 = require('../utils/aws-s3');
 const {EventEmitter} = require('events');
 const {
     logVerboseAsync,
-    logSystemErrorAsync,
-    logTraceSystemEventAsync,
     logInfo,
     logError
 } = require('../operations/common/logging');
+const {
+    logSystemErrorAsync,
+    logTraceSystemEventAsync
+} = require('../operations/common/systemEventLogging');
 const {ResourceManager} = require('../operations/common/resourceManager');
 const {PostRequestProcessor} = require('../utils/postRequestProcessor');
 const {MongoCollectionManager} = require('../utils/mongoCollectionManager');

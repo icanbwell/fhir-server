@@ -5,7 +5,7 @@ const {assertIsValid, assertFail} = require('../utils/assertType');
 const async = require('async');
 const {RethrownError} = require('../utils/rethrownError');
 const {partitionedCollectionsCount} = require('../utils/prometheus.utils');
-const {logTraceSystemEventAsync} = require('../operations/common/logging');
+const {logTraceSystemEventAsync} = require('../operations/common/systemEventLogging');
 const BundleEntry = require('../fhir/classes/4_0_0/backbone_elements/bundleEntry');
 const {FhirResourceCreator} = require('../fhir/fhirResourceCreator');
 

@@ -2,10 +2,12 @@
  * 3rd party Error Tracking Middleware
  */
 const process = require('node:process');
+const Sentry = require('@sentry/node');
 const {logInfo, logError} = require('../operations/common/logging');
 
 process.on('uncaughtException', (err) => {
     logError('uncaughtException', { error: err, source: 'uncaughtException' });
+    Sentry.captureException(err);
     // Send signal to be handled by the terminus listener for graceful shutdown
     process.kill(process.pid, 'SIGTERM');
 });
@@ -16,6 +18,7 @@ process.on('unhandledRejection', (reason, promise) => {
             promise: promise,
         },
     });
+    Sentry.captureException(reason);
     // Send signal to be handled by the terminus listener for graceful shutdown
     process.kill(process.pid, 'SIGTERM');
 });
