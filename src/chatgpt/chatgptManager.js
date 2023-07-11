@@ -15,8 +15,6 @@ const {ChatGPTError} = require('./chatgptError');
 const {encoding_for_model} = require('@dqbd/tiktoken');
 const sanitize = require('sanitize-html');
 const {filterXSS} = require('xss');
-const {StructuredOutputParser, OutputFixingParser} = require('langchain/output_parsers');
-const {z} = require('zod');
 const {ChatGPTContextLengthExceededError} = require('./chatgptContextLengthExceededError');
 const {ChatOpenAI} = require('langchain/chat_models/openai');
 
@@ -108,7 +106,7 @@ class ChatGPTManager {
             const res3 = await chain.call(parameters);
             return filterXSS(sanitize(res3.text.replace('<body>', '').replace('</body>', '').replace(/\n/g, '')));
         } catch (e) {
-            if (e.response.data && e.response.data.error && e.response.data.error.code === 'context_length_exceeded') {
+            if (e.response && e.response.data && e.response.data.error && e.response.data.error.code === 'context_length_exceeded') {
                 throw new ChatGPTContextLengthExceededError({
                     error: e,
                     args: {
@@ -139,14 +137,6 @@ class ChatGPTManager {
         // https://js.langchain.com/docs/getting-started/guide-llm
         // https://blog.langchain.dev/going-beyond-chatbots-how-to-make-gpt-4-output-structured-data-using-langchain/
         // https://nathankjer.com/introduction-to-langchain/
-
-        const outputParser = StructuredOutputParser.fromZodSchema(
-            z.object({
-                fields: z.object({
-                    url: z.string().describe('url')
-                })
-            })
-        );
         const model = new ChatOpenAI(
             {
                 openAIApiKey: process.env.OPENAI_API_KEY,
@@ -160,10 +150,6 @@ class ChatGPTManager {
                 verbose: true
             }
         );
-        const outputFixingParser = OutputFixingParser.fromLLM(
-            model,
-            outputParser
-        );
 
         const inputVariables = ['baseUrl', 'query'];
         if (patientId) {
@@ -175,25 +161,21 @@ class ChatGPTManager {
                 SystemMessagePromptTemplate.fromTemplate(
                     'You are an AI assistant. Please provide short responses. ' +
                     '\nYou are talking to a FHIR server. Today\'s date is 2023-07-10' +
-                    '\n{format_instructions}' +
+                    // '\n{format_instructions}' +
                     '\nWrite a FHIR query for the user\'s query' +
-                    'using the base url of {baseUrl}' +
-                    (patientId ? '\n and patient id of {patientId}.' : '')
+                    ' using the base url of {baseUrl}' +
+                    (patientId ? ' and patient id of {patientId}.' : '')
                 ),
                 HumanMessagePromptTemplate.fromTemplate('{query}'),
             ],
             inputVariables: inputVariables,
-            partialVariables: {
-                format_instructions: outputFixingParser.getFormatInstructions()
-            }
         });
 
         const chain = new LLMChain(
             {
                 llm: model,
                 prompt: prompt,
-                outputKey: 'records', // For readability - otherwise the chain output will default to a property named "text"
-                outputParser: outputFixingParser
+                outputKey: 'text', // For readability - otherwise the chain output will default to a property named "text"
             });
 
         // const baseUrl = 'https://fhir.icanbwell.com/4_0_0';
@@ -206,10 +188,8 @@ class ChatGPTManager {
         // Finally run the chain and get the result
         try {
             const result = await chain.call(parameters);
-            if (result.records) {
-                const firstRecord = result.records;
-                const firstField = firstRecord.fields;
-                return firstField.url;
+            if (result.text) {
+                return result.text.replace('GET ', '');
             }
         } catch (e) {
             if (e.response && e.response.data && e.response.data.error && e.response.data.error.code === 'context_length_exceeded') {

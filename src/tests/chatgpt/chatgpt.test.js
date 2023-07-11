@@ -127,7 +127,7 @@ describe('ChatGPT Tests', () => {
                 query: 'Find all patients that are older than 10 years old'
             });
             console.log(result);
-            expect(result).toStrictEqual('https://fhir.icanbwell.com/4_0_0/Condition?code=http://snomed.info/sct|73211009');
+            expect(result).toStrictEqual('https://fhir.icanbwell.com/4_0_0/Patient?birthdate=lt=2013-07-10');
         });
         test('ChatGPT works with English FHIR query for specific patient and structured output', async () => {
             const chatGPTManager = new ChatGPTManager();
@@ -137,6 +137,7 @@ describe('ChatGPT Tests', () => {
                 patientId: 'john-muir-health-e.k-4ea143ZrQGvdUvf-b2y.tdyiVMBWgblY4f6y2zis3'
             });
             console.log(result);
+            expect(result).toStrictEqual('https://fhir.icanbwell.com/4_0_0/Condition?patient=john-muir-health-e.k-4ea143ZrQGvdUvf-b2y.tdyiVMBWgblY4f6y2zis3&code=73211009');
         });
         test('ChatGPT explains a FHIR record', async () => {
             // https://js.langchain.com/docs/getting-started/guide-llm
