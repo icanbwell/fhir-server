@@ -1971,16 +1971,6 @@
     "@jridgewell/resolve-uri" "3.1.0"
     "@jridgewell/sourcemap-codec" "1.4.14"
 
-"@json2csv/cli@^7.0.1":
-  version "7.0.1"
-  resolved "https://registry.npmjs.org/@json2csv/cli/-/cli-7.0.1.tgz"
-  integrity sha512-VS8V2kfnpc6ZtdlzHjBV+u/FCwQDFc7HBv2bezKMNWaMKHRGdmCV1Y21FARD0L6O8e1R3dIlWVBlK27TpaquqA==
-  dependencies:
-    "@json2csv/formatters" "^7.0.1"
-    "@json2csv/node" "^7.0.1"
-    "@json2csv/transforms" "^7.0.1"
-    commander "^10.0.0"
-
 "@json2csv/formatters@^7.0.1":
   version "7.0.1"
   resolved "https://registry.npmjs.org/@json2csv/formatters/-/formatters-7.0.1.tgz"
@@ -4794,13 +4784,6 @@ cssfilter@0.0.10:
   resolved "https://registry.npmjs.org/cssfilter/-/cssfilter-0.0.10.tgz"
   integrity sha512-FAaLDaplstoRsDR8XGYH51znUN0UY7nMc6Z9/fvE8EXGwvJE9hu7W2vHwx1+bd6gCYnln9nLbzxFTrcO9YQDZw==
 
-csv-parser@^3.0.0:
-  version "3.0.0"
-  resolved "https://registry.npmjs.org/csv-parser/-/csv-parser-3.0.0.tgz"
-  integrity sha512-s6OYSXAK3IdKqYO33y09jhypG/bSDHPuyCme/IdEHfWpLf/jKcpitVFyOC6UemgGk8v7Q5u2XE0vvwmanxhGlQ==
-  dependencies:
-    minimist "^1.2.0"
-
 csv42@^4.0.0:
   version "4.0.0"
   resolved "https://registry.npmjs.org/csv42/-/csv42-4.0.0.tgz"
@@ -4922,11 +4905,6 @@ dedent@^0.7.0:
   version "0.7.0"
   resolved "https://registry.npmjs.org/dedent/-/dedent-0.7.0.tgz"
   integrity sha512-Q6fKUPqnAHAyhiUgFU7BUzLiv0kd8saH9al7tnu5Q/okj6dnupxyTgFIBjVzJATdfIAm9NAsvXNzjaKa+bxVyA==
-
-deeks@3.0.0:
-  version "3.0.0"
-  resolved "https://registry.npmjs.org/deeks/-/deeks-3.0.0.tgz"
-  integrity sha512-go4YE5vDMzDNzC9OqK7iIQd6agUUqZdBiw3TD2niRxsKGdGdB1FW8eZdrWsyCRZCNkBjV5Vutcx5uT1AikEPCg==
 
 deep-extend@^0.6.0:
   version "0.6.0"
@@ -5088,11 +5066,6 @@ dir-glob@^3.0.1:
   integrity sha512-WkrWp9GR4KXfKGYzOLmTuGVi1UWFfws377n9cc55/tb6DuqyF6pcQ5AbiHEshaDpY9v6oaSr2XCDidGmMwdzIA==
   dependencies:
     path-type "^4.0.0"
-
-doc-path@4.0.0:
-  version "4.0.0"
-  resolved "https://registry.npmjs.org/doc-path/-/doc-path-4.0.0.tgz"
-  integrity sha512-By/OF7rbws/bgExPZW10gHASoy3sACwXKKpKBIzYk/E19nX8q8IbILbreCeCYAVFIcO9FOxDjFYbm45wvn4I6w==
 
 doctrine@^3.0.0:
   version "3.0.0"
@@ -7611,14 +7584,6 @@ jshint@^2.13.6:
     lodash "~4.17.21"
     minimatch "~3.0.2"
     strip-json-comments "1.0.x"
-
-json-2-csv@^4.0.0:
-  version "4.0.0"
-  resolved "https://registry.npmjs.org/json-2-csv/-/json-2-csv-4.0.0.tgz"
-  integrity sha512-r8WXuuLgVbeufMuCyzUXSp8VP9YK4BTuzM7rTG0X85MPKuHKa8JD6LHrp0rEKVCtBSgHA3LMu/VjrZHx+851DQ==
-  dependencies:
-    deeks "3.0.0"
-    doc-path "4.0.0"
 
 json-buffer@3.0.1:
   version "3.0.1"

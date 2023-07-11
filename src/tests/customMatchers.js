@@ -7,7 +7,6 @@ const moment = require('moment-timezone');
 const {YearMonthPartitioner} = require('../partitioners/yearMonthPartitioner');
 const {ndjsonToJsonText} = require('ndjson-to-json-text');
 const {fhirContentTypes} = require('../utils/contentTypes');
-// const csv = require('csv-parser');
 const {csv2json} = require('csv42');
 
 /**
