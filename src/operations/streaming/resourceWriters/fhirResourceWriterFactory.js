@@ -2,20 +2,48 @@ const {hasNdJsonContentType, fhirContentTypes} = require('../../../utils/content
 const {FhirResourceNdJsonWriter} = require('./fhirResourceNdJsonWriter');
 const {FhirResourceCsvWriter} = require('./fhirResourceCsvWriter');
 const {FhirResourceWriter} = require('./fhirResourceWriter');
+const {assertTypeEquals} = require('../../../utils/assertType');
+const {ConfigManager} = require('../../../utils/configManager');
+const {FhirBundleWriter} = require('./fhirBundleWriter');
 
 class FhirResourceWriterFactory {
+    /**
+     * constructor
+     * @param {ConfigManager} configManager
+     */
+    constructor(
+        {
+            configManager
+        }
+    ) {
+
+        /**
+         * @type {ConfigManager}
+         */
+        this.configManager = configManager;
+        assertTypeEquals(configManager, ConfigManager);
+    }
+
     /**
      * creates resource writer for the Accepts header
      * @param {string[]} accepts
      * @param {AbortSignal} signal
      * @param {string|undefined} format
+     * @param {string} url
+     * @param {boolean} bundle
+     * @param {string} defaultSortId
+     * @param {function (string | null, number): Bundle} fnBundle
      * @return {FhirResourceWriterBase| {getContentType: function()}}
      */
     createResourceWriter(
         {
             accepts,
             signal,
-            format
+            format,
+            url,
+            bundle,
+            defaultSortId,
+            fnBundle
         }
     ) {
         // _format, if present, overrides content type
@@ -24,6 +52,9 @@ class FhirResourceWriterFactory {
                 return new FhirResourceNdJsonWriter({signal: signal, contentType: fhirContentTypes.ndJson});
             }
             if (format === fhirContentTypes.fhirJson) {
+                if (this.configManager.enableReturnBundle || bundle) {
+                    return new FhirBundleWriter({fnBundle, url, signal: signal, defaultSortId: defaultSortId});
+                }
                 return new FhirResourceWriter({signal: signal, contentType: fhirContentTypes.fhirJson});
             }
             if (format === fhirContentTypes.csv) {
@@ -45,6 +76,9 @@ class FhirResourceWriterFactory {
             return new FhirResourceNdJsonWriter({signal: signal, contentType: fhirContentTypes.ndJson});
         }
         if (accepts.includes(fhirContentTypes.fhirJson)) {
+            if (this.configManager.enableReturnBundle || bundle) {
+                return new FhirBundleWriter({fnBundle, url, signal: signal, defaultSortId: defaultSortId});
+            }
             return new FhirResourceWriter({signal: signal, contentType: fhirContentTypes.fhirJson});
         }
         if (accepts.includes(fhirContentTypes.csv)) {
@@ -59,6 +93,9 @@ class FhirResourceWriterFactory {
                 delimiter: '|',
                 contentType: fhirContentTypes.pipeDelimited
             });
+        }
+        if (this.configManager.enableReturnBundle || bundle) {
+            return new FhirBundleWriter({fnBundle, url, signal: signal, defaultSortId: defaultSortId});
         }
         return new FhirResourceWriter({signal: signal, contentType: fhirContentTypes.fhirJson});
     }

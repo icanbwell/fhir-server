@@ -662,7 +662,11 @@ const createContainer = function () {
     }));
 
     container.register('chatgptManager', () => new ChatGPTManager());
-    container.register('fhirResourceWriterFactory', () => new FhirResourceWriterFactory());
+    container.register('fhirResourceWriterFactory', (c) => new FhirResourceWriterFactory(
+        {
+            configManager: c.configManager
+        }
+    ));
 
     return container;
 };

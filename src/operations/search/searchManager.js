@@ -11,7 +11,6 @@ const {pipeline} = require('stream/promises');
 const {ResourcePreparerTransform} = require('../streaming/resourcePreparerTransform');
 const {Transform} = require('stream');
 const {IndexHinter} = require('../../indexes/indexHinter');
-const {FhirBundleWriter} = require('../streaming/resourceWriters/fhirBundleWriter');
 const {HttpResponseWriter} = require('../streaming/responseWriter');
 const {ResourceIdTracker} = require('../streaming/resourceIdTracker');
 const {ObjectChunker} = require('../streaming/objectChunker');
@@ -968,17 +967,17 @@ class SearchManager {
         /**
          * @type {FhirResourceWriterBase}
          */
-        let fhirWriter = this.fhirResourceWriterFactory.createResourceWriter(
+        const fhirWriter = this.fhirResourceWriterFactory.createResourceWriter(
             {
                 accepts: accepts,
                 signal: ac.signal,
-                format: parsedArgs.get('_format') ? parsedArgs.get('_format').queryParameterValue.value : undefined
+                format: parsedArgs['_format'],
+                url,
+                bundle: parsedArgs['_bundle'],
+                fnBundle,
+                defaultSortId
             }
         );
-
-        if (this.configManager.enableReturnBundle || parsedArgs['_bundle']) {
-            fhirWriter = new FhirBundleWriter({fnBundle, url, signal: ac.signal, defaultSortId: defaultSortId});
-        }
 
         /**
          * @type {HttpResponseWriter}
