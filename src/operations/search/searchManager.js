@@ -32,6 +32,8 @@ const {ConfigManager} = require('../../utils/configManager');
 const {QueryRewriterManager} = require('../../queryRewriters/queryRewriterManager');
 const {PersonToPatientIdsExpander} = require('../../utils/personToPatientIdsExpander');
 const {ScopesManager} = require('../security/scopesManager');
+const { SecurityTagSystem } = require('../../utils/securityTagSystem');
+const {SensitiveDataProcessor} = require('../../utils/sensitiveDataProcessor');
 const {convertErrorToOperationOutcome} = require('../../utils/convertErrorToOperationOutcome');
 const {GetCursorResult} = require('./getCursorResult');
 const {QueryItem} = require('../graph/queryItem');
@@ -51,6 +53,7 @@ class SearchManager {
      * @param {PersonToPatientIdsExpander} personToPatientIdsExpander
      * @param {ScopesManager} scopesManager
      * @param {DatabaseAttachmentManager} databaseAttachmentManager
+     * @param {SensitiveDataProcessor} sensitiveDataProcessor
      */
     constructor(
         {
@@ -64,7 +67,8 @@ class SearchManager {
             queryRewriterManager,
             personToPatientIdsExpander,
             scopesManager,
-            databaseAttachmentManager
+            databaseAttachmentManager,
+            sensitiveDataProcessor
         }
     ) {
         /**
@@ -126,6 +130,12 @@ class SearchManager {
          */
         this.databaseAttachmentManager = databaseAttachmentManager;
         assertTypeEquals(databaseAttachmentManager, DatabaseAttachmentManager);
+
+        /**
+         * @type {SensitiveDataProcessor}
+         */
+        this.sensitiveDataProcessor = sensitiveDataProcessor;
+        assertTypeEquals(sensitiveDataProcessor, SensitiveDataProcessor);
     }
 
     /**
@@ -191,10 +201,52 @@ class SearchManager {
                 console.error(e);
                 throw e;
             }
-            query = this.securityTagManager.getQueryWithSecurityTags(
-                {
+
+            // JWT has access tag in scope i.e API call from a specific client
+            if (securityTags && securityTags.length > 0) {
+                let queryWithConsent;
+                // Check api call has patient filter
+                const patientIds = parsedArgs.parsedArgItems
+                    .filter((parsedArg) => parsedArg.queryParameter === 'patient') // TODO: Support other querystring used for patient filter
+                    .map((parsedArg) => {return parsedArg.queryParameterValue.value;});
+
+                // TODO: Updated logic when multiple patient IDs sent with the api call
+                if (patientIds && patientIds.length === 1) {
+                    const [consentResources] = await this.sensitiveDataProcessor.getConsentResources([patientIds[0]]);
+                    // TODO: Updated logic when multiple patient IDs sent with the api call
+                    // if consent is available for the patient
+                    if (consentResources){
+                        let clientsWithAccessPermission = [];
+                        consentResources.forEach((consentDoc) => {
+                            // Check Consent provided to the client
+                            // Current Consent structure does not support partial data access for the client.
+                            if (consentDoc.provision.type === 'permit'){
+                                consentDoc.meta.security.forEach((security) => {
+                                    // Filtering out the consent's owner tags
+                                    if (security.system === SecurityTagSystem.owner){
+                                        clientsWithAccessPermission.push(security.code);
+                                        return;
+                                    }
+                                });
+                            }
+                        });
+                        // Check securityTags is available as Consent owner
+                        const clientSlugIntersection = securityTags.filter(clientSlug => clientsWithAccessPermission.includes(clientSlug));
+                        if (clientSlugIntersection.length > 0){
+                            // Patient has provided "Consent"  for the data access to the client
+                            queryWithConsent = deepcopy(query);
+
+                        }
+                    }
+                }
+                query = this.securityTagManager.getQueryWithSecurityTags({
                     resourceType, securityTags, query, useAccessIndex
                 });
+                if (queryWithConsent){
+                    query = { $or: [query, queryWithConsent]};
+                }
+            }
+
             if (hasPatientScope) {
                 /**
                  * @type {string[]}

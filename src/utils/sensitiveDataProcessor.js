@@ -206,12 +206,13 @@ class SensitiveDataProcessor {
                 linkedClientPatientIdMap[clientPatientId] = patientId;
             });
         }
-        // Query to fetch only the must updated consents for any patient
+        // Query to fetch only the must updated active consents for any patient
         const query = [
             {
                 $match: {
                     $and: [
                         {'patient.reference': {$in: allLinkedPatientIds}},
+                        {'status': 'active'}
                     ]
                 }
             },

@@ -255,7 +255,8 @@ const createContainer = function () {
                 queryRewriterManager: c.queryRewriterManager,
                 personToPatientIdsExpander: c.personToPatientIdsExpander,
                 scopesManager: c.scopesManager,
-                databaseAttachmentManager: c.databaseAttachmentManager
+                databaseAttachmentManager: c.databaseAttachmentManager,
+                sensitiveDataProcessor: c.sensitiveDataProcessor
             }
         )
     );
