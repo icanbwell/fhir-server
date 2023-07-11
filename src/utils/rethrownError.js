@@ -29,7 +29,7 @@ class RethrownError extends Error {
         this.stack_before_rethrow = this.stack;
         this.args = args;
         if (this.args) {
-            this.removeExcludedResources({ a: 'this.args.parentEntities'});
+            this.removeExcludedResources(this.args.parentEntities);
         }
         this.source = source;
 

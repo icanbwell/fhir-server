@@ -254,7 +254,7 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
     async updateReferenceAsync(reference, databaseQueryFactory) {
         try {
             assertTypeEquals(databaseQueryFactory, DatabaseQueryFactory);
-            if (!reference.reference) {
+            if (!reference || !reference.reference) {
                 return reference;
             }
 
@@ -346,7 +346,7 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
             this.adminLogger.logError(e.message, {stack: e.stack});
             throw new RethrownError(
                 {
-                    message: 'Error processing reference',
+                    message: `Error processing reference ${e.message}`,
                     error: e,
                     args: {
                         reference
@@ -495,7 +495,7 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
         } catch (e) {
             throw new RethrownError(
                 {
-                    message: 'Error processing record',
+                    message: `Error processing record ${e.message}`,
                     error: e,
                     args: {
                         resource: doc
@@ -705,7 +705,7 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
                                 this.adminLogger.logError(`Got error ${e}.  At ${this.startFromIdContainer.startFromId}`);
                                 throw new RethrownError(
                                     {
-                                        message: `Error processing references of collection ${collectionName}`,
+                                        message: `Error processing references of collection ${collectionName} ${e.message}`,
                                         error: e,
                                         args: {
                                             query
@@ -792,7 +792,7 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
                             this.adminLogger.logError(`Got error ${e}.  At ${this.startFromIdContainer.startFromId}`);
                             throw new RethrownError(
                                 {
-                                    message: `Error processing ids of collection ${collectionName}`,
+                                    message: `Error processing ids of collection ${collectionName} ${e.message}`,
                                     error: e,
                                     args: {
                                         query
@@ -998,7 +998,7 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
             console.log(e);
             throw new RethrownError(
                 {
-                    message: `Error caching references for collection ${collectionName}`,
+                    message: `Error caching references for collection ${collectionName}, ${e.message}`,
                     error: e,
                     source: 'FixReferenceIdRunner.cacheReferencesAsync'
                 }
