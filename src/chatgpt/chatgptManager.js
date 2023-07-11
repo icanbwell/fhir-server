@@ -164,6 +164,7 @@ class ChatGPTManager {
         const template = 'You are a software program. ' +
             'You are talking to a FHIR server. ' +
             '\n{format_instructions}' +
+            '\nDon’t justify your answers. Don’t give information not mentioned in the CONTEXT INFORMATION.' +
             '\n Write FHIR query for ```{query}``` using the base url of {baseUrl}' +
             (patientId ? '\n and patient id of {patientId}.' : '');
 
