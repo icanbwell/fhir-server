@@ -5,7 +5,6 @@ const practitionerResource3 = require('./fixtures/practitioner/practitioner3.jso
 
 // expected
 const expectedPractitionerResource = require('./fixtures/expected/expected_practitioner.json');
-const expectedSinglePractitionerResource = require('./fixtures/expected/expected_single_practitioner.json');
 
 const {
     commonBeforeEach,
@@ -14,6 +13,8 @@ const {
     createTestRequest, getHeadersCsv, getHeadersCsvFormUrlEncoded,
 } = require('../../common');
 const {describe, beforeEach, afterEach, expect, test} = require('@jest/globals');
+const path = require('path');
+const fs = require('fs');
 
 describe('PractitionerReturnIdTests', () => {
     beforeEach(async () => {
@@ -53,11 +54,15 @@ describe('PractitionerReturnIdTests', () => {
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResourceCount(2);
 
+            const expectedSinglePractitionerCsv = fs.readFileSync(
+                path.resolve(__dirname, './fixtures/expected/expected_single_practitioner.csv'),
+                'utf8'
+            );
             resp = await request
                 .get('/4_0_0/Practitioner?id=0&_streamResponse=1')
                 .set(getHeadersCsv());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse(expectedSinglePractitionerResource);
+            expect(resp).toHaveResponse(expectedSinglePractitionerCsv);
         });
         test('search by multiple id works', async () => {
             const request = await createTestRequest();

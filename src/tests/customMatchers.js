@@ -6,6 +6,9 @@ const {expect} = require('@jest/globals');
 const moment = require('moment-timezone');
 const {YearMonthPartitioner} = require('../partitioners/yearMonthPartitioner');
 const {ndjsonToJsonText} = require('ndjson-to-json-text');
+const {fhirContentTypes} = require('../utils/contentTypes');
+// const csv = require('csv-parser');
+const {csv2json} = require('csv42');
 
 /**
  * @typedef JestUtils
@@ -212,11 +215,11 @@ function checkContent({actual, expected, utils, options, expand, fnCleanResource
  * expect response
  * https://jestjs.io/docs/expect#custom-matchers-api
  * @param {import('http').ServerResponse} resp
- * @param {Object|Object[]} expected
+ * @param {Object|Object[]|string} expectedIn
  * @param {(Resource) => Resource} [fnCleanResource]
  * @returns {{pass: boolean, message: () => string}}
  */
-function toHaveResponse(resp, expected, fnCleanResource) {
+function toHaveResponse(resp, expectedIn, fnCleanResource) {
     const options = {
         comment: 'Object.is equality',
         isNot: this.isNot,
@@ -227,7 +230,15 @@ function toHaveResponse(resp, expected, fnCleanResource) {
      */
     const utils = this.utils;
     const contentType = resp.headers['content-type'];
-    const body = contentType === 'application/fhir+ndjson' ? JSON.parse(ndjsonToJsonText(resp.text)) : resp.body;
+    let body;
+    let expected;
+    if (contentType === fhirContentTypes.csv) {
+        body = csv2json(resp.text);
+        expected = csv2json(expectedIn);
+    } else {
+        body = contentType === 'application/fhir+ndjson' ? JSON.parse(ndjsonToJsonText(resp.text)) : resp.body;
+        expected = expectedIn;
+    }
     if (Array.isArray(body) && !Array.isArray(expected)) {
         expected = [expected];
     }
@@ -527,17 +538,22 @@ function toHaveResourceCount(resp, expected) {
     }
     let count;
     const contentType = resp.headers['content-type'];
-    const body = contentType === 'application/fhir+ndjson' ? JSON.parse(ndjsonToJsonText(resp.text)) : resp.body;
-    if (!(Array.isArray(body))) {
-        if (body.resourceType === 'Bundle') {
-            count = body.entry ? body.entry.length : 0;
-        } else if (body.resourceType) {
-            count = 1;
-        } else {
-            count = 0;
-        }
+    if (contentType === fhirContentTypes.csv) {
+        const lineCount = resp.text.split('\n').filter(l => l !== '').length;
+        count = lineCount > 0 ? lineCount - 1 : 0;
     } else {
-        count = body.length;
+        const body = contentType === 'application/fhir+ndjson' ? JSON.parse(ndjsonToJsonText(resp.text)) : resp.body;
+        if (!(Array.isArray(body))) {
+            if (body.resourceType === 'Bundle') {
+                count = body.entry ? body.entry.length : 0;
+            } else if (body.resourceType) {
+                count = 1;
+            } else {
+                count = 0;
+            }
+        } else {
+            count = body.length;
+        }
     }
     const pass = count === expected;
     const message = pass ? () =>

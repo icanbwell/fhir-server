@@ -136,6 +136,7 @@
     "cookie-parser": "^1.4.6",
     "cors": "^2.8.5",
     "csv42": "^4.0.0",
+    "csv-parser": "^3.0.0",
     "dataloader": "^2.2.2",
     "dd-trace": "^4.6.0",
     "deepcopy": "^2.1.0",
