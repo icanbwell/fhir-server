@@ -755,6 +755,15 @@ module.exports = {
                 options: {
                     name: 'address_postalCode_uuid'
                 }
+            },
+            {
+                keys: {
+                    'birthDate': 1,
+                    '_uuid': 1
+                },
+                options: {
+                    name: 'birthDate_uuid'
+                }
             }
         ],
         'Practitioner_4_0_0': [
