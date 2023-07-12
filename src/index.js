@@ -15,6 +15,7 @@ const Sentry = require('@sentry/node');
 const { getImageVersion } = require('./utils/getImageVersion');
 
 Sentry.init({
+    debug: true,
     release: getImageVersion(),
     environment: process.env.ENVIRONMENT,
 });
