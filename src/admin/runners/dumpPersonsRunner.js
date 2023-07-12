@@ -1,6 +1,7 @@
 const fs = require('fs');
+const {finished} = require('stream/promises');
 // const { assertIsValid } = require('../../utils/assertType');
-// const moment = require('moment-timezone');
+const moment = require('moment-timezone');
 const { BaseBulkOperationRunner } = require('./baseBulkOperationRunner');
 
 class DumpPersonsRunner extends BaseBulkOperationRunner {
@@ -69,9 +70,11 @@ class DumpPersonsRunner extends BaseBulkOperationRunner {
         this.collectionName = 'Person_4_0_0';
 
         this.outputStream = null;
-    }
+        this.maxTimeMS = 20 * 60 * 60 * 1000;
+        this.numberOfSecondsBetweenSessionRefreshes = 10 * 60;
+   }
 
-    formatDocument(doc) {
+    async formatDocument(doc) {
         delete doc['_uuid'];
         delete doc['_id'];
         delete doc['_access'];
@@ -103,16 +106,42 @@ class DumpPersonsRunner extends BaseBulkOperationRunner {
         await this.init();
         if (!this.outputStream) {
             this.outputStream = await fs.createWriteStream(this.outputFile);
-            this.outputStream.write('{ "entry" : [');
         }
-        this.startFromIdContainer.startFromId = '';
-        const db = await this.mongoDatabaseManager.getClientDbAsync();
-        console.log('getting collection');
-        const dbCollection = await this.mongoCollectionManager.getOrCreateCollectionAsync(
+        const writeStream = (writer, data) => {
+            // return a promise only when we get a drain
+            if (!writer.write(data)) {
+                return new Promise((resolve) => {
+                    writer.once('drain', resolve);
+                });
+            }
+        }
+        const firstWrite = writeStream(this.outputStream, '{ "entry" : [');
+        if (firstWrite) {
+            if (firstWrite) {
+                await firstWrite;
+            }
+        }
+
+        let config = await this.mongoDatabaseManager.getClientConfigAsync();
+        let sourceClient = await this.mongoDatabaseManager.createClientAsync(config);
+        let session = sourceClient.startSession();
+        // console.log(session);
+        let sessionId = session.serverSession.id;
+        const sourceDb = sourceClient.db(config.db_name);
+        const sourceCollection = await this.mongoCollectionManager.getOrCreateCollectionAsync(
             {
-                db: db, collectionName: this.collectionName
+                db: sourceDb, collectionName: this.collectionName
             }
         );
+        const options = {session: session, timeout: false, noCursorTimeout: true, maxTimeMS: this.maxTimeMS};
+        let refreshTimestamp = moment(); // take note of time at operation start
+        // const db = await this.mongoDatabaseManager.getClientDbAsync();
+        // console.log('getting collection');
+        // const dbCollection = await this.mongoCollectionManager.getOrCreateCollectionAsync(
+        //     {
+        //         db: db, collectionName: this.collectionName
+        //     }
+        // );
         // Filter to process only certain documents depending on the owner code passed.
         const accessFilter = this.accessCode ?
             { 'meta.security': { $elemMatch: { 'system': 'https://www.icanbwell.com/access', 'code': this.accessCode }} } :
@@ -124,36 +153,43 @@ class DumpPersonsRunner extends BaseBulkOperationRunner {
 
         console.log(accessFilter);
         console.log(beforeDateQuery);
-        const result = await dbCollection.find({
+        const result = await sourceCollection.find({
             ...accessFilter,
             ...beforeDateQuery
-        });
-        // let docList = [];
+        }, options).batchSize(1000)
+            .maxTimeMS(this.maxTimeMS) // 20 hours
+            .addCursorFlag('noCursorTimeout', true);
         // Format document and write to output file
         for await (let doc of result) {
-            doc = this.formatDocument(doc);
-            //console.log(doc);
-            this.outputStream.write(JSON.stringify(doc));
-            this.outputStream.write(',');
+            //console.log('inside loop');
+            doc = await this.formatDocument(doc);
+            const docWrite = writeStream(this.outputStream, JSON.stringify(doc));
+            if (docWrite) {
+                await docWrite;
+            }
+            const commaWrite = writeStream(this.outputStream, ',');
+            if (commaWrite) {
+                await commaWrite;
+            }
+            console.log(doc.resource.id);
+            // Check if more than 5 minutes have passed since the last refresh
+            if (moment().diff(refreshTimestamp, 'seconds') > this.numberOfSecondsBetweenSessionRefreshes) {
+                this.adminLogger.logInfo(
+                                    'refreshing session with sessionId', {'session_id': sessionId});
+                const adminResult = await sourceDb.admin().command({'refreshSessions': [sessionId]});
+                this.adminLogger.logInfo(
+                    'result from refreshing session', {'result': adminResult});
+                refreshTimestamp = moment();
+            }
         }
-        // while (await result.hasNext()) {
-        //     let document = await result.next();
-        //     document = this.formatDocument(document);
-        //     console.log(document);
-        //     this.outputStream.write(JSON.stringify(document));
-        //     this.outputStream.write(',');
-        //
-            // docList.push(document);
-            // if (docList.length === this.batchSize) {
-            //     await this.processBatch(docList);
-            //     docList = [];
-        // }
-        this.outputStream.write(']');
-        // If the cursor goes empty but docs still need to processed.
-        // if (docList.length !== 0) {
-        //     await this.processBatch(docList);
-        // }
-        this.outputStream.close();
+        const closeBracket = writeStream(this.outputStream, ']}');
+        if (closeBracket) {
+            console.log('closeBracket');
+            await closeBracket;
+        }
+        await session.endSession();
+        await this.outputStream.end();
+        await finished(this.outputStream);
         this.adminLogger.logInfo(`Finished loop ${this.collectionName}`);
         this.adminLogger.logInfo('Finished script');
         this.adminLogger.logInfo('Shutting down');
@@ -161,7 +197,7 @@ class DumpPersonsRunner extends BaseBulkOperationRunner {
         this.adminLogger.logInfo('Shutdown finished');
     }
 }
-
+// usage
 module.exports = {
     DumpPersonsRunner
 };
