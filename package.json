@@ -112,7 +112,6 @@
     "@aws-sdk/client-sts": "^3.369.0",
     "@aws-sdk/credential-providers": "^3.369.0",
     "@dqbd/tiktoken": "^1.0.7",
-    "@elastic/elasticsearch": "^8.8.1",
     "@godaddy/terminus": "^4.12.1",
     "@graphql-eslint/eslint-plugin": "^3.20.0",
     "@graphql-tools/graphql-file-loader": "^8.0.0",
