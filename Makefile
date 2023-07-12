@@ -88,7 +88,7 @@ update:down
 upgrade_packages:down
 	. ${NVM_DIR}/nvm.sh && nvm use && \
 	yarn install --no-optional && \
-	ncu -u
+	ncu -u --reject @sentry/node
 
 .PHONY:tests
 tests:
