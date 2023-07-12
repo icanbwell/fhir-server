@@ -1,7 +1,8 @@
 const {mongoConfig, auditEventMongoConfig, auditEventReadOnlyMongoConfig} = require('../config');
 const {isTrue} = require('./isTrue');
 const env = require('var');
-const {logSystemEventAsync, logInfo, logError} = require('../operations/common/logging');
+const {logInfo, logError} = require('../operations/common/logging');
+const {logSystemEventAsync} = require('../operations/common/systemEventLogging');
 const {MongoClient, GridFSBucket} = require('mongodb');
 
 /**

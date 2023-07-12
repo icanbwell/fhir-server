@@ -3,7 +3,7 @@
  * The goal is to get the response back to client quickly and then run these actions
  */
 const {assertTypeEquals, assertIsValid} = require('./assertType');
-const {logSystemErrorAsync, logTraceSystemEventAsync} = require('../operations/common/logging');
+const {logSystemErrorAsync, logTraceSystemEventAsync} = require('../operations/common/systemEventLogging');
 const {RequestSpecificCache} = require('./requestSpecificCache');
 
 const Mutex = require('async-mutex').Mutex;

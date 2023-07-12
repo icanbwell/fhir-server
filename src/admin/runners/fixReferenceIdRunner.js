@@ -254,11 +254,28 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
     async updateReferenceAsync(reference, databaseQueryFactory) {
         try {
             assertTypeEquals(databaseQueryFactory, DatabaseQueryFactory);
-            if (!reference.reference) {
+            if (!reference || !reference.reference) {
                 return reference;
             }
 
-            const { resourceType, id } = ReferenceParser.parseReference(reference._sourceId);
+            // current reference with id
+            let currentReference = reference._sourceId;
+
+            if (!currentReference) {
+                if (reference.extension) {
+                    reference.extension.forEach(element => {
+                        if (element.url === IdentifierSystem.sourceId && element.valueString) {
+                            currentReference = element.valueString;
+                        }
+                    });
+                }
+
+                if (!currentReference) {
+                    currentReference = reference.reference;
+                }
+            }
+
+            const { resourceType, id } = ReferenceParser.parseReference(currentReference);
             if (!resourceType) {
                 return reference;
             }
@@ -292,8 +309,6 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
              */
             let foundInCache = false;
 
-            // create current reference with id
-            const currentReference = reference._sourceId;
             const uuidReference = reference._uuid;
 
             // check if the current reference is present in cache if present then replace it
@@ -346,7 +361,7 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
             this.adminLogger.logError(e.message, {stack: e.stack});
             throw new RethrownError(
                 {
-                    message: 'Error processing reference',
+                    message: `Error processing reference ${e.message}`,
                     error: e,
                     args: {
                         reference
@@ -495,7 +510,7 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
         } catch (e) {
             throw new RethrownError(
                 {
-                    message: 'Error processing record',
+                    message: `Error processing record ${e.message}`,
                     error: e,
                     args: {
                         resource: doc
@@ -705,7 +720,7 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
                                 this.adminLogger.logError(`Got error ${e}.  At ${this.startFromIdContainer.startFromId}`);
                                 throw new RethrownError(
                                     {
-                                        message: `Error processing references of collection ${collectionName}`,
+                                        message: `Error processing references of collection ${collectionName} ${e.message}`,
                                         error: e,
                                         args: {
                                             query
@@ -792,7 +807,7 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
                             this.adminLogger.logError(`Got error ${e}.  At ${this.startFromIdContainer.startFromId}`);
                             throw new RethrownError(
                                 {
-                                    message: `Error processing ids of collection ${collectionName}`,
+                                    message: `Error processing ids of collection ${collectionName} ${e.message}`,
                                     error: e,
                                     args: {
                                         query
@@ -998,7 +1013,7 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
             console.log(e);
             throw new RethrownError(
                 {
-                    message: `Error caching references for collection ${collectionName}`,
+                    message: `Error caching references for collection ${collectionName}, ${e.message}`,
                     error: e,
                     source: 'FixReferenceIdRunner.cacheReferencesAsync'
                 }

@@ -184,7 +184,7 @@ function parseUserInfoFromPayload({username, subject, isUser, jwt_payload, done,
         context['personIdFromJwtToken'] = jwt_payload['custom:bwellFhirPersonId'];
     }
 
-    return done(null, {id: client_id, isUser, name: username}, {scope, context});
+    return done(null, {id: client_id, isUser, name: username, username: username}, {scope, context});
 }
 
 // noinspection OverlyComplexFunctionJS,FunctionTooLongJS

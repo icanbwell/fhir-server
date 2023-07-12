@@ -1,14 +1,15 @@
-const {Transform} = require('stream');
-const {convertErrorToOperationOutcome} = require('../../utils/convertErrorToOperationOutcome');
-const {getCircularReplacer} = require('../../utils/getCircularReplacer');
+const {convertErrorToOperationOutcome} = require('../../../utils/convertErrorToOperationOutcome');
+const {getCircularReplacer} = require('../../../utils/getCircularReplacer');
+const {FhirResourceWriterBase} = require('./fhirResourceWriterBase');
 
-class FhirResourceWriter extends Transform {
+class FhirResourceWriter extends FhirResourceWriterBase {
     /**
      * Streams the incoming data as json
      * @param {AbortSignal} signal
+     * @param {string} contentType
      */
-    constructor({signal}) {
-        super({objectMode: true});
+    constructor({signal, contentType}) {
+        super({objectMode: true, contentType: contentType});
         /**
          * @type {boolean}
          * @private

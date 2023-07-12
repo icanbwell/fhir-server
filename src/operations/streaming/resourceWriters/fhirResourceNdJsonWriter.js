@@ -1,17 +1,18 @@
-const {Transform} = require('stream');
-const {isTrue} = require('../../utils/isTrue');
+const {isTrue} = require('../../../utils/isTrue');
 const env = require('var');
-const {convertErrorToOperationOutcome} = require('../../utils/convertErrorToOperationOutcome');
-const {logInfo} = require('../common/logging');
+const {convertErrorToOperationOutcome} = require('../../../utils/convertErrorToOperationOutcome');
+const {logInfo} = require('../../common/logging');
+const {FhirResourceWriterBase} = require('./fhirResourceWriterBase');
 
-class FhirResourceNdJsonWriter extends Transform {
+class FhirResourceNdJsonWriter extends FhirResourceWriterBase {
     /**
      * Streams the incoming data as json
      *
      * @param {AbortSignal} signal
+     * @param {string} contentType
      */
-    constructor({signal}) {
-        super({objectMode: true});
+    constructor({signal, contentType}) {
+        super({objectMode: true, contentType: contentType});
 
         /**
          * @type {AbortSignal}
@@ -66,6 +67,10 @@ class FhirResourceNdJsonWriter extends Transform {
     writeOperationOutcome({operationOutcome, encoding}) {
         const operationOutcomeJson = JSON.stringify(operationOutcome.toJSON());
         this.push(operationOutcomeJson + '\n', encoding);
+    }
+
+    getContentType() {
+        return this._contentType;
     }
 }
 

@@ -1,7 +1,6 @@
 const {Writable} = require('stream');
 const {isTrue} = require('../../utils/isTrue');
 const env = require('var');
-const {isNdJsonContentType} = require('../../utils/contentTypes');
 const {getLogger} = require('../../winstonInit');
 const {assertIsValid} = require('../../utils/assertType');
 const logger = getLogger();
@@ -67,21 +66,6 @@ class HttpResponseWriter extends Writable {
         }
         try {
             if (chunk !== null && chunk !== undefined) {
-                if (isTrue(env.LOG_STREAM_STEPS)) {
-                    if (isNdJsonContentType([this.contentType])) {
-                        try {
-                            /**
-                             * @type {Object}
-                             */
-                            const jsonObject = JSON.parse(chunk);
-                            logger.verbose(`HttpResponseWriter: _write ${jsonObject['id']}`);
-                        } catch (e) {
-                            logger.error(`HttpResponseWriter: _write: ERROR parsing json: ${chunk}: ${e}`);
-                        }
-                    } else {
-                        logger.verbose(`HttpResponseWriter: _write ${chunk}`);
-                    }
-                }
                 if (this.response.writable) {
                     this.response.write(chunk, encoding, callback);
                 }

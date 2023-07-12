@@ -1,7 +1,8 @@
 /**
  * helper function to do log health check
  */
-const { logInfo, logSystemEventAsync} = require('../operations/common/logging');
+const { logInfo} = require('../operations/common/logging');
+const { logSystemEventAsync} = require('../operations/common/systemEventLogging');
 
 module.exports.handleLogHealthCheck = async () => {
     let healthy = true;
