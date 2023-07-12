@@ -1,12 +1,23 @@
 const env = require('var');
 const { logInfo, logError } = require('../operations/common/logging');
+const {assertTypeEquals} = require('../utils/assertType');
 const { isTrue } = require('../utils/isTrue');
-const { accessLogsMongoConfig } = require('../config');
-const { MongoClient } = require('mongodb');
 const { ACCESS_LOGS_COLLECTION_NAME } = require('../constants');
+const { MongoDatabaseManager } = require('../utils/mongoDatabaseManager');
 
 class AdminLogManager {
-
+    /**
+     * @param {MongoDatabaseManager} mongoDatabaseManager
+     */
+    constructor({
+        mongoDatabaseManager
+    }) {
+        /**
+         * @type {MongoDatabaseManager}
+         */
+        this.mongoDatabaseManager = mongoDatabaseManager;
+        assertTypeEquals(mongoDatabaseManager, MongoDatabaseManager);
+    }
     /**
      * gets logs
      * @param id
@@ -15,12 +26,7 @@ class AdminLogManager {
     async getLogAsync(id) {
         try {
             if (isTrue(env.ENABLE_MONGODB_ACCESS_LOGS)) {
-                /**
-                 * @type {MongoClient}
-                 */
-                const client = new MongoClient(accessLogsMongoConfig.connection, accessLogsMongoConfig.options);
-
-                const accessLogsDb = client.db(accessLogsMongoConfig.db_name);
+                const accessLogsDb = await this.mongoDatabaseManager.getAccessLogsDbAsync();
 
                 const accessLogsCollection = accessLogsDb.collection(ACCESS_LOGS_COLLECTION_NAME);
 
