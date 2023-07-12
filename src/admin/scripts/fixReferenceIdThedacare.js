@@ -1,9 +1,6 @@
 // load config from .env.  Should be first thing so env vars are available to rest of the code
 const path = require('path');
 const pathToEnv = path.resolve(__dirname, '.env');
-console.log(`Reading config from ${pathToEnv}`);
-console.log(`MONGO_URL=${process.env.MONGO_URL}`);
-console.log(`AUDIT_EVENT_MONGO_URL=${process.env.AUDIT_EVENT_MONGO_URL}`);
 const {createContainer} = require('../../createContainer');
 const {CommandLineParser} = require('./commandLineParser');
 const {AdminLogger} = require('../adminLogger');
@@ -31,6 +28,9 @@ async function main() {
             path: pathToEnv
         });
     }
+    console.log(`Reading config from ${pathToEnv}`);
+    console.log(`MONGO_URL=${process.env.MONGO_URL}`);
+    console.log(`AUDIT_EVENT_MONGO_URL=${process.env.AUDIT_EVENT_MONGO_URL}`);
     /**
      * @type {string}
      */
