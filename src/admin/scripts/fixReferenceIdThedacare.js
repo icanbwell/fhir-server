@@ -140,7 +140,6 @@ async function main() {
  * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/fixReferenceIdThedacare.js --AWS_BUCKET=bucket_name --collections=all --batchSize=10000 --after 2021-12-31
  * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/fixReferenceIdThedacare.js --AWS_BUCKET=bucket_name --collections=all --batchSize=10000 --before 2021-12-31
  * node src/admin/scripts/fixReferenceIdThedacare.js --AWS_BUCKET=bucket_name --collections=Account_4_0_0 --batchSize=10000
- * node src/admin/scripts/fixReferenceIdThedacare.js --dotenv --AWS_BUCKET=bucket_name --collections=Account_4_0_0 --batchSize=10000
  */
 main().catch(reason => {
     console.error(reason);
