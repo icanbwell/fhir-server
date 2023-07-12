@@ -1,10 +1,6 @@
 // load config from .env.  Should be first thing so env vars are available to rest of the code
 const path = require('path');
-const dotenv = require('dotenv');
 const pathToEnv = path.resolve(__dirname, '.env');
-dotenv.config({
-    path: pathToEnv
-});
 console.log(`Reading config from ${pathToEnv}`);
 console.log(`MONGO_URL=${process.env.MONGO_URL}`);
 console.log(`AUDIT_EVENT_MONGO_URL=${process.env.AUDIT_EVENT_MONGO_URL}`);
@@ -29,6 +25,12 @@ async function main() {
      */
     const parameters = CommandLineParser.parseCommandLine();
 
+    if (parameters.dotenv) {
+        const dotenv = require('dotenv');
+        dotenv.config({
+            path: pathToEnv
+        });
+    }
     /**
      * @type {string}
      */
@@ -144,6 +146,7 @@ async function main() {
  * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/fixReferenceIdThedacare.js --AWS_BUCKET=bucket_name --collections=all --batchSize=10000 --after 2021-12-31
  * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/fixReferenceIdThedacare.js --AWS_BUCKET=bucket_name --collections=all --batchSize=10000 --before 2021-12-31
  * node src/admin/scripts/fixReferenceIdThedacare.js --AWS_BUCKET=bucket_name --collections=Account_4_0_0 --batchSize=10000
+ * node src/admin/scripts/fixReferenceIdThedacare.js --dotenv --AWS_BUCKET=bucket_name --collections=Account_4_0_0 --batchSize=10000
  */
 main().catch(reason => {
     console.error(reason);
