@@ -173,7 +173,7 @@ class FhirLogger {
 
         if (isTrue(env.ENABLE_MONGODB_ACCESS_LOGS)) {
             /**
-             * @type {require('winston-mongodb').MongoDB}
+             * @type {import('winston-mongodb').MongoDBTransportInstance}
              */
             const mongodbTransport = new MongoDB({
                 db: accessLogsMongoConfig.connection,

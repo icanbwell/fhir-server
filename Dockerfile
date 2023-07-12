@@ -31,7 +31,8 @@ RUN npm install -g npm@latest && npm upgrade --global yarn
 
 RUN mkdir -p /srv/src/web
 COPY src/web /srv/src/web
-RUN cd /srv/src/web && yarn install && npm run build
+RUN if [ "$NODE_ENV" = "development" ] ; then echo 'building development' && cd /srv/src/web && rm --force package-lock.json && yarn install --no-optional; else echo 'building production' && cd /srv/src/web && rm --force package-lock.json && yarn cache clean && yarn config delete proxy && yarn config delete https-proxy && yarn config delete registry && yarn install --no-optional --production=true --network-timeout 1000000; fi
+RUN cd /srv/src/web && npm run build
 
 
 FROM node:18.16.0-bullseye-slim
