@@ -282,6 +282,14 @@ class ConfigManager {
     get enabledAccessTagUpdate() {
         return isTrue(env.ENABLE_ACCESS_TAG_UPDATE);
     }
+
+    /**
+     * Specifies whether to Consent based data access enabled.
+     * @return {boolean}
+     */
+    get enableConsentedDataAccess() {
+        return isTrue(env.ENABLE_CONSENTED_DATA_ACCESS);
+    }
 }
 
 module.exports = {

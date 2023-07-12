@@ -197,10 +197,25 @@ class SearchManager {
                 console.error(e);
                 throw e;
             }
-            query = this.securityTagManager.getQueryWithSecurityTags(
-                {
+
+            // JWT has access tag in scope i.e API call from a specific client
+            if (securityTags && securityTags.length > 0) {
+                let queryWithConsent;
+                // Consent based data access
+                if (this.configManager.enableConsentedDataAccess){
+                    // 1. Check resourceType is specific to Patient using patientFilterManager.getAllResourcesLinkedWithPatient()
+                    // 2. Check parsedArgs has patient or proxy patient filter
+                }
+
+                // Add access tag filter to the query
+                query = this.securityTagManager.getQueryWithSecurityTags({
                     resourceType, securityTags, query, useAccessIndex
                 });
+                // Update query to include Consented data
+                if (queryWithConsent){
+                    query = { $or: [query, queryWithConsent]};
+                }
+            }
             if (hasPatientScope) {
                 /**
                  * @type {string[]}
