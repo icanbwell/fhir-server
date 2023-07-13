@@ -13,6 +13,7 @@ class ResourcePreparerTransform extends Transform {
      * @param {boolean} useAccessIndex
      * @param {AbortSignal} signal
      * @param {ResourcePreparer} resourcePreparer
+     * @param {boolean|undefined} removeDuplicates
      */
     constructor(
         {
@@ -23,6 +24,7 @@ class ResourcePreparerTransform extends Transform {
             useAccessIndex,
             signal,
             resourcePreparer,
+            removeDuplicates
         }
     ) {
         super({objectMode: true});
@@ -60,6 +62,11 @@ class ResourcePreparerTransform extends Transform {
          * @type {Resource[]}
          */
         this.resourcesProcessed = [];
+
+        /**
+         * @type {boolean|undefined}
+         */
+        this.removeDuplicates = removeDuplicates;
     }
 
     /**
@@ -111,7 +118,7 @@ class ResourcePreparerTransform extends Transform {
                     if (resources.length > 0) {
                         for (const /** @type {Resource} */ resource of resources) {
                             // Remove any duplicates
-                            if (resource &&
+                            if (resource && this.removeDuplicates &&
                                 !this.resourcesProcessed.some(a =>
                                     resource.isSameResourceByIdAndSecurityTag({other: a})
                                 )
@@ -120,9 +127,11 @@ class ResourcePreparerTransform extends Transform {
                                     logInfo(`ResourcePreparerTransform: push ${resource['id']}`, {});
                                 }
                                 this.push(resource.toJSON());
-                                this.resourcesProcessed.push(
-                                    resource
-                                );
+                                if (this.removeDuplicates) {
+                                    this.resourcesProcessed.push(
+                                        resource
+                                    );
+                                }
                             }
                         }
                     }

@@ -13,7 +13,7 @@ const {describe, beforeEach, afterEach, expect, test} = require('@jest/globals')
 const env = require('var');
 let oldEnvLogLevel;
 
-describe('PractitionerReturnIdTests', () => {
+describe('CSV Performance tests', () => {
     beforeEach(async () => {
         await commonBeforeEach();
         oldEnvLogLevel = env.LOGLEVEL;
@@ -25,9 +25,9 @@ describe('PractitionerReturnIdTests', () => {
         env.LOGLEVEL = oldEnvLogLevel;
     });
 
-    describe('Practitioner Search By 10,0000 Tests', () => {
+    describe('Practitioner CSV Search By 10,0000 Tests', () => {
         test(
-            'search by 2,000 id works',
+            'search by 2,000 id in csv works',
             async () => {
                 const request = await createTestRequest();
                 // first confirm there are no practitioners
@@ -67,7 +67,7 @@ describe('PractitionerReturnIdTests', () => {
 
                 // now check that we get the right record back
                 resp = await request
-                    .get(`/4_0_0/Practitioner/?_streamResponse=1&_count=${numberOfResources}`)
+                    .get(`/4_0_0/Practitioner/?_streamResponse=1&_count=${numberOfResources}&_format=text/csv`)
                     .set(getHeadersNdJson())
                     .expect(200);
                 const lines = resp.text.split('\n');

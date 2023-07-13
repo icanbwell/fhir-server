@@ -815,7 +815,8 @@ class SearchManager {
                 new ResourcePreparerTransform(
                     {
                         user, scope, parsedArgs, resourceType, useAccessIndex, signal: ac.signal,
-                        resourcePreparer: this.resourcePreparer
+                        resourcePreparer: this.resourcePreparer,
+                        removeDuplicates: false
                     }
                 ),
                 // NOTE: do not use an async generator as the last writer otherwise the pipeline will hang
@@ -993,7 +994,8 @@ class SearchManager {
         const resourcePreparerTransform = new ResourcePreparerTransform(
             {
                 user, scope, parsedArgs, resourceType, useAccessIndex, signal: ac.signal,
-                resourcePreparer: this.resourcePreparer
+                resourcePreparer: this.resourcePreparer,
+                removeDuplicates: false
             }
         );
         /**
@@ -1002,6 +1004,9 @@ class SearchManager {
         const resourceIdTracker = new ResourceIdTracker({tracker, signal: ac.signal});
 
         try {
+            /**
+             * @type {Readable}
+             */
             const readableMongoStream = createReadableMongoStream({
                 cursor, signal: ac.signal, databaseAttachmentManager: this.databaseAttachmentManager
             });
