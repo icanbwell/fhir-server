@@ -33,6 +33,7 @@ const {GetCursorResult} = require('./getCursorResult');
 const {QueryItem} = require('../graph/queryItem');
 const {DatabaseAttachmentManager} = require('../../dataLayer/databaseAttachmentManager');
 const {FhirResourceWriterFactory} = require('../streaming/resourceWriters/fhirResourceWriterFactory');
+const { PatientFilterManager } = require('../../fhir/patientFilterManager');
 
 class SearchManager {
     /**
@@ -49,6 +50,7 @@ class SearchManager {
      * @param {ScopesManager} scopesManager
      * @param {DatabaseAttachmentManager} databaseAttachmentManager
      * @param {FhirResourceWriterFactory} fhirResourceWriterFactory
+     * @param {PatientFilterManager} patientFilterManager
      */
     constructor(
         {
@@ -63,7 +65,8 @@ class SearchManager {
             personToPatientIdsExpander,
             scopesManager,
             databaseAttachmentManager,
-            fhirResourceWriterFactory
+            fhirResourceWriterFactory,
+            patientFilterManager
         }
     ) {
         /**
@@ -131,6 +134,12 @@ class SearchManager {
          */
         this.fhirResourceWriterFactory = fhirResourceWriterFactory;
         assertTypeEquals(fhirResourceWriterFactory, FhirResourceWriterFactory);
+
+        /**
+         * @type {PatientFilterManager}
+         */
+        this.patientFilterManager = patientFilterManager;
+        assertTypeEquals(patientFilterManager, PatientFilterManager);
     }
 
     // noinspection ExceptionCaughtLocallyJS
@@ -204,16 +213,17 @@ class SearchManager {
                 // Consent based data access
                 if (this.configManager.enableConsentedDataAccess){
                     // 1. Check resourceType is specific to Patient using patientFilterManager.getAllResourcesLinkedWithPatient()
-
-                    // 2. Check parsedArgs has patient or proxy patient filter
-                    const patientIds = parsedArgs.parsedArgItems
+                    if (this.patientFilterManager.isPatientRelatedResource({ resourceType })) {
+                        // 2. Check parsedArgs has patient or proxy patient filter
+                        const patientIds = parsedArgs.parsedArgItems
                         .filter((parsedArg) => parsedArg.queryParameter === 'patient') // TODO: Support other querystring used for patient filter
                         .map((parsedArg) => {return parsedArg.queryParameterValue.value;});
 
-                    if (patientIds && patientIds.length > 0) {
-                        // Get b.Well Master Person and/or Person for each patient IDs
+                        if (patientIds && patientIds.length > 0) {
+                            // Get b.Well Master Person and/or Person for each patient IDs
 
 
+                        }
                     }
                 }
 

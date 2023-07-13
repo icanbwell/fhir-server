@@ -260,7 +260,8 @@ const createContainer = function () {
                 personToPatientIdsExpander: c.personToPatientIdsExpander,
                 scopesManager: c.scopesManager,
                 databaseAttachmentManager: c.databaseAttachmentManager,
-                fhirResourceWriterFactory: c.fhirResourceWriterFactory
+                fhirResourceWriterFactory: c.fhirResourceWriterFactory,
+                patientFilterManager: c.patientFilterManager,
             }
         )
     );

@@ -127,6 +127,14 @@ class PatientFilterManager {
     getAllResourcesLinkedWithPatient() {
         return this.patientFilterMapping;
     }
+
+    /**
+     * Checks if the resourceType is related to patient
+     * @param {string} resourceType
+     */
+    isPatientRelatedResource({ resourceType, }) {
+        return Object.keys(this.patientFilterMapping).includes(resourceType);
+    }
 }
 
 module.exports = {
