@@ -29,12 +29,24 @@ class TestMongoDatabaseManager extends MongoDatabaseManager {
         };
     }
 
+    async getAccessLogsConfigAsync() {
+        const mongoUrl = await getMongoUrlAsync();
+        return {
+            connection: mongoUrl,
+            db_name: 'access-logs',
+            options: {}
+        };
+    }
+
     async dropDatabasesAsync() {
         const db = await this.getClientDbAsync();
         await db.dropDatabase();
 
         const auditDb = await this.getAuditDbAsync();
         await auditDb.dropDatabase();
+
+        const accessLogsDbDb = await this.getAccessLogsDbAsync();
+        await accessLogsDbDb.dropDatabase();
 
         // check if database is done
         const clientConfig = await this.getClientConfigAsync();
@@ -57,6 +69,17 @@ class TestMongoDatabaseManager extends MongoDatabaseManager {
         const auditDatabasesResult = await auditEventClient.db().admin().listDatabases();
         const auditDatabases = auditDatabasesResult.databases;
         while (auditDatabases.some(d => d.db_name === auditConfig.db_name)) { /* empty */
+        }
+
+        // check if access logs database is gone
+        const accessLogsConfig = await this.getAccessLogsConfigAsync();
+        const accessLogsClient = await this.createClientAsync(accessLogsConfig);
+        /**
+         * @type {import('mongo').ListDatabasesResult}
+         */
+        const accessLogsDatabasesResult = await accessLogsClient.db().admin().listDatabases();
+        const accessLogsDatabases = accessLogsDatabasesResult.databases;
+        while (accessLogsDatabases.some(d => d.db_name === accessLogsConfig.db_name)) { /* empty */
         }
     }
 }
