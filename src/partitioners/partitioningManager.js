@@ -5,7 +5,7 @@ const {YearMonthPartitioner} = require('./yearMonthPartitioner');
 const moment = require('moment-timezone');
 const {MongoDatabaseManager} = require('../utils/mongoDatabaseManager');
 const async = require('async');
-const {logSystemEventAsync} = require('../operations/common/logging');
+const {logSystemEventAsync} = require('../operations/common/systemEventLogging');
 
 const Mutex = require('async-mutex').Mutex;
 const mutex = new Mutex();

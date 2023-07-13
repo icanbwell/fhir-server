@@ -9,6 +9,8 @@ services:
             dockerfile: Dockerfile
             args:
                 NODE_ENV: development
+        env_file:
+          - .env
         environment:
             SERVER_PORT: 3000
             MONGO_DB_NAME: fhir
@@ -40,19 +42,13 @@ services:
             USE_TWO_STEP_SEARCH_OPTIMIZATION: '0'
             LOG_EXCLUDE_RESOURCES: 'Person,Patient'
             STREAM_RESPONSE: '1'
-            LOG_ELASTIC_SEARCH_ENABLE: '1'
-            ENABLE_MONGODB_ACCESS_LOGS: '0'
-            ENABLE_MONGODB_ACCESS_LOGS_SEARCH: '0'
-            ACCESS_LOGS_COLLECTION_NAME: 'access_logs'
-            LOG_ELASTIC_SEARCH_URL: 'https://elasticsearch:9200/'
-            ELASTIC_SEARCH_USERNAME: 'admin'
-            ELASTIC_SEARCH_PASSWORD: 'admin'
-            LOG_ELASTIC_SEARCH_PREFIX: 'fhir-logs'
+            ENABLE_MONGODB_ACCESS_LOGS: '1'
             LOG_STREAM_STEPS: '0'
             ENABLE_EVENTS_KAFKA: '1'
             ENABLE_KAFKA_HEALTHCHECK: '1'
             KAFKA_CLIENT_ID: 'fhir-server'
             KAFKA_URLS: 'kafka:9092'
+            KAFKA_MAX_RETRY: 3
             PARTITION_RESOURCES: 'AuditEvent'
             AUTH_CUSTOM_GROUP: "cognito:groups"
             AUTH_CUSTOM_SCOPE: "custom:scope"
@@ -61,6 +57,7 @@ services:
             WHITELIST: "https://embeddable-sandbox.cdn.apollographql.com"
             GRIDFS_RESOURCES: "DocumentReference"
             ENABLE_ACCESS_TAG_UPDATE: '0'
+            DD_TRACE_ENABLED: 'False'
         ports:
             - '3000:3000'
         volumes:
@@ -88,59 +85,6 @@ services:
     #      - '3010:3000'
     #    environment:
     #      MONGOCLIENT_DEFAULT_CONNECTION_URL: mongodb://mongo:27017
-
-    elasticsearch:
-        #    image: bitnami/elasticsearch:7.9.3  # AWS Elastic Search supports upto 7.9
-        # using OpenDistro for best compatibility with AWS Managed ElasticSearch:
-        # https://opendistro.github.io/for-elasticsearch/downloads.html
-        image: opensearchproject/opensearch:1.3.8
-        container_name: elasticsearch
-        environment:
-            - cluster.name=odfe-cluster
-            - node.name=elasticsearch
-            - bootstrap.memory_lock=true # along with the memlock settings below, disables swapping
-            - network.host=0.0.0.0 # required if not using the demo security configuration
-            - 'OPENSEARCH_JAVA_OPTS=-Xms512m -Xmx512m' # minimum and maximum Java heap size, recommend setting both to 50% of system RAM
-            #      - "DISABLE_INSTALL_DEMO_CONFIG=true" # disables execution of install_demo_configuration.sh bundled with security plugin, which installs demo certificates and security configurations to OpenSearch
-            #      - "DISABLE_SECURITY_PLUGIN=true" # disables security plugin entirely in OpenSearch by setting plugins.security.disabled: true in opensearch.yml
-            - 'discovery.type=single-node' # disables bootstrap checks that are enabled when network.host is set to a non-loopback address
-        ulimits:
-            memlock:
-                soft: -1
-                hard: -1
-            nofile:
-                soft: 65536 # maximum number of open files for the Elasticsearch user, set to at least 65536 on modern systems
-                hard: 65536
-        volumes:
-            - es_data:/usr/share/opensearch/data:delegated
-            - es_cert:/usr/share/opensearch/config/certs:delegated
-        #      - ./conf/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml:cached
-        ports:
-            - '9200:9200'
-            - '9600:9600' # required for Performance Analyzer
-        healthcheck:
-            test:
-                [
-                    'CMD-SHELL',
-                    'curl --silent --fail https://admin:admin@localhost:9200/_cluster/health --insecure || exit 1',
-                ]
-
-    kibana:
-        #    image: bitnami/kibana:7.9.3 # AWS Elastic Search supports upto 7.9
-        # using OpenDistro for best compatibility with AWS Managed ElasticSearch:
-        # https://opendistro.github.io/for-elasticsearch/downloads.html
-        image: opensearchproject/opensearch-dashboards:1.3.8
-        depends_on:
-            - elasticsearch
-        container_name: kibana
-        ports:
-            - '5601:5601'
-        environment:
-            - OPENSEARCH_URL=https://elasticsearch:9200
-            - OPENSEARCH_HOSTS=https://elasticsearch:9200
-        #      - "DISABLE_SECURITY_DASHBOARDS_PLUGIN=true" # disables security dashboards plugin in OpenSearch Dashboards
-        healthcheck:
-            test: ['CMD-SHELL', 'curl --silent --fail localhost:5601/login || exit 1']
 
     zookeeper:
         image: 'docker.io/bitnami/zookeeper:3.8.0'

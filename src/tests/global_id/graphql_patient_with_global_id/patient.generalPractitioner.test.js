@@ -21,15 +21,17 @@ const {
     getGraphQLHeaders,
     getUnAuthenticatedGraphQLHeaders,
     createTestRequest,
-    getTestContainer, getRequestId,
+    getTestContainer, mockHttpContext,
 } = require('../../common');
 const {describe, beforeEach, afterEach, expect, test} = require('@jest/globals');
 const env = require('var');
 const moment = require('moment-timezone');
 
 describe('GraphQL Patient Tests', () => {
+    let requestId;
     beforeEach(async () => {
         await commonBeforeEach();
+        requestId = mockHttpContext();
     });
 
     afterEach(async () => {
@@ -98,7 +100,7 @@ describe('GraphQL Patient Tests', () => {
             resp = await request.get('/4_0_0/Practitioner/').set(getHeaders()).expect(200);
             expect(resp.body.length).toBe(2);
 
-            await postRequestProcessor.waitTillDoneAsync({requestId: getRequestId(resp)});
+            await postRequestProcessor.waitTillDoneAsync({requestId: requestId});
             expect(await internalAuditEventCollection.countDocuments()).toStrictEqual(4);
             // clear out audit table
             await internalAuditEventCollection.deleteMany({});
@@ -126,7 +128,7 @@ describe('GraphQL Patient Tests', () => {
             expect(resp).toHaveResponse(expectedUpdateGraphQlResponse);
 
             // check that the audit entry is made
-            await postRequestProcessor.waitTillDoneAsync({requestId: getRequestId(resp)});
+            await postRequestProcessor.waitTillDoneAsync({requestId: requestId});
             const auditLogs = JSON.stringify(await internalAuditEventCollection.find({}).toArray());
             console.log(auditLogs);
             expect(await internalAuditEventCollection.countDocuments()).toStrictEqual(4);

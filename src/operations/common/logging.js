@@ -1,28 +1,28 @@
 const env = require('var');
-const moment = require('moment-timezone');
-const {getLogger} = require('../../winstonInit');
 const httpContext = require('express-http-context');
+const {getLogger} = require('../../winstonInit');
+const {REQUEST_ID_TYPE} = require('../../constants');
 
 /**
  * @type {import('winston').logger}
  */
 const logger = getLogger();
 
-const os = require('os');
-const {generateUUID} = require('../../utils/uid.util');
-const {getCircularReplacer} = require('../../utils/getCircularReplacer');
-const fhirLogger = require('../../utils/fhirLogger').FhirLogger;
-
 /**
  * Set request id in the log args
  * @param {Object} args
  */
 const setRequestIdInLog = (args) => {
-    const reqId = httpContext.get('requestId');
-    if (reqId) {
+    const reqId = httpContext.get(REQUEST_ID_TYPE.SYSTEM_GENERATED_REQUEST_ID);
+    const userRequestId = httpContext.get(REQUEST_ID_TYPE.USER_REQUEST_ID);
+    // eslint-disable-next-line no-prototype-builtins
+    if (reqId && args) {
         args.request = {
             ...args.request,
-            id: reqId,
+            // represents the id that is passed as header or req.id.
+            id: userRequestId,
+            // represents the server unique requestId and that is used in operations.
+            systemGeneratedRequestId: reqId
         };
     }
 };
@@ -70,135 +70,6 @@ const logWarn = (message, args) => {
 };
 
 /**
- * Get detail array from args
- * @param  {Object} args
- * @returns {{valueString: string|undefined, valuePositiveInt: number|undefined, type: string}[]}
- */
-const getDetailFromArgs = (args) => Object.entries(args).map(([k, v]) => {
-    return {
-        type: k,
-        valueString: (!v || typeof v === 'string') ? v : JSON.stringify(v, getCircularReplacer()),
-    };
-});
-
-/**
- * Logs a system event
- * @param {string} event
- * @param {string} message
- * @param {Object} args
- */
-const logSystemEventAsync = async ({event, message, args}) => {
-    /**
-     * @type {{valueString: string|undefined, valuePositiveInt: number|undefined, type: string}[]}
-     */
-    const detail = getDetailFromArgs(args);
-    if (os.hostname()) {
-        const hostname = os.hostname();
-        detail.push({
-            type: 'host',
-            valueString: String(hostname)
-        });
-    }
-    // This uses the FHIR Audit Event schema: https://hl7.org/fhir/auditevent.html
-    const logEntry = {
-        id: generateUUID(),
-        type: {
-            code: 'system'
-        },
-        action: event,
-        recorded: new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ssZ')),
-        outcome: 0, // https://hl7.org/fhir/valueset-audit-event-outcome.html
-        outcomeDesc: 'Success',
-        message: message,
-        entity: [
-            {
-                name: 'system',
-                detail: detail
-            }
-        ],
-    };
-    if (args.requestId) {
-        logEntry.request = {
-            id: args.requestId,
-        };
-    }
-    const fhirSecureLogger = await fhirLogger.getSecureLoggerAsync();
-    fhirSecureLogger.info(logEntry);
-    const fhirInSecureLogger = await fhirLogger.getInSecureLoggerAsync();
-    fhirInSecureLogger.info(logEntry);
-};
-
-/**
- * Logs a trace system event
- * @param {string} event
- * @param {string} message
- * @param {Object} args
- */
-const logTraceSystemEventAsync = async ({event, message, args}) => {
-    if (env.LOGLEVEL === 'TRACE' || env.LOGLEVEL === 'DEBUG') {
-        await logSystemEventAsync({event, message, args});
-    }
-};
-
-
-/**
- * Logs a system event
- * @param {string} event
- * @param {string} message
- * @param {Object} args
- * @param {Error|null} error
- */
-const logSystemErrorAsync = async ({event, message, args, error}) => {
-    /**
-     * @type {{valueString: string|undefined, valuePositiveInt: number|undefined, type: string}[]}
-     */
-    const detail = getDetailFromArgs(args);
-    if (os.hostname()) {
-        const hostname = os.hostname();
-        detail.push({
-            type: 'host',
-            valueString: String(hostname)
-        });
-    }
-    // This uses the FHIR Audit Event schema: https://hl7.org/fhir/auditevent.html
-    const logEntry = {
-        id: generateUUID(),
-        type: {
-            code: 'system'
-        },
-        action: event,
-        recorded: new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ssZ')),
-        outcome: error ? 8 : 0, // https://hl7.org/fhir/valueset-audit-event-outcome.html
-        outcomeDesc: error ? 'Error' : 'Success',
-        message: message + (error ? (' : ' + JSON.stringify(error, getCircularReplacer())) : ''),
-        entity: [
-            {
-                name: 'system',
-                detail: detail
-            }
-        ],
-    };
-    if (args.requestId) {
-        logEntry.request = {
-            id: args.requestId,
-        };
-    }
-
-    const fhirSecureLogger = await fhirLogger.getSecureLoggerAsync();
-    if (error) {
-        fhirSecureLogger.error(logEntry);
-    } else {
-        fhirSecureLogger.info(logEntry);
-    }
-    const fhirInSecureLogger = await fhirLogger.getInSecureLoggerAsync();
-    if (error) {
-        fhirInSecureLogger.error(logEntry);
-    } else {
-        fhirInSecureLogger.info(logEntry);
-    }
-};
-
-/**
  * logs a verbose message
  * @param {string} source
  * @param {Object} args
@@ -234,7 +105,7 @@ const getRemoteAddress = (req) => {
  */
 const logErrorAndRequestAsync = async ({error, req}) => {
     const request = {
-        id: req.id,
+        id: httpContext.get(REQUEST_ID_TYPE.USER_REQUEST_ID),
         statusCode: error.statusCode,
         method: req.method,
         url: req.url,
@@ -244,7 +115,10 @@ const logErrorAndRequestAsync = async ({error, req}) => {
         user: getUserName(req),
         remoteAddress: getRemoteAddress(req),
         request: {
-            id: req.id
+            // represents the id that is passed as header or req.id.
+            id: httpContext.get(REQUEST_ID_TYPE.USER_REQUEST_ID),
+            // represents the server unique requestId and that is used in operations.
+            systemGeneratedRequestId: httpContext.get(REQUEST_ID_TYPE.SYSTEM_GENERATED_REQUEST_ID)
         }
     };
     const logData = {request, error};
@@ -259,9 +133,6 @@ module.exports = {
     logDebug,
     logError,
     logWarn,
-    logTraceSystemEventAsync,
-    logSystemEventAsync,
-    logSystemErrorAsync,
     logVerboseAsync,
     logErrorAndRequestAsync
 };

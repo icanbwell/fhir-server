@@ -4,6 +4,7 @@
 ><%= res.resourceType %>/<%= res.id %></a
 >
 <!-- prettier-ignore -->
+<%- include('../partials/narrative', {name: 'Text', value: res.text}); %>
 <%- include('../partials/identifier', {resourceType: res.resourceType, identifiers: res.identifier, name: "Identifier"}); %>
 <%- include('../partials/meta', {meta: res.meta, name: "Meta"}); %>
 <%- include('../partials/extension', {extensions: res.extension}); %>

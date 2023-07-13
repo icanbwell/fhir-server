@@ -5,7 +5,7 @@ const {ApolloServer} = require('@apollo/server');
 const {expressMiddleware} = require('@apollo/server/express4');
 const {join} = require('path');
 const resolvers = require('../../graphql/v2/resolvers');
-const {REQUEST_ID_HEADER} = require('../../constants');
+const { REQUEST_ID_TYPE} = require('../../constants');
 const {loadFilesSync} = require('@graphql-tools/load-files');
 const {mergeTypeDefs} = require('@graphql-tools/merge');
 const {FhirDataSource} = require('../../graphql/v2/dataSource');
@@ -18,13 +18,10 @@ const {
 const {getBundleMetaApolloServerPlugin} = require('./plugins/graphqlBundleMetaPlugin');
 const {getApolloServerLoggingPlugin} = require('./plugins/graphqlLoggingPlugin');
 const {FhirRequestInfo} = require('../../utils/fhirRequestInfo');
-const {generateUUID} = require('../../utils/uid.util');
 const {getAddRequestIdToResponseHeadersPlugin} = require('./plugins/graphqlAddRequestIdToResponseHeadersPlugin');
 const contentType = require('content-type');
 const {getValidateMissingVariableValuesPlugin} = require('./plugins/graphqlValidateMissingVariableValuesPlugin');
 const httpContext = require('express-http-context');
-
-
 /**
  * @param {function (): SimpleContainer} fnCreateContainer
  * @return {Promise<e.Router>}
@@ -57,8 +54,6 @@ const graphql = async (fnCreateContainer) => {
     async function getContext({req, res}) {
         const container = fnCreateContainer();
 
-        req.id = req.id || req.header(`${REQUEST_ID_HEADER}`) || generateUUID();
-        httpContext.set('requestId', req.id);
         /**
          * @type {import('content-type').ContentType}
          */
@@ -74,7 +69,8 @@ const graphql = async (fnCreateContainer) => {
                 patientIdsFromJwtToken: req.authInfo && req.authInfo.context && req.authInfo.context.patientIdsFromJwtToken,
                 scope: req.authInfo && req.authInfo.scope,
                 remoteIpAddress: req.headers['x-forwarded-for'] || req.socket.remoteAddress,
-                requestId: req.id,
+                requestId: httpContext.get(REQUEST_ID_TYPE.SYSTEM_GENERATED_REQUEST_ID),
+                userRequestId: httpContext.get(REQUEST_ID_TYPE.USER_REQUEST_ID),
                 protocol: req.protocol,
                 originalUrl: req.originalUrl,
                 path: req.path,

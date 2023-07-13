@@ -1,7 +1,8 @@
-const {mongoConfig, auditEventMongoConfig, auditEventReadOnlyMongoConfig} = require('../config');
+const {mongoConfig, auditEventMongoConfig, auditEventReadOnlyMongoConfig, accessLogsMongoConfig} = require('../config');
 const {isTrue} = require('./isTrue');
 const env = require('var');
-const {logSystemEventAsync, logInfo, logError} = require('../operations/common/logging');
+const {logInfo, logError} = require('../operations/common/logging');
+const {logSystemEventAsync} = require('../operations/common/systemEventLogging');
 const {MongoClient, GridFSBucket} = require('mongodb');
 
 /**
@@ -26,6 +27,12 @@ let auditClientDb = null;
  * @type {import('mongodb').Db}
  */
 let auditReadOnlyClientDb = null;
+
+/**
+ * client db
+ * @type {import('mongodb').Db}
+ */
+let accessLogsDb = null;
 
 /**
  * gridFs bucket
@@ -68,6 +75,17 @@ class MongoDatabaseManager {
     }
 
     /**
+     * Gets access logs db
+     * @returns {Promise<import('mongodb').Db>}
+     */
+    async getAccessLogsDbAsync() {
+        if (!accessLogsDb) {
+            await this.connectAsync();
+        }
+        return accessLogsDb;
+    }
+
+    /**
      * Gets db for resource type
      * @param {string} resourceType
      * @param {Object} extraInfo
@@ -105,6 +123,10 @@ class MongoDatabaseManager {
 
     async getAuditReadOnlyConfigAsync() {
         return auditEventReadOnlyMongoConfig;
+    }
+
+    async getAccessLogsConfigAsync() {
+        return accessLogsMongoConfig;
     }
 
     /**
@@ -184,6 +206,10 @@ class MongoDatabaseManager {
         const auditReadOnlyConfig = await this.getAuditReadOnlyConfigAsync();
         const auditEventReadOnlyClient = await this.createClientAsync(auditReadOnlyConfig);
         auditReadOnlyClientDb = auditEventReadOnlyClient.db(auditReadOnlyConfig.db_name);
+
+        const accessLogsConfig = await this.getAccessLogsConfigAsync();
+        const accessLogsClient = await this.createClientAsync(accessLogsConfig);
+        accessLogsDb = accessLogsClient.db(accessLogsConfig.db_name);
     }
 
     /**

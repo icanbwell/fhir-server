@@ -1,17 +1,19 @@
-const {Transform} = require('stream');
-const {removeNull} = require('../../utils/nullRemover');
-const {assertIsValid} = require('../../utils/assertType');
-const {getCircularReplacer} = require('../../utils/getCircularReplacer');
+const {removeNull} = require('../../../utils/nullRemover');
+const {assertIsValid} = require('../../../utils/assertType');
+const {getCircularReplacer} = require('../../../utils/getCircularReplacer');
+const {FhirResourceWriterBase} = require('./fhirResourceWriterBase');
+const {fhirContentTypes} = require('../../../utils/contentTypes');
 
-class FhirBundleWriter extends Transform {
+class FhirBundleWriter extends FhirResourceWriterBase {
     /**
      * Streams the incoming data inside a FHIR Bundle
      * @param {function (string | null, number): Bundle} fnBundle
      * @param {string | null} url
      * @param {AbortSignal} signal
+     * @param {string} defaultSortId
      */
     constructor({fnBundle, url, signal, defaultSortId}) {
-        super({objectMode: true});
+        super({objectMode: true, contentType: fhirContentTypes.fhirJson});
         /**
          * @type {function (string | null, number): Bundle}
          * @private

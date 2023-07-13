@@ -49,7 +49,7 @@ class FixReferenceIdHapiRunner extends FixReferenceIdRunner {
         /**
          * @type {boolean}
          */
-        const isHistoryCollection = collectionName.includes('History');
+        const isHistoryCollection = collectionName.includes('_History');
 
         /**
          * @type {Object}
@@ -126,9 +126,10 @@ class FixReferenceIdHapiRunner extends FixReferenceIdRunner {
     /**
      * Extracts id from document
      * @param {Resource} doc
+     * @param {boolean} _sanitize
      * @returns {string}
      */
-    getOriginalId({ doc }) {
+    getOriginalId({ doc, _sanitize }) {
         // for observation resource we need to check if the resource is observation and id length is 64
         if (doc.resourceType === 'Observation' && doc._sourceId.length === 64) {
             // to check if doc.code exists and the sourceId has some suffix at the end
@@ -149,12 +150,12 @@ class FixReferenceIdHapiRunner extends FixReferenceIdRunner {
     }
 
     /**
-     * Created old if from original id
+     * Created old id from original id
      * @param {string} originalId
-     * @returns {string}
+     * @returns {[string]}
      */
-    getCurrentId({ originalId }) {
-        return (`HumanApi-${originalId}`).slice(0, 64);
+    getCurrentIds({ originalId }) {
+        return [(`HumanApi-${originalId}`).slice(0, 64)];
     }
 }
 

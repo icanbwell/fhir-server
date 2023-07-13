@@ -1,3 +1,5 @@
+const {ACCESS_LOGS_COLLECTION_NAME} = require('../constants');
+
 /**
  * List of custom indexes to add.  (* means these indexes should be applied to all collections)
  * @description All options described here: https://www.mongodb.com/docs/manual/reference/method/db.collection.createIndex/
@@ -320,6 +322,16 @@ module.exports = {
                 },
                 options: {
                     name: 'entityWhat_sourceId_uuidRecorded'
+                }
+            }
+        ],
+        [ACCESS_LOGS_COLLECTION_NAME]: [
+            {
+                keys: {
+                    'meta.id': 1
+                },
+                options: {
+                    name: 'meta.id_1'
                 }
             }
         ],
@@ -742,6 +754,15 @@ module.exports = {
                 },
                 options: {
                     name: 'address_postalCode_uuid'
+                }
+            },
+            {
+                keys: {
+                    'birthDate': 1,
+                    '_uuid': 1
+                },
+                options: {
+                    name: 'birthDate_uuid'
                 }
             }
         ],

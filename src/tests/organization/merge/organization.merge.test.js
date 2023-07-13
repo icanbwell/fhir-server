@@ -6,15 +6,17 @@ const {
     commonBeforeEach,
     commonAfterEach,
     getHeaders,
-    createTestRequest, getTestContainer, getRequestId,
+    createTestRequest, getTestContainer, mockHttpContext,
 } = require('../../common');
 const {describe, beforeEach, afterEach, expect, test} = require('@jest/globals');
 const {assertTypeEquals} = require('../../../utils/assertType');
 const {PostRequestProcessor} = require('../../../utils/postRequestProcessor');
 
 describe('Organization Merge Tests', () => {
+    let requestId;
     beforeEach(async () => {
         await commonBeforeEach();
+        requestId = mockHttpContext();
     });
 
     afterEach(async () => {
@@ -43,7 +45,7 @@ describe('Organization Merge Tests', () => {
             const postRequestProcessor = container.postRequestProcessor;
             assertTypeEquals(postRequestProcessor, PostRequestProcessor);
 
-            await postRequestProcessor.waitTillDoneAsync({requestId: getRequestId(resp)});
+            await postRequestProcessor.waitTillDoneAsync({requestId: requestId});
 
             resp = await request
                 .post('/4_0_0/Organization/1/$merge')

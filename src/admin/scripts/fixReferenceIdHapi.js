@@ -14,9 +14,10 @@ const {AdminLogger} = require('../adminLogger');
 const {FixReferenceIdHapiRunner} = require('../runners/fixReferenceIdHapiRunner');
 
 const hapiResources = [
-    'AllergyIntolerance', 'CarePlan', 'Condition', 'Device', 'Patient', 'DiangosticReport',
+    'AllergyIntolerance', 'CarePlan', 'Condition', 'Device', 'Patient', 'DiagnosticReport',
     'DocumentReference', 'Encounter', 'Immunization', 'Location', 'Procedure', 'Medication',
-    'Observation', 'ServiceRequest'
+    'MedicationDispense', 'MedicationRequest', 'MedicationStatement', 'Observation', 'Organization', 'Practitioner',
+    'ServiceRequest'
 ];
 
 /**
@@ -63,7 +64,7 @@ async function main() {
 
     const adminLogger = new AdminLogger();
 
-    adminLogger.logInfo(`[${currentDateTime}] Running script for collections: ${collections.join(',')}`);
+    adminLogger.logInfo(`[${currentDateTime}] Running script for collections: ${hapiCollections.join(',')}`);
 
     // set up all the standard services in the container
     const container = createContainer();
@@ -74,6 +75,8 @@ async function main() {
                 mongoCollectionManager: c.mongoCollectionManager,
                 collections,
                 batchSize,
+                referenceBatchSize: parameters.referenceBatchSize,
+                collectionConcurrency: parameters.collectionConcurrency,
                 afterLastUpdatedDate,
                 beforeLastUpdatedDate,
                 adminLogger,

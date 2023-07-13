@@ -10,6 +10,8 @@ const supertest = require('supertest');
 const {createApp} = require('../app');
 const {createServer} = require('../server');
 const {TestMongoDatabaseManager} = require('./testMongoDatabaseManager');
+const httpContext = require('express-http-context');
+const {fhirContentTypes} = require('../utils/contentTypes');
 
 /**
  * @type {import('http').Server}
@@ -217,6 +219,14 @@ module.exports.getHeadersNdJson = (scope) => {
     };
 };
 
+module.exports.getHeadersCsv = (scope) => {
+    return {
+        'Content-Type': 'application/fhir+json', // what the data we POST is in
+        Accept: fhirContentTypes.csv, // what we want the response to be in
+        Authorization: `Bearer ${scope ? getToken(scope) : getFullAccessToken()}`,
+    };
+};
+
 module.exports.getHeadersFormUrlEncoded = (scope) => {
     return {
         'Content-Type': 'application/x-www-form-urlencoded',
@@ -229,6 +239,14 @@ module.exports.getHeadersNdJsonFormUrlEncoded = (scope) => {
     return {
         'Content-Type': 'application/x-www-form-urlencoded',
         Accept: 'application/fhir+ndjson', // what we want the response to be in
+        Authorization: `Bearer ${scope ? getToken(scope) : getFullAccessToken()}`,
+    };
+};
+
+module.exports.getHeadersCsvFormUrlEncoded = (scope) => {
+    return {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        Accept: fhirContentTypes.csv, // what we want the response to be in
         Authorization: `Bearer ${scope ? getToken(scope) : getFullAccessToken()}`,
     };
 };
@@ -400,4 +418,21 @@ module.exports.wrapResourceInBundle = (resource) => {
  */
 module.exports.getRequestId = (resp) => {
     return resp.headers['x-request-id'];
+};
+
+/**
+ * @description Mocks the get method of express-http-context to override requestId and userRequestId
+ * @returns {string}
+ */
+module.exports.mockHttpContext = () => {
+    jest.spyOn(httpContext, 'get');
+    const values = {
+        'systemGeneratedRequestId': '12345678',
+        'userRequestId': '1234'
+    };
+    httpContext.get.mockImplementation((key) => {
+        // eslint-disable-next-line security/detect-object-injection
+        return values[key];
+    });
+    return values.systemGeneratedRequestId;
 };

@@ -17,12 +17,17 @@ const {FhirRequestInfo} = require('../utils/fhirRequestInfo');
 const {SearchStreamingOperation} = require('./search/searchStreaming');
 const {assertTypeEquals, assertIsValid} = require('../utils/assertType');
 const env = require('var');
+const httpContext = require('express-http-context');
 const {FhirResponseStreamer} = require('../utils/fhirResponseStreamer');
 const BundleEntry = require('../fhir/classes/4_0_0/backbone_elements/bundleEntry');
 const {convertErrorToOperationOutcome} = require('../utils/convertErrorToOperationOutcome');
 const contentType = require('content-type');
 const {QueryRewriterManager} = require('../queryRewriters/queryRewriterManager');
 const {R4ArgsParser} = require('./query/r4ArgsParser');
+const {REQUEST_ID_TYPE} = require('../constants');
+const {shouldStreamResponse} = require('../utils/requestHelpers');
+
+// const {shouldStreamResponse} = require('../utils/requestHelpers');
 
 
 class FhirOperationsManager {
@@ -192,7 +197,11 @@ class FhirOperationsManager {
         /**
          * @type {string|null}
          */
-        const requestId = req.id;
+        const requestId = httpContext.get(REQUEST_ID_TYPE.SYSTEM_GENERATED_REQUEST_ID);
+        /**
+         * @type {string|null}
+         */
+        const userRequestId = httpContext.get(REQUEST_ID_TYPE.USER_REQUEST_ID);
         /**
          * @type {string}
          */
@@ -238,6 +247,7 @@ class FhirOperationsManager {
                 scope,
                 remoteIpAddress,
                 requestId,
+                userRequestId,
                 protocol,
                 originalUrl,
                 path,
@@ -485,41 +495,56 @@ class FhirOperationsManager {
             }
         );
 
-        const responseStreamer = new FhirResponseStreamer({
-            response: res,
-            requestId: req.id
-        });
-        await responseStreamer.startAsync();
+        if (shouldStreamResponse(req)) {
+            const responseStreamer = new FhirResponseStreamer({
+                response: res,
+                requestId: req.id
+            });
+            await responseStreamer.startAsync();
 
-        try {
+            try {
+                /**
+                 * @type {Bundle}
+                 */
+                const result = await this.everythingOperation.everythingAsync(
+                    {
+                        requestInfo: this.getRequestInfo(req),
+                        res,
+                        parsedArgs,
+                        resourceType,
+                        responseStreamer
+                    });
+                await responseStreamer.endAsync();
+                return result;
+            } catch (err) {
+                const status = err.statusCode || 500;
+                /**
+                 * @type {OperationOutcome}
+                 */
+                const operationOutcome = convertErrorToOperationOutcome({error: err});
+                await responseStreamer.writeBundleEntryAsync({
+                        bundleEntry: new BundleEntry({
+                                resource: operationOutcome
+                            }
+                        )
+                    }
+                );
+                await responseStreamer.setStatusCodeAsync({statusCode: status});
+                await responseStreamer.endAsync();
+            }
+        } else {
+            // noinspection UnnecessaryLocalVariableJS
             /**
              * @type {Bundle}
              */
-            const result = await await this.everythingOperation.everythingAsync(
+            const result = await this.everythingOperation.everythingAsync(
                 {
                     requestInfo: this.getRequestInfo(req),
                     res,
                     parsedArgs,
                     resourceType,
-                    responseStreamer
                 });
-            await responseStreamer.endAsync();
             return result;
-        } catch (err) {
-            const status = err.statusCode || 500;
-            /**
-             * @type {OperationOutcome}
-             */
-            const operationOutcome = convertErrorToOperationOutcome({error: err});
-            await responseStreamer.writeBundleEntryAsync({
-                    bundleEntry: new BundleEntry({
-                            resource: operationOutcome
-                        }
-                    )
-                }
-            );
-            await responseStreamer.setStatusCodeAsync({statusCode: status});
-            await responseStreamer.endAsync();
         }
     }
 

@@ -281,7 +281,7 @@ class HistoryByIdOperation {
             return this.bundleManager.createBundleFromEntries(
                 {
                     type: 'history',
-                    requestId: requestInfo.requestId,
+                    requestId: requestInfo.userRequestId,
                     originalUrl: url,
                     host,
                     protocol,

@@ -12,14 +12,16 @@ const {
     commonBeforeEach,
     commonAfterEach,
     getHeaders,
-    createTestRequest, getTestContainer, getRequestId,
+    createTestRequest, getTestContainer, mockHttpContext,
 } = require('../../common');
 const {describe, beforeEach, afterEach, test} = require('@jest/globals');
 const deepcopy = require('deepcopy');
 
 describe('Person Tests', () => {
+    let requestId;
     beforeEach(async () => {
         await commonBeforeEach();
+        requestId = mockHttpContext();
     });
 
     afterEach(async () => {
@@ -78,7 +80,7 @@ describe('Person Tests', () => {
              * @type {PostRequestProcessor}
              */
             const postRequestProcessor = container.postRequestProcessor;
-            await postRequestProcessor.waitTillDoneAsync({requestId: getRequestId(resp)});
+            await postRequestProcessor.waitTillDoneAsync({requestId: requestId});
 
             resp = await request
                 .get('/4_0_0/Person/?_bundle=1')
@@ -125,7 +127,7 @@ describe('Person Tests', () => {
              * @type {PostRequestProcessor}
              */
             const postRequestProcessor = container.postRequestProcessor;
-            await postRequestProcessor.waitTillDoneAsync({requestId: getRequestId(resp)});
+            await postRequestProcessor.waitTillDoneAsync({requestId: requestId});
 
             resp = await request
                 .get('/4_0_0/Person/?_bundle=1')
@@ -214,7 +216,7 @@ describe('Person Tests', () => {
              * @type {PostRequestProcessor}
              */
             const postRequestProcessor = container.postRequestProcessor;
-            await postRequestProcessor.waitTillDoneAsync({requestId: getRequestId(resp)});
+            await postRequestProcessor.waitTillDoneAsync({requestId: requestId});
 
             // ACT & ASSERT
             // add the resources to FHIR server
@@ -293,7 +295,7 @@ describe('Person Tests', () => {
              * @type {PostRequestProcessor}
              */
             const postRequestProcessor = container.postRequestProcessor;
-            await postRequestProcessor.waitTillDoneAsync({requestId: getRequestId(resp)});
+            await postRequestProcessor.waitTillDoneAsync({requestId: requestId});
 
             resp = await request
                 .post('/4_0_0/Person/1/$merge')
@@ -345,7 +347,7 @@ describe('Person Tests', () => {
              * @type {PostRequestProcessor}
              */
             const postRequestProcessor = container.postRequestProcessor;
-            await postRequestProcessor.waitTillDoneAsync({requestId: getRequestId(resp)});
+            await postRequestProcessor.waitTillDoneAsync({requestId: requestId});
 
             resp = await request
                 .post('/4_0_0/Person/1/$merge')

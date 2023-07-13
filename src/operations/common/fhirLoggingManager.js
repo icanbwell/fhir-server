@@ -4,6 +4,8 @@ const {FhirLogger: fhirLogger} = require('../../utils/fhirLogger');
 const {assertTypeEquals} = require('../../utils/assertType');
 const {ScopesManager} = require('../security/scopesManager');
 const {getCircularReplacer} = require('../../utils/getCircularReplacer');
+const httpContext = require('express-http-context');
+const {REQUEST_ID_TYPE} = require('../../constants');
 
 class FhirLoggingManager {
     /**
@@ -214,7 +216,7 @@ class FhirLoggingManager {
 
         // This uses the FHIR Audit Event schema: https://hl7.org/fhir/auditevent.html
         const logEntry = {
-            id: requestInfo.requestId,
+            id: requestInfo.userRequestId,
             type: {
                 code: 'operation'
             },
@@ -251,7 +253,10 @@ class FhirLoggingManager {
             ],
             message: error ? `${message}: ${JSON.stringify(error, getCircularReplacer())}` : message,
             request: {
-                id: requestInfo.requestId
+                // represents the id that is passed as header or req.id.
+                id: httpContext.get(REQUEST_ID_TYPE.USER_REQUEST_ID),
+                // represents the server unique requestId and that is used in operations.
+                systemGeneratedRequestId: httpContext.get(REQUEST_ID_TYPE.SYSTEM_GENERATED_REQUEST_ID)
             }
         };
         const fhirInSecureLogger = await fhirLogger.getInSecureLoggerAsync();

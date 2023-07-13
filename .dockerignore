@@ -15,3 +15,4 @@ npm-debug.log
 Dockerfile
 src/admin/scripts/.env*
 .npmrc
+src/web/build

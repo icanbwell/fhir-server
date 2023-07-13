@@ -11,6 +11,13 @@ const { createContainer } = require('./createContainer');
 const { getCircularReplacer } = require('./utils/getCircularReplacer');
 const { initialize } = require('./winstonInit');
 const { logError } = require('./operations/common/logging');
+const Sentry = require('@sentry/node');
+const { getImageVersion } = require('./utils/getImageVersion');
+
+Sentry.init({
+    release: getImageVersion(),
+    environment: process.env.ENVIRONMENT,
+});
 
 const main = async function () {
     try {

@@ -3,11 +3,13 @@
  */
 
 const async = require('async');
-const {logSystemEventAsync, logSystemErrorAsync, logInfo} = require('../operations/common/logging');
+const {logInfo} = require('../operations/common/logging');
+const {logSystemEventAsync, logSystemErrorAsync} = require('../operations/common/systemEventLogging');
 const {assertTypeEquals, assertIsValid} = require('../utils/assertType');
 const {IndexProvider} = require('./indexProvider');
 const {MongoDatabaseManager} = require('../utils/mongoDatabaseManager');
 const deepEqual = require('fast-deep-equal');
+const {ACCESS_LOGS_COLLECTION_NAME} = require('../constants');
 
 /**
  * @typedef IndexConfig
@@ -148,7 +150,7 @@ class IndexManager {
      * @returns {Promise<{collectionName: string, indexes: IndexConfig[]}>}
      */
     async getIndexesToCreateForCollectionAsync({collectionName}) {
-        const baseCollectionName = collectionName.endsWith('_4_0_0') ?
+        const baseCollectionName = collectionName.endsWith('_4_0_0') || collectionName === ACCESS_LOGS_COLLECTION_NAME ?
             collectionName : collectionName.substring(0, collectionName.indexOf('_4_0_0') + 6);
 
         // if this is a history collection then we only create an index on id
@@ -468,12 +470,14 @@ class IndexManager {
     /**
      * Gets missingindexes on all the collections
      * @param {boolean} audit
+     * @param {boolean} accessLogs
      * @param {boolean|undefined} filterToProblems
      * @return {Promise<{indexes: {indexConfig: IndexConfig, [missing]:boolean, [extra]: boolean, [changed]: boolean}[], collectionName: string}[]>}
      */
     async compareCurrentIndexesWithConfigurationInAllCollectionsAsync(
         {
             audit,
+            accessLogs,
             filterToProblems
         }
     ) {
@@ -482,7 +486,9 @@ class IndexManager {
          */
         const db = audit ?
             await this.mongoDatabaseManager.getAuditDbAsync() :
+            accessLogs ? await this.mongoDatabaseManager.getAccessLogsDbAsync() :
             await this.mongoDatabaseManager.getClientDbAsync();
+
         const collection_names = [];
 
         for await (const collection of db.listCollections({ type: {$ne: 'view'} })) {
@@ -690,10 +696,11 @@ class IndexManager {
     /**
      * adds any indexes missing from config and removes any indexes not in config
      * @param {boolean} [audit]
+     * @param {boolean} [accessLogs]
      * @param {string[]} collections
      * @returns {Promise<{created: {indexes: IndexConfig[], collectionName: string}[],dropped: {indexes: IndexConfig[], collectionName: string}[]}>}
      */
-    async synchronizeIndexesWithConfigAsync({audit = false, collections = ['all']}) {
+    async synchronizeIndexesWithConfigAsync({audit = false, accessLogs = false, collections = ['all']}) {
         /**
          * @type {{indexes: IndexConfig[], collectionName: string}[]}
          */
@@ -708,6 +715,7 @@ class IndexManager {
          */
         const db = audit ?
             await this.mongoDatabaseManager.getAuditDbAsync() :
+            accessLogs ? await this.mongoDatabaseManager.getAccessLogsDbAsync() :
             await this.mongoDatabaseManager.getClientDbAsync();
 
         /**
@@ -715,6 +723,7 @@ class IndexManager {
          */
         const indexProblems = await this.compareCurrentIndexesWithConfigurationInAllCollectionsAsync({
             audit,
+            accessLogs,
             filterToProblems: true
         });
 
@@ -730,7 +739,7 @@ class IndexManager {
                 let {indexConfigsCreated, indexConfigsDropped} = await this.renameIndexes({indexProblem, db});
 
                 // missing indexes needs to be created
-                const createdIndexes = await this.addMissingIndexesAsync({audit, collections: [indexProblem.collectionName]});
+                const createdIndexes = await this.addMissingIndexesAsync({audit, accessLogs, collections: [indexProblem.collectionName]});
                 if (createdIndexes.created.length > 0) {
                     indexConfigsCreated = [
                         ...indexConfigsCreated, ...(createdIndexes.created[0].indexes)
@@ -738,7 +747,7 @@ class IndexManager {
                 }
 
                 // extra indexes needs to be dropped
-                const droppedIndexes = await this.dropExtraIndexesAsync({audit, collections: [indexProblem.collectionName]});
+                const droppedIndexes = await this.dropExtraIndexesAsync({audit, accessLogs, collections: [indexProblem.collectionName]});
                 if (droppedIndexes.dropped.length > 0) {
                     indexConfigsDropped = [
                         ...indexConfigsDropped, ...(droppedIndexes.dropped[0].indexes)
@@ -791,10 +800,11 @@ class IndexManager {
     /**
      * Adds any index missing from the config
      * @param {boolean} [audit]
+     * @param {boolean} [accessLogs]
      * @param {string[]} collections
      * @returns {Promise<{created: {indexes: IndexConfig[], collectionName: string}[]}>}
      */
-    async addMissingIndexesAsync({audit = false, collections = ['all']}) {
+    async addMissingIndexesAsync({audit = false, accessLogs = false, collections = ['all']}) {
         /**
          * @type {{indexes: IndexConfig[], collectionName: string}[]}
          */
@@ -805,6 +815,7 @@ class IndexManager {
          */
         const db = audit ?
             await this.mongoDatabaseManager.getAuditDbAsync() :
+            accessLogs ? await this.mongoDatabaseManager.getAccessLogsDbAsync() :
             await this.mongoDatabaseManager.getClientDbAsync();
 
         /**
@@ -812,6 +823,7 @@ class IndexManager {
          */
         const indexProblems = await this.compareCurrentIndexesWithConfigurationInAllCollectionsAsync({
             audit,
+            accessLogs,
             filterToProblems: true
         });
 
@@ -842,10 +854,11 @@ class IndexManager {
     /**
      * drops any indexes not in config
      * @param {boolean} [audit]
+     * @param {boolean} [accessLogs]
      * @param {string[]} collections
      * @returns {Promise<{dropped: {indexes: IndexConfig[], collectionName: string}[]}>}
      */
-    async dropExtraIndexesAsync({audit = false, collections = ['all']}) {
+    async dropExtraIndexesAsync({audit = false, accessLogs = false, collections = ['all']}) {
         /**
          * @type {{indexes: IndexConfig[], collectionName: string}[]}
          */
@@ -856,6 +869,7 @@ class IndexManager {
          */
         const db = audit ?
             await this.mongoDatabaseManager.getAuditDbAsync() :
+            accessLogs ? await this.mongoDatabaseManager.getAccessLogsDbAsync() :
             await this.mongoDatabaseManager.getClientDbAsync();
 
         /**
@@ -863,6 +877,7 @@ class IndexManager {
          */
         const indexProblems = await this.compareCurrentIndexesWithConfigurationInAllCollectionsAsync({
             audit,
+            accessLogs,
             filterToProblems: true
         });
 

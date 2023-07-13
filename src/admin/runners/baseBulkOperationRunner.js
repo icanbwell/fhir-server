@@ -304,7 +304,9 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                         sessionId,
                         sourceDb,
                         destinationCollection,
-                        sourceCollection
+                        sourceCollection,
+                        sourceClient,
+                        destinationClient
                     } = await this.createConnectionAsync(
                         {
                             config, destinationCollectionName, sourceCollectionName
@@ -411,6 +413,13 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                             `size: ${memoryManager.formatBytes(bytesLoaded)} ` +
                             `mem: ${memoryManager.memoryUsed} ` +
                             `lastId: ${previouslyCheckedId}`);
+                        if (Object.prototype.hasOwnProperty.call(this, 'historyUuidCache') && doc._uuid && !sourceCollectionName.includes('_History')) {
+                            if (!this.historyUuidCache.has(doc.resourceType)) {
+                                this.historyUuidCache.set(doc.resourceType, new Set());
+                            }
+                            let historyUuidCacheSet = this.historyUuidCache.get(doc.resourceType);
+                            historyUuidCacheSet.add(doc._uuid);
+                        }
                         /**
                          * @type {import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>[]}
                          */
@@ -507,6 +516,8 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                     }
                     continueLoop = false; // done
                     session.endSession();
+                    await this.mongoDatabaseManager.disconnectClientAsync(sourceClient);
+                    await this.mongoDatabaseManager.disconnectClientAsync(destinationClient);
                 }
                 this.adminLogger.logInfo('=== Finished ' +
                     `${sourceCollectionName} ` +
