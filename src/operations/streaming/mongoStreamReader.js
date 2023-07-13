@@ -29,12 +29,11 @@ class MongoReadableStream extends Readable {
     _read(size) {
         (async () => {
             await this.readAsync();
-            this.push(null);
         })();
     }
 
     async readAsync() {
-        while (await this.cursor.hasNext()) {
+        if (await this.cursor.hasNext()) {
             if (this.signal.aborted) {
                 if (isTrue(env.LOG_STREAM_STEPS)) {
                     logInfo('mongoStreamReader: aborted', {});
@@ -53,6 +52,8 @@ class MongoReadableStream extends Readable {
                 resource = await this.databaseAttachmentManager.transformAttachments(resource, RETRIEVE);
             }
             this.push(resource);
+        } else {
+            this.push(null);
         }
     }
 }
