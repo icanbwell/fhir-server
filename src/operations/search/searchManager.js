@@ -142,6 +142,66 @@ class SearchManager {
         assertTypeEquals(patientFilterManager, PatientFilterManager);
     }
 
+    /**
+     * @description Fetches all the consent resources linked to a patient IDs.
+     * @param {String[]} patientIds
+     * @returns Consent resource list
+     */
+    async getConsentResources(patientIds, ownerTags) {
+        // Query to fetch only the must updated consents for any patient
+        const query = [
+            {
+                $match: {
+                    $and: [
+                        {'provision.class.code': '/dataSharingConsent'},
+                        {'patient.reference': {$in: patientIds}},
+                        {'status': 'active'},
+                        {'provision.type': 'permit'},
+                        {'meta.security': {
+                            '$elemMatch': {
+                                'system': 'https://www.icanbwell.com/owner',
+                                'code': {$in: ownerTags},
+                            },
+                        }}
+                    ]
+                }
+            },
+            {
+                $sort: {
+                    'meta.lastUpdated': -1
+                }
+            },
+            {
+                $group: {
+                    _id: '$patient.reference',
+                    latestDocument: {
+                        $first: '$$ROOT'
+                    }
+                }
+            },
+            {
+                $replaceRoot: {
+                    newRoot: '$latestDocument'
+                }
+            }
+        ];
+
+        const consentDataBaseQueryManager = this.databaseQueryFactory.createQuery({
+            resourceType: 'Consent',
+            base_version: '4_0_0',
+        });
+
+        // Match query is passed to determine if the whole aggregration pipeline is passed
+        const cursor = await consentDataBaseQueryManager.findUsingAggregationAsync({
+            query: query,
+            projection: {},
+            extraInfo: {matchQueryProvided: true}
+        });
+        const consentResources = await cursor.toArrayRawAsync();
+
+        return consentResources;
+    }
+
     // noinspection ExceptionCaughtLocallyJS
     /**
      * constructs a mongo query
@@ -215,14 +275,34 @@ class SearchManager {
                     // 1. Check resourceType is specific to Patient
                     if (this.patientFilterManager.isPatientRelatedResource({ resourceType })) {
                         // 2. Check parsedArgs has patient or proxy patient filter
-                        const patientIds = parsedArgs.parsedArgItems
-                        .filter((parsedArg) => parsedArg.queryParameter === 'patient') // TODO: Support other querystring used for patient filter
-                        .map((parsedArg) => {return parsedArg.queryParameterValue.value;});
+                        let patientIds;
+                        parsedArgs.parsedArgItems.forEach((parsedArgItem) => {
+                            if (parsedArgItem.queryParameter === 'patient'){
+                                patientIds = parsedArgItem.queryParameterValue.values;
+                                return;
+                            }
+                        });
 
                         if (patientIds && patientIds.length > 0) {
-                            // Get b.Well Master Person and/or Person for each patient IDs
+                            // Get b.Well Master Person and/or Person map for each patient IDs
 
-
+                            // Get Consent for each b.well master person
+                            const consentResources = await this.getConsentResources(patientIds, securityTags);
+                            console.log(consentResources);
+                            if ( consentResources.length > 0){
+                                // Create map b/w input patient IDs and consent
+                                let consentPatientIds = [];
+                                patientIds.forEach((patientId) => {
+                                    // if patientId has corrosponding consent available, add this consented patient list
+                                    // TODO: Adding all patient IDs for now
+                                    consentPatientIds.push(patientId);
+                                });
+                                if (consentPatientIds.length > 0){
+                                    // TODO: rewrite query with consentPatientIds
+                                    // for now using existing query
+                                    queryWithConsent = deepcopy(query);
+                                }
+                            }
                         }
                     }
                 }
