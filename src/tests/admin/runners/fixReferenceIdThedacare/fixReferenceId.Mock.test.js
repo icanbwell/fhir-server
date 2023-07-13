@@ -17,10 +17,10 @@ const {
     getHeaders
 } = require('../../../common');
 const { AdminLogger } = require('../../../../admin/adminLogger');
-const { FixReferenceIdHapiRunner } = require('../../../../admin/runners/fixReferenceIdHapiRunner');
+const { FixReferenceIdThedacareRunner } = require('../../../../admin/runners/fixReferenceIdThedacareRunner');
 const { assertTypeEquals } = require('../../../../utils/assertType');
 
-class MockFixReferenceIdHapiRunner extends FixReferenceIdHapiRunner {
+class MockFixReferenceIdThedacareRunner extends FixReferenceIdThedacareRunner {
     async getDataFromS3() {
         this.idCache.set('Observation', new Map());
 
@@ -95,7 +95,7 @@ describe('Observation Tests', () => {
             const collections = ['all'];
             const batchSize = 1;
 
-            container.register('fixReferenceIdHapiRunner', (c) => new MockFixReferenceIdHapiRunner(
+            container.register('fixReferenceIdThedacareRunner', (c) => new MockFixReferenceIdThedacareRunner(
                 {
                     mongoCollectionManager: c.mongoCollectionManager,
                     collections,
@@ -113,11 +113,11 @@ describe('Observation Tests', () => {
             );
 
             /**
-             * @type {FixReferenceIdHapiRunner}
+             * @type {FixReferenceIdThedacareRunner}
              */
-            const fixReferenceIdHapiRunner = container.fixReferenceIdHapiRunner;
-            assertTypeEquals(fixReferenceIdHapiRunner, FixReferenceIdHapiRunner);
-            await fixReferenceIdHapiRunner.processAsync();
+            const fixReferenceIdThedacareRunner = container.fixReferenceIdThedacareRunner;
+            assertTypeEquals(fixReferenceIdThedacareRunner, FixReferenceIdThedacareRunner);
+            await fixReferenceIdThedacareRunner.processAsync();
 
             resp = await request
                 .get(`/4_0_0/Observation/${expectedObservation1BeforeRun.id}`)
