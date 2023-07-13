@@ -36,7 +36,7 @@ async function main() {
         }));
 
     /**
-     * @type {RemoveBadRecordsRunner}
+     * @type {DumpPersonsRunner}
      */
     const dumpPersonsRunner = container.dumpPersonsRunner;
     await dumpPersonsRunner.processAsync();
