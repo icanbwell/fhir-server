@@ -93,6 +93,10 @@ class KafkaClient {
             } catch (e) {
                 if (e instanceof KafkaJSNonRetriableError) {
                     const cause = e.cause;
+                    /**
+                     * Error code 72 represents LISTENER_NOT_FOUND error. It can be considered as transient error
+                     * For more info about it check: https://kafka.apache.org/20/javadoc/index.html?org/apache/kafka/common/errors/ListenerNotFoundException.html
+                     */
                     if (cause instanceof KafkaJSProtocolError && cause.code === 72) {
                         // reconfigure the client by reordering brokers array
                         const oldBrokers = this.brokers;
