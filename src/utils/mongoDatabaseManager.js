@@ -207,7 +207,7 @@ class MongoDatabaseManager {
         const auditEventReadOnlyClient = await this.createClientAsync(auditReadOnlyConfig);
         auditReadOnlyClientDb = auditEventReadOnlyClient.db(auditReadOnlyConfig.db_name);
 
-        const accessLogsConfig = await this.getAuditReadOnlyConfigAsync();
+        const accessLogsConfig = await this.getAccessLogsConfigAsync();
         const accessLogsClient = await this.createClientAsync(accessLogsConfig);
         accessLogsDb = accessLogsClient.db(accessLogsConfig.db_name);
     }
