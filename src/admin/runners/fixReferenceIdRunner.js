@@ -597,7 +597,7 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
                 // if there is an exception, continue processing from the last id
                 const updateCollectionReferences = async (collectionName) => {
                     this.adminLogger.logInfo(`Starting reference updates for ${collectionName}`);
-                    this.startFromIdContainer.startFromId = '';
+                    const startFromIdContainer = this.createStartFromIdContainer();
                     const isHistoryCollection = collectionName.includes('_History');
 
                     // create a query from the parameters
@@ -701,7 +701,7 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
                                     destinationCollectionName: collectionName,
                                     query,
                                     projection: this.properties ? this.getProjection() : undefined,
-                                    startFromIdContainer: this.startFromIdContainer,
+                                    startFromIdContainer,
                                     fnCreateBulkOperationAsync: async (doc) =>
                                         await this.processRecordAsync(doc, this.updateRecordReferencesAsync),
                                     ordered: false,
@@ -717,7 +717,7 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
                                     this.historyUuidCache.delete(resourceName);
                                 }
                             } catch (e) {
-                                this.adminLogger.logError(`Got error ${e}.  At ${this.startFromIdContainer.startFromId}`);
+                                this.adminLogger.logError(`Got error ${e}.  At ${startFromIdContainer.startFromId}`);
                                 throw new RethrownError(
                                     {
                                         message: `Error processing references of collection ${collectionName} ${e.message}`,
@@ -763,7 +763,7 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
 
                 const updateCollectionids = async (collectionName) => {
                     this.adminLogger.logInfo(`Starting id updates for ${collectionName}`);
-                    this.startFromIdContainer.startFromId = '';
+                    const startFromIdContainer = this.createStartFromIdContainer();
 
                     /**
                      * @type {boolean}
@@ -786,7 +786,7 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
                                 destinationCollectionName: collectionName,
                                 query,
                                 projection: this.properties ? this.getProjection() : undefined,
-                                startFromIdContainer: this.startFromIdContainer,
+                                startFromIdContainer,
                                 fnCreateBulkOperationAsync: async (doc) =>
                                     await this.processRecordAsync(doc, this.updateRecordIdAsync),
                                 ordered: false,
@@ -804,7 +804,7 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
                             }
 
                         } catch (e) {
-                            this.adminLogger.logError(`Got error ${e}.  At ${this.startFromIdContainer.startFromId}`);
+                            this.adminLogger.logError(`Got error ${e}.  At ${startFromIdContainer.startFromId}`);
                             throw new RethrownError(
                                 {
                                     message: `Error processing ids of collection ${collectionName} ${e.message}`,
