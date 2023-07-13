@@ -17,7 +17,8 @@ module.exports = {
                 },
                 exclude: [
                     'AuditEvent_4_0_0',
-                    'Practitioner_4_0_0'
+                    'Practitioner_4_0_0',
+                    ACCESS_LOGS_COLLECTION_NAME
                 ]
             },
             {
@@ -29,7 +30,8 @@ module.exports = {
                     name: 'reverse_meta.lastUpdated_1'
                 },
                 exclude: [
-                    'AuditEvent_4_0_0'
+                    'AuditEvent_4_0_0',
+                    ACCESS_LOGS_COLLECTION_NAME
                 ]
             },
             {
@@ -41,7 +43,8 @@ module.exports = {
                     name: 'meta.source_1'
                 },
                 exclude: [
-                    'AuditEvent_4_0_0'
+                    'AuditEvent_4_0_0',
+                    ACCESS_LOGS_COLLECTION_NAME
                 ]
             },
             {
@@ -55,7 +58,8 @@ module.exports = {
                 },
                 exclude: [
                     'AuditEvent_4_0_0',
-                    'Practitioner_4_0_0'
+                    'Practitioner_4_0_0',
+                    ACCESS_LOGS_COLLECTION_NAME
                 ]
             },
             {
@@ -67,7 +71,8 @@ module.exports = {
                     name: 'security._access_medstar'
                 },
                 exclude: [
-                    'AuditEvent_4_0_0'
+                    'AuditEvent_4_0_0',
+                    ACCESS_LOGS_COLLECTION_NAME
                 ]
             },
             {
@@ -79,7 +84,8 @@ module.exports = {
                     name: 'security._access_Thedacare'
                 },
                 exclude: [
-                    'AuditEvent_4_0_0'
+                    'AuditEvent_4_0_0',
+                    ACCESS_LOGS_COLLECTION_NAME
                 ]
             },
             {
@@ -92,7 +98,8 @@ module.exports = {
                     name: 'sourceId._sourceAssigningAuthority'
                 },
                 exclude: [
-                    'AuditEvent_4_0_0'
+                    'AuditEvent_4_0_0',
+                    ACCESS_LOGS_COLLECTION_NAME
                 ]
             },
             {
@@ -111,6 +118,9 @@ module.exports = {
                     'ImagingStudy_4_0_0', 'Invoice_4_0_0', 'List_4_0_0', 'MeasureReport_4_0_0', 'Media_4_0_0',
                     'MedicationAdministration_4_0_0', 'MedicationDispense_4_0_0', 'MedicationRequest_4_0_0', 'MedicationStatement_4_0_0',
                     'Procedure_4_0_0', 'RequestGroup_4_0_0', 'RiskAssessment_4_0_0', 'ServiceRequest_4_0_0', 'Specimen_4_0_0'
+                ],
+                exclude: [
+                    ACCESS_LOGS_COLLECTION_NAME
                 ]
             },
             {
@@ -129,6 +139,9 @@ module.exports = {
                     'ImagingStudy_4_0_0', 'Invoice_4_0_0', 'List_4_0_0', 'MeasureReport_4_0_0', 'Media_4_0_0',
                     'MedicationAdministration_4_0_0', 'MedicationDispense_4_0_0', 'MedicationRequest_4_0_0', 'MedicationStatement_4_0_0',
                     'Procedure_4_0_0', 'RequestGroup_4_0_0', 'RiskAssessment_4_0_0', 'ServiceRequest_4_0_0', 'Specimen_4_0_0'
+                ],
+                exclude: [
+                    ACCESS_LOGS_COLLECTION_NAME
                 ]
             },
             {
@@ -145,6 +158,9 @@ module.exports = {
                     'Device_4_0_0', 'ExplanationOfBenefit_4_0_0', 'EpisodeOfCare_4_0_0', 'FamilyMemberHistory_4_0_0', 'Immunization_4_0_0',
                     'ImmunizationEvaluation_4_0_0', 'ImmunizationRecommendation_4_0_0', 'MolecularSequence_4_0_0',
                     'NutritionOrder_4_0_0', 'RelatedPerson_4_0_0', 'SupplyDelivery_4_0_0', 'VisionPrescription_4_0_0'
+                ],
+                exclude: [
+                    ACCESS_LOGS_COLLECTION_NAME
                 ]
             },
             {
@@ -161,6 +177,9 @@ module.exports = {
                     'Device_4_0_0', 'ExplanationOfBenefit_4_0_0', 'EpisodeOfCare_4_0_0', 'FamilyMemberHistory_4_0_0', 'Immunization_4_0_0',
                     'ImmunizationEvaluation_4_0_0', 'ImmunizationRecommendation_4_0_0', 'MolecularSequence_4_0_0',
                     'NutritionOrder_4_0_0', 'RelatedPerson_4_0_0', 'SupplyDelivery_4_0_0', 'VisionPrescription_4_0_0'
+                ],
+                exclude: [
+                    ACCESS_LOGS_COLLECTION_NAME
                 ]
             },
             {
@@ -171,7 +190,8 @@ module.exports = {
                     name: 'uuid'
                 },
                 exclude: [
-                    'AuditEvent_4_0_0'
+                    'AuditEvent_4_0_0',
+                    ACCESS_LOGS_COLLECTION_NAME
                 ]
             },
             {
@@ -183,7 +203,8 @@ module.exports = {
                     name: 'sourceId'
                 },
                 exclude: [
-                    'AuditEvent_4_0_0'
+                    'AuditEvent_4_0_0',
+                    ACCESS_LOGS_COLLECTION_NAME
                 ]
             }
         ],
@@ -332,6 +353,14 @@ module.exports = {
                 },
                 options: {
                     name: 'meta.id_1'
+                }
+            },
+            {
+                keys: {
+                    'timestamp': -1
+                },
+                options: {
+                    name: 'timestamp_1'
                 }
             }
         ],
