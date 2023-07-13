@@ -212,7 +212,7 @@ class SearchManager {
                 let queryWithConsent;
                 // Consent based data access
                 if (this.configManager.enableConsentedDataAccess){
-                    // 1. Check resourceType is specific to Patient using patientFilterManager.getAllResourcesLinkedWithPatient()
+                    // 1. Check resourceType is specific to Patient
                     if (this.patientFilterManager.isPatientRelatedResource({ resourceType })) {
                         // 2. Check parsedArgs has patient or proxy patient filter
                         const patientIds = parsedArgs.parsedArgItems
