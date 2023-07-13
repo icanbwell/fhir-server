@@ -48,6 +48,7 @@ services:
             ENABLE_KAFKA_HEALTHCHECK: '1'
             KAFKA_CLIENT_ID: 'fhir-server'
             KAFKA_URLS: 'kafka:9092'
+            KAFKA_MAX_RETRY: 3
             PARTITION_RESOURCES: 'AuditEvent'
             AUTH_CUSTOM_GROUP: "cognito:groups"
             AUTH_CUSTOM_SCOPE: "custom:scope"
