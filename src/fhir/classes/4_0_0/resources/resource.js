@@ -316,7 +316,7 @@ class Resource extends ResourceContainer {
 
     /**
      * Returns whether two resources are same
-     * @param {Resource} other
+     * @param {{resourceType: string, _uuid: string, id: string, securityTagStructure: SecurityTagStructure}} other
      * @return {boolean}
      */
     isSameResourceByIdAndSecurityTag({other}) {

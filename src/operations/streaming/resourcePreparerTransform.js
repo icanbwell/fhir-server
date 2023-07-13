@@ -59,7 +59,7 @@ class ResourcePreparerTransform extends Transform {
 
         /**
          * what resources have we already processed
-         * @type {Resource[]}
+         * @type {{resourceType: string, _uuid: string, id: string, securityTagStructure: SecurityTagStructure}[]}
          */
         this.resourcesProcessed = [];
 
@@ -129,7 +129,12 @@ class ResourcePreparerTransform extends Transform {
                                 this.push(resource.toJSON());
                                 if (this.removeDuplicates) {
                                     this.resourcesProcessed.push(
-                                        resource
+                                        {
+                                            resourceType: resource.resourceType,
+                                            _uuid: resource._uuid,
+                                            id: resource.id,
+                                            securityTagStructure: resource.securityTagStructure
+                                        }
                                     );
                                 }
                             }
