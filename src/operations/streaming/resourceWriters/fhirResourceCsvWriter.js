@@ -10,6 +10,9 @@ class FhirResourceCsvWriter extends Transform {
      * @param {string} contentType
      */
     constructor({signal, delimiter, contentType}) {
+        /**
+         * @type {import('@json2csv/node').Json2CSVBaseOptions}
+         */
         const opts = {
             delimiter: delimiter,
             transforms: [
@@ -17,14 +20,19 @@ class FhirResourceCsvWriter extends Transform {
                 flatten({objects: true, arrays: true, separator: '.'}),
             ]
         };
-        const transformOpts = {
-            objectMode: true
-        };
-        const asyncOpts = {
-            objectMode: true
-        };
+        /**
+         * @type {import('@json2csv/node').StreamParserOptions}
+         */
+        const asyncOpts = {};
 
-        super(opts, transformOpts, asyncOpts);
+        /**
+         * @type {TransformOptions}
+         */
+        const transformOpts = {
+            objectMode: true,
+            highWaterMark: 10
+        };
+        super(opts, asyncOpts, transformOpts);
 
         /**
          * @type {AbortSignal}

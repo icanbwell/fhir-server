@@ -14,10 +14,38 @@ const env = require('var');
 let oldEnvLogLevel;
 
 describe('CSV Performance tests', () => {
+    const numberOfResources = 2000;
+
     beforeEach(async () => {
         await commonBeforeEach();
         oldEnvLogLevel = env.LOGLEVEL;
         env.LOGLEVEL = 'INFO'; // turn off detailed trace since that is slow
+        const initialId = practitionerResource.id;
+        const bundle = {
+            resourceType: 'Bundle',
+            entry: [],
+        };
+        for (let i = 0; i < numberOfResources; i++) {
+            practitionerResource.id = initialId + '-' + i;
+            bundle.entry.push({
+                resource: deepcopy(practitionerResource),
+            });
+        }
+        const request = await createTestRequest();
+        // first confirm there are no practitioners
+        let resp = await request.get('/4_0_0/Practitioner').set(getHeaders()).expect(200);
+        expect(resp.body.length).toBe(0);
+
+        // now add a record
+        resp = await request
+            .post('/4_0_0/Practitioner/0/$merge?validate=true')
+            .send(bundle)
+            .set(getHeaders());
+
+        expect(resp.body.length).toBe(numberOfResources);
+        for (const result of resp.body) {
+            expect(result.created).toStrictEqual(true);
+        }
     });
 
     afterEach(async () => {
@@ -30,36 +58,8 @@ describe('CSV Performance tests', () => {
             'search by 2,000 id in csv works',
             async () => {
                 const request = await createTestRequest();
-                // first confirm there are no practitioners
-                let resp = await request.get('/4_0_0/Practitioner').set(getHeaders()).expect(200);
-                expect(resp.body.length).toBe(0);
-
-                const initialId = practitionerResource.id;
-                const bundle = {
-                    resourceType: 'Bundle',
-                    entry: [],
-                };
-                const numberOfResources = 2000;
-                for (let i = 0; i < numberOfResources; i++) {
-                    practitionerResource.id = initialId + '-' + i;
-                    bundle.entry.push({
-                        resource: deepcopy(practitionerResource),
-                    });
-                }
-
-                // now add a record
-                resp = await request
-                    .post('/4_0_0/Practitioner/0/$merge?validate=true')
-                    .send(bundle)
-                    .set(getHeaders());
-
-                expect(resp.body.length).toBe(numberOfResources);
-                for (const result of resp.body) {
-                    expect(result.created).toStrictEqual(true);
-                }
-
                 // now check that we get the right record back
-                resp = await request
+                let resp = await request
                     .get('/4_0_0/Practitioner/?_count=10')
                     .set(getHeaders())
                     .expect(200);
