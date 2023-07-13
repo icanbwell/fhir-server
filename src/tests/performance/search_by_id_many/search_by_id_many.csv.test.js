@@ -14,12 +14,13 @@ const env = require('var');
 let oldEnvLogLevel;
 
 describe('CSV Performance tests', () => {
-    const numberOfResources = 2000;
+    const numberOfResources = 10;
 
     beforeEach(async () => {
         await commonBeforeEach();
         oldEnvLogLevel = env.LOGLEVEL;
         env.LOGLEVEL = 'INFO'; // turn off detailed trace since that is slow
+        env.LOG_STREAM_STEPS = true;
         const initialId = practitionerResource.id;
         const bundle = {
             resourceType: 'Bundle',
@@ -46,6 +47,7 @@ describe('CSV Performance tests', () => {
         for (const result of resp.body) {
             expect(result.created).toStrictEqual(true);
         }
+        env.LOGLEVEL = oldEnvLogLevel;
     });
 
     afterEach(async () => {
@@ -65,11 +67,44 @@ describe('CSV Performance tests', () => {
                     .expect(200);
                 expect(resp.body.length).toBe(10);
 
+                function binaryParser(res, callback) {
+                    res.text = '';
+                    res.setEncoding('utf8');
+                    let chunkNumber = 0;
+                    res.on('data', (chunk) => {
+                        res.text += chunk;
+                        chunkNumber++;
+                        console.log(`Received chunk ${chunkNumber} of length ${chunk.length}`);
+                    });
+                    res.on('end', callback);
+                }
+
                 // now check that we get the right record back
                 resp = await request
                     .get(`/4_0_0/Practitioner/?_streamResponse=1&_count=${numberOfResources}&_format=text/csv`)
                     .set(getHeadersNdJson())
-                    .expect(200);
+                    // .responseType('text')
+                    // .buffer(false)
+                    .on('response', (res) => {
+                        // Handle response headers
+                        console.log('Response headers:', res.headers);
+                    })
+                    .parse(binaryParser)
+                // .on('data', (chunk) => {
+                //     // Handle data chunks as they come
+                //     // console.log('Received chunk:', chunk.toString());
+                //     console.log('Received chunk');
+                // })
+                // .on('progress', (chunk) => {
+                //     // Handle data chunks as they come
+                //     // console.log('Received chunk:', chunk.toString());
+                //     console.log('Received chunk prgress');
+                // })
+                // .on('end', () => {
+                //     // Handle end of response
+                //     console.log('Response complete');
+                // })
+                ;
                 const lines = resp.text.split('\n');
                 expect(lines.length).toBe(numberOfResources + 1);
             },

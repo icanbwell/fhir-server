@@ -6,7 +6,6 @@ const {logDebug, logError} = require('../common/logging');
 const deepcopy = require('deepcopy');
 const moment = require('moment-timezone');
 const {searchLimitForIds, limit} = require('../../utils/searchForm.util');
-const {createReadableMongoStream} = require('../streaming/mongoStreamReader');
 const {pipeline} = require('stream/promises');
 const {ResourcePreparerTransform} = require('../streaming/resourcePreparerTransform');
 const {Transform} = require('stream');
@@ -33,6 +32,7 @@ const {GetCursorResult} = require('./getCursorResult');
 const {QueryItem} = require('../graph/queryItem');
 const {DatabaseAttachmentManager} = require('../../dataLayer/databaseAttachmentManager');
 const {FhirResourceWriterFactory} = require('../streaming/resourceWriters/fhirResourceWriterFactory');
+const {MongoReadableStream} = require('../streaming/mongoStreamReader');
 
 class SearchManager {
     /**
@@ -805,7 +805,7 @@ class SearchManager {
             // https://nodejs.org/docs/latest-v16.x/api/stream.html#streams-compatibility-with-async-generators-and-async-iterators
             // https://nodejs.org/docs/latest-v16.x/api/stream.html#additional-notes
 
-            const readableMongoStream = createReadableMongoStream({
+            const readableMongoStream = new MongoReadableStream({
                 cursor, signal: ac.signal, databaseAttachmentManager: this.databaseAttachmentManager
             });
 
@@ -1007,7 +1007,7 @@ class SearchManager {
             /**
              * @type {Readable}
              */
-            const readableMongoStream = createReadableMongoStream({
+            const readableMongoStream = new MongoReadableStream({
                 cursor, signal: ac.signal, databaseAttachmentManager: this.databaseAttachmentManager
             });
 
