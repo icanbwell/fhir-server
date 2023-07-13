@@ -181,7 +181,7 @@ class FixReferenceIdThedacareRunner extends FixReferenceIdRunner {
                                                 resourceBundle[0].entry.forEach(entry => {
                                                     if (entry?.resource?.id?.length > 63) {
                                                         const originalId = entry.resource.id;
-                                                        const currentId = this.getCurrentIds(originalId)[0];
+                                                        const currentId = this.getCurrentIds({ originalId })[0];
 
                                                         this.getCacheForId({ collectionName }).set(currentId, originalId);
                                                     }
