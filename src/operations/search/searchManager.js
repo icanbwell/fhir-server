@@ -1309,14 +1309,22 @@ class SearchManager {
     getResourceIdsFromFilter(resourceType, parsedArgs) {
         assertIsValid(typeof resourceType === 'string');
         assertIsValid(parsedArgs instanceof ParsedArgs);
+        const modifiersToSkip = ['not'];
 
         /**@type {Set<string>} */
         const resourceIds = parsedArgs.parsedArgItems
             .reduce((/**@type {Set<string>}*/ids, /**@type {import('../query/parsedArgsItem').ParsedArgsItem}*/currArg) => {
                 const queryParam = currArg.queryParameter;
                 const queryParamValues = currArg.queryParameterValue.values;
+
+                // if modifier is 'not' then skip the addition of the ids to set
+                if (currArg.modifiers.some((v) => modifiersToSkip.includes(v))) {
+                    return ids;
+                }
+
+                // if query param is like resource="id", then add those ids
                 if (queryParam === resourceType.toLowerCase() && queryParamValues) {
-                    queryParamValues.forEach((v) => ids.add(v));
+                    queryParamValues.forEach((v) => ids.add(v.replace(`${resourceType}/`, '')));
                 }
 
                 // param values which have Resource/ prefix will also be added
