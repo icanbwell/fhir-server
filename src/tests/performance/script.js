@@ -1,10 +1,12 @@
 const request = require('superagent');
 
+const token = '';
+
 const getHeaders = () => {
     return {
         'Content-Type': 'application/fhir+json',
         Accept: 'application/fhir+json',
-        Authorization: 'Bearer ',
+        Authorization: `Bearer ${token}`,
     };
 };
 
@@ -16,24 +18,30 @@ async function main() {
      */
     function chunkParser(req, callback) {
         req.text = '';
+        let text = '';
         req.setEncoding('utf8');
         let chunkNumber = 0;
         req.on('data', (chunk) => {
             req.text += chunk;
+            text += chunk;
             chunkNumber++;
             console.log(`Received chunk ${chunkNumber} of length ${chunk.length}`);
         });
-        req.on('end', callback);
+        req.on('end', () => {
+            // Process the response data here
+            callback(null, text);
+        });
     }
 
-    // const url = 'http://localhost:3000/4_0_0/Practitioner?_format=text/csv&_count=10000';
-    const url = 'https://fhir.dev-ue1.bwell.zone/4_0_0/Practitioner?_format=text/csv&_count=10000';
+    const url = 'http://localhost:3000/4_0_0/Practitioner?_format=text/csv&_count=10000';
+    // const url = 'https://fhir.dev-ue1.bwell.zone/4_0_0/Practitioner?_format=text/csv&_count=10000';
 
     console.log(`Calling ${url}...`);
     // request.buffer['text/csv'] = true;
     // now check that we get the right record back
     const resp = await request
         .get(url)
+        // .buffer(false)
         .set(getHeaders())
         // .buffer(false)
         .on('response', (res) => {
