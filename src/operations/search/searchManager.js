@@ -12,7 +12,6 @@ const {Transform} = require('stream');
 const {IndexHinter} = require('../../indexes/indexHinter');
 const {HttpResponseWriter} = require('../streaming/responseWriter');
 const {ResourceIdTracker} = require('../streaming/resourceIdTracker');
-const {ObjectChunker} = require('../streaming/objectChunker');
 const {DatabaseQueryFactory} = require('../../dataLayer/databaseQueryFactory');
 const {ResourceLocatorFactory} = require('../common/resourceLocatorFactory');
 const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
@@ -786,15 +785,7 @@ class SearchManager {
          */
         const resources = [];
 
-        // noinspection JSUnresolvedFunction
-        /**
-         * https://mongodb.github.io/node-mongodb-native/4.5/classes/FindCursor.html#stream
-         * https://mongodb.github.io/node-mongodb-native/4.5/interfaces/CursorStreamOptions.html
-         * @type {Readable}
-         */
-        // We do not use the Mongo stream since we can create our own stream below with more control
-        // const cursorStream = cursor.stream();
-
+        const highWaterMark = 100;
         /**
          * @type {AbortController}
          */
@@ -806,7 +797,10 @@ class SearchManager {
             // https://nodejs.org/docs/latest-v16.x/api/stream.html#additional-notes
 
             const readableMongoStream = new MongoReadableStream({
-                cursor, signal: ac.signal, databaseAttachmentManager: this.databaseAttachmentManager
+                cursor,
+                signal: ac.signal,
+                databaseAttachmentManager: this.databaseAttachmentManager,
+                highWaterMark: highWaterMark
             });
 
             await pipeline(
@@ -816,6 +810,7 @@ class SearchManager {
                     {
                         user, scope, parsedArgs, resourceType, useAccessIndex, signal: ac.signal,
                         resourcePreparer: this.resourcePreparer,
+                        highWaterMark: highWaterMark,
                         removeDuplicates: cursor.getLimit() === null || cursor.getLimit() <= 100 // don't remove dups for large requests
                     }
                 ),
@@ -895,9 +890,10 @@ class SearchManager {
             user
         }
     ) {
+        let _cursor = cursor;
         let indexHint = this.indexHinter.findIndexForFields(mongoCollectionName, Array.from(columns));
         if (indexHint) {
-            cursor = cursor.hint({indexHint});
+            _cursor = _cursor.hint({indexHint});
             logDebug(
                 'Using index hint',
                 {
@@ -908,7 +904,7 @@ class SearchManager {
                     }
                 });
         }
-        return {indexHint, cursor};
+        return {indexHint, cursor: _cursor};
     }
 
     /**
@@ -941,11 +937,12 @@ class SearchManager {
             resourceType,
             useAccessIndex,
             accepts,
-            batchObjectCount = 1,
             defaultSortId
         }
     ) {
         assertIsValid(requestId);
+        const highWaterMark = 100;
+
         /**
          * @type {{id: *[]}}
          */
@@ -976,7 +973,8 @@ class SearchManager {
                 url,
                 bundle: parsedArgs['_bundle'],
                 fnBundle,
-                defaultSortId
+                defaultSortId,
+                highWaterMark: highWaterMark
             }
         );
 
@@ -985,7 +983,11 @@ class SearchManager {
          */
         const responseWriter = new HttpResponseWriter(
             {
-                requestId, response: res, contentType: fhirWriter.getContentType(), signal: ac.signal
+                requestId,
+                response: res,
+                contentType: fhirWriter.getContentType(),
+                signal: ac.signal,
+                highWaterMark: highWaterMark
             }
         );
         /**
@@ -995,28 +997,38 @@ class SearchManager {
             {
                 user, scope, parsedArgs, resourceType, useAccessIndex, signal: ac.signal,
                 resourcePreparer: this.resourcePreparer,
+                highWaterMark: highWaterMark,
                 removeDuplicates: cursor.getLimit() === null || cursor.getLimit() <= 100 // don't remove dups for large requests
             }
         );
         /**
          * @type {ResourceIdTracker}
          */
-        const resourceIdTracker = new ResourceIdTracker({tracker, signal: ac.signal});
+        const resourceIdTracker = new ResourceIdTracker({tracker, signal: ac.signal, highWaterMark: highWaterMark});
+
 
         try {
             /**
              * @type {Readable}
              */
             const readableMongoStream = new MongoReadableStream({
-                cursor, signal: ac.signal, databaseAttachmentManager: this.databaseAttachmentManager
+                cursor,
+                signal:
+                ac.signal,
+                databaseAttachmentManager: this.databaseAttachmentManager,
+                highWaterMark: highWaterMark
             });
 
-            const objectChunker = new ObjectChunker({chunkSize: batchObjectCount, signal: ac.signal});
+            // const objectChunker = new ObjectChunker({
+            //     chunkSize: batchObjectCount,
+            //     signal: ac.signal,
+            //     highWaterMark: highWaterMark
+            // });
 
             // now setup and run the pipeline
             await pipeline(
                 readableMongoStream,
-                objectChunker,
+                // objectChunker,
                 // new Transform({
                 //     objectMode: true,
                 //     transform(chunk, encoding, callback) {

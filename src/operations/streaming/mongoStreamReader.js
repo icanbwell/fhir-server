@@ -14,9 +14,17 @@ class MongoReadableStream extends Readable {
      * @param {DatabasePartitionedCursor} cursor
      * @param {AbortSignal} signal
      * @param {DatabaseAttachmentManager} databaseAttachmentManager
+     * @param {number} highWaterMark
      */
-    constructor({cursor, signal, databaseAttachmentManager}) {
-        super({objectMode: true});
+    constructor(
+        {
+            cursor,
+            signal,
+            databaseAttachmentManager,
+            highWaterMark
+        }
+    ) {
+        super({objectMode: true, highWaterMark: highWaterMark});
 
         this.cursor = cursor;
 

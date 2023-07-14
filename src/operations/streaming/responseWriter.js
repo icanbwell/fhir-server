@@ -12,9 +12,18 @@ class HttpResponseWriter extends Writable {
      * @param {import('http').ServerResponse} response
      * @param {string} contentType
      * @param {AbortSignal} signal
+     * @param {number} highWaterMark
      */
-    constructor({requestId, response, contentType, signal}) {
-        super({objectMode: true});
+    constructor(
+        {
+            requestId,
+            response,
+            contentType,
+            signal,
+            highWaterMark
+        }
+    ) {
+        super({objectMode: true, highWaterMark: highWaterMark});
         assertIsValid(response !== undefined);
         /**
          * @type {import('http').ServerResponse}

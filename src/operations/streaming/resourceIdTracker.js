@@ -8,9 +8,10 @@ class ResourceIdTracker extends Transform {
      * Tracks the ids of the objects flowing through the stream
      * @param  {{id: string[]}} tracker
      * @param {AbortSignal} signal
+     * @param {number} highWaterMark
      */
-    constructor({tracker, signal}) {
-        super({objectMode: true});
+    constructor({tracker, signal, highWaterMark}) {
+        super({objectMode: true, highWaterMark: highWaterMark});
         /**
          * @type {{id: string[]}}
          * @private

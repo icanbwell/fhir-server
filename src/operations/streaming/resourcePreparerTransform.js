@@ -14,6 +14,7 @@ class ResourcePreparerTransform extends Transform {
      * @param {AbortSignal} signal
      * @param {ResourcePreparer} resourcePreparer
      * @param {boolean|undefined} removeDuplicates
+     * @param {number} highWaterMark
      */
     constructor(
         {
@@ -24,10 +25,11 @@ class ResourcePreparerTransform extends Transform {
             useAccessIndex,
             signal,
             resourcePreparer,
-            removeDuplicates
+            removeDuplicates,
+            highWaterMark
         }
     ) {
-        super({objectMode: true});
+        super({objectMode: true, highWaterMark: highWaterMark});
         /**
          * @type {string|null}
          */
