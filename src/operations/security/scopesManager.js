@@ -97,21 +97,20 @@ class ScopesManager {
             // resource has not meta or security tags so don't return it
             return false;
         }
-        // TODO: Review why we neec this double check, it is add with Mongo query
-        // /**
-        //  * @type {string[]}
-        //  */
-        // const accessCodesForResource = resource.meta.security
-        //     .filter(s => s.system === SecurityTagSystem.access)
-        //     .map(s => s.code);
-        // /**
-        //  * @type {string}
-        //  */
-        // for (const accessCode of accessCodes) {
-        //     if (accessCodesForResource.includes(accessCode)) {
-        //         return true;
-        //     }
-        // }
+        /**
+         * @type {string[]}
+         */
+        const accessCodesForResource = resource.meta.security
+            .filter(s => s.system === SecurityTagSystem.access)
+            .map(s => s.code);
+        /**
+         * @type {string}
+         */
+        for (const accessCode of accessCodes) {
+            if (accessCodesForResource.includes(accessCode)) {
+                return true;
+            }
+        }
         return true;
     }
 
