@@ -6,7 +6,7 @@ const Sentry = require('@sentry/node');
 const {logInfo, logError} = require('../operations/common/logging');
 
 process.on('uncaughtException', (err) => {
-    logError('uncaughtException', { error: err, source: 'uncaughtException' });
+    logError('uncaughtException', {error: err, source: 'uncaughtException'});
     Sentry.captureException(err);
     // Send signal to be handled by the terminus listener for graceful shutdown
     process.kill(process.pid, 'SIGTERM');
@@ -37,4 +37,10 @@ process.on('exit', function (code) {
         logInfo(`PROCESS EXIT: exit code: ${code}`, {method: 'errorHandler.exit'});
         logInfo(stack, {});
     }
+});
+
+process.on('SIGTERM', () => {
+    console.log('Received SIGTERM signal. Shutting down gracefully...');
+    // Perform any necessary cleanup or finalization steps
+    process.exit(0); // Terminate the process with exit code 0 (success)
 });

@@ -6,7 +6,6 @@ const {
     commonBeforeEach,
     commonAfterEach,
     getHeaders,
-    getHeadersNdJson,
     createTestRequest,
 } = require('../../common');
 const {describe, beforeEach, afterEach, expect, test} = require('@jest/globals');
@@ -14,7 +13,7 @@ const env = require('var');
 let oldEnvLogLevel;
 
 describe('CSV Performance tests', () => {
-    const numberOfResources = 100;
+    const numberOfResources = 1 * 1000;
 
     beforeEach(async () => {
         await commonBeforeEach();
@@ -87,8 +86,7 @@ describe('CSV Performance tests', () => {
                 // now check that we get the right record back
                 resp = await request
                     .get(`/4_0_0/Practitioner/?_streamResponse=1&_count=${numberOfResources}&_format=text/csv`)
-                    .set(getHeadersNdJson())
-                    // .responseType('text')
+                    .set(getHeaders())
                     // .buffer(false)
                     .on('response', (res) => {
                         // Handle response headers

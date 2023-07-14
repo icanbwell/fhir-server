@@ -399,7 +399,7 @@ class SensitiveDataProcessor {
      * 1. Fetch all resources related to the patient for which consent has been updated.
      * 2. Upddates the security access tags.
      * @param {String} requestId
-     * @param {Resource} resources
+     * @param {Resource[]} resources
      */
     async processPatientConsentChange({requestId, resources}) {
         let clientPatientIds = [];
