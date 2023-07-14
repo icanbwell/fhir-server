@@ -8,23 +8,31 @@ class FhirResourceCsvWriter extends Transform {
      * @param {AbortSignal} signal
      * @param {string} delimiter
      * @param {string} contentType
+     * @param {number} highWaterMark
      */
-    constructor({signal, delimiter, contentType}) {
+    constructor({signal, delimiter, contentType, highWaterMark}) {
+        /**
+         * @type {import('@json2csv/node').Json2CSVBaseOptions}
+         */
         const opts = {
             delimiter: delimiter,
             transforms: [
-                // unwind(),
                 flatten({objects: true, arrays: true, separator: '.'}),
             ]
         };
-        const transformOpts = {
-            objectMode: true
-        };
-        const asyncOpts = {
-            objectMode: true
-        };
+        /**
+         * @type {import('@json2csv/node').StreamParserOptions}
+         */
+        const asyncOpts = {};
 
-        super(opts, transformOpts, asyncOpts);
+        /**
+         * @type {TransformOptions}
+         */
+        const transformOpts = {
+            objectMode: true,
+            highWaterMark: highWaterMark
+        };
+        super(opts, asyncOpts, transformOpts);
 
         /**
          * @type {AbortSignal}

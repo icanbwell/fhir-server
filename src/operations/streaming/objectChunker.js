@@ -8,9 +8,10 @@ class ObjectChunker extends Transform {
      * Batches up objects to chunkSize before writing them to output
      * @param {number} chunkSize
      * @param {AbortSignal} signal
+     * @param {number} highWaterMark
      */
-    constructor({chunkSize, signal}) {
-        super({objectMode: true});
+    constructor({chunkSize, signal, highWaterMark}) {
+        super({objectMode: true, highWaterMark: highWaterMark});
         this._buffer = [];
         this._chunkSize = chunkSize;
         /**

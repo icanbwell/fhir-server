@@ -13,6 +13,8 @@ class ResourcePreparerTransform extends Transform {
      * @param {boolean} useAccessIndex
      * @param {AbortSignal} signal
      * @param {ResourcePreparer} resourcePreparer
+     * @param {boolean|undefined} removeDuplicates
+     * @param {number} highWaterMark
      */
     constructor(
         {
@@ -23,9 +25,11 @@ class ResourcePreparerTransform extends Transform {
             useAccessIndex,
             signal,
             resourcePreparer,
+            removeDuplicates,
+            highWaterMark
         }
     ) {
-        super({objectMode: true});
+        super({objectMode: true, highWaterMark: highWaterMark});
         /**
          * @type {string|null}
          */
@@ -57,9 +61,14 @@ class ResourcePreparerTransform extends Transform {
 
         /**
          * what resources have we already processed
-         * @type {Resource[]}
+         * @type {{resourceType: string, _uuid: string, id: string, securityTagStructure: SecurityTagStructure}[]}
          */
         this.resourcesProcessed = [];
+
+        /**
+         * @type {boolean|undefined}
+         */
+        this.removeDuplicates = removeDuplicates;
     }
 
     /**
@@ -111,7 +120,7 @@ class ResourcePreparerTransform extends Transform {
                     if (resources.length > 0) {
                         for (const /** @type {Resource} */ resource of resources) {
                             // Remove any duplicates
-                            if (resource &&
+                            if (resource && this.removeDuplicates &&
                                 !this.resourcesProcessed.some(a =>
                                     resource.isSameResourceByIdAndSecurityTag({other: a})
                                 )
@@ -120,9 +129,16 @@ class ResourcePreparerTransform extends Transform {
                                     logInfo(`ResourcePreparerTransform: push ${resource['id']}`, {});
                                 }
                                 this.push(resource.toJSON());
-                                this.resourcesProcessed.push(
-                                    resource
-                                );
+                                if (this.removeDuplicates) {
+                                    this.resourcesProcessed.push(
+                                        {
+                                            resourceType: resource.resourceType,
+                                            _uuid: resource._uuid,
+                                            id: resource.id,
+                                            securityTagStructure: resource.securityTagStructure
+                                        }
+                                    );
+                                }
                             }
                         }
                     }

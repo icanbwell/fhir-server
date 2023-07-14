@@ -51,6 +51,11 @@ class DatabasePartitionedCursor {
         this.query = query;
 
         partitionedCollectionsCount.labels(resourceType).observe(cursors.length);
+
+        /**
+         * @type {number|null}
+         */
+        this._limit = null;
     }
 
     /**
@@ -416,10 +421,18 @@ class DatabasePartitionedCursor {
      * @return {DatabasePartitionedCursor}
      */
     limit(count) {
+        this._limit = count;
         for (const index in this._cursors) {
             this._cursors[`${index}`].cursor = this._cursors[`${index}`].cursor.limit(count);
         }
         return this;
+    }
+
+    /**
+     * @returns {number|null}
+     */
+    getLimit() {
+        return this._limit;
     }
 
     /**

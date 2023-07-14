@@ -9,7 +9,7 @@ dotenv.config({
 
 const {OpenAI} = require('langchain/llms/openai');
 const {PromptTemplate} = require('langchain/prompts');
-const {LLMChain, RetrievalQAChain, loadQAStuffChain, ConversationalRetrievalQAChain} = require('langchain/chains');
+const {LLMChain, RetrievalQAChain, loadQAStuffChain} = require('langchain/chains');
 const {StructuredOutputParser, OutputFixingParser} = require('langchain/output_parsers');
 const {z} = require('zod');
 const {CharacterTextSplitter} = require('langchain/text_splitter');
@@ -23,15 +23,17 @@ const {describe, test} = require('@jest/globals');
 // const {FaissStore} = require('langchain/vectorstores/faiss');
 const {MemoryVectorStore} = require('langchain/vectorstores/memory');
 const {Document} = require('langchain/document');
-const {VectorStoreRetrieverMemory} = require('langchain/memory');
 const {ConsoleCallbackHandler} = require('langchain/callbacks');
 const {ChatGPTManager} = require('../../chatgpt/chatgptManager');
 
 // const describeIf = process.env.OPENAI_API_KEY ? describe : describe.skip;
 
-describe.skip('ChatGPT Tests', () => {
+describe('ChatGPT Tests', () => {
     describe('ChatGPT Tests', () => {
         test('ChatGPT works with sample', async () => {
+            if (!process.env.OPENAI_API_KEY) {
+                return;
+            }
             // https://js.langchain.com/docs/getting-started/guide-llm
             const model = new OpenAI(
                 {
@@ -50,6 +52,10 @@ describe.skip('ChatGPT Tests', () => {
             console.log(res);
         });
         test('ChatGPT works with English query', async () => {
+            if (!process.env.OPENAI_API_KEY) {
+                return;
+            }
+
             // https://js.langchain.com/docs/getting-started/guide-llm
             const model = new OpenAI(
                 {
@@ -68,6 +74,10 @@ describe.skip('ChatGPT Tests', () => {
             console.log(res);
         });
         test('ChatGPT works with English query and structured output', async () => {
+            if (!process.env.OPENAI_API_KEY) {
+                return;
+            }
+
             // https://js.langchain.com/docs/getting-started/guide-llm
             // https://blog.langchain.dev/going-beyond-chatbots-how-to-make-gpt-4-output-structured-data-using-langchain/
             // https://nathankjer.com/introduction-to-langchain/
@@ -112,66 +122,49 @@ describe.skip('ChatGPT Tests', () => {
             console.log(JSON.stringify(result.records, null, 2));
         });
         test('ChatGPT works with English FHIR query and structured output', async () => {
-            // https://js.langchain.com/docs/getting-started/guide-llm
-            // https://blog.langchain.dev/going-beyond-chatbots-how-to-make-gpt-4-output-structured-data-using-langchain/
-            // https://nathankjer.com/introduction-to-langchain/
-
-            const outputParser = StructuredOutputParser.fromZodSchema(
-                z.array(
-                    z.object({
-                        fields: z.object({
-                            url: z.string().describe('url')
-                        })
-                    })
-                ).describe('An array of Airtable records, each representing a url')
-            );
-            const model = new OpenAI(
-                {
-                    openAIApiKey: process.env.OPENAI_API_KEY,
-                    temperature: 0,
-                    // modelName: 'gpt-3.5-turbo'  // this part does not work with GPT 3.5
-                }
-            );
-            const outputFixingParser = OutputFixingParser.fromLLM(
-                model,
-                outputParser
-            );
-            const template = 'You are a software program. ' +
-                'You are talking to a FHIR server. ' +
-                '\n{format_instructions}' +
-                '\nThe base url is {baseUrl}.' +
-                '\nPatient id is {patientId}.' +
-                '\n Write FHIR query for ```{query}``` for this patient';
-
-            // const template = 'Answer the user\'s question as best you can:\n{format_instructions}\n{query}';
-            const prompt = new PromptTemplate({
-                template: template,
-                inputVariables: ['baseUrl', 'patientId', 'query'],
-                partialVariables: {
-                    format_instructions: outputFixingParser.getFormatInstructions()
-                }
-            });
-            // console.log(outputFixingParser.getFormatInstructions());
-            const chain = new LLMChain(
-                {
-                    llm: model,
-                    prompt: prompt,
-                    outputKey: 'records', // For readability - otherwise the chain output will default to a property named "text"
-                    outputParser: outputFixingParser
-                });
-
-            const query = 'Find me all conditions that are diabetes';
-            const baseUrl = 'https://fhir.icanbwell.com/4_0_0';
-            const result = await chain.call({patientId: 'imran', query: query, baseUrl: baseUrl});
-            console.log(JSON.stringify(result.records, null, 2));
-            if (result.records.length > 0) {
-                const firstRecord = result.records[0];
-                const firstField = firstRecord.fields;
-                const url = firstField.url;
-                console.log(`url: ${url}`);
+            if (!process.env.OPENAI_API_KEY) {
+                return;
             }
+
+            const chatGPTManager = new ChatGPTManager();
+            const result = await chatGPTManager.getFhirQueryAsync({
+                baseUrl: 'https://fhir.icanbwell.com/4_0_0',
+                query: 'Find me all conditions that are diabetes'
+            });
+            console.log(result);
+            expect(result).toStrictEqual('https://fhir.icanbwell.com/4_0_0/Condition?code=http://snomed.info/sct|73211009');
+        });
+        test('ChatGPT works with English FHIR query for all patients and structured output', async () => {
+            if (!process.env.OPENAI_API_KEY) {
+                return;
+            }
+
+            const chatGPTManager = new ChatGPTManager();
+            const result = await chatGPTManager.getFhirQueryAsync({
+                baseUrl: 'https://fhir.icanbwell.com/4_0_0',
+                query: 'Find all patients that are older than 10 years old'
+            });
+            console.log(result);
+            expect(result).toStrictEqual('https://fhir.icanbwell.com/4_0_0/Patient?birthdate=lt=2013-07-10');
+        });
+        test('ChatGPT works with English FHIR query for specific patient and structured output', async () => {
+            if (!process.env.OPENAI_API_KEY) {
+                return;
+            }
+            const chatGPTManager = new ChatGPTManager();
+            const result = await chatGPTManager.getFhirQueryAsync({
+                baseUrl: 'https://fhir.icanbwell.com/4_0_0',
+                query: 'Find me all conditions that are diabetes for this patient',
+                patientId: 'john-muir-health-e.k-4ea143ZrQGvdUvf-b2y.tdyiVMBWgblY4f6y2zis3'
+            });
+            console.log(result);
+            expect(result).toStrictEqual('https://fhir.icanbwell.com/4_0_0/Condition?patient=john-muir-health-e.k-4ea143ZrQGvdUvf-b2y.tdyiVMBWgblY4f6y2zis3&code=73211009');
         });
         test('ChatGPT explains a FHIR record', async () => {
+            if (!process.env.OPENAI_API_KEY) {
+                return;
+            }
+
             // https://js.langchain.com/docs/getting-started/guide-llm
             const model = new OpenAI(
                 {
@@ -190,6 +183,10 @@ describe.skip('ChatGPT Tests', () => {
             console.log(res);
         });
         test('Memory vector database test', async () => {
+            if (!process.env.OPENAI_API_KEY) {
+                return;
+            }
+
             const vectorStore = await MemoryVectorStore.fromTexts(
                 ['Hello world', 'Bye bye', 'hello nice world'],
                 [{id: 2}, {id: 1}, {id: 3}],
@@ -200,6 +197,10 @@ describe.skip('ChatGPT Tests', () => {
             console.log(resultOne);
         });
         test('ChatGPT with sample with input splitter', async () => {
+            if (!process.env.OPENAI_API_KEY) {
+                return;
+            }
+
             const splitter = new CharacterTextSplitter({
                 chunkSize: 1536,
                 chunkOverlap: 200,
@@ -249,6 +250,10 @@ describe.skip('ChatGPT Tests', () => {
             console.log(JSON.stringify(res, null, 2));
         });
         test('ChatGPT with FHIR record with json documents', async () => {
+            if (!process.env.OPENAI_API_KEY) {
+                return;
+            }
+
             // https://horosin.com/extracting-pdf-and-generating-json-data-with-gpts-langchain-and-nodejs
             // https://genesis-aka.net/information-technology/professional/2023/05/23/chatgpt-in-node-js-integrate-chatgpt-using-langchain-get-response-in-json/
             // https://dagster.io/blog/chatgpt-langchain
@@ -302,139 +307,11 @@ describe.skip('ChatGPT Tests', () => {
 
             console.log(JSON.stringify(res, null, 2));
         });
-        test('ChatGPT with FHIR record with json documents with conversation', async () => {
-            // https://horosin.com/extracting-pdf-and-generating-json-data-with-gpts-langchain-and-nodejs
-            // https://genesis-aka.net/information-technology/professional/2023/05/23/chatgpt-in-node-js-integrate-chatgpt-using-langchain-get-response-in-json/
-            // https://dagster.io/blog/chatgpt-langchain
-            // https://python.langchain.com/docs/modules/data_connection/document_loaders/how_to/json
-            // https://nathankjer.com/introduction-to-langchain/
-            // const splitter = new CharacterTextSplitter({
-            //     chunkSize: 1536,
-            //     chunkOverlap: 200,
-            // });
-            //
-            // const patientResources = await splitter.createDocuments(
-            //     patientBundleResource.entry,
-            //     [],
-            //     {
-            //         chunkHeader: 'DOCUMENT NAME: Jim Interview\n\n---\n\n',
-            //         appendChunkOverlapHeader: true,
-            //     }
-            // );
-            const patientResources = patientBundleResource.entry.map(
-                e => new Document(
-                    {
-                        pageContent: JSON.stringify(e),
-                        metadata: {
-                            'my_document_id': e.id,
-                        },
-                    }
-                ));
-
-            // https://js.langchain.com/docs/modules/indexes/vector_stores/#which-one-to-pick
-            const vectorStore = await MemoryVectorStore.fromDocuments(
-                patientResources,
-                new OpenAIEmbeddings()
-            );
-            // const memory = new BufferWindowMemory({k: 1, inputKey: 'question'});
-            const memory = new VectorStoreRetrieverMemory({
-                // 1 is how many documents to return, you might want to return more, eg. 4
-                vectorStoreRetriever: vectorStore.asRetriever(1),
-                memoryKey: 'history',
-                inputKey: 'question'
-            });
-            const model = new OpenAI(
-                {
-                    openAIApiKey: process.env.OPENAI_API_KEY,
-                    temperature: 0,
-                    modelName: 'gpt-3.5-turbo'
-                }
-            );
-
-            const chain = new ConversationalRetrievalQAChain({
-                combineDocumentsChain: loadQAStuffChain(model),
-                retriever: vectorStore.asRetriever(),
-                memory: memory
-                // returnSourceDocuments: true,
-            });
-            const res1 = await chain.call({
-                question: 'When was this patient born?',
-                chat_history: []
-            });
-            console.log(JSON.stringify(res1, null, 2));
-            const res2 = await chain.call({
-                question: 'Summarize into a clinical summary for a doctor',
-                chat_history: []
-            });
-            console.log(JSON.stringify(res2, null, 2));
-        });
-        test('ChatGPT with FHIR record with json documents with conversation', async () => {
-            // https://horosin.com/extracting-pdf-and-generating-json-data-with-gpts-langchain-and-nodejs
-            // https://genesis-aka.net/information-technology/professional/2023/05/23/chatgpt-in-node-js-integrate-chatgpt-using-langchain-get-response-in-json/
-            // https://dagster.io/blog/chatgpt-langchain
-            // https://python.langchain.com/docs/modules/data_connection/document_loaders/how_to/json
-            // https://nathankjer.com/introduction-to-langchain/
-            // const splitter = new CharacterTextSplitter({
-            //     chunkSize: 1536,
-            //     chunkOverlap: 200,
-            // });
-            //
-            // const patientResources = await splitter.createDocuments(
-            //     patientBundleResource.entry,
-            //     [],
-            //     {
-            //         chunkHeader: 'DOCUMENT NAME: Jim Interview\n\n---\n\n',
-            //         appendChunkOverlapHeader: true,
-            //     }
-            // );
-            const patientResources = patientBundleResource.entry.map(
-                e => new Document(
-                    {
-                        pageContent: JSON.stringify(e),
-                        metadata: {
-                            'my_document_id': e.id,
-                        },
-                    }
-                ));
-
-            // https://js.langchain.com/docs/modules/indexes/vector_stores/#which-one-to-pick
-            const vectorStore = await MemoryVectorStore.fromDocuments(
-                patientResources,
-                new OpenAIEmbeddings()
-            );
-            // const memory = new BufferWindowMemory({k: 1, inputKey: 'question'});
-            const memory = new VectorStoreRetrieverMemory({
-                // 1 is how many documents to return, you might want to return more, eg. 4
-                vectorStoreRetriever: vectorStore.asRetriever(1),
-                memoryKey: 'history',
-                inputKey: 'question'
-            });
-            const model = new OpenAI(
-                {
-                    openAIApiKey: process.env.OPENAI_API_KEY,
-                    temperature: 0,
-                    modelName: 'gpt-3.5-turbo'
-                }
-            );
-
-            const chain = new ConversationalRetrievalQAChain({
-                combineDocumentsChain: loadQAStuffChain(model),
-                retriever: vectorStore.asRetriever(),
-                memory: memory
-                // returnSourceDocuments: true,
-            });
-            const res1 = await chain.call({
-                question: 'When was this patient born?',
-                chat_history: []
-            });
-            console.log(JSON.stringify(res1, null, 2));
-            const res2 = await chain.call({
-                question: 'Summarize into a clinical summary for a doctor',
-                chat_history: []
-            });
-            console.log(JSON.stringify(res2, null, 2));
-        });
         test('ChatGPT with FHIR record with json documents with structured observations', async () => {
+            if (!process.env.OPENAI_API_KEY) {
+                return;
+            }
+
             // https://horosin.com/extracting-pdf-and-generating-json-data-with-gpts-langchain-and-nodejs
             // https://genesis-aka.net/information-technology/professional/2023/05/23/chatgpt-in-node-js-integrate-chatgpt-using-langchain-get-response-in-json/
             // https://dagster.io/blog/chatgpt-langchain
@@ -532,6 +409,10 @@ describe.skip('ChatGPT Tests', () => {
             console.log(JSON.stringify(res3, null, 2));
         });
         test('ChatGPT calculate tokens', async () => {
+            if (!process.env.OPENAI_API_KEY) {
+                return;
+            }
+
             const chatGPTManager = new ChatGPTManager();
             const patientResources = patientBundleResource.entry.map(
                 e => new Document(
@@ -546,6 +427,10 @@ describe.skip('ChatGPT Tests', () => {
             console.log(totalTokens);
         });
         test('ChatGPT with FHIR record with json documents with response in HTML', async () => {
+            if (!process.env.OPENAI_API_KEY) {
+                return;
+            }
+
             // https://horosin.com/extracting-pdf-and-generating-json-data-with-gpts-langchain-and-nodejs
             // https://genesis-aka.net/information-technology/professional/2023/05/23/chatgpt-in-node-js-integrate-chatgpt-using-langchain-get-response-in-json/
             // https://dagster.io/blog/chatgpt-langchain
@@ -630,15 +515,24 @@ describe.skip('ChatGPT Tests', () => {
                 }
             }
         });
-        test('ChatGPT with FHIR record with json documents with response in HTML with compressor', async () => {
+        test('ChatGPT with FHIR record generate clinical summary', async () => {
+            if (!process.env.OPENAI_API_KEY) {
+                return;
+            }
+
             const chatGPTManager = new ChatGPTManager();
             const result = await chatGPTManager.answerQuestionAsync({
                 bundle: patientBundleResource,
                 question: 'Create a clinical summary to share with my doctor'
             });
             console.log(result);
+            // expect(result).toStrictEqual('<h1>Clinical Summary</h1>  <p>Date: 2023-07-10</p>  <p>Patient Name: John Doe</p>  <p>Gender: Male</p>  <p>Date of Birth: 1980-01-01</p>  <p>Address: 123 Main St, Anytown, USA</p>  <p>Contact Number: (555) 123-4567</p>  <h2>Allergies</h2>  <ul>    <li>Penicillin</li>    <li>Latex</li>  </ul>  <h2>Medications</h2>  <ul>    <li>Metoprolol - 50mg, once daily</li>    <li>Levothyroxine - 100mcg, once daily</li>  </ul>  <h2>Conditions</h2>  <ul>    <li>Hypertension</li>    <li>Hypothyroidism</li>  </ul>  <h2>Immunizations</h2>  <ul>    <li>Influenza - 2022-10-15</li>    <li>Tetanus - 2021-07-01</li>  </ul>  <h2>Recent Lab Results</h2>  <ul>    <li>Complete Blood Count - 2023-06-30</li>    <li>Cholesterol Panel - 2023-06-15</li>  </ul>');
         });
         test('ChatGPT with FHIR record with json documents about vaccination date with compressor', async () => {
+            if (!process.env.OPENAI_API_KEY) {
+                return;
+            }
+
             const chatGPTManager = new ChatGPTManager();
             const result = await chatGPTManager.answerQuestionAsync({
                 bundle: patientBundleResource,

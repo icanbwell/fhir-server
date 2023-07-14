@@ -14,6 +14,7 @@
     "dev": "NODE_ENV=development ./node_modules/pm2/bin/pm2-dev start ./src/index.js;",
     "dev_debug": "NODE_ENV=development DEBUG=express:router ./node_modules/pm2/bin/pm2-dev start ./src/index.js;",
     "test": "NODE_ENV=test npm run lint && npm run test:jest",
+    "test:mem_leak": "NODE_ENV=test node --inspect-brk --expose-gc ./node_modules/.bin/jest --runInBand --logHeapUsage -i src/tests/performance/search_by_id_many/search_by_id_many.csv.test.js",
     "coverage": "NODE_ENV=test npm run lint && npm run test:jest_coverage",
     "test_shards": "NODE_ENV=test npm run lint && npm run test:jest_cleanCache && npm run test:jest_shard1 && npm run test:jest_shard2 && npm run test:jest_shard3 && npm run test:jest_shard4 && npm run test:jest_shard5",
     "lint": "NODE_ENV=test npm run test:lint && npm run test:ejslint && npm run test:jshint",
