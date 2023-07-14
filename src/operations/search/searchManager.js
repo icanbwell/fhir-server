@@ -12,6 +12,7 @@ const {Transform} = require('stream');
 const {IndexHinter} = require('../../indexes/indexHinter');
 const {HttpResponseWriter} = require('../streaming/responseWriter');
 const {ResourceIdTracker} = require('../streaming/resourceIdTracker');
+const {ObjectChunker} = require('../streaming/objectChunker');
 const {DatabaseQueryFactory} = require('../../dataLayer/databaseQueryFactory');
 const {ResourceLocatorFactory} = require('../common/resourceLocatorFactory');
 const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
@@ -937,12 +938,23 @@ class SearchManager {
             resourceType,
             useAccessIndex,
             accepts,
+            batchObjectCount = 1,
             defaultSortId
         }
     ) {
         assertIsValid(requestId);
-        // https://nodejs.org/docs/latest-v18.x/api/stream.html#buffering
-        const highWaterMark = 100;
+
+        /**
+         * For buffering: https://nodejs.org/docs/latest-v18.x/api/stream.html#buffering
+         * @type {number}
+         */
+        const highWaterMark = env.STREAMING_HIGH_WATER_MARK || 100;
+
+        /**
+         * If count requested is higher than this then don't do duplicate removal to save memory
+         * @type {number}
+         */
+        const maximumCountForDuplicateRemoval = env.STREAMING_MAX_COUNT_FOR_DUPLICATE_REMOVAL || 100;
 
         /**
          * @type {{id: *[]}}
@@ -999,7 +1011,7 @@ class SearchManager {
                 user, scope, parsedArgs, resourceType, useAccessIndex, signal: ac.signal,
                 resourcePreparer: this.resourcePreparer,
                 highWaterMark: highWaterMark,
-                removeDuplicates: cursor.getLimit() === null || cursor.getLimit() <= 100 // don't remove dups for large requests
+                removeDuplicates: cursor.getLimit() === null || cursor.getLimit() <= maximumCountForDuplicateRemoval // don't remove dups for large requests
             }
         );
         /**
@@ -1020,16 +1032,16 @@ class SearchManager {
                 highWaterMark: highWaterMark
             });
 
-            // const objectChunker = new ObjectChunker({
-            //     chunkSize: batchObjectCount,
-            //     signal: ac.signal,
-            //     highWaterMark: highWaterMark
-            // });
+            const objectChunker = new ObjectChunker({
+                chunkSize: batchObjectCount,
+                signal: ac.signal,
+                highWaterMark: highWaterMark
+            });
 
             // now setup and run the pipeline
             await pipeline(
                 readableMongoStream,
-                // objectChunker,
+                objectChunker,
                 // new Transform({
                 //     objectMode: true,
                 //     transform(chunk, encoding, callback) {

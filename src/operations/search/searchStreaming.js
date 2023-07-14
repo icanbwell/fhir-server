@@ -267,6 +267,11 @@ class SearchStreamingOperation {
              */
             let resourceIds = [];
             /**
+             * @type {number}
+             */
+            const batchObjectCount = Number(env.STREAMING_BATCH_COUNT) || 1;
+
+            /**
              * @type {import('mongodb').Document[]}
              */
             const explanations = (cursor && (parsedArgs['_explain'] || parsedArgs['_debug'] || env.LOGLEVEL === 'DEBUG')) ?
@@ -339,6 +344,7 @@ class SearchStreamingOperation {
                         parsedArgs,
                         resourceType,
                         useAccessIndex,
+                        batchObjectCount,
                         defaultSortId,
                         accepts: requestInfo.accept,
                     });
