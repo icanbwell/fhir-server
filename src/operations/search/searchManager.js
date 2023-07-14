@@ -941,6 +941,7 @@ class SearchManager {
         }
     ) {
         assertIsValid(requestId);
+        // https://nodejs.org/docs/latest-v18.x/api/stream.html#buffering
         const highWaterMark = 100;
 
         /**
