@@ -3,10 +3,14 @@ input SearchTokenValue {
     value: String
     system: String
 }
+input NotSearchTokenValue {
+    value: SearchTokenValue
+    values: [SearchTokenValue]
+}
 input SearchToken {
     searchType: String = "token"
     value: SearchTokenValue
     values: [SearchTokenValue]
     missing: Boolean
-    notEquals: String
+    notEquals: NotSearchTokenValue
 }

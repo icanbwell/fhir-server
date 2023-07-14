@@ -136,12 +136,14 @@ class R4ArgsParser {
                     }
                 ) : null;
 
-            queryParameterValue = convertGraphQLParameters(
+            ({queryParameter, queryParameterValue} = convertGraphQLParameters(
                 queryParameterValue,
                 args,
                 queryParameter
-            );
-
+            ));
+            if (queryParameter.endsWith(':not')) {
+                modifiers.push('not');
+            }
             // if it is a valid parameter then add it
             if (
                 (queryParameterValue && queryParameterValue !== '') && (

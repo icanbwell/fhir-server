@@ -1,3 +1,9 @@
+input SearchQuantityValue {
+    prefix: String
+    value: decimal
+    system: String
+    code: String
+}
 input SearchQuantity {
     searchType: String = "quantity"
     prefix: String
@@ -5,5 +11,5 @@ input SearchQuantity {
     system: String
     code: String
     missing: Boolean
-    notEquals: decimal
+    notEquals: SearchQuantityValue
 }
