@@ -5,18 +5,23 @@ class FhirResourceWriterBase extends Transform {
      * constructor
      * @param {boolean} objectMode
      * @param {string} contentType
+     * @param {number} highWaterMark
      */
-    constructor({
-        objectMode,
-        contentType
-                }) {
-        super({objectMode: objectMode});
+    constructor(
+        {
+            objectMode,
+            contentType,
+            highWaterMark
+        }
+    ) {
+        super({objectMode: objectMode, highWaterMark: highWaterMark});
 
         /**
          * @type {string}
          */
         this._contentType = contentType;
     }
+
     /**
      * @returns {string}
      */
