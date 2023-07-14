@@ -176,6 +176,7 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
          * caches currentId with newUuid
          */
         this.uuidCache = new Map();
+        this.saaCache = new Map();
         /**
          * caches current uuid for each non history collection to be used to update history collections
          */
@@ -334,6 +335,10 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
                 if (reference._uuid) {
                     reference._uuid = reference._uuid.replace(uuidReference, newUuidReference);
                 }
+                const sourceAssigningAuthority = this.saaCache.get(id);
+                if (sourceAssigningAuthority){
+                    reference._sourceAssigningAuthority = sourceAssigningAuthority;
+                }
                 if (reference.extension) {
                     for (let element of reference.extension) {
                         if (element.url === IdentifierSystem.sourceId && element.valueString) {
@@ -342,9 +347,23 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
                         if (element.url === IdentifierSystem.uuid && element.valueString) {
                             element.valueString = element.valueString.replace(uuidReference, newUuidReference);
                         }
+                        if (element.url === SecurityTagSystem.sourceAssigningAuthority && element.valueString) {
+                            element.valueString = reference._sourceAssigningAuthority;
+                        }
                     }
                 }
-                reference.reference = reference.reference.replace(currentReference, newReference);
+
+                if (sourceAssigningAuthority && reference._sourceId.split('/').length === 2){
+                    reference.reference = ReferenceParser.createReference(
+                            {
+                                resourceType,
+                                id: reference._sourceId.split('/')[1],
+                                sourceAssigningAuthority
+                            }
+                        );
+                } else {
+                    reference.reference = reference.reference.replace(currentReference, newReference);
+                }
             }
 
             // if currentReference is not present in the cache then increase the count of cacheMisses
@@ -757,84 +776,84 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
                 }
 
                 // changing the id of the resources
-                const mainProaCollectionsList = this.proaCollections.filter(coll => !coll.endsWith('_History')).sort();
-                const historyProaCollectionsList = this.proaCollections.filter(coll => coll.endsWith('_History')).sort();
-                this.historyUuidCache.clear();
-
-                const updateCollectionids = async (collectionName) => {
-                    this.adminLogger.logInfo(`Starting id updates for ${collectionName}`);
-                    const startFromIdContainer = this.createStartFromIdContainer();
-
-                    /**
-                     * @type {boolean}
-                     */
-                    const isHistoryCollection = collectionName.includes('_History');
-
-                    const query = this.getQueryForResource(isHistoryCollection);
-                    /**
-                     * @type {string}
-                     */
-                    const resourceName = collectionName.split('_')[0];
-
-                    // if query is not empty then run the query and process the records
-                    if (Object.keys(query).length) {
-                        try {
-                            this.adminLogger.logInfo(`query: ${mongoQueryStringify(query)}`);
-                            await this.runForQueryBatchesAsync({
-                                config: mongoConfig,
-                                sourceCollectionName: collectionName,
-                                destinationCollectionName: collectionName,
-                                query,
-                                projection: this.properties ? this.getProjection() : undefined,
-                                startFromIdContainer,
-                                fnCreateBulkOperationAsync: async (doc) =>
-                                    await this.processRecordAsync(doc, this.updateRecordIdAsync),
-                                ordered: false,
-                                batchSize: this.batchSize,
-                                skipExistingIds: false,
-                                limit: this.limit,
-                                useTransaction: this.useTransaction,
-                                skip: this.skip,
-                                filterToIds: isHistoryCollection && this.historyUuidCache.has(resourceName) ? Array.from(this.historyUuidCache.get(resourceName)) : undefined,
-                                filterToIdProperty: isHistoryCollection && this.historyUuidCache.has(resourceName) ? 'resource._uuid' : undefined,
-                            });
-                            if (isHistoryCollection && this.historyUuidCache.has(resourceName)) {
-                                this.adminLogger.logInfo(`Removing history cache for ${resourceName} with size  ${this.historyUuidCache.get(resourceName).size}`);
-                                this.historyUuidCache.delete(resourceName);
-                            }
-
-                        } catch (e) {
-                            this.adminLogger.logError(`Got error ${e}.  At ${startFromIdContainer.startFromId}`);
-                            throw new RethrownError(
-                                {
-                                    message: `Error processing ids of collection ${collectionName} ${e.message}`,
-                                    error: e,
-                                    args: {
-                                        query
-                                    },
-                                    source: 'FixReferenceIdRunner.processAsync'
-                                }
-                            );
-                        }
-                    }
-                    this.adminLogger.logInfo(`Finished loop ${collectionName}`);
-                    this.adminLogger.logInfo(`Cache hits in ${this.cacheHits.size} collections`);
-                    for (const [cacheCollectionName, cacheCount] of this.cacheHits.entries()) {
-                        this.adminLogger.logInfo(`${cacheCollectionName} hits: ${cacheCount}`);
-                    }
-                    this.adminLogger.logInfo(`Cache misses in ${this.cacheMisses.size} collections`);
-                    for (const [cacheCollectionName, cacheCount] of this.cacheMisses.entries()) {
-                        this.adminLogger.logInfo(`${cacheCollectionName} misses: ${cacheCount}`);
-                    }
-                };
-                queue = async.queue(updateCollectionids, this.collectionConcurrency);
-                queue.error(function(err) {
-                    throw err;
-                });
-                queue.push(mainProaCollectionsList);
-                await queue.drain();
-                queue.push(historyProaCollectionsList);
-                await queue.drain();
+                // const mainProaCollectionsList = this.proaCollections.filter(coll => !coll.endsWith('_History')).sort();
+                // const historyProaCollectionsList = this.proaCollections.filter(coll => coll.endsWith('_History')).sort();
+                // this.historyUuidCache.clear();
+                //
+                // const updateCollectionids = async (collectionName) => {
+                //     this.adminLogger.logInfo(`Starting id updates for ${collectionName}`);
+                //     const startFromIdContainer = this.createStartFromIdContainer();
+                //
+                //     /**
+                //      * @type {boolean}
+                //      */
+                //     const isHistoryCollection = collectionName.includes('_History');
+                //
+                //     const query = this.getQueryForResource(isHistoryCollection);
+                //     /**
+                //      * @type {string}
+                //      */
+                //     const resourceName = collectionName.split('_')[0];
+                //
+                //     // if query is not empty then run the query and process the records
+                //     if (Object.keys(query).length) {
+                //         try {
+                //             this.adminLogger.logInfo(`query: ${mongoQueryStringify(query)}`);
+                //             await this.runForQueryBatchesAsync({
+                //                 config: mongoConfig,
+                //                 sourceCollectionName: collectionName,
+                //                 destinationCollectionName: collectionName,
+                //                 query,
+                //                 projection: this.properties ? this.getProjection() : undefined,
+                //                 startFromIdContainer,
+                //                 fnCreateBulkOperationAsync: async (doc) =>
+                //                     await this.processRecordAsync(doc, this.updateRecordIdAsync),
+                //                 ordered: false,
+                //                 batchSize: this.batchSize,
+                //                 skipExistingIds: false,
+                //                 limit: this.limit,
+                //                 useTransaction: this.useTransaction,
+                //                 skip: this.skip,
+                //                 filterToIds: isHistoryCollection && this.historyUuidCache.has(resourceName) ? Array.from(this.historyUuidCache.get(resourceName)) : undefined,
+                //                 filterToIdProperty: isHistoryCollection && this.historyUuidCache.has(resourceName) ? 'resource._uuid' : undefined,
+                //             });
+                //             if (isHistoryCollection && this.historyUuidCache.has(resourceName)) {
+                //                 this.adminLogger.logInfo(`Removing history cache for ${resourceName} with size  ${this.historyUuidCache.get(resourceName).size}`);
+                //                 this.historyUuidCache.delete(resourceName);
+                //             }
+                //
+                //         } catch (e) {
+                //             this.adminLogger.logError(`Got error ${e}.  At ${startFromIdContainer.startFromId}`);
+                //             throw new RethrownError(
+                //                 {
+                //                     message: `Error processing ids of collection ${collectionName} ${e.message}`,
+                //                     error: e,
+                //                     args: {
+                //                         query
+                //                     },
+                //                     source: 'FixReferenceIdRunner.processAsync'
+                //                 }
+                //             );
+                //         }
+                //     }
+                //     this.adminLogger.logInfo(`Finished loop ${collectionName}`);
+                //     this.adminLogger.logInfo(`Cache hits in ${this.cacheHits.size} collections`);
+                //     for (const [cacheCollectionName, cacheCount] of this.cacheHits.entries()) {
+                //         this.adminLogger.logInfo(`${cacheCollectionName} hits: ${cacheCount}`);
+                //     }
+                //     this.adminLogger.logInfo(`Cache misses in ${this.cacheMisses.size} collections`);
+                //     for (const [cacheCollectionName, cacheCount] of this.cacheMisses.entries()) {
+                //         this.adminLogger.logInfo(`${cacheCollectionName} misses: ${cacheCount}`);
+                //     }
+                // };
+                // queue = async.queue(updateCollectionids, this.collectionConcurrency);
+                // queue.error(function(err) {
+                //     throw err;
+                // });
+                // queue.push(mainProaCollectionsList);
+                // await queue.drain();
+                // queue.push(historyProaCollectionsList);
+                // await queue.drain();
             } catch (err) {
                 this.adminLogger.logError(err);
             }
@@ -1121,22 +1140,25 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
         const currentIds = this.getCurrentIds({ originalId: currentOriginalId, _sourceAssigningAuthority: sourceAssigningAuthority });
 
         // if currentId is equal to doc._sourceId then we need to change the id so cache it
-        if (currentIds.includes(doc._sourceId)) {
+        if (!currentIds.includes(doc._sourceId)) {
             collectionName = collectionName.split('_')[0];
 
-            this.getCacheForReference({ collectionName }).set(
-                `${collectionName}/${doc._sourceId}`,
-                `${collectionName}/${expectedOriginalId}`
-            );
+            currentIds.forEach(currentId => {
+                this.getCacheForReference({ collectionName }).set(
+                    `${collectionName}/${currentId}`,
+                    `${collectionName}/${expectedOriginalId}`,
+                );
 
-            // generate a new uuid based on the orginal id
-            let newUUID;
-            if (isUuid(expectedOriginalId)){
-                newUUID = expectedOriginalId;
-            } else {
-                newUUID = generateUUIDv5(`${expectedOriginalId}${sourceAssigningAuthority ? '|' : ''}${sourceAssigningAuthority}`);
-            }
-            this.uuidCache.set(doc._sourceId, newUUID);
+                // generate a new uuid based on the orginal id
+                let newUUID;
+                if (isUuid(expectedOriginalId)) {
+                    newUUID = expectedOriginalId;
+                } else {
+                    newUUID = generateUUIDv5(`${expectedOriginalId}${sourceAssigningAuthority ? '|' : ''}${sourceAssigningAuthority}`);
+                }
+                this.uuidCache.set(currentId, newUUID);
+                this.saaCache.set(currentId, sourceAssigningAuthority);
+            });
         }
     }
 
