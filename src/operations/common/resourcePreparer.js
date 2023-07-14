@@ -97,15 +97,16 @@ class ResourcePreparer {
         let resources = [];
         if (parsedArgs.get('_elements')) {
             if (!useAccessIndex || !this.accessIndexManager.resourceHasAccessIndex({resourceType})) {
+                // TODO: discuss this double check and update accrodingly
                 // if the whole resource is returned then we have security tags to check again to be double sure
-                if (!this.scopesManager.isAccessToResourceAllowedBySecurityTags(
-                    {
-                        resource: element, user, scope
-                    }
-                )
-                ) {
-                    return [];
-                }
+                // if (!this.scopesManager.isAccessToResourceAllowedBySecurityTags(
+                //     {
+                //         resource: element, user, scope
+                //     }
+                // )
+                // ) {
+                //     return [];
+                // }
             }
             /**
              * @type {Resource}
@@ -119,12 +120,13 @@ class ResourcePreparer {
             );
             resources.push(element_to_return);
         } else {
+            // TODO: discuss this double check and update accrodingly
             // if the whole resource is returned then we have security tags to check again to be double sure
-            if (!this.scopesManager.isAccessToResourceAllowedBySecurityTags({
-                resource: element, user, scope
-            })) {
-                return [];
-            }
+            // if (!this.scopesManager.isAccessToResourceAllowedBySecurityTags({
+            //     resource: element, user, scope
+            // })) {
+            //     return [];
+            // }
             /**
              * @type {Resource[]}
              */
