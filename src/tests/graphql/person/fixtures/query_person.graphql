@@ -5,6 +5,7 @@ query {
                 system: "http://www.walgreens.com/profileid"
                 value: "healthsystemId1"
             }
+        }
     ) {
         entry {
             resource {
