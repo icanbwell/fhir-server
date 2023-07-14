@@ -34,6 +34,7 @@ const {QueryItem} = require('../graph/queryItem');
 const {DatabaseAttachmentManager} = require('../../dataLayer/databaseAttachmentManager');
 const {FhirResourceWriterFactory} = require('../streaming/resourceWriters/fhirResourceWriterFactory');
 const { PatientFilterManager } = require('../../fhir/patientFilterManager');
+const { ParsedArgs } = require('../query/parsedArgs');
 
 class SearchManager {
     /**
@@ -275,13 +276,7 @@ class SearchManager {
                     // 1. Check resourceType is specific to Patient
                     if (this.patientFilterManager.isPatientRelatedResource({ resourceType })) {
                         // 2. Check parsedArgs has patient or proxy patient filter
-                        let patientIds;
-                        parsedArgs.parsedArgItems.forEach((parsedArgItem) => {
-                            if (parsedArgItem.queryParameter === 'patient'){
-                                patientIds = parsedArgItem.queryParameterValue.values;
-                                return;
-                            }
-                        });
+                        let patientIds = this.getResourceIdsFromFilter('Patient', parsedArgs);
 
                         if (patientIds && patientIds.length > 0) {
                             // Get b.Well Master Person and/or Person map for each patient IDs
@@ -1302,6 +1297,38 @@ class SearchManager {
             operationDateObject[regexMatch[1]] = moment.utc(regexMatch[2]);
         }
         return [operationDateObject, isGreaterThanConditionPresent, isLessThanConditionPresent];
+    }
+
+    /**
+     * Get ResourceIds from ParsedArgs filter.
+     * For eg, if patient filter is used, then return the patient ids passed
+     * @param {string} resourceType
+     * @param {import('../query/parsedArgs').ParsedArgs} parsedArgs
+     * @returns {string[]} Array of resource Id's present in query
+     */
+    getResourceIdsFromFilter(resourceType, parsedArgs) {
+        assertIsValid(typeof resourceType === 'string');
+        assertIsValid(parsedArgs instanceof ParsedArgs);
+
+        /**@type {Set<string>} */
+        const resourceIds = parsedArgs.parsedArgItems
+            .reduce((/**@type {Set<string>}*/ids, /**@type {import('../query/parsedArgsItem').ParsedArgsItem}*/currArg) => {
+                const queryParam = currArg.queryParameter;
+                const queryParamValues = currArg.queryParameterValue.values;
+                if (queryParam === resourceType.toLowerCase() && queryParamValues) {
+                    ids.add(...queryParamValues);
+                }
+
+                // param values which have Resource/ prefix will also be added
+                queryParamValues
+                .filter((v) => v.startsWith(`${resourceType}/`))
+                .map((resourceIdWithPrefix) => resourceIdWithPrefix.replace(`${resourceType}/`, ''))
+                .filter((resourceId) => resourceId)
+                .forEach((resourceId) => ids.add(resourceId));
+                return ids;
+            }, new Set());
+
+        return Array.from(resourceIds);
     }
 }
 
