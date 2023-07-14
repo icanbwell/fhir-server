@@ -111,7 +111,7 @@ class ScopesManager {
                 return true;
             }
         }
-        return true;
+        return fase;
     }
 
     /**
