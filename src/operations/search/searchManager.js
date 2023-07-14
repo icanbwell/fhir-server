@@ -1316,7 +1316,7 @@ class SearchManager {
                 const queryParam = currArg.queryParameter;
                 const queryParamValues = currArg.queryParameterValue.values;
                 if (queryParam === resourceType.toLowerCase() && queryParamValues) {
-                    ids.add(...queryParamValues);
+                    queryParamValues.forEach((v) => ids.add(v));
                 }
 
                 // param values which have Resource/ prefix will also be added
