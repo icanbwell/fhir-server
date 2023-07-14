@@ -1,13 +1,10 @@
 query {
     person(
         identifier: {
-            notEquals: {
-                value: {
-                    system: "http://www.walgreens.com/profileid"
-                    value: "healthsystemId1"
-                }
+            value: {
+                system: "http://www.walgreens.com/profileid"
+                value: "healthsystemId1"
             }
-        }
     ) {
         entry {
             resource {
