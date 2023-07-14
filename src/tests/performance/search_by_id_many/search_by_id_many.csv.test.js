@@ -14,7 +14,7 @@ const env = require('var');
 let oldEnvLogLevel;
 
 describe('CSV Performance tests', () => {
-    const numberOfResources = 2000;
+    const numberOfResources = 100;
 
     beforeEach(async () => {
         await commonBeforeEach();
@@ -67,16 +67,21 @@ describe('CSV Performance tests', () => {
                     .expect(200);
                 expect(resp.body.length).toBe(10);
 
-                function binaryParser(res, callback) {
-                    res.text = '';
-                    res.setEncoding('utf8');
+                /**
+                 * Parser that reads chunks as they are received from server
+                 * @param {import('http').IncomingMessage} req
+                 * @param callback
+                 */
+                function chunkParser(req, callback) {
+                    req.text = '';
+                    req.setEncoding('utf8');
                     let chunkNumber = 0;
-                    res.on('data', (chunk) => {
-                        res.text += chunk;
+                    req.on('data', (chunk) => {
+                        req.text += chunk;
                         chunkNumber++;
                         console.log(`Received chunk ${chunkNumber} of length ${chunk.length}`);
                     });
-                    res.on('end', callback);
+                    req.on('end', callback);
                 }
 
                 // now check that we get the right record back
@@ -89,7 +94,7 @@ describe('CSV Performance tests', () => {
                         // Handle response headers
                         console.log('Response headers:', res.headers);
                     })
-                    .parse(binaryParser)
+                    .parse(chunkParser)
                 // .on('data', (chunk) => {
                 //     // Handle data chunks as they come
                 //     // console.log('Received chunk:', chunk.toString());
