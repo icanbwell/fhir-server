@@ -14,7 +14,7 @@ const env = require('var');
 let oldEnvLogLevel;
 
 describe('CSV Performance tests', () => {
-    const numberOfResources = 1000;
+    const numberOfResources = 2000;
 
     beforeEach(async () => {
         await commonBeforeEach();

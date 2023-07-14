@@ -816,7 +816,7 @@ class SearchManager {
                     {
                         user, scope, parsedArgs, resourceType, useAccessIndex, signal: ac.signal,
                         resourcePreparer: this.resourcePreparer,
-                        removeDuplicates: true
+                        removeDuplicates: cursor.getLimit() === null || cursor.getLimit() <= 100 // don't remove dups for large requests
                     }
                 ),
                 // NOTE: do not use an async generator as the last writer otherwise the pipeline will hang
@@ -995,7 +995,7 @@ class SearchManager {
             {
                 user, scope, parsedArgs, resourceType, useAccessIndex, signal: ac.signal,
                 resourcePreparer: this.resourcePreparer,
-                removeDuplicates: true
+                removeDuplicates: cursor.getLimit() === null || cursor.getLimit() <= 100 // don't remove dups for large requests
             }
         );
         /**
