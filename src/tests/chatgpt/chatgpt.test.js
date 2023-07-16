@@ -48,6 +48,33 @@ describe('ChatGPT Tests', () => {
             );
             console.log(result);
         });
+        test('convert bundle to documents optimized', async () => {
+            if (!process.env.OPENAI_API_KEY) {
+                return;
+            }
+
+            const chatGptManager = new ChatGPTManagerDirect();
+            /**
+             * @type {{pageContent: string, metadata: Object}[]}
+             */
+            const documents = await chatGptManager.convertBundleOptimizedToDocumentsAsync({
+                bundle: patientBundleResource,
+            });
+            const chatgptMessages = documents.map(doc =>
+                new ChatGPTMessage(
+                    {
+                        role: 'system',
+                        content: doc.pageContent
+                    }
+                )
+            );
+            const result = await chatGptManager.getTokenCountAsync(
+                {
+                    documents: chatgptMessages
+                }
+            );
+            console.log(result);
+        });
         test('summarize works', async () => {
             if (!process.env.OPENAI_API_KEY) {
                 return;
