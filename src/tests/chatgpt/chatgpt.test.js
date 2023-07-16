@@ -12,6 +12,7 @@ const {ChatGPTManagerDirect} = require('../../chatgpt/chatgptManagerDirect');
 const {ChatGPTMessage} = require('../../chatgpt/chatgptMessage');
 const {ChatGPTFhirToDocumentConverter} = require('../../chatgpt/chatgptFhirToDocumentConverter');
 const {ChatgptFhirToDocumentConverterOptimized} = require('../../chatgpt/chatgptFhirToDocumentConverterOptimized');
+const {ChatgptFhirToDocumentConverterSplitter} = require('../../chatgpt/chatgptFhirToDocumentConverterSplitter');
 
 describe('ChatGPT Tests', () => {
     describe('ChatGPT Tests', () => {
@@ -150,7 +151,7 @@ describe('ChatGPT Tests', () => {
                 return;
             }
 
-            const chatgptFhirToDocumentConverter = new ChatgptFhirToDocumentConverterOptimized();
+            const chatgptFhirToDocumentConverter = new ChatgptFhirToDocumentConverterSplitter();
             const chatGptManager = new ChatGPTManagerDirect({
                 chatgptFhirToDocumentConverter: chatgptFhirToDocumentConverter
             });

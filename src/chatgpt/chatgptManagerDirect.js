@@ -56,13 +56,23 @@ class ChatGPTManagerDirect {
             new ChatGPTMessage(
                 {
                     role: 'system',
-                    content: 'You are an AI assistant. Please provide short responses. ' +
-                        '\nYou are talking to a FHIR server. Today\'s date is 2023-07-10' +
-                        '\nReply in HTML with just the body' +
-                        '\nUse the following data in FHIR to answer the user\'s question'
+                    content: 'The total length of the content that I want to send you is too large to send in only one piece.' +
+                        '\nFor sending you that content, I will follow this rule:' +
+                        '\n[START PART 1/10]' +
+                        '\nthis is the content of the part 1 out of 10 in total' +
+                        '\n[END PART 1/10]' +
+                        '\nThen you just answer: "Received part 1/10"' +
+                        '\nAnd when I tell you "ALL PARTS SENT", then you can continue processing the data and answering my requests.'
+
                 }
             ),
-            ...contextMessages
+            ...contextMessages,
+            new ChatGPTMessage(
+                {
+                    role: 'system',
+                    content: 'ALL PARTS SENT. Now you can continue processing the request.'
+                }
+            )
         ];
         const messages = [
             ...systemMessages,
@@ -78,15 +88,20 @@ class ChatGPTManagerDirect {
          * @type {import('openai').CreateChatCompletionRequest}
          */
         const chatCompletionRequest = {
-            model: 'gpt-3.5-turbo',
+            // model: 'gpt-3.5-turbo',
+            model: 'gpt-3.5-turbo-16k',
             messages: messages,
             temperature: 0.0,
-            max_tokens: 200
+            max_tokens: 1000
         };
         try {
             const chatCompletion = await openai.createChatCompletion(chatCompletionRequest);
             const data = chatCompletion.data.choices[0].message;
             console.log(data);
+            const prompt_tokens = chatCompletion.data.usage.prompt_tokens;
+            const completion_tokens = chatCompletion.data.usage.completion_tokens;
+            const total_tokens = chatCompletion.data.usage.total_tokens;
+            console.log(`prompt_tokens: ${prompt_tokens}, completion_tokens: ${completion_tokens}, total: ${total_tokens}`);
         } catch (error) {
             if (error.response) {
                 console.log(error.response.status);
