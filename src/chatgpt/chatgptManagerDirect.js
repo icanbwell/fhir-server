@@ -65,9 +65,14 @@ class ChatGPTManagerDirect {
             )
         ];
         const numberTokens = await this.getTokenCountAsync({documents: messages});
+        /**
+         * @type {import('openai').CreateChatCompletionRequest}
+         */
         const chatCompletionRequest = {
             model: 'gpt-3.5-turbo',
-            messages: messages
+            messages: messages,
+            temperature: 0.0,
+            max_tokens: 3000
         };
         try {
             const chatCompletion = await openai.createChatCompletion(chatCompletionRequest);
