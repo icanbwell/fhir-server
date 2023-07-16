@@ -32,7 +32,11 @@ class ChatGPTManagerDirect {
         /**
          * {{pageContent: string, metadata: string}}
          */
-        const patientResources = await this.chatgptFhirToDocumentConverter.convertBundleToDocumentsAsync(bundle);
+        const patientResources = await this.chatgptFhirToDocumentConverter.convertBundleToDocumentsAsync(
+            {
+                bundle
+            }
+        );
 
         const configuration = new Configuration({
             apiKey: process.env.OPENAI_API_KEY,
@@ -77,7 +81,7 @@ class ChatGPTManagerDirect {
             model: 'gpt-3.5-turbo',
             messages: messages,
             temperature: 0.0,
-            max_tokens: 3000
+            max_tokens: 200
         };
         try {
             const chatCompletion = await openai.createChatCompletion(chatCompletionRequest);

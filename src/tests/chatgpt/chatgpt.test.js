@@ -11,6 +11,7 @@ const {describe, test} = require('@jest/globals');
 const {ChatGPTManagerDirect} = require('../../chatgpt/chatgptManagerDirect');
 const {ChatGPTMessage} = require('../../chatgpt/chatgptMessage');
 const {ChatGPTFhirToDocumentConverter} = require('../../chatgpt/chatgptFhirToDocumentConverter');
+const {ChatgptFhirToDocumentConverterOptimized} = require('../../chatgpt/chatgptFhirToDocumentConverterOptimized');
 
 describe('ChatGPT Tests', () => {
     describe('ChatGPT Tests', () => {
@@ -149,12 +150,27 @@ describe('ChatGPT Tests', () => {
                 return;
             }
 
-            const chatgptFhirToDocumentConverter = new ChatGPTFhirToDocumentConverter();
+            const chatgptFhirToDocumentConverter = new ChatgptFhirToDocumentConverterOptimized();
             const chatGptManager = new ChatGPTManagerDirect({
                 chatgptFhirToDocumentConverter: chatgptFhirToDocumentConverter
             });
             const result = await chatGptManager.answerQuestionAsync({
                 bundle: patientBundleResource,
+                question: 'write a clinical summary'
+            });
+            console.log(result);
+        });
+        test('summarize works with patient condensed bundle', async () => {
+            if (!process.env.OPENAI_API_KEY) {
+                return;
+            }
+
+            const chatgptFhirToDocumentConverter = new ChatgptFhirToDocumentConverterOptimized();
+            const chatGptManager = new ChatGPTManagerDirect({
+                chatgptFhirToDocumentConverter: chatgptFhirToDocumentConverter
+            });
+            const result = await chatGptManager.answerQuestionAsync({
+                bundle: patientCondensedBundleResource,
                 question: 'write a clinical summary'
             });
             console.log(result);
