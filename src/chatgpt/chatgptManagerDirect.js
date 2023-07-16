@@ -3,10 +3,22 @@ const {ChatGPTMessage} = require('./chatgptMessage');
 const {ChatGPTContextLengthExceededError} = require('./chatgptContextLengthExceededError');
 const {ChatGPTError} = require('./chatgptError');
 const {encoding_for_model} = require('@dqbd/tiktoken');
-const {groupByLambda} = require('../utils/list.util');
-const {Parser} = require('@json2csv/plainjs');
 
 class ChatGPTManagerDirect {
+    /**
+     * constructor
+     * @param {ChatGPTFhirToDocumentConverter} chatgptFhirToDocumentConverter
+     */
+    constructor(
+        {
+            chatgptFhirToDocumentConverter
+        }
+    ) {
+        /**
+         * @type {ChatGPTFhirToDocumentConverter}
+         */
+        this.chatgptFhirToDocumentConverter = chatgptFhirToDocumentConverter;
+    }
 
     /**
      * Sends the bundle of FHIR resources to ChatGPT and asks the provided question.
@@ -20,7 +32,7 @@ class ChatGPTManagerDirect {
         /**
          * {{pageContent: string, metadata: string}}
          */
-        const patientResources = this.convertBundleToDocuments(bundle);
+        const patientResources = await this.chatgptFhirToDocumentConverter.convertBundleToDocumentsAsync(bundle);
 
         const configuration = new Configuration({
             apiKey: process.env.OPENAI_API_KEY,
@@ -96,65 +108,6 @@ class ChatGPTManagerDirect {
                 console.log(error.message);
             }
         }
-    }
-
-    /**
-     * converts a FHIR bundle into documents for ChatGPT
-     * @param {Bundle} bundle
-     * @returns {Promise<{pageContent: string, metadata: Object}[]>}
-     */
-    async convertBundleToDocumentsAsync({bundle}) {
-        return bundle.entry.map(
-            e => {
-                return {
-                    pageContent: JSON.stringify(e.resource),
-                    metadata: {
-                        'my_document_id': e.resource.id,
-                    },
-                };
-            }
-        );
-    }
-
-    /**
-     * converts a FHIR bundle into documents for ChatGPT
-     * @param {Bundle} bundle
-     * @returns {Promise<{pageContent: string, metadata: Object}[]>}
-     */
-    async convertBundleOptimizedToDocumentsAsync({bundle}) {
-        // group by resource type
-        /**
-         * @type {Resource[]}
-         */
-        const resources = bundle.entry.map(
-            e => e.resource
-        );
-        /**
-         * merge results grouped by resourceType
-         * @type {Object}
-         */
-        const groupByResourceType = groupByLambda(resources, requestedResource => {
-            return requestedResource.resourceType;
-        });
-
-        const opts = {};
-        const parser = new Parser(opts);
-        /**
-         * @type {{pageContent: string, metadata: Object}[]}
-         */
-        const documents = [];
-        for (
-            const [
-                /** @type {string} */ resourceType,
-                /** @type {Resource[]} */ resources1
-            ]
-            of Object.entries(groupByResourceType)
-            ) {
-            const csv = parser.parse(resources1);
-            documents.push({pageContent: csv, metadata: resourceType});
-        }
-
-        return documents;
     }
 
     async listModelsAsync() {

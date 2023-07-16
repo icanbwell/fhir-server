@@ -9,6 +9,7 @@ const patientBundleResource = require('./fixtures/patient.json');
 const {describe, test} = require('@jest/globals');
 const {ChatGPTManagerDirect} = require('../../chatgpt/chatgptManagerDirect');
 const {ChatGPTMessage} = require('../../chatgpt/chatgptMessage');
+const {ChatGPTFhirToDocumentConverter} = require('../../chatgpt/chatgptFhirToDocumentConverter');
 
 describe('ChatGPT Tests', () => {
     describe('ChatGPT Tests', () => {
@@ -17,7 +18,10 @@ describe('ChatGPT Tests', () => {
                 return;
             }
 
-            const chatGptManager = new ChatGPTManagerDirect();
+            const chatgptFhirToDocumentConverter = new ChatGPTFhirToDocumentConverter();
+            const chatGptManager = new ChatGPTManagerDirect({
+                chatgptFhirToDocumentConverter: chatgptFhirToDocumentConverter
+            });
             const result = await chatGptManager.listModelsAsync();
             console.log(result);
         });
@@ -26,7 +30,10 @@ describe('ChatGPT Tests', () => {
                 return;
             }
 
-            const chatGptManager = new ChatGPTManagerDirect();
+            const chatgptFhirToDocumentConverter = new ChatGPTFhirToDocumentConverter();
+            const chatGptManager = new ChatGPTManagerDirect({
+                chatgptFhirToDocumentConverter: chatgptFhirToDocumentConverter
+            });
             /**
              * @type {{pageContent: string, metadata: Object}[]}
              */
@@ -52,12 +59,14 @@ describe('ChatGPT Tests', () => {
             if (!process.env.OPENAI_API_KEY) {
                 return;
             }
-
-            const chatGptManager = new ChatGPTManagerDirect();
+            const chatgptFhirToDocumentConverter = new ChatGPTFhirToDocumentConverter();
+            const chatGptManager = new ChatGPTManagerDirect({
+                chatgptFhirToDocumentConverter: chatgptFhirToDocumentConverter
+            });
             /**
              * @type {{pageContent: string, metadata: Object}[]}
              */
-            const documents = await chatGptManager.convertBundleOptimizedToDocumentsAsync({
+            const documents = await chatgptFhirToDocumentConverter.convertBundleOptimizedToDocumentsAsync({
                 bundle: patientBundleResource,
             });
             const chatgptMessages = documents.map(doc =>
@@ -80,7 +89,10 @@ describe('ChatGPT Tests', () => {
                 return;
             }
 
-            const chatGptManager = new ChatGPTManagerDirect();
+            const chatgptFhirToDocumentConverter = new ChatGPTFhirToDocumentConverter();
+            const chatGptManager = new ChatGPTManagerDirect({
+                chatgptFhirToDocumentConverter: chatgptFhirToDocumentConverter
+            });
             const result = await chatGptManager.answerQuestionAsync({
                 bundle: patientBundleResource,
                 question: 'write a clinical summary'
