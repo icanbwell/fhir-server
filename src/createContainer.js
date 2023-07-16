@@ -84,7 +84,7 @@ const {ReferenceGlobalIdHandler} = require('./preSaveHandlers/handlers/reference
 const {OwnerColumnHandler} = require('./preSaveHandlers/handlers/ownerColumnHandler');
 const {HashReferencesEnrichmentProvider} = require('./enrich/providers/hashedReferencesEnrichmentProvider');
 const {SensitiveDataProcessor} = require('./utils/sensitiveDataProcessor');
-const {ChatGPTManager} = require('./chatgpt/chatgptManager');
+const {ChatGPTLangChainManager} = require('./chatgpt/chatgptLangChainManager');
 const {FhirResourceWriterFactory} = require('./operations/streaming/resourceWriters/fhirResourceWriterFactory');
 
 /**
@@ -661,7 +661,7 @@ const createContainer = function () {
         databaseQueryFactory: c.databaseQueryFactory
     }));
 
-    container.register('chatgptManager', () => new ChatGPTManager());
+    container.register('chatgptManager', () => new ChatGPTLangChainManager());
     container.register('fhirResourceWriterFactory', (c) => new FhirResourceWriterFactory(
         {
             configManager: c.configManager

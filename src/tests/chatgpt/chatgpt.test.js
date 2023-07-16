@@ -175,5 +175,20 @@ describe('ChatGPT Tests', () => {
             });
             console.log(result);
         });
+        test('list conditions with patient condensed bundle', async () => {
+            if (!process.env.OPENAI_API_KEY) {
+                return;
+            }
+
+            const chatgptFhirToDocumentConverter = new ChatgptFhirToDocumentConverterOptimized();
+            const chatGptManager = new ChatGPTManagerDirect({
+                chatgptFhirToDocumentConverter: chatgptFhirToDocumentConverter
+            });
+            const result = await chatGptManager.answerQuestionAsync({
+                bundle: patientCondensedBundleResource,
+                question: 'what conditions does this patient have?'
+            });
+            console.log(result);
+        });
     });
 });

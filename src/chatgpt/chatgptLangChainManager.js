@@ -17,7 +17,7 @@ const {filterXSS} = require('xss');
 const {ChatGPTContextLengthExceededError} = require('./chatgptContextLengthExceededError');
 const {ChatOpenAI} = require('langchain/chat_models/openai');
 
-class ChatGPTManager {
+class ChatGPTLangChainManager {
     /**
      * Sends the bundle of FHIR resources to ChatGPT and asks the provided question.
      * Returns the result as HTML body
@@ -232,5 +232,5 @@ class ChatGPTManager {
 }
 
 module.exports = {
-    ChatGPTManager
+    ChatGPTLangChainManager
 };
