@@ -18,16 +18,7 @@ class ChatGPTManagerDirect {
         /**
          * {{pageContent: string, metadata: string}}
          */
-        const patientResources = bundle.entry.map(
-            e => {
-                return {
-                    pageContent: JSON.stringify(e.resource),
-                    metadata: {
-                        'my_document_id': e.resource.id,
-                    },
-                };
-            }
-        );
+        const patientResources = this.convertBundleToDocuments(bundle);
 
         const configuration = new Configuration({
             apiKey: process.env.OPENAI_API_KEY,
@@ -103,6 +94,24 @@ class ChatGPTManagerDirect {
                 console.log(error.message);
             }
         }
+    }
+
+    /**
+     * converts a FHIR bundle into documents for ChatGPT
+     * @param {Bundle} bundle
+     * @returns {Promise<{pageContent: string, metadata: Object}[]>}
+     */
+    async convertBundleToDocumentsAsync({bundle}) {
+        return bundle.entry.map(
+            e => {
+                return {
+                    pageContent: JSON.stringify(e.resource),
+                    metadata: {
+                        'my_document_id': e.resource.id,
+                    },
+                };
+            }
+        );
     }
 
     async listModelsAsync() {
