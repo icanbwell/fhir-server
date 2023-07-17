@@ -482,7 +482,7 @@ class {{ fhir_entity.cleaned_name }} extends Element {
 
     /**
      * Returns whether two resources are same
-     * @param {Resource} other
+     * @param {Resource|{resourceType: string, _uuid: string, id: string, securityTagStructure: SecurityTagStructure}} other
      * @return {boolean}
      */
     isSameResourceByIdAndSecurityTag({other}) {

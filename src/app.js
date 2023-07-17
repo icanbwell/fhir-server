@@ -255,6 +255,9 @@ function createApp({fnCreateContainer, trackMetrics}) {
         webRouter.get('/web', (req, res) => {
             res.sendFile(path.join(__dirname, 'web/build', 'index.html'));
         });
+        webRouter.get('/web/*', (req, res) => { // support sub-paths also
+            res.sendFile(path.join(__dirname, 'web/build', 'index.html'));
+        });
         app.use(webRouter);
     }
 

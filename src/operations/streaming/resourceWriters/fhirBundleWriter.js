@@ -11,9 +11,10 @@ class FhirBundleWriter extends FhirResourceWriterBase {
      * @param {string | null} url
      * @param {AbortSignal} signal
      * @param {string} defaultSortId
+     * @param {number} highWaterMark
      */
-    constructor({fnBundle, url, signal, defaultSortId}) {
-        super({objectMode: true, contentType: fhirContentTypes.fhirJson});
+    constructor({fnBundle, url, signal, defaultSortId, highWaterMark}) {
+        super({objectMode: true, contentType: fhirContentTypes.fhirJson, highWaterMark: highWaterMark});
         /**
          * @type {function (string | null, number): Bundle}
          * @private

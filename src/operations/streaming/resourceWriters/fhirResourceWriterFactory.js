@@ -33,6 +33,7 @@ class FhirResourceWriterFactory {
      * @param {boolean} bundle
      * @param {string} defaultSortId
      * @param {function (string | null, number): Bundle} fnBundle
+     * @param {number} highWaterMark
      * @return {FhirResourceWriterBase| {getContentType: function()}}
      */
     createResourceWriter(
@@ -43,61 +44,122 @@ class FhirResourceWriterFactory {
             url,
             bundle,
             defaultSortId,
-            fnBundle
+            fnBundle,
+            highWaterMark
         }
     ) {
         // _format, if present, overrides content type
         if (format) {
             if (hasNdJsonContentType(format)) {
-                return new FhirResourceNdJsonWriter({signal: signal, contentType: fhirContentTypes.ndJson});
+                return new FhirResourceNdJsonWriter({
+                    signal: signal,
+                    contentType: fhirContentTypes.ndJson,
+                    highWaterMark: highWaterMark
+                });
             }
             if (format === fhirContentTypes.fhirJson) {
                 if (this.configManager.enableReturnBundle || bundle) {
-                    return new FhirBundleWriter({fnBundle, url, signal: signal, defaultSortId: defaultSortId});
+                    return new FhirBundleWriter({
+                        fnBundle,
+                        url,
+                        signal: signal,
+                        defaultSortId: defaultSortId,
+                        highWaterMark: highWaterMark
+                    });
                 }
-                return new FhirResourceWriter({signal: signal, contentType: fhirContentTypes.fhirJson});
+                return new FhirResourceWriter({
+                    signal: signal,
+                    contentType: fhirContentTypes.fhirJson,
+                    highWaterMark: highWaterMark
+                });
             }
             if (format === fhirContentTypes.csv) {
-                return new FhirResourceCsvWriter({signal: signal, delimiter: ',', contentType: fhirContentTypes.csv});
+                return new FhirResourceCsvWriter({
+                    signal: signal,
+                    delimiter: ',',
+                    contentType: fhirContentTypes.csv,
+                    highWaterMark: highWaterMark
+                });
             }
             if (format === fhirContentTypes.tsv) {
-                return new FhirResourceCsvWriter({signal: signal, delimiter: '\t', contentType: fhirContentTypes.tsv});
+                return new FhirResourceCsvWriter({
+                    signal: signal,
+                    delimiter: '\t',
+                    contentType: fhirContentTypes.tsv,
+                    highWaterMark: highWaterMark
+                });
             }
             if (format === fhirContentTypes.pipeDelimited) {
                 return new FhirResourceCsvWriter({
                     signal: signal,
                     delimiter: '|',
-                    contentType: fhirContentTypes.pipeDelimited
+                    contentType: fhirContentTypes.pipeDelimited,
+                    highWaterMark: highWaterMark
                 });
             }
         }
         // if _format parameter is not present or not supported then check content type
         if (hasNdJsonContentType(accepts)) {
-            return new FhirResourceNdJsonWriter({signal: signal, contentType: fhirContentTypes.ndJson});
+            return new FhirResourceNdJsonWriter({
+                signal: signal,
+                contentType: fhirContentTypes.ndJson,
+                highWaterMark: highWaterMark
+            });
         }
         if (accepts.includes(fhirContentTypes.fhirJson)) {
             if (this.configManager.enableReturnBundle || bundle) {
-                return new FhirBundleWriter({fnBundle, url, signal: signal, defaultSortId: defaultSortId});
+                return new FhirBundleWriter({
+                    fnBundle,
+                    url,
+                    signal: signal,
+                    defaultSortId: defaultSortId,
+                    highWaterMark: highWaterMark
+                });
             }
-            return new FhirResourceWriter({signal: signal, contentType: fhirContentTypes.fhirJson});
+            return new FhirResourceWriter({
+                signal: signal,
+                contentType: fhirContentTypes.fhirJson,
+                highWaterMark: highWaterMark
+            });
         }
         if (accepts.includes(fhirContentTypes.csv)) {
-            return new FhirResourceCsvWriter({signal: signal, delimiter: ',', contentType: fhirContentTypes.csv});
+            return new FhirResourceCsvWriter({
+                signal: signal,
+                delimiter: ',',
+                contentType: fhirContentTypes.csv,
+                highWaterMark: highWaterMark
+            });
         }
         if (accepts.includes(fhirContentTypes.tsv)) {
-            return new FhirResourceCsvWriter({signal: signal, delimiter: '\t', contentType: fhirContentTypes.tsv});
+            return new FhirResourceCsvWriter({
+                signal: signal,
+                delimiter: '\t',
+                contentType: fhirContentTypes.tsv,
+                highWaterMark: highWaterMark
+            });
         }
         if (accepts.includes(fhirContentTypes.pipeDelimited)) {
             return new FhirResourceCsvWriter({
                 signal: signal,
                 delimiter: '|',
-                contentType: fhirContentTypes.pipeDelimited
+                contentType: fhirContentTypes.pipeDelimited,
+                highWaterMark: highWaterMark
             });
         }
         if (this.configManager.enableReturnBundle || bundle) {
-            return new FhirBundleWriter({fnBundle, url, signal: signal, defaultSortId: defaultSortId});
+            return new FhirBundleWriter({
+                fnBundle,
+                url,
+                signal: signal,
+                defaultSortId: defaultSortId,
+                highWaterMark: highWaterMark
+            });
         }
-        return new FhirResourceWriter({signal: signal, contentType: fhirContentTypes.fhirJson});
+        return new FhirResourceWriter({
+            signal: signal,
+            contentType: fhirContentTypes.fhirJson,
+            highWaterMark: highWaterMark
+        });
     }
 }
 

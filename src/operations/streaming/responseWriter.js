@@ -3,6 +3,7 @@ const {isTrue} = require('../../utils/isTrue');
 const env = require('var');
 const {getLogger} = require('../../winstonInit');
 const {assertIsValid} = require('../../utils/assertType');
+const {hasNdJsonContentType} = require('../../utils/contentTypes');
 const logger = getLogger();
 
 class HttpResponseWriter extends Writable {
@@ -11,9 +12,18 @@ class HttpResponseWriter extends Writable {
      * @param {import('http').ServerResponse} response
      * @param {string} contentType
      * @param {AbortSignal} signal
+     * @param {number} highWaterMark
      */
-    constructor({requestId, response, contentType, signal}) {
-        super({objectMode: true});
+    constructor(
+        {
+            requestId,
+            response,
+            contentType,
+            signal,
+            highWaterMark
+        }
+    ) {
+        super({objectMode: true, highWaterMark: highWaterMark});
         assertIsValid(response !== undefined);
         /**
          * @type {import('http').ServerResponse}
@@ -45,10 +55,13 @@ class HttpResponseWriter extends Writable {
         this.response.setHeader('Transfer-Encoding', 'chunked');
         this.response.setHeader('X-Request-ID', this.requestId);
         this.response.setHeader('Content-Type', this.contentType);
+        // noinspection DynamicallyGeneratedCodeJS
         this.response.setTimeout(60 * 60 * 1000, () => {
             logger.warn('Response timeout');
         });
         this.response.flushHeaders();
+        // Disable response buffering
+        this.response.buffer = false;
         callback();
     }
 
@@ -67,6 +80,21 @@ class HttpResponseWriter extends Writable {
         try {
             if (chunk !== null && chunk !== undefined) {
                 if (this.response.writable) {
+                    if (isTrue(env.LOG_STREAM_STEPS)) {
+                        if (hasNdJsonContentType([this.contentType])) {
+                            try {
+                                /**
+                                 * @type {Object}
+                                 */
+                                const jsonObject = JSON.parse(chunk);
+                                logger.verbose(`HttpResponseWriter: _write ${jsonObject['id']}`);
+                            } catch (e) {
+                                logger.error(`HttpResponseWriter: _write: ERROR parsing json: ${chunk}: ${e}`);
+                            }
+                        } else {
+                            logger.verbose(`HttpResponseWriter: _write ${chunk}`);
+                        }
+                    }
                     this.response.write(chunk, encoding, callback);
                 }
                 callback();

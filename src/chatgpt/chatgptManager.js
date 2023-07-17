@@ -1,16 +1,21 @@
 const {Document} = require('langchain/document');
 const {OpenAIEmbeddings} = require('langchain/embeddings/openai');
 const {MemoryVectorStore} = require('langchain/vectorstores/memory');
-const {OpenAI} = require('langchain/llms/openai');
 const {ConsoleCallbackHandler} = require('langchain/callbacks');
 const {LLMChainExtractor} = require('langchain/retrievers/document_compressors/chain_extract');
 const {ContextualCompressionRetriever} = require('langchain/retrievers/contextual_compression');
-const {PromptTemplate} = require('langchain/prompts');
-const {RetrievalQAChain, loadQAStuffChain} = require('langchain/chains');
+const {
+    ChatPromptTemplate,
+    SystemMessagePromptTemplate,
+    HumanMessagePromptTemplate
+} = require('langchain/prompts');
+const {RetrievalQAChain, loadQAStuffChain, LLMChain} = require('langchain/chains');
 const {ChatGPTError} = require('./chatgptError');
 const {encoding_for_model} = require('@dqbd/tiktoken');
 const sanitize = require('sanitize-html');
 const {filterXSS} = require('xss');
+const {ChatGPTContextLengthExceededError} = require('./chatgptContextLengthExceededError');
+const {ChatOpenAI} = require('langchain/chat_models/openai');
 
 class ChatGPTManager {
     /**
@@ -46,7 +51,7 @@ class ChatGPTManager {
         );
 
         // Now create an OpenAI model.
-        const model = new OpenAI(
+        const model = new ChatOpenAI(
             {
                 openAIApiKey: process.env.OPENAI_API_KEY,
                 temperature: 0,
@@ -67,18 +72,18 @@ class ChatGPTManager {
             baseRetriever: vectorStore.asRetriever(),
         });
 
-        // now create the prompt to send to OpenAI
-        const template_text = '\nUse the following data in FHIR to answer the question at the end.' +
-            '\nQuestion:\n{question}' +
-            '\nReply in HTML with just the body';
-        const prompt = new PromptTemplate({
-            template: template_text,
-            inputVariables: ['question']
-            // partialVariables: {
-            //     format_instructions: outputFixingParser.getFormatInstructions()
-            // },
-            // outputKey: 'records', // For readability - otherwise the chain output will default to a property named "text"
-            // outputParser: outputFixingParser
+        const inputVariables = ['question'];
+        const prompt = new ChatPromptTemplate({
+            promptMessages: [
+                SystemMessagePromptTemplate.fromTemplate(
+                    'You are an AI assistant. Please provide short responses. ' +
+                    '\nYou are talking to a FHIR server. Today\'s date is 2023-07-10' +
+                    '\nReply in HTML with just the body' +
+                    '\nUse the following data in FHIR to answer the user\'s question'
+                ),
+                HumanMessagePromptTemplate.fromTemplate('{question}'),
+            ],
+            inputVariables: inputVariables,
         });
 
         // Create the chain to chain all the above processes
@@ -87,24 +92,126 @@ class ChatGPTManager {
             retriever: retriever,
             // memory: memory,
             // returnSourceDocuments: true,
+            verbose: true
         });
+
+        const parameters = {
+            query: question,
+            question: question
+        };
+        const fullPrompt = await prompt.format(parameters);
+        const numberTokens = await this.getTokenCountAsync({documents: [{pageContent: fullPrompt}]});
 
         // Finally run the chain and get the result
         try {
-            const res3 = await chain.call({
-                query: question
-            });
-            return filterXSS(sanitize(res3.text.replace('<body>', '').replace('</body>', '').replace(/\n/g, '')));
+            const res3 = await chain.call(parameters);
+            return filterXSS(sanitize(res3.text.replace('<body>', '').replace('</body>', '').replace(/\n/g, '').trim()));
         } catch (e) {
-            throw new ChatGPTError({
-                error: e,
-                args: {
-                    prompt: prompt.format({
-                        query: question
-                    })
-                }
-            });
+            if (e.response && e.response.data && e.response.data.error && e.response.data.error.code === 'context_length_exceeded') {
+                throw new ChatGPTContextLengthExceededError({
+                    error: e,
+                    args: {
+                        prompt: fullPrompt,
+                        numberOfTokens: numberTokens
+                    }
+                });
+            } else {
+                throw new ChatGPTError({
+                    error: e,
+                    args: {
+                        prompt: fullPrompt,
+                        numberOfTokens: numberTokens
+                    }
+                });
+            }
         }
+    }
+
+    /**
+     * Gets the fhir query
+     * @param {string} query
+     * @param {string} baseUrl baseUrl of the FHIR server
+     * @param {string|undefined} [patientId] restrict query to this patient
+     * @return {Promise<string|undefined>}
+     */
+    async getFhirQueryAsync({query, baseUrl, patientId}) {
+        // https://js.langchain.com/docs/getting-started/guide-llm
+        // https://blog.langchain.dev/going-beyond-chatbots-how-to-make-gpt-4-output-structured-data-using-langchain/
+        // https://nathankjer.com/introduction-to-langchain/
+        const model = new ChatOpenAI(
+            {
+                openAIApiKey: process.env.OPENAI_API_KEY,
+                temperature: 0,
+                modelName: 'gpt-3.5-turbo',
+                // These tags will be attached to all calls made with this LLM.
+                tags: ['example', 'callbacks', 'constructor'],
+                // This handler will be used for all calls made with this LLM.
+                callbacks: [new ConsoleCallbackHandler()],
+                // maxTokens: 3800,
+                verbose: true
+            }
+        );
+
+        const inputVariables = ['baseUrl', 'query'];
+        if (patientId) {
+            inputVariables.push('patientId');
+        }
+
+        const prompt = new ChatPromptTemplate({
+            promptMessages: [
+                SystemMessagePromptTemplate.fromTemplate(
+                    'You are an AI assistant. Please provide short responses. ' +
+                    '\nYou are talking to a FHIR server. Today\'s date is 2023-07-10' +
+                    // '\n{format_instructions}' +
+                    '\nWrite a FHIR query for the user\'s query' +
+                    ' using the base url of {baseUrl}' +
+                    (patientId ? ' and patient id of {patientId}.' : '')
+                ),
+                HumanMessagePromptTemplate.fromTemplate('{query}'),
+            ],
+            inputVariables: inputVariables,
+        });
+
+        const chain = new LLMChain(
+            {
+                llm: model,
+                prompt: prompt,
+                outputKey: 'text', // For readability - otherwise the chain output will default to a property named "text"
+            });
+
+        // const baseUrl = 'https://fhir.icanbwell.com/4_0_0';
+        const parameters = {query: query, baseUrl: baseUrl};
+        if (patientId) {
+            parameters['patientId'] = patientId;
+        }
+        const fullPrompt = await prompt.format(parameters);
+        const numberTokens = await this.getTokenCountAsync({documents: [{pageContent: fullPrompt}]});
+        // Finally run the chain and get the result
+        try {
+            const result = await chain.call(parameters);
+            if (result.text) {
+                return result.text.replace('GET ', '');
+            }
+        } catch (e) {
+            if (e.response && e.response.data && e.response.data.error && e.response.data.error.code === 'context_length_exceeded') {
+                throw new ChatGPTContextLengthExceededError({
+                    error: e,
+                    args: {
+                        prompt: fullPrompt,
+                        numberOfTokens: numberTokens
+                    }
+                });
+            } else {
+                throw new ChatGPTError({
+                    error: e,
+                    args: {
+                        prompt: fullPrompt,
+                        numberOfTokens: numberTokens
+                    }
+                });
+            }
+        }
+        return undefined;
     }
 
     /**

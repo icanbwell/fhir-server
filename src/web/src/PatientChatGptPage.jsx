@@ -1,7 +1,9 @@
 import './App.css';
 import React, {useState} from 'react';
+// import {useParams} from "react-router-dom";
 
 function PatientChatGptPage() {
+    // const {id} = useParams();
     const [
         textInput,
         setTextInput,
@@ -53,6 +55,7 @@ function PatientChatGptPage() {
 
     return (
         <div className="App">
+            {/*<div>{id}</div>*/}
             <textarea value={textInput} onChange={handleInputChange} rows="4" cols="100"/>
             <br/>
             <button onClick={callApi}>Ask</button>

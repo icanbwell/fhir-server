@@ -10,9 +10,10 @@ class FhirResourceNdJsonWriter extends FhirResourceWriterBase {
      *
      * @param {AbortSignal} signal
      * @param {string} contentType
+     * @param {number} highWaterMark
      */
-    constructor({signal, contentType}) {
-        super({objectMode: true, contentType: contentType});
+    constructor({signal, contentType, highWaterMark}) {
+        super({objectMode: true, contentType: contentType, highWaterMark: highWaterMark});
 
         /**
          * @type {AbortSignal}
