@@ -25,9 +25,10 @@ class ChatGPTManagerDirect {
      * Returns the result as HTML body
      * @param {Bundle} bundle
      * @param {str} question
+     * @param {string} outputFormat
      * @return {Promise<string>}
      */
-    async answerQuestionAsync({bundle, question}) {
+    async answerQuestionAsync({bundle, question, outputFormat}) {
         // First convert the resources in the bundle into text documetns
         /**
          * {{pageContent: string, metadata: string}}
@@ -57,9 +58,9 @@ class ChatGPTManagerDirect {
                 {
                     role: 'system',
                     content: 'You are an AI assistant. Please provide short responses. ' +
-                        '\nToday\'s date is 2023-07-10' +
-                        // '\nReply in HTML with just the body' +
-                        '\nUse the following data in FHIR format to answer the user\'s question'
+                    '\nToday\'s date is 2023-07-10' +
+                    outputFormat === 'html' ? '\nReply in HTML with just the body' : '' +
+                        '\nUse only the following data in FHIR format to answer the user\'s question'
                 }
             ),
             ...contextMessages,
