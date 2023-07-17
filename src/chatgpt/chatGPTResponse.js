@@ -4,17 +4,20 @@ class ChatGPTResponse {
      * @param {string} responseText
      * @param {string} fullPrompt
      * @param {number} numberTokens
+     * @param {string[]|undefined} [documents]
      */
     constructor(
         {
             responseText,
             fullPrompt,
-            numberTokens
+            numberTokens,
+            documents
         }
     ) {
         this.responseText = responseText;
         this.fullPrompt = fullPrompt;
         this.numberTokens = numberTokens;
+        this.documents = documents;
     }
 }
 

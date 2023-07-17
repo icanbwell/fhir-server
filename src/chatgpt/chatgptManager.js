@@ -24,7 +24,7 @@ class ChatGPTManager {
      * @param {Bundle} bundle
      * @param {str} question
      * @param {'html'|'text'|undefined} outputFormat
-     * @return {Promise<string>}
+     * @return {Promise<ChatGPTResponse>}
      */
     async answerQuestionAsync({bundle, question, outputFormat}) {
         // https://horosin.com/extracting-pdf-and-generating-json-data-with-gpts-langchain-and-nodejs
@@ -57,15 +57,19 @@ class ChatGPTManager {
         outputFormat === 'html' ? '\nReply in HTML with just the body' : '';
 
         /**
+         * @type {string[]}
+         */
+        const documents = patientResources.map(p => p.pageContent);
+        /**
          * @type {ChatGPTResponse}
          */
         const response = await this.answerQuestionWithDocumentsAsync({
-            documents: patientResources.map(p => p.pageContent),
+            documents: documents,
             question,
             startPrompt
         });
         if (outputFormat === 'html') {
-            return filterXSS(
+            response.responseText = filterXSS(
                 sanitize(
                     response.responseText
                         .replace('<body>', '')
@@ -74,9 +78,9 @@ class ChatGPTManager {
                         .trim()
                 )
             );
-        } else {
-            return response.responseText;
         }
+        response.documents = documents;
+        return response;
     }
 
     /**

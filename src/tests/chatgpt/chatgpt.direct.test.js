@@ -44,7 +44,7 @@ describe('ChatGPT Tests', () => {
                 bundle: patientBundleResource,
                 question: 'write a clinical summary'
             });
-            console.log(result);
+            console.log(result.responseText);
         });
         test('list conditions with patient condensed bundle', async () => {
             if (!process.env.OPENAI_API_KEY) {
@@ -59,7 +59,7 @@ describe('ChatGPT Tests', () => {
                 bundle: patientCondensedBundleResource,
                 question: 'what conditions does this patient have?'
             });
-            console.log(result);
+            console.log(result.responseText);
         });
     });
 });

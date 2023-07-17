@@ -95,12 +95,16 @@ class EverythingOperation {
                 responseStreamer: question ? undefined : responseStreamer // disable response streaming if we are answering a question
             });
             if (question && resourceType === 'Patient') {
-                const html = await this.chatgptManager.answerQuestionAsync(
+                /**
+                 * @type {ChatGPTResponse}
+                 */
+                const response = await this.chatgptManager.answerQuestionAsync(
                     {
                         bundle: bundle.toJSON(),
                         question: question.queryParameterValue.value
                     }
                 );
+                const html = response.responseText;
                 // find the patient resource
                 /**
                  * @type {BundleEntry}
@@ -180,74 +184,79 @@ class EverythingOperation {
             let query = {};
             query.id = id;
             // Grab an instance of our DB and collection
-            if (resourceType === 'Practitioner') {
-                parsedArgs.resource = practitionerEverythingGraph;
-                const result = await this.graphOperation.graph({
-                    requestInfo, res, parsedArgs, resourceType, responseStreamer
-                });
-                await this.fhirLoggingManager.logOperationSuccessAsync({
-                    requestInfo,
-                    args: parsedArgs.getRawArgs(),
-                    resourceType,
-                    startTime,
-                    action: currentOperationName
-                });
-                return result;
-            } else if (resourceType === 'Organization') {
-                parsedArgs.resource = organizationEverythingGraph;
-                const result = await this.graphOperation.graph({
-                    requestInfo, res, parsedArgs, resourceType, responseStreamer
-                });
-                await this.fhirLoggingManager.logOperationSuccessAsync({
-                    requestInfo,
-                    args: parsedArgs.getRawArgs(),
-                    resourceType,
-                    startTime,
-                    action: currentOperationName
-                });
-                return result;
-            } else if (resourceType === 'Slot') {
-                parsedArgs.resource = slotEverythingGraph;
-                const result = await this.graphOperation.graph({
-                    requestInfo, res, parsedArgs, resourceType, responseStreamer
-                });
-                await this.fhirLoggingManager.logOperationSuccessAsync({
-                    requestInfo,
-                    args: parsedArgs.getRawArgs(),
-                    resourceType,
-                    startTime,
-                    action: currentOperationName
-                });
-                return result;
-            } else if (resourceType === 'Person') {
-                parsedArgs.resource = requestInfo.method.toLowerCase() === 'delete' ? personEverythingForDeletionGraph : personEverythingGraph;
-                const result = await this.graphOperation.graph({
-                    requestInfo, res, parsedArgs, resourceType, responseStreamer
-                });
-                await this.fhirLoggingManager.logOperationSuccessAsync({
-                    requestInfo,
-                    args: parsedArgs.getRawArgs(),
-                    resourceType,
-                    startTime,
-                    action: currentOperationName
-                });
-                return result;
-            } else if (resourceType === 'Patient') {
-                parsedArgs.resource = requestInfo.method.toLowerCase() === 'delete' ? patientEverythingForDeletionGraph : patientEverythingGraph;
-                const result = await this.graphOperation.graph({
-                    requestInfo, res, parsedArgs, resourceType, responseStreamer
-                });
-                await this.fhirLoggingManager.logOperationSuccessAsync({
-                    requestInfo,
-                    args: parsedArgs.getRawArgs(),
-                    resourceType,
-                    startTime,
-                    action: currentOperationName
-                });
-                return result;
-            } else {
-                // noinspection ExceptionCaughtLocallyJS
-                throw new Error('$everything is not supported for resource: ' + resourceType);
+            switch (resourceType) {
+                case 'Practitioner': {
+                    parsedArgs.resource = practitionerEverythingGraph;
+                    const result = await this.graphOperation.graph({
+                        requestInfo, res, parsedArgs, resourceType, responseStreamer
+                    });
+                    await this.fhirLoggingManager.logOperationSuccessAsync({
+                        requestInfo,
+                        args: parsedArgs.getRawArgs(),
+                        resourceType,
+                        startTime,
+                        action: currentOperationName
+                    });
+                    return result;
+                }
+                case 'Organization': {
+                    parsedArgs.resource = organizationEverythingGraph;
+                    const result = await this.graphOperation.graph({
+                        requestInfo, res, parsedArgs, resourceType, responseStreamer
+                    });
+                    await this.fhirLoggingManager.logOperationSuccessAsync({
+                        requestInfo,
+                        args: parsedArgs.getRawArgs(),
+                        resourceType,
+                        startTime,
+                        action: currentOperationName
+                    });
+                    return result;
+                }
+                case 'Slot': {
+                    parsedArgs.resource = slotEverythingGraph;
+                    const result = await this.graphOperation.graph({
+                        requestInfo, res, parsedArgs, resourceType, responseStreamer
+                    });
+                    await this.fhirLoggingManager.logOperationSuccessAsync({
+                        requestInfo,
+                        args: parsedArgs.getRawArgs(),
+                        resourceType,
+                        startTime,
+                        action: currentOperationName
+                    });
+                    return result;
+                }
+                case 'Person': {
+                    parsedArgs.resource = requestInfo.method.toLowerCase() === 'delete' ? personEverythingForDeletionGraph : personEverythingGraph;
+                    const result = await this.graphOperation.graph({
+                        requestInfo, res, parsedArgs, resourceType, responseStreamer
+                    });
+                    await this.fhirLoggingManager.logOperationSuccessAsync({
+                        requestInfo,
+                        args: parsedArgs.getRawArgs(),
+                        resourceType,
+                        startTime,
+                        action: currentOperationName
+                    });
+                    return result;
+                }
+                case 'Patient': {
+                    parsedArgs.resource = requestInfo.method.toLowerCase() === 'delete' ? patientEverythingForDeletionGraph : patientEverythingGraph;
+                    const result = await this.graphOperation.graph({
+                        requestInfo, res, parsedArgs, resourceType, responseStreamer
+                    });
+                    await this.fhirLoggingManager.logOperationSuccessAsync({
+                        requestInfo,
+                        args: parsedArgs.getRawArgs(),
+                        resourceType,
+                        startTime,
+                        action: currentOperationName
+                    });
+                    return result;
+                }
+                default:
+                    throw new Error('$everything is not supported for resource: ' + resourceType);
             }
         } catch (err) {
             await this.fhirLoggingManager.logOperationFailureAsync(
