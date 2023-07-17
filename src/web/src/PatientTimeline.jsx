@@ -1,6 +1,35 @@
 import React from 'react';
 import {VerticalTimeline, VerticalTimelineElement} from 'react-vertical-timeline-component';
 import 'react-vertical-timeline-component/style.min.css';
+import MedicalInformationIcon from '@mui/icons-material/MedicalInformation';
+import SettingsAccessibilityIcon from '@mui/icons-material/SettingsAccessibility';
+import MedicationIcon from '@mui/icons-material/Medication';
+import VaccinesIcon from '@mui/icons-material/Vaccines';
+import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
+import BiotechIcon from '@mui/icons-material/Biotech';
+import HealthAndSafetyIcon from '@mui/icons-material/HealthAndSafety';
+
+function getIcon(patientEvent) {
+    // https://mui.com/material-ui/material-icons/
+    switch (patientEvent.resourceType) {
+        case 'Patient':
+            return <SettingsAccessibilityIcon/>;
+        case 'Condition':
+            return <HealthAndSafetyIcon/>;
+        case 'Observation':
+            return <BiotechIcon/>;
+        case 'Immunization':
+            return <VaccinesIcon/>;
+        case 'ExplanationOfBenefit':
+        case 'Coverage':
+            return <AttachMoneyIcon/>;
+        case 'MedicationDispense':
+        case 'MedicationRequest':
+            return <MedicationIcon/>;
+        default:
+            return <MedicalInformationIcon/>;
+    }
+}
 
 const renderTimelineElements = (patientEvents) => {
     return patientEvents.map((patientEvent, index) => (
@@ -11,6 +40,7 @@ const renderTimelineElements = (patientEvents) => {
             key={index}
             date={patientEvent.date}
             iconStyle={{background: '#007bff', color: '#fff'}} // Customize the icon color if needed
+            icon={getIcon(patientEvent)}
         >
             <h3 className="vertical-timeline-element-title">{patientEvent.resourceType}</h3>
             <p className="vertical-timeline-element-subtitle">{patientEvent.event}</p>
