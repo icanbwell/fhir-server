@@ -1,3 +1,4 @@
+const deepcopy = require('deepcopy');
 const {searchParameterQueries} = require('../../searchParameters/searchParameters');
 const {STRICT_SEARCH_HANDLING, SPECIFIED_QUERY_PARAMS} = require('../../constants');
 const {BadRequestError} = require('../../utils/httpErrors');
@@ -136,20 +137,24 @@ class R4ArgsParser {
                     }
                 ) : null;
 
-            ({queryParameter, queryParameterValue} = convertGraphQLParameters(
+            let notQueryParameterValue;
+            ({queryParameterValue, notQueryParameterValue} = convertGraphQLParameters(
                 queryParameterValue,
                 args,
                 queryParameter
             ));
-            if (queryParameter.endsWith(':not')) {
-                modifiers.push('not');
-            }
+            console.log('**************query param');
+            console.log(queryParameterValue);
+            console.log('***************not query param');
+            console.log(notQueryParameterValue);
             // if it is a valid parameter then add it
             if (
                 (queryParameterValue && queryParameterValue !== '') && (
                     !Array.isArray(queryParameterValue) || queryParameterValue.filter(v => v).length > 0
                 )
             ) {
+                console.log('*************pushing query value');
+                console.log(queryParameterValue);
                 parseArgItems.push(
                     new ParsedArgsItem({
                         queryParameter,
@@ -162,9 +167,31 @@ class R4ArgsParser {
                     })
                 );
             }
+            // same for 'notEquals' parameters
+            if (
+                (notQueryParameterValue && notQueryParameterValue !== '') && (
+                    !Array.isArray(notQueryParameterValue) || notQueryParameterValue.filter(v => v).length > 0
+                )
+            ) {
+                let newModifiers = deepcopy(modifiers);
+                newModifiers.push('not');
+                console.log('******************pushing not query value');
+                console.log(notQueryParameterValue);
+                parseArgItems.push(
+                    new ParsedArgsItem({
+                        queryParameter,
+                        queryParameterValue: new QueryParameterValue({
+                            value: notQueryParameterValue,
+                            operator: useOrFilterForArrays ? '$or' : '$and'
+                        }),
+                        propertyObj,
+                        modifiers: newModifiers
+                    })
+                );
+            }
 
         }
-
+        console.log(parseArgItems);
         /**
          * @type {ParsedArgs}
          */

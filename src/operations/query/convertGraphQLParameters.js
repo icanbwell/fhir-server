@@ -6,6 +6,7 @@
  * @return {Object}
  */
 function convertGraphQLParameters(queryParameterValue, args, queryParameter) {
+    let notQueryParameterValue;
     if (queryParameterValue) {
         // un-bundle any objects coming from graphql
         if (
@@ -13,23 +14,24 @@ function convertGraphQLParameters(queryParameterValue, args, queryParameter) {
             !Array.isArray(queryParameterValue) &&
             queryParameterValue['searchType']
         ) {
+            let useNotEquals = false;
             switch (queryParameterValue['searchType']) {
                 case 'string':
                     // parse out notEquals values
                     if (queryParameterValue['notEquals']) {
                         const notEqualsObject = queryParameterValue['notEquals'];
                         if (notEqualsObject['value']) {
-                            queryParameterValue['value'] = notEqualsObject['value'];
+                            notQueryParameterValue = notEqualsObject['value'];
                         } else if (notEqualsObject['values']) {
-                            queryParameterValue['values'] = notEqualsObject['values'];
+                            notQueryParameterValue = notEqualsObject['values'];
                         }
-                        queryParameter = `${queryParameter}:not`;
-                    }
-                    // handle SearchString
-                    if (queryParameterValue['value']) {
-                        queryParameterValue = queryParameterValue['value'];
-                    } else if (queryParameterValue['values']) {
-                        queryParameterValue = queryParameterValue['values'];
+                    } else {
+                        // handle SearchString
+                        if (queryParameterValue['value']) {
+                            queryParameterValue = queryParameterValue['value'];
+                        } else if (queryParameterValue['values']) {
+                            queryParameterValue = queryParameterValue['values'];
+                        }
                     }
                     break;
                 case 'token':
@@ -41,15 +43,25 @@ function convertGraphQLParameters(queryParameterValue, args, queryParameter) {
                         } else if (notEqualsObject['values']) {
                             queryParameterValue['values'] = notEqualsObject['values'];
                         }
-                        queryParameter = `${queryParameter}:not`;
+                        useNotEquals = true;
                     }
                     if (queryParameterValue['value']) {
                         // noinspection JSValidateTypes
                         queryParameterValue['values'] = [queryParameterValue['value']];
                     }
+                    // eslint-disable-next-line no-case-declarations
+                    let newQueryParameterValue = [];
                     if (queryParameterValue['values']) {
                         for (let token of queryParameterValue['values']) {
-                            queryParameterValue = [];
+                            console.log('*****************new token');
+                            console.log(token);
+                            notQueryParameterValue = [];
+                            let innerNotEquals = false;
+                            if (token['notEquals']) {
+                                const notEqualsToken = token['notEquals'];
+                                token = notEqualsToken['value'];
+                                innerNotEquals = true;
+                            }
                             let tokenString = '';
                             if (token['system']) {
                                 tokenString = token['system'] + '|';
@@ -61,10 +73,18 @@ function convertGraphQLParameters(queryParameterValue, args, queryParameter) {
                                 tokenString += token['value'];
                             }
                             if (tokenString) {
-                                queryParameterValue.push(tokenString);
+                                console.log(`**************tokenString ${tokenString} useNotEquals ${useNotEquals}  innerNotEquals ${innerNotEquals}`);
+                                if (useNotEquals || innerNotEquals) {
+                                    console.log('**************pushing notequals');
+                                    notQueryParameterValue.push(tokenString);
+                                } else {
+                                    console.log('**************pushing equals');
+                                    newQueryParameterValue.push(tokenString);
+                                }
                             }
                         }
                     }
+                    queryParameterValue = newQueryParameterValue;
                     break;
                 case 'reference':
                     // eslint-disable-next-line no-case-declarations
@@ -76,7 +96,7 @@ function convertGraphQLParameters(queryParameterValue, args, queryParameter) {
                         } else if (notEqualsObject['target']) {
                             queryParameterValue['target'] = notEqualsObject['target'];
                         }
-                        queryParameter = `${queryParameter}:not`;
+                        useNotEquals = true;
                     }
                     if (queryParameterValue['target']) {
                         referenceText = queryParameterValue['target'] + '/';
@@ -84,7 +104,11 @@ function convertGraphQLParameters(queryParameterValue, args, queryParameter) {
                     if (queryParameterValue['value']) {
                         referenceText += queryParameterValue['value'];
                     }
-                    queryParameterValue = referenceText;
+                    if (useNotEquals) {
+                        notQueryParameterValue = referenceText;
+                    } else {
+                        queryParameterValue = referenceText;
+                    }
                     break;
                 case 'quantity':
                     // eslint-disable-next-line no-case-declarations
@@ -103,7 +127,7 @@ function convertGraphQLParameters(queryParameterValue, args, queryParameter) {
                         if (notEqualsObject['code']) {
                             queryParameterValue['code'] = notEqualsObject['code'];
                         }
-                        queryParameter = `${queryParameter}:not`;
+                        useNotEquals = true;
                     }
                     if (queryParameterValue['prefix']) {
                         quantityString += queryParameterValue['prefix'];
@@ -117,7 +141,11 @@ function convertGraphQLParameters(queryParameterValue, args, queryParameter) {
                     if (queryParameterValue['code']) {
                         quantityString = '|' + queryParameterValue['code'];
                     }
-                    queryParameterValue = quantityString;
+                    if (useNotEquals) {
+                        notQueryParameterValue = quantityString;
+                    } else {
+                        queryParameterValue = quantityString;
+                    }
                     break;
                 case 'date':
                 case 'dateTime':
@@ -175,7 +203,11 @@ function convertGraphQLParameters(queryParameterValue, args, queryParameter) {
             }
         }
     }
-    return {queryParameter, queryParameterValue};
+    console.log('####################query param');
+    console.log(queryParameterValue);
+    console.log('####################not query param');
+    console.log(notQueryParameterValue);
+    return {'queryParameterValue': queryParameterValue, 'notQueryParameterValue': notQueryParameterValue};
 }
 
 module.exports = {

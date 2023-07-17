@@ -2,6 +2,7 @@ input SearchTokenValue {
     code: String
     value: String
     system: String
+    notEquals: NotSearchTokenValue
 }
 input NotSearchTokenValue {
     value: SearchTokenValue
