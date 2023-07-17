@@ -25,6 +25,8 @@ const {MemoryVectorStore} = require('langchain/vectorstores/memory');
 const {Document} = require('langchain/document');
 const {ConsoleCallbackHandler} = require('langchain/callbacks');
 const {ChatGPTLangChainManager} = require('../../chatgpt/chatgptLangChainManager');
+const {FhirToSummaryDocumentConverter} = require('../../chatgpt/fhirToDocumentConverters/fhirToSummaryDocumentConverter');
+const {ResourceConverterFactory} = require('../../chatgpt/resourceConverters/resourceConverterFactory');
 
 // const describeIf = process.env.OPENAI_API_KEY ? describe : describe.skip;
 
@@ -126,7 +128,12 @@ describe('ChatGPT Tests', () => {
                 return;
             }
 
-            const chatGPTManager = new ChatGPTLangChainManager();
+            const chatgptFhirToDocumentConverter = new FhirToSummaryDocumentConverter({
+                resourceConverterFactory: new ResourceConverterFactory()
+            });
+            const chatGPTManager = new ChatGPTLangChainManager({
+                chatgptFhirToDocumentConverter
+            });
             const result = await chatGPTManager.getFhirQueryAsync({
                 baseUrl: 'https://fhir.icanbwell.com/4_0_0',
                 query: 'Find me all conditions that are diabetes'
@@ -139,7 +146,12 @@ describe('ChatGPT Tests', () => {
                 return;
             }
 
-            const chatGPTManager = new ChatGPTLangChainManager();
+            const chatgptFhirToDocumentConverter = new FhirToSummaryDocumentConverter({
+                resourceConverterFactory: new ResourceConverterFactory()
+            });
+            const chatGPTManager = new ChatGPTLangChainManager({
+                chatgptFhirToDocumentConverter
+            });
             const result = await chatGPTManager.getFhirQueryAsync({
                 baseUrl: 'https://fhir.icanbwell.com/4_0_0',
                 query: 'Find all patients that are older than 10 years old'
@@ -151,7 +163,12 @@ describe('ChatGPT Tests', () => {
             if (!process.env.OPENAI_API_KEY) {
                 return;
             }
-            const chatGPTManager = new ChatGPTLangChainManager();
+            const chatgptFhirToDocumentConverter = new FhirToSummaryDocumentConverter({
+                resourceConverterFactory: new ResourceConverterFactory()
+            });
+            const chatGPTManager = new ChatGPTLangChainManager({
+                chatgptFhirToDocumentConverter
+            });
             const result = await chatGPTManager.getFhirQueryAsync({
                 baseUrl: 'https://fhir.icanbwell.com/4_0_0',
                 query: 'Find me all conditions that are diabetes for this patient',
@@ -413,7 +430,12 @@ describe('ChatGPT Tests', () => {
                 return;
             }
 
-            const chatGPTManager = new ChatGPTLangChainManager();
+            const chatgptFhirToDocumentConverter = new FhirToSummaryDocumentConverter({
+                resourceConverterFactory: new ResourceConverterFactory()
+            });
+            const chatGPTManager = new ChatGPTLangChainManager({
+                chatgptFhirToDocumentConverter
+            });
             const patientResources = patientBundleResource.entry.map(
                 e => new Document(
                     {
@@ -520,7 +542,12 @@ describe('ChatGPT Tests', () => {
                 return;
             }
 
-            const chatGPTManager = new ChatGPTLangChainManager();
+            const chatgptFhirToDocumentConverter = new FhirToSummaryDocumentConverter({
+                resourceConverterFactory: new ResourceConverterFactory()
+            });
+            const chatGPTManager = new ChatGPTLangChainManager({
+                chatgptFhirToDocumentConverter
+            });
             const result = await chatGPTManager.answerQuestionAsync({
                 bundle: patientBundleResource,
                 question: 'Create a clinical summary to share with my doctor'
@@ -533,7 +560,12 @@ describe('ChatGPT Tests', () => {
                 return;
             }
 
-            const chatGPTManager = new ChatGPTLangChainManager();
+            const chatgptFhirToDocumentConverter = new FhirToSummaryDocumentConverter({
+                resourceConverterFactory: new ResourceConverterFactory()
+            });
+            const chatGPTManager = new ChatGPTLangChainManager({
+                chatgptFhirToDocumentConverter
+            });
             const result = await chatGPTManager.answerQuestionAsync({
                 bundle: patientBundleResource,
                 question: 'When did this patient receive the tetanus vaccine'

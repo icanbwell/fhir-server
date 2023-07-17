@@ -100,7 +100,7 @@ class EverythingOperation {
                  */
                 const response = await this.chatgptManager.answerQuestionAsync(
                     {
-                        bundle: bundle.toJSON(),
+                        bundle: bundle,
                         question: question.queryParameterValue.value
                     }
                 );
