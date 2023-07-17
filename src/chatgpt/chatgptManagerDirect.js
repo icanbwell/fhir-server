@@ -56,23 +56,13 @@ class ChatGPTManagerDirect {
             new ChatGPTMessage(
                 {
                     role: 'system',
-                    content: 'The total length of the content that I want to send you is too large to send in only one piece.' +
-                        '\nFor sending you that content, I will follow this rule:' +
-                        '\n[START PART 1/10]' +
-                        '\nthis is the content of the part 1 out of 10 in total' +
-                        '\n[END PART 1/10]' +
-                        '\nThen you just answer: "Received part 1/10"' +
-                        '\nAnd when I tell you "ALL PARTS SENT", then you can continue processing the data and answering my requests.'
-
+                    content: 'You are an AI assistant. Please provide short responses. ' +
+                        '\nToday\'s date is 2023-07-10' +
+                        // '\nReply in HTML with just the body' +
+                        '\nUse the following data in FHIR format to answer the user\'s question'
                 }
             ),
             ...contextMessages,
-            new ChatGPTMessage(
-                {
-                    role: 'system',
-                    content: 'ALL PARTS SENT. Now you can continue processing the request.'
-                }
-            )
         ];
         const messages = [
             ...systemMessages,
