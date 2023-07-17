@@ -11,7 +11,8 @@ const {describe, test} = require('@jest/globals');
 const {ChatGPTManagerDirect} = require('../../chatgpt/chatgptManagerDirect');
 const {FhirToJsonDocumentConverter} = require('../../chatgpt/fhirToDocumentConverters/fhirToJsonDocumentConverter');
 const {FhirToCsvDocumentConverter} = require('../../chatgpt/fhirToDocumentConverters/fhirToCsvDocumentConverter');
-const {FhirToDocumentSplitter} = require('../../chatgpt/fhirToDocumentConverters/fhirToDocumentSplitter');
+const {FhirToSummaryDocumentConverter} = require('../../chatgpt/fhirToDocumentConverters/fhirToSummaryDocumentConverter');
+const {ResourceConverterFactory} = require('../../chatgpt/resourceConverters/resourceConverterFactory');
 
 describe('ChatGPT Tests', () => {
     describe('ChatGPT Tests', () => {
@@ -32,27 +33,15 @@ describe('ChatGPT Tests', () => {
                 return;
             }
 
-            const chatgptFhirToDocumentConverter = new FhirToDocumentSplitter();
+            const chatgptFhirToDocumentConverter = new FhirToSummaryDocumentConverter({
+                resourceConverterFactory: new ResourceConverterFactory()
+            });
+
             const chatGptManager = new ChatGPTManagerDirect({
                 chatgptFhirToDocumentConverter: chatgptFhirToDocumentConverter
             });
             const result = await chatGptManager.answerQuestionAsync({
                 bundle: patientBundleResource,
-                question: 'write a clinical summary'
-            });
-            console.log(result);
-        });
-        test('summarize works with patient condensed bundle', async () => {
-            if (!process.env.OPENAI_API_KEY) {
-                return;
-            }
-
-            const chatgptFhirToDocumentConverter = new FhirToCsvDocumentConverter();
-            const chatGptManager = new ChatGPTManagerDirect({
-                chatgptFhirToDocumentConverter: chatgptFhirToDocumentConverter
-            });
-            const result = await chatGptManager.answerQuestionAsync({
-                bundle: patientCondensedBundleResource,
                 question: 'write a clinical summary'
             });
             console.log(result);
