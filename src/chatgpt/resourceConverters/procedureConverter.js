@@ -1,15 +1,5 @@
 const {BaseConverter} = require('./baseConverter');
 
-function getDisplayText(codingArray) {
-    const coding = codingArray.find((item) => item.display);
-    return coding ? coding.display : '';
-}
-
-function formatDate(dateString) {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', {year: 'numeric', month: 'long', day: 'numeric'});
-}
-
 class ProcedureConverter extends BaseConverter {
     convert({resource}) {
         const {
@@ -23,17 +13,17 @@ class ProcedureConverter extends BaseConverter {
             location,
         } = resource;
 
-        const statusText = getDisplayText(status.coding);
-        const codeText = getDisplayText(code.coding);
+        const statusText = this.getDisplayText(status.coding);
+        const codeText = this.getDisplayText(code.coding);
         const subjectReference = subject && subject.reference ? subject.reference : 'N/A';
-        const performedDate = performedDateTime ? formatDate(performedDateTime) : 'N/A';
+        const performedDate = performedDateTime ? this.formatDate(performedDateTime) : 'N/A';
         const performerText = performer && performer.display ? performer.display : 'N/A';
         const locationText = location && location.display ? location.display : 'N/A';
 
         // noinspection UnnecessaryLocalVariableJS
         const formattedOutput = `
 - ID: ${id}
-- Last Updated: ${formatDate(lastUpdated)}
+- Last Updated: ${this.formatDate(lastUpdated)}
 - Source: ${source}
 - Status: ${statusText}
 - Code: ${codeText}

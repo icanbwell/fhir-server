@@ -52,7 +52,7 @@ class PatientConverter extends BaseConverter{
 - Ethnicity: ${formattedEthnicity}
 - Gender: ${gender}
 - Birth Date: ${new Date(birthDate).toLocaleDateString('en-US', {year: 'numeric', month: 'long', day: 'numeric'})}
-- Birth Place: ${birthPlace.valueAddress.city}, ${birthPlace.valueAddress.state}, ${birthPlace.valueAddress.country}
+- Birth Place: ${(birthPlace && birthPlace.valueAddress ? birthPlace.valueAddress.city : undefined)}, ${(birthPlace && birthPlace.valueAddress ? birthPlace.valueAddress.state : undefined)}, ${(birthPlace && birthPlace.valueAddress ? birthPlace.valueAddress.country : undefined)}
 - Disability Adjusted Life Years: ${extension.find((ext) => ext.url === 'http://synthetichealth.github.io/synthea/disability-adjusted-life-years').valueDecimal}
 - Quality Adjusted Life Years: ${extension.find((ext) => ext.url === 'http://synthetichealth.github.io/synthea/quality-adjusted-life-years').valueDecimal}
 - Marital Status: ${formattedMaritalStatus}

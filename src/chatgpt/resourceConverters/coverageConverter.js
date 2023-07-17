@@ -1,15 +1,5 @@
 const {BaseConverter} = require('./baseConverter');
 
-function getDisplayText(codingArray) {
-    const coding = codingArray.find((item) => item.display);
-    return coding ? coding.display : '';
-}
-
-function formatDate(dateString) {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', {year: 'numeric', month: 'long', day: 'numeric'});
-}
-
 class CoverageConverter extends BaseConverter {
     convert({resource}) {
         const {
@@ -25,18 +15,18 @@ class CoverageConverter extends BaseConverter {
             relationship,
         } = resource;
 
-        const statusText = getDisplayText(status.coding);
+        const statusText = this.getDisplayText(status.coding);
         const beneficiaryText = beneficiary ? beneficiary.reference : '';
         const payorText = payor ? payor.map((p) => p.display).join(', ') : '';
-        const classText = coverageClass ? coverageClass.type.text : '';
-        const periodStart = period ? formatDate(period.start) : '';
-        const periodEnd = period ? formatDate(period.end) : '';
-        const relationshipText = relationship ? getDisplayText(relationship.coding) : '';
+        const classText = coverageClass && coverageClass.type ? coverageClass.type.text : '';
+        const periodStart = period ? this.formatDate(period.start) : '';
+        const periodEnd = period ? this.formatDate(period.end) : '';
+        const relationshipText = relationship ? this.getDisplayText(relationship.coding) : '';
 
         // noinspection UnnecessaryLocalVariableJS
         const formattedOutput = `
 - ID: ${id}
-- Last Updated: ${formatDate(lastUpdated)}
+- Last Updated: ${this.formatDate(lastUpdated)}
 - Source: ${source}
 - Status: ${statusText}
 - Subscriber ID: ${subscriberId}

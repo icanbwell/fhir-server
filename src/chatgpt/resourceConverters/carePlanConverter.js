@@ -1,15 +1,5 @@
 const {BaseConverter} = require('./baseConverter');
 
-function getDisplayText(codingArray) {
-    const coding = codingArray.find((item) => item.display);
-    return coding ? coding.display : '';
-}
-
-function formatDate(dateString) {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', {year: 'numeric', month: 'long', day: 'numeric'});
-}
-
 class CarePlanConverter extends BaseConverter {
     convert({resource}) {
         const {
@@ -27,22 +17,22 @@ class CarePlanConverter extends BaseConverter {
             note,
         } = resource;
 
-        const statusText = getDisplayText(status.coding);
-        const intentText = getDisplayText(intent.coding);
-        const categoryText = getDisplayText(category.coding);
+        const statusText = this.getDisplayText(status.coding);
+        const intentText = this.getDisplayText(intent.coding);
+        const categoryText = this.getDisplayText(category.coding);
         const subjectReference = subject.reference;
-        const periodStart = formatDate(period.start);
-        const periodEnd = formatDate(period.end);
+        const periodStart = this.formatDate(period.start);
+        const periodEnd = this.formatDate(period.end);
         const descriptionText = description || '';
         const authorText = author ? author.display : '';
         const activityText = activity.map((act) => act.detail.code.text).join(', ');
-        const addressesText = addresses.map((addr) => getDisplayText(addr.coding)).join(', ');
+        const addressesText = addresses ? addresses.map((addr) => this.getDisplayText(addr.coding)).join(', ') : '';
         const noteText = note ? note[0].text : '';
 
         // noinspection UnnecessaryLocalVariableJS
         const formattedOutput = `
 - ID: ${id}
-- Last Updated: ${formatDate(lastUpdated)}
+- Last Updated: ${this.formatDate(lastUpdated)}
 - Source: ${source}
 - Status: ${statusText}
 - Intent: ${intentText}
