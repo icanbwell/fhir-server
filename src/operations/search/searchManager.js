@@ -35,6 +35,7 @@ const {FhirResourceWriterFactory} = require('../streaming/resourceWriters/fhirRe
 const { PatientFilterManager } = require('../../fhir/patientFilterManager');
 const { ParsedArgs } = require('../query/parsedArgs');
 const {MongoReadableStream} = require('../streaming/mongoStreamReader');
+const { SensitiveDataProcessor } = require('../../utils/sensitiveDataProcessor');
 
 class SearchManager {
     /**
@@ -52,6 +53,7 @@ class SearchManager {
      * @param {DatabaseAttachmentManager} databaseAttachmentManager
      * @param {FhirResourceWriterFactory} fhirResourceWriterFactory
      * @param {PatientFilterManager} patientFilterManager
+     * @param {SensitiveDataProcessor} sensitiveDataProcessor
      */
     constructor(
         {
@@ -67,7 +69,8 @@ class SearchManager {
             scopesManager,
             databaseAttachmentManager,
             fhirResourceWriterFactory,
-            patientFilterManager
+            patientFilterManager,
+            sensitiveDataProcessor
         }
     ) {
         /**
@@ -141,6 +144,12 @@ class SearchManager {
          */
         this.patientFilterManager = patientFilterManager;
         assertTypeEquals(patientFilterManager, PatientFilterManager);
+
+        /**
+         * @type {SensitiveDataProcessor}
+         */
+        this.sensitiveDataProcessor = sensitiveDataProcessor;
+        assertTypeEquals(sensitiveDataProcessor, SensitiveDataProcessor);
     }
 
     /**
@@ -277,9 +286,10 @@ class SearchManager {
                     if (this.patientFilterManager.isPatientRelatedResource({ resourceType })) {
                         // 2. Check parsedArgs has patient or proxy patient filter
                         let patientIds = this.getResourceIdsFromFilter('Patient', parsedArgs);
-
                         if (patientIds && patientIds.length > 0) {
                             // Get b.Well Master Person and/or Person map for each patient IDs
+                            const bwellPersonsAndClientPatientsIdMap = await this.sensitiveDataProcessor.getBwellPersonAndAllClientIds({ patientIds });
+                            console.log(bwellPersonsAndClientPatientsIdMap);
 
                             // Get Consent for each b.well master person
                             const consentResources = await this.getConsentResources(patientIds, securityTags);

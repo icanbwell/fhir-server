@@ -262,6 +262,7 @@ const createContainer = function () {
                 databaseAttachmentManager: c.databaseAttachmentManager,
                 fhirResourceWriterFactory: c.fhirResourceWriterFactory,
                 patientFilterManager: c.patientFilterManager,
+                sensitiveDataProcessor: c.sensitiveDataProcessor,
             }
         )
     );
