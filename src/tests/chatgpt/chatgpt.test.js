@@ -9,7 +9,6 @@ const patientBundleResource = require('./fixtures/patient.json');
 const patientCondensedBundleResource = require('./fixtures/patient_condensed.json');
 const {describe, test} = require('@jest/globals');
 const {ChatGPTManagerDirect} = require('../../chatgpt/chatgptManagerDirect');
-const {ChatGPTMessage} = require('../../chatgpt/chatgptMessage');
 const {FhirToJsonDocumentConverter} = require('../../chatgpt/fhirToDocumentConverters/fhirToJsonDocumentConverter');
 const {FhirToCsvDocumentConverter} = require('../../chatgpt/fhirToDocumentConverters/fhirToCsvDocumentConverter');
 const {FhirToDocumentSplitter} = require('../../chatgpt/fhirToDocumentConverters/fhirToDocumentSplitter');
@@ -26,124 +25,6 @@ describe('ChatGPT Tests', () => {
                 chatgptFhirToDocumentConverter: chatgptFhirToDocumentConverter
             });
             const result = await chatGptManager.listModelsAsync();
-            console.log(result);
-        });
-        test('convert bundle to documents', async () => {
-            if (!process.env.OPENAI_API_KEY) {
-                return;
-            }
-
-            const chatgptFhirToDocumentConverter = new FhirToJsonDocumentConverter();
-            const chatGptManager = new ChatGPTManagerDirect({
-                chatgptFhirToDocumentConverter: chatgptFhirToDocumentConverter
-            });
-            /**
-             * @type {{pageContent: string, metadata: Object}[]}
-             */
-            const documents = await chatgptFhirToDocumentConverter.convertBundleToDocumentsAsync({
-                bundle: patientBundleResource,
-            });
-            const chatgptMessages = documents.map(doc =>
-                new ChatGPTMessage(
-                    {
-                        role: 'system',
-                        content: doc.pageContent
-                    }
-                )
-            );
-            const result = await chatGptManager.getTokenCountAsync(
-                {
-                    documents: chatgptMessages
-                }
-            );
-            console.log(result);
-        });
-        test('convert patient condensed bundle to documents', async () => {
-            if (!process.env.OPENAI_API_KEY) {
-                return;
-            }
-
-            const chatgptFhirToDocumentConverter = new FhirToJsonDocumentConverter();
-            const chatGptManager = new ChatGPTManagerDirect({
-                chatgptFhirToDocumentConverter: chatgptFhirToDocumentConverter
-            });
-            /**
-             * @type {{pageContent: string, metadata: Object}[]}
-             */
-            const documents = await chatgptFhirToDocumentConverter.convertBundleToDocumentsAsync({
-                bundle: patientCondensedBundleResource,
-            });
-            const chatgptMessages = documents.map(doc =>
-                new ChatGPTMessage(
-                    {
-                        role: 'system',
-                        content: doc.pageContent
-                    }
-                )
-            );
-            const result = await chatGptManager.getTokenCountAsync(
-                {
-                    documents: chatgptMessages
-                }
-            );
-            console.log(result);
-        });
-        test('convert bundle to documents optimized', async () => {
-            if (!process.env.OPENAI_API_KEY) {
-                return;
-            }
-            const chatgptFhirToDocumentConverter = new FhirToCsvDocumentConverter();
-            const chatGptManager = new ChatGPTManagerDirect({
-                chatgptFhirToDocumentConverter: chatgptFhirToDocumentConverter
-            });
-            /**
-             * @type {{pageContent: string, metadata: Object}[]}
-             */
-            const documents = await chatgptFhirToDocumentConverter.convertBundleToDocumentsAsync({
-                bundle: patientBundleResource,
-            });
-            const chatgptMessages = documents.map(doc =>
-                new ChatGPTMessage(
-                    {
-                        role: 'system',
-                        content: doc.pageContent
-                    }
-                )
-            );
-            const result = await chatGptManager.getTokenCountAsync(
-                {
-                    documents: chatgptMessages
-                }
-            );
-            console.log(result);
-        });
-        test('convert patient cendensed bundle to documents optimized', async () => {
-            if (!process.env.OPENAI_API_KEY) {
-                return;
-            }
-            const chatgptFhirToDocumentConverter = new FhirToJsonDocumentConverter();
-            const chatGptManager = new ChatGPTManagerDirect({
-                chatgptFhirToDocumentConverter: chatgptFhirToDocumentConverter
-            });
-            /**
-             * @type {{pageContent: string, metadata: Object}[]}
-             */
-            const documents = await chatgptFhirToDocumentConverter.convertBundleOptimizedToDocumentsAsync({
-                bundle: patientCondensedBundleResource,
-            });
-            const chatgptMessages = documents.map(doc =>
-                new ChatGPTMessage(
-                    {
-                        role: 'system',
-                        content: doc.pageContent
-                    }
-                )
-            );
-            const result = await chatGptManager.getTokenCountAsync(
-                {
-                    documents: chatgptMessages
-                }
-            );
             console.log(result);
         });
         test('summarize works', async () => {
