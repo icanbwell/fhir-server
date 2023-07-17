@@ -7,7 +7,7 @@ const {encoding_for_model} = require('@dqbd/tiktoken');
 class ChatGPTManagerDirect {
     /**
      * constructor
-     * @param {ChatGPTFhirToDocumentConverter} chatgptFhirToDocumentConverter
+     * @param {BaseFhirToDocumentConverter} chatgptFhirToDocumentConverter
      */
     constructor(
         {
@@ -15,7 +15,7 @@ class ChatGPTManagerDirect {
         }
     ) {
         /**
-         * @type {ChatGPTFhirToDocumentConverter}
+         * @type {BaseFhirToDocumentConverter}
          */
         this.chatgptFhirToDocumentConverter = chatgptFhirToDocumentConverter;
     }

@@ -1,6 +1,6 @@
-const {ChatGPTFhirToJsonDocumentConverter} = require('./chatGPTFhirToJsonDocumentConverter');
+const {BaseFhirToDocumentConverter} = require('./baseFhirToDocumentConverter');
 
-class ChatGPTFhirToDocumentSplitter extends ChatGPTFhirToJsonDocumentConverter {
+class ChatGPTFhirToDocumentSplitter extends BaseFhirToDocumentConverter {
     /**
      * converts a FHIR bundle into documents for ChatGPT
      * @param {Bundle} bundle

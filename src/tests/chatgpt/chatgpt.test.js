@@ -10,9 +10,9 @@ const patientCondensedBundleResource = require('./fixtures/patient_condensed.jso
 const {describe, test} = require('@jest/globals');
 const {ChatGPTManagerDirect} = require('../../chatgpt/chatgptManagerDirect');
 const {ChatGPTMessage} = require('../../chatgpt/chatgptMessage');
-const {ChatGPTFhirToJsonDocumentConverter} = require('../../chatgpt/chatGPTFhirToJsonDocumentConverter');
-const {ChatGPTFhirToCsvDocumentConverter} = require('../../chatgpt/chatGPTFhirToCsvDocumentConverter');
-const {ChatGPTFhirToDocumentSplitter} = require('../../chatgpt/chatGPTFhirToDocumentSplitter');
+const {ChatGPTFhirToJsonDocumentConverter} = require('../../chatgpt/fhirToDocumentConverters/chatGPTFhirToJsonDocumentConverter');
+const {ChatGPTFhirToCsvDocumentConverter} = require('../../chatgpt/fhirToDocumentConverters/chatGPTFhirToCsvDocumentConverter');
+const {ChatGPTFhirToDocumentSplitter} = require('../../chatgpt/fhirToDocumentConverters/chatGPTFhirToDocumentSplitter');
 
 describe('ChatGPT Tests', () => {
     describe('ChatGPT Tests', () => {
