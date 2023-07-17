@@ -288,7 +288,6 @@ class SearchManager {
 
                             // Get Consent for each b.well master person
                             const consentResources = await this.getConsentResources(patientIds, securityTags);
-                            console.log(consentResources);
                             if ( consentResources.length > 0){
                                 // Create map b/w input patient IDs and consent
                                 let consentPatientIds = [];
