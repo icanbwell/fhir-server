@@ -5,6 +5,7 @@ import HomePage from './HomePage';
 import AboutPage from './AboutPage';
 
 import PatientChatGptPage from './PatientChatGptPage';
+import ObservationGraph from "./ObservationGraph";
 // import ErrorPage from "./error-page";
 
 function App() {
@@ -21,6 +22,9 @@ function App() {
                     <li>
                         <Link to="/web/patient">Patient ChatGPT</Link>
                     </li>
+                    <li>
+                        <Link to="/web/observationGraph">Observation Graph</Link>
+                    </li>
                 </ul>
             </nav>
 
@@ -28,6 +32,7 @@ function App() {
                 <Route path="/" element={<HomePage/>}/>
                 <Route path="/about" element={<AboutPage/>}/>
                 <Route path="/web/patient" element={<PatientChatGptPage/>}/>
+                <Route path="/web/observationGraph" element={<ObservationGraph/>}/>
             </Routes>
         </BrowserRouter>
     );
