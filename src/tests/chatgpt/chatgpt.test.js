@@ -10,9 +10,9 @@ const patientCondensedBundleResource = require('./fixtures/patient_condensed.jso
 const {describe, test} = require('@jest/globals');
 const {ChatGPTManagerDirect} = require('../../chatgpt/chatgptManagerDirect');
 const {ChatGPTMessage} = require('../../chatgpt/chatgptMessage');
-const {ChatGPTFhirToJsonDocumentConverter} = require('../../chatgpt/fhirToDocumentConverters/chatGPTFhirToJsonDocumentConverter');
-const {ChatGPTFhirToCsvDocumentConverter} = require('../../chatgpt/fhirToDocumentConverters/chatGPTFhirToCsvDocumentConverter');
-const {ChatGPTFhirToDocumentSplitter} = require('../../chatgpt/fhirToDocumentConverters/chatGPTFhirToDocumentSplitter');
+const {FhirToJsonDocumentConverter} = require('../../chatgpt/fhirToDocumentConverters/fhirToJsonDocumentConverter');
+const {FhirToCsvDocumentConverter} = require('../../chatgpt/fhirToDocumentConverters/fhirToCsvDocumentConverter');
+const {FhirToDocumentSplitter} = require('../../chatgpt/fhirToDocumentConverters/fhirToDocumentSplitter');
 
 describe('ChatGPT Tests', () => {
     describe('ChatGPT Tests', () => {
@@ -21,7 +21,7 @@ describe('ChatGPT Tests', () => {
                 return;
             }
 
-            const chatgptFhirToDocumentConverter = new ChatGPTFhirToJsonDocumentConverter();
+            const chatgptFhirToDocumentConverter = new FhirToJsonDocumentConverter();
             const chatGptManager = new ChatGPTManagerDirect({
                 chatgptFhirToDocumentConverter: chatgptFhirToDocumentConverter
             });
@@ -33,7 +33,7 @@ describe('ChatGPT Tests', () => {
                 return;
             }
 
-            const chatgptFhirToDocumentConverter = new ChatGPTFhirToJsonDocumentConverter();
+            const chatgptFhirToDocumentConverter = new FhirToJsonDocumentConverter();
             const chatGptManager = new ChatGPTManagerDirect({
                 chatgptFhirToDocumentConverter: chatgptFhirToDocumentConverter
             });
@@ -63,7 +63,7 @@ describe('ChatGPT Tests', () => {
                 return;
             }
 
-            const chatgptFhirToDocumentConverter = new ChatGPTFhirToJsonDocumentConverter();
+            const chatgptFhirToDocumentConverter = new FhirToJsonDocumentConverter();
             const chatGptManager = new ChatGPTManagerDirect({
                 chatgptFhirToDocumentConverter: chatgptFhirToDocumentConverter
             });
@@ -92,7 +92,7 @@ describe('ChatGPT Tests', () => {
             if (!process.env.OPENAI_API_KEY) {
                 return;
             }
-            const chatgptFhirToDocumentConverter = new ChatGPTFhirToCsvDocumentConverter();
+            const chatgptFhirToDocumentConverter = new FhirToCsvDocumentConverter();
             const chatGptManager = new ChatGPTManagerDirect({
                 chatgptFhirToDocumentConverter: chatgptFhirToDocumentConverter
             });
@@ -121,7 +121,7 @@ describe('ChatGPT Tests', () => {
             if (!process.env.OPENAI_API_KEY) {
                 return;
             }
-            const chatgptFhirToDocumentConverter = new ChatGPTFhirToJsonDocumentConverter();
+            const chatgptFhirToDocumentConverter = new FhirToJsonDocumentConverter();
             const chatGptManager = new ChatGPTManagerDirect({
                 chatgptFhirToDocumentConverter: chatgptFhirToDocumentConverter
             });
@@ -151,7 +151,7 @@ describe('ChatGPT Tests', () => {
                 return;
             }
 
-            const chatgptFhirToDocumentConverter = new ChatGPTFhirToDocumentSplitter();
+            const chatgptFhirToDocumentConverter = new FhirToDocumentSplitter();
             const chatGptManager = new ChatGPTManagerDirect({
                 chatgptFhirToDocumentConverter: chatgptFhirToDocumentConverter
             });
@@ -166,7 +166,7 @@ describe('ChatGPT Tests', () => {
                 return;
             }
 
-            const chatgptFhirToDocumentConverter = new ChatGPTFhirToCsvDocumentConverter();
+            const chatgptFhirToDocumentConverter = new FhirToCsvDocumentConverter();
             const chatGptManager = new ChatGPTManagerDirect({
                 chatgptFhirToDocumentConverter: chatgptFhirToDocumentConverter
             });
@@ -181,7 +181,7 @@ describe('ChatGPT Tests', () => {
                 return;
             }
 
-            const chatgptFhirToDocumentConverter = new ChatGPTFhirToCsvDocumentConverter();
+            const chatgptFhirToDocumentConverter = new FhirToCsvDocumentConverter();
             const chatGptManager = new ChatGPTManagerDirect({
                 chatgptFhirToDocumentConverter: chatgptFhirToDocumentConverter
             });
