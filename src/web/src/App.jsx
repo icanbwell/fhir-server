@@ -12,7 +12,7 @@ import PatientTimeline from "./PatientTimeline";
 
 function App() {
     return (
-        <BrowserRouter>
+        <BrowserRouter basename="/web">
             <nav>
                 <ul>
                     <li>
@@ -22,16 +22,19 @@ function App() {
                         <Link to="/about">About</Link>
                     </li>
                     <li>
-                        <Link to="/web/patient">Patient ChatGPT</Link>
+                        <Link to="/patient">Patient ChatGPT</Link>
                     </li>
                     <li>
-                        <Link to="/web/patientTimeline">Patient Timeline</Link>
+                        <Link to="/pat2/123">Patient2 ChatGPT</Link>
                     </li>
                     <li>
-                        <Link to="/web/observationGraph">Observation Graph</Link>
+                        <Link to="/patientTimeline">Patient Timeline</Link>
                     </li>
                     <li>
-                        <Link to="/web/observationTimeline">Observation Timeline</Link>
+                        <Link to="/observationGraph">Observation Graph</Link>
+                    </li>
+                    <li>
+                        <Link to="/observationTimeline">Observation Timeline</Link>
                     </li>
                 </ul>
             </nav>
@@ -39,10 +42,11 @@ function App() {
             <Routes>
                 <Route path="/" element={<HomePage/>}/>
                 <Route path="/about" element={<AboutPage/>}/>
-                <Route path="/web/patient" element={<PatientChatGptPage/>}/>
-                <Route path="/web/patientTimeline" element={<PatientTimeline/>}/>
-                <Route path="/web/observationGraph" element={<ObservationGraph/>}/>
-                <Route path="/web/observationTimeline" element={<ObservationTimeline/>}/>
+                <Route path="/patient" element={<PatientChatGptPage/>}/>
+                <Route path="/pat2/:id" element={<PatientChatGptPage/>}/>
+                <Route path="/patientTimeline" element={<PatientTimeline/>}/>
+                <Route path="/observationGraph" element={<ObservationGraph/>}/>
+                <Route path="/observationTimeline" element={<ObservationTimeline/>}/>
             </Routes>
         </BrowserRouter>
     );
