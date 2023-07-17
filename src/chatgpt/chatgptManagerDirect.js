@@ -1,6 +1,9 @@
 const {Configuration, OpenAIApi} = require('openai');
 const {ChatGPTMessage} = require('./chatgptMessage');
 const {ChatGPTManager} = require('./chatgptManager');
+const {ChatGPTResponse} = require('./chatGPTResponse');
+const {ChatGPTContextLengthExceededError} = require('./chatgptContextLengthExceededError');
+const {ChatGPTError} = require('./chatgptError');
 
 class ChatGPTManagerDirect extends ChatGPTManager {
     /**
@@ -15,6 +18,13 @@ class ChatGPTManagerDirect extends ChatGPTManager {
         super({chatgptFhirToDocumentConverter});
     }
 
+    /**
+     * answers the question with the provided documents and start prompt
+     * @param {string[]} documents
+     * @param {string} startPrompt
+     * @param string question
+     * @returns {Promise<ChatGPTResponse>}
+     */
     async answerQuestionWithDocumentsAsync({documents, startPrompt, question,}) {
         const configuration = new Configuration({
             apiKey: process.env.OPENAI_API_KEY,
@@ -48,23 +58,50 @@ class ChatGPTManagerDirect extends ChatGPTManager {
                 }
             )
         ];
+        const fullPrompt = JSON.stringify(messages);
         /**
          * @type {import('openai').CreateChatCompletionRequest}
          */
         const chatCompletionRequest = {
-            // model: 'gpt-3.5-turbo',
-            model: 'gpt-3.5-turbo-16k',
+            model: 'gpt-3.5-turbo',
+            // model: 'gpt-3.5-turbo-16k',
             messages: messages,
             temperature: 0.0,
-            max_tokens: 1000
+            max_tokens: 600 // tokens allowed in completion response
         };
-        const chatCompletion = await openai.createChatCompletion(chatCompletionRequest);
-        const data = chatCompletion.data.choices[0].message;
-        const prompt_tokens = chatCompletion.data.usage.prompt_tokens;
-        const completion_tokens = chatCompletion.data.usage.completion_tokens;
-        const total_tokens = chatCompletion.data.usage.total_tokens;
-        console.log(`prompt_tokens: ${prompt_tokens}, completion_tokens: ${completion_tokens}, total: ${total_tokens}`);
-        return data;
+        const numberTokens = await this.getTokenCountAsync({documents: [{pageContent: fullPrompt}]});
+
+        try {
+            const chatCompletion = await openai.createChatCompletion(chatCompletionRequest);
+            const data = chatCompletion.data.choices[0].message;
+            const prompt_tokens = chatCompletion.data.usage.prompt_tokens;
+            const completion_tokens = chatCompletion.data.usage.completion_tokens;
+            const total_tokens = chatCompletion.data.usage.total_tokens;
+            console.log(`prompt_tokens: ${prompt_tokens}, completion_tokens: ${completion_tokens}, total: ${total_tokens}`);
+            return new ChatGPTResponse({
+                responseText: data.content ? data.content : data,
+                fullPrompt,
+                numberTokens: total_tokens
+            });
+        } catch (e) {
+            if (e.response && e.response.data && e.response.data.error && e.response.data.error.code === 'context_length_exceeded') {
+                throw new ChatGPTContextLengthExceededError({
+                    error: e,
+                    args: {
+                        prompt: fullPrompt,
+                        numberOfTokens: numberTokens
+                    }
+                });
+            } else {
+                throw new ChatGPTError({
+                    error: e,
+                    args: {
+                        prompt: fullPrompt,
+                        numberOfTokens: numberTokens
+                    }
+                });
+            }
+        }
     }
 
     async listModelsAsync() {

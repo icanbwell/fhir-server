@@ -52,21 +52,31 @@ class ChatGPTManager {
             }
         );
 
-        const startPrompt = 'You are an AI assistant. Please provide short responses. ' +
-        '\nToday\'s date is 2023-07-10' +
-        outputFormat === 'html' ? '\nReply in HTML with just the body' : '' +
-            '\nUse only the following data in FHIR format to answer the user\'s question';
+        const startPrompt = 'You are a clinical software.  I will provide you information about a patient.' +
+        '\nUse only the following data to answer the user\'s question' +
+        outputFormat === 'html' ? '\nReply in HTML with just the body' : '';
 
-        // Finally run the chain and get the result
         /**
          * @type {ChatGPTResponse}
          */
-        const res3 = await this.answerQuestionWithDocumentsAsync({
+        const response = await this.answerQuestionWithDocumentsAsync({
             documents: patientResources.map(p => p.pageContent),
             question,
             startPrompt
         });
-        return filterXSS(sanitize(res3.responseText.replace('<body>', '').replace('</body>', '').replace(/\n/g, '').trim()));
+        if (outputFormat === 'html') {
+            return filterXSS(
+                sanitize(
+                    response.responseText
+                        .replace('<body>', '')
+                        .replace('</body>', '')
+                        .replace(/\n/g, '')
+                        .trim()
+                )
+            );
+        } else {
+            return response.responseText;
+        }
     }
 
     /**
