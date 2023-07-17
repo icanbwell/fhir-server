@@ -1,6 +1,7 @@
 import React from 'react';
 import {VerticalTimeline, VerticalTimelineElement} from 'react-vertical-timeline-component';
 import 'react-vertical-timeline-component/style.min.css';
+import MedicalInformationIcon from '@mui/icons-material/MedicalInformation';
 
 const renderTimelineElements = (observations) => {
     return observations.map((observation, index) => (
@@ -11,6 +12,7 @@ const renderTimelineElements = (observations) => {
             key={index}
             date={observation.date}
             iconStyle={{background: '#007bff', color: '#fff'}} // Customize the icon color if needed
+            icon={<MedicalInformationIcon/>}
         >
             <h3 className="vertical-timeline-element-title">{observation.code}</h3>
             <p className="vertical-timeline-element-subtitle">{observation.category}</p>
