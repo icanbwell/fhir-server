@@ -1,4 +1,4 @@
-class ChatGPTFhirToDocumentConverter {
+class ChatGPTFhirToJsonDocumentConverter {
     /**
      * converts a FHIR bundle into documents for ChatGPT
      * @param {Bundle} bundle
@@ -19,5 +19,5 @@ class ChatGPTFhirToDocumentConverter {
 }
 
 module.exports = {
-    ChatGPTFhirToDocumentConverter
+    ChatGPTFhirToJsonDocumentConverter
 };

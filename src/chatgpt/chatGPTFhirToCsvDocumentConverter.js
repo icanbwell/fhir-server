@@ -1,8 +1,8 @@
 const {groupByLambda} = require('../utils/list.util');
 const {Parser} = require('@json2csv/plainjs');
-const {ChatGPTFhirToDocumentConverter} = require('./chatgptFhirToDocumentConverter');
+const {ChatGPTFhirToJsonDocumentConverter} = require('./chatGPTFhirToJsonDocumentConverter');
 
-class ChatgptFhirToDocumentConverterOptimized extends ChatGPTFhirToDocumentConverter{
+class ChatGPTFhirToCsvDocumentConverter extends ChatGPTFhirToJsonDocumentConverter{
     /**
      * converts a FHIR bundle into documents for ChatGPT
      * @param {Bundle} bundle
@@ -46,5 +46,5 @@ class ChatgptFhirToDocumentConverterOptimized extends ChatGPTFhirToDocumentConve
 }
 
 module.exports = {
-    ChatgptFhirToDocumentConverterOptimized
+    ChatGPTFhirToCsvDocumentConverter
 };
