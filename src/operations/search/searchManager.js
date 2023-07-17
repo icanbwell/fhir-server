@@ -155,7 +155,7 @@ class SearchManager {
                 $match: {
                     $and: [
                         {'provision.class.code': '/dataSharingConsent'},
-                        {'patient.reference': {$in: patientIds}},
+                        {'patient.reference': {$in: patientIds.map((patientId) => `Patient/${patientId}`)}},
                         {'status': 'active'},
                         {'provision.type': 'permit'},
                         {'meta.security': {
@@ -1360,6 +1360,7 @@ class SearchManager {
                 // param values which have Resource/ prefix will also be added
                 queryParamValues
                 .filter((v) => v.startsWith(`${resourceType}/`))
+                .map((resourceIdWithPrefix) => resourceIdWithPrefix.replace(`${resourceType}/`, ''))
                 .filter((resourceId) => resourceId)
                 .forEach((resourceId) => ids.add(resourceId));
                 return ids;
