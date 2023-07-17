@@ -283,6 +283,7 @@ class SearchManager {
 
                             // Get Consent for each b.well master person
                             const consentResources = await this.getConsentResources(patientIds, securityTags);
+                            console.log(patientIds, securityTags, consentResources);
                             if ( consentResources.length > 0){
                                 // Create map b/w input patient IDs and consent
                                 let consentPatientIds = [];
@@ -1359,7 +1360,6 @@ class SearchManager {
                 // param values which have Resource/ prefix will also be added
                 queryParamValues
                 .filter((v) => v.startsWith(`${resourceType}/`))
-                .map((resourceIdWithPrefix) => resourceIdWithPrefix.replace(`${resourceType}/`, ''))
                 .filter((resourceId) => resourceId)
                 .forEach((resourceId) => ids.add(resourceId));
                 return ids;
