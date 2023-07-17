@@ -42,7 +42,7 @@ const observations = [
 
 const ObservationTimeline = () => {
     return (
-        <VerticalTimeline layout="1-column">
+        <VerticalTimeline>
             {renderTimelineElements(observations)}
         </VerticalTimeline>
     );
