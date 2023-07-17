@@ -313,7 +313,19 @@ class SearchBundleOperation {
              */
             const defaultSortId = this.configManager.defaultSortId;
             // eslint-disable-next-line security/detect-object-injection
-            const last_id = resources.length > 0 ? resources[resources.length - 1][defaultSortId] : null;
+            let last_id;
+            if (resources.length > 0) {
+                if (resources[resources.length - 1].identifier) {
+                    resources[resources.length - 1].identifier.forEach(identifier => {
+                        if (identifier.id === defaultSortId.replace('_', '')) {
+                            last_id = identifier.value;
+                        }
+                    });
+                }
+                if (!last_id) {
+                    last_id = resources[resources.length - 1][String(defaultSortId)];
+                }
+            }
             /**
              * @type {string[]}
              */

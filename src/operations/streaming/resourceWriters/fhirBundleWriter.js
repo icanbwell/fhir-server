@@ -81,6 +81,14 @@ class FhirBundleWriter extends FhirResourceWriterBase {
                 }
                 // Depending on DEFAULT_SORT_ID, the last id can be either id or any other field.
                 this._lastid = chunk[this.defaultSortId];
+
+                if (!this._lastid && chunk.identifier) {
+                    chunk.identifier.forEach(identifier => {
+                        if (identifier.id === this.defaultSortId.replace('_', '')) {
+                            this._lastid = identifier.value;
+                        }
+                    });
+                }
             }
         } catch (e) {
             throw new AggregateError([e], 'FhirBundleWriter _transform: error');
