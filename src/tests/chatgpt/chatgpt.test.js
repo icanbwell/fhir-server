@@ -92,14 +92,14 @@ describe('ChatGPT Tests', () => {
             if (!process.env.OPENAI_API_KEY) {
                 return;
             }
-            const chatgptFhirToDocumentConverter = new ChatGPTFhirToDocumentConverter();
+            const chatgptFhirToDocumentConverter = new ChatgptFhirToDocumentConverterOptimized();
             const chatGptManager = new ChatGPTManagerDirect({
                 chatgptFhirToDocumentConverter: chatgptFhirToDocumentConverter
             });
             /**
              * @type {{pageContent: string, metadata: Object}[]}
              */
-            const documents = await chatgptFhirToDocumentConverter.convertBundleOptimizedToDocumentsAsync({
+            const documents = await chatgptFhirToDocumentConverter.convertBundleToDocumentsAsync({
                 bundle: patientBundleResource,
             });
             const chatgptMessages = documents.map(doc =>
