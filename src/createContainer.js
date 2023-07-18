@@ -86,6 +86,7 @@ const {HashReferencesEnrichmentProvider} = require('./enrich/providers/hashedRef
 const {SensitiveDataProcessor} = require('./utils/sensitiveDataProcessor');
 const {ChatGPTManager} = require('./chatgpt/chatgptManager');
 const {FhirResourceWriterFactory} = require('./operations/streaming/resourceWriters/fhirResourceWriterFactory');
+const { LinkedPatientsFinder } = require('./utils/linkedPatientsFinder');
 
 /**
  * Creates a container and sets up all the services
@@ -180,6 +181,12 @@ const createContainer = function () {
         databaseBulkInserter: c.databaseBulkInserter
     }));
 
+    container.register('linkedPatientsFinder', (c) => new LinkedPatientsFinder({
+        bwellPersonFinder: c.bwellPersonFinder,
+        databaseQueryFactory: c.databaseQueryFactory,
+        personToPatientIdsExpander: c.personToPatientIdsExpander,
+    }));
+
     container.register('partitioningManager', (c) => new PartitioningManager(
         {
             configManager: c.configManager,
@@ -262,6 +269,7 @@ const createContainer = function () {
                 databaseAttachmentManager: c.databaseAttachmentManager,
                 fhirResourceWriterFactory: c.fhirResourceWriterFactory,
                 patientFilterManager: c.patientFilterManager,
+                linkedPatientsFinder: c.linkedPatientsFinder,
             }
         )
     );
