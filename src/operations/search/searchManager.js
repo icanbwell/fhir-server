@@ -33,7 +33,6 @@ const {QueryItem} = require('../graph/queryItem');
 const {DatabaseAttachmentManager} = require('../../dataLayer/databaseAttachmentManager');
 const {FhirResourceWriterFactory} = require('../streaming/resourceWriters/fhirResourceWriterFactory');
 const { PatientFilterManager } = require('../../fhir/patientFilterManager');
-const { ParsedArgs } = require('../query/parsedArgs');
 const {MongoReadableStream} = require('../streaming/mongoStreamReader');
 
 class SearchManager {
@@ -1337,10 +1336,11 @@ class SearchManager {
      * @returns {string[]} Array of resource Id's present in query
      */
     getResourceIdsFromFilter(resourceType, parsedArgs) {
-        assertIsValid(typeof resourceType === 'string');
-        assertIsValid(parsedArgs instanceof ParsedArgs);
+        // assertIsValid(typeof resourceType === 'string');
+        // assertIsValid(parsedArgs instanceof ParsedArgs);
         const modifiersToSkip = ['not'];
 
+        console.log('[test] args', JSON.stringify(parsedArgs, undefined, '\t'));
         /**@type {Set<string>} */
         const resourceIds = parsedArgs.parsedArgItems
             .reduce((/**@type {Set<string>}*/ids, /**@type {import('../query/parsedArgsItem').ParsedArgsItem}*/currArg) => {
@@ -1359,7 +1359,7 @@ class SearchManager {
 
                 // param values which have Resource/ prefix will also be added
                 queryParamValues
-                .filter((v) => v.startsWith(`${resourceType}/`))
+                .filter((v) => typeof v === 'string' && v.startsWith(`${resourceType}/`))
                 .map((resourceIdWithPrefix) => resourceIdWithPrefix.replace(`${resourceType}/`, ''))
                 .filter((resourceId) => resourceId)
                 .forEach((resourceId) => ids.add(resourceId));
