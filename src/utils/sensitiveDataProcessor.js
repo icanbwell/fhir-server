@@ -12,7 +12,6 @@ const { FhirResourceCreator } = require('../fhir/fhirResourceCreator');
 const { SecurityTagSystem } = require('./securityTagSystem');
 
 const patientReferencePrefix = 'Patient/';
-const personReferencePrefix = 'Person/';
 /**
  * The class is used to add/remove sensitive data from a resource
  */
@@ -185,36 +184,6 @@ class SensitiveDataProcessor {
         return await this.personToPatientIdsExpander.getPatientProxyIdsAsync({
             base_version: '4_0_0', id: `person.${bwellMasterPerson}`, includePatientPrefix: true
         });
-    }
-
-    /**
-     * Get bwell master person and all linked patients for given patient ids.
-     * @typedef {Object} GetPersonAndBwellPersonOptions - Function Options
-     * @property {string[]} patientIds - array of patient ids
-     * @param {GetPersonAndBwellPersonOptions} options
-     * @returns {{[patientId: string]: { bwellMasterPerson: string, clientPatientIds: string[] }}}
-     */
-    async getBwellPersonAndAllClientIds({patientIds}) {
-        // if prefix then remove it
-        const patientIdWithOutPrefix = patientIds.map((patientId) => patientId.replace(patientReferencePrefix, ''));
-        // get hash-map of patientId to bwell-person
-        const patientToBwellMasterPerson = await this.bwellPersonFinder.getBwellPersonIdsAsync({
-            patientIds: patientIdWithOutPrefix,
-        });
-
-        /**
-         * @type {{[patientId: string]: { bwellMasterPerson: string, clientPatientIds: string[] }}}
-         * */
-        const patientToBwellPersonAndClientIds = {};
-
-        for (const [patientReference, bwellPersonReference] of patientToBwellMasterPerson.entries()) {
-            const patientId = patientReference.replace(patientReferencePrefix, '');
-            const data = patientToBwellPersonAndClientIds[patientId] || {};
-            data.bwellMasterPerson = bwellPersonReference.replace(personReferencePrefix, '');
-            patientToBwellPersonAndClientIds[patientId] = data;
-        }
-        // TODO: implement code for getting all client Ids.
-        return patientToBwellPersonAndClientIds;
     }
 
     /**

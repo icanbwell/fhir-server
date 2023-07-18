@@ -35,7 +35,7 @@ const {FhirResourceWriterFactory} = require('../streaming/resourceWriters/fhirRe
 const { PatientFilterManager } = require('../../fhir/patientFilterManager');
 const { ParsedArgs } = require('../query/parsedArgs');
 const {MongoReadableStream} = require('../streaming/mongoStreamReader');
-const { SensitiveDataProcessor } = require('../../utils/sensitiveDataProcessor');
+const { LinkedPatientsFinder } = require('../../utils/linkedPatientsFinder');
 
 class SearchManager {
     /**
@@ -53,7 +53,7 @@ class SearchManager {
      * @param {DatabaseAttachmentManager} databaseAttachmentManager
      * @param {FhirResourceWriterFactory} fhirResourceWriterFactory
      * @param {PatientFilterManager} patientFilterManager
-     * @param {SensitiveDataProcessor} sensitiveDataProcessor
+     * @param {LinkedPatientsFinder} linkedPatientsFinder
      */
     constructor(
         {
@@ -70,7 +70,7 @@ class SearchManager {
             databaseAttachmentManager,
             fhirResourceWriterFactory,
             patientFilterManager,
-            sensitiveDataProcessor
+            linkedPatientsFinder
         }
     ) {
         /**
@@ -146,10 +146,10 @@ class SearchManager {
         assertTypeEquals(patientFilterManager, PatientFilterManager);
 
         /**
-         * @type {SensitiveDataProcessor}
+         * @type {LinkedPatientsFinder}
          */
-        this.sensitiveDataProcessor = sensitiveDataProcessor;
-        assertTypeEquals(sensitiveDataProcessor, SensitiveDataProcessor);
+        this.linkedPatientsFinder = linkedPatientsFinder;
+        assertTypeEquals(linkedPatientsFinder, LinkedPatientsFinder);
     }
 
     /**
@@ -288,7 +288,7 @@ class SearchManager {
                         let patientIds = this.getResourceIdsFromFilter('Patient', parsedArgs);
                         if (patientIds && patientIds.length > 0) {
                             // Get b.Well Master Person and/or Person map for each patient IDs
-                            const bwellPersonsAndClientPatientsIdMap = await this.sensitiveDataProcessor.getBwellPersonAndAllClientIds({ patientIds });
+                            const bwellPersonsAndClientPatientsIdMap = await this.linkedPatientsFinder.getBwellPersonAndAllClientIds({ patientIds });
                             console.log(bwellPersonsAndClientPatientsIdMap);
 
                             // Get Consent for each b.well master person
