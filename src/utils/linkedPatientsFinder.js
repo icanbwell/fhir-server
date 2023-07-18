@@ -48,7 +48,7 @@ class LinkedPatientsFinder {
      * @typedef {Object} GetPersonAndBwellPersonOptions - Function Options
      * @property {string[]} patientIds - array of patient ids
      * @param {GetPersonAndBwellPersonOptions} options
-     * @returns {{[patientId: string]: { bwellMasterPerson: string, clientPatientIds: string[] }}}
+     * @returns {{[patientId: string]: { bwellMasterPerson: string, patientIds: string[] }}}
      */
     async getBwellPersonAndAllClientIds({patientIds}) {
         // if prefix then remove it
@@ -58,18 +58,35 @@ class LinkedPatientsFinder {
             patientIds: patientIdWithOutPrefix,
         });
 
+        /**@type {Set<string>} */
+        const bwellMasterPersons = new Set();
+
+        patientToBwellMasterPerson.forEach((masterPerson) => {
+          bwellMasterPersons.add(masterPerson);
+        });
+
+        // get all linked patient ids
         /**
-         * @type {{[patientId: string]: { bwellMasterPerson: string, clientPatientIds: string[] }}}
+         * @type {{[masterPersonId: string]: string[];}}
+         * */
+        const linkedPatientIds = await this.personToPatientIdsExpander.getAllRelatedPatients({
+          base_version: '4_0_0', idsSet: bwellMasterPersons, toMap: true,
+        });
+
+        /**
+         * @type {{[patientId: string]: { bwellMasterPerson: string, patientIds: string[] }}}
          * */
         const patientToBwellPersonAndClientIds = {};
 
+        // form the result to return
         for (const [patientReference, bwellPersonReference] of patientToBwellMasterPerson.entries()) {
             const patientId = patientReference.replace(patientReferencePrefix, '');
             const data = patientToBwellPersonAndClientIds[patientId] || {};
             data.bwellMasterPerson = bwellPersonReference.replace(personReferencePrefix, '');
+            data.patientIds = linkedPatientIds[data.bwellMasterPerson];
             patientToBwellPersonAndClientIds[patientId] = data;
         }
-        // TODO: implement code for getting all client Ids.
+
         return patientToBwellPersonAndClientIds;
     }
 }
