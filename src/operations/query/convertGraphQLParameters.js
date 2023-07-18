@@ -25,6 +25,7 @@ function convertGraphQLParameters(queryParameterValue, args, queryParameter) {
                         } else if (notEqualsObject['values']) {
                             notQueryParameterValue = notEqualsObject['values'];
                         }
+                        queryParameterValue = [];
                     } else {
                         // handle SearchString
                         if (queryParameterValue['value']) {
@@ -95,6 +96,7 @@ function convertGraphQLParameters(queryParameterValue, args, queryParameter) {
                     }
                     if (useNotEquals) {
                         notQueryParameterValue = referenceText;
+                        queryParameterValue = [];
                     } else {
                         queryParameterValue = referenceText;
                     }
@@ -132,6 +134,7 @@ function convertGraphQLParameters(queryParameterValue, args, queryParameter) {
                     }
                     if (useNotEquals) {
                         notQueryParameterValue = quantityString;
+                        queryParameterValue = [];
                     } else {
                         queryParameterValue = quantityString;
                     }
