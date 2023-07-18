@@ -35,31 +35,23 @@ function convertGraphQLParameters(queryParameterValue, args, queryParameter) {
                     }
                     break;
                 case 'token':
-                    // parse out notEquals values
-                    if (queryParameterValue['notEquals']) {
-                        const notEqualsObject = queryParameterValue['notEquals'];
-                        if (notEqualsObject['value']) {
-                            queryParameterValue['value'] = notEqualsObject['value'];
-                        } else if (notEqualsObject['values']) {
-                            queryParameterValue['values'] = notEqualsObject['values'];
-                        }
-                        useNotEquals = true;
-                    }
                     if (queryParameterValue['value']) {
                         // noinspection JSValidateTypes
                         queryParameterValue['values'] = [queryParameterValue['value']];
                     }
+                    if (queryParameterValue['notEquals']) {
+                        // noinspection JSValidateTypes
+                        queryParameterValue['values'] = [queryParameterValue['notEquals']];
+                        useNotEquals = true;
+                    }
                     // eslint-disable-next-line no-case-declarations
                     let newQueryParameterValue = [];
+                    notQueryParameterValue = [];
                     if (queryParameterValue['values']) {
                         for (let token of queryParameterValue['values']) {
-                            console.log('*****************new token');
-                            console.log(token);
-                            notQueryParameterValue = [];
                             let innerNotEquals = false;
                             if (token['notEquals']) {
-                                const notEqualsToken = token['notEquals'];
-                                token = notEqualsToken['value'];
+                                token = token['notEquals'];
                                 innerNotEquals = true;
                             }
                             let tokenString = '';
@@ -73,12 +65,9 @@ function convertGraphQLParameters(queryParameterValue, args, queryParameter) {
                                 tokenString += token['value'];
                             }
                             if (tokenString) {
-                                console.log(`**************tokenString ${tokenString} useNotEquals ${useNotEquals}  innerNotEquals ${innerNotEquals}`);
                                 if (useNotEquals || innerNotEquals) {
-                                    console.log('**************pushing notequals');
                                     notQueryParameterValue.push(tokenString);
                                 } else {
-                                    console.log('**************pushing equals');
                                     newQueryParameterValue.push(tokenString);
                                 }
                             }
@@ -203,10 +192,6 @@ function convertGraphQLParameters(queryParameterValue, args, queryParameter) {
             }
         }
     }
-    console.log('####################query param');
-    console.log(queryParameterValue);
-    console.log('####################not query param');
-    console.log(notQueryParameterValue);
     return {'queryParameterValue': queryParameterValue, 'notQueryParameterValue': notQueryParameterValue};
 }
 

@@ -143,18 +143,12 @@ class R4ArgsParser {
                 args,
                 queryParameter
             ));
-            console.log('**************query param');
-            console.log(queryParameterValue);
-            console.log('***************not query param');
-            console.log(notQueryParameterValue);
             // if it is a valid parameter then add it
             if (
                 (queryParameterValue && queryParameterValue !== '') && (
                     !Array.isArray(queryParameterValue) || queryParameterValue.filter(v => v).length > 0
                 )
             ) {
-                console.log('*************pushing query value');
-                console.log(queryParameterValue);
                 parseArgItems.push(
                     new ParsedArgsItem({
                         queryParameter,
@@ -175,8 +169,6 @@ class R4ArgsParser {
             ) {
                 let newModifiers = deepcopy(modifiers);
                 newModifiers.push('not');
-                console.log('******************pushing not query value');
-                console.log(notQueryParameterValue);
                 parseArgItems.push(
                     new ParsedArgsItem({
                         queryParameter,
@@ -191,7 +183,6 @@ class R4ArgsParser {
             }
 
         }
-        console.log(parseArgItems);
         /**
          * @type {ParsedArgs}
          */

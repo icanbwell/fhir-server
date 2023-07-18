@@ -5,7 +5,9 @@ input SearchTokenValue {
     notEquals: NotSearchTokenValue
 }
 input NotSearchTokenValue {
-    value: SearchTokenValue
+    code: String
+    value: String
+    system: String
     values: [SearchTokenValue]
 }
 input SearchToken {
