@@ -3,6 +3,7 @@ const {assertIsValid} = require('../../../utils/assertType');
 const {getCircularReplacer} = require('../../../utils/getCircularReplacer');
 const {FhirResourceWriterBase} = require('./fhirResourceWriterBase');
 const {fhirContentTypes} = require('../../../utils/contentTypes');
+const {getDefaultSortIdValue} = require('../../../utils/getDefaultSortIdValue');
 
 class FhirBundleWriter extends FhirResourceWriterBase {
     /**
@@ -80,15 +81,7 @@ class FhirBundleWriter extends FhirResourceWriterBase {
                     this.push(',' + resourceJson, encoding);
                 }
                 // Depending on DEFAULT_SORT_ID, the last id can be either id or any other field.
-                this._lastid = chunk[this.defaultSortId];
-
-                if (!this._lastid && chunk.identifier) {
-                    chunk.identifier.forEach(identifier => {
-                        if (identifier.system.split('/').pop() === this.defaultSortId.replace('_', '')) {
-                            this._lastid = identifier.value;
-                        }
-                    });
-                }
+                this._lastid = getDefaultSortIdValue(chunk, this.defaultSortId);
             }
         } catch (e) {
             throw new AggregateError([e], 'FhirBundleWriter _transform: error');
