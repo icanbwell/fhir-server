@@ -317,7 +317,7 @@ class SearchBundleOperation {
             if (resources.length > 0) {
                 if (resources[resources.length - 1].identifier) {
                     resources[resources.length - 1].identifier.forEach(identifier => {
-                        if (identifier.id === defaultSortId.replace('_', '')) {
+                        if (identifier.system.split('/').pop() === defaultSortId.replace('_', '')) {
                             last_id = identifier.value;
                         }
                     });

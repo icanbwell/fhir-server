@@ -84,7 +84,7 @@ class FhirBundleWriter extends FhirResourceWriterBase {
 
                 if (!this._lastid && chunk.identifier) {
                     chunk.identifier.forEach(identifier => {
-                        if (identifier.id === this.defaultSortId.replace('_', '')) {
+                        if (identifier.system.split('/').pop() === this.defaultSortId.replace('_', '')) {
                             this._lastid = identifier.value;
                         }
                     });
