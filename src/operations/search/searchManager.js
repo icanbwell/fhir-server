@@ -253,25 +253,38 @@ class SearchManager {
                         if (patientIds && patientIds.length > 0) {
                             // Get b.Well Master Person and/or Person map for each patient IDs
                             const bwellPersonsAndClientPatientsIdMap = await this.linkedPatientsFinder.getBwellPersonAndAllClientIds({ patientIds });
-                            console.log(bwellPersonsAndClientPatientsIdMap);
-
-                            // Get Consent for each b.well master person
-                            const consentResources = await this.getConsentResources(patientIds, securityTags);
-                            console.log(patientIds, securityTags, consentResources);
-                            if ( consentResources.length > 0){
-                                // Create map b/w input patient IDs and consent
-                                let consentPatientIds = [];
-                                patientIds.forEach((patientId) => {
-                                    // if patientId has corrosponding consent available, add this consented patient list
-                                    // TODO: Adding all patient IDs for now
-                                    consentPatientIds.push(patientId);
-                                });
-                                if (consentPatientIds.length > 0){
-                                    // TODO: rewrite query with consentPatientIds
-                                    // call the this.rewriteQueryForPatientsWithConsent to get query with consent
-                                    // for now using existing query
-                                    queryWithConsent = deepcopy(query);
+                            // Get all patient IDs that connected to bwell master person of input (proxy)patient
+                            const extendedPatientIds = new Set();
+                            // Reverse map of "inpput (proxy) Patient IDs" and Patient IDs linked to corrosponding bwell master person
+                            /**
+                             * @type {{[extendedPatientId: string]: [patientId: string]}
+                             * */
+                            const extendedPatientIdsMap = {};
+                            for (const /**@type {string} */ patientId in bwellPersonsAndClientPatientsIdMap) {
+                                if (bwellPersonsAndClientPatientsIdMap[patientId]) {
+                                    const personPatientMap = bwellPersonsAndClientPatientsIdMap[patientId];
+                                    if (personPatientMap.patientIds) {
+                                        personPatientMap.patientIds.forEach((extendedPatientId) => {
+                                            extendedPatientIds.add(extendedPatientId);
+                                            extendedPatientIdsMap[extendedPatientId] = patientId;
+                                        });
+                                    }
                                 }
+                            }
+                            // Get Consent for each b.well master person
+                            const consentResources = await this.getConsentResources([...extendedPatientIds], securityTags);
+                            // Get input patient IDs that has provided consent to the client
+                            let consentPatientIds = [];
+                            consentResources.forEach((consent) => {
+                                const consentPatientId = consent.patient.reference.replace('Patient/', '');
+                                if (extendedPatientIdsMap[consentPatientId]) {
+                                    consentPatientIds.push(extendedPatientIdsMap[consentPatientId]);
+                                }
+                            });
+                            if (consentPatientIds.length > 0) {
+                                queryWithConsent = await this.rewriteQueryForPatientsWithConsent(
+                                    {parsedArgs, patientIds: consentPatientIds, base_version, resourceType, useHistoryTable}
+                                );
                             }
                         }
                     }
