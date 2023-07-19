@@ -158,56 +158,32 @@ class SearchManager {
      * @returns Consent resource list
      */
     async getConsentResources(patientIds, ownerTags) {
-        // Query to fetch only the must updated consents for any patient
-        const query = [
-            {
-                $match: {
-                    $and: [
-                        {'provision.class.code': '/dataSharingConsent'},
-                        {'patient.reference': {$in: patientIds.map((patientId) => `Patient/${patientId}`)}},
-                        {'status': 'active'},
-                        {'provision.type': 'permit'},
-                        {'meta.security': {
-                            '$elemMatch': {
-                                'system': 'https://www.icanbwell.com/owner',
-                                'code': {$in: ownerTags},
-                            },
-                        }}
-                    ]
-                }
-            },
-            {
-                $sort: {
-                    'meta.lastUpdated': -1
-                }
-            },
-            {
-                $group: {
-                    _id: '$patient.reference',
-                    latestDocument: {
-                        $first: '$$ROOT'
-                    }
-                }
-            },
-            {
-                $replaceRoot: {
-                    newRoot: '$latestDocument'
-                }
-            }
-        ];
-
+        // Query to fetch only the active consents for any patient
+        const query =
+        {
+            $and: [
+                {'provision.class.code': '/dataSharingConsent'},
+                {'patient.reference': {$in: patientIds.map((patientId) => `Patient/${patientId}`)}},
+                {'status': 'active'},
+                {'provision.type': 'permit'},
+                {'meta.security': {
+                    '$elemMatch': {
+                        'system': 'https://www.icanbwell.com/owner',
+                        'code': {$in: ownerTags},
+                    },
+                }}
+            ]
+        };
         const consentDataBaseQueryManager = this.databaseQueryFactory.createQuery({
             resourceType: 'Consent',
             base_version: '4_0_0',
         });
 
-        // Match query is passed to determine if the whole aggregration pipeline is passed
-        const cursor = await consentDataBaseQueryManager.findUsingAggregationAsync({
+        const cursor = await consentDataBaseQueryManager.findAsync({
             query: query,
-            projection: {},
-            extraInfo: {matchQueryProvided: true}
+            projection: {}
         });
-        const consentResources = await cursor.toArrayRawAsync();
+        const consentResources = await cursor.sort({'meta.lastUpdated': -1}).toArrayRawAsync();
 
         return consentResources;
     }
