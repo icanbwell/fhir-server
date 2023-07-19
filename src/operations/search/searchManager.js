@@ -36,6 +36,7 @@ const { PatientFilterManager } = require('../../fhir/patientFilterManager');
 const { ParsedArgs } = require('../query/parsedArgs');
 const {MongoReadableStream} = require('../streaming/mongoStreamReader');
 const { LinkedPatientsFinder } = require('../../utils/linkedPatientsFinder');
+const { QueryParameterValue } = require('../query/queryParameterValue');
 
 class SearchManager {
     /**
@@ -238,20 +239,7 @@ class SearchManager {
             let columns;
 
             // eslint-disable-next-line no-useless-catch
-            try {
-                if (base_version === VERSIONS['3_0_1']) {
-                    query = buildStu3SearchQuery(parsedArgs);
-                } else if (base_version === VERSIONS['1_0_2']) {
-                    query = buildDstu2SearchQuery(parsedArgs);
-                } else {
-                    ({query, columns} = this.r4SearchQueryCreator.buildR4SearchQuery({
-                        resourceType, parsedArgs, useHistoryTable
-                    }));
-                }
-            } catch (e) {
-                console.error(e);
-                throw e;
-            }
+            ({query, columns} = this.buildSearchQueryBasedOnVersion({ base_version, parsedArgs, resourceType, useHistoryTable}));
 
             // JWT has access tag in scope i.e API call from a specific client
             if (securityTags && securityTags.length > 0) {
@@ -280,6 +268,7 @@ class SearchManager {
                                 });
                                 if (consentPatientIds.length > 0){
                                     // TODO: rewrite query with consentPatientIds
+                                    // call the this.rewriteQueryForPatientsWithConsent to get query with consent
                                     // for now using existing query
                                     queryWithConsent = deepcopy(query);
                                 }
@@ -295,6 +284,7 @@ class SearchManager {
                 // Update query to include Consented data
                 if (queryWithConsent){
                     query = { $or: [query, queryWithConsent]};
+                    // todo: if columns are not null, update the columns count by calling MongoQuerySimplifier.findColumnsInFilter({filter: query});
                 }
             }
             if (hasPatientScope) {
@@ -355,6 +345,127 @@ class SearchManager {
                 }
             );
         }
+    }
+
+    /**
+     * Build Search-query from parsed args based on base_version and resource type
+     * @typedef {Object} BuildSearchQueryBasedOnVersion
+     * @property {string} base_version Base Version
+     * @property {ParsedArgs} parsedArgs Parsed Args
+     * @property {boolean | undefined} useHistoryTable boolean to use history table or not
+     * @property {string} resourceType Resource Type
+     * @param {BuildSearchQueryBasedOnVersion} param Params for building search query based on version
+     * @returns {{ query: import('mongodb').Document, columns: Set<string> | undefined }}
+     */
+    buildSearchQueryBasedOnVersion({ base_version, parsedArgs, resourceType, useHistoryTable}) {
+        /**@type {import('mongodb').Document} */
+        let query;
+        /**@type {Set<string>} */
+        let columns;
+        try {
+            if (base_version === VERSIONS['3_0_1']) {
+                query = buildStu3SearchQuery(parsedArgs);
+            } else if (base_version === VERSIONS['1_0_2']) {
+                query = buildDstu2SearchQuery(parsedArgs);
+            } else {
+                ({query, columns} = this.r4SearchQueryCreator.buildR4SearchQuery({
+                    resourceType, parsedArgs, useHistoryTable
+                }));
+            }
+
+            return {query, columns};
+        } catch (e) {
+            console.error(e);
+            throw e;
+        }
+    }
+
+    /**
+     * Rewrite the query for consent.
+     * Removes all the patient ids from the query-param that don't have given consent
+     * and return mongo query from it.
+     * @typedef {Object} RewriteConsentedQuery
+     * @property {ParsedArgs} parsedArgs Args
+     * @property {string[]} patientIds PatientIds that have given consent
+     * @property {string} base_version Base Version
+     * @property {boolean | undefined} useHistoryTable boolean to use history table or not
+     * @property {string} resourceType Resource Type
+     * @param {RewriteConsentedQuery} param
+     */
+    async rewriteQueryForPatientsWithConsent({ parsedArgs, patientIds, base_version, resourceType, useHistoryTable,}) {
+        if (!patientIds || !parsedArgs) {
+            return undefined;
+        }
+
+        assertIsValid(Array.isArray(patientIds));
+        assertTypeEquals(parsedArgs, ParsedArgs);
+
+        /**
+         * PatientIds which have consent to view data
+         * @type {Set<string>}
+         */
+        const patientIdsWithConsent = new Set(patientIds.map((patientId) => patientId.replace('Patient/', '')));
+
+        /**
+         * Clone of the original parsed arguments
+         * @type {ParsedArgs}
+         * */
+        const consentParsedArgs = parsedArgs.clone();
+
+        /**@type {Set<string>} */
+        const argsToRemove = new Set();
+
+        consentParsedArgs
+        .parsedArgItems
+        .forEach((/**@type {import('../query/parsedArgsItem').ParsedArgsItem} */item) => {
+            // if property is related to patient
+            if (
+                item.propertyObj && item.propertyObj.target && item.propertyObj.target.includes('Patient')
+            ) {
+                /**@type {string[]} */
+                const newQueryParamValues = [];
+
+                // update the query-param values
+                item.references.forEach((ref) => {
+                    if (ref.resourceType === 'Patient') {
+                        if (patientIdsWithConsent.has(ref.id)) {
+                            newQueryParamValues.push(`${ref.resourceType}/${ref.id}`);
+                        }
+                        // skip adding patient without consent
+                    } else if (ref.resourceType){
+                        newQueryParamValues.push(`${ref.resourceType}/${ref.id}`);
+                    }
+                });
+
+                if (newQueryParamValues.length === 0) {
+                    // if all the ids doesn't have consent then remove the queryParam
+                    argsToRemove.add(item.queryParameter);
+                } else {
+                    // rebuild the query value
+                    const newValue = item.queryParameterValue.regenerateValueFromValues(newQueryParamValues);
+                    const newQueryParameterValue = new QueryParameterValue({
+                        value: newValue,
+                        operator: item.queryParameterValue.operator,
+                    });
+
+                    // set the value
+                    item.queryParameterValue = newQueryParameterValue;
+                }
+            }
+        });
+
+        // remove all empty args
+        argsToRemove.forEach((arg) => consentParsedArgs.remove(arg));
+
+        // reconstruct the query
+        let {query} = this.buildSearchQueryBasedOnVersion({
+            resourceType,
+            useHistoryTable,
+            base_version,
+            parsedArgs: consentParsedArgs,
+        });
+
+        return query;
     }
 
     /**
@@ -1327,29 +1438,21 @@ class SearchManager {
         assertIsValid(parsedArgs instanceof ParsedArgs);
         const modifiersToSkip = ['not'];
 
-        console.log('[test] args', JSON.stringify(parsedArgs, undefined, '\t'));
         /**@type {Set<string>} */
         const resourceIds = parsedArgs.parsedArgItems
             .reduce((/**@type {Set<string>}*/ids, /**@type {import('../query/parsedArgsItem').ParsedArgsItem}*/currArg) => {
-                const queryParam = currArg.queryParameter;
-                const queryParamValues = currArg.queryParameterValue.values;
-
+                const queryParamReferences = currArg.references;
                 // if modifier is 'not' then skip the addition of the ids to set
                 if (currArg.modifiers.some((v) => modifiersToSkip.includes(v))) {
                     return ids;
                 }
 
-                // if query param is like resource="id", then add those ids
-                if (queryParam === resourceType.toLowerCase() && queryParamValues) {
-                    queryParamValues.forEach((v) => ids.add(v.replace(`${resourceType}/`, '')));
-                }
-
-                // param values which have Resource/ prefix will also be added
-                queryParamValues
-                .filter((v) => typeof v === 'string' && v.startsWith(`${resourceType}/`))
-                .map((resourceIdWithPrefix) => resourceIdWithPrefix.replace(`${resourceType}/`, ''))
-                .filter((resourceId) => resourceId)
-                .forEach((resourceId) => ids.add(resourceId));
+                // if referenceType is equal to resourceType, then add the id
+                queryParamReferences.forEach((reference) => {
+                    if (reference.resourceType === resourceType) {
+                        ids.add(reference.id);
+                    }
+                });
                 return ids;
             }, new Set());
 
