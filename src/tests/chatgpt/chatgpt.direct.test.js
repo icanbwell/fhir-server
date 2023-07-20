@@ -21,9 +21,9 @@ describe('ChatGPT Tests', () => {
                 return;
             }
 
-            const chatgptFhirToDocumentConverter = new FhirToJsonDocumentConverter();
+            const fhirToDocumentConverter = new FhirToJsonDocumentConverter();
             const chatGptManager = new ChatGPTManagerDirect({
-                chatgptFhirToDocumentConverter: chatgptFhirToDocumentConverter
+                fhirToDocumentConverter: fhirToDocumentConverter
             });
             const result = await chatGptManager.listModelsAsync();
             console.log(result);
@@ -33,12 +33,12 @@ describe('ChatGPT Tests', () => {
                 return;
             }
 
-            const chatgptFhirToDocumentConverter = new FhirToSummaryDocumentConverter({
+            const fhirToDocumentConverter = new FhirToSummaryDocumentConverter({
                 resourceConverterFactory: new ResourceConverterFactory()
             });
 
             const chatGptManager = new ChatGPTManagerDirect({
-                chatgptFhirToDocumentConverter: chatgptFhirToDocumentConverter
+                fhirToDocumentConverter: fhirToDocumentConverter
             });
             const result = await chatGptManager.answerQuestionAsync({
                 bundle: patientBundleResource,
@@ -51,9 +51,9 @@ describe('ChatGPT Tests', () => {
                 return;
             }
 
-            const chatgptFhirToDocumentConverter = new FhirToCsvDocumentConverter();
+            const fhirToDocumentConverter = new FhirToCsvDocumentConverter();
             const chatGptManager = new ChatGPTManagerDirect({
-                chatgptFhirToDocumentConverter: chatgptFhirToDocumentConverter
+                fhirToDocumentConverter: fhirToDocumentConverter
             });
             const result = await chatGptManager.answerQuestionAsync({
                 bundle: patientCondensedBundleResource,

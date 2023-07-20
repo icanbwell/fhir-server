@@ -128,11 +128,11 @@ describe('ChatGPT Tests', () => {
                 return;
             }
 
-            const chatgptFhirToDocumentConverter = new FhirToSummaryDocumentConverter({
+            const fhirToDocumentConverter = new FhirToSummaryDocumentConverter({
                 resourceConverterFactory: new ResourceConverterFactory()
             });
             const chatGPTManager = new ChatGPTLangChainManager({
-                chatgptFhirToDocumentConverter
+                fhirToDocumentConverter
             });
             const result = await chatGPTManager.getFhirQueryAsync({
                 baseUrl: 'https://fhir.icanbwell.com/4_0_0',
@@ -146,11 +146,11 @@ describe('ChatGPT Tests', () => {
                 return;
             }
 
-            const chatgptFhirToDocumentConverter = new FhirToSummaryDocumentConverter({
+            const fhirToDocumentConverter = new FhirToSummaryDocumentConverter({
                 resourceConverterFactory: new ResourceConverterFactory()
             });
             const chatGPTManager = new ChatGPTLangChainManager({
-                chatgptFhirToDocumentConverter
+                fhirToDocumentConverter
             });
             const result = await chatGPTManager.getFhirQueryAsync({
                 baseUrl: 'https://fhir.icanbwell.com/4_0_0',
@@ -163,11 +163,11 @@ describe('ChatGPT Tests', () => {
             if (!process.env.OPENAI_API_KEY) {
                 return;
             }
-            const chatgptFhirToDocumentConverter = new FhirToSummaryDocumentConverter({
+            const fhirToDocumentConverter = new FhirToSummaryDocumentConverter({
                 resourceConverterFactory: new ResourceConverterFactory()
             });
             const chatGPTManager = new ChatGPTLangChainManager({
-                chatgptFhirToDocumentConverter
+                fhirToDocumentConverter
             });
             const result = await chatGPTManager.getFhirQueryAsync({
                 baseUrl: 'https://fhir.icanbwell.com/4_0_0',
@@ -430,11 +430,11 @@ describe('ChatGPT Tests', () => {
                 return;
             }
 
-            const chatgptFhirToDocumentConverter = new FhirToSummaryDocumentConverter({
+            const fhirToDocumentConverter = new FhirToSummaryDocumentConverter({
                 resourceConverterFactory: new ResourceConverterFactory()
             });
             const chatGPTManager = new ChatGPTLangChainManager({
-                chatgptFhirToDocumentConverter
+                fhirToDocumentConverter
             });
             const patientResources = patientBundleResource.entry.map(
                 e => new Document(
@@ -542,11 +542,11 @@ describe('ChatGPT Tests', () => {
                 return;
             }
 
-            const chatgptFhirToDocumentConverter = new FhirToSummaryDocumentConverter({
+            const fhirToDocumentConverter = new FhirToSummaryDocumentConverter({
                 resourceConverterFactory: new ResourceConverterFactory()
             });
             const chatGPTManager = new ChatGPTLangChainManager({
-                chatgptFhirToDocumentConverter
+                fhirToDocumentConverter
             });
             const result = await chatGPTManager.answerQuestionAsync({
                 bundle: patientBundleResource,
@@ -560,11 +560,11 @@ describe('ChatGPT Tests', () => {
                 return;
             }
 
-            const chatgptFhirToDocumentConverter = new FhirToSummaryDocumentConverter({
+            const fhirToDocumentConverter = new FhirToSummaryDocumentConverter({
                 resourceConverterFactory: new ResourceConverterFactory()
             });
             const chatGPTManager = new ChatGPTLangChainManager({
-                chatgptFhirToDocumentConverter
+                fhirToDocumentConverter
             });
             const result = await chatGPTManager.answerQuestionAsync({
                 bundle: patientBundleResource,
