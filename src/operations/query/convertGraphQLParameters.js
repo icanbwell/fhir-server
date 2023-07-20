@@ -20,19 +20,11 @@ function convertGraphQLParameters(queryParameterValue, args, queryParameter) {
                     // parse out notEquals values
                     if (queryParameterValue['notEquals']) {
                         const notEqualsObject = queryParameterValue['notEquals'];
-                        if (notEqualsObject['value']) {
-                            notQueryParameterValue = notEqualsObject['value'];
-                        } else if (notEqualsObject['values']) {
-                            notQueryParameterValue = notEqualsObject['values'];
-                        }
+                        notQueryParameterValue = notEqualsObject['value'] || notEqualsObject['values'];
                         queryParameterValue = [];
                     } else {
                         // handle SearchString
-                        if (queryParameterValue['value']) {
-                            queryParameterValue = queryParameterValue['value'];
-                        } else if (queryParameterValue['values']) {
-                            queryParameterValue = queryParameterValue['values'];
-                        }
+                        queryParameterValue = queryParameterValue['value'] || queryParameterValue['values'];
                     }
                     break;
                 case 'token':
@@ -106,18 +98,9 @@ function convertGraphQLParameters(queryParameterValue, args, queryParameter) {
                     let quantityString = '';
                     if (queryParameterValue['notEquals']) {
                         const notEqualsObject = queryParameterValue['notEquals'];
-                        if (notEqualsObject['prefix']) {
-                            queryParameterValue['prefix'] = notEqualsObject['prefix'];
-                        }
-                        if (notEqualsObject['value']) {
-                            queryParameterValue['value'] = notEqualsObject['value'];
-                        }
-                        if (notEqualsObject['system']) {
-                            queryParameterValue['system'] = notEqualsObject['system'];
-                        }
-                        if (notEqualsObject['code']) {
-                            queryParameterValue['code'] = notEqualsObject['code'];
-                        }
+                        Object.keys(notEqualsObject).forEach(key => {
+                            queryParameterValue[key] = notEqualsObject[key];
+                        });
                         useNotEquals = true;
                     }
                     if (queryParameterValue['prefix']) {
@@ -195,7 +178,7 @@ function convertGraphQLParameters(queryParameterValue, args, queryParameter) {
             }
         }
     }
-    return {'queryParameterValue': queryParameterValue, 'notQueryParameterValue': notQueryParameterValue};
+    return {queryParameterValue, notQueryParameterValue};
 }
 
 module.exports = {
