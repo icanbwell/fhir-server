@@ -193,5 +193,8 @@ module.exports = {
         USER_REQUEST_ID: 'userRequestId',
         SYSTEM_GENERATED_REQUEST_ID: 'systemGeneratedRequestId',
     },
-    ACCESS_LOGS_COLLECTION_NAME: 'access-logs'
+    ACCESS_LOGS_COLLECTION_NAME: 'access-logs',
+    PATIENT_REFERENCE_PREFIX: 'Patient/',
+    PERSON_REFERENCE_PREFIX: 'Patient/',
+    PERSON_PROXY_PREFIX: 'person.'
 };

@@ -369,7 +369,7 @@ class SearchManager {
         let queryWithConsent;
         // 1. Check resourceType is specific to Patient
         if (this.patientFilterManager.isPatientRelatedResource({ resourceType })) {
-            // 2. Check parsedArgs has patient or proxy patient filter
+            // 2. Get (proxy) patient IDs from parsedArgs the filters
             let patientIds = this.getResourceIdsFromFilter('Patient', parsedArgs);
             if (patientIds && patientIds.length > 0) {
                 // Get b.Well Master Person and/or Person map for each patient IDs
@@ -380,14 +380,16 @@ class SearchManager {
                 /**
                  * @type {{[extendedPatientId: string]: [patientId: string]}
                  * */
-                const extendedPatientIdsMap = {};
+                const extendedPatientIdsMap = new Map();
                 for (const /**@type {string} */ patientId in bwellPersonsAndClientPatientsIdMap) {
                     if (bwellPersonsAndClientPatientsIdMap[patientId]) {
-                        const personPatientMap = bwellPersonsAndClientPatientsIdMap[patientId];
+                        const /**@type { bwellMasterPerson: string, patientIds: string[] }} */ personPatientMap = bwellPersonsAndClientPatientsIdMap[patientId];
                         if (personPatientMap.patientIds) {
                             personPatientMap.patientIds.forEach((extendedPatientId) => {
                                 extendedPatientIds.add(extendedPatientId);
-                                extendedPatientIdsMap[extendedPatientId] = patientId;
+                                const inputPatientIds = extendedPatientIdsMap.get(extendedPatientId) || new Set();
+                                inputPatientIds.add(patientId);
+                                extendedPatientIdsMap.set(extendedPatientId, inputPatientIds);
                             });
                         }
                     }
@@ -399,20 +401,16 @@ class SearchManager {
                  * (Proxy) Patient Ids which have provided consent to view data
                  * @type {Set<string>}
                  */
-                let consentPatientIds = [];
+                let patientIdsWithConsent = new Set();
                 consentResources.forEach((consent) => {
                     const consentPatientId = consent.patient.reference.replace('Patient/', '');
-                    if (extendedPatientIdsMap[consentPatientId]) {
-                        consentPatientIds.push(extendedPatientIdsMap[consentPatientId]);
+                    if (extendedPatientIdsMap.has(consentPatientId)) {
+                        extendedPatientIdsMap.get(consentPatientId).forEach((inputPatientId) => {
+                            patientIdsWithConsent.add(inputPatientId);
+                        });
                     }
                 });
-                if (consentPatientIds.length > 0) {
-                    /**
-                     * PatientIds which have consent to view data
-                     * @type {Set<string>}
-                     */
-                    const patientIdsWithConsent = new Set(consentPatientIds.map((patientId) => patientId.replace('Patient/', '')));
-
+                if (patientIdsWithConsent.size > 0) {
                     /**
                      * Clone of the original parsed arguments
                      * @type {ParsedArgs}

@@ -1,4 +1,5 @@
 const {assertTypeEquals} = require('./assertType');
+const {PATIENT_REFERENCE_PREFIX, PERSON_REFERENCE_PREFIX, PERSON_PROXY_PREFIX} = require('../constants');
 const {DatabaseQueryFactory} = require('../dataLayer/databaseQueryFactory');
 const {SecurityTagSystem} = require('./securityTagSystem');
 
@@ -48,11 +49,18 @@ class BwellPersonFinder {
     async getBwellPersonIdsAsync({
         patientIds
     }) {
-        const patientPrefix = 'Patient';
-
         /**@type {string[]} */
-        const patientReferences = patientIds.map((id) => `${patientPrefix}/${id}`);
+        const patientReferences = [];
+        /**@type {string[]} */
+        const proxyPatientIds = new Set();
 
+        patientIds.forEach((id) => {
+            if (id.startsWith(`${PERSON_PROXY_PREFIX}`)) {
+                proxyPatientIds.add(id);
+            } else {
+                patientReferences.push(`${PATIENT_REFERENCE_PREFIX}${id}`);
+            }
+        });
         const databaseQueryManager = this.databaseQueryFactory.createQuery({
             resourceType: 'Person',
             base_version: '4_0_0'
@@ -64,6 +72,32 @@ class BwellPersonFinder {
             level: 0,
             visitedReferences: new Set(),
         });
+
+        /**
+         * check if proxy patient is bwell master person,
+         * it must be available in patientsToBwellPerson Map
+         */
+        for (const /**@type {string} */ masterPerson of patientsToBwellPerson.values()) {
+            const personID = masterPerson.replace(`${PERSON_REFERENCE_PREFIX}`, '');
+            const proxyPatient = `${PERSON_PROXY_PREFIX}${personID}`;
+            if (proxyPatientIds.has(proxyPatient)) {
+                patientsToBwellPerson.set(proxyPatient, masterPerson);
+                proxyPatientIds.delete(proxyPatient);
+            }
+        }
+        // Process remaining proxy patient, it can be non master person ID only
+        const proxyPatientsToBwellPerson = await this.searchForBwellPersonsAsync({
+            currentReferences: [...proxyPatientIds].map((proxyPatent) => `${PERSON_REFERENCE_PREFIX}${proxyPatent.replace(`${PERSON_PROXY_PREFIX}`, '')}`),
+            databaseQueryManager,
+            level: 0,
+            visitedReferences: new Set(),
+        });
+        // Add remaining proxy patient to patient master person map
+        for (const [proxyPatient, masterPerson] of proxyPatientsToBwellPerson.entries()) {
+            const personID = proxyPatient.replace(`${PERSON_REFERENCE_PREFIX}`, '');
+            patientsToBwellPerson.set(`${PERSON_PROXY_PREFIX}${personID}`, masterPerson);
+        }
+
         return patientsToBwellPerson;
     }
 
