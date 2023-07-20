@@ -384,7 +384,7 @@ class SearchManager {
                 Object.keys(bwellPersonsAndClientPatientsIdMap).forEach((patientId) => {
                     /**
                      * Master Person and connected patient IDs
-                     * @type {[bwellMasterPerson: string, patientIds: string[]]}
+                     * @type {{[bwellMasterPerson: string, patientIds: string[]]}}
                      * */
                     const personPatientMap = bwellPersonsAndClientPatientsIdMap[patientId];
                     if (personPatientMap.patientIds) {
