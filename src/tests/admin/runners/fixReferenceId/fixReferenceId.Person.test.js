@@ -27,6 +27,10 @@ const { assertTypeEquals } = require('../../../../utils/assertType');
 
 describe('Person Tests', () => {
     beforeEach(async () => {
+        const container = getTestContainer();
+        if (container) {
+            delete container.services.fixReferenceIdRunner;
+        }
         await commonBeforeEach();
     });
 
