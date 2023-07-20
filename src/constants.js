@@ -195,6 +195,6 @@ module.exports = {
     },
     ACCESS_LOGS_COLLECTION_NAME: 'access-logs',
     PATIENT_REFERENCE_PREFIX: 'Patient/',
-    PERSON_REFERENCE_PREFIX: 'Patient/',
+    PERSON_REFERENCE_PREFIX: 'Person/',
     PERSON_PROXY_PREFIX: 'person.'
 };
