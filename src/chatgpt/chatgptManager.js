@@ -52,9 +52,12 @@ class ChatGPTManager {
             }
         );
 
-        const startPrompt = 'You are a clinical software.  I will provide you information about a patient.' +
-        '\nUse only the following data to answer the user\'s question' +
-        outputFormat === 'html' ? '\nReply in HTML with just the body' : '';
+        let startPrompt = 'You are a clinical software.  I will provide you information about a patient.' +
+            '\nUse only the following data to answer the user\'s question';
+
+        if (outputFormat === 'html') {
+            startPrompt += '\nReply in HTML with just the body';
+        }
 
         /**
          * @type {string[]}

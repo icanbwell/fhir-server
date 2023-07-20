@@ -101,7 +101,8 @@ class EverythingOperation {
                 const response = await this.chatgptManager.answerQuestionAsync(
                     {
                         bundle: bundle,
-                        question: question.queryParameterValue.value
+                        question: question.queryParameterValue.value,
+                        outputFormat: 'html'
                     }
                 );
                 const html = response.responseText;
