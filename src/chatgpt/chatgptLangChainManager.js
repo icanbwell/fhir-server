@@ -18,6 +18,18 @@ const {ChatGPTManager} = require('./chatgptManager');
 
 class ChatGPTLangChainManager extends ChatGPTManager {
     /**
+     * constructor
+     * @param {BaseFhirToDocumentConverter} fhirToDocumentConverter
+     */
+    constructor(
+        {
+            fhirToDocumentConverter
+        }
+    ) {
+        super({fhirToDocumentConverter});
+    }
+
+    /**
      * answers the question with the provided documents and start prompt
      * @param {string[]} documents
      * @param {string} startPrompt

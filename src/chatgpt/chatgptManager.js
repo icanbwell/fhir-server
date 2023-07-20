@@ -5,17 +5,17 @@ const {filterXSS} = require('xss');
 class ChatGPTManager {
     /**
      * constructor
-     * @param {BaseFhirToDocumentConverter} chatgptFhirToDocumentConverter
+     * @param {BaseFhirToDocumentConverter} fhirToDocumentConverter
      */
     constructor(
         {
-            chatgptFhirToDocumentConverter
+            fhirToDocumentConverter
         }
     ) {
         /**
          * @type {BaseFhirToDocumentConverter}
          */
-        this.chatgptFhirToDocumentConverter = chatgptFhirToDocumentConverter;
+        this.fhirToDocumentConverter = fhirToDocumentConverter;
     }
 
     /**
@@ -46,7 +46,7 @@ class ChatGPTManager {
         /**
          * {{pageContent: string, metadata: string}}
          */
-        const patientResources = await this.chatgptFhirToDocumentConverter.convertBundleToDocumentsAsync(
+        const patientResources = await this.fhirToDocumentConverter.convertBundleToDocumentsAsync(
             {
                 bundle
             }

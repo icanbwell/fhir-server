@@ -8,14 +8,14 @@ const {ChatGPTError} = require('./chatgptError');
 class ChatGPTManagerDirect extends ChatGPTManager {
     /**
      * constructor
-     * @param {BaseFhirToDocumentConverter} chatgptFhirToDocumentConverter
+     * @param {BaseFhirToDocumentConverter} fhirToDocumentConverter
      */
     constructor(
         {
-            chatgptFhirToDocumentConverter
+            fhirToDocumentConverter
         }
     ) {
-        super({chatgptFhirToDocumentConverter});
+        super({fhirToDocumentConverter});
     }
 
     /**
