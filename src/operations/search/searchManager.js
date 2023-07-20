@@ -376,24 +376,27 @@ class SearchManager {
                 const bwellPersonsAndClientPatientsIdMap = await this.linkedPatientsFinder.getBwellPersonAndAllClientIds({ patientIds });
                 // Get all patient IDs that connected to bwell master person of input (proxy)patient
                 const extendedPatientIds = new Set();
-                // Reverse map of "inpput (proxy) Patient IDs" and Patient IDs linked to corrosponding bwell master person
                 /**
+                 * Reverse map of "inpput (proxy) Patient IDs" and Patient IDs linked to corrosponding bwell master person
                  * @type {{[extendedPatientId: string]: [patientId: string]}
                  * */
                 const extendedPatientIdsMap = new Map();
-                for (const /**@type {string} */ patientId in bwellPersonsAndClientPatientsIdMap) {
-                    if (bwellPersonsAndClientPatientsIdMap[patientId]) {
-                        const /**@type { bwellMasterPerson: string, patientIds: string[] }} */ personPatientMap = bwellPersonsAndClientPatientsIdMap[patientId];
-                        if (personPatientMap.patientIds) {
-                            personPatientMap.patientIds.forEach((extendedPatientId) => {
-                                extendedPatientIds.add(extendedPatientId);
-                                const inputPatientIds = extendedPatientIdsMap.get(extendedPatientId) || new Set();
-                                inputPatientIds.add(patientId);
-                                extendedPatientIdsMap.set(extendedPatientId, inputPatientIds);
-                            });
-                        }
+                Object.keys(bwellPersonsAndClientPatientsIdMap).forEach((patientId) => {
+                    /**
+                     * Master Person and connected patient IDs
+                     * @type {{bwellMasterPerson: string, patientIds: string[]}}
+                     * */
+                    const personPatientMap = bwellPersonsAndClientPatientsIdMap[patientId];
+                    if (personPatientMap.patientIds) {
+                        personPatientMap.patientIds.forEach((extendedPatientId) => {
+                            extendedPatientIds.add(extendedPatientId);
+                            const inputPatientIds = extendedPatientIdsMap.get(extendedPatientId) || new Set();
+                            inputPatientIds.add(patientId);
+                            extendedPatientIdsMap.set(extendedPatientId, inputPatientIds);
+                        });
                     }
-                }
+                });
+
                 // Get Consent for each b.well master person
                 const consentResources = await this.getConsentResources([...extendedPatientIds], securityTags);
 
