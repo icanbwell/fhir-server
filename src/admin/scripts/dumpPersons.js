@@ -16,6 +16,7 @@ async function main() {
     const accessCode = parameters.accessCode;
     const beforeDate = parameters.beforeDate;
     const outputFile = parameters.outputFile;
+    const pageSize = parameters.pageSize;
     // set up all the standard services in the container
     const container = createContainer();
     console.log(parameters);
@@ -32,7 +33,8 @@ async function main() {
             batchSize: batchSize,
             accessCode: accessCode,
             beforeDate: beforeDate,
-            outputFile: outputFile
+            outputFile: outputFile,
+            pageSize: pageSize
         }));
 
     /**
