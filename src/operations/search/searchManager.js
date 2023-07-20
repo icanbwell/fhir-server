@@ -243,61 +243,14 @@ class SearchManager {
 
             // JWT has access tag in scope i.e API call from a specific client
             if (securityTags && securityTags.length > 0) {
-                let queryWithConsent;
-                // Consent based data access
-                if (this.configManager.enableConsentedDataAccess){
-                    // 1. Check resourceType is specific to Patient
-                    if (this.patientFilterManager.isPatientRelatedResource({ resourceType })) {
-                        // 2. Check parsedArgs has patient or proxy patient filter
-                        let patientIds = this.getResourceIdsFromFilter('Patient', parsedArgs);
-                        if (patientIds && patientIds.length > 0) {
-                            // Get b.Well Master Person and/or Person map for each patient IDs
-                            const bwellPersonsAndClientPatientsIdMap = await this.linkedPatientsFinder.getBwellPersonAndAllClientIds({ patientIds });
-                            // Get all patient IDs that connected to bwell master person of input (proxy)patient
-                            const extendedPatientIds = new Set();
-                            // Reverse map of "inpput (proxy) Patient IDs" and Patient IDs linked to corrosponding bwell master person
-                            /**
-                             * @type {{[extendedPatientId: string]: [patientId: string]}
-                             * */
-                            const extendedPatientIdsMap = {};
-                            for (const /**@type {string} */ patientId in bwellPersonsAndClientPatientsIdMap) {
-                                if (bwellPersonsAndClientPatientsIdMap[patientId]) {
-                                    const personPatientMap = bwellPersonsAndClientPatientsIdMap[patientId];
-                                    if (personPatientMap.patientIds) {
-                                        personPatientMap.patientIds.forEach((extendedPatientId) => {
-                                            extendedPatientIds.add(extendedPatientId);
-                                            extendedPatientIdsMap[extendedPatientId] = patientId;
-                                        });
-                                    }
-                                }
-                            }
-                            // Get Consent for each b.well master person
-                            const consentResources = await this.getConsentResources([...extendedPatientIds], securityTags);
-                            // Get input patient IDs that has provided consent to the client
-                            let consentPatientIds = [];
-                            consentResources.forEach((consent) => {
-                                const consentPatientId = consent.patient.reference.replace('Patient/', '');
-                                if (extendedPatientIdsMap[consentPatientId]) {
-                                    consentPatientIds.push(extendedPatientIdsMap[consentPatientId]);
-                                }
-                            });
-                            if (consentPatientIds.length > 0) {
-                                queryWithConsent = await this.rewriteQueryForPatientsWithConsent(
-                                    {parsedArgs, patientIds: consentPatientIds, base_version, resourceType, useHistoryTable}
-                                );
-                            }
-                        }
-                    }
-                }
-
                 // Add access tag filter to the query
                 query = this.securityTagManager.getQueryWithSecurityTags({
                     resourceType, securityTags, query, useAccessIndex
                 });
-                // Update query to include Consented data
-                if (queryWithConsent){
-                    query = { $or: [query, queryWithConsent]};
-                    // todo: if columns are not null, update the columns count by calling MongoQuerySimplifier.findColumnsInFilter({filter: query});
+
+                // Update Query for Consent based data access
+                if (this.configManager.enableConsentedDataAccess){
+                    query = await this.getQueryForPatientsWithConsent({base_version, resourceType, parsedArgs, securityTags, query, useHistoryTable});
                 }
             }
             if (hasPatientScope) {
@@ -398,85 +351,135 @@ class SearchManager {
      * Removes all the patient ids from the query-param that don't have given consent
      * and return mongo query from it.
      * @typedef {Object} RewriteConsentedQuery
-     * @property {ParsedArgs} parsedArgs Args
-     * @property {string[]} patientIds PatientIds that have given consent
      * @property {string} base_version Base Version
-     * @property {boolean | undefined} useHistoryTable boolean to use history table or not
      * @property {string} resourceType Resource Type
+     * @property {ParsedArgs} parsedArgs Args
+     * @property {Strint[]} securityTags security Tags
+     * @property {import('mongodb').Document} query
+     * @property {boolean | undefined} useHistoryTable boolean to use history table or not
      * @param {RewriteConsentedQuery} param
      */
-    async rewriteQueryForPatientsWithConsent({ parsedArgs, patientIds, base_version, resourceType, useHistoryTable,}) {
-        if (!patientIds || !parsedArgs) {
-            return undefined;
+    async getQueryForPatientsWithConsent({ base_version, resourceType, parsedArgs, securityTags, query, useHistoryTable,}) {
+        if (!parsedArgs) {
+            return query;
         }
 
-        assertIsValid(Array.isArray(patientIds));
         assertTypeEquals(parsedArgs, ParsedArgs);
 
-        /**
-         * PatientIds which have consent to view data
-         * @type {Set<string>}
-         */
-        const patientIdsWithConsent = new Set(patientIds.map((patientId) => patientId.replace('Patient/', '')));
-
-        /**
-         * Clone of the original parsed arguments
-         * @type {ParsedArgs}
-         * */
-        const consentParsedArgs = parsedArgs.clone();
-
-        /**@type {Set<string>} */
-        const argsToRemove = new Set();
-
-        consentParsedArgs
-        .parsedArgItems
-        .forEach((/**@type {import('../query/parsedArgsItem').ParsedArgsItem} */item) => {
-            // if property is related to patient
-            if (
-                item.propertyObj && item.propertyObj.target && item.propertyObj.target.includes('Patient')
-            ) {
-                /**@type {string[]} */
-                const newQueryParamValues = [];
-
-                // update the query-param values
-                item.references.forEach((ref) => {
-                    if (ref.resourceType === 'Patient') {
-                        if (patientIdsWithConsent.has(ref.id)) {
-                            newQueryParamValues.push(`${ref.resourceType}/${ref.id}`);
+        let queryWithConsent;
+        // 1. Check resourceType is specific to Patient
+        if (this.patientFilterManager.isPatientRelatedResource({ resourceType })) {
+            // 2. Check parsedArgs has patient or proxy patient filter
+            let patientIds = this.getResourceIdsFromFilter('Patient', parsedArgs);
+            if (patientIds && patientIds.length > 0) {
+                // Get b.Well Master Person and/or Person map for each patient IDs
+                const bwellPersonsAndClientPatientsIdMap = await this.linkedPatientsFinder.getBwellPersonAndAllClientIds({ patientIds });
+                // Get all patient IDs that connected to bwell master person of input (proxy)patient
+                const extendedPatientIds = new Set();
+                // Reverse map of "inpput (proxy) Patient IDs" and Patient IDs linked to corrosponding bwell master person
+                /**
+                 * @type {{[extendedPatientId: string]: [patientId: string]}
+                 * */
+                const extendedPatientIdsMap = {};
+                for (const /**@type {string} */ patientId in bwellPersonsAndClientPatientsIdMap) {
+                    if (bwellPersonsAndClientPatientsIdMap[patientId]) {
+                        const personPatientMap = bwellPersonsAndClientPatientsIdMap[patientId];
+                        if (personPatientMap.patientIds) {
+                            personPatientMap.patientIds.forEach((extendedPatientId) => {
+                                extendedPatientIds.add(extendedPatientId);
+                                extendedPatientIdsMap[extendedPatientId] = patientId;
+                            });
                         }
-                        // skip adding patient without consent
-                    } else if (ref.resourceType){
-                        newQueryParamValues.push(`${ref.resourceType}/${ref.id}`);
+                    }
+                }
+                // Get Consent for each b.well master person
+                const consentResources = await this.getConsentResources([...extendedPatientIds], securityTags);
+
+                /**
+                 * (Proxy) Patient Ids which have provided consent to view data
+                 * @type {Set<string>}
+                 */
+                let consentPatientIds = [];
+                consentResources.forEach((consent) => {
+                    const consentPatientId = consent.patient.reference.replace('Patient/', '');
+                    if (extendedPatientIdsMap[consentPatientId]) {
+                        consentPatientIds.push(extendedPatientIdsMap[consentPatientId]);
                     }
                 });
+                if (consentPatientIds.length > 0) {
+                    /**
+                     * PatientIds which have consent to view data
+                     * @type {Set<string>}
+                     */
+                    const patientIdsWithConsent = new Set(consentPatientIds.map((patientId) => patientId.replace('Patient/', '')));
 
-                if (newQueryParamValues.length === 0) {
-                    // if all the ids doesn't have consent then remove the queryParam
-                    argsToRemove.add(item.queryParameter);
-                } else {
-                    // rebuild the query value
-                    const newValue = item.queryParameterValue.regenerateValueFromValues(newQueryParamValues);
-                    const newQueryParameterValue = new QueryParameterValue({
-                        value: newValue,
-                        operator: item.queryParameterValue.operator,
+                    /**
+                     * Clone of the original parsed arguments
+                     * @type {ParsedArgs}
+                     * */
+                    const consentParsedArgs = parsedArgs.clone();
+
+                    /**@type {Set<string>} */
+                    const argsToRemove = new Set();
+
+                    consentParsedArgs
+                    .parsedArgItems
+                    .forEach((/**@type {import('../query/parsedArgsItem').ParsedArgsItem} */item) => {
+                        // if property is related to patient
+                        if (
+                            item.propertyObj && item.propertyObj.target && item.propertyObj.target.includes('Patient')
+                        ) {
+                            /**@type {string[]} */
+                            const newQueryParamValues = [];
+
+                            // update the query-param values
+                            item.references.forEach((ref) => {
+                                if (ref.resourceType === 'Patient') {
+                                    if (patientIdsWithConsent.has(ref.id)) {
+                                        newQueryParamValues.push(`${ref.resourceType}/${ref.id}`);
+                                    }
+                                    // skip adding patient without consent
+                                } else if (ref.resourceType){
+                                    newQueryParamValues.push(`${ref.resourceType}/${ref.id}`);
+                                }
+                            });
+
+                            if (newQueryParamValues.length === 0) {
+                                // if all the ids doesn't have consent then remove the queryParam
+                                argsToRemove.add(item.queryParameter);
+                            } else {
+                                // rebuild the query value
+                                const newValue = item.queryParameterValue.regenerateValueFromValues(newQueryParamValues);
+                                const newQueryParameterValue = new QueryParameterValue({
+                                    value: newValue,
+                                    operator: item.queryParameterValue.operator,
+                                });
+
+                                // set the value
+                                item.queryParameterValue = newQueryParameterValue;
+                            }
+                        }
                     });
 
-                    // set the value
-                    item.queryParameterValue = newQueryParameterValue;
+                    // remove all empty args
+                    argsToRemove.forEach((arg) => consentParsedArgs.remove(arg));
+
+                    // reconstruct the query
+                    queryWithConsent = this.buildSearchQueryBasedOnVersion({
+                        resourceType,
+                        useHistoryTable,
+                        base_version,
+                        parsedArgs: consentParsedArgs,
+                    }).query;
                 }
             }
-        });
+        }
 
-        // remove all empty args
-        argsToRemove.forEach((arg) => consentParsedArgs.remove(arg));
-
-        // reconstruct the query
-        let {query} = this.buildSearchQueryBasedOnVersion({
-            resourceType,
-            useHistoryTable,
-            base_version,
-            parsedArgs: consentParsedArgs,
-        });
+        // Update query to include Consented data
+        if (queryWithConsent){
+            query = { $or: [query, queryWithConsent]};
+            // todo: if columns are not null, update the columns count by calling MongoQuerySimplifier.findColumnsInFilter({filter: query});
+        }
 
         return query;
     }
