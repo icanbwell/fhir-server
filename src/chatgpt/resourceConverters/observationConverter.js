@@ -17,9 +17,9 @@ class ObservationConverter extends BaseConverter {
         } = resource;
 
         const statusText = this.getDisplayText(status.coding);
-        const categoryText = this.getDisplayText(category[0].coding);
+        const categoryText = this.getDisplayText(category && category.length > 0 && category[0].coding);
         const codeText = this.getDisplayText(code.coding);
-        const subjectReference = subject.reference;
+        const subjectReference = subject?.reference;
 
         let valueText = '';
         if (valueQuantity) {

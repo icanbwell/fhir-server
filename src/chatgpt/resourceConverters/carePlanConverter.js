@@ -25,7 +25,7 @@ class CarePlanConverter extends BaseConverter {
         const periodEnd = this.formatDate(period.end);
         const descriptionText = description || '';
         const authorText = author ? author.display : '';
-        const activityText = activity.map((act) => act.detail.code.text).join(', ');
+        const activityText = activity && activity.map((act) => act.detail.code.text).join(', ');
         const addressesText = addresses ? addresses.map((addr) => this.getDisplayText(addr.coding)).join(', ') : '';
         const noteText = note ? note[0].text : '';
 

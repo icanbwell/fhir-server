@@ -1,5 +1,3 @@
-import PatientChatGptPage from "./PatientChatGptPage";
-
 class FhirApi {
     async getPatientEverythingAsync({patientId, question}) {
         const urlEncodedQuestion = encodeURIComponent(question);

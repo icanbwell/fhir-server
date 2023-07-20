@@ -25,7 +25,7 @@ const {describe, beforeEach, afterEach, test} = require('@jest/globals');
 
 // const describeIf = process.env.OPENAI_API_KEY ? describe : describe.skip;
 
-describe.skip('Person and Patient $everything chatgpt Tests', () => {
+describe('Person and Patient $everything chatgpt Tests', () => {
     beforeEach(async () => {
         await commonBeforeEach();
     });
@@ -36,6 +36,10 @@ describe.skip('Person and Patient $everything chatgpt Tests', () => {
 
     describe('Person and Patient $everything chatgpt Tests', () => {
         test('Person and Patient $everything chatgpt works', async () => {
+            console.log(`OPENAI_API_KEY=${process.env.OPENAI_API_KEY}`);
+            if (!process.env.OPENAI_API_KEY) {
+                return;
+            }
             const request = await createTestRequest();
             // ARRANGE
             // add the resources to FHIR server
@@ -131,6 +135,9 @@ describe.skip('Person and Patient $everything chatgpt Tests', () => {
             expect(resp).toHaveResponse(expectedPerson1ContainedResources);
         });
         test.skip('Person and Patient $everything chatgpt works when accept type is html', async () => {
+            if (!process.env.OPENAI_API_KEY) {
+                return;
+            }
             const request = await createTestRequest();
             // ARRANGE
             // add the resources to FHIR server

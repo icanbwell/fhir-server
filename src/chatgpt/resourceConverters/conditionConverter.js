@@ -16,7 +16,7 @@ class ConditionConverter extends BaseConverter {
 
         const clinicalStatusText = this.getDisplayText(clinicalStatus.coding);
         const verificationStatusText = this.getDisplayText(verificationStatus.coding);
-        const categoryText = category.map((cat) => this.getDisplayText(cat.coding)).join(', ');
+        const categoryText = category && category.map((cat) => this.getDisplayText(cat.coding)).join(', ');
 
         // noinspection UnnecessaryLocalVariableJS
         const formattedOutput = `

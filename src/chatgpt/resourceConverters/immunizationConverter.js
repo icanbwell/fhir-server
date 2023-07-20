@@ -22,7 +22,7 @@ class ImmunizationConverter extends BaseConverter {
 - Source: ${source}
 - Status: ${statusText}
 - Vaccine Code: ${vaccineCodeText}
-- Patient Reference: ${patient.reference}
+- Patient Reference: ${patient && patient.reference}
 - Occurrence Date: ${this.formatDate(occurrenceDateTime)}
 - Performer: ${(performer && performer.display ? performer.display : 'N/A')}
 `;

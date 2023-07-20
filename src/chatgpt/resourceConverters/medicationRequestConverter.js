@@ -18,7 +18,7 @@ class MedicationRequestConverter extends BaseConverter {
         const intentText = this.getDisplayText(intent.coding);
         const medicationText = this.getDisplayText(medicationCodeableConcept.coding);
 
-        const dosageInstructionsText = dosageInstruction
+        const dosageInstructionsText = dosageInstruction && dosageInstruction
             .map((instruction) => instruction.text)
             .join(', ');
 

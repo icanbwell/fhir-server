@@ -17,8 +17,8 @@ class ExplanationOfBenefitConverter extends BaseConverter {
 
         const statusText = this.getDisplayText(status.coding);
         const typeText = this.getDisplayText(type.coding);
-        const totalAmount = total.currency + ' ' + total.value;
-        const paymentAmount = payment.amount.currency + ' ' + payment.amount.value;
+        const totalAmount = total?.currency + ' ' + total?.value;
+        const paymentAmount = payment?.amount?.currency + ' ' + payment?.amount?.value;
 
         // noinspection UnnecessaryLocalVariableJS
         const formattedOutput = `
@@ -32,7 +32,7 @@ class ExplanationOfBenefitConverter extends BaseConverter {
 - Billable Period: ${this.formatDate(billablePeriod.start)} to ${this.formatDate(billablePeriod.end)}
 - Total: ${totalAmount}
 - Payment Amount: ${paymentAmount}
-- Items: ${item.map((i) => i.productOrService.text).join(', ')}
+- Items: ${item && item.map((i) => i.productOrService.text).join(', ')}
 `;
 
         return formattedOutput;
