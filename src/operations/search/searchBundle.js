@@ -16,6 +16,7 @@ const {ConfigManager} = require('../../utils/configManager');
 const {ParsedArgs} = require('../query/parsedArgs');
 const {QueryItem} = require('../graph/queryItem');
 const {DatabaseAttachmentManager} = require('../../dataLayer/databaseAttachmentManager');
+const {getDefaultSortIdValue} = require('../../utils/getDefaultSortIdValue');
 const {RETRIEVE} = require('../../constants').GRIDFS;
 
 class SearchBundleOperation {
@@ -313,7 +314,10 @@ class SearchBundleOperation {
              */
             const defaultSortId = this.configManager.defaultSortId;
             // eslint-disable-next-line security/detect-object-injection
-            const last_id = resources.length > 0 ? resources[resources.length - 1][defaultSortId] : null;
+            let last_id;
+            if (resources.length > 0) {
+                last_id = getDefaultSortIdValue(resources[resources.length - 1], defaultSortId);
+            }
             /**
              * @type {string[]}
              */
