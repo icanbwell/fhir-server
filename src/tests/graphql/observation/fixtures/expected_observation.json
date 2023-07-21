@@ -29,6 +29,12 @@
           ],
           "text": null
         },
+        "valueQuantity": {
+            "value": 75,
+            "unit": "mm[Hg]",
+            "code": "mm[Hg]",
+            "comparator": null
+        },
         "component": [
           {
             "code": {
@@ -109,7 +115,6 @@
         "valueDateTime": null,
         "valueInteger": null,
         "valuePeriod": null,
-        "valueQuantity": null,
         "valueRange": null,
         "valueRatio": null,
         "valueString": null,
