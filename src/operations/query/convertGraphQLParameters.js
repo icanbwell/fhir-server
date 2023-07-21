@@ -75,7 +75,8 @@ function convertGraphQLParameters(queryParameterValue, args, queryParameter) {
                         const notEqualsObject = queryParameterValue['notEquals'];
                         if (notEqualsObject['value']) {
                             queryParameterValue['value'] = notEqualsObject['value'];
-                        } else if (notEqualsObject['target']) {
+                        }
+                        if (notEqualsObject['target']) {
                             queryParameterValue['target'] = notEqualsObject['target'];
                         }
                         useNotEquals = true;
