@@ -22,9 +22,9 @@ All the GraphQL entities and properties have inline documentation from FHIR spec
 
 ```graphql
 query {
-    entry {
-        resource {
-            practitionerRole {
+    practitionerRole {
+        entry {
+            resource {
                 id
                 practitioner {
                     name {
