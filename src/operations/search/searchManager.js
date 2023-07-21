@@ -37,6 +37,8 @@ const { ParsedArgs } = require('../query/parsedArgs');
 const {MongoReadableStream} = require('../streaming/mongoStreamReader');
 const { LinkedPatientsFinder } = require('../../utils/linkedPatientsFinder');
 const { QueryParameterValue } = require('../query/queryParameterValue');
+const { isUuid } = require('../../utils/uid.util');
+const { PATIENT_REFERENCE_PREFIX } = require('../../constants');
 
 class SearchManager {
     /**
@@ -160,11 +162,27 @@ class SearchManager {
      */
     async getConsentResources(patientIds, ownerTags) {
         // Query to fetch only the active consents for any patient
+        const [uuidReferences, nonUuidReferences] = patientIds.reduce((result, patientId) => {
+            if (isUuid(patientId)) {
+                result[0].push(`${PATIENT_REFERENCE_PREFIX}${patientId}`);
+            } else {
+                result[1].push(`${PATIENT_REFERENCE_PREFIX}${patientId}`);
+            }
+            return result;
+        }, [[], []]);
+
+        const patientReferenceQuery = {
+            '$or': [
+                {'patient._uuid': { $in: uuidReferences }},
+                {'patient._sourceId': { $in: nonUuidReferences }},
+            ],
+        };
+
         const query =
         {
             $and: [
                 {'provision.class.code': '/dataSharingConsent'},
-                {'patient.reference': {$in: patientIds.map((patientId) => `Patient/${patientId}`)}},
+                patientReferenceQuery,
                 {'status': 'active'},
                 {'provision.type': 'permit'},
                 {'meta.security': {
@@ -386,6 +404,7 @@ class SearchManager {
                      * Master Person and connected patient IDs
                      * @type {{[bwellMasterPerson: string, patientIds: string[]]}}
                      * */
+                    // eslint-disable-next-line security/detect-object-injection
                     const personPatientMap = bwellPersonsAndClientPatientsIdMap[patientId];
                     if (personPatientMap.patientIds) {
                         personPatientMap.patientIds.forEach((extendedPatientId) => {
@@ -406,7 +425,7 @@ class SearchManager {
                  */
                 let patientIdsWithConsent = new Set();
                 consentResources.forEach((consent) => {
-                    const consentPatientId = consent.patient.reference.replace('Patient/', '');
+                    const consentPatientId = consent.patient.reference.replace(PATIENT_REFERENCE_PREFIX, '');
                     if (extendedPatientIdsMap.has(consentPatientId)) {
                         extendedPatientIdsMap.get(consentPatientId).forEach((inputPatientId) => {
                             patientIdsWithConsent.add(inputPatientId);

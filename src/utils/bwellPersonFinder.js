@@ -2,6 +2,7 @@ const {assertTypeEquals} = require('./assertType');
 const {PATIENT_REFERENCE_PREFIX, PERSON_REFERENCE_PREFIX, PERSON_PROXY_PREFIX} = require('../constants');
 const {DatabaseQueryFactory} = require('../dataLayer/databaseQueryFactory');
 const {SecurityTagSystem} = require('./securityTagSystem');
+const { isUuid } = require('./uid.util');
 
 const BwellMasterPersonCode = 'bwell';
 const MaxDepthForBFS = 3;
@@ -35,7 +36,7 @@ class BwellPersonFinder {
         });
 
         return await this.searchForBwellPersonAsync({
-            currentSubject: `Patient/${patientId}`,
+            currentSubject: `${PATIENT_REFERENCE_PREFIX}${patientId}`,
             databaseQueryManager: databaseQueryManager,
             visitedSubjects: new Set()
         });
@@ -143,25 +144,39 @@ class BwellPersonFinder {
         let nextRefToProcess = new Set();
 
 
-        // get all persons who have link.target.reference in currentReferencesToProcess
+        // separate uuid for nonUuids
+        const [uuids, nonUuids] = this.separateUuidAndNonUuidReferences(currRefsToProcess);
+
+        // get all persons who have reference of currentReferencesToProcess
         let linkedPersonCursor = await databaseQueryManager.findAsync({
-            query: { 'link.target.reference': {
-                '$in': [...currRefsToProcess],
-            },
-        }});
+            query: {
+                '$or': [
+                    {
+                        'link.target._uuid': {
+                            '$in': [...uuids],
+                        },
+                    },
+                    {
+                        'link.target._sourceId': {
+                            '$in': [...nonUuids],
+                        },
+                    },
+                ]
+            }
+        });
 
         while (await linkedPersonCursor.hasNext()) {
             let linkedPerson = await linkedPersonCursor.next();
             const linkedReferences = this.getAllLinkedReferencesFromPerson(linkedPerson, currentReferences);
-            nextRefToCurrRefsMap.set(`Person/${linkedPerson.id}`, linkedReferences);
+            nextRefToCurrRefsMap.set(`${PERSON_REFERENCE_PREFIX}${linkedPerson.id}`, linkedReferences);
 
             // a bwell person can be linked to multiple patients or persons.
             if (this.isBwellPerson(linkedPerson)) {
-                const bwellPerson = `Person/${linkedPerson.id}`;
+                const bwellPerson = `${PERSON_REFERENCE_PREFIX}${linkedPerson.id}`;
                 bwellPersonToCurrRefsMap.set(bwellPerson, linkedReferences);
             } else {
                 // next references to process
-                nextRefToProcess.add(`Person/${linkedPerson.id}`);
+                nextRefToProcess.add(`${PERSON_REFERENCE_PREFIX}${linkedPerson.id}`);
             }
         }
 
@@ -202,6 +217,30 @@ class BwellPersonFinder {
         }
 
         return currRefToBwellPersonMap;
+    }
+
+    /**
+     * Removes Patient/Person prefix and then separates uuid from non-uuid
+     * @private
+     * @param {string[]} references
+     * @returns {[string[], string[]]} Returns uuid and non uuids references
+     */
+    separateUuidAndNonUuidReferences(references) {
+        // separate uuid for nonUuids
+        let uuids = [];
+        let nonUuids = [];
+        [uuids, nonUuids] = references.reduce((result, currRef) => {
+            const id = currRef.replace(PERSON_REFERENCE_PREFIX, '').replace(PATIENT_REFERENCE_PREFIX, '');
+            if (!isUuid(id)) {
+                result[1].push(currRef);
+            } else {
+                result[0].push(currRef);
+            }
+
+            return result;
+        }, [[], []]);
+
+        return [uuids, nonUuids];
     }
 
     /**
@@ -253,7 +292,10 @@ class BwellPersonFinder {
         visitedSubjects.add(currentSubject);
 
         let foundPersonId = null;
-        let linkedPersons = await databaseQueryManager.findAsync({ query: { 'link.target.reference': currentSubject }});
+        const isReferenceUuid = isUuid(currentSubject.replace(PERSON_REFERENCE_PREFIX, '').replace(PATIENT_REFERENCE_PREFIX, ''));
+        const resourceReferenceKey = 'link.target.reference'.replace('reference', isReferenceUuid ? '_uuid' : '_sourceId' );
+
+        let linkedPersons = await databaseQueryManager.findAsync({ query: { [resourceReferenceKey]: currentSubject }});
 
         // iterate over linked Persons (breadth search)
         while (!foundPersonId && (await linkedPersons.hasNext())) {
