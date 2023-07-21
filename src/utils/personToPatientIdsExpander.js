@@ -2,6 +2,7 @@ const { FilterById } = require('../operations/query/filters/id');
 const {assertTypeEquals} = require('./assertType');
 const {DatabaseQueryFactory} = require('../dataLayer/databaseQueryFactory');
 const { logWarn } = require('../operations/common/logging');
+const { PERSON_REFERENCE_PREFIX } = require('../constants');
 
 const patientReferencePrefix = 'Patient/';
 const personReferencePrefix = 'Person/';
@@ -80,7 +81,7 @@ class PersonToPatientIdsExpander {
         /**@type {string[]} */
         const ids = [];
         idsSet.forEach((person) => {
-            ids.push(person.replace('Person/', ''));
+            ids.push(person.replace(PERSON_REFERENCE_PREFIX, ''));
         });
 
         let patientIdsOrMap = await this.getPatientIdsFromPersonAsync(
