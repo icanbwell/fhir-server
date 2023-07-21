@@ -64,6 +64,19 @@ module.exports = {
             },
             {
                 keys: {
+                    '_access.anthem': 1,
+                    '_uuid': 1
+                },
+                options: {
+                    name: 'security._access_anthem'
+                },
+                exclude: [
+                    'AuditEvent_4_0_0',
+                    ACCESS_LOGS_COLLECTION_NAME
+                ]
+            },
+            {
+                keys: {
                     '_access.medstar': 1,
                     '_sourceId': 1
                 },
