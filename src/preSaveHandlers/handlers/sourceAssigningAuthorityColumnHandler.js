@@ -37,6 +37,17 @@ class SourceAssigningAuthorityColumnHandler extends PreSaveHandler {
                     resource._sourceAssigningAuthority = sourceAssigningAuthorityCode;
                 }
             }
+        } else if (resource._sourceAssigningAuthority) {
+            // in case of update using merge user can send _sourceAssigningAuthority
+            if (!resource.meta) {
+                resource.meta = {};
+            }
+            resource.meta.security = [
+                new Coding({
+                    system: SecurityTagSystem.sourceAssigningAuthority,
+                    code: resource._sourceAssigningAuthority
+                })
+            ];
         }
 
         return resource;

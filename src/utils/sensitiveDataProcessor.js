@@ -196,7 +196,7 @@ class SensitiveDataProcessor {
         let linkedClientPatientIdMap = {};
         // TODO - Need to optimize
         for ( let patientId of patientIds) {
-            let clientPatientIds = await this.getAllCLientPatientIds({patientId: patientId});
+            let clientPatientIds = await this.getAllCLientPatientIds({patientId});
             clientPatientIds = Array.isArray(clientPatientIds) ? clientPatientIds : [clientPatientIds];
             // All the patient ids for which consents are to be fetched
             allLinkedPatientIds = [...allLinkedPatientIds, ...clientPatientIds];

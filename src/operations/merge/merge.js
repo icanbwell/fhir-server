@@ -1,35 +1,28 @@
 const moment = require('moment-timezone');
-const {fhirRequestTimer, validationsFailedCounter} = require('../../utils/prometheus.utils');
+const {fhirRequestTimer} = require('../../utils/prometheus.utils');
 const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
 const {MergeManager} = require('./mergeManager');
 const {DatabaseBulkInserter} = require('../../dataLayer/databaseBulkInserter');
 const {ChangeEventProducer} = require('../../utils/changeEventProducer');
 const {DatabaseBulkLoader} = require('../../dataLayer/databaseBulkLoader');
-const {MongoCollectionManager} = require('../../utils/mongoCollectionManager');
 const {PostRequestProcessor} = require('../../utils/postRequestProcessor');
 const {ScopesManager} = require('../security/scopesManager');
 const {FhirLoggingManager} = require('../common/fhirLoggingManager');
 const {ScopesValidator} = require('../security/scopesValidator');
 const {BundleManager} = require('../common/bundleManager');
-const {ResourceLocatorFactory} = require('../common/resourceLocatorFactory');
 const OperationOutcome = require('../../fhir/classes/4_0_0/resources/operationOutcome');
 const OperationOutcomeIssue = require('../../fhir/classes/4_0_0/backbone_elements/operationOutcomeIssue');
 const CodeableConcept = require('../../fhir/classes/4_0_0/complex_types/codeableConcept');
 const Coding = require('../../fhir/classes/4_0_0/complex_types/coding');
-const Bundle = require('../../fhir/classes/4_0_0/resources/bundle');
-const Parameters = require('../../fhir/classes/4_0_0/resources/parameters');
-const {ResourceValidator} = require('../common/resourceValidator');
 const {getCircularReplacer} = require('../../utils/getCircularReplacer');
 const {ParsedArgs} = require('../query/parsedArgs');
 const {MergeResultEntry} = require('../common/mergeResultEntry');
-const {PreSaveManager} = require('../../preSaveHandlers/preSave');
-const async = require('async');
 const {QueryItem} = require('../graph/queryItem');
-const {FhirResourceCreator} = require('../../fhir/fhirResourceCreator');
 const {SensitiveDataProcessor} = require('../../utils/sensitiveDataProcessor');
 const {ConfigManager} = require('../../utils/configManager');
 const {matchPersonLinks} = require('../../utils/personLinksMatcher');
 const {BwellPersonFinder} = require('../../utils/bwellPersonFinder');
+const {MergeValidator} = require('./mergeValidator');
 
 class MergeOperation {
     /**
@@ -37,18 +30,15 @@ class MergeOperation {
      * @param {DatabaseBulkInserter} databaseBulkInserter
      * @param {ChangeEventProducer} changeEventProducer
      * @param {DatabaseBulkLoader} databaseBulkLoader
-     * @param {MongoCollectionManager} mongoCollectionManager
      * @param {PostRequestProcessor} postRequestProcessor
      * @param {ScopesManager} scopesManager
      * @param {FhirLoggingManager} fhirLoggingManager
      * @param {ScopesValidator} scopesValidator
      * @param {BundleManager} bundleManager
-     * @param {ResourceLocatorFactory} resourceLocatorFactory
-     * @param {ResourceValidator} resourceValidator
-     * @param {PreSaveManager} preSaveManager
      * @param {SensitiveDataProcessor} sensitiveDataProcessor
      * @param {ConfigManager} configManager
      * @param {BwellPersonFinder} bwellPersonFinder
+     * @param {MergeValidator} mergeValidator
      */
     constructor(
         {
@@ -56,18 +46,15 @@ class MergeOperation {
             databaseBulkInserter,
             changeEventProducer,
             databaseBulkLoader,
-            mongoCollectionManager,
             postRequestProcessor,
             scopesManager,
             fhirLoggingManager,
             scopesValidator,
             bundleManager,
-            resourceLocatorFactory,
-            resourceValidator,
-            preSaveManager,
             sensitiveDataProcessor,
             configManager,
-            bwellPersonFinder
+            bwellPersonFinder,
+            mergeValidator
         }
     ) {
         /**
@@ -90,11 +77,6 @@ class MergeOperation {
          */
         this.databaseBulkLoader = databaseBulkLoader;
         assertTypeEquals(databaseBulkLoader, DatabaseBulkLoader);
-        /**
-         * @type {MongoCollectionManager}
-         */
-        this.mongoCollectionManager = mongoCollectionManager;
-        assertTypeEquals(mongoCollectionManager, MongoCollectionManager);
         /**
          * @type {PostRequestProcessor}
          */
@@ -123,23 +105,6 @@ class MergeOperation {
         this.bundleManager = bundleManager;
         assertTypeEquals(bundleManager, BundleManager);
         /**
-         * @type {ResourceLocatorFactory}
-         */
-        this.resourceLocatorFactory = resourceLocatorFactory;
-        assertTypeEquals(resourceLocatorFactory, ResourceLocatorFactory);
-        /**
-         * @type {ResourceValidator}
-         */
-        this.resourceValidator = resourceValidator;
-        assertTypeEquals(resourceValidator, ResourceValidator);
-
-        /**
-         * @type {PreSaveManager}
-         */
-        this.preSaveManager = preSaveManager;
-        assertTypeEquals(preSaveManager, PreSaveManager);
-
-        /**
          * @type {SensitiveDataProcessor}
          */
         this.sensitiveDataProcessor = sensitiveDataProcessor;
@@ -156,6 +121,12 @@ class MergeOperation {
          */
         this.bwellPersonFinder = bwellPersonFinder;
         assertTypeEquals(bwellPersonFinder, BwellPersonFinder);
+
+        /**
+         * @type {MergeValidator}
+         */
+        this.mergeValidator = mergeValidator;
+        assertTypeEquals(mergeValidator, MergeValidator);
     }
 
     /**
@@ -265,124 +236,21 @@ class MergeOperation {
              */
             let incomingObjects = parsedArgs.resource ? parsedArgs.resource : body;
 
-            // see if the resources were passed as parameters
-            if (incomingObjects.resourceType === 'Parameters') {
-                // Unfortunately our FHIR schema resource creator does not support Parameters
-                // const ParametersResourceCreator = getResource(base_version, 'Parameters');
-                // const parametersResource = new ParametersResourceCreator(resource_incoming);
-                /**
-                 * @type {Object}
-                 */
-                const incomingObject = incomingObjects;
-                /**
-                 * @type {Parameters}
-                 */
-                const parametersResource = new Parameters(incomingObject);
-                if (!parametersResource.parameter || parametersResource.parameter.length === 0) {
-                    /**
-                     * @type {OperationOutcome}
-                     */
-                    return new OperationOutcome({
-                        id: 'validationfail',
-                        resourceType: 'OperationOutcome',
-                        issue: [
-                            new OperationOutcomeIssue({
-                                    severity: 'error',
-                                    code: 'structure',
-                                    details: new CodeableConcept({
-                                        text: 'Invalid parameter list'
-                                    })
-                                }
-                            )
-                        ]
-                    });
-                }
-                // find the actual resource in the parameter called resource
-                /**
-                 * @type {ParametersParameter[]}
-                 */
-                const resourceParameters = parametersResource.parameter.filter(p => p.resource);
-                if (!resourceParameters || resourceParameters.length === 0) {
-                    /**
-                     * @type {OperationOutcome}
-                     */
-                    return new OperationOutcome({
-                        id: 'validationfail',
-                        resourceType: 'OperationOutcome',
-                        issue: [
-                            new OperationOutcomeIssue({
-                                severity: 'error',
-                                code: 'structure',
-                                details: new CodeableConcept({
-                                    text: 'Invalid parameter list'
-                                })
-                            })
-                        ]
-                    });
-                }
-                incomingObjects = resourceParameters.map(r => r.resource);
-            }
-
-            // if the incoming request is a bundle then unwrap the bundle
-            if ((!(Array.isArray(incomingObjects))) && incomingObjects['resourceType'] === 'Bundle') {
-                /**
-                 * @type {Object}
-                 */
-                const incomingObject = incomingObjects;
-                const bundle1 = new Bundle(incomingObject);
-                /**
-                 * @type {OperationOutcome|null}
-                 */
-                const validationOperationOutcome = await this.resourceValidator.validateResourceAsync(
-                    {
-                        id: bundle1.id,
-                        resourceType: 'Bundle',
-                        resourceToValidate: bundle1,
-                        path: path,
-                        currentDate: currentDate
-                    }
-                );
-                if (validationOperationOutcome && validationOperationOutcome.statusCode === 400) {
-                    validationsFailedCounter.inc({action: currentOperationName, resourceType}, 1);
-                    return validationOperationOutcome;
-                }
-                // unwrap the resources
-                incomingObjects = incomingObjects.entry.map(e => e.resource);
-            }
-            /**
-             * @type {boolean}
-             */
-            const wasIncomingAList = Array.isArray(incomingObjects);
-
-            /**
-             * @type {Resource[]}
-             */
-            let resourcesIncomingArray = FhirResourceCreator.createArray(incomingObjects);
-
             const {
                 /** @type {MergeResultEntry[]} */ mergePreCheckErrors,
-                /** @type {Resource[]} */ validResources
-            } = await this.mergeManager.preMergeChecksMultipleAsync({
-                resourcesToMerge: resourcesIncomingArray,
-                scopes, user, path, currentDate
+                /** @type {Resource[]} */ resourcesIncomingArray,
+                /** @type {boolean} */ wasIncomingAList
+            } = await this.mergeValidator.validate({
+                base_version,
+                currentDate,
+                currentOperationName,
+                incomingObjects,
+                path,
+                requestId,
+                resourceType,
+                scope,
+                user
             });
-
-            // process only the resources that are valid
-            resourcesIncomingArray = validResources;
-
-            resourcesIncomingArray = await async.map(
-                resourcesIncomingArray,
-                async resource => await this.preSaveManager.preSaveAsync(resource)
-            );
-
-            // Load the resources from the database
-            await this.databaseBulkLoader.loadResourcesAsync(
-                {
-                    requestId,
-                    base_version,
-                    requestedResources: resourcesIncomingArray
-                }
-            );
 
             // The access tags are updated before updating the resources.
             // If access tags is to be updated call the corresponding processor
@@ -428,7 +296,9 @@ class MergeOperation {
             mergeResults = mergeResults.concat(mergePreCheckErrors);
 
             mergeResults = mergeResults.concat(
-                this.addSuccessfulMergesToMergeResult(resourcesIncomingArray, mergeResults));
+                this.addSuccessfulMergesToMergeResult(resourcesIncomingArray, mergeResults)
+            );
+
             await this.mergeManager.logAuditEntriesForMergeResults(
                 {
                     requestInfo, requestId, base_version, parsedArgs, mergeResults,
