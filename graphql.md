@@ -225,10 +225,10 @@ query {
 Graphqlv2:
 ```graphql
 query {
-    entry {
-        resource {
-            practitionerRole {
-                id
+    practitionerRole {
+        entry {
+            resource {
+               id
             }
         }
     }
