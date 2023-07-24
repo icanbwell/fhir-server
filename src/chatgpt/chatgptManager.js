@@ -83,7 +83,6 @@ class ChatGPTManager {
                 )
             );
         }
-        response.documents = documents;
         return response;
     }
 
