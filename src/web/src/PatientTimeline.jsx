@@ -49,6 +49,9 @@ const renderTimelineElements = (patientEvents) => {
     ));
 };
 
+/**
+ * create a timeline of all the events in this person's health record in one list sorted by date of the event.  Return the result in the following json format: { "date", "event", "resourceType", "eventSummary"}.  First create a list, convert event date into a date format and then sort it by the date of the event in ascending order.  Make sure your sorting is correct.
+ */
 const patientEvents = [
     {
         "date": "1983-12-01",
@@ -57,58 +60,34 @@ const patientEvents = [
         "eventSummary": "Patient was born on December 1, 1983."
     },
     {
-        "date": "2012-10-20",
-        "event": "Immunization: Tetanus toxoid",
-        "resourceType": "Immunization",
-        "eventSummary": "Patient received the Tetanus toxoid immunization on October 20, 2012."
+        "date": "2019-01-15",
+        "event": "Diagnosis",
+        "resourceType": "Encounter",
+        "eventSummary": "Patient diagnosed with pneumonia"
     },
     {
-        "date": "2018-05-03",
-        "event": "Observation: Total score [DAST-10] - Value: 2",
-        "resourceType": "Observation",
-        "eventSummary": "Patient's DAST-10 score was 2 on May 3, 2018."
-    },
-    {
-        "date": "2019-05-09",
-        "event": "Observation: Total score [DAST-10] - Value: 1",
-        "resourceType": "Observation",
-        "eventSummary": "Patient's DAST-10 score was 1 on May 9, 2019."
-    },
-    {
-        "date": "2019-09-26",
-        "event": "Onset of Tendinopathy of patella (M67.969)",
-        "resourceType": "Condition",
-        "eventSummary": "Patient experienced the onset of Tendinopathy of patella (M67.969) on September 26, 2019."
-    },
-    {
-        "date": "2019-09-26",
-        "event": "Recorded Date for Tendinopathy of patella diagnosis",
-        "resourceType": "Condition",
-        "eventSummary": "Tendinopathy of patella (M67.969) diagnosis was recorded on September 26, 2019."
-    },
-    {
-        "date": "2020-01-01",
-        "event": "Coverage Period: Insurance Coverage (Coverage ID: 3b8d95db-fa41-4d88-9769-9107293850e5), Policy Type: MCHMO1 (MEDICARE HMO PLAN), Deductible: GR5 (GR5-HMO DEDUCTIBLE)",
-        "resourceType": "Coverage",
-        "eventSummary": "Patient's insurance coverage (MCHMO1) with policy type Medicare HMO plan and deductible GR5 (GR5-HMO Deductible) started on January 1, 2020."
-    },
-    {
-        "date": "2020-07-09",
-        "event": "Medication Request: Azithromycin 250 MG Oral Tablet for Traveler's diarrhea",
+        "date": "2019-02-03",
+        "event": "Medication Prescription",
         "resourceType": "MedicationRequest",
-        "eventSummary": "Patient's healthcare provider requested Azithromycin 250 MG Oral Tablet for traveler's diarrhea on July 9, 2020."
+        "eventSummary": "Prescription for antibiotics to treat pneumonia."
     },
     {
-        "date": "2020-07-09",
-        "event": "Medication Dispense: Azithromycin 250 MG Oral Tablet - Quantity: 6 tablets, Days Supply: 6 days, Dosage Instruction: One tablet at once, to be taken orally, with or after food, once a day, Note: Patient told to take with food",
-        "resourceType": "MedicationDispense",
-        "eventSummary": "Patient received Azithromycin 250 MG Oral Tablet with a quantity of 6 tablets on July 9, 2020. Dosage instruction: One tablet at once, to be taken orally, with or after food, once a day. Patient was advised to take with food."
+        "date": "2019-02-10",
+        "event": "Follow-up Appointment",
+        "resourceType": "Appointment",
+        "eventSummary": "Patient scheduled for a follow-up appointment to monitor pneumonia treatment."
     },
     {
-        "date": "2022-05-26",
-        "event": "Observation: Total score [DAST-10] - Value: 2",
-        "resourceType": "Observation",
-        "eventSummary": "Patient's DAST-10 score was 2 on May 26, 2022."
+        "date": "2019-03-05",
+        "event": "Laboratory Test",
+        "resourceType": "DiagnosticReport",
+        "eventSummary": "Blood test results show improvement in pneumonia infection."
+    },
+    {
+        "date": "2019-03-15",
+        "event": "Discharge",
+        "resourceType": "Encounter",
+        "eventSummary": "Patient discharged from hospital after successful treatment of pneumonia."
     }
 ];
 
