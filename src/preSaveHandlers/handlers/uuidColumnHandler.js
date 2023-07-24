@@ -28,7 +28,7 @@ class UuidColumnHandler extends PreSaveHandler {
             resource._uuid = resource.id;
         } else if (!resource.id) {
             resource._uuid = generateUUID();
-        } else {
+        } else if (resource.meta && resource.meta.security) {
             assertIsValid(resource.meta.security,
                 `No meta security tags defined for resource: ${resource.resourceType}/${resource.id}`);
             /**

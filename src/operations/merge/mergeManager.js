@@ -26,6 +26,7 @@ const {ConfigManager} = require('../../utils/configManager');
 const {MergeResultEntry} = require('../common/mergeResultEntry');
 const {MongoFilterGenerator} = require('../../utils/mongoFilterGenerator');
 const {DatabaseAttachmentManager} = require('../../dataLayer/databaseAttachmentManager');
+const {isUuid} = require('../../utils/uid.util');
 const Mutex = require('async-mutex').Mutex;
 const mutex = new Mutex();
 
@@ -639,7 +640,8 @@ class MergeManager {
                 );
             }
             if (
-                !resourceToMerge._sourceAssigningAuthority &&
+                !isUuid(resourceToMerge.id) &&
+                !this.scopesManager.doesResourceHaveSourceAssigningAuthority(resourceToMerge) &&
                 !this.scopesManager.doesResourceHaveOwnerTags(resourceToMerge)
             ) {
                 /**
@@ -654,7 +656,7 @@ class MergeManager {
                             details: new CodeableConcept({
                                 text: 'Error merging: ' + JSON.stringify(resourceToMerge.toJSON())
                             }),
-                            diagnostics: 'Either _sourceAssigningAuthority or meta.security tag with system: https://www.icanbwell.com/owner should be present',
+                            diagnostics: 'Either id passed in resource should be uuid or meta.security tag with system: https://www.icanbwell.com/owner or https://www.icanbwell.com/sourceAssigningAuthority should be present',
                             expression: [
                                 resourceType + '/' + id
                             ]

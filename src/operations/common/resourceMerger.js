@@ -65,21 +65,30 @@ class ResourceMerger {
         resourceToMerge.meta.lastUpdated = currentResource.meta.lastUpdated;
         resourceToMerge.meta.source = currentResource.meta.source;
 
+        if (!resourceToMerge._sourceAssigningAuthority) {
+            resourceToMerge._sourceAssigningAuthority = currentResource._sourceAssigningAuthority;
+        }
+
         // copy the identifiers over
         // if an identifier with system=https://www.icanbwell.com/sourceId exists then use that
         if (currentResource.identifier &&
             Array.isArray(currentResource.identifier) &&
-            currentResource.identifier.some(s => s.system === IdentifierSystem.sourceId) &&
-            (!resourceToMerge.identifier || !resourceToMerge.identifier.some(s => s.system === IdentifierSystem.sourceId))
+            currentResource.identifier.some(s => s.system === IdentifierSystem.sourceId)
         ) {
-            if (!resourceToMerge.identifier) {
-                resourceToMerge.identifier = [
-                    getFirstElementOrNull(currentResource.identifier.filter(s => s.system === IdentifierSystem.sourceId))
-                ];
-            } else {
-                resourceToMerge.identifier.push(
-                    getFirstElementOrNull(currentResource.identifier.filter(s => s.system === IdentifierSystem.sourceId))
-                );
+            if (resourceToMerge.identifier && resourceToMerge.id === resourceToMerge._uuid) {
+                resourceToMerge.identifier = resourceToMerge.identifier.filter(s => s.system !== IdentifierSystem.sourceId);
+                resourceToMerge.id = currentResource.id;
+            }
+            if (!resourceToMerge.identifier || !resourceToMerge.identifier.some(s => s.system === IdentifierSystem.sourceId)) {
+                if (!resourceToMerge.identifier) {
+                    resourceToMerge.identifier = [
+                        getFirstElementOrNull(currentResource.identifier.filter(s => s.system === IdentifierSystem.sourceId))
+                    ];
+                } else {
+                    resourceToMerge.identifier.push(
+                        getFirstElementOrNull(currentResource.identifier.filter(s => s.system === IdentifierSystem.sourceId))
+                    );
+                }
             }
         }
 

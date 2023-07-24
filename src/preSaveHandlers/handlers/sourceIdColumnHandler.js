@@ -8,19 +8,16 @@ const Identifier = require('../../fhir/classes/4_0_0/complex_types/identifier');
  */
 class SourceIdColumnHandler extends PreSaveHandler {
     async preSaveAsync({resource}) {
-        if (!resource.id) {
+        if (!resource._sourceId) {
+            resource._sourceId = resource.id;
+        }
+        if (!resource._sourceId) {
             // if an identifier with system=https://www.icanbwell.com/sourceId exists then use that
             if (resource.identifier && Array.isArray(resource.identifier) && resource.identifier.some(s => s.system === IdentifierSystem.sourceId)) {
-                resource.id = getFirstElementOrNull(
+                resource._sourceId = getFirstElementOrNull(
                     resource.identifier.filter(s => s.system === IdentifierSystem.sourceId).map(s => s.value)
                 );
             }
-        }
-
-        if (resource.id) {
-            resource._sourceId = resource.id;
-        } else if (resource._sourceId) {
-            delete resource._sourceId;
         }
 
         if (resource._sourceId) {

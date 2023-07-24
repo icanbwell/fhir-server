@@ -29,30 +29,33 @@ class ReferenceGlobalIdHandler extends PreSaveHandler {
      * @returns {Promise<Resource>}
      */
     async preSaveAsync({resource}) {
-        // get sourceAssigningAuthority of resource
-        /**
-         * @type {string[]}
-         */
-        const sourceAssigningAuthorityCodes = resource.meta.security.filter(
-            s => s.system === SecurityTagSystem.sourceAssigningAuthority).map(s => s.code);
-        assertIsValid(sourceAssigningAuthorityCodes.length > 0,
-            `No sourceAssigningAuthority codes found for resource id: ${resource.id}`);
-        /**
-         * @type {string}
-         */
-        const sourceAssigningAuthority = sourceAssigningAuthorityCodes[0];
-        assertIsValid(sourceAssigningAuthority,
-            `sourceAssigningAuthority is null for ${resource.resourceType}/${resource.id}`);
-        await resource.updateReferencesAsync(
-            {
-                fnUpdateReferenceAsync: async (reference) => await this.updateReferenceAsync(
-                    {
-                        sourceAssigningAuthority,
-                        reference
-                    }
-                )
-            }
-        );
+        if (resource.meta && resource.meta.security) {
+            // get sourceAssigningAuthority of resource
+            /**
+             * @type {string[]}
+             */
+            const sourceAssigningAuthorityCodes = resource.meta.security.filter(
+                s => s.system === SecurityTagSystem.sourceAssigningAuthority
+            ).map(s => s.code);
+            assertIsValid(sourceAssigningAuthorityCodes.length > 0,
+                `No sourceAssigningAuthority codes found for resource id: ${resource.id}`);
+            /**
+             * @type {string}
+             */
+            const sourceAssigningAuthority = sourceAssigningAuthorityCodes[0];
+            assertIsValid(sourceAssigningAuthority,
+                `sourceAssigningAuthority is null for ${resource.resourceType}/${resource.id}`);
+            await resource.updateReferencesAsync(
+                {
+                    fnUpdateReferenceAsync: async (reference) => await this.updateReferenceAsync(
+                        {
+                            sourceAssigningAuthority,
+                            reference
+                        }
+                    )
+                }
+            );
+        }
         return resource;
     }
 
