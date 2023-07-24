@@ -31,7 +31,7 @@ class ChatGPTLangChainManager extends ChatGPTManager {
 
     /**
      * answers the question with the provided documents and start prompt
-     * @param {string[]} documents
+     * @param {ChatGPTDocument[]} documents
      * @param {string} startPrompt
      * @param string question
      * @returns {Promise<ChatGPTResponse>}
@@ -49,10 +49,8 @@ class ChatGPTLangChainManager extends ChatGPTManager {
         const langChainDocuments = documents.map(
             doc => new Document(
                 {
-                    pageContent: doc,
-                    // metadata: {
-                    //     'my_document_id': e.resource.id,
-                    // },
+                    pageContent: doc.content,
+                    metadata: doc.metadata,
                 }
             ));
         const embeddings = new OpenAIEmbeddings();
@@ -108,6 +106,9 @@ class ChatGPTLangChainManager extends ChatGPTManager {
             question: question
         };
         const fullPrompt = await prompt.format(parameters);
+
+        const relevantDocuments = await retriever.getRelevantDocuments(question);
+
         const numberTokens = await this.getTokenCountAsync({documents: [{pageContent: fullPrompt}]});
 
         try {
@@ -115,7 +116,8 @@ class ChatGPTLangChainManager extends ChatGPTManager {
             return new ChatGPTResponse({
                 responseText: res3.text,
                 fullPrompt: fullPrompt,
-                numberTokens: numberTokens
+                numberTokens: numberTokens,
+                documents: relevantDocuments
             });
         } catch (e) {
             if (e.response && e.response.data && e.response.data.error && e.response.data.error.code === 'context_length_exceeded') {

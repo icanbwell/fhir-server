@@ -1,4 +1,5 @@
 const {BaseFhirToDocumentConverter} = require('./baseFhirToDocumentConverter');
+const {ChatGPTDocument} = require('../chatgptDocument');
 
 class FhirToSummaryDocumentConverter extends BaseFhirToDocumentConverter {
     /**
@@ -16,7 +17,7 @@ class FhirToSummaryDocumentConverter extends BaseFhirToDocumentConverter {
     /**
      * converts a FHIR bundle into documents for ChatGPT
      * @param {Bundle} bundle
-     * @returns {Promise<{pageContent: string, metadata: Object}[]>}
+     * @returns {Promise<ChatGPTDocument[]>}
      */
     async convertBundleToDocumentsAsync({bundle}) {
         // group by resource type
@@ -27,7 +28,7 @@ class FhirToSummaryDocumentConverter extends BaseFhirToDocumentConverter {
             e => e.resource
         );
         /**
-         * @type {{pageContent: string, metadata: Object}[]}
+         * @type {ChatGPTDocument[]}
          */
         const documents = [];
         for (const resource of resources) {
@@ -41,7 +42,18 @@ class FhirToSummaryDocumentConverter extends BaseFhirToDocumentConverter {
                 }
             );
             const content = resourceConverter ? resourceConverter.convert({resource}) : JSON.stringify(resource);
-            documents.push({pageContent: content, metadata: {'id': `${resource.resourceType}/${resource.id}`}});
+            documents.push(
+                new ChatGPTDocument(
+                    {
+                        content: content,
+                        metadata: {
+                            id: resource.id,
+                            reference: `${resource.resourceType}/${resource.id}`,
+                            resourceType: resource.resourceType
+                        }
+                    }
+                )
+            );
         }
 
         return documents;

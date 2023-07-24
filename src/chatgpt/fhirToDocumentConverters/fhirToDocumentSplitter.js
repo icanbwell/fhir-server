@@ -1,10 +1,11 @@
 const {BaseFhirToDocumentConverter} = require('./baseFhirToDocumentConverter');
+const {ChatGPTDocument} = require('../chatgptDocument');
 
 class FhirToDocumentSplitter extends BaseFhirToDocumentConverter {
     /**
      * converts a FHIR bundle into documents for ChatGPT
      * @param {Bundle} bundle
-     * @returns {Promise<{pageContent: string, metadata: Object}[]>}
+     * @returns {Promise<ChatGPTDocument[]>}
      */
     async convertBundleToDocumentsAsync({bundle}) {
         // group by resource type
@@ -15,7 +16,7 @@ class FhirToDocumentSplitter extends BaseFhirToDocumentConverter {
             e => e.resource
         );
         /**
-         * @type {{pageContent: string, metadata: Object}[]}
+         * @type {ChatGPTDocument[]}
          */
         const documents = [];
         let currentResourceIndex = 0;
@@ -28,8 +29,20 @@ class FhirToDocumentSplitter extends BaseFhirToDocumentConverter {
                 `\n[START PART ${currentResourceIndex}/${totalResources}]` +
                 `\n${resourceContent}` +
                 `\n[END PART ${currentResourceIndex}/${totalResources}]` +
-                `\nRemember not answering yet. Just acknowledge you received this part with the message "Part ${currentResourceIndex}/${totalResources} received" and wait for the next part.`;
-            documents.push({pageContent: content, metadata: {'id': `${resource.resourceType}/${resource.id}`}});
+                `\nRemember not answering yet. Just acknowledge you received this part with the message'+
+                '\n "Part ${currentResourceIndex}/${totalResources} received" and wait for the next part.`;
+            documents.push(
+                new ChatGPTDocument(
+                    {
+                        content: content,
+                        metadata: {
+                            id: resource.id,
+                            reference: `${resource.resourceType}/${resource.id}`,
+                            resourceType: resource.resourceType
+                        }
+                    }
+                )
+            );
         }
 
         return documents;

@@ -4,7 +4,7 @@ class ChatGPTResponse {
      * @param {string} responseText
      * @param {string} fullPrompt
      * @param {number} numberTokens
-     * @param {string[]|undefined} [documents]
+     * @param {ChatGPTDocument[]|undefined} [documents]
      */
     constructor(
         {

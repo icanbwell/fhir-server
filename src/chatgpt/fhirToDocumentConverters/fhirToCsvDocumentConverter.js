@@ -1,12 +1,13 @@
 const {groupByLambda} = require('../../utils/list.util');
 const {Parser} = require('@json2csv/plainjs');
 const {BaseFhirToDocumentConverter} = require('./baseFhirToDocumentConverter');
+const {ChatGPTDocument} = require('../chatgptDocument');
 
-class FhirToCsvDocumentConverter extends BaseFhirToDocumentConverter{
+class FhirToCsvDocumentConverter extends BaseFhirToDocumentConverter {
     /**
      * converts a FHIR bundle into documents for ChatGPT
      * @param {Bundle} bundle
-     * @returns {Promise<{pageContent: string, metadata: Object}[]>}
+     * @returns {Promise<ChatGPTDocument[]>}
      */
     async convertBundleToDocumentsAsync({bundle}) {
         // group by resource type
@@ -27,7 +28,7 @@ class FhirToCsvDocumentConverter extends BaseFhirToDocumentConverter{
         const opts = {};
         const parser = new Parser(opts);
         /**
-         * @type {{pageContent: string, metadata: Object}[]}
+         * @type {ChatGPTDocument[]}
          */
         const documents = [];
         for (
@@ -38,7 +39,18 @@ class FhirToCsvDocumentConverter extends BaseFhirToDocumentConverter{
             of Object.entries(groupByResourceType)
             ) {
             const csv = parser.parse(resources1);
-            documents.push({pageContent: csv, metadata: resourceType});
+            documents.push(
+                new ChatGPTDocument(
+                    {
+                        content: csv,
+                        metadata: {
+                            id: '0',
+                            reference: `${resourceType}`,
+                            resourceType: resourceType
+                        }
+                    }
+                )
+            );
         }
 
         return documents;

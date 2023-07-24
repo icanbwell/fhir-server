@@ -44,7 +44,7 @@ class ChatGPTManager {
         //     ));
 
         /**
-         * {{pageContent: string, metadata: string}}
+         * {ChatGPTDocument[]}
          */
         const patientResources = await this.fhirToDocumentConverter.convertBundleToDocumentsAsync(
             {
@@ -53,16 +53,17 @@ class ChatGPTManager {
         );
 
         let startPrompt = 'You are a clinical software.  I will provide you information about a patient.' +
-            '\nUse only the following data to answer the user\'s question';
+            '\nUse only the following data to answer the user\'s question' +
+            '\nDon’t give information not mentioned in the CONTEXT INFORMATION.';
 
         if (outputFormat === 'html') {
             startPrompt += '\nReply in HTML with just the body';
         }
 
         /**
-         * @type {string[]}
+         * @type {ChatGPTDocument[]}
          */
-        const documents = patientResources.map(p => p.pageContent);
+        const documents = patientResources;
         /**
          * @type {ChatGPTResponse}
          */
@@ -88,7 +89,7 @@ class ChatGPTManager {
 
     /**
      * answers the question with the provided documents and start prompt
-     * @param {string[]} documents
+     * @param {ChatGPTDocument[]} documents
      * @param {string} startPrompt
      * @param string question
      * @returns {Promise<ChatGPTResponse>}
@@ -100,12 +101,12 @@ class ChatGPTManager {
 
     /**
      * Given a list of documents, returns the sum of tokens in each document
-     * @param {{pageContent: string}[]} documents
+     * @param {{content: string}[]} documents
      * @return {Promise<number>}
      */
     async getTokenCountAsync({documents}) {
         const tokenizer = await encoding_for_model('gpt-3.5-turbo');
-        const token_counts = documents.map(doc => tokenizer.encode(doc.pageContent).length);
+        const token_counts = documents.map(doc => tokenizer.encode(doc.content).length);
         tokenizer.free();
         // noinspection UnnecessaryLocalVariableJS
         const totalTokens = token_counts.reduce((accumulator, currentValue) => {

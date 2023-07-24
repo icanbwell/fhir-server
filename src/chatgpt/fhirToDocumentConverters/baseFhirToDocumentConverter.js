@@ -2,7 +2,7 @@ class BaseFhirToDocumentConverter {
     /**
      * converts a FHIR bundle into documents for ChatGPT
      * @param {Bundle} bundle
-     * @returns {Promise<{pageContent: string, metadata: Object}[]>}
+     * @returns {Promise<ChatGPTDocument[]>}
      */
     // eslint-disable-next-line no-unused-vars
     async convertBundleToDocumentsAsync({bundle}) {

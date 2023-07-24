@@ -20,7 +20,7 @@ class ChatGPTManagerDirect extends ChatGPTManager {
 
     /**
      * answers the question with the provided documents and start prompt
-     * @param {string[]} documents
+     * @param {ChatGPTDocument[]} documents
      * @param {string} startPrompt
      * @param string question
      * @returns {Promise<ChatGPTResponse>}
@@ -35,7 +35,7 @@ class ChatGPTManagerDirect extends ChatGPTManager {
             d => new ChatGPTMessage(
                 {
                     role: 'system',
-                    content: d
+                    content: d.content
                 }
             )
         );
@@ -69,7 +69,7 @@ class ChatGPTManagerDirect extends ChatGPTManager {
             temperature: 0.0,
             max_tokens: 600 // tokens allowed in completion response
         };
-        const numberTokens = await this.getTokenCountAsync({documents: [{pageContent: fullPrompt}]});
+        const numberTokens = await this.getTokenCountAsync({documents: [{content: fullPrompt}]});
 
         try {
             const chatCompletion = await openai.createChatCompletion(chatCompletionRequest);

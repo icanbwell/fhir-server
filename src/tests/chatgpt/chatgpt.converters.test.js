@@ -22,21 +22,21 @@ describe('ChatGPT Tests', () => {
                 return;
             }
 
-            const chatgptFhirToDocumentConverter = new FhirToJsonDocumentConverter();
+            const fhirToDocumentConverter = new FhirToJsonDocumentConverter();
             const chatGptManager = new ChatGPTManagerDirect({
-                chatgptFhirToDocumentConverter: chatgptFhirToDocumentConverter
+                fhirToDocumentConverter: fhirToDocumentConverter
             });
             /**
-             * @type {{pageContent: string, metadata: Object}[]}
+             * @type {ChatGPTDocument[]}
              */
-            const documents = await chatgptFhirToDocumentConverter.convertBundleToDocumentsAsync({
+            const documents = await fhirToDocumentConverter.convertBundleToDocumentsAsync({
                 bundle: patientBundleResource,
             });
             const chatgptMessages = documents.map(doc =>
                 new ChatGPTMessage(
                     {
                         role: 'system',
-                        content: doc.pageContent
+                        content: doc.content
                     }
                 )
             );
@@ -52,21 +52,21 @@ describe('ChatGPT Tests', () => {
                 return;
             }
 
-            const chatgptFhirToDocumentConverter = new FhirToJsonDocumentConverter();
+            const fhirToDocumentConverter = new FhirToJsonDocumentConverter();
             const chatGptManager = new ChatGPTManagerDirect({
-                chatgptFhirToDocumentConverter: chatgptFhirToDocumentConverter
+                fhirToDocumentConverter: fhirToDocumentConverter
             });
             /**
-             * @type {{pageContent: string, metadata: Object}[]}
+             * @type {ChatGPTDocument[]}
              */
-            const documents = await chatgptFhirToDocumentConverter.convertBundleToDocumentsAsync({
+            const documents = await fhirToDocumentConverter.convertBundleToDocumentsAsync({
                 bundle: patientCondensedBundleResource,
             });
             const chatgptMessages = documents.map(doc =>
                 new ChatGPTMessage(
                     {
                         role: 'system',
-                        content: doc.pageContent
+                        content: doc.content
                     }
                 )
             );
@@ -81,21 +81,21 @@ describe('ChatGPT Tests', () => {
             if (!process.env.OPENAI_API_KEY) {
                 return;
             }
-            const chatgptFhirToDocumentConverter = new FhirToCsvDocumentConverter();
+            const fhirToDocumentConverter = new FhirToCsvDocumentConverter();
             const chatGptManager = new ChatGPTManagerDirect({
-                chatgptFhirToDocumentConverter: chatgptFhirToDocumentConverter
+                fhirToDocumentConverter: fhirToDocumentConverter
             });
             /**
-             * @type {{pageContent: string, metadata: Object}[]}
+             * @type {ChatGPTDocument[]}
              */
-            const documents = await chatgptFhirToDocumentConverter.convertBundleToDocumentsAsync({
+            const documents = await fhirToDocumentConverter.convertBundleToDocumentsAsync({
                 bundle: patientBundleResource,
             });
             const chatgptMessages = documents.map(doc =>
                 new ChatGPTMessage(
                     {
                         role: 'system',
-                        content: doc.pageContent
+                        content: doc.content
                     }
                 )
             );
@@ -110,23 +110,23 @@ describe('ChatGPT Tests', () => {
             if (!process.env.OPENAI_API_KEY) {
                 return;
             }
-            const chatgptFhirToDocumentConverter = new FhirToSummaryDocumentConverter({
+            const fhirToDocumentConverter = new FhirToSummaryDocumentConverter({
                 resourceConverterFactory: new ResourceConverterFactory()
             });
             const chatGptManager = new ChatGPTManagerDirect({
-                chatgptFhirToDocumentConverter: chatgptFhirToDocumentConverter
+                fhirToDocumentConverter: fhirToDocumentConverter
             });
             /**
-             * @type {{pageContent: string, metadata: Object}[]}
+             * @type {ChatGPTDocument[]}
              */
-            const documents = await chatgptFhirToDocumentConverter.convertBundleToDocumentsAsync({
+            const documents = await fhirToDocumentConverter.convertBundleToDocumentsAsync({
                 bundle: patientBundleResource,
             });
             const chatgptMessages = documents.map(doc =>
                 new ChatGPTMessage(
                     {
                         role: 'system',
-                        content: doc.pageContent
+                        content: doc.content
                     }
                 )
             );
@@ -141,21 +141,21 @@ describe('ChatGPT Tests', () => {
             if (!process.env.OPENAI_API_KEY) {
                 return;
             }
-            const chatgptFhirToDocumentConverter = new FhirToJsonDocumentConverter();
+            const fhirToDocumentConverter = new FhirToJsonDocumentConverter();
             const chatGptManager = new ChatGPTManagerDirect({
-                chatgptFhirToDocumentConverter: chatgptFhirToDocumentConverter
+                fhirToDocumentConverter: fhirToDocumentConverter
             });
             /**
-             * @type {{pageContent: string, metadata: Object}[]}
+             * @type {ChatGPTDocument[]}
              */
-            const documents = await chatgptFhirToDocumentConverter.convertBundleToDocumentsAsync({
+            const documents = await fhirToDocumentConverter.convertBundleToDocumentsAsync({
                 bundle: patientCondensedBundleResource,
             });
             const chatgptMessages = documents.map(doc =>
                 new ChatGPTMessage(
                     {
                         role: 'system',
-                        content: doc.pageContent
+                        content: doc.content
                     }
                 )
             );
