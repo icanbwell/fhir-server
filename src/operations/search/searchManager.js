@@ -181,7 +181,7 @@ class SearchManager {
         const query =
         {
             $and: [
-                {'provision.class.code': '/dataSharingConsent'},
+                {'provision.class.code': {$in: this.configManager.getDataSharingConsentCodes}},
                 patientReferenceQuery,
                 {'status': 'active'},
                 {'provision.type': 'permit'},

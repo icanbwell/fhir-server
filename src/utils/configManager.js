@@ -290,6 +290,14 @@ class ConfigManager {
     get enableConsentedDataAccess() {
         return isTrue(env.ENABLE_CONSENTED_DATA_ACCESS);
     }
+
+    /**
+     * Specifies "provision.class.code" for the Data sharing Consent
+     * @return {string[]}
+     */
+    get getDataSharingConsentCodes() {
+        return env.DATA_SHARING_CONSENT_CODES ? env.DATA_SHARING_CONSENT_CODES.split(',') : ['/dataSharingConsent', '/hipaaConsent'];
+    }
 }
 
 module.exports = {
