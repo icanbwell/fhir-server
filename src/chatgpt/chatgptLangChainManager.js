@@ -107,9 +107,10 @@ class ChatGPTLangChainManager extends ChatGPTManager {
         };
         const fullPrompt = await prompt.format(parameters);
 
+        // https://python.langchain.com/docs/use_cases/question_answering/
         const relevantDocuments = await retriever.getRelevantDocuments(question);
 
-        const numberTokens = await this.getTokenCountAsync({documents: [{pageContent: fullPrompt}]});
+        const numberTokens = await this.getTokenCountAsync({documents: [{content: fullPrompt}]});
 
         try {
             const res3 = await chain.call(parameters);
@@ -198,7 +199,7 @@ class ChatGPTLangChainManager extends ChatGPTManager {
             parameters['patientId'] = patientId;
         }
         const fullPrompt = await prompt.format(parameters);
-        const numberTokens = await this.getTokenCountAsync({documents: [{pageContent: fullPrompt}]});
+        const numberTokens = await this.getTokenCountAsync({documents: [{content: fullPrompt}]});
         // Finally run the chain and get the result
         try {
             const result = await chain.call(parameters);
