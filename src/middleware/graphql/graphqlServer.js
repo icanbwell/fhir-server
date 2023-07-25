@@ -5,7 +5,7 @@ const {ApolloServer} = require('@apollo/server');
 const {expressMiddleware} = require('@apollo/server/express4');
 const {join} = require('path');
 const resolvers = require('../../graphql/v2/resolvers');
-const { REQUEST_ID_TYPE} = require('../../constants');
+const {REQUEST_ID_TYPE} = require('../../constants');
 const {loadFilesSync} = require('@graphql-tools/load-files');
 const {mergeTypeDefs} = require('@graphql-tools/merge');
 const {FhirDataSource} = require('../../graphql/v2/dataSource');
@@ -37,7 +37,11 @@ const graphql = async (fnCreateContainer) => {
         // request.credentials is set so we receive cookies
         // https://github.com/graphql/graphql-playground#settings
         // eslint-disable-next-line new-cap
-        ApolloServerPluginLandingPageLocalDefault(),
+        ApolloServerPluginLandingPageLocalDefault({
+            embed: {
+                runTelemetry: false
+            },
+        }),
         getBundleMetaApolloServerPlugin(),
         getApolloServerLoggingPlugin('graphqlv2'),
         getAddRequestIdToResponseHeadersPlugin(),
@@ -118,6 +122,9 @@ const graphql = async (fnCreateContainer) => {
             //     // be manipulated in other ways, as long as it's returned.
             //     return formattedError;
             // },
+            stringifyResult: (value) => {
+                return JSON.stringify(value, null, 2);
+            },
         });
 
     // apollo requires us to start the server first
