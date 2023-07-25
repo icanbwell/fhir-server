@@ -13,6 +13,18 @@
     ],
     "id": "6891e039-fa2a-42e4-bab8-d79d7ed94d68",
     "medicationCodeableConcept": {
+      "coding": [
+        {
+          "code": "0002-0800-01",
+          "display": "Lipitor",
+          "system": "http://hl7.org/fhir/sid/ndc"
+        },
+        {
+          "code": "104922",
+          "display": "Lipitor",
+          "system": "http://www.nlm.nih.gov/research/umls/rxnorm"
+        }
+      ],
       "text": "Lipitor"
     }
   },
@@ -21,6 +33,13 @@
     "dispense": [],
     "id": "8ba1017f-0aad-1b91-ff9e-416a96e11f0b",
     "medicationCodeableConcept": {
+      "coding": [
+        {
+          "code": null,
+          "display": "Aspirin",
+          "system": null
+        }
+      ],
       "text": "Aspirin"
     }
   }

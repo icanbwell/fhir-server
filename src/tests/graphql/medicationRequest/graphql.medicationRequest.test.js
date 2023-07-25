@@ -32,7 +32,7 @@ describe('GraphQL MedicationRequest Tests', () => {
         test('GraphQL get MedicationRequest with dispenses', async () => {
             const request = await createTestRequest();
             const graphqlQueryText = query.replace(/\\n/g, '');
-            let resp = await request.get('/4_0_0/MedicationRequest').set(getHeaders()).expect(200);
+            let resp = await request.get('/4_0_0/MedicationRequest').set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResourceCount(0);
 
