@@ -16,8 +16,8 @@ const {
     getGraphQLHeaders,
     createTestRequest,
 } = require('../../common');
-const { describe, beforeEach, afterEach, expect, test } = require('@jest/globals');
-const { logInfo, logError } = require('../../../operations/common/logging');
+const {describe, beforeEach, afterEach, expect, test} = require('@jest/globals');
+const {logError} = require('../../../operations/common/logging');
 
 describe('GraphQL MedicationRequest Tests', () => {
     beforeEach(async () => {
@@ -33,37 +33,33 @@ describe('GraphQL MedicationRequest Tests', () => {
             const request = await createTestRequest();
             const graphqlQueryText = query.replace(/\\n/g, '');
             let resp = await request.get('/4_0_0/MedicationRequest').set(getHeaders()).expect(200);
-            expect(resp.body.length).toBe(0);
-            logInfo('------- response 1 ------------');
-            logInfo('', {'resp': resp.body});
-            logInfo('------- end response 1 ------------');
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResourceCount(0);
 
             resp = await request
                 .post('/4_0_0/Patient/$merge')
                 .send(patientBundleResource)
-                .set(getHeaders())
-                .expect(200);
-            logInfo('------- response 2 ------------');
-            logInfo('', {'resp': resp.body});
-            logInfo('------- end response 2  ------------');
+                .set(getHeaders());
+
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse([{created: true}]);
 
             resp = await request
                 .post('/4_0_0/MedicationRequest/$merge')
                 .send(medicationRequestBundleResource)
-                .set(getHeaders())
-                .expect(200);
-            logInfo('------- response 3 ------------');
-            logInfo('', {'resp': resp.body});
-            logInfo('------- end response 3 ------------');
+                .set(getHeaders());
+
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse([{created: true}]);
 
             resp = await request
                 .post('/4_0_0/MedicationDispense/$merge')
                 .send(medicationDispenseBundleResource)
-                .set(getHeaders())
-                .expect(200);
-            logInfo('------- response 4 ------------');
-            logInfo('', {'resp': resp.body});
-            logInfo('------- end response 4 ------------');
+                .set(getHeaders());
+
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse([{created: true}]);
+
             resp = await request
                 .post('/graphqlv2')
                 .send({
@@ -74,14 +70,13 @@ describe('GraphQL MedicationRequest Tests', () => {
                 .set(getGraphQLHeaders())
                 .expect(200);
             let body = resp.body;
-            logInfo('------- response graphql ------------');
-            logInfo('', {'resp': resp.body});
-            logInfo('------- end response graphql  ------------');
             if (body.errors) {
                 logError('', {'errors': body.errors});
                 expect(body.errors).toBeUndefined();
             }
-            expect(body.data.medicationRequest.entry).toStrictEqual(expectedGraphQlResponse);
+            expect(resp).toHaveResponse(expectedGraphQlResponse, r => {
+                return r;
+            });
         });
     });
 });
