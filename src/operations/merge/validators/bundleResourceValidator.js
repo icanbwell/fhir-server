@@ -21,7 +21,7 @@ class BundleResourceValidator {
      * @param {date} currentDate
      * @param {string} currentOperationName
      * @param {string} resourceType
-     * @returns {Promise<{validatedObjects: Resources[]}>}
+     * @returns {Promise<{validatedObjects: Resources[], preCheckErrors: OperationOutcome[], wasAList: boolean}>}
      */
     async validate({ incomingObjects, path, currentDate, currentOperationName, resourceType }) {
         // if the incoming request is a bundle then unwrap the bundle
@@ -45,13 +45,13 @@ class BundleResourceValidator {
             );
             if (validationOperationOutcome && validationOperationOutcome.statusCode === 400) {
                 validationsFailedCounter.inc({action: currentOperationName, resourceType}, 1);
-                return validationOperationOutcome;
+                return {validatedObjects: [], preCheckErrors: validationOperationOutcome, wasAList: true};
             }
             // unwrap the resources
             incomingObjects = incomingObjects.entry.map(e => e.resource);
         }
 
-        return {validatedObjects: incomingObjects};
+        return {validatedObjects: incomingObjects, preCheckErrors: [], wasAList: false};
     }
 }
 

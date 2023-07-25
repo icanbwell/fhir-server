@@ -6,7 +6,7 @@ const Parameters = require('../../../fhir/classes/4_0_0/resources/parameters');
 class ParametersResourceValidator {
     /**
      * @param {Object|Object[]} incomingObjects
-     * @returns {Promise<{validatedObjects: Resources[]}>}
+     * @returns {Promise<{validatedObjects: Resources[], preCheckErrors: OperationOutcome[], wasAList: boolean}>}
      */
     async validate({ incomingObjects }) {
         // see if the resources were passed as parameters
@@ -26,20 +26,23 @@ class ParametersResourceValidator {
                 /**
                  * @type {OperationOutcome}
                  */
-                return new OperationOutcome({
-                    id: 'validationfail',
-                    resourceType: 'OperationOutcome',
-                    issue: [
-                        new OperationOutcomeIssue({
-                            severity: 'error',
-                            code: 'structure',
-                            details: new CodeableConcept({
-                                text: 'Invalid parameter list'
-                            })
-                        }
-                        )
-                    ]
-                });
+                const validationOperationOutcome = [
+                    new OperationOutcome({
+                        id: 'validationfail',
+                        resourceType: 'OperationOutcome',
+                        issue: [
+                            new OperationOutcomeIssue({
+                                severity: 'error',
+                                code: 'structure',
+                                details: new CodeableConcept({
+                                    text: 'Invalid parameter list'
+                                })
+                            }
+                            )
+                        ]
+                    })
+                ];
+                return {validatedObjects: [], preCheckErrors: validationOperationOutcome, wasAList: true};
             }
             // find the actual resource in the parameter called resource
             /**
@@ -50,24 +53,27 @@ class ParametersResourceValidator {
                 /**
                  * @type {OperationOutcome}
                  */
-                return new OperationOutcome({
-                    id: 'validationfail',
-                    resourceType: 'OperationOutcome',
-                    issue: [
-                        new OperationOutcomeIssue({
-                            severity: 'error',
-                            code: 'structure',
-                            details: new CodeableConcept({
-                                text: 'Invalid parameter list'
+                const validationOperationOutcome = [
+                    new OperationOutcome({
+                        id: 'validationfail',
+                        resourceType: 'OperationOutcome',
+                        issue: [
+                            new OperationOutcomeIssue({
+                                severity: 'error',
+                                code: 'structure',
+                                details: new CodeableConcept({
+                                    text: 'Invalid parameter list'
+                                })
                             })
-                        })
-                    ]
-                });
+                        ]
+                    })
+                ];
+                return {validatedObjects: [], preCheckErrors: validationOperationOutcome, wasAList: true};
             }
             incomingObjects = resourceParameters.map(r => r.resource);
         }
 
-        return {validatedObjects: incomingObjects};
+        return {validatedObjects: incomingObjects, preCheckErrors: [], wasAList: false};
     }
 }
 

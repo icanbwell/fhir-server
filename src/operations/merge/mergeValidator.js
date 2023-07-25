@@ -61,9 +61,7 @@ class MergeValidator {
                 wasIncomingAList = true;
             }
 
-            if (preCheckErrors) {
-                mergePreCheckErrors.push(...preCheckErrors);
-            }
+            mergePreCheckErrors.push(...preCheckErrors);
         }
 
         return {mergePreCheckErrors, resourcesIncomingArray: incomingObjects, wasIncomingAList};

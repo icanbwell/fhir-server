@@ -7,6 +7,8 @@ const {PreSaveManager} = require('../../preSaveHandlers/preSave');
 const {IdentifierSystem} = require('../../utils/identifierSystem');
 const {getFirstElementOrNull} = require('../../utils/list.util');
 const {DELETE, RETRIEVE} = require('../../constants').GRIDFS;
+const {SecurityTagSystem} = require('../../utils/securityTagSystem');
+const {isUuid} = require('../../utils/uid.util');
 
 /**
  * @typedef MergePatchEntry
@@ -67,6 +69,15 @@ class ResourceMerger {
 
         if (!resourceToMerge._sourceAssigningAuthority) {
             resourceToMerge._sourceAssigningAuthority = currentResource._sourceAssigningAuthority;
+            if (!resourceToMerge.meta.security) {
+                resourceToMerge.meta.security = [
+                    currentResource.meta.security.find(s => s.system === SecurityTagSystem.sourceAssigningAuthority)
+                ];
+            } else if (resourceToMerge.meta.security.some(s => s.system === SecurityTagSystem.sourceAssigningAuthority)) {
+                resourceToMerge.meta.security.push(
+                    currentResource.meta.security.find(s => s.system === SecurityTagSystem.sourceAssigningAuthority)
+                );
+            }
         }
 
         // copy the identifiers over
@@ -75,8 +86,10 @@ class ResourceMerger {
             Array.isArray(currentResource.identifier) &&
             currentResource.identifier.some(s => s.system === IdentifierSystem.sourceId)
         ) {
-            if (resourceToMerge.identifier && resourceToMerge.id === resourceToMerge._uuid) {
-                resourceToMerge.identifier = resourceToMerge.identifier.filter(s => s.system !== IdentifierSystem.sourceId);
+            if (resourceToMerge.id === resourceToMerge._uuid) {
+                if (resourceToMerge.identifier) {
+                    resourceToMerge.identifier = resourceToMerge.identifier.filter(s => s.system !== IdentifierSystem.sourceId);
+                }
                 resourceToMerge.id = currentResource.id;
             }
             if (!resourceToMerge.identifier || !resourceToMerge.identifier.some(s => s.system === IdentifierSystem.sourceId)) {
@@ -147,7 +160,7 @@ class ResourceMerger {
         patchContent = patchContent.filter(
             item => !(
                 item.path.startsWith('/identifier') &&
-                item.value && item.value.system === IdentifierSystem.uuid
+                item.value && (item.value.system === IdentifierSystem.uuid || isUuid(item.value))
             )
         );
         // or any changes to sourceId
@@ -223,6 +236,8 @@ class ResourceMerger {
                 patched_resource_incoming
             );
         }
+
+        console.log(patchContent, 'poiuyfgchoihgufcgxhfchvjgk');
 
         return {
             updatedResource: patched_resource_incoming,

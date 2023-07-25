@@ -8,6 +8,7 @@ const {MergeManager} = require('../mergeManager');
 const {PreSaveManager} = require('../../../preSaveHandlers/preSave');
 const {ScopesManager} = require('../../security/scopesManager');
 const {SecurityTagSystem} = require('../../../utils/securityTagSystem');
+const {isUuid} = require('../../../utils/uid.util');
 
 class MergeResourceValidator {
     /**
@@ -92,7 +93,14 @@ class MergeResourceValidator {
 
         resourcesIncomingArray = await async.map(
             resourcesIncomingArray,
-            async resource => await this.preSaveManager.preSaveAsync(resource)
+            async resource => {
+                if (isUuid(resource.id)) {
+                    resource._uuid = resource.id;
+                } else {
+                    resource = await this.preSaveManager.preSaveAsync(resource);
+                }
+                return resource;
+            }
         );
 
         // Load the resources from the database
