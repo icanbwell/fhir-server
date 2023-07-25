@@ -43,8 +43,8 @@ module.exports = {
             if (!patient) {
                 return patient;
             }
-            if (patient && patient.name && args.use) {
-                return patient.name.filter(n => n.use === args.use);
+            if (patient && patient.name && args.use && Array.isArray(args.use)) {
+                return patient.name.filter(n => args.use.includes(n.use));
             }
             return patient.name;
         },
