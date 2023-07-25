@@ -6,6 +6,7 @@ const expectedGraphQlWithExplainResponse = require('./fixtures/expected_graphql_
 const expectedGraphQlMissingPersonResponse = require('./fixtures/expected_graphql_response_missing_person.json');
 const expectedGraphqlMissingUserScopesResponse = require('./fixtures/expected_graphql_missing_user_scopes_response.json');
 const expectedGraphqlMissingAccessScopesResponse = require('./fixtures/expected_graphql_missing_access_scopes_response.json');
+const expectedNotGraphQlResponse = require('./fixtures/expected_graphql_not_response.json');
 
 const patientBundleResource = require('./fixtures/patients.json');
 const organizationBundleResource = require('./fixtures/organizations.json');
@@ -17,6 +18,11 @@ const path = require('path');
 // eslint-disable-next-line security/detect-non-literal-fs-filename
 const patientQuery = fs.readFileSync(
     path.resolve(__dirname, './fixtures/query.graphql'),
+    'utf8'
+);
+// eslint-disable-next-line security/detect-non-literal-fs-filename
+const patientNotQuery = fs.readFileSync(
+    path.resolve(__dirname, './fixtures/query_not.graphql'),
     'utf8'
 );
 // eslint-disable-next-line security/detect-non-literal-fs-filename
@@ -142,6 +148,81 @@ describe('GraphQL Patient Tests', () => {
                 });
                 return r;
             });
+            expect(resp.headers['x-request-id']).toBeDefined();
+        });
+        test('GraphQL Patient with not equals', async () => {
+            const request = await createTestRequest();
+            const graphqlQueryText = patientNotQuery.replace(/\\n/g, '');
+
+            let resp = await request
+                .get('/4_0_0/ExplanationOfBenefit')
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResourceCount(0);
+
+            resp = await request
+                .get('/4_0_0/AllergyIntolerance')
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResourceCount(0);
+
+            resp = await request
+                .post('/4_0_0/Patient/1/$merge')
+                .send(patientBundleResource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse([{created: true}, {created: true}]);
+
+            resp = await request
+                .post('/4_0_0/Organization/1/$merge')
+                .send(organizationBundleResource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse([{created: true}, {created: true}]);
+
+            resp = await request
+                .post('/4_0_0/ExplanationOfBenefit/1/$merge')
+                .send(explanationOfBenefitBundleResource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse([{created: true}, {created: true}]);
+
+            resp = await request
+                .post('/4_0_0/AllergyIntolerance/1/$merge')
+                .send(allergyIntoleranceBundleResource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse([{created: true}, {created: true}]);
+
+            resp = await request
+                .post('/4_0_0/CareTeam/1/$merge')
+                .send(careTeamBundleResource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse([{created: true}, {created: true}]);
+
+            resp = await request
+                .get('/4_0_0/Patient/')
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResourceCount(2);
+
+            resp = await request
+                .get('/4_0_0/ExplanationOfBenefit/')
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResourceCount(2);
+
+            resp = await request
+                .post('/graphqlv2')
+                .send({
+                    operationName: null,
+                    variables: {},
+                    query: graphqlQueryText,
+                })
+                .set(getGraphQLHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedNotGraphQlResponse);
             expect(resp.headers['x-request-id']).toBeDefined();
         });
         test('GraphQL Patient with explain properly', async () => {
