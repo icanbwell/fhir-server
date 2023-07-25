@@ -88,6 +88,10 @@ const {ChatGPTLangChainManager} = require('./chatgpt/chatgptLangChainManager');
 const {FhirResourceWriterFactory} = require('./operations/streaming/resourceWriters/fhirResourceWriterFactory');
 const {FhirToSummaryDocumentConverter} = require('./chatgpt/fhirToDocumentConverters/fhirToSummaryDocumentConverter');
 const {ResourceConverterFactory} = require('./chatgpt/resourceConverters/resourceConverterFactory');
+const {LinkedPatientsFinder} = require('./utils/linkedPatientsFinder');
+const {ConsentManager} = require('./operations/search/consentManger');
+const {SearchQueryBuilder} = require('./operations/search/searchQueryBuilder');
+
 
 /**
  * Creates a container and sets up all the services
@@ -181,7 +185,21 @@ const createContainer = function () {
         personToPatientIdsExpander: c.personToPatientIdsExpander,
         databaseBulkInserter: c.databaseBulkInserter
     }));
-
+    container.register('linkedPatientsFinder', (c) => new LinkedPatientsFinder({
+        bwellPersonFinder: c.bwellPersonFinder,
+        databaseQueryFactory: c.databaseQueryFactory,
+        personToPatientIdsExpander: c.personToPatientIdsExpander,
+    }));
+    container.register('searchQueryBuilder', (c) => new SearchQueryBuilder({
+        r4SearchQueryCreator: c.r4SearchQueryCreator,
+    }));
+    container.register('consentManager', (c) => new ConsentManager({
+        databaseQueryFactory: c.databaseQueryFactory,
+        configManager: c.configManager,
+        patientFilterManager: c.patientFilterManager,
+        linkedPatientsFinder: c.linkedPatientsFinder,
+        searchQueryBuilder: c.searchQueryBuilder
+    }));
     container.register('partitioningManager', (c) => new PartitioningManager(
         {
             configManager: c.configManager,
@@ -262,7 +280,9 @@ const createContainer = function () {
                 personToPatientIdsExpander: c.personToPatientIdsExpander,
                 scopesManager: c.scopesManager,
                 databaseAttachmentManager: c.databaseAttachmentManager,
-                fhirResourceWriterFactory: c.fhirResourceWriterFactory
+                fhirResourceWriterFactory: c.fhirResourceWriterFactory,
+                consentManager: c.consentManager,
+                searchQueryBuilder: c.searchQueryBuilder
             }
         )
     );
