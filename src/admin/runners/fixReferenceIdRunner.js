@@ -711,6 +711,10 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
                  * @type {string[]}
                  */
                 let collectionsFinished = [];
+                const ReferenceStatusInterval = setInterval(() => {
+                    this.adminLogger.logInfo(`Reference Update finished for ${collectionsFinished.length} collections, Collection Names: ${collectionsFinished.join(', ')}`);
+                }, 5000);
+
                 // if there is an exception, continue processing from the last id
                 const updateCollectionReferences = async (collectionName) => {
                     this.adminLogger.logInfo(`Starting reference updates for ${collectionName}`);
@@ -857,7 +861,6 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
 
                     collectionsFinished.push(collectionName);
                     this.adminLogger.logInfo(`Finished loop ${collectionName}`);
-                    this.adminLogger.logInfo(`Reference Update finished for ${collectionsFinished.length} collections, Collection Names: ${collectionsFinished.join(', ')}`);
                     this.adminLogger.logInfo(`Cache hits in ${this.cacheHits.size} collections`);
                     for (const [cacheCollectionName, cacheCount] of this.cacheHits.entries()) {
                         this.adminLogger.logInfo(`${cacheCollectionName} hits: ${cacheCount}`);
@@ -886,6 +889,10 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
                 const historyProaCollectionsList = this.proaCollections.filter(coll => coll.endsWith('_History')).sort();
                 this.historyUuidCache.clear();
                 collectionsFinished = [];
+                clearInterval(ReferenceStatusInterval);
+                const idStatusInterval = setInterval(() => {
+                    this.adminLogger.logInfo(`Id Update finished for ${collectionsFinished.length} collections, Collection Names: ${collectionsFinished.join(', ')}`);
+                }, 5000);
 
                 const updateCollectionids = async (collectionName) => {
                     this.adminLogger.logInfo(`Starting id updates for ${collectionName}`);
@@ -952,7 +959,6 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
 
                     collectionsFinished.push(collectionName);
                     this.adminLogger.logInfo(`Finished loop ${collectionName}`);
-                    this.adminLogger.logInfo(`Id Update finished for ${collectionsFinished.length} collections, Collection Names: ${collectionsFinished.join(', ')}`);
                     this.adminLogger.logInfo(`Cache hits in ${this.cacheHits.size} collections`);
                     for (const [cacheCollectionName, cacheCount] of this.cacheHits.entries()) {
                         this.adminLogger.logInfo(`${cacheCollectionName} hits: ${cacheCount}`);
@@ -970,6 +976,7 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
                 await queue.drain();
                 queue.push(historyProaCollectionsList);
                 await queue.drain();
+                clearInterval(idStatusInterval);
             } catch (err) {
                 this.adminLogger.logError(err);
             }
