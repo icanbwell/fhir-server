@@ -2,6 +2,7 @@ const explanationOfBenefitBundleResource = require('./fixtures/explanation_of_be
 const allergyIntoleranceBundleResource = require('./fixtures/allergy_intolerances.json');
 const careTeamBundleResource = require('./fixtures/care_team.json');
 const expectedGraphQlResponse = require('./fixtures/expected_graphql_response.json');
+const expectedGraphQlFilterByNameResponse = require('./fixtures/expected_graphql_filter_by_name_response.json');
 const expectedGraphQlWithExplainResponse = require('./fixtures/expected_graphql_with_explain_response.json');
 const expectedGraphQlMissingPersonResponse = require('./fixtures/expected_graphql_response_missing_person.json');
 const expectedGraphqlMissingUserScopesResponse = require('./fixtures/expected_graphql_missing_user_scopes_response.json');
@@ -227,7 +228,7 @@ describe('GraphQL Patient Tests', () => {
                 })
                 .set(getGraphQLHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse(expectedGraphQlResponse, r => {
+            expect(resp).toHaveResponse(expectedGraphQlFilterByNameResponse, r => {
                 r.explanationOfBenefit.forEach(resource => {
                     cleanMeta(resource);
                 });

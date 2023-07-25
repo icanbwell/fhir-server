@@ -3,7 +3,7 @@ query my_patient {
         entry {
             resource {
                 id
-                name (use: "usual") {
+                name {
                     family
                     given
                 }
