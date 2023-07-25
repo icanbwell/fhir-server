@@ -25,6 +25,6 @@ module.exports.transaction = () => {
 
 module.exports.question = () => {
     return (req, res, next) => {
-        return service.batch(req, res).then(result => res.status(200).json(result)).catch(err => next(err));
+            return service.question(req, res).then(result => res.status(200).json(result)).catch(err => next(err));
     };
 };
