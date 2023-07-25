@@ -58,6 +58,17 @@ class QueryParameterValue {
     }
 
     /**
+     * Build value from array of values
+     * @param {string[]} newValues
+     */
+    regenerateValueFromValues(newValues) {
+        if (!newValues || !Array.isArray(newValues)) {
+            return newValues;
+        }
+       return newValues.join(',');
+    }
+
+    /**
      * returns values for this arg as an array
      * @return {string[]|null}
      */

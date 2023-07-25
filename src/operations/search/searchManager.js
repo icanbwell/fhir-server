@@ -1,5 +1,3 @@
-const {buildStu3SearchQuery} = require('../query/stu3');
-const {buildDstu2SearchQuery} = require('../query/dstu2');
 const {isTrue} = require('../../utils/isTrue');
 const env = require('var');
 const {logDebug, logError} = require('../common/logging');
@@ -18,7 +16,6 @@ const {ResourceLocatorFactory} = require('../common/resourceLocatorFactory');
 const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
 const {SecurityTagManager} = require('../common/securityTagManager');
 const {ResourcePreparer} = require('../common/resourcePreparer');
-const {VERSIONS} = require('../../middleware/fhir/utils/constants');
 const {RethrownError} = require('../../utils/rethrownError');
 const {BadRequestError} = require('../../utils/httpErrors');
 const {mongoQueryStringify} = require('../../utils/mongoQueryStringify');
@@ -33,6 +30,8 @@ const {QueryItem} = require('../graph/queryItem');
 const {DatabaseAttachmentManager} = require('../../dataLayer/databaseAttachmentManager');
 const {FhirResourceWriterFactory} = require('../streaming/resourceWriters/fhirResourceWriterFactory');
 const {MongoReadableStream} = require('../streaming/mongoStreamReader');
+const {ConsentManager} = require('../search/consentManger');
+const {SearchQueryBuilder} = require('./searchQueryBuilder');
 
 class SearchManager {
     /**
@@ -49,6 +48,8 @@ class SearchManager {
      * @param {ScopesManager} scopesManager
      * @param {DatabaseAttachmentManager} databaseAttachmentManager
      * @param {FhirResourceWriterFactory} fhirResourceWriterFactory
+     * @param {ConsentManager} ConsentManager
+     * @param {SearchQueryBuilder} SearchQueryBuilder
      */
     constructor(
         {
@@ -63,7 +64,9 @@ class SearchManager {
             personToPatientIdsExpander,
             scopesManager,
             databaseAttachmentManager,
-            fhirResourceWriterFactory
+            fhirResourceWriterFactory,
+            consentManager,
+            searchQueryBuilder
         }
     ) {
         /**
@@ -131,6 +134,18 @@ class SearchManager {
          */
         this.fhirResourceWriterFactory = fhirResourceWriterFactory;
         assertTypeEquals(fhirResourceWriterFactory, FhirResourceWriterFactory);
+
+        /**
+         * @type {ConsentManager}
+         */
+        this.consentManager = consentManager;
+        assertTypeEquals(consentManager, ConsentManager);
+
+        /**
+         * @type {SearchQueryBuilder}
+         */
+        this.searchQueryBuilder = searchQueryBuilder;
+        assertTypeEquals(searchQueryBuilder, SearchQueryBuilder);
     }
 
     // noinspection ExceptionCaughtLocallyJS
@@ -183,24 +198,20 @@ class SearchManager {
             let columns;
 
             // eslint-disable-next-line no-useless-catch
-            try {
-                if (base_version === VERSIONS['3_0_1']) {
-                    query = buildStu3SearchQuery(parsedArgs);
-                } else if (base_version === VERSIONS['1_0_2']) {
-                    query = buildDstu2SearchQuery(parsedArgs);
-                } else {
-                    ({query, columns} = this.r4SearchQueryCreator.buildR4SearchQuery({
-                        resourceType, parsedArgs, useHistoryTable
-                    }));
-                }
-            } catch (e) {
-                console.error(e);
-                throw e;
-            }
-            query = this.securityTagManager.getQueryWithSecurityTags(
-                {
+            ({query, columns} = this.searchQueryBuilder.buildSearchQueryBasedOnVersion({ base_version, parsedArgs, resourceType, useHistoryTable}));
+
+            // JWT has access tag in scope i.e API call from a specific client
+            if (securityTags && securityTags.length > 0) {
+                // Add access tag filter to the query
+                query = this.securityTagManager.getQueryWithSecurityTags({
                     resourceType, securityTags, query, useAccessIndex
                 });
+
+                // Update Query for Consent based data access
+                if (this.configManager.enableConsentedDataAccess){
+                    query = await this.consentManager.getQueryForPatientsWithConsent({base_version, resourceType, parsedArgs, securityTags, query, useHistoryTable});
+                }
+            }
             if (hasPatientScope) {
                 /**
                  * @type {string[]}

@@ -12,7 +12,6 @@ const { FhirResourceCreator } = require('../fhir/fhirResourceCreator');
 const { SecurityTagSystem } = require('./securityTagSystem');
 
 const patientReferencePrefix = 'Patient/';
-
 /**
  * The class is used to add/remove sensitive data from a resource
  */
@@ -186,6 +185,7 @@ class SensitiveDataProcessor {
             base_version: '4_0_0', id: `person.${bwellMasterPerson}`, includePatientPrefix: true
         });
     }
+
     /**
      * @description Fetches all the consent resources linked to a patient.
      * @param {String[]} patientIds
