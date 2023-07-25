@@ -39,7 +39,7 @@ const {logInfo} = require('./operations/common/logging');
  * Creates the FHIR app
  * @param {function (): SimpleContainer} fnCreateContainer
  * @param {import('express').Express} app1
- * @return {MyFHIRServer}
+ * @returns {MyFHIRServer}
  */
 function createFhirApp(fnCreateContainer, app1) {
     return new MyFHIRServer(fnCreateContainer, fhirServerConfig, app1)
@@ -52,6 +52,30 @@ function createFhirApp(fnCreateContainer, app1) {
         .setProfileRoutes()
         .setErrorRoutes();
 }
+
+// /**
+//  * https://stackoverflow.com/questions/14934452/how-to-get-all-registered-routes-in-express/55589657#55589657
+//  * @param app
+//  * @returns {*[]}
+//  */
+// function getRoutes(app) {
+//     let route;
+//     let routes = [];
+//
+//     app._router.stack
+//         // .filter(r => r.route) // take out all the middleware
+//         .forEach(function (middleware) {
+//             if (middleware.route) { // routes registered directly on the app
+//                 routes.push(middleware.route);
+//             } else if (middleware.name === 'router') { // router middleware
+//                 middleware.handle.stack.forEach(function (handler) {
+//                     route = handler.route;
+//                     route && routes.push(route);
+//                 });
+//             }
+//         });
+//     return routes;
+// }
 
 /**
  * Creates the app
@@ -243,7 +267,7 @@ function createApp({fnCreateContainer, trackMetrics}) {
 
     if (process.env.OPENAI_API_KEY) {
         // eslint-disable-next-line new-cap
-        const webRouter = express.Router();
+        const webRouter = express.Router({mergeParams: true}); // https://expressjs.com/en/4x/api.html#express.router
         if (isTrue(env.AUTH_ENABLED)) {
             webRouter.use(passport.initialize());
             webRouter.use(passport.authenticate('adminStrategy', {session: false}, null));
@@ -262,7 +286,7 @@ function createApp({fnCreateContainer, trackMetrics}) {
     }
 
     // eslint-disable-next-line new-cap
-    const adminRouter = express.Router();
+    const adminRouter = express.Router({mergeParams: true});
     if (isTrue(env.AUTH_ENABLED)) {
         adminRouter.use(passport.initialize());
         adminRouter.use(passport.authenticate('adminStrategy', {session: false}, null));
@@ -327,6 +351,7 @@ function createApp({fnCreateContainer, trackMetrics}) {
             })
             .then((_) => {
                 createFhirApp(fnCreateContainer, app);
+                // getRoutes(app);
             });
 
     } else {

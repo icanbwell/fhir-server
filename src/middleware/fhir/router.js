@@ -295,7 +295,7 @@ class FhirRouter {
      */
     enableProfileRoutes(app, config, profile, profileName, parameters, corsDefaults) {
         if (profile.operation && profile.operation.length) {
-          this.enableOperationRoutesForProfile(app, config, profile, profileName, parameters, corsDefaults);
+            this.enableOperationRoutesForProfile(app, config, profile, profileName, parameters, corsDefaults);
         } // Start iterating over potential routes to enable for this profile
     }
 
@@ -411,11 +411,27 @@ class FhirRouter {
                 methods: [currentRoute.type.toUpperCase()]
             }); // Enable cors with preflight
 
+            currentRoute.args = [routeArgs.BASE];
+
             app.options(currentRoute.path, cors(corsOptions)); // Enable base route
 
-            app[currentRoute.type](currentRoute.path, cors(corsOptions), versionValidationMiddleware(versionValidationConfiguration), sanitizeMiddleware(currentRoute.args), currentRoute.controller({
-                config
-            }));
+            app[currentRoute.type](
+                currentRoute.path,
+                cors(corsOptions),
+                versionValidationMiddleware(versionValidationConfiguration),
+                sanitizeMiddleware(currentRoute.args),
+                authenticationMiddleware(config),
+                // sofScopeMiddleware({
+                //     route: currentRoute,
+                //     auth: config.auth,
+                //     // name: profileName
+                // }),
+                currentRoute.controller(
+                    {
+                        config
+                    }
+                )
+            );
         }
     }
 

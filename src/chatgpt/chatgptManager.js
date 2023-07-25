@@ -33,37 +33,22 @@ class ChatGPTManager {
         // https://python.langchain.com/docs/modules/data_connection/document_loaders/how_to/json
         // https://nathankjer.com/introduction-to-langchain/
         // First convert the resources in the bundle into text documetns
-        // const patientResources = bundle.entry.map(
-        //     e => new Document(
-        //         {
-        //             pageContent: JSON.stringify(e.resource),
-        //             metadata: {
-        //                 'my_document_id': e.resource.id,
-        //             },
-        //         }
-        //     ));
-
         /**
          * {ChatGPTDocument[]}
          */
-        const patientResources = await this.fhirToDocumentConverter.convertBundleToDocumentsAsync(
+        const documents = await this.fhirToDocumentConverter.convertBundleToDocumentsAsync(
             {
                 bundle
             }
         );
 
         let startPrompt = 'You are a clinical software.  I will provide you information about a patient.' +
-            '\nUse only the following data to answer the user\'s question' +
-            '\nDon’t give information not mentioned in the CONTEXT INFORMATION.';
+            '\nUse only the following data to answer the user\'s question';
 
         if (outputFormat === 'html') {
             startPrompt += '\nReply in HTML with just the body';
         }
 
-        /**
-         * @type {ChatGPTDocument[]}
-         */
-        const documents = patientResources;
         /**
          * @type {ChatGPTResponse}
          */

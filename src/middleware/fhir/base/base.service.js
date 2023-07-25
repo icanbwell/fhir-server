@@ -92,7 +92,7 @@ const processRequest = requestType => {
     return Promise.all(requestPromises).then(responses => {
       for (let i = 0; i < responses.length; i++) {
         results[`${i}`].status = responses[`${i}`].status;
-      } // ver como resolver esta parte!!!
+      }
 
 
       let resultsBundle = makeResultBundle(results, res, baseVersion, requestType);
