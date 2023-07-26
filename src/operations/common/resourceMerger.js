@@ -237,8 +237,6 @@ class ResourceMerger {
             );
         }
 
-        console.log(patchContent, 'poiuyfgchoihgufcgxhfchvjgk');
-
         return {
             updatedResource: patched_resource_incoming,
             patches: patchContent.map(p => {
