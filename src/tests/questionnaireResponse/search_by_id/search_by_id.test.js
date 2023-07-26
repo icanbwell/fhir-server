@@ -8,6 +8,17 @@ const {
     createTestRequest,
 } = require('../../common');
 const {describe, beforeEach, afterEach, test } = require('@jest/globals');
+const {ConfigManager} = require('../../../utils/configManager');
+
+class MockConfigManagerDefaultSortId extends ConfigManager {
+    get defaultSortId() {
+        return '_uuid';
+    }
+
+    get streamResponse() {
+        return false;
+    }
+}
 
 describe('Questionnaire Response Tests', () => {
     beforeEach(async () => {
@@ -20,7 +31,10 @@ describe('Questionnaire Response Tests', () => {
 
     describe('QuestionnaireResponse Bundles', () => {
         test('QuestionnaireResponse can search by patient', async () => {
-            const request = await createTestRequest();
+            const request = await createTestRequest((c) => {
+                c.register('configManager', () => new MockConfigManagerDefaultSortId());
+                return c;
+            });
             let resp = await request
                 .get('/4_0_0/QuestionnaireResponse')
                 .set(getHeaders());
