@@ -22,13 +22,6 @@ const {
     createTestRequest,
 } = require('../../common');
 const {describe, beforeEach, afterEach, test } = require('@jest/globals');
-const {ConfigManager} = require('../../../utils/configManager');
-
-class MockConfigManagerStreaming extends ConfigManager {
-    get streamResponse() {
-        return true;
-    }
-}
 
 describe('Person Tests', () => {
     beforeEach(async () => {
@@ -41,10 +34,7 @@ describe('Person Tests', () => {
 
     describe('Person search_by_name Tests', () => {
         test('search_by_name works', async () => {
-            const request = await createTestRequest((c) => {
-                c.register('configManager', () => new MockConfigManagerStreaming());
-                return c;
-            });
+            const request = await createTestRequest();
             // ARRANGE
             // add the resources to FHIR server
             let resp = await request
@@ -127,7 +117,7 @@ describe('Person Tests', () => {
             // ACT & ASSERT
             // search by token system and code and make sure we get the right Medication back
             resp = await request
-                .get('/4_0_0/Person?_security=https://www.icanbwell.com/access%7Cbwell&address-postalcode=10001')
+                .get('/4_0_0/Person?name=singhal&_bundle=1&')
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedPersonResources);
