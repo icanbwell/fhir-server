@@ -126,7 +126,7 @@ const tokenQueryBuilder = function ({target, type, field, required, exists_flag}
         return queryBuilder;
     }
 
-    if (target.includes('|')) {
+    if (typeof target === 'string' && target.includes('|')) {
         [system, value] = target.split('|');
 
     } else {
