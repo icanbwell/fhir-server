@@ -1,7 +1,6 @@
 {
   "entry": [
     {
-      "id": "00100000000",
       "resource": {
         "birthDate": "2017-01-01",
         "gender": "female",

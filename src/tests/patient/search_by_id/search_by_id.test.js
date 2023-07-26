@@ -19,7 +19,11 @@ class MockConfigManagerDefaultSortId extends ConfigManager {
     }
 
     get streamResponse() {
-        return false;
+        return true;
+    }
+
+    get enableReturnBundle() {
+        return true;
     }
 }
 
