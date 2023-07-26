@@ -642,8 +642,7 @@ class MergeManager {
             if (
                 !isUuid(resourceToMerge.id) &&
                 !this.scopesManager.doesResourceHaveSourceAssigningAuthority(resourceToMerge) &&
-                !this.scopesManager.doesResourceHaveOwnerTags(resourceToMerge) &&
-                !this.scopesManager.doesResourceHaveAccessTags(resourceToMerge)
+                !this.scopesManager.doesResourceHaveOwnerTags(resourceToMerge)
             ) {
                 /**
                  * @type {OperationOutcome}
