@@ -104,7 +104,7 @@ class DumpPersonsRunner extends BaseBulkOperationRunner {
         const accessFilter = this.accessCode ?
             { 'meta.security': { $elemMatch: { 'system': 'https://www.icanbwell.com/access', 'code': this.accessCode }} } :
             {};
-        // Fetch onlu docs that were lastUpdated before beforeDate
+        // Fetch only docs that were lastUpdated before beforeDate
         const beforeDateQuery = this.beforeDate ?
             { 'meta.lastUpdated': { $lt: new Date(this.beforeDate)}} :
             {};
@@ -147,7 +147,6 @@ class DumpPersonsRunner extends BaseBulkOperationRunner {
                     await commaWrite;
                 }
             }
-            console.log(doc.resource.id);
             if (recordCount === this.pageSize || !moreRecords) {
                 const closeBracket = writeStream(outputStream, ']}');
                 if (closeBracket) {
