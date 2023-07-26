@@ -14,6 +14,7 @@ const {shouldReturnHtml} = require('../utils/requestHelpers');
 const sanitize = require('sanitize-filename');
 const {getCircularReplacer} = require('../utils/getCircularReplacer');
 const Bundle = require('../fhir/classes/4_0_0/resources/bundle');
+const {logError} = require('../operations/common/logging');
 
 /**
  * Function to convert data into JSON format
@@ -120,7 +121,15 @@ const htmlRenderer = ({container, req, res, next}) => {
                 } else {
                     const filePath = __dirname + '/../views/pages/' + sanitize(resourceName);
                     return res.render(filePath, options,
-                        (err, html) => res.send(html));
+                        (err, html) => {
+                            if (err) {
+                                logError(`Error while rendering resource ${resourceName}`, {
+                                    message: err.message,
+                                    stack: err.stack
+                                });
+                            }
+                            return res.send(html);
+                        });
                 }
             } else {
                 return res.render(__dirname + '/../views/pages/index', options);
