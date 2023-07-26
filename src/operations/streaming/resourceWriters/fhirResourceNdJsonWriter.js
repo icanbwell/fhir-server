@@ -3,6 +3,7 @@ const env = require('var');
 const {convertErrorToOperationOutcome} = require('../../../utils/convertErrorToOperationOutcome');
 const {logInfo} = require('../../common/logging');
 const {FhirResourceWriterBase} = require('./fhirResourceWriterBase');
+const {getCircularReplacer} = require('../../../utils/getCircularReplacer');
 
 class FhirResourceNdJsonWriter extends FhirResourceWriterBase {
     /**
@@ -39,7 +40,7 @@ class FhirResourceNdJsonWriter extends FhirResourceWriterBase {
                 if (isTrue(env.LOG_STREAM_STEPS)) {
                     logInfo(`FhirResourceNdJsonWriter: _transform ${chunk['id']}`, {});
                 }
-                const resourceJson = JSON.stringify(chunk.toJSON());
+                const resourceJson = JSON.stringify(chunk.toJSON(), getCircularReplacer());
                 this.push(resourceJson + '\n', encoding);
             }
         } catch (e) {
