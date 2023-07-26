@@ -1,5 +1,4 @@
 const {convertErrorToOperationOutcome} = require('../../../utils/convertErrorToOperationOutcome');
-const {getCircularReplacer} = require('../../../utils/getCircularReplacer');
 const {FhirResourceWriterBase} = require('./fhirResourceWriterBase');
 
 class FhirResourceWriter extends FhirResourceWriterBase {
@@ -26,7 +25,7 @@ class FhirResourceWriter extends FhirResourceWriterBase {
 
     /**
      * transforms a chunk
-     * @param {Object} chunk
+     * @param {Resource} chunk
      * @param {import('stream').BufferEncoding} encoding
      * @param {import('stream').TransformCallBack} callback
      * @private
@@ -39,7 +38,7 @@ class FhirResourceWriter extends FhirResourceWriterBase {
         try {
 
             if (chunk !== null && chunk !== undefined) {
-                const resourceJson = JSON.stringify(chunk, getCircularReplacer());
+                const resourceJson = chunk.toJSON();
                 if (this._first) {
                     // write the beginning json
                     this._first = false;

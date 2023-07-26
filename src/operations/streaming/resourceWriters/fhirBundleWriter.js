@@ -54,7 +54,7 @@ class FhirBundleWriter extends FhirResourceWriterBase {
 
     /**
      * transforms a chunk
-     * @param {Object} chunk
+     * @param {Resource} chunk
      * @param {import('stream').BufferEncoding} encoding
      * @param {import('stream').TransformCallBack} callback
      * @private
@@ -67,11 +67,7 @@ class FhirBundleWriter extends FhirResourceWriterBase {
         try {
 
             if (chunk !== null && chunk !== undefined) {
-                const resourceJson = JSON.stringify(
-                    {
-                        resource: chunk
-                    }, getCircularReplacer()
-                );
+                const resourceJson = chunk.toJSON();
                 if (this._first) {
                     // write the beginning json
                     this._first = false;

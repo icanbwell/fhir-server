@@ -53,9 +53,20 @@ class FhirResourceCsvWriter extends Transform {
         this._contentType = contentType;
     }
 
-    // _transform(chunk, encoding, done) {
-    //     super._transform(chunk, encoding, done);
-    // }
+    /**
+     * transform
+     * @param {Resource} chunk
+     * @param encoding
+     * @param done
+     * @private
+     */
+    _transform(
+        chunk,
+        encoding,
+        done
+    ) {
+        return super._transform(chunk.toJSON(), encoding, done);
+    }
 
     /**
      * writes an OperationOutcome

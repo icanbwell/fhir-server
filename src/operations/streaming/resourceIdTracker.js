@@ -29,7 +29,7 @@ class ResourceIdTracker extends Transform {
 
     /**
      * transforms a chunk
-     * @param {Object} chunk
+     * @param {Resource} chunk
      * @param {import('stream').BufferEncoding} encoding
      * @param {import('stream').TransformCallBack} callback
      * @private

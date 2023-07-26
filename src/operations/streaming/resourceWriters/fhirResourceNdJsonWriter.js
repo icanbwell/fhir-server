@@ -24,7 +24,7 @@ class FhirResourceNdJsonWriter extends FhirResourceWriterBase {
 
     /**
      * transforms a chunk
-     * @param {Object} chunk
+     * @param {Resource} chunk
      * @param {import('stream').BufferEncoding} encoding
      * @param {import('stream').TransformCallBack} callback
      * @private
@@ -39,7 +39,7 @@ class FhirResourceNdJsonWriter extends FhirResourceWriterBase {
                 if (isTrue(env.LOG_STREAM_STEPS)) {
                     logInfo(`FhirResourceNdJsonWriter: _transform ${chunk['id']}`, {});
                 }
-                const resourceJson = JSON.stringify(chunk);
+                const resourceJson = chunk.toJSON();
                 this.push(resourceJson + '\n', encoding);
             }
         } catch (e) {
