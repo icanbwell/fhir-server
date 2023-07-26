@@ -1,0 +1,96 @@
+[
+  {
+    "resourceType": "QuestionnaireResponse",
+    "id": "140c02e4-e462-4be8-ab84-e0456ffe65eb",
+    "meta": {
+      "versionId": "1",
+      "lastUpdated": "2023-07-25T05:50:01.000Z",
+      "source": "http://www.icanbwell.com/consent-service",
+      "security": [
+        {
+          "system": "https://www.icanbwell.com/owner",
+          "code": "walgreens",
+          "display": "Walgreens",
+          "userSelected": false
+        },
+        {
+          "system": "https://www.icanbwell.com/access",
+          "code": "walgreens",
+          "display": "Walgreens",
+          "userSelected": false
+        },
+        {
+          "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+          "code": "walgreens"
+        }
+      ]
+    },
+    "identifier": {
+      "system": "http://www.icanbwell.com/identifier",
+      "value": "uhc_apple"
+    },
+    "questionnaire": "https://fhir.icanbwell.com/4_0_0/Questionnaire/110412fc-49d5-4af8-b3c3-694a1cef8cbb",
+    "status": "completed",
+    "subject": {
+      "extension": [
+        {
+          "id": "sourceId",
+          "url": "https://www.icanbwell.com/sourceId",
+          "valueString": "Patient/b3902f31-e70e-4293-aecd-512509f3104b"
+        },
+        {
+          "id": "uuid",
+          "url": "https://www.icanbwell.com/uuid",
+          "valueString": "Patient/b3902f31-e70e-4293-aecd-512509f3104b"
+        },
+        {
+          "id": "sourceAssigningAuthority",
+          "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+          "valueString": "walgreens"
+        }
+      ],
+      "reference": "Patient/b3902f31-e70e-4293-aecd-512509f3104b"
+    },
+    "authored": "2023-07-25T05:50:00.734Z",
+    "source": {
+      "extension": [
+        {
+          "id": "sourceId",
+          "url": "https://www.icanbwell.com/sourceId",
+          "valueString": "Patient/b3902f31-e70e-4293-aecd-512509f3104b"
+        },
+        {
+          "id": "uuid",
+          "url": "https://www.icanbwell.com/uuid",
+          "valueString": "Patient/b3902f31-e70e-4293-aecd-512509f3104b"
+        },
+        {
+          "id": "sourceAssigningAuthority",
+          "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+          "valueString": "walgreens"
+        }
+      ],
+      "reference": "Patient/b3902f31-e70e-4293-aecd-512509f3104b"
+    },
+    "item": [
+      {
+        "linkId": "/institution",
+        "text": "Institution",
+        "answer": [
+          {
+            "valueString": "uhc_apple"
+          }
+        ]
+      },
+      {
+        "linkId": "/accept",
+        "text": "I am authorized to enter these credentials for this account.",
+        "answer": [
+          {
+            "valueBoolean": true
+          }
+        ]
+      }
+    ]
+  }
+]

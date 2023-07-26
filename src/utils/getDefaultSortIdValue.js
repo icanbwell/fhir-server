@@ -12,7 +12,7 @@ function getDefaultSortIdValue(resource, defaultSortId) {
         return resource[String(defaultSortId)];
     }
     // if not present in resource then check in resource.identifier
-    if (resource.identifier) {
+    if (resource.identifier && Array.isArray(resource.identifier)) {
         return resource.identifier.find(
             identifier => identifier.system === IdentifierSystem[defaultSortId.replace('_', '')]
         ).value;
