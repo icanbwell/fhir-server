@@ -58,6 +58,7 @@ class FhirResourceNdJsonWriter extends FhirResourceWriterBase {
         if (isTrue(env.LOG_STREAM_STEPS)) {
             logInfo('FhirResourceNdJsonWriter: _flush', {});
         }
+        this.push(null);
         callback();
     }
 

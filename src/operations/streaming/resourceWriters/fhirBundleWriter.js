@@ -143,6 +143,7 @@ class FhirBundleWriter extends FhirResourceWriterBase {
             }
             this.push(']}');
         }
+        this.push(null);
         callback();
     }
 }

@@ -68,6 +68,7 @@ class FhirResourceWriter extends FhirResourceWriterBase {
         }
         // write ending json
         this.push(']');
+        this.push(null);
         callback();
     }
 
