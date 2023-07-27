@@ -9,6 +9,7 @@ const practitionerResource2 = require('./fixtures/practitioner/practitioner2.jso
 const practitionerResource3 = require('./fixtures/practitioner/practitioner3.json');
 const {FhirResourceCsvWriter} = require('../../../operations/streaming/resourceWriters/fhirResourceCsvWriter');
 const {fhirContentTypes} = require('../../../utils/contentTypes');
+const Practitioner = require('../../../fhir/classes/4_0_0/resources/practitioner');
 
 
 describe('JSON 2 CSV', () => {
@@ -102,7 +103,7 @@ describe('JSON 2 CSV', () => {
             objectMode: true,
             read() {
                 // Push your object(s) to the stream
-                this.push(practitionerResource);
+                this.push(new Practitioner(practitionerResource));
                 this.push(null); // Signal the end of the stream
             }
         });
@@ -128,9 +129,9 @@ describe('JSON 2 CSV', () => {
             objectMode: true,
             read() {
                 // Push your object(s) to the stream
-                this.push(practitionerResource);
-                this.push(practitionerResource2);
-                this.push(practitionerResource3);
+                this.push(new Practitioner(practitionerResource));
+                this.push(new Practitioner(practitionerResource2));
+                this.push(new Practitioner(practitionerResource3));
                 this.push(null); // Signal the end of the stream
             }
         });
