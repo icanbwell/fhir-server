@@ -52,7 +52,7 @@ class ObjectChunker extends Transform {
                 this._buffer.push(chunk1);
             }
         } catch (e) {
-            throw new AggregateError([e], 'ObjectChunker _transform: error');
+            this.emit('error', new AggregateError([e], 'ObjectChunker _transform: error'));
         }
         callback();
     }

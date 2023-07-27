@@ -17,7 +17,7 @@ const {
 const {describe, beforeEach, afterEach, expect, test} = require('@jest/globals');
 const {ConfigManager} = require('../../../utils/configManager');
 
-class MockConfigManagerDefaultSortId extends ConfigManager {
+class MockConfigManagerStreaming extends ConfigManager {
     get defaultSortId() {
         return '_uuid';
     }
@@ -51,7 +51,7 @@ describe('search by multiple ids streaming', () => {
     describe('Practitioner Search By Multiple Ids Tests', () => {
         test('search by single id works', async () => {
             const request = await createTestRequest((c) => {
-                c.register('configManager', () => new MockConfigManagerDefaultSortId());
+                c.register('configManager', () => new MockConfigManagerStreaming());
                 return c;
             });
             let resp = await request.get('/4_0_0/Practitioner').set(getHeaders());
@@ -82,7 +82,7 @@ describe('search by multiple ids streaming', () => {
         });
         test('search by multiple id works', async () => {
             const request = await createTestRequest((c) => {
-                c.register('configManager', () => new MockConfigManagerDefaultSortId());
+                c.register('configManager', () => new MockConfigManagerStreaming());
                 return c;
             });
             let resp = await request.get('/4_0_0/Practitioner').set(getHeaders());
@@ -122,7 +122,7 @@ describe('search by multiple ids streaming', () => {
         });
         test('search by multiple id works via POST', async () => {
             const request = await createTestRequest((c) => {
-                c.register('configManager', () => new MockConfigManagerDefaultSortId());
+                c.register('configManager', () => new MockConfigManagerStreaming());
                 return c;
             });
             let resp = await request
@@ -155,7 +155,7 @@ describe('search by multiple ids streaming', () => {
         });
         test('search by multiple id works via POST (x-www-form-urlencoded)', async () => {
             const request = await createTestRequest((c) => {
-                c.register('configManager', () => new MockConfigManagerDefaultSortId());
+                c.register('configManager', () => new MockConfigManagerStreaming());
                 return c;
             });
             let resp = await request

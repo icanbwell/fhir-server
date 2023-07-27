@@ -11,9 +11,32 @@ const {
 } = require('../../common');
 const {describe, beforeEach, afterEach, expect, test} = require('@jest/globals');
 const env = require('var');
+const {ConfigManager} = require('../../../utils/configManager');
 let oldEnvLogLevel;
 
-describe('PractitionerReturnIdTests', () => {
+class MockConfigManagerStreaming extends ConfigManager {
+    get defaultSortId() {
+        return '_uuid';
+    }
+
+    get streamResponse() {
+        return true;
+    }
+
+    get enableReturnBundle() {
+        return true;
+    }
+
+    get streamingHighWaterMark() {
+        return 1;
+    }
+
+    get logStreamSteps() {
+        return true;
+    }
+}
+
+describe('seach by id many performance', () => {
     beforeEach(async () => {
         await commonBeforeEach();
         oldEnvLogLevel = env.LOGLEVEL;
@@ -26,13 +49,18 @@ describe('PractitionerReturnIdTests', () => {
     });
 
     describe('Practitioner Search By 10,0000 Tests', () => {
+        // noinspection FunctionWithMultipleLoopsJS
         test(
             'search by 2,000 id works',
             async () => {
-                const request = await createTestRequest();
+                const request = await createTestRequest((c) => {
+                    c.register('configManager', () => new MockConfigManagerStreaming());
+                    return c;
+                });
                 // first confirm there are no practitioners
-                let resp = await request.get('/4_0_0/Practitioner').set(getHeaders()).expect(200);
-                expect(resp.body.length).toBe(0);
+                let resp = await request.get('/4_0_0/Practitioner').set(getHeaders());
+                // noinspection JSUnresolvedReference
+                expect(resp).toHaveResourceCount(0);
 
                 const initialId = practitionerResource.id;
                 const bundle = {
@@ -53,7 +81,8 @@ describe('PractitionerReturnIdTests', () => {
                     .send(bundle)
                     .set(getHeaders());
 
-                expect(resp.body.length).toBe(numberOfResources);
+                // noinspection JSUnresolvedReference
+                expect(resp).toHaveResourceCount(numberOfResources);
                 for (const result of resp.body) {
                     expect(result.created).toStrictEqual(true);
                 }
@@ -61,9 +90,9 @@ describe('PractitionerReturnIdTests', () => {
                 // now check that we get the right record back
                 resp = await request
                     .get('/4_0_0/Practitioner/?_count=10')
-                    .set(getHeaders())
-                    .expect(200);
-                expect(resp.body.length).toBe(10);
+                    .set(getHeaders());
+                // noinspection JSUnresolvedReference
+                expect(resp).toHaveResourceCount(10);
 
                 // now check that we get the right record back
                 resp = await request
