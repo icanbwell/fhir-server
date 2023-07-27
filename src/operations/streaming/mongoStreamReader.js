@@ -53,7 +53,7 @@ class MongoReadableStream extends Readable {
         if (!this.isFetchingData) {
             this.isFetchingData = true;
             try {
-                await this.readAsync();
+                await this.readAsync(size);
             } catch (error) {
                 // Handle any errors that may occur during data retrieval
                 this.emit('error', error);
@@ -64,28 +64,37 @@ class MongoReadableStream extends Readable {
         }
     }
 
-    async readAsync() {
-        if (await this.cursor.hasNext()) {
-            if (this.signal.aborted) {
-                if (isTrue(env.LOG_STREAM_STEPS)) {
-                    logInfo('mongoStreamReader: aborted', {});
+    /**
+     * @param size
+     * @returns {Promise<void>}
+     */
+    async readAsync(size) {
+        let count = 0;
+        while (count <= size) {
+            if (await this.cursor.hasNext()) {
+                if (this.signal.aborted) {
+                    if (isTrue(env.LOG_STREAM_STEPS)) {
+                        logInfo('mongoStreamReader: aborted', {});
+                    }
+                    return;
                 }
+                if (isTrue(env.LOG_STREAM_STEPS)) {
+                    logInfo('mongoStreamReader: read', {});
+                }
+                count++;
+                /**
+                 * element
+                 * @type {Resource}
+                 */
+                let resource = await this.cursor.next();
+                if (this.databaseAttachmentManager) {
+                    resource = await this.databaseAttachmentManager.transformAttachments(resource, RETRIEVE);
+                }
+                this.push(resource);
+            } else {
+                this.push(null);
                 return;
             }
-            if (isTrue(env.LOG_STREAM_STEPS)) {
-                logInfo('mongoStreamReader: read', {});
-            }
-            /**
-             * element
-             * @type {Resource}
-             */
-            let resource = await this.cursor.next();
-            if (this.databaseAttachmentManager) {
-                resource = await this.databaseAttachmentManager.transformAttachments(resource, RETRIEVE);
-            }
-            this.push(resource);
-        } else {
-            this.push(null);
         }
     }
 }

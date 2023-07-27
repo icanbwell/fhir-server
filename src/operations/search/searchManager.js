@@ -49,7 +49,7 @@ class SearchManager {
      * @param {DatabaseAttachmentManager} databaseAttachmentManager
      * @param {FhirResourceWriterFactory} fhirResourceWriterFactory
      * @param {ConsentManager} ConsentManager
-     * @param {SearchQueryBuilder} SearchQueryBuilder
+     * @param {SearchQueryBuilder} searchQueryBuilder
      */
     constructor(
         {
