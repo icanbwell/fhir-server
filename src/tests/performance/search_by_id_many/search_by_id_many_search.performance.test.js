@@ -31,7 +31,7 @@ class MockConfigManagerStreaming extends ConfigManager {
     }
 
     get streamingHighWaterMark() {
-        return 1;
+        return 100;
     }
 
     get logStreamSteps() {
