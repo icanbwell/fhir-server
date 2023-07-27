@@ -67,8 +67,6 @@ class HttpResponseWriter extends Writable {
             logger.warn('Response timeout');
         });
         this.response.flushHeaders();
-        // Disable response buffering
-        this.response.buffer = false;
         callback();
     }
 

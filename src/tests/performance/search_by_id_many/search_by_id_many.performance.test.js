@@ -67,7 +67,7 @@ describe('seach by id many performance', () => {
                     resourceType: 'Bundle',
                     entry: [],
                 };
-                const numberOfResources = 2000;
+                const numberOfResources = 5000;
                 for (let i = 0; i < numberOfResources; i++) {
                     practitionerResource.id = initialId + '-' + i;
                     bundle.entry.push({
