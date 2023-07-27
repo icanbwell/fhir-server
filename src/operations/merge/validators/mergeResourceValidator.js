@@ -142,7 +142,7 @@ class MergeResourceValidator {
                 }
                 // Check resource has a owner tag or access tag as owner can be generated from access tags
                 // in the preSave handlers before inserting the document.
-                if (!this.scopesManager.doesResourceHaveOwnerTags(resource) && !this.scopesManager.doesResourceHaveAccessTags(resource)) {
+                if (!this.scopesManager.doesResourceHaveOwnerTags(resource)) {
                     throw new BadRequestError(
                         new Error(
                             `Resource ${resource.resourceType}/${resource.id}` +
