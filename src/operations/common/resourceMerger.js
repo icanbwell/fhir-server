@@ -160,7 +160,10 @@ class ResourceMerger {
         patchContent = patchContent.filter(
             item => !(
                 item.path.startsWith('/identifier') &&
-                item.value && (item.value.system === IdentifierSystem.uuid || isUuid(item.value))
+                item.value && (
+                    (typeof item.value === 'string' && isUuid(item.value)) ||
+                    (typeof item.value === 'object' && item.value.system === IdentifierSystem.uuid)
+                )
             )
         );
         // or any changes to sourceId
