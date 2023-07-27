@@ -27,6 +27,7 @@ const {R4ArgsParser} = require('./query/r4ArgsParser');
 const {REQUEST_ID_TYPE} = require('../constants');
 const {shouldStreamResponse} = require('../utils/requestHelpers');
 const {ParametersBodyParser} = require('./common/parametersBodyParser');
+const {fhirContentTypes} = require('../utils/contentTypes');
 
 // const {shouldStreamResponse} = require('../utils/requestHelpers');
 
@@ -303,14 +304,7 @@ class FhirOperationsManager {
          * @type {Object}
          */
         let combined_args = get_all_args(req, args);
-        if (req.body) {
-            combined_args = new ParametersBodyParser().parseIntoParameters(
-                {
-                    body: req.body,
-                    args: combined_args
-                }
-            );
-        }
+        combined_args = this.parseParametersFromBody({req, combined_args});
         /**
          * @type {ParsedArgs}
          */
@@ -341,15 +335,7 @@ class FhirOperationsManager {
          * @type {Object}
          */
         let combined_args = get_all_args(req, args);
-
-        if (req.body) {
-            combined_args = new ParametersBodyParser().parseIntoParameters(
-                {
-                    body: req.body,
-                    args: combined_args
-                }
-            );
-        }
+        combined_args = this.parseParametersFromBody({req, combined_args});
 
         /**
          * @type {ParsedArgs}
@@ -365,6 +351,29 @@ class FhirOperationsManager {
                 parsedArgs,
                 resourceType
             });
+    }
+
+    parseParametersFromBody({req, combined_args}) {
+        let args = combined_args;
+        if (req.body) {
+            if (req.headers['content-type'] === fhirContentTypes.form_urlencoded) {
+                args = new ParametersBodyParser().parseFormUrlEncoded(
+                    {
+                        body: req.body,
+                        args: combined_args
+                    }
+                );
+            } else {
+                args = new ParametersBodyParser().parseParametersResource(
+                    {
+                        body: req.body,
+                        args: combined_args
+                    }
+                );
+
+            }
+        }
+        return args;
     }
 
     /**
