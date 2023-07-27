@@ -7,7 +7,7 @@ const {
     getHeaders,
     createTestRequest,
 } = require('../../common');
-const {describe, beforeEach, afterEach, test } = require('@jest/globals');
+const {describe, beforeEach, afterEach, test} = require('@jest/globals');
 const {ConfigManager} = require('../../../utils/configManager');
 
 class MockConfigManagerDefaultSortId extends ConfigManager {
@@ -16,7 +16,11 @@ class MockConfigManagerDefaultSortId extends ConfigManager {
     }
 
     get streamResponse() {
-        return false;
+        return true;
+    }
+
+    get enableReturnBundle() {
+        return true;
     }
 }
 
