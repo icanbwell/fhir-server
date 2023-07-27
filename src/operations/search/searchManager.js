@@ -1054,20 +1054,20 @@ class SearchManager {
             }
         );
 
+        /**
+         * @type {Readable}
+         */
+        const readableMongoStream = new MongoReadableStream({
+            cursor,
+            signal:
+            ac.signal,
+            databaseAttachmentManager: this.databaseAttachmentManager,
+            highWaterMark: highWaterMark,
+            configManager: this.configManager,
+        });
+
 
         try {
-            /**
-             * @type {Readable}
-             */
-            const readableMongoStream = new MongoReadableStream({
-                cursor,
-                signal:
-                ac.signal,
-                databaseAttachmentManager: this.databaseAttachmentManager,
-                highWaterMark: highWaterMark,
-                configManager: this.configManager,
-            });
-
             // now setup and run the pipeline
             await pipeline(
                 readableMongoStream,
@@ -1083,7 +1083,7 @@ class SearchManager {
                 responseWriter,
             );
         } catch (e) {
-            logError('', {user, error: e});
+            logError(`SearchManager.streamResourcesFromCursorAsync: ${e.message} `, {user, error: e});
             /**
              * @type {OperationOutcome}
              */
@@ -1094,7 +1094,9 @@ class SearchManager {
                         error: e
                     })
             });
-            fhirWriter.writeOperationOutcome({operationOutcome});
+            if (Object.hasOwn(fhirWriter, 'writeOperationOutcome')) {
+                fhirWriter.writeOperationOutcome({operationOutcome});
+            }
             ac.abort();
         } finally {
             res.removeListener('close', onResponseClose);
