@@ -13,6 +13,7 @@ class ResponseChunkParser {
                 text += chunk;
                 chunkNumber++;
                 console.log(`FhirBundleParser received chunk ${chunkNumber} of length ${chunk.length}`);
+                console.log(chunk);
             });
             req.on('end', () => {
                 // Process the response data here
@@ -40,6 +41,7 @@ class ResponseChunkParser {
                 chunkNumber++;
                 console.log(`TextParser received chunk ${chunkNumber} with ${lineCount} lines. ` +
                     `Total lines: ${totalLineCount}, Total length: ${chunk.length}`);
+                console.log(chunk);
             });
             req.on('end', () => {
                 // Process the response data here

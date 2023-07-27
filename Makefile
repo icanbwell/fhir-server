@@ -12,7 +12,6 @@ publish:
 
 .PHONY:up
 up:
-	docker compose -f docker-compose.yml  -p fhir-dev build --parallel && \
 	docker compose -p fhir-dev -f docker-compose.yml up --detach && \
 	echo "\nwaiting for Mongo server to become healthy" && \
 	while [ "`docker inspect --format {{.State.Health.Status}} fhir-dev-mongo-1`" != "healthy" ] && [ "`docker inspect --format {{.State.Health.Status}} fhir-dev-mongo-1`" != "unhealthy" ] && [ "`docker inspect --format {{.State.Status}} fhir-dev-mongo-1`" != "restarting" ]; do printf "." && sleep 2; done && \
