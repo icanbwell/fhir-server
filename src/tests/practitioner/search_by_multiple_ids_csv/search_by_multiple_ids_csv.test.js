@@ -21,7 +21,7 @@ class MockConfigManagerDefaultSortId extends ConfigManager {
     }
 }
 
-describe('PractitionerReturnIdTests', () => {
+describe('search by multiple ids csv', () => {
     beforeEach(async () => {
         await commonBeforeEach();
     });
@@ -297,7 +297,7 @@ describe('PractitionerReturnIdTests', () => {
 
             resp = await request
                 .post('/4_0_0/Practitioner/_search?_sort=id&_streamResponse=1')
-                .send({id: '0,1679033641'})
+                .send({resourceType: 'Parameters', parameter: [{name: 'id', valueString: '0,1679033641'}]})
                 .set(getHeadersCsv());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedPractitionerCsv);
