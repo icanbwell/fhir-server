@@ -1,4 +1,3 @@
-const deepcopy = require('deepcopy');
 // provider file
 const practitionerResource = require('./fixtures/practitioner/practitioner.json');
 
@@ -53,7 +52,7 @@ describe('seach by id many performance', () => {
         env.LOGLEVEL = oldEnvLogLevel;
     });
 
-    describe('Practitioner Merge & Search By 10,0000 Tests', () => {
+    describe('Practitioner Search By 10,0000 Tests', () => {
         // noinspection FunctionWithMultipleLoopsJS
         test(
             'search by 2,000 id works',
@@ -74,9 +73,10 @@ describe('seach by id many performance', () => {
                 };
                 const numberOfResources = 2000;
                 for (let i = 0; i < numberOfResources; i++) {
-                    practitionerResource.id = initialId + '-' + i;
+                    const newId = initialId + '-' + i;
+                    practitionerResource.id = newId;
                     bundle.entry.push({
-                        resource: deepcopy(practitionerResource),
+                        resource: Object.assign({}, practitionerResource, {id: newId}),
                     });
                 }
 

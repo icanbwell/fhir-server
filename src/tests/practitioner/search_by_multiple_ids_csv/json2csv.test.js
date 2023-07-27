@@ -10,6 +10,7 @@ const practitionerResource3 = require('./fixtures/practitioner/practitioner3.jso
 const {FhirResourceCsvWriter} = require('../../../operations/streaming/resourceWriters/fhirResourceCsvWriter');
 const {fhirContentTypes} = require('../../../utils/contentTypes');
 const Practitioner = require('../../../fhir/classes/4_0_0/resources/practitioner');
+const {ConfigManager} = require('../../../utils/configManager');
 
 
 describe('JSON 2 CSV', () => {
@@ -116,7 +117,8 @@ describe('JSON 2 CSV', () => {
         const parser = new FhirResourceCsvWriter({
             signal: ac.signal,
             delimiter: ',',
-            contentType: fhirContentTypes.csv
+            contentType: fhirContentTypes.csv,
+            configManager: new ConfigManager()
         });
         const processor = objectReadableStream.pipe(parser).pipe(output);
         await new Promise(fulfill => processor.on('finish', fulfill));
@@ -144,7 +146,8 @@ describe('JSON 2 CSV', () => {
         const parser = new FhirResourceCsvWriter({
             signal: ac.signal,
             delimiter: ',',
-            contentType: fhirContentTypes.csv
+            contentType: fhirContentTypes.csv,
+            configManager: new ConfigManager()
         });
         const processor = objectReadableStream.pipe(parser).pipe(output);
         await new Promise(fulfill => processor.on('finish', fulfill));
