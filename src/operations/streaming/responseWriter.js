@@ -107,7 +107,7 @@ class HttpResponseWriter extends Writable {
                 callback();
             }
         } catch (e) {
-            this.emit('error', new AggregateError([e], 'HttpResponseWriter _transform: error'));
+            callback(new AggregateError([e], 'HttpResponseWriter _transform: error'));
         }
     }
 

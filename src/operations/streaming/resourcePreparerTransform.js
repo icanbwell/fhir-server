@@ -105,7 +105,7 @@ class ResourcePreparerTransform extends Transform {
                     throw new AggregateError([reason], `ResourcePreparer _transform: error: ${reason}`);
                 });
         } catch (e) {
-            this.emit('error', new AggregateError([e], `ResourcePreparer _transform: error: ${e}`));
+            callback(new AggregateError([e], `ResourcePreparer _transform: error: ${e}`));
         }
     }
 

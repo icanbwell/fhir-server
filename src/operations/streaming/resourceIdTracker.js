@@ -47,7 +47,6 @@ class ResourceIdTracker extends Transform {
             return;
         }
         try {
-
             if (chunk !== null && chunk !== undefined) {
                 if (this.configManager.logStreamSteps) {
                     logInfo(`ResourceIdTracker: _transform ${chunk.id}`, {});
@@ -55,10 +54,10 @@ class ResourceIdTracker extends Transform {
                 this._tracker.id.push(chunk['id']);
                 this.push(chunk, encoding);
             }
+            callback();
         } catch (e) {
-            this.emit('error', new AggregateError([e], 'ResourceIdTracker _transform: error'));
+            callback(new AggregateError([e], 'ResourceIdTracker _transform: error'));
         }
-        callback();
     }
 }
 

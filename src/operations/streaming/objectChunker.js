@@ -51,10 +51,10 @@ class ObjectChunker extends Transform {
                 }
                 this._buffer.push(chunk1);
             }
+            callback();
         } catch (e) {
-            this.emit('error', new AggregateError([e], 'ObjectChunker _transform: error'));
+            callback(new AggregateError([e], 'ObjectChunker _transform: error'));
         }
-        callback();
     }
 
     /**
