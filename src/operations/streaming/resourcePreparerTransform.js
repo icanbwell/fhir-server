@@ -122,9 +122,6 @@ class ResourcePreparerTransform extends Transform {
             })
             .then(
                 /** @type {Resource[]} */resources => {
-                    if (this.configManager.logStreamSteps) {
-                        logInfo('ResourcePreparerTransform: _transform', {});
-                    }
                     if (resources.length > 0) {
                         for (const /** @type {Resource} */ resource of resources) {
                             // Remove any duplicates

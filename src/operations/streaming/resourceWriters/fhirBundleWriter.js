@@ -82,7 +82,7 @@ class FhirBundleWriter extends FhirResourceWriterBase {
                     }, getCircularReplacer()
                 );
                 if (this.configManager.logStreamSteps) {
-                    logInfo('FhirBundleWriter _transform', {resourceJson});
+                    logInfo(`FhirBundleWriter _transform ${chunk['id']}`, {});
                 }
                 if (this._first) {
                     // write the beginning json

@@ -86,15 +86,15 @@ class MongoReadableStream extends Readable {
                     }
                     return;
                 }
-                if (this.configManager.logStreamSteps) {
-                    logInfo('mongoStreamReader: read', {count, size});
-                }
                 count++;
                 /**
                  * element
                  * @type {Resource}
                  */
                 let resource = await this.cursor.next();
+                if (this.configManager.logStreamSteps) {
+                    logInfo(`mongoStreamReader: read ${resource.id}`, {count, size});
+                }
                 if (this.databaseAttachmentManager) {
                     resource = await this.databaseAttachmentManager.transformAttachments(resource, RETRIEVE);
                 }

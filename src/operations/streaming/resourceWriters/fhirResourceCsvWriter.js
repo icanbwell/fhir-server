@@ -70,7 +70,7 @@ class FhirResourceCsvWriter extends Transform {
         done
     ) {
         if (this.configManager.logStreamSteps) {
-            logInfo('FhirResourceCsvWriter._transform', {chunk: chunk.toJSON()});
+            logInfo(`FhirResourceCsvWriter._transform${chunk['id']}`, {});
         }
         return super._transform(chunk.toJSON(), encoding, done);
     }

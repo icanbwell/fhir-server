@@ -10,7 +10,6 @@ const {Transform} = require('stream');
 const {IndexHinter} = require('../../indexes/indexHinter');
 const {HttpResponseWriter} = require('../streaming/responseWriter');
 const {ResourceIdTracker} = require('../streaming/resourceIdTracker');
-const {ObjectChunker} = require('../streaming/objectChunker');
 const {DatabaseQueryFactory} = require('../../dataLayer/databaseQueryFactory');
 const {ResourceLocatorFactory} = require('../common/resourceLocatorFactory');
 const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
@@ -963,6 +962,7 @@ class SearchManager {
             resourceType,
             useAccessIndex,
             accepts,
+            // eslint-disable-next-line no-unused-vars
             batchObjectCount = 1,
             defaultSortId
         }
@@ -1068,17 +1068,9 @@ class SearchManager {
                 configManager: this.configManager,
             });
 
-            const objectChunker = new ObjectChunker({
-                chunkSize: batchObjectCount,
-                signal: ac.signal,
-                highWaterMark: highWaterMark,
-                configManager: this.configManager,
-            });
-
             // now setup and run the pipeline
             await pipeline(
                 readableMongoStream,
-                objectChunker,
                 // new Transform({
                 //     objectMode: true,
                 //     transform(chunk, encoding, callback) {
