@@ -26,6 +26,7 @@ const {QueryRewriterManager} = require('../queryRewriters/queryRewriterManager')
 const {R4ArgsParser} = require('./query/r4ArgsParser');
 const {REQUEST_ID_TYPE} = require('../constants');
 const {shouldStreamResponse} = require('../utils/requestHelpers');
+const {ParametersBodyParser} = require('./common/parametersBodyParser');
 
 // const {shouldStreamResponse} = require('../utils/requestHelpers');
 
@@ -302,8 +303,13 @@ class FhirOperationsManager {
          * @type {Object}
          */
         let combined_args = get_all_args(req, args);
-        if (req.body && Object.keys(req.body).length > 0) {
-            combined_args = Object.assign({}, args, req.body);
+        if (req.body) {
+            combined_args = new ParametersBodyParser().parseIntoParameters(
+                {
+                    body: req.body,
+                    args: combined_args
+                }
+            );
         }
         /**
          * @type {ParsedArgs}
@@ -335,9 +341,16 @@ class FhirOperationsManager {
          * @type {Object}
          */
         let combined_args = get_all_args(req, args);
-        if (req.body && Object.keys(req.body).length > 0) {
-            combined_args = Object.assign({}, args, req.body);
+
+        if (req.body) {
+            combined_args = new ParametersBodyParser().parseIntoParameters(
+                {
+                    body: req.body,
+                    args: combined_args
+                }
+            );
         }
+
         /**
          * @type {ParsedArgs}
          */
