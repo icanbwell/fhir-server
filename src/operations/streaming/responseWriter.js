@@ -1,7 +1,8 @@
 const {Writable} = require('stream');
 const {getLogger} = require('../../winstonInit');
-const {assertIsValid} = require('../../utils/assertType');
+const {assertIsValid, assertTypeEquals} = require('../../utils/assertType');
 const {hasNdJsonContentType} = require('../../utils/contentTypes');
+const {ConfigManager} = require('../../utils/configManager');
 const logger = getLogger();
 
 class HttpResponseWriter extends Writable {
@@ -50,6 +51,7 @@ class HttpResponseWriter extends Writable {
          * @type {ConfigManager}
          */
         this.configManager = configManager;
+        assertTypeEquals(configManager, ConfigManager);
     }
 
     _construct(callback) {

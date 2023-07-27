@@ -1,5 +1,7 @@
 const {Transform} = require('stream');
 const {logInfo} = require('../common/logging');
+const {assertTypeEquals} = require('../../utils/assertType');
+const {ConfigManager} = require('../../utils/configManager');
 
 class ResourceIdTracker extends Transform {
     /**
@@ -29,6 +31,7 @@ class ResourceIdTracker extends Transform {
          * @type {ConfigManager}
          */
         this.configManager = configManager;
+        assertTypeEquals(configManager, ConfigManager);
     }
 
     /**

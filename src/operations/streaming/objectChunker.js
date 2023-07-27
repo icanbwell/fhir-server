@@ -1,5 +1,7 @@
 const {Transform} = require('stream');
 const {logInfo} = require('../common/logging');
+const {assertTypeEquals} = require('../../utils/assertType');
+const {ConfigManager} = require('../../utils/configManager');
 
 class ObjectChunker extends Transform {
     /**
@@ -21,6 +23,7 @@ class ObjectChunker extends Transform {
          * @type {ConfigManager}
          */
         this.configManager = configManager;
+        assertTypeEquals(configManager, ConfigManager);
     }
 
     /**

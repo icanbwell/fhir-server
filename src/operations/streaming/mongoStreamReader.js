@@ -1,5 +1,7 @@
 const {Readable} = require('stream');
 const {logInfo} = require('../common/logging');
+const {assertTypeEquals} = require('../../utils/assertType');
+const {ConfigManager} = require('../../utils/configManager');
 const {RETRIEVE} = require('../../constants').GRIDFS;
 
 // https://thenewstack.io/node-js-readable-streams-explained/
@@ -45,6 +47,7 @@ class MongoReadableStream extends Readable {
          * @type {ConfigManager}
          */
         this.configManager = configManager;
+        assertTypeEquals(configManager, ConfigManager);
 
         /**
          * @type {boolean}

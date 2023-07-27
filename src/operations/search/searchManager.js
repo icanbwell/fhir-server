@@ -1012,7 +1012,8 @@ class SearchManager {
                 bundle: parsedArgs['_bundle'],
                 fnBundle,
                 defaultSortId,
-                highWaterMark: highWaterMark
+                highWaterMark: highWaterMark,
+                configManager: this.configManager
             }
         );
 

@@ -1,9 +1,11 @@
 const {removeNull} = require('../../../utils/nullRemover');
-const {assertIsValid} = require('../../../utils/assertType');
+const {assertIsValid, assertTypeEquals} = require('../../../utils/assertType');
 const {getCircularReplacer} = require('../../../utils/getCircularReplacer');
 const {FhirResourceWriterBase} = require('./fhirResourceWriterBase');
 const {fhirContentTypes} = require('../../../utils/contentTypes');
 const {getDefaultSortIdValue} = require('../../../utils/getDefaultSortIdValue');
+const {ConfigManager} = require('../../../utils/configManager');
+const {logInfo} = require('../../common/logging');
 
 class FhirBundleWriter extends FhirResourceWriterBase {
     /**
@@ -13,8 +15,9 @@ class FhirBundleWriter extends FhirResourceWriterBase {
      * @param {AbortSignal} signal
      * @param {string} defaultSortId
      * @param {number} highWaterMark
+     * @param {ConfigManager} configManager
      */
-    constructor({fnBundle, url, signal, defaultSortId, highWaterMark}) {
+    constructor({fnBundle, url, signal, defaultSortId, highWaterMark, configManager}) {
         super({objectMode: true, contentType: fhirContentTypes.fhirJson, highWaterMark: highWaterMark});
         /**
          * @type {function (string | null, number): Bundle}
@@ -50,6 +53,12 @@ class FhirBundleWriter extends FhirResourceWriterBase {
          * @type {string}
          */
         this.defaultSortId = defaultSortId;
+
+        /**
+         * @type {ConfigManager}
+         */
+        this.configManager = configManager;
+        assertTypeEquals(configManager, ConfigManager);
     }
 
     /**
@@ -72,6 +81,9 @@ class FhirBundleWriter extends FhirResourceWriterBase {
                         resource: chunk.toJSON()
                     }, getCircularReplacer()
                 );
+                if (this.configManager.logStreamSteps) {
+                    logInfo('FhirBundleWriter _transform', {resourceJson});
+                }
                 if (this._first) {
                     // write the beginning json
                     this._first = false;
@@ -84,7 +96,7 @@ class FhirBundleWriter extends FhirResourceWriterBase {
                 this._lastid = getDefaultSortIdValue(chunk, this.defaultSortId);
             }
         } catch (e) {
-            throw new AggregateError([e], 'FhirBundleWriter _transform: error');
+            this.emit('error', new AggregateError([e], 'FhirBundleWriter _transform: error'));
         }
         callback();
     }
@@ -116,7 +128,11 @@ class FhirBundleWriter extends FhirResourceWriterBase {
             const bundleJson = JSON.stringify(cleanObject);
 
             // write ending json
-            this.push('],' + bundleJson.substring(1)); // skip the first "}"
+            const output = '],' + bundleJson.substring(1);
+            if (this.configManager.logStreamSteps) {
+                logInfo('FhirBundleWriter _flush', {output});
+            }
+            this.push(output); // skip the first "}"
         } catch (e) {
             // don't let error past this since we're streaming so we can't send errors to http client
             const operationOutcome = {
