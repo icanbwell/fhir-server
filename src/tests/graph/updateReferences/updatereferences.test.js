@@ -20,6 +20,10 @@ const patient1Resource = require('./fixtures/Patient/patient1.json');
 const {ConfigManager} = require('../../../utils/configManager');
 
 class MockConfigManager extends ConfigManager {
+    get defaultSortId() {
+        return 'id';
+    }
+
     get enableGlobalIdSupport() {
         return true;
     }

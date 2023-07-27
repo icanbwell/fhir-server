@@ -10,7 +10,6 @@ const {Transform} = require('stream');
 const {IndexHinter} = require('../../indexes/indexHinter');
 const {HttpResponseWriter} = require('../streaming/responseWriter');
 const {ResourceIdTracker} = require('../streaming/resourceIdTracker');
-const {ObjectChunker} = require('../streaming/objectChunker');
 const {DatabaseQueryFactory} = require('../../dataLayer/databaseQueryFactory');
 const {ResourceLocatorFactory} = require('../common/resourceLocatorFactory');
 const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
@@ -49,7 +48,7 @@ class SearchManager {
      * @param {DatabaseAttachmentManager} databaseAttachmentManager
      * @param {FhirResourceWriterFactory} fhirResourceWriterFactory
      * @param {ConsentManager} ConsentManager
-     * @param {SearchQueryBuilder} SearchQueryBuilder
+     * @param {SearchQueryBuilder} searchQueryBuilder
      */
     constructor(
         {
@@ -160,7 +159,7 @@ class SearchManager {
      * @param {string} personIdFromJwtToken
      * @param {ParsedArgs} parsedArgs
      * @param {boolean|undefined} [useHistoryTable]
-     * @returns Promise<{{base_version, columns: Set, query: import('mongodb').Document}}>
+     * @returns {Promise<{base_version: string, columns: Set, query: import('mongodb').Document}>}
      */
     async constructQueryAsync(
         {
@@ -198,7 +197,12 @@ class SearchManager {
             let columns;
 
             // eslint-disable-next-line no-useless-catch
-            ({query, columns} = this.searchQueryBuilder.buildSearchQueryBasedOnVersion({ base_version, parsedArgs, resourceType, useHistoryTable}));
+            ({query, columns} = this.searchQueryBuilder.buildSearchQueryBasedOnVersion({
+                base_version,
+                parsedArgs,
+                resourceType,
+                useHistoryTable
+            }));
 
             // JWT has access tag in scope i.e API call from a specific client
             if (securityTags && securityTags.length > 0) {
@@ -208,8 +212,15 @@ class SearchManager {
                 });
 
                 // Update Query for Consent based data access
-                if (this.configManager.enableConsentedDataAccess){
-                    query = await this.consentManager.getQueryForPatientsWithConsent({base_version, resourceType, parsedArgs, securityTags, query, useHistoryTable});
+                if (this.configManager.enableConsentedDataAccess) {
+                    query = await this.consentManager.getQueryForPatientsWithConsent({
+                        base_version,
+                        resourceType,
+                        parsedArgs,
+                        securityTags,
+                        query,
+                        useHistoryTable
+                    });
                 }
             }
             if (hasPatientScope) {
@@ -812,7 +823,8 @@ class SearchManager {
                 cursor,
                 signal: ac.signal,
                 databaseAttachmentManager: this.databaseAttachmentManager,
-                highWaterMark: highWaterMark
+                highWaterMark: highWaterMark,
+                configManager: this.configManager
             });
 
             await pipeline(
@@ -823,6 +835,7 @@ class SearchManager {
                         user, scope, parsedArgs, resourceType, useAccessIndex, signal: ac.signal,
                         resourcePreparer: this.resourcePreparer,
                         highWaterMark: highWaterMark,
+                        configManager: this.configManager,
                         removeDuplicates: cursor.getLimit() === null || cursor.getLimit() <= 100 // don't remove dups for large requests
                     }
                 ),
@@ -949,6 +962,7 @@ class SearchManager {
             resourceType,
             useAccessIndex,
             accepts,
+            // eslint-disable-next-line no-unused-vars
             batchObjectCount = 1,
             defaultSortId
         }
@@ -959,13 +973,13 @@ class SearchManager {
          * For buffering: https://nodejs.org/docs/latest-v18.x/api/stream.html#buffering
          * @type {number}
          */
-        const highWaterMark = env.STREAMING_HIGH_WATER_MARK || 100;
+        const highWaterMark = this.configManager.streamingHighWaterMark || 100;
 
         /**
          * If count requested is higher than this then don't do duplicate removal to save memory
          * @type {number}
          */
-        const maximumCountForDuplicateRemoval = env.STREAMING_MAX_COUNT_FOR_DUPLICATE_REMOVAL || 100;
+        const maximumCountForDuplicateRemoval = this.configManager.streamingMaxCountForDuplicateRemoval || 100;
 
         /**
          * @type {{id: *[]}}
@@ -998,7 +1012,8 @@ class SearchManager {
                 bundle: parsedArgs['_bundle'],
                 fnBundle,
                 defaultSortId,
-                highWaterMark: highWaterMark
+                highWaterMark: highWaterMark,
+                configManager: this.configManager
             }
         );
 
@@ -1011,7 +1026,8 @@ class SearchManager {
                 response: res,
                 contentType: fhirWriter.getContentType(),
                 signal: ac.signal,
-                highWaterMark: highWaterMark
+                highWaterMark: highWaterMark,
+                configManager: this.configManager,
             }
         );
         /**
@@ -1022,13 +1038,21 @@ class SearchManager {
                 user, scope, parsedArgs, resourceType, useAccessIndex, signal: ac.signal,
                 resourcePreparer: this.resourcePreparer,
                 highWaterMark: highWaterMark,
+                configManager: this.configManager,
                 removeDuplicates: cursor.getLimit() === null || cursor.getLimit() <= maximumCountForDuplicateRemoval // don't remove dups for large requests
             }
         );
         /**
          * @type {ResourceIdTracker}
          */
-        const resourceIdTracker = new ResourceIdTracker({tracker, signal: ac.signal, highWaterMark: highWaterMark});
+        const resourceIdTracker = new ResourceIdTracker(
+            {
+                tracker,
+                signal: ac.signal,
+                highWaterMark: highWaterMark,
+                configManager: this.configManager
+            }
+        );
 
 
         try {
@@ -1040,19 +1064,13 @@ class SearchManager {
                 signal:
                 ac.signal,
                 databaseAttachmentManager: this.databaseAttachmentManager,
-                highWaterMark: highWaterMark
-            });
-
-            const objectChunker = new ObjectChunker({
-                chunkSize: batchObjectCount,
-                signal: ac.signal,
-                highWaterMark: highWaterMark
+                highWaterMark: highWaterMark,
+                configManager: this.configManager,
             });
 
             // now setup and run the pipeline
             await pipeline(
                 readableMongoStream,
-                objectChunker,
                 // new Transform({
                 //     objectMode: true,
                 //     transform(chunk, encoding, callback) {
@@ -1063,7 +1081,6 @@ class SearchManager {
                 resourceIdTracker,
                 fhirWriter,
                 responseWriter,
-                // res.type(contentType)
             );
         } catch (e) {
             logError('', {user, error: e});
@@ -1197,7 +1214,7 @@ class SearchManager {
         const operationDateObject = {};
         const regex = /([a-z]+)(.+)/;
         let isLessThanConditionPresent = false, isGreaterThanConditionPresent = false;
-        for (const dateParam of queryParams) {
+        for (const /* @type {string} */ dateParam of queryParams) {
             // Match the date passed in param if it matches the regex pattern.
             const regexMatch = dateParam.match(regex);
             if (!regexMatch) {

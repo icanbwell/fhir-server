@@ -263,7 +263,7 @@ class ConfigManager {
      * is greater than this number than we fall back to processing in serial to save memory
      * @return {number}
      */
-    get graphBatchSize(){
+    get graphBatchSize() {
         return env.GRAPH_BATCH_SIZE || 10;
     }
 
@@ -297,6 +297,31 @@ class ConfigManager {
      */
     get getDataSharingConsentCodes() {
         return env.DATA_SHARING_CONSENT_CODES ? env.DATA_SHARING_CONSENT_CODES.split(',') : ['/dataSharingConsent', '/hipaaConsent'];
+    }
+
+    /**
+     * Specifies maximum buffer when streaming data
+     * https://nodejs.org/docs/latest-v18.x/api/stream.html#buffering
+     * @returns {number}
+     */
+    get streamingHighWaterMark() {
+        return env.STREAMING_HIGH_WATER_MARK || 100;
+    }
+
+    /**
+     * If count requested is higher than this then don't do duplicate removal to save memory
+     * @returns {number}
+     */
+    get streamingMaxCountForDuplicateRemoval() {
+        return env.STREAMING_MAX_COUNT_FOR_DUPLICATE_REMOVAL || 1000;
+    }
+
+    /**
+     * whether to log inside our streaming.  Very verbose so don't set in production
+     * @returns {boolean}
+     */
+    get logStreamSteps() {
+        return isTrue(env.LOG_STREAM_STEPS);
     }
 }
 

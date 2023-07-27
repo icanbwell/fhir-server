@@ -1,7 +1,7 @@
 const {Transform} = require('stream');
-const {isTrue} = require('../../utils/isTrue');
-const env = require('var');
 const {logInfo} = require('../common/logging');
+const {assertTypeEquals} = require('../../utils/assertType');
+const {ConfigManager} = require('../../utils/configManager');
 
 class ObjectChunker extends Transform {
     /**
@@ -9,8 +9,9 @@ class ObjectChunker extends Transform {
      * @param {number} chunkSize
      * @param {AbortSignal} signal
      * @param {number} highWaterMark
+     * @param {ConfigManager} configManager
      */
-    constructor({chunkSize, signal, highWaterMark}) {
+    constructor({chunkSize, signal, highWaterMark, configManager}) {
         super({objectMode: true, highWaterMark: highWaterMark});
         this._buffer = [];
         this._chunkSize = chunkSize;
@@ -18,6 +19,11 @@ class ObjectChunker extends Transform {
          * @type {AbortSignal}
          */
         this._signal = signal;
+        /**
+         * @type {ConfigManager}
+         */
+        this.configManager = configManager;
+        assertTypeEquals(configManager, ConfigManager);
     }
 
     /**
@@ -37,7 +43,7 @@ class ObjectChunker extends Transform {
 
             for (const chunk1 of chunks) {
                 if (this._chunkSize === 0 || this._buffer.length === this._chunkSize) {
-                    if (isTrue(env.LOG_STREAM_STEPS)) {
+                    if (this.configManager.logStreamSteps) {
                         logInfo('ObjectChunker: _transform: write buffer to output', {});
                     }
                     this.push(this._buffer);
@@ -46,7 +52,7 @@ class ObjectChunker extends Transform {
                 this._buffer.push(chunk1);
             }
         } catch (e) {
-            throw new AggregateError([e], 'ObjectChunker _transform: error');
+            this.emit('error', new AggregateError([e], 'ObjectChunker _transform: error'));
         }
         callback();
     }
@@ -56,7 +62,7 @@ class ObjectChunker extends Transform {
      * @private
      */
     _flush(callback) {
-        if (isTrue(env.LOG_STREAM_STEPS)) {
+        if (this.configManager.logStreamSteps) {
             logInfo('ObjectChunker: _flush', {});
         }
         try {
@@ -64,7 +70,7 @@ class ObjectChunker extends Transform {
                 this.push(this._buffer);
             }
         } catch (e) {
-            throw new AggregateError([e], 'ObjectChunker _flush: error');
+            this.emit('error', new AggregateError([e], 'ObjectChunker _flush: error'));
         }
         callback();
     }
