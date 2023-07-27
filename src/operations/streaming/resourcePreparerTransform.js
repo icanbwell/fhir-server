@@ -1,6 +1,4 @@
 const {Transform} = require('stream');
-const {isTrue} = require('../../utils/isTrue');
-const env = require('var');
 const {logInfo} = require('../common/logging');
 
 class ResourcePreparerTransform extends Transform {
@@ -15,6 +13,7 @@ class ResourcePreparerTransform extends Transform {
      * @param {ResourcePreparer} resourcePreparer
      * @param {boolean|undefined} removeDuplicates
      * @param {number} highWaterMark
+     * @param {ConfigManager} configManager
      */
     constructor(
         {
@@ -26,7 +25,8 @@ class ResourcePreparerTransform extends Transform {
             signal,
             resourcePreparer,
             removeDuplicates,
-            highWaterMark
+            highWaterMark,
+            configManager
         }
     ) {
         super({objectMode: true, highWaterMark: highWaterMark});
@@ -69,6 +69,11 @@ class ResourcePreparerTransform extends Transform {
          * @type {boolean|undefined}
          */
         this.removeDuplicates = removeDuplicates;
+
+        /**
+         * @type {ConfigManager}
+         */
+        this.configManager = configManager;
     }
 
     /**
@@ -97,7 +102,7 @@ class ResourcePreparerTransform extends Transform {
                     throw new AggregateError([reason], `ResourcePreparer _transform: error: ${reason}`);
                 });
         } catch (e) {
-            throw new AggregateError([e], `ResourcePreparer _transform: error: ${e}`);
+            this.emit('error', new AggregateError([e], `ResourcePreparer _transform: error: ${e}`));
         }
     }
 
@@ -114,7 +119,7 @@ class ResourcePreparerTransform extends Transform {
             })
             .then(
                 /** @type {Resource[]} */resources => {
-                    if (isTrue(env.LOG_STREAM_STEPS)) {
+                    if (this.configManager.logStreamSteps) {
                         logInfo('ResourcePreparerTransform: _transform', {});
                     }
                     if (resources.length > 0) {
@@ -125,7 +130,7 @@ class ResourcePreparerTransform extends Transform {
                                     resource.isSameResourceByIdAndSecurityTag({other: a})
                                 )
                             ) {
-                                if (isTrue(env.LOG_STREAM_STEPS)) {
+                                if (this.configManager.logStreamSteps) {
                                     logInfo(`ResourcePreparerTransform: push ${resource['id']}`, {});
                                 }
                                 this.push(resource);
@@ -151,7 +156,7 @@ class ResourcePreparerTransform extends Transform {
      * @private
      */
     _flush(callback) {
-        if (isTrue(env.LOG_STREAM_STEPS)) {
+        if (this.configManager.logStreamSteps) {
             logInfo('ResourcePreparerTransform: _flush', {});
         }
         callback();

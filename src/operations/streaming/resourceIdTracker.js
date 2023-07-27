@@ -1,6 +1,4 @@
 const {Transform} = require('stream');
-const {isTrue} = require('../../utils/isTrue');
-const env = require('var');
 const {logInfo} = require('../common/logging');
 
 class ResourceIdTracker extends Transform {
@@ -9,8 +7,9 @@ class ResourceIdTracker extends Transform {
      * @param  {{id: string[]}} tracker
      * @param {AbortSignal} signal
      * @param {number} highWaterMark
+     * @param {ConfigManager} configManager
      */
-    constructor({tracker, signal, highWaterMark}) {
+    constructor({tracker, signal, highWaterMark, configManager}) {
         super({objectMode: true, highWaterMark: highWaterMark});
         /**
          * @type {{id: string[]}}
@@ -25,6 +24,11 @@ class ResourceIdTracker extends Transform {
          * @type {AbortSignal}
          */
         this._signal = signal;
+
+        /**
+         * @type {ConfigManager}
+         */
+        this.configManager = configManager;
     }
 
     /**
@@ -42,14 +46,14 @@ class ResourceIdTracker extends Transform {
         try {
 
             if (chunk !== null && chunk !== undefined) {
-                if (isTrue(env.LOG_STREAM_STEPS)) {
+                if (this.configManager.logStreamSteps) {
                     logInfo(`ResourceIdTracker: _transform ${chunk['id']}`, {});
                 }
                 this._tracker.id.push(chunk['id']);
                 this.push(chunk, encoding);
             }
         } catch (e) {
-            throw new AggregateError([e], 'ResourceIdTracker _transform: error');
+            this.emit('error', new AggregateError([e], 'ResourceIdTracker _transform: error'));
         }
         callback();
     }

@@ -1,6 +1,4 @@
 const {Readable} = require('stream');
-const {isTrue} = require('../../utils/isTrue');
-const env = require('var');
 const {logInfo} = require('../common/logging');
 const {RETRIEVE} = require('../../constants').GRIDFS;
 
@@ -15,13 +13,15 @@ class MongoReadableStream extends Readable {
      * @param {AbortSignal} signal
      * @param {DatabaseAttachmentManager} databaseAttachmentManager
      * @param {number} highWaterMark
+     * @param {ConfigManager} configManager
      */
     constructor(
         {
             cursor,
             signal,
             databaseAttachmentManager,
-            highWaterMark
+            highWaterMark,
+            configManager
         }
     ) {
         super({objectMode: true, highWaterMark: highWaterMark});
@@ -40,6 +40,11 @@ class MongoReadableStream extends Readable {
          * @type {DatabaseAttachmentManager}
          */
         this.databaseAttachmentManager = databaseAttachmentManager;
+
+        /**
+         * @type {ConfigManager}
+         */
+        this.configManager = configManager;
 
         /**
          * @type {boolean}
@@ -73,13 +78,13 @@ class MongoReadableStream extends Readable {
         while (count <= size) {
             if (await this.cursor.hasNext()) {
                 if (this.signal.aborted) {
-                    if (isTrue(env.LOG_STREAM_STEPS)) {
-                        logInfo('mongoStreamReader: aborted', {});
+                    if (this.configManager.logStreamSteps) {
+                        logInfo('mongoStreamReader: aborted', {size});
                     }
                     return;
                 }
-                if (isTrue(env.LOG_STREAM_STEPS)) {
-                    logInfo('mongoStreamReader: read', {});
+                if (this.configManager.logStreamSteps) {
+                    logInfo('mongoStreamReader: read', {count, size});
                 }
                 count++;
                 /**
@@ -92,6 +97,9 @@ class MongoReadableStream extends Readable {
                 }
                 this.push(resource);
             } else {
+                if (this.configManager.logStreamSteps) {
+                    logInfo('mongoStreamReader: finish', {count, size});
+                }
                 this.push(null);
                 return;
             }
