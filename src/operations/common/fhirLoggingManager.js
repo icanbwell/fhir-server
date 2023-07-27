@@ -216,6 +216,17 @@ class FhirLoggingManager {
             firstAccessCode = accessCodes[0] === '*' ? 'bwell' : accessCodes[0];
         }
 
+        /**
+         * @type {string}
+         */
+        let errorMessage = message;
+        if (error && error.message) {
+            errorMessage += `: ${error.message}`;
+        }
+        if (error) {
+            errorMessage += ' ' + JSON.stringify(error, getCircularReplacer());
+        }
+
         // This uses the FHIR Audit Event schema: https://hl7.org/fhir/auditevent.html
         const logEntry = {
             id: requestInfo.userRequestId,
@@ -253,7 +264,7 @@ class FhirLoggingManager {
                     detail: detail
                 }
             ],
-            message: error ? `${message}: ${JSON.stringify(error, getCircularReplacer())}` : message,
+            message: errorMessage,
             request: {
                 // represents the id that is passed as header or req.id.
                 id: httpContext.get(REQUEST_ID_TYPE.USER_REQUEST_ID),
