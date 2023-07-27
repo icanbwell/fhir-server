@@ -6,12 +6,15 @@ const {
     commonAfterEach,
     getHeaders,
     getHeadersNdJson,
-    createTestRequest,
+    createTestRequest, getTestContainer,
 } = require('../../common');
 const {describe, beforeEach, afterEach, expect, test} = require('@jest/globals');
 const env = require('var');
 const {ConfigManager} = require('../../../utils/configManager');
 const {ResponseChunkParser} = require('../responseChunkParser');
+const {assertTypeEquals} = require('../../../utils/assertType');
+const {PreSaveManager} = require('../../../preSaveHandlers/preSave');
+const Practitioner = require('../../../fhir/classes/4_0_0/resources/practitioner');
 let oldEnvLogLevel;
 
 class MockConfigManagerStreaming extends ConfigManager {
@@ -32,7 +35,7 @@ class MockConfigManagerStreaming extends ConfigManager {
     }
 
     get logStreamSteps() {
-        return true;
+        return false;
     }
 
     get enableTwoStepOptimization() {
@@ -71,7 +74,7 @@ describe('seach by id many performance', () => {
                     resourceType: 'Bundle',
                     entry: [],
                 };
-                const numberOfResources = 2000;
+                const numberOfResources = 20000;
                 for (let i = 0; i < numberOfResources; i++) {
                     const newId = initialId + '-' + i;
                     practitionerResource.id = newId;
@@ -79,21 +82,37 @@ describe('seach by id many performance', () => {
                         resource: Object.assign({}, practitionerResource, {id: newId}),
                     });
                 }
+                /**
+                 * @type {SimpleContainer}
+                 */
+                const container = getTestContainer();
 
-                console.log(`Sending ${numberOfResources} resources...`);
-                // now add a record
-                resp = await request
-                    .post('/4_0_0/Practitioner/0/$merge?validate=true')
-                    .send(bundle)
-                    .set(getHeaders());
+                /**
+                 * @type {PreSaveManager}
+                 */
+                const preSaveManager = container.preSaveManager;
+                assertTypeEquals(preSaveManager, PreSaveManager);
 
-                // noinspection JSUnresolvedReference
-                expect(resp).toHaveResourceCount(numberOfResources);
-                for (const result of resp.body) {
-                    expect(result.created).toStrictEqual(true);
+                for (const entry of bundle.entry) {
+                    entry.resource = await preSaveManager.preSaveAsync(new Practitioner(entry.resource));
                 }
 
-                console.log(`Finished sending ${numberOfResources} resources.`);
+                console.log(`Saving ${numberOfResources} resources...`);
+                /**
+                 * @type {MongoDatabaseManager}
+                 */
+                const mongoDatabaseManager = container.mongoDatabaseManager;
+                let db = await mongoDatabaseManager.getClientDbAsync();
+                const resourceType = 'Practitioner';
+                const base_version = '4_0_0';
+                /**
+                 * @type {import('mongodb').Collection<import('mongodb').Document>}
+                 */
+                const collection = db.collection(`${resourceType}_${base_version}`);
+
+                await collection.insertMany(bundle.entry.map(e => e.resource.toJSONInternal()));
+
+                console.log(`Finished saving ${numberOfResources} resources.`);
 
                 // now check that we get the right record back
                 resp = await request
