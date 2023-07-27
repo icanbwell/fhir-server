@@ -223,8 +223,11 @@ class FhirLoggingManager {
         if (error && error.message) {
             errorMessage += `: ${error.message}`;
         }
+        if (error && error.constructor && error.constructor.name) {
+            errorMessage += `: ${error.constructor.name}`;
+        }
         if (error) {
-            errorMessage += ' ' + JSON.stringify(error, getCircularReplacer());
+            errorMessage += ': ' + JSON.stringify(error, getCircularReplacer());
         }
 
         // This uses the FHIR Audit Event schema: https://hl7.org/fhir/auditevent.html
