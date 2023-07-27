@@ -108,6 +108,7 @@ class FhirLoggingManager {
      * @param {Error} error
      * @param {string|undefined} [query]
      * @param {string|undefined} [result]
+     * @param {string|undefined} [message]
      */
     async logOperationFailureAsync(
         {
@@ -119,7 +120,8 @@ class FhirLoggingManager {
             action,
             error,
             query,
-            result
+            result,
+            message = 'operationFailed'
         }
     ) {
         await this.internalLogOperationAsync(
@@ -129,7 +131,7 @@ class FhirLoggingManager {
                 resourceType,
                 startTime,
                 stopTime,
-                message: 'operationFailed',
+                message,
                 action,
                 error,
                 query,
