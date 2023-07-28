@@ -182,6 +182,11 @@ class RunPreSaveRunner extends BaseBulkOperationRunner {
                                     'code': { $not: { $type: 'string' } }
                                 }
                             }
+                        },
+                        {
+                            'meta.security.system': {
+                                $ne: SecurityTagSystem.sourceAssigningAuthority
+                            }
                         }
                     ]
                 };

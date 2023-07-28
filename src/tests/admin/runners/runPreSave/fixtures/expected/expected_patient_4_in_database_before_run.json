@@ -32,7 +32,9 @@
         "system": "https://www.icanbwell.com/owner"
       },
       {
-        "code": "medstar",
+        "code": {
+          "medstar": 1
+        },
         "system": "https://www.icanbwell.com/sourceAssigningAuthority"
       }
     ],
