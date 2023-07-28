@@ -3,6 +3,7 @@ const {logInfo} = require('../common/logging');
 const {assertTypeEquals} = require('../../utils/assertType');
 const {ConfigManager} = require('../../utils/configManager');
 const {RethrownError} = require('../../utils/rethrownError');
+const {convertErrorToOperationOutcome} = require('../../utils/convertErrorToOperationOutcome');
 const {RETRIEVE} = require('../../constants').GRIDFS;
 
 // https://thenewstack.io/node-js-readable-streams-explained/
@@ -109,7 +110,15 @@ class MongoReadableStream extends Readable {
                     return;
                 }
             } catch (e) {
-                throw new RethrownError({messsage: e.messsage, error: e, args: {}, source: 'radAsync'});
+                const error = new RethrownError({messsage: e.messsage, error: e, args: {}, source: 'readAsync'});
+                /**
+                 * @type {OperationOutcome}
+                 */
+                const operationOutcome = convertErrorToOperationOutcome({
+                    error: error
+                });
+                this.push(operationOutcome);
+                return;
             }
         }
     }

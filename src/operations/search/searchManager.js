@@ -23,7 +23,6 @@ const {ConfigManager} = require('../../utils/configManager');
 const {QueryRewriterManager} = require('../../queryRewriters/queryRewriterManager');
 const {PersonToPatientIdsExpander} = require('../../utils/personToPatientIdsExpander');
 const {ScopesManager} = require('../security/scopesManager');
-const {convertErrorToOperationOutcome} = require('../../utils/convertErrorToOperationOutcome');
 const {GetCursorResult} = require('./getCursorResult');
 const {QueryItem} = require('../graph/queryItem');
 const {DatabaseAttachmentManager} = require('../../dataLayer/databaseAttachmentManager');
@@ -1083,20 +1082,13 @@ class SearchManager {
                 responseWriter,
             );
         } catch (e) {
-            logError(`SearchManager.streamResourcesFromCursorAsync: ${e.message} `, {user, error: e});
-            /**
-             * @type {OperationOutcome}
-             */
-            const operationOutcome = convertErrorToOperationOutcome({
-                error: new RethrownError(
+            logError(`SearchManager.streamResourcesFromCursorAsync: ${e.message} `, {
+                user, error: new RethrownError(
                     {
                         message: `Error reading resources for ${resourceType} with query: ${mongoQueryStringify(cursor.getQuery())}`,
                         error: e
                     })
             });
-            if (Object.hasOwn(fhirWriter, 'writeOperationOutcome')) {
-                fhirWriter.writeOperationOutcome({operationOutcome});
-            }
             ac.abort();
         } finally {
             res.removeListener('close', onResponseClose);

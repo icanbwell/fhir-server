@@ -108,18 +108,17 @@ class HttpResponseWriter extends Writable {
                 callback();
             }
         } catch (e) {
-            callback(
-                new RethrownError(
-                    {
-                        message: `HttpResponseWriter _transform: error: ${e.message}. id: ${chunk.id}`,
-                        error: e,
-                        args: {
-                            id: chunk.id,
-                            chunk: chunk
-                        }
+            const error = new RethrownError(
+                {
+                    message: `HttpResponseWriter _transform: error: ${e.message}. id: ${chunk.id}`,
+                    error: e,
+                    args: {
+                        id: chunk.id,
+                        chunk: chunk
                     }
-                )
+                }
             );
+            callback(error);
         }
     }
 

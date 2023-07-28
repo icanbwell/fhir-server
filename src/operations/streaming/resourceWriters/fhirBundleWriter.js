@@ -7,6 +7,7 @@ const {getDefaultSortIdValue} = require('../../../utils/getDefaultSortIdValue');
 const {ConfigManager} = require('../../../utils/configManager');
 const {logInfo} = require('../../common/logging');
 const {RethrownError} = require('../../../utils/rethrownError');
+const {convertErrorToOperationOutcome} = require('../../../utils/convertErrorToOperationOutcome');
 
 class FhirBundleWriter extends FhirResourceWriterBase {
     /**
@@ -100,19 +101,43 @@ class FhirBundleWriter extends FhirResourceWriterBase {
             }
             callback();
         } catch (e) {
-            callback(
-                new RethrownError(
-                    {
-                        message: `FhirBundleWriter _transform: error: ${e.message}: id: ${chunkId}`,
-                        error: e,
-                        args: {
-                            chunkId,
-                            chunkJson,
-                            encoding
-                        }
+            // don't let error past this since we're streaming so we can't send errors to http client
+            const error = new RethrownError(
+                {
+                    message: `FhirBundleWriter _transform: error: ${e.message}: id: ${chunkId}`,
+                    error: e,
+                    args: {
+                        chunkId,
+                        chunkJson,
+                        encoding
                     }
-                )
+                }
             );
+            this.writeErrorAsOperationOutcome({error});
+            callback();
+        }
+    }
+
+    /**
+     * writes an error as an OperationOutcome
+     * @param {Error} error
+     * @param {import('stream').BufferEncoding} encoding
+     */
+    writeErrorAsOperationOutcome({error}) {
+        /**
+         * @type {OperationOutcome}
+         */
+        const operationOutcome = convertErrorToOperationOutcome({
+            error: error
+        });
+        const operationOutcomeJson = JSON.stringify(operationOutcome.toJSON());
+        if (this._first) {
+            // write the beginning json
+            this._first = false;
+            this.push(operationOutcomeJson);
+        } else {
+            // add comma at the beginning to make it legal json
+            this.push(',' + operationOutcomeJson);
         }
     }
 
@@ -150,32 +175,35 @@ class FhirBundleWriter extends FhirResourceWriterBase {
             this.push(output); // skip the first "}"
         } catch (e) {
             // don't let error past this since we're streaming so we can't send errors to http client
-            const operationOutcome = {
-                resourceType: 'OperationOutcome',
-                issue: [
-                    {
-                        severity: 'error',
-                        code: 'exception',
-                        details: {
-                            text: 'Error streaming bundle'
-                        },
-                        diagnostics: e.toString()
-                    }
-                ]
-            };
-            const operationOutcomeJson = JSON.stringify({resource: operationOutcome}, getCircularReplacer());
-            if (this._first) {
-                // write the beginning json
-                this._first = false;
-                this.push(operationOutcomeJson);
-            } else {
-                // add comma at the beginning to make it legal json
-                this.push(',' + operationOutcomeJson);
-            }
+            const error = new RethrownError(
+                {
+                    message: `FhirBundleWriter _flush: error: ${e.message}`,
+                    error: e,
+                    args: {}
+                }
+            );
+            this.writeErrorAsOperationOutcome({error});
             this.push(']}');
         }
         this.push(null);
         callback();
+    }
+
+    /**
+     * writes an OperationOutcome
+     * @param {OperationOutcome} operationOutcome
+     * @param {import('stream').BufferEncoding|null} [encoding]
+     */
+    writeOperationOutcome({operationOutcome, encoding}) {
+        const operationOutcomeJson = JSON.stringify(operationOutcome.toJSON());
+        if (this._first) {
+            // write the beginning json
+            this._first = false;
+            this.push(operationOutcomeJson, encoding);
+        } else {
+            // add comma at the beginning to make it legal json
+            this.push(',' + operationOutcomeJson, encoding);
+        }
     }
 }
 

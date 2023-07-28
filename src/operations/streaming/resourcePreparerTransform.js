@@ -3,6 +3,7 @@ const {logInfo} = require('../common/logging');
 const {assertTypeEquals} = require('../../utils/assertType');
 const {ConfigManager} = require('../../utils/configManager');
 const {RethrownError} = require('../../utils/rethrownError');
+const {convertErrorToOperationOutcome} = require('../../utils/convertErrorToOperationOutcome');
 
 class ResourcePreparerTransform extends Transform {
     /**
@@ -115,18 +116,24 @@ class ResourcePreparerTransform extends Transform {
                     );
                 });
         } catch (e) {
-            callback(
-                new RethrownError(
-                    {
-                        message: `ResourcePreparer _transform: error: ${e.message}. id: ${chunk.id}`,
-                        error: e,
-                        args: {
-                            id: chunk.id,
-                            chunk: chunk
-                        }
+            const error = new RethrownError(
+                {
+                    message: `ResourcePreparer _transform: error: ${e.message}. id: ${chunk.id}`,
+                    error: e,
+                    args: {
+                        id: chunk.id,
+                        chunk: chunk
                     }
-                )
+                }
             );
+            /**
+             * @type {OperationOutcome}
+             */
+            const operationOutcome = convertErrorToOperationOutcome({
+                error: error
+            });
+            this.push(operationOutcome);
+            callback();
         }
     }
 
