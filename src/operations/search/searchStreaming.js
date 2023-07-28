@@ -176,7 +176,8 @@ class SearchStreamingOperation {
                     resourceType,
                     startTime,
                     action: currentOperationName,
-                    error: e
+                    error: e,
+                    message: `Error in constructing query: ${e.message}`
                 });
             throw e;
         }
@@ -456,7 +457,8 @@ class SearchStreamingOperation {
                             }),
                             options
                         }
-                    )
+                    ),
+                    message: `Error in streaming resources: ${e.message}`
                 });
             throw new MongoError(requestId, e.message, e, collectionName, query, (Date.now() - startTime), options);
         } finally {

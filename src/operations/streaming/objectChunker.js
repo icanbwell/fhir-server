@@ -2,6 +2,7 @@ const {Transform} = require('stream');
 const {logInfo} = require('../common/logging');
 const {assertTypeEquals} = require('../../utils/assertType');
 const {ConfigManager} = require('../../utils/configManager');
+const {RethrownError} = require('../../utils/rethrownError');
 
 class ObjectChunker extends Transform {
     /**
@@ -51,10 +52,20 @@ class ObjectChunker extends Transform {
                 }
                 this._buffer.push(chunk1);
             }
+            callback();
         } catch (e) {
-            this.emit('error', new AggregateError([e], 'ObjectChunker _transform: error'));
+            callback(
+                new RethrownError(
+                    {
+                        message: `ObjectChunker _transform: error: ${e.message}`,
+                        error: e,
+                        args: {
+                            encoding
+                        }
+                    }
+                )
+            );
         }
-        callback();
     }
 
     /**
@@ -70,7 +81,16 @@ class ObjectChunker extends Transform {
                 this.push(this._buffer);
             }
         } catch (e) {
-            this.emit('error', new AggregateError([e], 'ObjectChunker _flush: error'));
+            callback(
+                new RethrownError(
+                    {
+                        message: `ObjectChunker _flush: error: ${e.message}`,
+                        error: e,
+                        args: {
+                        }
+                    }
+                )
+            );
         }
         callback();
     }

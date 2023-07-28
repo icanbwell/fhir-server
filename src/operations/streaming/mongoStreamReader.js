@@ -2,6 +2,8 @@ const {Readable} = require('stream');
 const {logInfo} = require('../common/logging');
 const {assertTypeEquals} = require('../../utils/assertType');
 const {ConfigManager} = require('../../utils/configManager');
+const {RethrownError} = require('../../utils/rethrownError');
+const {convertErrorToOperationOutcome} = require('../../utils/convertErrorToOperationOutcome');
 const {RETRIEVE} = require('../../constants').GRIDFS;
 
 // https://thenewstack.io/node-js-readable-streams-explained/
@@ -79,31 +81,43 @@ class MongoReadableStream extends Readable {
     async readAsync(size) {
         let count = 0;
         while (count <= size) {
-            if (await this.cursor.hasNext()) {
-                if (this.signal.aborted) {
-                    if (this.configManager.logStreamSteps) {
-                        logInfo('mongoStreamReader: aborted', {size});
+            try {
+                if (await this.cursor.hasNext()) {
+                    if (this.signal.aborted) {
+                        if (this.configManager.logStreamSteps) {
+                            logInfo('mongoStreamReader: aborted', {size});
+                        }
+                        return;
                     }
+                    count++;
+                    /**
+                     * element
+                     * @type {Resource}
+                     */
+                    let resource = await this.cursor.next();
+                    if (this.configManager.logStreamSteps) {
+                        logInfo(`mongoStreamReader: read ${resource.id}`, {count, size});
+                    }
+                    if (this.databaseAttachmentManager) {
+                        resource = await this.databaseAttachmentManager.transformAttachments(resource, RETRIEVE);
+                    }
+                    this.push(resource);
+                } else {
+                    if (this.configManager.logStreamSteps) {
+                        logInfo('mongoStreamReader: finish', {count, size});
+                    }
+                    this.push(null);
                     return;
                 }
-                count++;
+            } catch (e) {
+                const error = new RethrownError({messsage: e.messsage, error: e, args: {}, source: 'readAsync'});
                 /**
-                 * element
-                 * @type {Resource}
+                 * @type {OperationOutcome}
                  */
-                let resource = await this.cursor.next();
-                if (this.configManager.logStreamSteps) {
-                    logInfo(`mongoStreamReader: read ${resource.id}`, {count, size});
-                }
-                if (this.databaseAttachmentManager) {
-                    resource = await this.databaseAttachmentManager.transformAttachments(resource, RETRIEVE);
-                }
-                this.push(resource);
-            } else {
-                if (this.configManager.logStreamSteps) {
-                    logInfo('mongoStreamReader: finish', {count, size});
-                }
-                this.push(null);
+                const operationOutcome = convertErrorToOperationOutcome({
+                    error: error
+                });
+                this.push(operationOutcome);
                 return;
             }
         }
