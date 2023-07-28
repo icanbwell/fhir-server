@@ -1,12 +1,13 @@
 const {createApp} = require('./app');
 const {fhirServerConfig} = require('./config');
 const env = require('var');
-const {logError, logInfo, logSystemEventAsync} = require('./operations/common/logging');
-const {createHttpTerminator} = require('http-terminator');
+const {logError, logInfo} = require('./operations/common/logging');
+const {logSystemEventAsync} = require('./operations/common/systemEventLogging');
 const http = require('http');
 const { isTrue } = require('./utils/isTrue');
 const {getImageVersion} = require('./utils/getImageVersion');
 const {MongoDatabaseManager} = require('./utils/mongoDatabaseManager');
+const { createTerminus } = require('@godaddy/terminus');
 
 /**
  * Creates the http server
@@ -54,45 +55,25 @@ async function createServer(fnCreateContainer) {
         });
     });
 
-    const httpTerminator = createHttpTerminator({
-        server,
-        gracefulTerminationTimeout: 7000,
-    });
-
-    process.on('SIGTERM', async function onSigterm() {
-        logInfo('Beginning shutdown of server', {});
-        await logSystemEventAsync({
-            event: 'SIGTERM',
-            message: 'Beginning shutdown of server for SIGTERM',
-            args: {},
-        });
-        try {
-            await httpTerminator.terminate();
+    const options = {
+        timeout: env.GRACEFUL_TIMEOUT_MS ? parseInt(env.GRACEFUL_TIMEOUT_MS) : 29000, // number of milliseconds before forceful exiting
+        signals: ['SIGTERM', 'SIGINT', 'SIGQUIT'], // array of signals to listen for relative to shutdown
+        beforeShutdown: async () => {
+            logInfo('Beginning shutdown of server', {});
+            await logSystemEventAsync({
+                event: 'shutdown',
+                message: 'Beginning shutdown of server',
+                args: {},
+            });
+        }, // called before the HTTP server starts its shutdown
+        onShutdown: () => {
             logInfo('Successfully shut down server', {});
-            process.exit(0);
-        } catch (error) {
-            logError('Failed to shutdown server', {error: error});
-            process.exit(1);
-        }
-    });
+        }, // called right before exiting
+        useExit0: true, // instead of sending the received signal again without being catched, the process will exit(0)
+        logError, // logger function to be called with errors. Example logger call: ('error happened during shutdown', error). See terminus.js for more details.
+    };
 
-    // https://snyk.io/wp-content/uploads/10-best-practices-to-containerize-Node.js-web-applications-with-Docker.pdf
-    process.on('SIGINT', async function onSigInt() {
-        logInfo('Beginning shutdown of server for SIGINT', {});
-        await logSystemEventAsync({
-            event: 'SIGINT',
-            message: 'Beginning shutdown of server for SIGINT',
-            args: {},
-        });
-        try {
-            await httpTerminator.terminate();
-            logInfo('Successfully shut down server for SIGINT', {});
-            process.exit(0);
-        } catch (error) {
-            logError('Failed to shutdown server for SIGINT', {error: error});
-            process.exit(1);
-        }
-    });
+    createTerminus(server, options);
 
     return server;
 }

@@ -88,7 +88,7 @@ class FhirResponseStreamer extends BaseResponseStreamer {
                 // add comma at the beginning to make it legal json
                 await this.response.write(',' + bundleEntryJson);
             }
-            this._count = this._count + 1;
+            this._count += 1;
             this._lastid = bundleEntry.resource.id;
         }
     }

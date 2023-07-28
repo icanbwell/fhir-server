@@ -1,3 +1,5 @@
+const {ACCESS_LOGS_COLLECTION_NAME} = require('../constants');
+
 /**
  * List of custom indexes to add.  (* means these indexes should be applied to all collections)
  * @description All options described here: https://www.mongodb.com/docs/manual/reference/method/db.collection.createIndex/
@@ -15,7 +17,8 @@ module.exports = {
                 },
                 exclude: [
                     'AuditEvent_4_0_0',
-                    'Practitioner_4_0_0'
+                    'Practitioner_4_0_0',
+                    ACCESS_LOGS_COLLECTION_NAME
                 ]
             },
             {
@@ -27,7 +30,8 @@ module.exports = {
                     name: 'reverse_meta.lastUpdated_1'
                 },
                 exclude: [
-                    'AuditEvent_4_0_0'
+                    'AuditEvent_4_0_0',
+                    ACCESS_LOGS_COLLECTION_NAME
                 ]
             },
             {
@@ -39,7 +43,8 @@ module.exports = {
                     name: 'meta.source_1'
                 },
                 exclude: [
-                    'AuditEvent_4_0_0'
+                    'AuditEvent_4_0_0',
+                    ACCESS_LOGS_COLLECTION_NAME
                 ]
             },
             {
@@ -53,7 +58,21 @@ module.exports = {
                 },
                 exclude: [
                     'AuditEvent_4_0_0',
-                    'Practitioner_4_0_0'
+                    'Practitioner_4_0_0',
+                    ACCESS_LOGS_COLLECTION_NAME
+                ]
+            },
+            {
+                keys: {
+                    '_access.anthem': 1,
+                    '_uuid': 1
+                },
+                options: {
+                    name: 'security._access_anthem'
+                },
+                exclude: [
+                    'AuditEvent_4_0_0',
+                    ACCESS_LOGS_COLLECTION_NAME
                 ]
             },
             {
@@ -65,7 +84,8 @@ module.exports = {
                     name: 'security._access_medstar'
                 },
                 exclude: [
-                    'AuditEvent_4_0_0'
+                    'AuditEvent_4_0_0',
+                    ACCESS_LOGS_COLLECTION_NAME
                 ]
             },
             {
@@ -77,7 +97,8 @@ module.exports = {
                     name: 'security._access_Thedacare'
                 },
                 exclude: [
-                    'AuditEvent_4_0_0'
+                    'AuditEvent_4_0_0',
+                    ACCESS_LOGS_COLLECTION_NAME
                 ]
             },
             {
@@ -90,7 +111,8 @@ module.exports = {
                     name: 'sourceId._sourceAssigningAuthority'
                 },
                 exclude: [
-                    'AuditEvent_4_0_0'
+                    'AuditEvent_4_0_0',
+                    ACCESS_LOGS_COLLECTION_NAME
                 ]
             },
             {
@@ -109,6 +131,9 @@ module.exports = {
                     'ImagingStudy_4_0_0', 'Invoice_4_0_0', 'List_4_0_0', 'MeasureReport_4_0_0', 'Media_4_0_0',
                     'MedicationAdministration_4_0_0', 'MedicationDispense_4_0_0', 'MedicationRequest_4_0_0', 'MedicationStatement_4_0_0',
                     'Procedure_4_0_0', 'RequestGroup_4_0_0', 'RiskAssessment_4_0_0', 'ServiceRequest_4_0_0', 'Specimen_4_0_0'
+                ],
+                exclude: [
+                    ACCESS_LOGS_COLLECTION_NAME
                 ]
             },
             {
@@ -127,6 +152,9 @@ module.exports = {
                     'ImagingStudy_4_0_0', 'Invoice_4_0_0', 'List_4_0_0', 'MeasureReport_4_0_0', 'Media_4_0_0',
                     'MedicationAdministration_4_0_0', 'MedicationDispense_4_0_0', 'MedicationRequest_4_0_0', 'MedicationStatement_4_0_0',
                     'Procedure_4_0_0', 'RequestGroup_4_0_0', 'RiskAssessment_4_0_0', 'ServiceRequest_4_0_0', 'Specimen_4_0_0'
+                ],
+                exclude: [
+                    ACCESS_LOGS_COLLECTION_NAME
                 ]
             },
             {
@@ -143,6 +171,9 @@ module.exports = {
                     'Device_4_0_0', 'ExplanationOfBenefit_4_0_0', 'EpisodeOfCare_4_0_0', 'FamilyMemberHistory_4_0_0', 'Immunization_4_0_0',
                     'ImmunizationEvaluation_4_0_0', 'ImmunizationRecommendation_4_0_0', 'MolecularSequence_4_0_0',
                     'NutritionOrder_4_0_0', 'RelatedPerson_4_0_0', 'SupplyDelivery_4_0_0', 'VisionPrescription_4_0_0'
+                ],
+                exclude: [
+                    ACCESS_LOGS_COLLECTION_NAME
                 ]
             },
             {
@@ -159,6 +190,9 @@ module.exports = {
                     'Device_4_0_0', 'ExplanationOfBenefit_4_0_0', 'EpisodeOfCare_4_0_0', 'FamilyMemberHistory_4_0_0', 'Immunization_4_0_0',
                     'ImmunizationEvaluation_4_0_0', 'ImmunizationRecommendation_4_0_0', 'MolecularSequence_4_0_0',
                     'NutritionOrder_4_0_0', 'RelatedPerson_4_0_0', 'SupplyDelivery_4_0_0', 'VisionPrescription_4_0_0'
+                ],
+                exclude: [
+                    ACCESS_LOGS_COLLECTION_NAME
                 ]
             },
             {
@@ -169,7 +203,8 @@ module.exports = {
                     name: 'uuid'
                 },
                 exclude: [
-                    'AuditEvent_4_0_0'
+                    'AuditEvent_4_0_0',
+                    ACCESS_LOGS_COLLECTION_NAME
                 ]
             },
             {
@@ -181,7 +216,8 @@ module.exports = {
                     name: 'sourceId'
                 },
                 exclude: [
-                    'AuditEvent_4_0_0'
+                    'AuditEvent_4_0_0',
+                    ACCESS_LOGS_COLLECTION_NAME
                 ]
             }
         ],
@@ -221,7 +257,7 @@ module.exports = {
                     '_uuid': 1
                 },
                 options: {
-                    name: 'appointment.participantActorUuid_uuid'
+                    name: 'participantActorUuid_uuid'
                 }
             },
             {
@@ -230,7 +266,7 @@ module.exports = {
                     '_uuid': 1
                 },
                 options: {
-                    name: 'appointment_participantActorSourceid_uuid'
+                    name: 'participantActorSourceid_uuid'
                 }
             }
         ],
@@ -241,7 +277,7 @@ module.exports = {
                     '_uuid': 1
                 },
                 options: {
-                    name: 'appointmentResponse.actorUuid_uuid'
+                    name: 'actorUuid_uuid'
                 }
             },
             {
@@ -250,7 +286,7 @@ module.exports = {
                     '_uuid': 1
                 },
                 options: {
-                    name: 'appointmentResponse_actorSourceid_uuid'
+                    name: 'actorSourceid_uuid'
                 }
             }
         ],
@@ -260,7 +296,7 @@ module.exports = {
                     'recorded': 1,
                 },
                 options: {
-                    name: 'auditEvent.recorded'
+                    name: 'recorded'
                 }
             },
             {
@@ -270,7 +306,7 @@ module.exports = {
                     'recorded': 1,
                 },
                 options: {
-                    name: 'auditEvent._accessMedstar_uuidRecorded'
+                    name: '_accessMedstar_uuidRecorded'
                 }
             },
             {
@@ -279,7 +315,7 @@ module.exports = {
                     'recorded': 1,
                 },
                 options: {
-                    name: 'auditEvent._uuidRecorded'
+                    name: '_uuidRecorded'
                 }
             },
             {
@@ -289,7 +325,7 @@ module.exports = {
                     'recorded': 1
                 },
                 options: {
-                    name: 'auditEvent.agentWho_uuid_uuidRecorded'
+                    name: 'agentWho_uuid_uuidRecorded'
                 }
             },
             {
@@ -299,7 +335,7 @@ module.exports = {
                     'recorded': 1
                 },
                 options: {
-                    name: 'auditEvent.agentWho_sourceId_uuidRecorded'
+                    name: 'agentWho_sourceId_uuidRecorded'
                 }
             },
             {
@@ -309,7 +345,7 @@ module.exports = {
                     'recorded': 1
                 },
                 options: {
-                    name: 'auditEvent.entityWhat_uuid_uuidRecorded'
+                    name: 'entityWhat_uuid_uuidRecorded'
                 }
             },
             {
@@ -319,7 +355,25 @@ module.exports = {
                     'recorded': 1
                 },
                 options: {
-                    name: 'auditEvent.entityWhat_sourceId_uuidRecorded'
+                    name: 'entityWhat_sourceId_uuidRecorded'
+                }
+            }
+        ],
+        [ACCESS_LOGS_COLLECTION_NAME]: [
+            {
+                keys: {
+                    'meta.id': 1
+                },
+                options: {
+                    name: 'meta.id_1'
+                }
+            },
+            {
+                keys: {
+                    'timestamp': -1
+                },
+                options: {
+                    name: 'timestamp_1'
                 }
             }
         ],
@@ -330,7 +384,7 @@ module.exports = {
                     '_uuid': 1
                 },
                 options: {
-                    name: 'biologicallyDerivedProduct.collectionSourceUuid_uuid'
+                    name: 'collectionSourceUuid_uuid'
                 }
             },
             {
@@ -339,7 +393,7 @@ module.exports = {
                     '_uuid': 1
                 },
                 options: {
-                    name: 'biologicallyDerivedProduct.collectionSourceSourceid_uuid'
+                    name: 'collectionSourceSourceid_uuid'
                 }
             }
         ],
@@ -397,7 +451,7 @@ module.exports = {
                     '_uuid': 1
                 },
                 options: {
-                    name: 'enrollmentRequest.candidateUuid_uuid'
+                    name: 'candidateUuid_uuid'
                 }
             },
             {
@@ -406,7 +460,7 @@ module.exports = {
                     '_uuid': 1
                 },
                 options: {
-                    name: 'enrollmentRequest.candidateSourceid_uuid'
+                    name: 'candidateSourceid_uuid'
                 }
             }
         ],
@@ -429,7 +483,7 @@ module.exports = {
                     '_uuid': 1
                 },
                 options: {
-                    name: 'group.memberEntityUuid_uuid'
+                    name: 'memberEntityUuid_uuid'
                 }
             },
             {
@@ -438,7 +492,7 @@ module.exports = {
                     '_uuid': 1
                 },
                 options: {
-                    name: 'group.memberEntitySourceid_uuid'
+                    name: 'memberEntitySourceid_uuid'
                 }
             }
         ],
@@ -459,7 +513,7 @@ module.exports = {
                     '_uuid': 1
                 },
                 options: {
-                    name: 'healthcareService.providedBy_uuid_sourceId_uuid'
+                    name: 'providedBy_uuid_sourceId_uuid'
                 }
             }
         ],
@@ -542,7 +596,7 @@ module.exports = {
                     '_uuid': 1
                 },
                 options: {
-                    name: 'organization_type_code_1'
+                    name: 'type_code_1'
                 }
             },
             {
@@ -553,7 +607,7 @@ module.exports = {
                     '_uuid': 1
                 },
                 options: {
-                    name: 'organization.identifierSystemValue_sourceId_uuid'
+                    name: 'identifierSystemValue_sourceId_uuid'
                 }
             }
         ],
@@ -582,7 +636,7 @@ module.exports = {
                 keys: {
                     'identifier.value': 1,
                     'identifier.system': 1,
-                    '_sourceId': 1
+                    '_uuid': 1
                 },
                 options: {
                     name: 'identifier.value_1'
@@ -600,7 +654,7 @@ module.exports = {
             {
                 keys: {
                     'name.given': 1,
-                    '_sourceId': 1
+                    '_uuid': 1
                 },
                 options: {
                     name: 'name.given_1'
@@ -611,18 +665,18 @@ module.exports = {
             {
                 keys: {
                     'telecom.system': 1,
-                    'telecom.code': 1,
-                    '_sourceId': 1
+                    'telecom.value': 1,
+                    '_uuid': 1
                 },
                 options: {
-                    name: 'telecom.system_code_1'
+                    name: 'telecom.system_value_1'
                 }
             },
             {
                 keys: {
                     'identifier.value': 1,
                     'identifier.system': 1,
-                    '_sourceId': 1
+                    '_uuid': 1
                 },
                 options: {
                     name: 'identifier.value_1'
@@ -632,7 +686,7 @@ module.exports = {
                 keys: {
                     'name.family': 1,
                     'name.given': 1,
-                    '_sourceId': 1
+                    '_uuid': 1
                 },
                 options: {
                     name: 'name.family_1'
@@ -642,7 +696,7 @@ module.exports = {
                 keys: {
                     '_access.bwell': 1,
                     'name.text': 1,
-                    '_sourceId': 1
+                    '_uuid': 1
                 },
                 options: {
                     name: 'bwell_name.text_1'
@@ -652,7 +706,7 @@ module.exports = {
                 keys: {
                     '_access.bwell': 1,
                     'name.family': 1,
-                    '_sourceId': 1
+                    '_uuid': 1
                 },
                 options: {
                     name: 'bwell_name.family_1'
@@ -662,7 +716,7 @@ module.exports = {
                 keys: {
                     '_access.bwell': 1,
                     'name.suffix': 1,
-                    '_sourceId': 1
+                    '_uuid': 1
                 },
                 options: {
                     name: 'bwell_name.suffix_1'
@@ -672,7 +726,7 @@ module.exports = {
                 keys: {
                     '_access.bwell': 1,
                     'name.given': 1,
-                    '_sourceId': 1
+                    '_uuid': 1
                 },
                 options: {
                     name: 'bwell_name.given_1'
@@ -682,7 +736,7 @@ module.exports = {
                 keys: {
                     '_access.bwell': 1,
                     'name.prefix': 1,
-                    '_sourceId': 1
+                    '_uuid': 1
                 },
                 options: {
                     name: 'bwell_name.prefix_1'
@@ -693,7 +747,7 @@ module.exports = {
                     'link.target.reference': 1
                 },
                 options: {
-                    name: 'person.linkTargetReference'
+                    name: 'linkTargetReference'
                 }
             },
             {
@@ -703,7 +757,7 @@ module.exports = {
 
                 },
                 options: {
-                    name: 'person.linkTarget_uuid_uuid'
+                    name: 'linkTarget_uuid_uuid'
                 }
             },
             {
@@ -712,7 +766,7 @@ module.exports = {
                     '_uuid': 1
                 },
                 options: {
-                    name: 'person.linkTarget_sourceId_uuid'
+                    name: 'linkTarget_sourceId_uuid'
                 }
             },
             {
@@ -722,7 +776,7 @@ module.exports = {
                     '_sourceId': 1
                 },
                 options: {
-                    name: 'person.bwell.uuid.sourceId'
+                    name: 'bwell.uuid.sourceId'
                 }
             },
             {
@@ -732,7 +786,7 @@ module.exports = {
                     '_sourceId': 1
                 },
                 options: {
-                    name: 'person.meta_security_code.uuid.sourceId'
+                    name: 'meta_security_code.uuid.sourceId'
                 }
             },
             {
@@ -741,7 +795,16 @@ module.exports = {
                     '_uuid': 1
                 },
                 options: {
-                    name: 'person.address_postalCode_uuid'
+                    name: 'address_postalCode_uuid'
+                }
+            },
+            {
+                keys: {
+                    'birthDate': 1,
+                    '_uuid': 1
+                },
+                options: {
+                    name: 'birthDate_uuid'
                 }
             }
         ],
@@ -752,7 +815,7 @@ module.exports = {
                     '_uuid': 1
                 },
                 options: {
-                    name: 'practitioner.id_uuid'
+                    name: 'id_uuid'
                 }
             },
             {
@@ -761,7 +824,7 @@ module.exports = {
                     '_uuid': 1
                 },
                 options: {
-                    name: 'practitioner.name_family.uuid'
+                    name: 'name_family.uuid'
                 }
             },
             {
@@ -769,7 +832,7 @@ module.exports = {
                     '_sourceAssigningAuthority': 1
                 },
                 options: {
-                    name: 'practition.sourceAssigningAuthority'
+                    name: 'sourceAssigningAuthority'
                 }
             },
             {
@@ -781,7 +844,7 @@ module.exports = {
                     '_sourceId': 1
                 },
                 options: {
-                    name: 'practitioner.metaSecuritySystemCodeId_uuid_sourceId'
+                    name: 'metaSecuritySystemCodeId_uuid_sourceId'
                 },
             }
         ],
@@ -857,7 +920,7 @@ module.exports = {
                     '_uuid': 1
                 },
                 options: {
-                    name: 'provenance.targetUuid_uuid'
+                    name: 'targetUuid_uuid'
                 }
             },
             {
@@ -866,7 +929,7 @@ module.exports = {
                     '_uuid': 1
                 },
                 options: {
-                    name: 'provenance.targetSourceid_uuid'
+                    name: 'targetSourceid_uuid'
                 }
             }
         ],
@@ -903,7 +966,7 @@ module.exports = {
                     '_uuid': 1
                 },
                 options: {
-                    name: 'researchSubject.individualUuid_uuid'
+                    name: 'individualUuid_uuid'
                 }
             },
             {
@@ -912,7 +975,7 @@ module.exports = {
                     '_uuid': 1
                 },
                 options: {
-                    name: 'researchSubject.individualSourceid_uuid'
+                    name: 'individualSourceid_uuid'
                 }
             }
         ],
@@ -943,7 +1006,7 @@ module.exports = {
                     '_uuid': 1
                 },
                 options: {
-                    name: 'supplyRequest.requesterUuid_uuid'
+                    name: 'requesterUuid_uuid'
                 }
             },
             {
@@ -952,7 +1015,7 @@ module.exports = {
                     '_uuid': 1
                 },
                 options: {
-                    name: 'supplyRequest.requesterSourceid_uuid'
+                    name: 'requesterSourceid_uuid'
                 }
             }
         ],

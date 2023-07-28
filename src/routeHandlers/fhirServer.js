@@ -3,7 +3,6 @@
  */
 
 const compression = require('compression');
-const bodyParser = require('body-parser');
 const env = require('var');
 const {htmlRenderer} = require('../middleware/htmlRenderer');
 const {isTrue} = require('../utils/isTrue');
@@ -12,7 +11,6 @@ const {
     isValidVersion,
 } = require('../middleware/fhir/utils/schema.utils');
 const {VERSIONS} = require('../middleware/fhir/utils/constants');
-const {generateUUID} = require('../utils/uid.util');
 const helmet = require('helmet');
 const express = require('express');
 const {FhirRouter} = require('../middleware/fhir/router');
@@ -20,10 +18,9 @@ const {assertTypeEquals} = require('../utils/assertType');
 const passport = require('passport');
 const path = require('path');
 const contentType = require('content-type');
-const {REQUEST_ID_HEADER} = require('../constants');
-const {convertErrorToOperationOutcome} = require('../utils/convertErrorToOperationOutcome');
 const httpContext = require('express-http-context');
-
+const { REQUEST_ID_TYPE} = require('../constants');
+const {convertErrorToOperationOutcome} = require('../utils/convertErrorToOperationOutcome');
 class MyFHIRServer {
     /**
      * constructor
@@ -91,7 +88,7 @@ class MyFHIRServer {
         const allowedContentTypes = ['application/fhir+json', 'application/json+fhir', 'application/json-patch+json'];
 
         // reject any requests that don't have correct content type
-        this.app.use(function (req, res, next) {
+        this.app.use((req, res, next) => {
             // if methods are for GET or DELETE then no need to check content-type
             if (req.method && (req.method.toLowerCase() === 'get' || req.method.toLowerCase() === 'delete')) {
                 next();
@@ -125,29 +122,16 @@ class MyFHIRServer {
             }
         });
 
-        // generate a unique ID for each request.  Use x-request-id in header if sent.
-        this.app.use(
-            (
-                /** @type {import('http').IncomingMessage} **/ req,
-                /** @type {import('http').ServerResponse} **/ res,
-                next
-            ) => {
-                req.id = req.id || req.header(`${REQUEST_ID_HEADER}`) || generateUUID();
-                httpContext.set('requestId', req.id);
-                next();
-            }
-        );
-
         // Enable the body parser
         this.app.use(
-            bodyParser.urlencoded({
+            express.urlencoded({
                 extended: true,
                 limit: '50mb',
                 parameterLimit: 50000,
             })
         );
         this.app.use(
-            bodyParser.json({
+            express.json({
                 type: allowedContentTypes,
                 limit: '50mb',
             })
@@ -307,7 +291,7 @@ class MyFHIRServer {
                 const isValidBaseVersion = isValidVersion(base);
                 if (!isValidBaseVersion) {
                     res1.status(404);
-                    res1.end();
+                    res1.json({}).end();
                     return;
                 }
                 try {
@@ -322,7 +306,7 @@ class MyFHIRServer {
                         res1.end();
                     } else {
                         if (req.id && !res.headersSent) {
-                            res1.setHeader('X-Request-ID', String(req.id));
+                            res1.setHeader('X-Request-ID', String(httpContext.get(REQUEST_ID_TYPE.USER_REQUEST_ID)));
                         }
                         // If there is an error and it is an OperationOutcome
                         if (err && err.resourceType === OperationOutcome.resourceType) {
@@ -385,7 +369,7 @@ class MyFHIRServer {
                 ],
             });
             if (req.id && !res.headersSent) {
-                res.setHeader('X-Request-ID', String(req.id));
+                res.setHeader('X-Request-ID', String(httpContext.get(REQUEST_ID_TYPE.USER_REQUEST_ID)));
             }
             res.status(404).json(error);
         });

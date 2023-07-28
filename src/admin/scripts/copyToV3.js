@@ -68,7 +68,7 @@ async function main() {
 
 /**
  * To run this:
- * nvm use 18.14.2
+ * nvm use
  * required env variables
  * V3_MONGO_URL, V3_MONGO_USERNAME, V3_MONGO_PASSWORD, V3_DB_NAME(default: fhir)
  * MONGO_URL, MONGO_USERNAME, MONGO_PASSWORD, MONGO_DB_NAME(default: fhir)

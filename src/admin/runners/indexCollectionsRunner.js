@@ -13,7 +13,10 @@ class IndexCollectionsRunner extends BaseScriptRunner {
      * @param {string[]|undefined} [collections]
      * @param {boolean|undefined} [dropIndexes]
      * @param {boolean|undefined} [useAuditDatabase]
+     * @param {boolean|undefined} [useAccessLogsDatabase]
      * @param {boolean} includeHistoryCollections
+     * @param {boolean} addMissingIndexesOnly
+     * @param {boolean} removeExtraIndexesOnly
      * @param {AdminLogger} adminLogger
      * @param {boolean} synchronizeIndexes
      * @param {MongoDatabaseManager} mongoDatabaseManager
@@ -25,7 +28,10 @@ class IndexCollectionsRunner extends BaseScriptRunner {
             collections,
             dropIndexes,
             useAuditDatabase,
+            useAccessLogsDatabase,
             includeHistoryCollections,
+            addMissingIndexesOnly,
+            removeExtraIndexesOnly,
             adminLogger,
             synchronizeIndexes,
             mongoDatabaseManager,
@@ -59,6 +65,11 @@ class IndexCollectionsRunner extends BaseScriptRunner {
         this.useAuditDatabase = useAuditDatabase;
 
         /**
+         * @type {boolean|undefined}
+         */
+        this.useAccessLogsDatabase = useAccessLogsDatabase;
+
+        /**
          * @type {boolean}
          */
         this.includeHistoryCollections = includeHistoryCollections;
@@ -66,6 +77,14 @@ class IndexCollectionsRunner extends BaseScriptRunner {
          * @type {boolean}
          */
         this.synchronizeIndexes = synchronizeIndexes;
+        /**
+         * @type {boolean}
+         */
+        this.addMissingIndexesOnly = addMissingIndexesOnly;
+        /**
+         * @type {boolean}
+         */
+        this.removeExtraIndexesOnly = removeExtraIndexesOnly;
     }
 
     /**
@@ -79,11 +98,32 @@ class IndexCollectionsRunner extends BaseScriptRunner {
              * @type {import('mongodb').Db}
              */
             const db = this.useAuditDatabase ? await this.mongoDatabaseManager.getAuditDbAsync() :
-                await this.mongoDatabaseManager.getClientDbAsync();
-            if (this.synchronizeIndexes) {
+                this.useAccessLogsDatabase ? await this.mongoDatabaseManager.getAccessLogsDbAsync() :
+                    await this.mongoDatabaseManager.getClientDbAsync();
+
+            const collections = this.collections.length > 0 ? this.collections : ['all'];
+            if (this.addMissingIndexesOnly) {
+                await this.indexManager.addMissingIndexesAsync(
+                    {
+                        audit: this.useAuditDatabase,
+                        accessLogs: this.useAccessLogsDatabase,
+                        collections
+                    }
+                );
+            } else if (this.removeExtraIndexesOnly) {
+                await this.indexManager.dropExtraIndexesAsync(
+                    {
+                        audit: this.useAuditDatabase,
+                        accessLogs: this.useAccessLogsDatabase,
+                        collections
+                    }
+                );
+            } else if (this.synchronizeIndexes) {
                 await this.indexManager.synchronizeIndexesWithConfigAsync(
                     {
-                        audit: this.useAuditDatabase
+                        audit: this.useAuditDatabase,
+                        accessLogs: this.useAccessLogsDatabase,
+                        collections
                     }
                 );
             } else {
@@ -91,6 +131,7 @@ class IndexCollectionsRunner extends BaseScriptRunner {
                     this.collections = await this.getAllCollectionNamesAsync(
                         {
                             useAuditDatabase: this.useAuditDatabase,
+                            useAccessLogsDatabase: this.useAccessLogsDatabase,
                             includeHistoryCollections: this.includeHistoryCollections
                         });
                     this.collections = this.collections.sort();

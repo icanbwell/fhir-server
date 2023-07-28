@@ -185,5 +185,16 @@ module.exports = {
         INSERT: 'INSERT',
         RETRIEVE: 'RETRIEVE',
         DELETE: 'DELETE',
-    }
+    },
+    PATIENT_INITIATED_CONNECTION: [
+        'proa'
+    ],
+    REQUEST_ID_TYPE: {
+        USER_REQUEST_ID: 'userRequestId',
+        SYSTEM_GENERATED_REQUEST_ID: 'systemGeneratedRequestId',
+    },
+    ACCESS_LOGS_COLLECTION_NAME: 'access-logs',
+    PATIENT_REFERENCE_PREFIX: 'Patient/',
+    PERSON_REFERENCE_PREFIX: 'Person/',
+    PERSON_PROXY_PREFIX: 'person.'
 };

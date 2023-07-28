@@ -20,6 +20,7 @@ const {handleAlert} = require('./routeHandlers/alert');
 const {MyFHIRServer} = require('./routeHandlers/fhirServer');
 const {handleSecurityPolicy} = require('./routeHandlers/contentSecurityPolicy');
 const {handleHealthCheck} = require('./routeHandlers/healthCheck.js');
+const {handleFullHealthCheck} = require('./routeHandlers/healthFullCheck.js');
 const {handleVersion} = require('./routeHandlers/version');
 const {handleLogout} = require('./routeHandlers/logout');
 const {handleClean} = require('./routeHandlers/clean');
@@ -27,10 +28,12 @@ const {handleStats} = require('./routeHandlers/stats');
 const {handleSmartConfiguration} = require('./routeHandlers/smartConfiguration');
 const {isTrue} = require('./utils/isTrue');
 const cookieParser = require('cookie-parser');
-const { handleMemoryCheck } = require('./routeHandlers/memoryChecker');
+const {handleMemoryCheck} = require('./routeHandlers/memoryChecker');
 const {handleAdmin} = require('./routeHandlers/admin');
-const {json} = require('body-parser');
-const { getImageVersion } = require('./utils/getImageVersion');
+const {getImageVersion} = require('./utils/getImageVersion');
+const {REQUEST_ID_TYPE, REQUEST_ID_HEADER} = require('./constants');
+const {generateUUID} = require('./utils/uid.util');
+const {logInfo} = require('./operations/common/logging');
 
 /**
  * Creates the FHIR app
@@ -111,6 +114,35 @@ function createApp({fnCreateContainer, trackMetrics}) {
         },
     };
 
+    /**
+     * Generate a unique ID for each request at earliest.
+     * Use x-request-id in header if sent.
+     */
+    app.use(
+        (
+            /** @type {import('http').IncomingMessage} **/ req,
+            /** @type {import('http').ServerResponse} **/ res,
+            next
+        ) => {
+            // Generates a unique uuid that is used for operations
+            const uniqueRequestId = generateUUID();
+            httpContext.set(REQUEST_ID_TYPE.SYSTEM_GENERATED_REQUEST_ID, uniqueRequestId);
+
+            // Stores the userRquestId in httpContext and later used for logging and creating bundles.
+            req.id = req.id || req.header(`${REQUEST_ID_HEADER}`) || uniqueRequestId;
+            httpContext.set(REQUEST_ID_TYPE.USER_REQUEST_ID, req.id);
+            next();
+        }
+    );
+
+    // log every incoming request
+    app.use(async (req, res, next) => {
+        const reqPath = req.originalUrl;
+        const reqMethod = req.method.toUpperCase();
+        logInfo('Incoming Request', {path: reqPath, method: reqMethod});
+        next();
+    });
+
     // noinspection JSCheckFunctionSignatures
     app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument, options));
 
@@ -137,6 +169,10 @@ function createApp({fnCreateContainer, trackMetrics}) {
     });
 
     app.get('/health', (req, res) => handleHealthCheck(
+        fnCreateContainer, req, res
+    ));
+
+    app.get('/full-healthcheck', (req, res) => handleFullHealthCheck(
         fnCreateContainer, req, res
     ));
 
@@ -197,11 +233,32 @@ function createApp({fnCreateContainer, trackMetrics}) {
     );
     app.use('/js', express.static(path.join(__dirname, '../node_modules/bootstrap/dist/js')));
 
+
     if (isTrue(env.AUTH_ENABLED)) {
         // Set up admin routes
         // noinspection JSCheckFunctionSignatures
         passport.use('adminStrategy', strategy);
         app.use(cors(fhirServerConfig.server.corsOptions));
+    }
+
+    if (process.env.OPENAI_API_KEY) {
+        // eslint-disable-next-line new-cap
+        const webRouter = express.Router();
+        if (isTrue(env.AUTH_ENABLED)) {
+            webRouter.use(passport.initialize());
+            webRouter.use(passport.authenticate('adminStrategy', {session: false}, null));
+        }
+
+        // Serve static files from the React app
+        webRouter.use('/web', express.static(path.join(__dirname, 'web/build')));
+        // Always serve the React app for any other request
+        webRouter.get('/web', (req, res) => {
+            res.sendFile(path.join(__dirname, 'web/build', 'index.html'));
+        });
+        webRouter.get('/web/*', (req, res) => { // support sub-paths also
+            res.sendFile(path.join(__dirname, 'web/build', 'index.html'));
+        });
+        app.use(webRouter);
     }
 
     // eslint-disable-next-line new-cap
@@ -235,12 +292,11 @@ function createApp({fnCreateContainer, trackMetrics}) {
                     router.use(passport.authenticate('graphqlStrategy', {session: false}, null));
                 }
                 router.use(cors(fhirServerConfig.server.corsOptions));
-                router.use(json());
+                router.use(express.json());
                 router.use(handleSecurityPolicy);
                 router.use(function (req, res, next) {
                     res.once('finish', async () => {
                         const req1 = req;
-                        const requestId = req.id;
                         /**
                          * @type {SimpleContainer}
                          */
@@ -255,6 +311,7 @@ function createApp({fnCreateContainer, trackMetrics}) {
                              */
                             const requestSpecificCache = container.requestSpecificCache;
                             if (postRequestProcessor) {
+                                const requestId = httpContext.get(REQUEST_ID_TYPE.SYSTEM_GENERATED_REQUEST_ID);
                                 await postRequestProcessor.executeAsync({requestId});
                                 await requestSpecificCache.clearAsync({requestId});
                             }
@@ -286,16 +343,16 @@ function createApp({fnCreateContainer, trackMetrics}) {
     return app;
 }
 
-/**
- *
- * @param {import('express').Express} app
- * @return {boolean}
- */
-function unmountRoutes(app) {
-    // eslint-disable-next-line new-cap
-    app.use('/graphql', express.Router());
-    // eslint-disable-next-line new-cap
-    app.use('/graphqlv2', express.Router());
-}
+// /**
+//  *
+//  * @param {import('express').Express} app
+//  * @return {boolean}
+//  */
+// function unmountRoutes(app) {
+//     // eslint-disable-next-line new-cap
+//     app.use('/graphql', express.Router());
+//     // eslint-disable-next-line new-cap
+//     app.use('/graphqlv2', express.Router());
+// }
 
-module.exports = {createApp, unmountRoutes};
+module.exports = {createApp};

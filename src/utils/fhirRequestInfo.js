@@ -13,6 +13,7 @@ class FhirRequestInfo {
      * @param {string|null} originalUrl
      * @param {string | null} [remoteIpAddress]
      * @param {string|null} requestId
+     * @param {string|null} userRequestId
      * @param {string | null} [path]
      * @param {string | null} host
      * @param {Object | Object[] | null} [body]
@@ -30,6 +31,7 @@ class FhirRequestInfo {
             scope,
             remoteIpAddress,
             requestId,
+            userRequestId,
             protocol,
             originalUrl,
             path,
@@ -62,6 +64,10 @@ class FhirRequestInfo {
          */
         this.requestId = requestId;
         /**
+         * @type {string|null}
+         */
+        this.userRequestId = userRequestId;
+        /**
          * @type {string}
          */
         this.protocol = protocol;
@@ -82,7 +88,7 @@ class FhirRequestInfo {
          */
         this.body = body;
         /**
-         * @type {string | null}
+         * @type {string[] | null}
          */
         this.accept = accept;
         /**

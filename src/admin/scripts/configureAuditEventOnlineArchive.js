@@ -38,7 +38,7 @@ async function main() {
 
 /**
  * To run this:
- * nvm use 18.14.2
+ * nvm use
  * npm install
  * Create .env file in root directory with these variables
  * AUDIT_EVENT_MONGO_URL=

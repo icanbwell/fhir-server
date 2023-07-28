@@ -7,7 +7,7 @@ const expectedAuditEventResources = require('./fixtures/expected/expected_AuditE
 const expectedAuditEventWithoutAccessIndexResources = require('./fixtures/expected/expected_AuditEvent_without_access_index.json');
 const expectedAuditEventResourcesAccessIndex = require('./fixtures/expected/expected_AuditEvent_access_index.json');
 
-const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest, getTestContainer, getRequestId} = require('../../common');
+const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest, getTestContainer, mockHttpContext} = require('../../common');
 const {describe, beforeEach, afterEach, test} = require('@jest/globals');
 const moment = require('moment-timezone');
 const {ConfigManager} = require('../../../utils/configManager');
@@ -51,8 +51,10 @@ class MockIndexProvider extends IndexProvider {
 }
 
 describe('AuditEvent Tests', () => {
+    let requestId;
     beforeEach(async () => {
         await commonBeforeEach();
+        requestId = mockHttpContext();
     });
 
     afterEach(async () => {
@@ -87,7 +89,7 @@ describe('AuditEvent Tests', () => {
              * @type {PostRequestProcessor}
              */
             const postRequestProcessor = container.postRequestProcessor;
-            await postRequestProcessor.waitTillDoneAsync({requestId: getRequestId(resp)});
+            await postRequestProcessor.waitTillDoneAsync({requestId: requestId});
             /**
              * @type {MongoDatabaseManager}
              */
@@ -158,7 +160,7 @@ describe('AuditEvent Tests', () => {
              * @type {PostRequestProcessor}
              */
             const postRequestProcessor = container.postRequestProcessor;
-            await postRequestProcessor.waitTillDoneAsync({requestId: getRequestId(resp)});
+            await postRequestProcessor.waitTillDoneAsync({requestId: requestId});
             /**
              * @type {MongoDatabaseManager}
              */
@@ -227,7 +229,7 @@ describe('AuditEvent Tests', () => {
              * @type {PostRequestProcessor}
              */
             const postRequestProcessor = container.postRequestProcessor;
-            await postRequestProcessor.waitTillDoneAsync({requestId: getRequestId(resp)});
+            await postRequestProcessor.waitTillDoneAsync({requestId: requestId});
 
             /**
              * @type {MongoDatabaseManager}
@@ -280,7 +282,7 @@ describe('AuditEvent Tests', () => {
              * @type {PostRequestProcessor}
              */
             const postRequestProcessor = getTestContainer().postRequestProcessor;
-            await postRequestProcessor.waitTillDoneAsync({requestId: getRequestId(resp)});
+            await postRequestProcessor.waitTillDoneAsync({requestId: requestId});
 
             // ACT & ASSERT
             // search by token system and code and make sure we get the right AuditEvent back

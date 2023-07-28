@@ -6,7 +6,7 @@ const patient1Resource = require('./fixtures/Patient/patient1.json');
 const expectedAuditEventResourcesAccessIndex = require('./fixtures/expected/expected_AuditEvent_access_index.json');
 const expectedPatientResourcesAccessIndex = require('./fixtures/expected/expected_Patient_access_index.json');
 
-const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest, getTestContainer, getRequestId} = require('../../common');
+const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest, getTestContainer, mockHttpContext} = require('../../common');
 const {describe, beforeEach, afterEach, test} = require('@jest/globals');
 const moment = require('moment-timezone');
 const {ConfigManager} = require('../../../utils/configManager');
@@ -42,8 +42,10 @@ class MockIndexProvider extends IndexProvider {
 
 
 describe('AuditEvent when all is set Tests', () => {
+    let requestId;
     beforeEach(async () => {
         await commonBeforeEach();
+        requestId = mockHttpContext();
     });
 
     afterEach(async () => {
@@ -79,7 +81,7 @@ describe('AuditEvent when all is set Tests', () => {
              * @type {PostRequestProcessor}
              */
             const postRequestProcessor = container.postRequestProcessor;
-            await postRequestProcessor.waitTillDoneAsync({requestId: getRequestId(resp)});
+            await postRequestProcessor.waitTillDoneAsync({requestId: requestId});
 
             /**
              * @type {MongoDatabaseManager}
@@ -150,7 +152,7 @@ describe('AuditEvent when all is set Tests', () => {
              * @type {PostRequestProcessor}
              */
             const postRequestProcessor = container.postRequestProcessor;
-            await postRequestProcessor.waitTillDoneAsync({requestId: getRequestId(resp)});
+            await postRequestProcessor.waitTillDoneAsync({requestId: requestId});
             /**
              * @type {MongoDatabaseManager}
              */

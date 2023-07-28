@@ -30,6 +30,9 @@ async function main() {
             collections: collections,
             dropIndexes: parameters.drop ? true : false,
             useAuditDatabase: parameters.audit ? true : false,
+            useAccessLogsDatabase: parameters.accessLogs ? true : false,
+            addMissingIndexesOnly: parameters.addMissingIndexesOnly ? true : false,
+            removeExtraIndexesOnly: parameters.dropExtraIndexesOnly ? true : false,
             includeHistoryCollections: parameters.includeHistoryCollections ? true : false,
             adminLogger: new AdminLogger(),
             synchronizeIndexes: parameters.synchronize ? true : false,
@@ -48,14 +51,20 @@ async function main() {
 
 /**
  * To run this:
- * nvm use 18.14.2
+ * nvm use
  * Create .env file in root directory with these variables
  * MONGO_URL, MONGO_USERNAME, MONGO_PASSWORD, MONGO_DB_NAME
  * AUDIT_EVENT_MONGO_URL, AUDIT_EVENT_MONGO_USERNAME, AUDIT_EVENT_MONGO_PASSWORD, AUDIT_EVENT_MONGO_DB_NAME
  * Command: node -r dotenv/config src/admin/scripts/indexCollections --collections=Patient_4_0_0 --drop
  * Command: node -r dotenv/config src/admin/scripts/indexCollections --collections=all --drop
  * Command: node -r dotenv/config src/admin/scripts/indexCollections --synchronize
+ * Command: node -r dotenv/config src/admin/scripts/indexCollections --synchronize --collections=all
+ * Command: node -r dotenv/config src/admin/scripts/indexCollections --addMissingIndexesOnly
+ * Command: node -r dotenv/config src/admin/scripts/indexCollections --addMissingIndexesOnly --collections=all
+ * Command: node -r dotenv/config src/admin/scripts/indexCollections --dropExtraIndexesOnly
+ * Command: node -r dotenv/config src/admin/scripts/indexCollections --dropExtraIndexesOnly --collections=all
  * Command: node -r dotenv/config src/admin/scripts/indexCollections --audit --synchronize
+ * Command: node -r dotenv/config src/admin/scripts/indexCollections --accessLogs --synchronize
  * Command: node -r dotenv/config src/admin/scripts/indexCollections --collections=AuditEvent_4_0_0 --drop --audit --includeHistoryCollections
  * Command: node -r dotenv/config src/admin/scripts/indexCollections --collections=AuditEvent_4_0_0 --drop --audit --includeHistoryCollections
  * collection can be a regex

@@ -2,6 +2,7 @@
  * Configuration for the app
  */
 const env = require('var');
+const Sentry = require('@sentry/node');
 const {profiles} = require('./profiles');
 
 let mongoUrl = env.MONGO_URL || `mongodb://${env.MONGO_HOSTNAME}:${env.MONGO_PORT}`;
@@ -107,21 +108,39 @@ if (env.AUDIT_EVENT_ONLINE_ARCHIVE_CLUSTER_MONGO_URL) {
 
 /**
  * @name mongoConfig
- * @summary Configurations for our Mongo instance
+ * @summary Configurations of our Mongo instance for access logs
  * @type {{connection: string, db_name: string, options: import('mongodb').MongoClientOptions }}
  */
-let accessLogsMongoConfig = {
-    connection: auditEventMongoConfig.connection,
-    db_name: auditEventMongoConfig.db_name,
-    options: {
-        ...options,
-        useUnifiedTopology: true
+let accessLogsMongoConfig;
+if (env.ACCESS_LOGS_CLUSTER_MONGO_URL) {
+    let accessLogsMongoUrl = env.ACCESS_LOGS_CLUSTER_MONGO_URL;
+    if (env.ACCESS_LOGS_MONGO_USERNAME !== undefined) {
+        accessLogsMongoUrl = accessLogsMongoUrl.replace(
+            'mongodb://',
+            `mongodb://${env.ACCESS_LOGS_MONGO_USERNAME}:${env.ACCESS_LOGS_MONGO_PASSWORD}@`
+        );
+        accessLogsMongoUrl = accessLogsMongoUrl.replace(
+            'mongodb+srv://',
+            `mongodb+srv://${env.ACCESS_LOGS_MONGO_USERNAME}:${env.ACCESS_LOGS_MONGO_PASSWORD}@`
+        );
     }
-};
-delete accessLogsMongoConfig.options.compressors;
-if (env.ACCESS_LOGS_MONGO_DB_NAME) {
-    accessLogsMongoConfig.db_name = String(env.ACCESS_LOGS_MONGO_DB_NAME);
+    // url-encode the url
+    accessLogsMongoUrl = accessLogsMongoUrl ? encodeURI(accessLogsMongoUrl) : accessLogsMongoUrl;
+    accessLogsMongoConfig = {
+        connection: accessLogsMongoUrl,
+        db_name: String(env.ACCESS_LOGS_MONGO_DB_NAME),
+    };
+} else {
+    const dbName = env.ACCESS_LOGS_MONGO_DB_NAME ?
+        String(env.ACCESS_LOGS_MONGO_DB_NAME) :
+        auditEventMongoConfig.db_name;
+    accessLogsMongoConfig = {
+        connection: auditEventMongoConfig.connection,
+        db_name: dbName,
+    };
 }
+accessLogsMongoConfig.options = {...options, useUnifiedTopology: true};
+delete accessLogsMongoConfig.options.compressors;
 
 // Set up whitelist
 let whitelist_env = (env.WHITELIST && env.WHITELIST.split(',').map((host) => host.trim())) || false;
@@ -161,6 +180,8 @@ let fhirServerConfig = {
         level: env.LOGLEVEL,
     },
     errorTracking: {
+        requestHandler: Sentry.Handlers.requestHandler,
+        errorHandler: Sentry.Handlers.errorHandler,
     },
     //
     // If you want to set up conformance statement with security enabled

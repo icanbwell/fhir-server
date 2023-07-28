@@ -1,9 +1,9 @@
 const {Writable} = require('stream');
-const {isTrue} = require('../../utils/isTrue');
-const env = require('var');
-const {isNdJsonContentType} = require('../../utils/contentTypes');
 const {getLogger} = require('../../winstonInit');
-const {assertIsValid} = require('../../utils/assertType');
+const {assertIsValid, assertTypeEquals} = require('../../utils/assertType');
+const {hasNdJsonContentType} = require('../../utils/contentTypes');
+const {ConfigManager} = require('../../utils/configManager');
+const {RethrownError} = require('../../utils/rethrownError');
 const logger = getLogger();
 
 class HttpResponseWriter extends Writable {
@@ -12,9 +12,20 @@ class HttpResponseWriter extends Writable {
      * @param {import('http').ServerResponse} response
      * @param {string} contentType
      * @param {AbortSignal} signal
+     * @param {number} highWaterMark
+     * @param {ConfigManager} configManager
      */
-    constructor({requestId, response, contentType, signal}) {
-        super({objectMode: true});
+    constructor(
+        {
+            requestId,
+            response,
+            contentType,
+            signal,
+            highWaterMark,
+            configManager
+        }
+    ) {
+        super({objectMode: true, highWaterMark: highWaterMark});
         assertIsValid(response !== undefined);
         /**
          * @type {import('http').ServerResponse}
@@ -36,16 +47,23 @@ class HttpResponseWriter extends Writable {
          * @type {string}
          */
         this.requestId = requestId;
+
+        /**
+         * @type {ConfigManager}
+         */
+        this.configManager = configManager;
+        assertTypeEquals(configManager, ConfigManager);
     }
 
     _construct(callback) {
-        if (isTrue(env.LOG_STREAM_STEPS)) {
+        if (this.configManager.logStreamSteps) {
             logger.info(`HttpResponseWriter: _construct: requestId: ${this.requestId}`);
         }
         this.response.removeHeader('Content-Length');
         this.response.setHeader('Transfer-Encoding', 'chunked');
         this.response.setHeader('X-Request-ID', this.requestId);
         this.response.setHeader('Content-Type', this.contentType);
+        // noinspection DynamicallyGeneratedCodeJS
         this.response.setTimeout(60 * 60 * 1000, () => {
             logger.warn('Response timeout');
         });
@@ -67,22 +85,22 @@ class HttpResponseWriter extends Writable {
         }
         try {
             if (chunk !== null && chunk !== undefined) {
-                if (isTrue(env.LOG_STREAM_STEPS)) {
-                    if (isNdJsonContentType([this.contentType])) {
-                        try {
-                            /**
-                             * @type {Object}
-                             */
-                            const jsonObject = JSON.parse(chunk);
-                            logger.verbose(`HttpResponseWriter: _write ${jsonObject['id']}`);
-                        } catch (e) {
-                            logger.error(`HttpResponseWriter: _write: ERROR parsing json: ${chunk}: ${e}`);
-                        }
-                    } else {
-                        logger.verbose(`HttpResponseWriter: _write ${chunk}`);
-                    }
-                }
                 if (this.response.writable) {
+                    if (this.configManager.logStreamSteps) {
+                        if (hasNdJsonContentType([this.contentType])) {
+                            try {
+                                /**
+                                 * @type {Object}
+                                 */
+                                const jsonObject = JSON.parse(chunk);
+                                logger.verbose(`HttpResponseWriter: _write ${jsonObject['id']}`);
+                            } catch (e) {
+                                logger.error(`HttpResponseWriter: _write: ERROR parsing json: ${chunk}: ${e}`);
+                            }
+                        } else {
+                            logger.verbose(`HttpResponseWriter: _write ${chunk}`);
+                        }
+                    }
                     this.response.write(chunk, encoding, callback);
                 }
                 callback();
@@ -90,7 +108,17 @@ class HttpResponseWriter extends Writable {
                 callback();
             }
         } catch (e) {
-            throw new AggregateError([e], 'HttpResponseWriter _transform: error');
+            const error = new RethrownError(
+                {
+                    message: `HttpResponseWriter _transform: error: ${e.message}. id: ${chunk.id}`,
+                    error: e,
+                    args: {
+                        id: chunk.id,
+                        chunk: chunk
+                    }
+                }
+            );
+            callback(error);
         }
     }
 
@@ -99,7 +127,7 @@ class HttpResponseWriter extends Writable {
      * @private
      */
     _final(callback) {
-        if (isTrue(env.LOG_STREAM_STEPS)) {
+        if (this.configManager.logStreamSteps) {
             logger.verbose('HttpResponseWriter: _flush');
         }
         if (this.response.writable) {

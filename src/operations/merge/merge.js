@@ -26,6 +26,10 @@ const {PreSaveManager} = require('../../preSaveHandlers/preSave');
 const async = require('async');
 const {QueryItem} = require('../graph/queryItem');
 const {FhirResourceCreator} = require('../../fhir/fhirResourceCreator');
+const {SensitiveDataProcessor} = require('../../utils/sensitiveDataProcessor');
+const {ConfigManager} = require('../../utils/configManager');
+const {matchPersonLinks} = require('../../utils/personLinksMatcher');
+const {BwellPersonFinder} = require('../../utils/bwellPersonFinder');
 
 class MergeOperation {
     /**
@@ -42,6 +46,9 @@ class MergeOperation {
      * @param {ResourceLocatorFactory} resourceLocatorFactory
      * @param {ResourceValidator} resourceValidator
      * @param {PreSaveManager} preSaveManager
+     * @param {SensitiveDataProcessor} sensitiveDataProcessor
+     * @param {ConfigManager} configManager
+     * @param {BwellPersonFinder} bwellPersonFinder
      */
     constructor(
         {
@@ -57,7 +64,10 @@ class MergeOperation {
             bundleManager,
             resourceLocatorFactory,
             resourceValidator,
-            preSaveManager
+            preSaveManager,
+            sensitiveDataProcessor,
+            configManager,
+            bwellPersonFinder
         }
     ) {
         /**
@@ -128,6 +138,24 @@ class MergeOperation {
          */
         this.preSaveManager = preSaveManager;
         assertTypeEquals(preSaveManager, PreSaveManager);
+
+        /**
+         * @type {SensitiveDataProcessor}
+         */
+        this.sensitiveDataProcessor = sensitiveDataProcessor;
+        assertTypeEquals(sensitiveDataProcessor, SensitiveDataProcessor);
+
+        /**
+         * @type {ConfigManager}
+         */
+        this.configManager = configManager;
+        assertTypeEquals(configManager, ConfigManager);
+
+        /**
+         * @type {BwellPersonFinder}
+         */
+        this.bwellPersonFinder = bwellPersonFinder;
+        assertTypeEquals(bwellPersonFinder, BwellPersonFinder);
     }
 
     /**
@@ -194,6 +222,8 @@ class MergeOperation {
             host,
             /** @type {string} */
             requestId,
+            /** @type {string} */
+            userRequestId,
             /** @type {Object} */
             headers,
             /** @type {string|null} */
@@ -354,6 +384,14 @@ class MergeOperation {
                 }
             );
 
+            // The access tags are updated before updating the resources.
+            // If access tags is to be updated call the corresponding processor
+            if (this.configManager.enabledAccessTagUpdate) {
+                await this.sensitiveDataProcessor.updateResourceSecurityAccessTag({
+                    resource: resourcesIncomingArray,
+                });
+            }
+
             // merge the resources
             await this.mergeManager.mergeResourceListAsync(
                 {
@@ -385,6 +423,7 @@ class MergeOperation {
                 fnTask: async () => await this.changeEventProducer.flushAsync({requestId})
             });
 
+
             // add in any pre-merge failures
             mergeResults = mergeResults.concat(mergePreCheckErrors);
 
@@ -405,6 +444,51 @@ class MergeOperation {
                     action: currentOperationName,
                     result: JSON.stringify(mergeResults, getCircularReplacer())
                 });
+            if (this.configManager.enabledAccessTagUpdate) {
+                this.postRequestProcessor.add({
+                    requestId,
+                    fnTask: async () => {
+                        let changedConsentResources = [];
+                        let personChangedResources = [];
+                        mergeResults.forEach(mergeResult => {
+                            const { currentResourceType, created, updated } = mergeResult;
+                            const resourceUUID = mergeResult.toJSON().uuid;
+
+                            if (currentResourceType === 'Consent' && (created || updated)) {
+                                changedConsentResources.push(resourceUUID);
+                            }
+                            if (currentResourceType === 'Person' && (created || updated)) {
+                                personChangedResources.push(resourceUUID);
+                            }
+                        });
+                        let consentResources = resourcesIncomingArray.filter((resource) => {
+                            return changedConsentResources.includes(resource._uuid);
+                        });
+                        let personResources = resourcesIncomingArray.filter((resource) => {
+                            if (resource.resourceType !== 'Person') {
+                                return false;
+                            }
+                            let previousResource = this.databaseBulkLoader.getResourceFromExistingList({
+                                requestId: requestId, resourceType: resource.resourceType, uuid: resource._uuid
+                            });
+                            if (!previousResource) {
+                                return true;
+                            }
+                            return (
+                                personChangedResources.includes(resource._uuid) &&
+                                this.bwellPersonFinder.isBwellPerson(resource) &&
+                                !matchPersonLinks(previousResource.link, resource.link)
+                            );
+                        });
+                        if (consentResources.length > 0) {
+                            await this.sensitiveDataProcessor.processPatientConsentChange({ requestId: requestId, resources: consentResources });
+                        }
+                        if (personResources.length > 0) {
+                            await this.sensitiveDataProcessor.processPersonLinkChange({ requestId: requestId, resources: personResources });
+                        }
+                    }
+                });
+            }
 
             /**
              * @type {number}
@@ -466,7 +550,7 @@ class MergeOperation {
                 return this.bundleManager.createBundle(
                     {
                         type: 'batch-response',
-                        requestId: requestInfo.requestId,
+                        requestId: userRequestId,
                         originalUrl: url,
                         host,
                         protocol,

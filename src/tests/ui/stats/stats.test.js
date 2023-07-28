@@ -6,23 +6,28 @@ const {
     commonBeforeEach,
     commonAfterEach,
     getHeaders,
-    createTestRequest, getTestContainer, getRequestId,
+    createTestRequest, getTestContainer, mockHttpContext
 } = require('../../common');
 const {describe, beforeEach, afterEach, expect, test} = require('@jest/globals');
 const {assertTypeEquals} = require('../../../utils/assertType');
 const {PostRequestProcessor} = require('../../../utils/postRequestProcessor');
 
 describe('Stats Tests', () => {
+    let requestId;
     beforeEach(async () => {
         await commonBeforeEach();
+        requestId = mockHttpContext();
     });
 
     afterEach(async () => {
         await commonAfterEach();
     });
 
+
+
     describe('Stats Tests', () => {
         test('stats works', async () => {
+
             const request = await createTestRequest();
             let resp = await request.get('/4_0_0/Patient').set(getHeaders());
 
@@ -50,7 +55,7 @@ describe('Stats Tests', () => {
 
             await postRequestProcessor.waitTillDoneAsync(
                 {
-                    requestId: getRequestId(resp)
+                    requestId: requestId
                 }
             );
 

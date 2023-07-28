@@ -1,6 +1,8 @@
 const path = require('path');
 const {assertTypeEquals} = require('../../utils/assertType');
 const Resource = require('../../fhir/classes/4_0_0/resources/resource');
+const httpContext = require('express-http-context');
+const {REQUEST_ID_TYPE} = require('../../constants');
 
 /**
  * @classdesc Writes response in FHIR
@@ -71,8 +73,12 @@ class FhirResponseWriter {
      * @param {import('express').Response} res - Express response object
      * @param {Resource|Object} result - json to send to client
      */
-    everything({req, res}) {
+    everything({req, res, result}) {
         this.setBaseResponseHeaders({req, res});
+        // don't write if we're streaming the response
+        if (!res.headersSent) {
+            res.status(200).json(result);
+        }
     }
 
     /**
@@ -106,12 +112,12 @@ class FhirResponseWriter {
             res.type(this.getContentType(fhirVersion));
         }
         if (req.id && !res.headersSent) {
-            res.setHeader('X-Request-ID', String(req.id));
+            res.setHeader('X-Request-ID', String(httpContext.get(REQUEST_ID_TYPE.USER_REQUEST_ID)));
         }
-        if (!resource) {
-            res.sendStatus(404);
-        } else {
+        if (resource) {
             res.status(200).json(resource);
+        } else {
+            res.sendStatus(404);
         }
     }
 
@@ -141,14 +147,14 @@ class FhirResponseWriter {
             res.set('ETag', `W/"${resource.meta.versionId}"`);
         }
         if (req.id && !res.headersSent) {
-            res.setHeader('X-Request-ID', String(req.id));
+            res.setHeader('X-Request-ID', String(httpContext.get(REQUEST_ID_TYPE.USER_REQUEST_ID)));
         }
         res.set('Location', location);
         // https://hl7.org/fhir/http.html#ops
-        if (req.headers.prefer && req.headers.prefer === 'return=representation') {
-            res.status(201).json(resource).end();
+        if (req.headers.prefer && req.headers.prefer === 'return=minimal') {
+            res.status(201).json({}).end();
         } else {
-            res.status(201).end();
+            res.status(201).json(resource).end();
         }
         //TODO: handle return=OperationOutcome
     }
@@ -177,11 +183,11 @@ class FhirResponseWriter {
         res.type(this.getContentType(fhirVersion));
         res.set('Location', location);
         if (req.id && !res.headersSent) {
-            res.setHeader('X-Request-ID', String(req.id));
+            res.setHeader('X-Request-ID', String(httpContext.get(REQUEST_ID_TYPE.USER_REQUEST_ID)));
         }
         // https://hl7.org/fhir/http.html#ops
         if (req.headers.prefer && req.headers.prefer === 'return=minimal') {
-            res.status(status).end();
+            res.status(status).json({}).end();
         } else { // or return=representation
             res.status(status).json(result.resource.toJSON()).end();
         }
@@ -200,9 +206,9 @@ class FhirResponseWriter {
             res.set('ETag', json.deleted);
         }
         if (req.id && !res.headersSent) {
-            res.setHeader('X-Request-ID', String(req.id));
+            res.setHeader('X-Request-ID', String(httpContext.get(REQUEST_ID_TYPE.USER_REQUEST_ID)));
         }
-        res.status(204).end();
+        res.status(204).json({}).end();
     }
 
     /**
@@ -216,7 +222,7 @@ class FhirResponseWriter {
         let version = req.params.base_version;
         res.type(this.getContentType(version));
         if (req.id && !res.headersSent) {
-            res.setHeader('X-Request-ID', String(req.id));
+            res.setHeader('X-Request-ID', String(httpContext.get(REQUEST_ID_TYPE.USER_REQUEST_ID)));
         }
         res.status(200).json(json);
     }
@@ -227,14 +233,14 @@ class FhirResponseWriter {
      * @param {import('http').IncomingMessage} req - Express request object
      * @param {import('express').Response} res - Express response object
      */
-    setBaseResponseHeaders({ req, res }) {
+    setBaseResponseHeaders({req, res}) {
         if (!res.headersSent) {
             let fhirVersion = req.params.base_version;
             res.type(this.getContentType(fhirVersion));
         }
 
         if (req.id && !res.headersSent) {
-            res.setHeader('X-Request-ID', String(req.id));
+            res.setHeader('X-Request-ID', String(httpContext.get(REQUEST_ID_TYPE.USER_REQUEST_ID)));
         }
     }
 }

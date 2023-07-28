@@ -1,0 +1,17 @@
+{
+    "resourceType": "GraphDefinition",
+    "name": "Patient_related_Person",
+    "status": "active",
+    "start": "Person",
+    "link": [
+        {
+            "description": "Persons related to this Patient",
+            "target": [
+                {
+                    "type": "Person",
+                    "params": "link={ref}"
+                }
+            ]
+        }
+    ]
+}

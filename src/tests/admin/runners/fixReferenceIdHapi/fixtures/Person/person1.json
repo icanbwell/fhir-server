@@ -1,0 +1,26 @@
+{
+    "resourceType": "Person",
+    "id": "2",
+    "meta": {
+        "source": "bwell",
+        "security": [
+            {
+                "system": "https://www.icanbwell.com/access",
+                "code": "bwell"
+            },
+            {
+                "system": "https://www.icanbwell.com/owner",
+                "code": "bwell"
+            }
+        ]
+    },
+    "link": [
+        {
+            "target": {
+                "reference": "Person/HumanApi-1",
+                "display": "Eve Everywoman"
+            },
+            "assurance": "level3"
+        }
+    ]
+}

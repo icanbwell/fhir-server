@@ -4,6 +4,8 @@ const {FhirLogger: fhirLogger} = require('../../utils/fhirLogger');
 const {assertTypeEquals} = require('../../utils/assertType');
 const {ScopesManager} = require('../security/scopesManager');
 const {getCircularReplacer} = require('../../utils/getCircularReplacer');
+const httpContext = require('express-http-context');
+const {REQUEST_ID_TYPE} = require('../../constants');
 
 class FhirLoggingManager {
     /**
@@ -21,6 +23,39 @@ class FhirLoggingManager {
          * @type {string|null}
          */
         this.imageVersion = imageVersion;
+    }
+
+    /**
+     * Logs a FHIR operation start
+     * @param {FhirRequestInfo} requestInfo
+     * @param {Object} args
+     * @param {string} resourceType
+     * @param {number|null} startTime
+     * @param {number|null|undefined} [stopTime]
+     * @param {string} action
+     * @param {string|undefined} [query]
+     * @param {string|undefined} [result]
+     */
+    async logOperationStartAsync(
+        {
+            /** @type {FhirRequestInfo} */ requestInfo,
+            args = {},
+            resourceType,
+            startTime,
+            action
+        }
+    ) {
+        await this.internalLogOperationAsync(
+            {
+                requestInfo,
+                args,
+                resourceType,
+                startTime,
+                stopTime: startTime,
+                message: 'operationStarted',
+                action
+            }
+        );
     }
 
     /**
@@ -73,6 +108,7 @@ class FhirLoggingManager {
      * @param {Error} error
      * @param {string|undefined} [query]
      * @param {string|undefined} [result]
+     * @param {string|undefined} [message]
      */
     async logOperationFailureAsync(
         {
@@ -84,7 +120,8 @@ class FhirLoggingManager {
             action,
             error,
             query,
-            result
+            result,
+            message = 'operationFailed'
         }
     ) {
         await this.internalLogOperationAsync(
@@ -94,7 +131,7 @@ class FhirLoggingManager {
                 resourceType,
                 startTime,
                 stopTime,
-                message: 'operationFailed',
+                message,
                 action,
                 error,
                 query,
@@ -179,9 +216,23 @@ class FhirLoggingManager {
             firstAccessCode = accessCodes[0] === '*' ? 'bwell' : accessCodes[0];
         }
 
+        /**
+         * @type {string}
+         */
+        let errorMessage = message;
+        if (error && error.message) {
+            errorMessage += `: ${error.message}`;
+        }
+        if (error && error.constructor && error.constructor.name) {
+            errorMessage += `: ${error.constructor.name}`;
+        }
+        if (error) {
+            errorMessage += ': ' + JSON.stringify(error, getCircularReplacer());
+        }
+
         // This uses the FHIR Audit Event schema: https://hl7.org/fhir/auditevent.html
         const logEntry = {
-            id: requestInfo.requestId,
+            id: requestInfo.userRequestId,
             type: {
                 code: 'operation'
             },
@@ -216,9 +267,12 @@ class FhirLoggingManager {
                     detail: detail
                 }
             ],
-            message: error ? `${message}: ${JSON.stringify(error, getCircularReplacer())}` : message,
+            message: errorMessage,
             request: {
-                id: requestInfo.requestId
+                // represents the id that is passed as header or req.id.
+                id: httpContext.get(REQUEST_ID_TYPE.USER_REQUEST_ID),
+                // represents the server unique requestId and that is used in operations.
+                systemGeneratedRequestId: httpContext.get(REQUEST_ID_TYPE.SYSTEM_GENERATED_REQUEST_ID)
             }
         };
         const fhirInSecureLogger = await fhirLogger.getInSecureLoggerAsync();

@@ -16,7 +16,11 @@ const {fhirContentTypes} = require('../../utils/contentTypes');
 const {ParsedArgs} = require('../query/parsedArgs');
 const {FhirResourceCreator} = require('../../fhir/fhirResourceCreator');
 const {DatabaseAttachmentManager} = require('../../dataLayer/databaseAttachmentManager');
+const {SensitiveDataProcessor} = require('../../utils/sensitiveDataProcessor');
+const {ConfigManager} = require('../../utils/configManager');
 const {DELETE, RETRIEVE} = require('../../constants').GRIDFS;
+const { matchPersonLinks } = require('../../utils/personLinksMatcher');
+const { BwellPersonFinder } = require('../../utils/bwellPersonFinder');
 
 class PatchOperation {
     /**
@@ -28,6 +32,9 @@ class PatchOperation {
      * @param {ScopesValidator} scopesValidator
      * @param {DatabaseBulkInserter} databaseBulkInserter
      * @param {DatabaseAttachmentManager} databaseAttachmentManager
+     * @param {SensitiveDataProcessor} sensitiveDataProcessor
+     * @param {ConfigManager} configManager
+     * @param {BwellPersonFinder} bwellPersonFinder
      */
     constructor(
         {
@@ -37,7 +44,10 @@ class PatchOperation {
             fhirLoggingManager,
             scopesValidator,
             databaseBulkInserter,
-            databaseAttachmentManager
+            databaseAttachmentManager,
+            sensitiveDataProcessor,
+            configManager,
+            bwellPersonFinder
         }
     ) {
         /**
@@ -75,6 +85,24 @@ class PatchOperation {
          */
         this.databaseAttachmentManager = databaseAttachmentManager;
         assertTypeEquals(databaseAttachmentManager, DatabaseAttachmentManager);
+
+        /**
+         * @type {SensitiveDataProcessor}
+         */
+        this.sensitiveDataProcessor = sensitiveDataProcessor;
+        assertTypeEquals(sensitiveDataProcessor, SensitiveDataProcessor);
+
+        /**
+         * @type {ConfigManager}
+         */
+        this.configManager = configManager;
+        assertTypeEquals(configManager, ConfigManager);
+
+        /**
+         * @type {BwellPersonFinder}
+         */
+        this.bwellPersonFinder = bwellPersonFinder;
+        assertTypeEquals(bwellPersonFinder, BwellPersonFinder);
     }
 
     /**
@@ -82,7 +110,7 @@ class PatchOperation {
      * @param {FhirRequestInfo} requestInfo
      * @param {ParsedArgs} parsedArgs
      * @param {string} resourceType
-     * @returns {{id: string,created: boolean, resource_version: string, resource: Resource}}
+     * @returns {Promise<{id: string,created: boolean, resource_version: string, resource: Resource}>}
      */
     async patchAsync({requestInfo, parsedArgs, resourceType}) {
         assertIsValid(requestInfo !== undefined);
@@ -194,6 +222,14 @@ class PatchOperation {
             // converting attachment.data to attachment._file_id for the response
             resource = await this.databaseAttachmentManager.transformAttachments(resource);
 
+            // The access tags are updated before updating the resources.
+            // If access tags is to be updated call the corresponding processor
+            if (this.configManager.enabledAccessTagUpdate) {
+                await this.sensitiveDataProcessor.updateResourceSecurityAccessTag({
+                    resource: resource,
+                });
+            }
+
             // Same as update from this point on
             // Insert/update our resource record
             await this.databaseBulkInserter.replaceOneAsync(
@@ -243,6 +279,24 @@ class PatchOperation {
                     await this.changeEventProducer.flushAsync({requestId});
                 }
             });
+            if (this.configManager.enabledAccessTagUpdate) {
+                this.postRequestProcessor.add({
+                    requestId,
+                    fnTask: async () => {
+                        if (mergeResults[0].resourceType === 'Consent' && (mergeResults[0].created || mergeResults[0].updated)) {
+                            await this.sensitiveDataProcessor.processPatientConsentChange({requestId: requestId, resources: [resource]});
+                        }
+                        if (
+                            mergeResults[0].resourceType === 'Person' &&
+                            (mergeResults[0].created || mergeResults[0].updated) &&
+                            this.bwellPersonFinder.isBwellPerson(resource_incoming) &&
+                            !matchPersonLinks(resource_incoming.link, foundResource.link)
+                        ) {
+                            await this.sensitiveDataProcessor.processPersonLinkChange({requestId: requestId, resources: [resource]});
+                        }
+                    }
+                });
+            }
 
             // converting attachment._file_id to attachment.data for the response
             resource = await this.databaseAttachmentManager.transformAttachments(resource, RETRIEVE);

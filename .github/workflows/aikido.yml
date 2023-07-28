@@ -1,0 +1,24 @@
+name: Aikido Security
+on:
+  pull_request:
+    branches:
+      - '*'
+
+jobs:
+  aikido-security:
+    name: Aikido Security Scan 
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Detect new vulnerabilities
+        uses: AikidoSec/github-actions-workflow@v1.0.6
+        with:
+            secret-key: ${{ secrets.AIKIDO_SECRET_KEY }}
+            fail-on-timeout: false
+            fail-on-dependency-scan: true
+            fail-on-sast-scan: true
+            fail-on-iac-scan: true
+            minimum-severity: 'CRITICAL'
+            timeout-seconds: 300

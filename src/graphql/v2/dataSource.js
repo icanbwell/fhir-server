@@ -95,7 +95,7 @@ class FhirDataSource {
              * resources with this resourceType and id
              * @type {Resource[]}
              */
-            const items = resources.filter((r) => r.resourceType === resourceType && r.id === id);
+            const items = resources.filter((r) => r.resourceType === resourceType && (r._uuid === id || r.id === id.split('|')[0]));
             // IMPORTANT: This HAS to return nulls for missing resources or the ordering gets messed up
             resultsOrdered.push(items.length > 0 ? items[0] : null);
         }
@@ -214,12 +214,16 @@ class FhirDataSource {
             }
             return this.enrichResourceWithReferenceData({}, reference, possibleResourceType);
         }
+        // Note: Temporary fix to handle mismatch in sourceAssigningAuthority of references in Person and Practitioner resources
+        const referenceValue = ['Person', 'Practitioner'].includes(
+            ResourceWithId.getResourceTypeFromReference(reference.reference)
+        ) ? reference.reference : (reference._uuid || reference.reference);
         const {
             /** @type {string} **/
             resourceType,
             /** @type {string} **/
             id,
-        } = ResourceWithId.getResourceTypeAndIdFromReference(reference.reference);
+        } = ResourceWithId.getResourceTypeAndIdFromReference(referenceValue);
         try {
             this.createDataLoader(args);
             // noinspection JSValidateTypes

@@ -38,21 +38,17 @@ class UuidColumnHandler extends PreSaveHandler {
         } else if (!resource.id) {
             resource._uuid = generateUUID();
         } else {
-            if (this.configManager.checkAccessTagsOnSave) {
-                assertIsValid(resource.meta.security,
-                    `No meta security tags defined for resource: ${resource.resourceType}/${resource.id}`);
-                /**
-                 * @type {string[]}
-                 */
-                const sourceAssigningAuthorityCodes = resource.meta.security.filter(
-                    s => s.system === SecurityTagSystem.sourceAssigningAuthority).map(s => s.code);
-                assertIsValid(sourceAssigningAuthorityCodes.length > 0,
-                    `No sourceAssigningAuthority codes found for resource id: ${resource.id}`);
-                const idPlusSourceAssigningAuthority = resource.id + '|' + sourceAssigningAuthorityCodes[0];
-                resource._uuid = `${generateUUIDv5(idPlusSourceAssigningAuthority)}`;
-            } else {
-                resource._uuid = generateUUIDv5(resource.id);
-            }
+            assertIsValid(resource.meta.security,
+                `No meta security tags defined for resource: ${resource.resourceType}/${resource.id}`);
+            /**
+             * @type {string[]}
+             */
+            const sourceAssigningAuthorityCodes = resource.meta.security.filter(
+                s => s.system === SecurityTagSystem.sourceAssigningAuthority).map(s => s.code);
+            const idToGenerateUuid = sourceAssigningAuthorityCodes ?
+                resource.id + '|' + sourceAssigningAuthorityCodes[0] :
+                resource.id;
+            resource._uuid = `${generateUUIDv5(idToGenerateUuid)}`;
         }
 
         if (resource.identifier &&

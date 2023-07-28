@@ -1,7 +1,7 @@
 const env = require('var');
 
 // const {getToken} = require('../../token');
-const {jwksEndpoint} = require('./mocks/jwks');
+const {jwksEndpoint, jwksDiscoveryEndpoint, jwksUserInfoEndpoint} = require('./mocks/jwks');
 const {publicKey, privateKey} = require('./mocks/keys');
 const {createToken} = require('./mocks/tokens');
 const nock = require('nock');
@@ -10,6 +10,8 @@ const supertest = require('supertest');
 const {createApp} = require('../app');
 const {createServer} = require('../server');
 const {TestMongoDatabaseManager} = require('./testMongoDatabaseManager');
+const httpContext = require('express-http-context');
+const {fhirContentTypes} = require('../utils/contentTypes');
 
 /**
  * @type {import('http').Server}
@@ -102,6 +104,24 @@ module.exports.commonBeforeEach = async () => {
             ]);
         }
     });
+};
+
+/**
+ * sets up mock OpenId server
+ * @param {string} token
+ * @param {string} patientId
+ * @param {string} personId
+ */
+module.exports.setupMockOpenIdServer = ({token, patientId, personId}) => {
+    expect(env.AUTH_ISSUER).toBeDefined();
+    expect(env.AUTH_ISSUER.length).toBeGreaterThan(0);
+    const discoveryUrlObject = new URL(env.AUTH_ISSUER);
+    jwksDiscoveryEndpoint(discoveryUrlObject.protocol + '//' + discoveryUrlObject.host);
+    jwksUserInfoEndpoint(
+        {
+            host: discoveryUrlObject.protocol + '//' + discoveryUrlObject.host,
+            token, patientId, personId
+        });
 };
 
 /**
@@ -199,6 +219,14 @@ module.exports.getHeadersNdJson = (scope) => {
     };
 };
 
+module.exports.getHeadersCsv = (scope) => {
+    return {
+        'Content-Type': 'application/fhir+json', // what the data we POST is in
+        Accept: fhirContentTypes.csv, // what we want the response to be in
+        Authorization: `Bearer ${scope ? getToken(scope) : getFullAccessToken()}`,
+    };
+};
+
 module.exports.getHeadersFormUrlEncoded = (scope) => {
     return {
         'Content-Type': 'application/x-www-form-urlencoded',
@@ -211,6 +239,14 @@ module.exports.getHeadersNdJsonFormUrlEncoded = (scope) => {
     return {
         'Content-Type': 'application/x-www-form-urlencoded',
         Accept: 'application/fhir+ndjson', // what we want the response to be in
+        Authorization: `Bearer ${scope ? getToken(scope) : getFullAccessToken()}`,
+    };
+};
+
+module.exports.getHeadersCsvFormUrlEncoded = (scope) => {
+    return {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        Accept: fhirContentTypes.csv, // what we want the response to be in
         Authorization: `Bearer ${scope ? getToken(scope) : getFullAccessToken()}`,
     };
 };
@@ -271,7 +307,7 @@ module.exports.getUnAuthenticatedGraphQLHeaders = () => {
 module.exports.getUnAuthenticatedHeaders = () => {
     return {
         'Content-Type': 'application/fhir+json',
-        Accept: 'application/fhir+json',
+        'Accept': 'application/fhir+json',
     };
 };
 
@@ -290,6 +326,14 @@ module.exports.getHeadersWithCustomPayload = (payload) => {
         'Content-Type': 'application/fhir+json',
         Accept: 'application/fhir+json',
         Authorization: `Bearer ${getTokenWithCustomPayload(payload)}`,
+    };
+};
+
+module.exports.getUnAuthenticatedHtmlHeaders = () => {
+    return {
+        Accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
+        'User-Agent':
+            'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.74 Safari/537.36',
     };
 };
 
@@ -374,4 +418,21 @@ module.exports.wrapResourceInBundle = (resource) => {
  */
 module.exports.getRequestId = (resp) => {
     return resp.headers['x-request-id'];
+};
+
+/**
+ * @description Mocks the get method of express-http-context to override requestId and userRequestId
+ * @returns {string}
+ */
+module.exports.mockHttpContext = () => {
+    jest.spyOn(httpContext, 'get');
+    const values = {
+        'systemGeneratedRequestId': '12345678',
+        'userRequestId': '1234'
+    };
+    httpContext.get.mockImplementation((key) => {
+        // eslint-disable-next-line security/detect-object-injection
+        return values[key];
+    });
+    return values.systemGeneratedRequestId;
 };

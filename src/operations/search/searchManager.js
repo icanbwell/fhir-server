@@ -1,29 +1,20 @@
-const {buildStu3SearchQuery} = require('../query/stu3');
-const {buildDstu2SearchQuery} = require('../query/dstu2');
 const {isTrue} = require('../../utils/isTrue');
 const env = require('var');
 const {logDebug, logError} = require('../common/logging');
 const deepcopy = require('deepcopy');
 const moment = require('moment-timezone');
 const {searchLimitForIds, limit} = require('../../utils/searchForm.util');
-const {createReadableMongoStream} = require('../streaming/mongoStreamReader');
 const {pipeline} = require('stream/promises');
 const {ResourcePreparerTransform} = require('../streaming/resourcePreparerTransform');
 const {Transform} = require('stream');
 const {IndexHinter} = require('../../indexes/indexHinter');
-const {FhirBundleWriter} = require('../streaming/fhirBundleWriter');
 const {HttpResponseWriter} = require('../streaming/responseWriter');
 const {ResourceIdTracker} = require('../streaming/resourceIdTracker');
-const {ObjectChunker} = require('../streaming/objectChunker');
-const {fhirContentTypes} = require('../../utils/contentTypes');
-const {FhirResourceWriter} = require('../streaming/fhirResourceWriter');
-const {FhirResourceNdJsonWriter} = require('../streaming/fhirResourceNdJsonWriter');
 const {DatabaseQueryFactory} = require('../../dataLayer/databaseQueryFactory');
 const {ResourceLocatorFactory} = require('../common/resourceLocatorFactory');
 const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
 const {SecurityTagManager} = require('../common/securityTagManager');
 const {ResourcePreparer} = require('../common/resourcePreparer');
-const {VERSIONS} = require('../../middleware/fhir/utils/constants');
 const {RethrownError} = require('../../utils/rethrownError');
 const {BadRequestError} = require('../../utils/httpErrors');
 const {mongoQueryStringify} = require('../../utils/mongoQueryStringify');
@@ -32,10 +23,13 @@ const {ConfigManager} = require('../../utils/configManager');
 const {QueryRewriterManager} = require('../../queryRewriters/queryRewriterManager');
 const {PersonToPatientIdsExpander} = require('../../utils/personToPatientIdsExpander');
 const {ScopesManager} = require('../security/scopesManager');
-const {convertErrorToOperationOutcome} = require('../../utils/convertErrorToOperationOutcome');
 const {GetCursorResult} = require('./getCursorResult');
 const {QueryItem} = require('../graph/queryItem');
-const { DatabaseAttachmentManager } = require('../../dataLayer/databaseAttachmentManager');
+const {DatabaseAttachmentManager} = require('../../dataLayer/databaseAttachmentManager');
+const {FhirResourceWriterFactory} = require('../streaming/resourceWriters/fhirResourceWriterFactory');
+const {MongoReadableStream} = require('../streaming/mongoStreamReader');
+const {ConsentManager} = require('../search/consentManger');
+const {SearchQueryBuilder} = require('./searchQueryBuilder');
 
 class SearchManager {
     /**
@@ -51,6 +45,9 @@ class SearchManager {
      * @param {PersonToPatientIdsExpander} personToPatientIdsExpander
      * @param {ScopesManager} scopesManager
      * @param {DatabaseAttachmentManager} databaseAttachmentManager
+     * @param {FhirResourceWriterFactory} fhirResourceWriterFactory
+     * @param {ConsentManager} ConsentManager
+     * @param {SearchQueryBuilder} searchQueryBuilder
      */
     constructor(
         {
@@ -64,7 +61,10 @@ class SearchManager {
             queryRewriterManager,
             personToPatientIdsExpander,
             scopesManager,
-            databaseAttachmentManager
+            databaseAttachmentManager,
+            fhirResourceWriterFactory,
+            consentManager,
+            searchQueryBuilder
         }
     ) {
         /**
@@ -126,8 +126,27 @@ class SearchManager {
          */
         this.databaseAttachmentManager = databaseAttachmentManager;
         assertTypeEquals(databaseAttachmentManager, DatabaseAttachmentManager);
+
+        /**
+         * @type {FhirResourceWriterFactory}
+         */
+        this.fhirResourceWriterFactory = fhirResourceWriterFactory;
+        assertTypeEquals(fhirResourceWriterFactory, FhirResourceWriterFactory);
+
+        /**
+         * @type {ConsentManager}
+         */
+        this.consentManager = consentManager;
+        assertTypeEquals(consentManager, ConsentManager);
+
+        /**
+         * @type {SearchQueryBuilder}
+         */
+        this.searchQueryBuilder = searchQueryBuilder;
+        assertTypeEquals(searchQueryBuilder, SearchQueryBuilder);
     }
 
+    // noinspection ExceptionCaughtLocallyJS
     /**
      * constructs a mongo query
      * @param {string | null} user
@@ -139,7 +158,7 @@ class SearchManager {
      * @param {string} personIdFromJwtToken
      * @param {ParsedArgs} parsedArgs
      * @param {boolean|undefined} [useHistoryTable]
-     * @returns {{base_version, columns: Set, query: import('mongodb').Document}}
+     * @returns {Promise<{base_version: string, columns: Set, query: import('mongodb').Document}>}
      */
     async constructQueryAsync(
         {
@@ -165,7 +184,7 @@ class SearchManager {
             /**
              * @type {string[]}
              */
-            let securityTags = this.securityTagManager.getSecurityTagsFromScope({user, scope});
+            let securityTags = this.securityTagManager.getSecurityTagsFromScope({user, scope, hasPatientScope});
             /**
              * @type {import('mongodb').Document}
              */
@@ -177,24 +196,32 @@ class SearchManager {
             let columns;
 
             // eslint-disable-next-line no-useless-catch
-            try {
-                if (base_version === VERSIONS['3_0_1']) {
-                    query = buildStu3SearchQuery(parsedArgs);
-                } else if (base_version === VERSIONS['1_0_2']) {
-                    query = buildDstu2SearchQuery(parsedArgs);
-                } else {
-                    ({query, columns} = this.r4SearchQueryCreator.buildR4SearchQuery({
-                        resourceType, parsedArgs, useHistoryTable
-                    }));
-                }
-            } catch (e) {
-                console.error(e);
-                throw e;
-            }
-            query = this.securityTagManager.getQueryWithSecurityTags(
-                {
+            ({query, columns} = this.searchQueryBuilder.buildSearchQueryBasedOnVersion({
+                base_version,
+                parsedArgs,
+                resourceType,
+                useHistoryTable
+            }));
+
+            // JWT has access tag in scope i.e API call from a specific client
+            if (securityTags && securityTags.length > 0) {
+                // Add access tag filter to the query
+                query = this.securityTagManager.getQueryWithSecurityTags({
                     resourceType, securityTags, query, useAccessIndex
                 });
+
+                // Update Query for Consent based data access
+                if (this.configManager.enableConsentedDataAccess) {
+                    query = await this.consentManager.getQueryForPatientsWithConsent({
+                        base_version,
+                        resourceType,
+                        parsedArgs,
+                        securityTags,
+                        query,
+                        useHistoryTable
+                    });
+                }
+            }
             if (hasPatientScope) {
                 /**
                  * @type {string[]}
@@ -525,7 +552,7 @@ class SearchManager {
             });
             return await this.personToPatientIdsExpander.getPatientIdsFromPersonAsync({
                 databaseQueryManager,
-                personIds: [ personIdFromJwtToken ],
+                personIds: [personIdFromJwtToken],
                 totalProcessedPersonIds: new Set(),
                 level: 1
             });
@@ -601,7 +628,10 @@ class SearchManager {
             }
             // also exclude _id so if there is a covering index the query can be satisfied from the covering index
             projection['_id'] = 0;
-            if (!useAccessIndex || properties_to_return_list.length > 1 || properties_to_return_list[0] !== 'id') {
+            if (
+                (!useAccessIndex || properties_to_return_list.length > 1 || properties_to_return_list[0] !== 'id') &&
+                !properties_to_return_list.includes('meta')
+            ) {
                 // special optimization when only ids are requested so the query can be satisfied by covering index
                 // always add meta column, so we can do security checks
                 projection['meta.security.system'] = 1;
@@ -777,15 +807,7 @@ class SearchManager {
          */
         const resources = [];
 
-        // noinspection JSUnresolvedFunction
-        /**
-         * https://mongodb.github.io/node-mongodb-native/4.5/classes/FindCursor.html#stream
-         * https://mongodb.github.io/node-mongodb-native/4.5/interfaces/CursorStreamOptions.html
-         * @type {Readable}
-         */
-        // We do not use the Mongo stream since we can create our own stream below with more control
-        // const cursorStream = cursor.stream();
-
+        const highWaterMark = 100;
         /**
          * @type {AbortController}
          */
@@ -796,8 +818,12 @@ class SearchManager {
             // https://nodejs.org/docs/latest-v16.x/api/stream.html#streams-compatibility-with-async-generators-and-async-iterators
             // https://nodejs.org/docs/latest-v16.x/api/stream.html#additional-notes
 
-            const readableMongoStream = createReadableMongoStream({
-                cursor, signal: ac.signal, databaseAttachmentManager: this.databaseAttachmentManager
+            const readableMongoStream = new MongoReadableStream({
+                cursor,
+                signal: ac.signal,
+                databaseAttachmentManager: this.databaseAttachmentManager,
+                highWaterMark: highWaterMark,
+                configManager: this.configManager
             });
 
             await pipeline(
@@ -806,7 +832,10 @@ class SearchManager {
                 new ResourcePreparerTransform(
                     {
                         user, scope, parsedArgs, resourceType, useAccessIndex, signal: ac.signal,
-                        resourcePreparer: this.resourcePreparer
+                        resourcePreparer: this.resourcePreparer,
+                        highWaterMark: highWaterMark,
+                        configManager: this.configManager,
+                        removeDuplicates: cursor.getLimit() === null || cursor.getLimit() <= 100 // don't remove dups for large requests
                     }
                 ),
                 // NOTE: do not use an async generator as the last writer otherwise the pipeline will hang
@@ -885,9 +914,10 @@ class SearchManager {
             user
         }
     ) {
+        let _cursor = cursor;
         let indexHint = this.indexHinter.findIndexForFields(mongoCollectionName, Array.from(columns));
         if (indexHint) {
-            cursor = cursor.hint({indexHint});
+            _cursor = _cursor.hint({indexHint});
             logDebug(
                 'Using index hint',
                 {
@@ -898,12 +928,11 @@ class SearchManager {
                     }
                 });
         }
-        return {indexHint, cursor};
+        return {indexHint, cursor: _cursor};
     }
 
     /**
      * Reads resources from Mongo cursor and writes to response
-     * @type {object}
      * @param {DatabasePartitionedCursor} cursor
      * @param {string|null} requestId
      * @param {string | null} url
@@ -914,132 +943,42 @@ class SearchManager {
      * @param {ParsedArgs|null} parsedArgs
      * @param {string} resourceType
      * @param {boolean} useAccessIndex
+     * @param {string[]|null} accepts
      * @param {number} batchObjectCount
-     * @returns {Promise<string[]>}
-     */
-    async streamBundleFromCursorAsync(
-        {
-            requestId,
-            cursor,
-            url,
-            fnBundle,
-            res, user, scope,
-            parsedArgs, resourceType,
-            useAccessIndex,
-            batchObjectCount,
-            defaultSortId
-        }
-    ) {
-        assertIsValid(requestId);
-        /**
-         * @type {AbortController}
-         */
-        const ac = new AbortController();
-
-        /**
-         * @type {FhirBundleWriter}
-         */
-        const fhirBundleWriter = new FhirBundleWriter({fnBundle, url, signal: ac.signal, defaultSortId: defaultSortId});
-
-        /**
-         * @type {{id: string[]}}
-         */
-        const tracker = {
-            id: []
-        };
-
-        function onResponseClose() {
-            ac.abort();
-        }
-
-        // if response is closed then abort the pipeline
-        res.on('close', onResponseClose);
-
-        /**
-         * @type {HttpResponseWriter}
-         */
-        const responseWriter = new HttpResponseWriter(
-            {
-                requestId, response: res, contentType: 'application/fhir+json', signal: ac.signal
-            }
-        );
-
-        const resourcePreparerTransform = new ResourcePreparerTransform(
-            {
-                user, scope, parsedArgs, resourceType, useAccessIndex, signal: ac.signal,
-                resourcePreparer: this.resourcePreparer
-            }
-        );
-        const resourceIdTracker = new ResourceIdTracker({tracker, signal: ac.signal});
-
-        const objectChunker = new ObjectChunker({chunkSize: batchObjectCount, signal: ac.signal});
-
-        try {
-            const readableMongoStream = createReadableMongoStream({
-                cursor, signal: ac.signal, databaseAttachmentManager: this.databaseAttachmentManager
-            });
-            // readableMongoStream.on('close', () => {
-            //     // logInfo('Mongo read stream was closed');
-            //     // ac.abort();
-            // });
-            // https://nodejs.org/docs/latest-v16.x/api/stream.html#streams-compatibility-with-async-generators-and-async-iterators
-            await pipeline(
-                readableMongoStream,
-                objectChunker,
-                resourcePreparerTransform,
-                resourceIdTracker,
-                fhirBundleWriter,
-                responseWriter
-            );
-        } catch (e) {
-            logError('', {user, error: e});
-            ac.abort();
-            throw new RethrownError({
-                message: `Error reading resources for ${resourceType} with query: ${mongoQueryStringify(cursor.getQuery())}`,
-                error: e
-            });
-        } finally {
-            res.removeListener('close', onResponseClose);
-        }
-        if (!res.writableEnded) {
-            res.end();
-        }
-        return tracker.id;
-    }
-
-    /**
-     * Reads resources from Mongo cursor and writes to response
-     * @param {DatabasePartitionedCursor} cursor
-     * @param {string|null} requestId
-     * @param {import('http').ServerResponse} res
-     * @param {string | null} user
-     * @param {string | null} scope
-     * @param {ParsedArgs|null} parsedArgs
-     * @param {string} resourceType
-     * @param {boolean} useAccessIndex
-     * @param {string} contentType
-     * @param {number} batchObjectCount
+     * @param {string} defaultSortId
      * @returns {Promise<string[]>} ids of resources streamed
      */
     async streamResourcesFromCursorAsync(
         {
             requestId,
             cursor,
+            url,
+            fnBundle,
             res,
             user,
             scope,
             parsedArgs,
             resourceType,
             useAccessIndex,
-            contentType = 'application/fhir+json',
-            batchObjectCount = 1
+            accepts,
+            // eslint-disable-next-line no-unused-vars
+            batchObjectCount = 1,
+            defaultSortId
         }
     ) {
         assertIsValid(requestId);
+
         /**
-         * @type {boolean}
+         * For buffering: https://nodejs.org/docs/latest-v18.x/api/stream.html#buffering
+         * @type {number}
          */
-        const useJson = contentType !== fhirContentTypes.ndJson;
+        const highWaterMark = this.configManager.streamingHighWaterMark || 100;
+
+        /**
+         * If count requested is higher than this then don't do duplicate removal to save memory
+         * @type {number}
+         */
+        const maximumCountForDuplicateRemoval = this.configManager.streamingMaxCountForDuplicateRemoval || 100;
 
         /**
          * @type {{id: *[]}}
@@ -1061,18 +1000,33 @@ class SearchManager {
         res.on('close', onResponseClose);
 
         /**
-         * @type {FhirResourceWriter|FhirResourceNdJsonWriter}
+         * @type {FhirResourceWriterBase}
          */
-        const fhirWriter = useJson ?
-            new FhirResourceWriter({signal: ac.signal}) :
-            new FhirResourceNdJsonWriter({signal: ac.signal});
+        const fhirWriter = this.fhirResourceWriterFactory.createResourceWriter(
+            {
+                accepts: accepts,
+                signal: ac.signal,
+                format: parsedArgs['_format'],
+                url,
+                bundle: parsedArgs['_bundle'],
+                fnBundle,
+                defaultSortId,
+                highWaterMark: highWaterMark,
+                configManager: this.configManager
+            }
+        );
 
         /**
          * @type {HttpResponseWriter}
          */
         const responseWriter = new HttpResponseWriter(
             {
-                requestId, response: res, contentType, signal: ac.signal
+                requestId,
+                response: res,
+                contentType: fhirWriter.getContentType(),
+                signal: ac.signal,
+                highWaterMark: highWaterMark,
+                configManager: this.configManager,
             }
         );
         /**
@@ -1081,25 +1035,41 @@ class SearchManager {
         const resourcePreparerTransform = new ResourcePreparerTransform(
             {
                 user, scope, parsedArgs, resourceType, useAccessIndex, signal: ac.signal,
-                resourcePreparer: this.resourcePreparer
+                resourcePreparer: this.resourcePreparer,
+                highWaterMark: highWaterMark,
+                configManager: this.configManager,
+                removeDuplicates: cursor.getLimit() === null || cursor.getLimit() <= maximumCountForDuplicateRemoval // don't remove dups for large requests
             }
         );
         /**
          * @type {ResourceIdTracker}
          */
-        const resourceIdTracker = new ResourceIdTracker({tracker, signal: ac.signal});
+        const resourceIdTracker = new ResourceIdTracker(
+            {
+                tracker,
+                signal: ac.signal,
+                highWaterMark: highWaterMark,
+                configManager: this.configManager
+            }
+        );
+
+        /**
+         * @type {Readable}
+         */
+        const readableMongoStream = new MongoReadableStream({
+            cursor,
+            signal:
+            ac.signal,
+            databaseAttachmentManager: this.databaseAttachmentManager,
+            highWaterMark: highWaterMark,
+            configManager: this.configManager,
+        });
+
 
         try {
-            const readableMongoStream = createReadableMongoStream({
-                cursor, signal: ac.signal, databaseAttachmentManager: this.databaseAttachmentManager
-            });
-
-            const objectChunker = new ObjectChunker({chunkSize: batchObjectCount, signal: ac.signal});
-
             // now setup and run the pipeline
             await pipeline(
                 readableMongoStream,
-                objectChunker,
                 // new Transform({
                 //     objectMode: true,
                 //     transform(chunk, encoding, callback) {
@@ -1110,21 +1080,15 @@ class SearchManager {
                 resourceIdTracker,
                 fhirWriter,
                 responseWriter,
-                // res.type(contentType)
             );
         } catch (e) {
-            logError('', {user, error: e});
-            /**
-             * @type {OperationOutcome}
-             */
-            const operationOutcome = convertErrorToOperationOutcome({
-                error: new RethrownError(
+            logError(`SearchManager.streamResourcesFromCursorAsync: ${e.message} `, {
+                user, error: new RethrownError(
                     {
                         message: `Error reading resources for ${resourceType} with query: ${mongoQueryStringify(cursor.getQuery())}`,
                         error: e
                     })
             });
-            fhirWriter.writeOperationOutcome({operationOutcome});
             ac.abort();
         } finally {
             res.removeListener('close', onResponseClose);
@@ -1215,7 +1179,8 @@ class SearchManager {
     /**
      * @description Validates that all the required parameters for AuditEvent are present in parsedArgs
      * @param {ParsedArgs} parsedArgs
-    */
+     * @param {string[]|null} requiredFiltersForAuditEvent
+     */
     auditEventValidateRequiredFilters(parsedArgs, requiredFiltersForAuditEvent) {
         if (requiredFiltersForAuditEvent && requiredFiltersForAuditEvent.length > 0) {
             if (requiredFiltersForAuditEvent.filter(r => parsedArgs[`${r}`]).length === 0) {
@@ -1243,7 +1208,7 @@ class SearchManager {
         const operationDateObject = {};
         const regex = /([a-z]+)(.+)/;
         let isLessThanConditionPresent = false, isGreaterThanConditionPresent = false;
-        for (const dateParam of queryParams) {
+        for (const /* @type {string} */ dateParam of queryParams) {
             // Match the date passed in param if it matches the regex pattern.
             const regexMatch = dateParam.match(regex);
             if (!regexMatch) {

@@ -45,7 +45,7 @@ async function main() {
 
 /**
  * To run this:
- * nvm use 18.14.2
+ * nvm use
  * required env variables
  * MONGO_DB_NAME, MONGO_URL
  * node src/admin/scripts/dbStats.js --collections="Task_4_0_0,Patient_4_0_0"

@@ -1,6 +1,6 @@
-const {Kafka} = require('kafkajs');
+const {Kafka, KafkaJSProtocolError, KafkaJSNonRetriableError} = require('kafkajs');
 const {assertIsValid} = require('./assertType');
-const {logSystemErrorAsync, logTraceSystemEventAsync} = require('../operations/common/logging');
+const {logSystemErrorAsync, logTraceSystemEventAsync, logSystemEventAsync} = require('../operations/common/systemEventLogging');
 const env = require('var');
 const {RethrownError} = require('./rethrownError');
 
@@ -79,6 +79,59 @@ class KafkaClient {
      * @return {Promise<void>}
      */
     async sendMessagesAsync(topic, messages) {
+        let maxRetries = parseInt(env.KAFKA_MAX_RETRY) || 3;
+        let iteration = 1;
+
+        // by default shouldn't retry
+        let shouldRetry = false;
+        do {
+            try {
+                await this.sendMessagesAsyncHelper(topic, messages);
+                // if successful then don't retry
+                shouldRetry = false;
+                return;
+            } catch (e) {
+                if (e instanceof KafkaJSNonRetriableError) {
+                    const cause = e.cause;
+                    /**
+                     * Error code 72 represents LISTENER_NOT_FOUND error. It can be considered as transient error
+                     * For more info about it check: https://kafka.apache.org/20/javadoc/index.html?org/apache/kafka/common/errors/ListenerNotFoundException.html
+                     */
+                    if (cause instanceof KafkaJSProtocolError && cause.code === 72) {
+                        // reconfigure the client by reordering brokers array
+                        const oldBrokers = this.brokers;
+                        const reorderedBrokers = oldBrokers.length > 1 ? [...oldBrokers.slice(1), oldBrokers[0]] : [...oldBrokers];
+                        await logSystemEventAsync({
+                            event: 'kafkaClientRetry',
+                            message: 'Retrying sending the message by creating new client',
+                            args: {
+                                iteration,
+                                brokers: reorderedBrokers,
+                            }
+                        });
+                        this.init(this.clientId, reorderedBrokers, this.ssl, this.sasl);
+                        // should retry again
+                        shouldRetry = true;
+                    } else {
+                        shouldRetry = false;
+                        throw e;
+                    }
+                } else {
+                    shouldRetry = false;
+                    throw e;
+                }
+            }
+        } while (++iteration <= maxRetries && shouldRetry);
+    }
+
+    /**
+     * Helper function for sendMessagesAsync
+     * @param {string} topic
+     * @param {KafkaClientMessage[]} messages
+     * @param {number} triedTimes number of times already tried
+     * @return {Promise<void>}
+     */
+    async sendMessagesAsyncHelper(topic, messages) {
         /**
          * @type {import('kafkajs').Producer}
          */

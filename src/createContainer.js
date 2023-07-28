@@ -1,3 +1,5 @@
+// noinspection JSUnresolvedReference
+
 const {SimpleContainer} = require('./utils/simpleContainer');
 const env = require('var');
 const {ChangeEventProducer} = require('./utils/changeEventProducer');
@@ -81,6 +83,13 @@ const {GlobalIdEnrichmentProvider} = require('./enrich/providers/globalIdEnrichm
 const {ReferenceGlobalIdHandler} = require('./preSaveHandlers/handlers/referenceGlobalIdHandler');
 const {OwnerColumnHandler} = require('./preSaveHandlers/handlers/ownerColumnHandler');
 const {HashReferencesEnrichmentProvider} = require('./enrich/providers/hashedReferencesEnrichmentProvider');
+const {SensitiveDataProcessor} = require('./utils/sensitiveDataProcessor');
+const {ChatGPTManager} = require('./chatgpt/chatgptManager');
+const {FhirResourceWriterFactory} = require('./operations/streaming/resourceWriters/fhirResourceWriterFactory');
+const {LinkedPatientsFinder} = require('./utils/linkedPatientsFinder');
+const {ConsentManager} = require('./operations/search/consentManger');
+const {SearchQueryBuilder} = require('./operations/search/searchQueryBuilder');
+
 
 /**
  * Creates a container and sets up all the services
@@ -167,7 +176,28 @@ const createContainer = function () {
             requestSpecificCache: c.requestSpecificCache
         }
     ));
-
+    container.register('sensitiveDataProcessor', (c) => new SensitiveDataProcessor({
+        databaseQueryFactory: c.databaseQueryFactory,
+        patientFilterManager: c.patientFilterManager,
+        bwellPersonFinder: c.bwellPersonFinder,
+        personToPatientIdsExpander: c.personToPatientIdsExpander,
+        databaseBulkInserter: c.databaseBulkInserter
+    }));
+    container.register('linkedPatientsFinder', (c) => new LinkedPatientsFinder({
+        bwellPersonFinder: c.bwellPersonFinder,
+        databaseQueryFactory: c.databaseQueryFactory,
+        personToPatientIdsExpander: c.personToPatientIdsExpander,
+    }));
+    container.register('searchQueryBuilder', (c) => new SearchQueryBuilder({
+        r4SearchQueryCreator: c.r4SearchQueryCreator,
+    }));
+    container.register('consentManager', (c) => new ConsentManager({
+        databaseQueryFactory: c.databaseQueryFactory,
+        configManager: c.configManager,
+        patientFilterManager: c.patientFilterManager,
+        linkedPatientsFinder: c.linkedPatientsFinder,
+        searchQueryBuilder: c.searchQueryBuilder
+    }));
     container.register('partitioningManager', (c) => new PartitioningManager(
         {
             configManager: c.configManager,
@@ -247,7 +277,10 @@ const createContainer = function () {
                 queryRewriterManager: c.queryRewriterManager,
                 personToPatientIdsExpander: c.personToPatientIdsExpander,
                 scopesManager: c.scopesManager,
-                databaseAttachmentManager: c.databaseAttachmentManager
+                databaseAttachmentManager: c.databaseAttachmentManager,
+                fhirResourceWriterFactory: c.fhirResourceWriterFactory,
+                consentManager: c.consentManager,
+                searchQueryBuilder: c.searchQueryBuilder
             }
         )
     );
@@ -381,7 +414,9 @@ const createContainer = function () {
                 resourceValidator: c.resourceValidator,
                 databaseBulkInserter: c.databaseBulkInserter,
                 configManager: c.configManager,
-                databaseAttachmentManager: c.databaseAttachmentManager
+                databaseAttachmentManager: c.databaseAttachmentManager,
+                sensitiveDataProcessor: c.sensitiveDataProcessor,
+                bwellPersonFinder: c.bwellPersonFinder
             }
         )
     );
@@ -400,7 +435,9 @@ const createContainer = function () {
                 databaseBulkInserter: c.databaseBulkInserter,
                 resourceMerger: c.resourceMerger,
                 configManager: c.configManager,
-                databaseAttachmentManager: c.databaseAttachmentManager
+                databaseAttachmentManager: c.databaseAttachmentManager,
+                sensitiveDataProcessor: c.sensitiveDataProcessor,
+                bwellPersonFinder: c.bwellPersonFinder
             }
         )
     );
@@ -418,13 +455,17 @@ const createContainer = function () {
             bundleManager: c.bundleManager,
             resourceLocatorFactory: c.resourceLocatorFactory,
             resourceValidator: c.resourceValidator,
-            preSaveManager: c.preSaveManager
+            preSaveManager: c.preSaveManager,
+            sensitiveDataProcessor: c.sensitiveDataProcessor,
+            configManager: c.configManager,
+            bwellPersonFinder: c.bwellPersonFinder
         }
     ));
     container.register('everythingOperation', (c) => new EverythingOperation({
         graphOperation: c.graphOperation,
         fhirLoggingManager: c.fhirLoggingManager,
-        scopesValidator: c.scopesValidator
+        scopesValidator: c.scopesValidator,
+        chatgptManager: c.chatgptManager
     }));
 
     container.register('removeOperation', (c) => new RemoveOperation(
@@ -488,7 +529,10 @@ const createContainer = function () {
             fhirLoggingManager: c.fhirLoggingManager,
             scopesValidator: c.scopesValidator,
             databaseBulkInserter: c.databaseBulkInserter,
-            databaseAttachmentManager: c.databaseAttachmentManager
+            databaseAttachmentManager: c.databaseAttachmentManager,
+            sensitiveDataProcessor: c.sensitiveDataProcessor,
+            configManager: c.configManager,
+            bwellPersonFinder: c.bwellPersonFinder
         }
     ));
     container.register('validateOperation', (c) => new ValidateOperation(
@@ -623,7 +667,6 @@ const createContainer = function () {
         }
     ));
 
-
     container.register('mongoFilterGenerator', (c) => new MongoFilterGenerator(
         {
             configManager: c.configManager
@@ -637,6 +680,13 @@ const createContainer = function () {
     container.register('uuidToIdReplacer', (c) => new UuidToIdReplacer({
         databaseQueryFactory: c.databaseQueryFactory
     }));
+
+    container.register('chatgptManager', () => new ChatGPTManager());
+    container.register('fhirResourceWriterFactory', (c) => new FhirResourceWriterFactory(
+        {
+            configManager: c.configManager
+        }
+    ));
 
     return container;
 };

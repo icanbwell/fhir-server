@@ -1,7 +1,7 @@
 const identifierUrl = 'http://hl7.org/fhir/sid/us-npi|';
 const advSearchJson = require('../fhir/generator/json/definitions.json/search-parameters.json');
 const searchLimit = 100;
-const searchLimitForIds = 10000;
+const searchLimitForIds = 1000;
 
 /**
  * @typedef FieldInfo

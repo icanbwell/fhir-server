@@ -1,0 +1,59 @@
+{
+    "resourceType": "Patient",
+    "id": "HumanApi-1",
+    "identifier": [
+        {
+            "id": "sourceId",
+            "system": "https://www.icanbwell.com/sourceId",
+            "value": "HumanApi-1"
+        },
+        {
+            "id": "uuid",
+            "system": "https://www.icanbwell.com/uuid",
+            "value": "28fe2916-1082-5650-a1bf-c5f8a836a289"
+        }
+    ],
+    "meta": {
+        "versionId": "1",
+        "source": "https://medstar.com/1",
+        "security": [
+            {
+                "system": "https://www.icanbwell.com/access",
+                "code": "humanapi"
+            },
+            {
+                "system": "https://www.icanbwell.com/connectionType",
+                "code": "humanapi"
+            },
+            {
+                "system": "https://www.icanbwell.com/owner",
+                "code": "humanapi"
+            },
+            {
+                "code": "humanapi",
+                "system": "https://www.icanbwell.com/sourceAssigningAuthority"
+            }
+        ]
+    },
+    "managingOrganization": {
+        "extension": [
+            {
+                "id": "sourceId",
+                "url": "https://www.icanbwell.com/sourceId",
+                "valueString": "Organization/1"
+            },
+            {
+                "id": "uuid",
+                "url": "https://www.icanbwell.com/uuid",
+                "valueString": "Organization/e8c1b4a5-f998-5793-8fbe-f9fea31c00ab"
+            },
+            {
+                "id": "sourceAssigningAuthority",
+                "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                "valueString": "humanapi"
+            }
+        ],
+        "reference": "Organization/1",
+        "display": "ACME Healthcare, Inc"
+    }
+}

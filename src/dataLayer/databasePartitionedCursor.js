@@ -5,7 +5,7 @@ const {assertIsValid, assertFail} = require('../utils/assertType');
 const async = require('async');
 const {RethrownError} = require('../utils/rethrownError');
 const {partitionedCollectionsCount} = require('../utils/prometheus.utils');
-const {logTraceSystemEventAsync} = require('../operations/common/logging');
+const {logTraceSystemEventAsync} = require('../operations/common/systemEventLogging');
 const BundleEntry = require('../fhir/classes/4_0_0/backbone_elements/bundleEntry');
 const {FhirResourceCreator} = require('../fhir/fhirResourceCreator');
 
@@ -51,6 +51,11 @@ class DatabasePartitionedCursor {
         this.query = query;
 
         partitionedCollectionsCount.labels(resourceType).observe(cursors.length);
+
+        /**
+         * @type {number|null}
+         */
+        this._limit = null;
     }
 
     /**
@@ -368,7 +373,7 @@ class DatabasePartitionedCursor {
     }
 
     /**
-     * @return {import('mongodb').Document[]}
+     * @return {Promise<import('mongodb').Document[]>}
      */
     async explainAsync() {
         try {
@@ -416,10 +421,18 @@ class DatabasePartitionedCursor {
      * @return {DatabasePartitionedCursor}
      */
     limit(count) {
+        this._limit = count;
         for (const index in this._cursors) {
             this._cursors[`${index}`].cursor = this._cursors[`${index}`].cursor.limit(count);
         }
         return this;
+    }
+
+    /**
+     * @returns {number|null}
+     */
+    getLimit() {
+        return this._limit;
     }
 
     /**

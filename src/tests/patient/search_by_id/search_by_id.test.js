@@ -11,6 +11,21 @@ const {
     createTestRequest,
 } = require('../../common');
 const {describe, beforeEach, afterEach, test} = require('@jest/globals');
+const {ConfigManager} = require('../../../utils/configManager');
+
+class MockConfigManagerDefaultSortId extends ConfigManager {
+    get defaultSortId() {
+        return '_uuid';
+    }
+
+    get streamResponse() {
+        return true;
+    }
+
+    get enableReturnBundle() {
+        return true;
+    }
+}
 
 describe('PatientReturnIdTests', () => {
     beforeEach(async () => {
@@ -23,7 +38,10 @@ describe('PatientReturnIdTests', () => {
 
     describe('Patient Search By Id Tests', () => {
         test('search by single id works', async () => {
-            const request = await createTestRequest();
+            const request = await createTestRequest((c) => {
+                c.register('configManager', () => new MockConfigManagerDefaultSortId());
+                return c;
+            });
             let resp = await request
                 .get('/4_0_0/Patient')
                 .set(getHeaders());
@@ -47,11 +65,11 @@ describe('PatientReturnIdTests', () => {
 
             resp = await request.get('/4_0_0/Patient/00100000000').set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse(expectedSinglePatientResource[0]);
+            expect(resp).toHaveResponse(expectedSinglePatientResource.entry[0].resource);
 
             resp = await request.post('/4_0_0/Patient/_search?id=00100000000').set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse(expectedSinglePatientResource[0]);
+            expect(resp).toHaveResponse(expectedSinglePatientResource);
 
             resp = await request.get('/4_0_0/Patient/_search').set(getHeaders());
             // noinspection JSUnresolvedFunction

@@ -49,9 +49,9 @@
                                     <!-- prettier-ignore -->
                                     <% if (diagnosisItem.diagnosisCodeableConcept){ %>
                                         <% diagnosisItem.diagnosisCodeableConcept.coding.forEach(function(coding) { %>
-                                            <% if (coding.system === 'http://hl7.org/fhir/sid/icd-10-cm' || coding.system === 'http://hl7.org/fhir/sid/icd-10'){ %>
+                                            <% if (coding.code && (coding.system === 'http://hl7.org/fhir/sid/icd-10-cm' || coding.system === 'http://hl7.org/fhir/sid/icd-10')){ %>
                                                 <a href="https://vsac.nlm.nih.gov/context/cs/codesystem/ICD10CM/version/2023/code/<%= (coding.code.includes('.') || coding.code.length < 4) ? coding.code : coding.code.substr(0, 3) + '.' + coding.code.substr(3, 10) %>/info"><%= coding.code %></a>
-                                            <% }else{ %>
+                                            <% } else if(coding.system) { %>
                                                 <%= coding.code; %> (<%= coding.system.split('/').pop(); %>)
                                             <% } %>
                                         <% }); %>
@@ -469,9 +469,11 @@
                                 <td><%= total.id; %></td>
                                 <td>
                                     <!-- prettier-ignore -->
-                                    <% if (total.category) { %>
+                                    <% if (total.category && total.category.coding) { %>
                                         <% total.category.coding.forEach(function(coding){ %>
-                                            <%= coding.code; %> (<%= coding.system.split('/').pop(); %>)
+                                            <% if (coding.system) { %>
+                                                <%= coding.code; %> (<%= coding.system.split('/').pop(); %>)
+                                            <% } %>
                                         <% }); %>
                                     <% } %>
                                 </td>
@@ -512,7 +514,9 @@
                                     <!-- prettier-ignore -->
                                     <% if (item.category && item.category.coding) { %>
                                         <% item.category.coding.forEach(function(coding){ %>
-                                            <%= coding.code; %> (<%= coding.system.split('/').pop(); %>)
+                                            <% if (coding.system) { %>
+                                                <%= coding.code; %> (<%= coding.system.split('/').pop(); %>)
+                                            <% } %>
                                         <% }); %>
                                     <% } %>
                                 </td>

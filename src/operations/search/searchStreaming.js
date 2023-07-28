@@ -123,6 +123,8 @@ class SearchStreamingOperation {
             /** @type {string} */
             requestId,
             /** @type {string} */
+            userRequestId,
+            /** @type {string} */
             method
         } = requestInfo;
 
@@ -174,7 +176,8 @@ class SearchStreamingOperation {
                     resourceType,
                     startTime,
                     action: currentOperationName,
-                    error: e
+                    error: e,
+                    message: `Error in constructing query: ${e.message}`
                 });
             throw e;
         }
@@ -287,93 +290,66 @@ class SearchStreamingOperation {
             const allCollectionsToSearch = cursor ? cursor.getAllCollections() : [];
 
             if (cursor !== null) { // usually means the two-step optimization found no results
-                if (useNdJson) {
-                    resourceIds = await this.searchManager.streamResourcesFromCursorAsync(
-                        {
-                            requestId,
-                            cursor,
-                            res,
-                            user,
-                            scope,
-                            parsedArgs,
-                            resourceType,
-                            useAccessIndex,
-                            contentType: fhirContentTypes.ndJson,
-                            batchObjectCount
-                        });
-                } else {
-                    // if env.RETURN_BUNDLE is set then return as a Bundle
-                    if (this.configManager.enableReturnBundle || parsedArgs['_bundle']) {
-                        /**
-                         * @type {Resource[]}
-                         */
-                        const resources1 = [];
-                        const defaultSortId = this.configManager.defaultSortId;
-                        /**
-                         * bundle
-                         * @param {string|null} last_id
-                         * @param {number} stopTime1
-                         * @return {Bundle}
-                         */
-                        const fnBundle = (last_id, stopTime1) => this.bundleManager.createBundle(
+                /**
+                 * @type {Resource[]}
+                 */
+                const resources1 = [];
+                const defaultSortId = this.configManager.defaultSortId;
+                /**
+                 * bundle
+                 * @param {string|null} last_id
+                 * @param {number} stopTime1
+                 * @return {Bundle}
+                 */
+                const fnBundle = (last_id, stopTime1) => this.bundleManager.createBundle(
+                    {
+                        type: 'searchset',
+                        requestId: requestInfo.userRequestId,
+                        originalUrl,
+                        host,
+                        protocol,
+                        last_id,
+                        resources: resources1,
+                        base_version,
+                        total_count,
+                        originalQuery: new QueryItem(
                             {
-                                type: 'searchset',
-                                requestId: requestInfo.requestId,
-                                originalUrl,
-                                host,
-                                protocol,
-                                last_id,
-                                resources: resources1,
-                                base_version,
-                                total_count,
-                                originalQuery: new QueryItem(
-                                    {
-                                        query,
-                                        resourceType,
-                                        collectionName
-                                    }
-                                ),
-                                databaseName,
-                                originalOptions,
-                                columns,
-                                stopTime: stopTime1,
-                                startTime,
-                                useTwoStepSearchOptimization,
-                                indexHint,
-                                cursorBatchSize,
-                                user,
-                                explanations,
-                                allCollectionsToSearch,
-                                parsedArgs
+                                query,
+                                resourceType,
+                                collectionName
                             }
-                        );
-                        resourceIds = await this.searchManager.streamBundleFromCursorAsync(
-                            {
-                                requestId,
-                                cursor,
-                                url: originalUrl,
-                                fnBundle,
-                                res,
-                                user,
-                                scope,
-                                parsedArgs,
-                                resourceType,
-                                useAccessIndex,
-                                batchObjectCount,
-                                defaultSortId
-                            });
-                    } else {
-                        resourceIds = await this.searchManager.streamResourcesFromCursorAsync(
-                            {
-                                requestId,
-                                cursor, res, user, scope, parsedArgs,
-                                resourceType,
-                                useAccessIndex,
-                                contentType: fhirContentTypes.fhirJson,
-                                batchObjectCount
-                            });
+                        ),
+                        databaseName,
+                        originalOptions,
+                        columns,
+                        stopTime: stopTime1,
+                        startTime,
+                        useTwoStepSearchOptimization,
+                        indexHint,
+                        cursorBatchSize,
+                        user,
+                        explanations,
+                        allCollectionsToSearch,
+                        parsedArgs
                     }
-                }
+                );
+                resourceIds = await this.searchManager.streamResourcesFromCursorAsync(
+                    {
+                        requestId,
+                        cursor,
+                        url: originalUrl,
+                        fnBundle,
+                        res,
+                        user,
+                        scope,
+                        parsedArgs,
+                        resourceType,
+                        useAccessIndex,
+                        batchObjectCount,
+                        defaultSortId,
+                        accepts: requestInfo.accept,
+                    });
+
                 if (resourceIds.length > 0) {
                     // log access to audit logs
                     await this.auditLogger.logAuditEntryAsync(
@@ -392,7 +368,7 @@ class SearchStreamingOperation {
             } else { // no records found
                 if (useNdJson) {
                     if (requestId && !res.headersSent) {
-                        res.setHeader('X-Request-ID', String(requestId));
+                        res.setHeader('X-Request-ID', String(userRequestId));
                     }
                     // empty response
                     res.type(fhirContentTypes.ndJson);
@@ -430,13 +406,13 @@ class SearchStreamingOperation {
                             }
                         );
                         if (requestId && !res.headersSent) {
-                            res.setHeader('X-Request-ID', String(requestId));
+                            res.setHeader('X-Request-ID', String(userRequestId));
                         }
                         // noinspection JSUnresolvedFunction
                         res.type(fhirContentTypes.fhirJson).json(bundle.toJSON());
                     } else {
                         if (requestId && !res.headersSent) {
-                            res.setHeader('X-Request-ID', String(requestId));
+                            res.setHeader('X-Request-ID', String(userRequestId));
                         }
                         res.type(fhirContentTypes.fhirJson).json([]);
                     }
@@ -481,7 +457,8 @@ class SearchStreamingOperation {
                             }),
                             options
                         }
-                    )
+                    ),
+                    message: `Error in streaming resources: ${e.message}`
                 });
             throw new MongoError(requestId, e.message, e, collectionName, query, (Date.now() - startTime), options);
         } finally {

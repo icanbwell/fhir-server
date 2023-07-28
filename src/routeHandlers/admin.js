@@ -143,7 +143,7 @@ async function handleAdmin(
                     logInfo('', {'req.query': req.query});
                     const id = req.query['id'];
                     if (id) {
-                        const adminLogManager = new AdminLogManager();
+                        const adminLogManager = new AdminLogManager({ mongoDatabaseManager: container.mongoDatabaseManager });
                         const json = await adminLogManager.getLogAsync(id);
                         return res.json(json);
                     }

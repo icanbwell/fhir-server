@@ -237,17 +237,6 @@ class ConfigManager {
     }
 
     /**
-     * whether to check access tags on save
-     * @return {boolean}
-     */
-    get checkAccessTagsOnSave() {
-        if (env.CHECK_ACCESS_TAG_ON_SAVE === null || env.CHECK_ACCESS_TAG_ON_SAVE === undefined) {
-            return true;
-        }
-        return isTrue(env.CHECK_ACCESS_TAG_ON_SAVE);
-    }
-
-    /**
      * whether to support legacy id support in queries
      * @return {boolean}
      */
@@ -274,7 +263,7 @@ class ConfigManager {
      * is greater than this number than we fall back to processing in serial to save memory
      * @return {number}
      */
-    get graphBatchSize(){
+    get graphBatchSize() {
         return env.GRAPH_BATCH_SIZE || 10;
     }
 
@@ -284,6 +273,55 @@ class ConfigManager {
      */
     get enabledGridFsResources() {
         return env.GRIDFS_RESOURCES ? env.GRIDFS_RESOURCES.split(',') : [];
+    }
+
+    /**
+     * Specifies whether to update access tags for resources.
+     * Updates the access tag depending on the consent shared by the user.
+     */
+    get enabledAccessTagUpdate() {
+        return isTrue(env.ENABLE_ACCESS_TAG_UPDATE);
+    }
+
+    /**
+     * Specifies whether to Consent based data access enabled.
+     * @return {boolean}
+     */
+    get enableConsentedDataAccess() {
+        return isTrue(env.ENABLE_CONSENTED_DATA_ACCESS);
+    }
+
+    /**
+     * Specifies "provision.class.code" for the Data sharing Consent
+     * @return {string[]}
+     */
+    get getDataSharingConsentCodes() {
+        return env.DATA_SHARING_CONSENT_CODES ? env.DATA_SHARING_CONSENT_CODES.split(',') : ['/dataSharingConsent', '/hipaaConsent'];
+    }
+
+    /**
+     * Specifies maximum buffer when streaming data
+     * https://nodejs.org/docs/latest-v18.x/api/stream.html#buffering
+     * @returns {number}
+     */
+    get streamingHighWaterMark() {
+        return env.STREAMING_HIGH_WATER_MARK || 100;
+    }
+
+    /**
+     * If count requested is higher than this then don't do duplicate removal to save memory
+     * @returns {number}
+     */
+    get streamingMaxCountForDuplicateRemoval() {
+        return env.STREAMING_MAX_COUNT_FOR_DUPLICATE_REMOVAL || 1000;
+    }
+
+    /**
+     * whether to log inside our streaming.  Very verbose so don't set in production
+     * @returns {boolean}
+     */
+    get logStreamSteps() {
+        return isTrue(env.LOG_STREAM_STEPS);
     }
 }
 

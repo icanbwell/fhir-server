@@ -22,9 +22,9 @@ All the GraphQL entities and properties have inline documentation from FHIR spec
 
 ```graphql
 query {
-    entry {
-        resource {
-            practitionerRole {
+    practitionerRole {
+        entry {
+            resource {
                 id
                 practitioner {
                     name {
@@ -225,10 +225,10 @@ query {
 Graphqlv2:
 ```graphql
 query {
-    entry {
-        resource {
-            practitionerRole {
-                id
+    practitionerRole {
+        entry {
+            resource {
+               id
             }
         }
     }

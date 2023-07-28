@@ -116,7 +116,7 @@ describe('PractitionerReturnIdTests', () => {
 
             resp = await request
                 .post('/4_0_0/Practitioner/_search?_sort=id')
-                .send({id: '0,1679033641'})
+                .send({resourceType: 'Parameters', parameter: [{name: 'id', valueString: '0,1679033641'}]})
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedPractitionerResource);
