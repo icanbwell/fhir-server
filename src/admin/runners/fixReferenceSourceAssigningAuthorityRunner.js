@@ -628,6 +628,8 @@ class FixReferenceSourceAssigningAuthorityRunner extends BaseBulkOperationRunner
                             { $or: referenceFieldQuery },
                         ],
                     };
+                } else {
+                    continue;
                 }
                 // const personCache = this.getCacheForResourceType(
                 //     {
