@@ -94,7 +94,7 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
             } = await this.createConnectionAsync({config, destinationCollectionName, sourceCollectionName});
 
             let indexNames = [];
-            if (referenceFieldNames && referenceFieldNames.length && await sourceCollection.estimatedDocumentCount() > 100000){
+            if (referenceFieldNames && referenceFieldNames.length && (await sourceCollection.estimatedDocumentCount() > 100000)){
                 const indexes = [];
                 referenceFieldNames.forEach(referenceField => {
                     const indexFieldName = `${referenceField}._sourceAssigningAuthority`;
