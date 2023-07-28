@@ -6,6 +6,7 @@ const {fhirContentTypes} = require('../../../utils/contentTypes');
 const {getDefaultSortIdValue} = require('../../../utils/getDefaultSortIdValue');
 const {ConfigManager} = require('../../../utils/configManager');
 const {logInfo} = require('../../common/logging');
+const {RethrownError} = require('../../../utils/rethrownError');
 
 class FhirBundleWriter extends FhirResourceWriterBase {
     /**
@@ -73,12 +74,14 @@ class FhirBundleWriter extends FhirResourceWriterBase {
             callback();
             return;
         }
+        const chunkId = chunk['id'];
+        let chunkJson = {};
         try {
-
             if (chunk !== null && chunk !== undefined) {
+                chunkJson = chunk.toJSON();
                 const resourceJson = JSON.stringify(
                     {
-                        resource: chunk.toJSON()
+                        resource: chunkJson
                     }, getCircularReplacer()
                 );
                 if (this.configManager.logStreamSteps) {
@@ -97,7 +100,19 @@ class FhirBundleWriter extends FhirResourceWriterBase {
             }
             callback();
         } catch (e) {
-            callback(new AggregateError([e], 'FhirBundleWriter _transform: error'));
+            callback(
+                new RethrownError(
+                    {
+                        message: `FhirBundleWriter _transform: error: ${e.message}: id: ${chunkId}`,
+                        error: e,
+                        args: {
+                            chunkId,
+                            chunkJson,
+                            encoding
+                        }
+                    }
+                )
+            );
         }
     }
 
