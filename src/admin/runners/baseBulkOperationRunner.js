@@ -103,9 +103,9 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                         name: `fixReferenceScript_${indexFieldName}`
                     });
                 });
-                this.adminLogger.logInfo(`Creating reference indexes for ${referenceFieldNames}`);
+                this.adminLogger.logInfo(`Creating ${sourceCollectionName} reference indexes for ${referenceFieldNames}`);
                 indexNames = await sourceCollection.createIndexes(indexes);
-                this.adminLogger.logInfo(`Created reference indexes ${indexNames}`);
+                this.adminLogger.logInfo(`Created ${sourceCollectionName} reference indexes ${indexNames}`);
             }
 
             // this.adminLogger.logInfo(
@@ -204,9 +204,9 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
 
             if (indexNames && indexNames.length){
                 for (const indexName of indexNames) {
-                    this.adminLogger.logInfo(`Removing index ${indexName}`);
+                    this.adminLogger.logInfo(`Removing index ${indexName} from ${sourceCollectionName}`);
                     await sourceCollection.dropIndex(indexName);
-                    this.adminLogger.logInfo(`Removed index ${indexName}`);
+                    this.adminLogger.logInfo(`Removed index ${indexName} from ${sourceCollectionName}`);
                 }
             }
 
