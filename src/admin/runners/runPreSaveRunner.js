@@ -4,6 +4,7 @@ const {PreSaveManager} = require('../../preSaveHandlers/preSave');
 const deepEqual = require('fast-deep-equal');
 const moment = require('moment-timezone');
 const {FhirResourceCreator} = require('../../fhir/fhirResourceCreator');
+const {SecurityTagSystem} = require('../../utils/securityTagSystem');
 
 /**
  * @classdesc runs preSave() on every record
@@ -103,10 +104,13 @@ class RunPreSaveRunner extends BaseBulkOperationRunner {
          * @type {Resource}
          */
         const currentResource = FhirResourceCreator.create(doc);
+
+        const resourceWithoutAuthority = currentResource.clone();
+        resourceWithoutAuthority.meta.security = resourceWithoutAuthority.meta.security.filter(s => s.system !== SecurityTagSystem.sourceAssigningAuthority);
         /**
          * @type {Resource}
          */
-        const updatedResource = await this.preSaveManager.preSaveAsync(currentResource.clone());
+        const updatedResource = await this.preSaveManager.preSaveAsync(resourceWithoutAuthority);
         // for speed, first check if the incoming resource is exactly the same
         const updatedResourceJsonInternal = updatedResource.toJSONInternal();
         const currentResourceJsonInternal = currentResource.toJSONInternal();
@@ -161,28 +165,64 @@ class RunPreSaveRunner extends BaseBulkOperationRunner {
                 /**
                  * @type {import('mongodb').Filter<import('mongodb').Document>}
                  */
-                let query = {_sourceAssigningAuthority: {$not: {$type: 'string'}}};
+                let query = {
+                    $or: [
+                        {
+                            'meta.security': {
+                                $elemMatch: {
+                                    'system': SecurityTagSystem.sourceAssigningAuthority,
+                                    'code': '[object Object]'
+                                }
+                            }
+                        },
+                        {
+                            'meta.security': {
+                                $elemMatch: {
+                                    'system': SecurityTagSystem.sourceAssigningAuthority,
+                                    'code': { $not: { $type: 'string' } }
+                                }
+                            }
+                        }
+                    ]
+                };
                 if (this.beforeLastUpdatedDate && this.afterLastUpdatedDate) {
                     query = {
-                        'meta.lastUpdated': {
-                            $lt: this.beforeLastUpdatedDate,
-                            $gt: this.afterLastUpdatedDate,
-                        }
+                        $and: [
+                            {
+                                'meta.lastUpdated': {
+                                    $lt: this.beforeLastUpdatedDate,
+                                    $gt: this.afterLastUpdatedDate,
+                                }
+                            },
+                            query
+                        ]
                     };
                 } else if (this.beforeLastUpdatedDate) {
                     query = {
-                        'meta.lastUpdated': {
-                            $lt: this.beforeLastUpdatedDate
-                        }
+                        $and: [
+                            {
+                                'meta.lastUpdated': {
+                                    $lt: this.beforeLastUpdatedDate,
+                                }
+                            },
+                            query
+                        ]
                     };
                 } else if (this.afterLastUpdatedDate) {
                     query = {
-                        'meta.lastUpdated': {
-                            $gt: this.afterLastUpdatedDate,
-                        }
+                        $and: [
+                            {
+                                'meta.lastUpdated': {
+                                    $gt: this.afterLastUpdatedDate,
+                                }
+                            },
+                            query
+                        ]
                     };
                 }
                 try {
+                    // to fix counting error
+                    const startFromIdContainer = this.createStartFromIdContainer();
                     await this.runForQueryBatchesAsync(
                         {
                             config: this.useAuditDatabase ?
@@ -192,7 +232,7 @@ class RunPreSaveRunner extends BaseBulkOperationRunner {
                             destinationCollectionName: collectionName,
                             query,
                             projection: undefined,
-                            startFromIdContainer: this.startFromIdContainer,
+                            startFromIdContainer,
                             fnCreateBulkOperationAsync: async (doc) => await this.processRecordAsync(doc),
                             ordered: false,
                             batchSize: this.batchSize,
