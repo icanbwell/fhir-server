@@ -1,6 +1,9 @@
 const {convertErrorToOperationOutcome} = require('../../../utils/convertErrorToOperationOutcome');
 const {getCircularReplacer} = require('../../../utils/getCircularReplacer');
 const {FhirResourceWriterBase} = require('./fhirResourceWriterBase');
+const {assertTypeEquals} = require('../../../utils/assertType');
+const {ConfigManager} = require('../../../utils/configManager');
+const {logInfo} = require('../../common/logging');
 
 class FhirResourceWriter extends FhirResourceWriterBase {
     /**
@@ -8,8 +11,9 @@ class FhirResourceWriter extends FhirResourceWriterBase {
      * @param {AbortSignal} signal
      * @param {string} contentType
      * @param {number} highWaterMark
+     * @param {ConfigManager} configManager
      */
-    constructor({signal, contentType, highWaterMark}) {
+    constructor({signal, contentType, highWaterMark, configManager}) {
         super({objectMode: true, contentType: contentType, highWaterMark: highWaterMark});
         /**
          * @type {boolean}
@@ -22,11 +26,17 @@ class FhirResourceWriter extends FhirResourceWriterBase {
          * @private
          */
         this._signal = signal;
+
+        /**
+         * @type {ConfigManager}
+         */
+        this.configManager = configManager;
+        assertTypeEquals(configManager, ConfigManager);
     }
 
     /**
      * transforms a chunk
-     * @param {Object} chunk
+     * @param {Resource} chunk
      * @param {import('stream').BufferEncoding} encoding
      * @param {import('stream').TransformCallBack} callback
      * @private
@@ -39,7 +49,10 @@ class FhirResourceWriter extends FhirResourceWriterBase {
         try {
 
             if (chunk !== null && chunk !== undefined) {
-                const resourceJson = JSON.stringify(chunk, getCircularReplacer());
+                const resourceJson = JSON.stringify(chunk.toJSON(), getCircularReplacer());
+                if (this.configManager.logStreamSteps) {
+                    logInfo(`FhirResourceWriter _transform ${chunk['id']}`, {});
+                }
                 if (this._first) {
                     // write the beginning json
                     this._first = false;
@@ -66,8 +79,12 @@ class FhirResourceWriter extends FhirResourceWriterBase {
             callback();
             return;
         }
+        if (this.configManager.logStreamSteps) {
+            logInfo('FhirResourceWriter _flush', {});
+        }
         // write ending json
         this.push(']');
+        this.push(null);
         callback();
     }
 

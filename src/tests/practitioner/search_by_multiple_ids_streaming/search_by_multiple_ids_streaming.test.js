@@ -15,8 +15,31 @@ const {
     createTestRequest,
 } = require('../../common');
 const {describe, beforeEach, afterEach, expect, test} = require('@jest/globals');
+const {ConfigManager} = require('../../../utils/configManager');
 
-describe('PractitionerReturnIdTests', () => {
+class MockConfigManagerStreaming extends ConfigManager {
+    get defaultSortId() {
+        return '_uuid';
+    }
+
+    get streamResponse() {
+        return true;
+    }
+
+    get enableReturnBundle() {
+        return true;
+    }
+
+    get streamingHighWaterMark() {
+        return 1;
+    }
+
+    get logStreamSteps() {
+        return true;
+    }
+}
+
+describe('search by multiple ids streaming', () => {
     beforeEach(async () => {
         await commonBeforeEach();
     });
@@ -27,7 +50,10 @@ describe('PractitionerReturnIdTests', () => {
 
     describe('Practitioner Search By Multiple Ids Tests', () => {
         test('search by single id works', async () => {
-            const request = await createTestRequest();
+            const request = await createTestRequest((c) => {
+                c.register('configManager', () => new MockConfigManagerStreaming());
+                return c;
+            });
             let resp = await request.get('/4_0_0/Practitioner').set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResourceCount(0);
@@ -55,7 +81,10 @@ describe('PractitionerReturnIdTests', () => {
             expect(resp).toHaveResponse(expectedSinglePractitionerResource);
         });
         test('search by multiple id works', async () => {
-            const request = await createTestRequest();
+            const request = await createTestRequest((c) => {
+                c.register('configManager', () => new MockConfigManagerStreaming());
+                return c;
+            });
             let resp = await request.get('/4_0_0/Practitioner').set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResourceCount(0);
@@ -92,7 +121,10 @@ describe('PractitionerReturnIdTests', () => {
             expect(resp).toHaveResponse(expectedPractitionerResource);
         });
         test('search by multiple id works via POST', async () => {
-            const request = await createTestRequest();
+            const request = await createTestRequest((c) => {
+                c.register('configManager', () => new MockConfigManagerStreaming());
+                return c;
+            });
             let resp = await request
                 .post('/4_0_0/Practitioner/1679033641/$merge')
                 .send(practitionerResource)
@@ -122,7 +154,10 @@ describe('PractitionerReturnIdTests', () => {
             expect(resp).toHaveResponse(expectedPractitionerResource);
         });
         test('search by multiple id works via POST (x-www-form-urlencoded)', async () => {
-            const request = await createTestRequest();
+            const request = await createTestRequest((c) => {
+                c.register('configManager', () => new MockConfigManagerStreaming());
+                return c;
+            });
             let resp = await request
                 .post('/4_0_0/Practitioner/1679033641/$merge')
                 .send(practitionerResource)

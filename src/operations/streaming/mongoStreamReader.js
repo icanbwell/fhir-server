@@ -1,7 +1,9 @@
 const {Readable} = require('stream');
-const {isTrue} = require('../../utils/isTrue');
-const env = require('var');
 const {logInfo} = require('../common/logging');
+const {assertTypeEquals} = require('../../utils/assertType');
+const {ConfigManager} = require('../../utils/configManager');
+const {RethrownError} = require('../../utils/rethrownError');
+const {convertErrorToOperationOutcome} = require('../../utils/convertErrorToOperationOutcome');
 const {RETRIEVE} = require('../../constants').GRIDFS;
 
 // https://thenewstack.io/node-js-readable-streams-explained/
@@ -15,53 +17,109 @@ class MongoReadableStream extends Readable {
      * @param {AbortSignal} signal
      * @param {DatabaseAttachmentManager} databaseAttachmentManager
      * @param {number} highWaterMark
+     * @param {ConfigManager} configManager
      */
     constructor(
         {
             cursor,
             signal,
             databaseAttachmentManager,
-            highWaterMark
+            highWaterMark,
+            configManager
         }
     ) {
         super({objectMode: true, highWaterMark: highWaterMark});
 
+        /**
+         * @type {DatabasePartitionedCursor}
+         */
         this.cursor = cursor;
 
+        /**
+         * @type {AbortSignal}
+         */
         this.signal = signal;
 
+        /**
+         * @type {DatabaseAttachmentManager}
+         */
         this.databaseAttachmentManager = databaseAttachmentManager;
+
+        /**
+         * @type {ConfigManager}
+         */
+        this.configManager = configManager;
+        assertTypeEquals(configManager, ConfigManager);
+
+        /**
+         * @type {boolean}
+         */
+        this.isFetchingData = false; // Track if data is currently being fetched
     }
 
     // eslint-disable-next-line no-unused-vars
-    _read(size) {
-        (async () => {
-            await this.readAsync();
-        })();
-    }
-
-    async readAsync() {
-        if (await this.cursor.hasNext()) {
-            if (this.signal.aborted) {
-                if (isTrue(env.LOG_STREAM_STEPS)) {
-                    logInfo('mongoStreamReader: aborted', {});
-                }
+    async _read(size) {
+        // Ensure we are not already fetching data
+        if (!this.isFetchingData) {
+            this.isFetchingData = true;
+            try {
+                await this.readAsync(size);
+            } catch (error) {
+                // Handle any errors that may occur during data retrieval
+                this.emit('error', error);
+                this.push(null); // Signal the end of the stream
                 return;
             }
-            if (isTrue(env.LOG_STREAM_STEPS)) {
-                logInfo('mongoStreamReader: read', {});
+            this.isFetchingData = false;
+        }
+    }
+
+    /**
+     * @param size
+     * @returns {Promise<void>}
+     */
+    async readAsync(size) {
+        let count = 0;
+        while (count <= size) {
+            try {
+                if (await this.cursor.hasNext()) {
+                    if (this.signal.aborted) {
+                        if (this.configManager.logStreamSteps) {
+                            logInfo('mongoStreamReader: aborted', {size});
+                        }
+                        return;
+                    }
+                    count++;
+                    /**
+                     * element
+                     * @type {Resource}
+                     */
+                    let resource = await this.cursor.next();
+                    if (this.configManager.logStreamSteps) {
+                        logInfo(`mongoStreamReader: read ${resource.id}`, {count, size});
+                    }
+                    if (this.databaseAttachmentManager) {
+                        resource = await this.databaseAttachmentManager.transformAttachments(resource, RETRIEVE);
+                    }
+                    this.push(resource);
+                } else {
+                    if (this.configManager.logStreamSteps) {
+                        logInfo('mongoStreamReader: finish', {count, size});
+                    }
+                    this.push(null);
+                    return;
+                }
+            } catch (e) {
+                const error = new RethrownError({messsage: e.messsage, error: e, args: {}, source: 'readAsync'});
+                /**
+                 * @type {OperationOutcome}
+                 */
+                const operationOutcome = convertErrorToOperationOutcome({
+                    error: error
+                });
+                this.push(operationOutcome);
+                return;
             }
-            /**
-             * element
-             * @type {Resource}
-             */
-            let resource = await this.cursor.next();
-            if (this.databaseAttachmentManager) {
-                resource = await this.databaseAttachmentManager.transformAttachments(resource, RETRIEVE);
-            }
-            this.push(resource);
-        } else {
-            this.push(null);
         }
     }
 }

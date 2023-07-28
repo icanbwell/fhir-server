@@ -13,8 +13,15 @@ const {describe, beforeEach, afterEach, expect, test} = require('@jest/globals')
 const path = require('path');
 const fs = require('fs');
 const {fhirContentTypes} = require('../../../utils/contentTypes');
+const {ConfigManager} = require('../../../utils/configManager');
 
-describe('PractitionerReturnIdTests', () => {
+class MockConfigManagerDefaultSortId extends ConfigManager {
+    get streamResponse() {
+        return true;
+    }
+}
+
+describe('search by multiple ids csv', () => {
     beforeEach(async () => {
         await commonBeforeEach();
     });
@@ -25,7 +32,10 @@ describe('PractitionerReturnIdTests', () => {
 
     describe('Practitioner Search By Multiple Ids csv Tests', () => {
         test('search by single id works', async () => {
-            const request = await createTestRequest();
+            const request = await createTestRequest((c) => {
+                c.register('configManager', () => new MockConfigManagerDefaultSortId());
+                return c;
+            });
             let resp = await request
                 .get('/4_0_0/Practitioner?_streamResponse=1')
                 .set(getHeadersCsv());
@@ -63,7 +73,10 @@ describe('PractitionerReturnIdTests', () => {
             expect(resp).toHaveResponse(expectedSinglePractitionerCsv);
         });
         test('search by multiple id works', async () => {
-            const request = await createTestRequest();
+            const request = await createTestRequest((c) => {
+                c.register('configManager', () => new MockConfigManagerDefaultSortId());
+                return c;
+            });
             let resp = await request
                 .get('/4_0_0/Practitioner?_streamResponse=1')
                 .set(getHeadersCsv());
@@ -108,7 +121,10 @@ describe('PractitionerReturnIdTests', () => {
             expect(resp).toHaveResponse(expectedPractitionerCsv);
         });
         test('search by multiple id works with _format parameter', async () => {
-            const request = await createTestRequest();
+            const request = await createTestRequest((c) => {
+                c.register('configManager', () => new MockConfigManagerDefaultSortId());
+                return c;
+            });
             let resp = await request
                 .get(`/4_0_0/Practitioner?_format=${fhirContentTypes.csv}`)
                 .set(getHeaders());
@@ -153,7 +169,10 @@ describe('PractitionerReturnIdTests', () => {
             expect(resp).toHaveResponse(expectedPractitionerCsv);
         });
         test('search by multiple id works with _format parameter from browser', async () => {
-            const request = await createTestRequest();
+            const request = await createTestRequest((c) => {
+                c.register('configManager', () => new MockConfigManagerDefaultSortId());
+                return c;
+            });
             let resp = await request
                 .get(`/4_0_0/Practitioner?_format=${fhirContentTypes.csv}`)
                 .set(getHeaders());
@@ -198,7 +217,10 @@ describe('PractitionerReturnIdTests', () => {
             expect(resp).toHaveResponse(expectedPractitionerCsv);
         });
         test('search by multiple id works with selected elements', async () => {
-            const request = await createTestRequest();
+            const request = await createTestRequest((c) => {
+                c.register('configManager', () => new MockConfigManagerDefaultSortId());
+                return c;
+            });
             let resp = await request
                 .get('/4_0_0/Practitioner?_streamResponse=1')
                 .set(getHeadersCsv());
@@ -243,7 +265,10 @@ describe('PractitionerReturnIdTests', () => {
             expect(resp).toHaveResponse(expectedPractitionerCsv);
         });
         test('search by multiple id works via POST', async () => {
-            const request = await createTestRequest();
+            const request = await createTestRequest((c) => {
+                c.register('configManager', () => new MockConfigManagerDefaultSortId());
+                return c;
+            });
             let resp = await request
                 .post('/4_0_0/Practitioner/1679033641/$merge')
                 .send(practitionerResource)
@@ -272,13 +297,16 @@ describe('PractitionerReturnIdTests', () => {
 
             resp = await request
                 .post('/4_0_0/Practitioner/_search?_sort=id&_streamResponse=1')
-                .send({id: '0,1679033641'})
+                .send({resourceType: 'Parameters', parameter: [{name: 'id', valueString: '0,1679033641'}]})
                 .set(getHeadersCsv());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedPractitionerCsv);
         });
         test('search by multiple id works via POST (x-www-form-urlencoded)', async () => {
-            const request = await createTestRequest();
+            const request = await createTestRequest((c) => {
+                c.register('configManager', () => new MockConfigManagerDefaultSortId());
+                return c;
+            });
             let resp = await request
                 .post('/4_0_0/Practitioner/1679033641/$merge')
                 .send(practitionerResource)

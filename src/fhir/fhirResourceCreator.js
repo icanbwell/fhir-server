@@ -20,6 +20,10 @@ class FhirResourceCreator {
             if (ResourceConstructor) {
                 return new ResourceConstructor(obj);
             }
+            if (!obj.resourceType) {
+                // noinspection ExceptionCaughtLocallyJS
+                throw new Error('resourceType is null');
+            }
             const ResourceCreator = getResource(VERSIONS['4_0_0'], obj.resourceType);
             return new ResourceCreator(obj);
         } catch (e) {

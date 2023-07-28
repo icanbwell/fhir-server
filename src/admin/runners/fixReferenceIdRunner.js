@@ -421,7 +421,7 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
             resource._sourceId = expectedOriginalId;
             resource._uuid = newUuid;
 
-            if (resource.identifier) {
+            if (resource.identifier && Array.isArray(resource.identifier)){
                 for (let identifier of resource.identifier) {
                     if (identifier.id === 'sourceId') {
                         identifier.value = expectedOriginalId;

@@ -1,9 +1,13 @@
 const {removeNull} = require('../../../utils/nullRemover');
-const {assertIsValid} = require('../../../utils/assertType');
+const {assertIsValid, assertTypeEquals} = require('../../../utils/assertType');
 const {getCircularReplacer} = require('../../../utils/getCircularReplacer');
 const {FhirResourceWriterBase} = require('./fhirResourceWriterBase');
 const {fhirContentTypes} = require('../../../utils/contentTypes');
 const {getDefaultSortIdValue} = require('../../../utils/getDefaultSortIdValue');
+const {ConfigManager} = require('../../../utils/configManager');
+const {logInfo} = require('../../common/logging');
+const {RethrownError} = require('../../../utils/rethrownError');
+const {convertErrorToOperationOutcome} = require('../../../utils/convertErrorToOperationOutcome');
 
 class FhirBundleWriter extends FhirResourceWriterBase {
     /**
@@ -13,8 +17,9 @@ class FhirBundleWriter extends FhirResourceWriterBase {
      * @param {AbortSignal} signal
      * @param {string} defaultSortId
      * @param {number} highWaterMark
+     * @param {ConfigManager} configManager
      */
-    constructor({fnBundle, url, signal, defaultSortId, highWaterMark}) {
+    constructor({fnBundle, url, signal, defaultSortId, highWaterMark, configManager}) {
         super({objectMode: true, contentType: fhirContentTypes.fhirJson, highWaterMark: highWaterMark});
         /**
          * @type {function (string | null, number): Bundle}
@@ -50,11 +55,17 @@ class FhirBundleWriter extends FhirResourceWriterBase {
          * @type {string}
          */
         this.defaultSortId = defaultSortId;
+
+        /**
+         * @type {ConfigManager}
+         */
+        this.configManager = configManager;
+        assertTypeEquals(configManager, ConfigManager);
     }
 
     /**
      * transforms a chunk
-     * @param {Object} chunk
+     * @param {Resource} chunk
      * @param {import('stream').BufferEncoding} encoding
      * @param {import('stream').TransformCallBack} callback
      * @private
@@ -64,14 +75,19 @@ class FhirBundleWriter extends FhirResourceWriterBase {
             callback();
             return;
         }
+        const chunkId = chunk['id'];
+        let chunkJson = {};
         try {
-
             if (chunk !== null && chunk !== undefined) {
+                chunkJson = chunk.toJSON();
                 const resourceJson = JSON.stringify(
                     {
-                        resource: chunk
+                        resource: chunkJson
                     }, getCircularReplacer()
                 );
+                if (this.configManager.logStreamSteps) {
+                    logInfo(`FhirBundleWriter _transform ${chunk['id']}`, {});
+                }
                 if (this._first) {
                     // write the beginning json
                     this._first = false;
@@ -83,10 +99,46 @@ class FhirBundleWriter extends FhirResourceWriterBase {
                 // Depending on DEFAULT_SORT_ID, the last id can be either id or any other field.
                 this._lastid = getDefaultSortIdValue(chunk, this.defaultSortId);
             }
+            callback();
         } catch (e) {
-            throw new AggregateError([e], 'FhirBundleWriter _transform: error');
+            // don't let error past this since we're streaming so we can't send errors to http client
+            const error = new RethrownError(
+                {
+                    message: `FhirBundleWriter _transform: error: ${e.message}: id: ${chunkId}`,
+                    error: e,
+                    args: {
+                        chunkId,
+                        chunkJson,
+                        encoding
+                    }
+                }
+            );
+            this.writeErrorAsOperationOutcome({error});
+            callback();
         }
-        callback();
+    }
+
+    /**
+     * writes an error as an OperationOutcome
+     * @param {Error} error
+     * @param {import('stream').BufferEncoding} encoding
+     */
+    writeErrorAsOperationOutcome({error}) {
+        /**
+         * @type {OperationOutcome}
+         */
+        const operationOutcome = convertErrorToOperationOutcome({
+            error: error
+        });
+        const operationOutcomeJson = JSON.stringify(operationOutcome.toJSON());
+        if (this._first) {
+            // write the beginning json
+            this._first = false;
+            this.push(operationOutcomeJson);
+        } else {
+            // add comma at the beginning to make it legal json
+            this.push(',' + operationOutcomeJson);
+        }
     }
 
     /**
@@ -116,34 +168,42 @@ class FhirBundleWriter extends FhirResourceWriterBase {
             const bundleJson = JSON.stringify(cleanObject);
 
             // write ending json
-            this.push('],' + bundleJson.substring(1)); // skip the first "}"
+            const output = '],' + bundleJson.substring(1);
+            if (this.configManager.logStreamSteps) {
+                logInfo('FhirBundleWriter _flush', {output});
+            }
+            this.push(output); // skip the first "}"
         } catch (e) {
             // don't let error past this since we're streaming so we can't send errors to http client
-            const operationOutcome = {
-                resourceType: 'OperationOutcome',
-                issue: [
-                    {
-                        severity: 'error',
-                        code: 'exception',
-                        details: {
-                            text: 'Error streaming bundle'
-                        },
-                        diagnostics: e.toString()
-                    }
-                ]
-            };
-            const operationOutcomeJson = JSON.stringify({resource: operationOutcome}, getCircularReplacer());
-            if (this._first) {
-                // write the beginning json
-                this._first = false;
-                this.push(operationOutcomeJson);
-            } else {
-                // add comma at the beginning to make it legal json
-                this.push(',' + operationOutcomeJson);
-            }
+            const error = new RethrownError(
+                {
+                    message: `FhirBundleWriter _flush: error: ${e.message}`,
+                    error: e,
+                    args: {}
+                }
+            );
+            this.writeErrorAsOperationOutcome({error});
             this.push(']}');
         }
+        this.push(null);
         callback();
+    }
+
+    /**
+     * writes an OperationOutcome
+     * @param {OperationOutcome} operationOutcome
+     * @param {import('stream').BufferEncoding|null} [encoding]
+     */
+    writeOperationOutcome({operationOutcome, encoding}) {
+        const operationOutcomeJson = JSON.stringify(operationOutcome.toJSON());
+        if (this._first) {
+            // write the beginning json
+            this._first = false;
+            this.push(operationOutcomeJson, encoding);
+        } else {
+            // add comma at the beginning to make it legal json
+            this.push(',' + operationOutcomeJson, encoding);
+        }
     }
 }
 

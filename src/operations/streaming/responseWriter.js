@@ -1,9 +1,9 @@
 const {Writable} = require('stream');
-const {isTrue} = require('../../utils/isTrue');
-const env = require('var');
 const {getLogger} = require('../../winstonInit');
-const {assertIsValid} = require('../../utils/assertType');
+const {assertIsValid, assertTypeEquals} = require('../../utils/assertType');
 const {hasNdJsonContentType} = require('../../utils/contentTypes');
+const {ConfigManager} = require('../../utils/configManager');
+const {RethrownError} = require('../../utils/rethrownError');
 const logger = getLogger();
 
 class HttpResponseWriter extends Writable {
@@ -13,6 +13,7 @@ class HttpResponseWriter extends Writable {
      * @param {string} contentType
      * @param {AbortSignal} signal
      * @param {number} highWaterMark
+     * @param {ConfigManager} configManager
      */
     constructor(
         {
@@ -20,7 +21,8 @@ class HttpResponseWriter extends Writable {
             response,
             contentType,
             signal,
-            highWaterMark
+            highWaterMark,
+            configManager
         }
     ) {
         super({objectMode: true, highWaterMark: highWaterMark});
@@ -45,10 +47,16 @@ class HttpResponseWriter extends Writable {
          * @type {string}
          */
         this.requestId = requestId;
+
+        /**
+         * @type {ConfigManager}
+         */
+        this.configManager = configManager;
+        assertTypeEquals(configManager, ConfigManager);
     }
 
     _construct(callback) {
-        if (isTrue(env.LOG_STREAM_STEPS)) {
+        if (this.configManager.logStreamSteps) {
             logger.info(`HttpResponseWriter: _construct: requestId: ${this.requestId}`);
         }
         this.response.removeHeader('Content-Length');
@@ -60,8 +68,6 @@ class HttpResponseWriter extends Writable {
             logger.warn('Response timeout');
         });
         this.response.flushHeaders();
-        // Disable response buffering
-        this.response.buffer = false;
         callback();
     }
 
@@ -80,7 +86,7 @@ class HttpResponseWriter extends Writable {
         try {
             if (chunk !== null && chunk !== undefined) {
                 if (this.response.writable) {
-                    if (isTrue(env.LOG_STREAM_STEPS)) {
+                    if (this.configManager.logStreamSteps) {
                         if (hasNdJsonContentType([this.contentType])) {
                             try {
                                 /**
@@ -102,7 +108,17 @@ class HttpResponseWriter extends Writable {
                 callback();
             }
         } catch (e) {
-            throw new AggregateError([e], 'HttpResponseWriter _transform: error');
+            const error = new RethrownError(
+                {
+                    message: `HttpResponseWriter _transform: error: ${e.message}. id: ${chunk.id}`,
+                    error: e,
+                    args: {
+                        id: chunk.id,
+                        chunk: chunk
+                    }
+                }
+            );
+            callback(error);
         }
     }
 
@@ -111,7 +127,7 @@ class HttpResponseWriter extends Writable {
      * @private
      */
     _final(callback) {
-        if (isTrue(env.LOG_STREAM_STEPS)) {
+        if (this.configManager.logStreamSteps) {
             logger.verbose('HttpResponseWriter: _flush');
         }
         if (this.response.writable) {

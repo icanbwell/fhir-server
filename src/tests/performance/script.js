@@ -1,39 +1,24 @@
 const request = require('superagent');
+const {ResponseChunkParser} = require('./responseChunkParser');
 
 const token = '';
+
+const accept = 'application/fhir+json';
+// const accept = 'application/fhir+ndjson';
 
 const getHeaders = () => {
     return {
         'Content-Type': 'application/fhir+json',
-        Accept: 'application/fhir+json',
+        Accept: accept,
         Authorization: `Bearer ${token}`,
     };
 };
 
 async function main() {
-    /**
-     * Parser that reads chunks as they are received from server
-     * @param {import('http').IncomingMessage} req
-     * @param callback
-     */
-    function chunkParser(req, callback) {
-        req.text = '';
-        let text = '';
-        req.setEncoding('utf8');
-        let chunkNumber = 0;
-        req.on('data', (chunk) => {
-            req.text += chunk;
-            text += chunk;
-            chunkNumber++;
-            console.log(`Received chunk ${chunkNumber} of length ${chunk.length}`);
-        });
-        req.on('end', () => {
-            // Process the response data here
-            callback(null, text);
-        });
-    }
 
-    const url = 'http://localhost:3000/4_0_0/Practitioner?_format=text/csv&_count=10000';
+    // const url = 'https://fhir.client-sandbox.icanbwell.com/4_0_0/Person?_security=https://www.icanbwell.com/access%7Cbwell&address-postalcode=10001';
+    const url = 'http://localhost:3000/4_0_0/Person?_security=https://www.icanbwell.com/access|bwell&address-postalcode=10001';
+    // const url = 'http://localhost:3000/4_0_0/Practitioner?_format=text/csv&_count=10000';
     // const url = 'https://fhir.dev-ue1.bwell.zone/4_0_0/Practitioner?_format=text/csv&_count=10000';
 
     console.log(`Calling ${url}...`);
@@ -51,7 +36,10 @@ async function main() {
         .on('error', (res) => {
             console.log('Response error:', res);
         })
-        .parse(chunkParser);
+        .parse(accept === 'application/fhir+json' ?
+            new ResponseChunkParser().getFhirBundleParser() :
+            new ResponseChunkParser().getTextParser()
+        );
 
     const lines = resp.text.split('\n');
     console.log('------ Last Line --------');

@@ -1,7 +1,9 @@
 const {Transform} = require('stream');
-const {isTrue} = require('../../utils/isTrue');
-const env = require('var');
 const {logInfo} = require('../common/logging');
+const {assertTypeEquals} = require('../../utils/assertType');
+const {ConfigManager} = require('../../utils/configManager');
+const {RethrownError} = require('../../utils/rethrownError');
+const {convertErrorToOperationOutcome} = require('../../utils/convertErrorToOperationOutcome');
 
 class ResourcePreparerTransform extends Transform {
     /**
@@ -15,6 +17,7 @@ class ResourcePreparerTransform extends Transform {
      * @param {ResourcePreparer} resourcePreparer
      * @param {boolean|undefined} removeDuplicates
      * @param {number} highWaterMark
+     * @param {ConfigManager} configManager
      */
     constructor(
         {
@@ -26,7 +29,8 @@ class ResourcePreparerTransform extends Transform {
             signal,
             resourcePreparer,
             removeDuplicates,
-            highWaterMark
+            highWaterMark,
+            configManager
         }
     ) {
         super({objectMode: true, highWaterMark: highWaterMark});
@@ -69,6 +73,12 @@ class ResourcePreparerTransform extends Transform {
          * @type {boolean|undefined}
          */
         this.removeDuplicates = removeDuplicates;
+
+        /**
+         * @type {ConfigManager}
+         */
+        this.configManager = configManager;
+        assertTypeEquals(configManager, ConfigManager);
     }
 
     /**
@@ -94,10 +104,36 @@ class ResourcePreparerTransform extends Transform {
             );
             Promise.all(promises).then(() => callback()).catch(
                 (reason) => {
-                    throw new AggregateError([reason], `ResourcePreparer _transform: error: ${reason}`);
+                    throw new RethrownError(
+                        {
+                            message: `ResourcePreparer _transform: error: ${reason}. id: ${chunk.id}`,
+                            args: {
+                                id: chunk.id,
+                                chunk: chunk,
+                                reason: reason
+                            }
+                        }
+                    );
                 });
         } catch (e) {
-            throw new AggregateError([e], `ResourcePreparer _transform: error: ${e}`);
+            const error = new RethrownError(
+                {
+                    message: `ResourcePreparer _transform: error: ${e.message}. id: ${chunk.id}`,
+                    error: e,
+                    args: {
+                        id: chunk.id,
+                        chunk: chunk
+                    }
+                }
+            );
+            /**
+             * @type {OperationOutcome}
+             */
+            const operationOutcome = convertErrorToOperationOutcome({
+                error: error
+            });
+            this.push(operationOutcome);
+            callback();
         }
     }
 
@@ -114,9 +150,6 @@ class ResourcePreparerTransform extends Transform {
             })
             .then(
                 /** @type {Resource[]} */resources => {
-                    if (isTrue(env.LOG_STREAM_STEPS)) {
-                        logInfo('ResourcePreparerTransform: _transform', {});
-                    }
                     if (resources.length > 0) {
                         for (const /** @type {Resource} */ resource of resources) {
                             // Remove any duplicates
@@ -125,10 +158,10 @@ class ResourcePreparerTransform extends Transform {
                                     resource.isSameResourceByIdAndSecurityTag({other: a})
                                 )
                             ) {
-                                if (isTrue(env.LOG_STREAM_STEPS)) {
+                                if (this.configManager.logStreamSteps) {
                                     logInfo(`ResourcePreparerTransform: push ${resource['id']}`, {});
                                 }
-                                this.push(resource.toJSON());
+                                this.push(resource);
                                 if (this.removeDuplicates) {
                                     this.resourcesProcessed.push(
                                         {
@@ -151,7 +184,7 @@ class ResourcePreparerTransform extends Transform {
      * @private
      */
     _flush(callback) {
-        if (isTrue(env.LOG_STREAM_STEPS)) {
+        if (this.configManager.logStreamSteps) {
             logInfo('ResourcePreparerTransform: _flush', {});
         }
         callback();

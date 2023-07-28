@@ -8,7 +8,8 @@ const fhirContentTypes = {
     jsonPatch: 'application/json-patch+json',
     pipeDelimited: 'text/plain-pipe-delimited',
     csv: 'text/csv',
-    tsv: 'text/tab-separated-values'
+    tsv: 'text/tab-separated-values',
+    form_urlencoded: 'application/x-www-form-urlencoded'
 };
 
 const ndJsonContentTypes = [

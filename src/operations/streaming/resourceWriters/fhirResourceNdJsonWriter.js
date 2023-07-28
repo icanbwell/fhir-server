@@ -1,8 +1,9 @@
-const {isTrue} = require('../../../utils/isTrue');
-const env = require('var');
 const {convertErrorToOperationOutcome} = require('../../../utils/convertErrorToOperationOutcome');
 const {logInfo} = require('../../common/logging');
 const {FhirResourceWriterBase} = require('./fhirResourceWriterBase');
+const {getCircularReplacer} = require('../../../utils/getCircularReplacer');
+const {assertTypeEquals} = require('../../../utils/assertType');
+const {ConfigManager} = require('../../../utils/configManager');
 
 class FhirResourceNdJsonWriter extends FhirResourceWriterBase {
     /**
@@ -11,8 +12,9 @@ class FhirResourceNdJsonWriter extends FhirResourceWriterBase {
      * @param {AbortSignal} signal
      * @param {string} contentType
      * @param {number} highWaterMark
+     * @param {ConfigManager} configManager
      */
-    constructor({signal, contentType, highWaterMark}) {
+    constructor({signal, contentType, highWaterMark, configManager}) {
         super({objectMode: true, contentType: contentType, highWaterMark: highWaterMark});
 
         /**
@@ -20,11 +22,17 @@ class FhirResourceNdJsonWriter extends FhirResourceWriterBase {
          * @private
          */
         this._signal = signal;
+
+        /**
+         * @type {ConfigManager}
+         */
+        this.configManager = configManager;
+        assertTypeEquals(configManager, ConfigManager);
     }
 
     /**
      * transforms a chunk
-     * @param {Object} chunk
+     * @param {Resource} chunk
      * @param {import('stream').BufferEncoding} encoding
      * @param {import('stream').TransformCallBack} callback
      * @private
@@ -36,10 +44,10 @@ class FhirResourceNdJsonWriter extends FhirResourceWriterBase {
         }
         try {
             if (chunk !== null && chunk !== undefined) {
-                if (isTrue(env.LOG_STREAM_STEPS)) {
+                if (this.configManager.logStreamSteps) {
                     logInfo(`FhirResourceNdJsonWriter: _transform ${chunk['id']}`, {});
                 }
-                const resourceJson = JSON.stringify(chunk);
+                const resourceJson = JSON.stringify(chunk.toJSON(), getCircularReplacer());
                 this.push(resourceJson + '\n', encoding);
             }
         } catch (e) {
@@ -54,9 +62,10 @@ class FhirResourceNdJsonWriter extends FhirResourceWriterBase {
      * @private
      */
     _flush(callback) {
-        if (isTrue(env.LOG_STREAM_STEPS)) {
+        if (this.configManager.logStreamSteps) {
             logInfo('FhirResourceNdJsonWriter: _flush', {});
         }
+        this.push(null);
         callback();
     }
 

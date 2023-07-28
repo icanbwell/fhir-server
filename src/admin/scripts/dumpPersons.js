@@ -16,6 +16,7 @@ async function main() {
     const accessCode = parameters.accessCode;
     const beforeDate = parameters.beforeDate;
     const outputFile = parameters.outputFile;
+    const pageSize = parameters.pageSize;
     // set up all the standard services in the container
     const container = createContainer();
     console.log(parameters);
@@ -32,7 +33,8 @@ async function main() {
             batchSize: batchSize,
             accessCode: accessCode,
             beforeDate: beforeDate,
-            outputFile: outputFile
+            outputFile: outputFile,
+            pageSize: pageSize
         }));
 
     /**
@@ -50,7 +52,12 @@ async function main() {
  * Required env variables:
  * MONGO_URL, MONGO_USERNAME, MONGO_PASSWORD, MONGO_DB_NAME(default: fhir)
  * node src/admin/scripts/dumpPersons.js
- * node src/admin/scripts/dumpPersons.js --beforeDate=2023-04-22T00:00:00Z --accessCode=bWell --batchSize=1000 --outputFile=dump.json
+ * node src/admin/scripts/dumpPersons.js --beforeDate=2023-04-22T00:00:00Z --accessCode=bWell --batchSize=1000 --outputFile=dump --pageSize=50000
+ * beforeDate - dump documents with lastUpdated before value
+ * accessCode - dump documents with entered accessCode
+ * batchSize - number of documents to pull from DB at a time
+ * outputFile - base filename for output, will be appended with _n.json
+ * pageSize - number of documents per output file
  */
 main().catch(reason => {
     console.error(reason);

@@ -42,7 +42,7 @@ function fixPractitionerResource(resource, fixMultipleOwners) {
 
     let newSourceAssigningAuthority = sourceAssigningAuthorities.find(s => s.code === NPPES);
     if (!newSourceAssigningAuthority) {
-        const npiIdentifier = resource.identifier.find(i => i.system === NPI_SYSTEM);
+        const npiIdentifier = Array.isArray(resource.identifier) && resource.identifier.find(i => i.system === NPI_SYSTEM);
         if (npiIdentifier && (npiIdentifier.value === resource.id || npiIdentifier.value === resource._sourceId)) {
             newSourceAssigningAuthority = new Coding({
                 system: SecurityTagSystem.sourceAssigningAuthority,

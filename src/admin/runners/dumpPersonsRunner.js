@@ -13,6 +13,7 @@ class DumpPersonsRunner extends BaseBulkOperationRunner {
      * @param {string} accessCode
      * @param {string} beforeDate
      * @param {string} outputFile
+     * @param {number} pageSize
      */
     constructor (
         {
@@ -22,7 +23,8 @@ class DumpPersonsRunner extends BaseBulkOperationRunner {
             batchSize,
             accessCode,
             beforeDate,
-            outputFile
+            outputFile,
+            pageSize
         }
     ) {
         super({
@@ -52,9 +54,10 @@ class DumpPersonsRunner extends BaseBulkOperationRunner {
          */
         this.outputFile = outputFile;
 
+        this.pageSize = pageSize;
+
         this.collectionName = 'Person_4_0_0';
 
-        this.outputStream = null;
         this.maxTimeMS = 20 * 60 * 60 * 1000;
         this.numberOfSecondsBetweenSessionRefreshes = 10 * 60;
    }
@@ -76,9 +79,6 @@ class DumpPersonsRunner extends BaseBulkOperationRunner {
      */
     async processAsync() {
         await this.init();
-        if (!this.outputStream) {
-            this.outputStream = await fs.createWriteStream(this.outputFile);
-        }
         const writeStream = (writer, data) => {
             // return a promise only when we get a drain
             if (!writer.write(data)) {
@@ -87,12 +87,6 @@ class DumpPersonsRunner extends BaseBulkOperationRunner {
                 });
             }
         };
-        const firstWrite = writeStream(this.outputStream, '{ "entry" : [');
-        if (firstWrite) {
-            if (firstWrite) {
-                await firstWrite;
-            }
-        }
 
         let config = await this.mongoDatabaseManager.getClientConfigAsync();
         let sourceClient = await this.mongoDatabaseManager.createClientAsync(config);
@@ -110,7 +104,7 @@ class DumpPersonsRunner extends BaseBulkOperationRunner {
         const accessFilter = this.accessCode ?
             { 'meta.security': { $elemMatch: { 'system': 'https://www.icanbwell.com/access', 'code': this.accessCode }} } :
             {};
-        // Fetch onlu docs that were lastUpdated before beforeDate
+        // Fetch only docs that were lastUpdated before beforeDate
         const beforeDateQuery = this.beforeDate ?
             { 'meta.lastUpdated': { $lt: new Date(this.beforeDate)}} :
             {};
@@ -123,20 +117,50 @@ class DumpPersonsRunner extends BaseBulkOperationRunner {
         }, options).batchSize(this.batchSize)
             .maxTimeMS(this.maxTimeMS) // 20 hours
             .addCursorFlag('noCursorTimeout', true);
-        // Format document and write to output file
+       // Format document and write to output file
+        let recordCount = 0;
+        let pageCount = 0;
+        let newPage = true;
+        let outputStream;
         for await (let doc of result) {
+            if (newPage) {
+                console.log(`Opening Page ${pageCount}`);
+                outputStream = await fs.createWriteStream(`${this.outputFile}_${pageCount}.json` );
+                const firstWrite = writeStream(outputStream, '{ "entry" : [');
+                if (firstWrite) {
+                    if (firstWrite) {
+                        await firstWrite;
+                    }
+                }
+                newPage = false;
+            }
             doc = await this.formatDocument(doc);
-            const docWrite = writeStream(this.outputStream, JSON.stringify(doc));
+            const docWrite = writeStream(outputStream, JSON.stringify(doc, null, 4));
             if (docWrite) {
                 await docWrite;
             }
-            const commaWrite = writeStream(this.outputStream, ',');
-            if (commaWrite) {
-                await commaWrite;
+            recordCount++;
+            const moreRecords = await result.hasNext();
+            if (recordCount < this.pageSize && moreRecords) {
+                const commaWrite = writeStream(outputStream, ',');
+                if (commaWrite) {
+                    await commaWrite;
+                }
             }
-            console.log(doc.resource.id);
-            // Check if more than 5 minutes have passed since the last refresh
-            if (moment().diff(refreshTimestamp, 'seconds') > this.numberOfSecondsBetweenSessionRefreshes) {
+            if (recordCount === this.pageSize || !moreRecords) {
+                const closeBracket = writeStream(outputStream, ']}');
+                if (closeBracket) {
+                    await closeBracket;
+                }
+                await outputStream.end();
+                await finished(outputStream);
+                console.log(`Closing page ${pageCount}`);
+                recordCount = 0;
+                pageCount++;
+                newPage = true;
+            }
+           // Check if more than 5 minutes have passed since the last refresh
+           if (moment().diff(refreshTimestamp, 'seconds') > this.numberOfSecondsBetweenSessionRefreshes) {
                 this.adminLogger.logInfo(
                                     'refreshing session with sessionId', {'session_id': sessionId});
                 const adminResult = await sourceDb.admin().command({'refreshSessions': [sessionId]});
@@ -145,13 +169,7 @@ class DumpPersonsRunner extends BaseBulkOperationRunner {
                 refreshTimestamp = moment();
             }
         }
-        const closeBracket = writeStream(this.outputStream, ']}');
-        if (closeBracket) {
-            await closeBracket;
-        }
         await session.endSession();
-        await this.outputStream.end();
-        await finished(this.outputStream);
         this.adminLogger.logInfo(`Finished loop ${this.collectionName}`);
         this.adminLogger.logInfo('Finished script');
         this.adminLogger.logInfo('Shutting down');
