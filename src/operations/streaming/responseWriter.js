@@ -3,6 +3,7 @@ const {getLogger} = require('../../winstonInit');
 const {assertIsValid, assertTypeEquals} = require('../../utils/assertType');
 const {hasNdJsonContentType} = require('../../utils/contentTypes');
 const {ConfigManager} = require('../../utils/configManager');
+const {RethrownError} = require('../../utils/rethrownError');
 const logger = getLogger();
 
 class HttpResponseWriter extends Writable {
@@ -107,7 +108,18 @@ class HttpResponseWriter extends Writable {
                 callback();
             }
         } catch (e) {
-            callback(new AggregateError([e], 'HttpResponseWriter _transform: error'));
+            callback(
+                new RethrownError(
+                    {
+                        message: `HttpResponseWriter _transform: error: ${e.message}. id: ${chunk.id}`,
+                        error: e,
+                        args: {
+                            id: chunk.id,
+                            chunk: chunk
+                        }
+                    }
+                )
+            );
         }
     }
 

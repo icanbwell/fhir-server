@@ -2,6 +2,7 @@ const {Transform} = require('stream');
 const {logInfo} = require('../common/logging');
 const {assertTypeEquals} = require('../../utils/assertType');
 const {ConfigManager} = require('../../utils/configManager');
+const {RethrownError} = require('../../utils/rethrownError');
 
 class ResourceIdTracker extends Transform {
     /**
@@ -56,7 +57,18 @@ class ResourceIdTracker extends Transform {
             }
             callback();
         } catch (e) {
-            callback(new AggregateError([e], 'ResourceIdTracker _transform: error'));
+            callback(
+                new RethrownError(
+                    {
+                        message: `ResourceIdTracker _transform: error: ${e.message}. id: ${chunk.id}`,
+                        error: e,
+                        args: {
+                            id: chunk.id,
+                            chunk: chunk
+                        }
+                    }
+                )
+            );
         }
     }
 }

@@ -16,9 +16,10 @@ function getDefaultSortIdValue(resource, defaultSortId) {
     }
     // if not present in resource then check in resource.identifier
     if (resource.identifier && Array.isArray(resource.identifier)) {
-        return resource.identifier.find(
+        const sortIdentifier = resource.identifier.find(
             identifier => identifier.system === IdentifierSystem[defaultSortId.replace('_', '')]
-        ).value;
+        );
+        return sortIdentifier ? sortIdentifier.value : null;
     }
     // if not found return null
     return null;
