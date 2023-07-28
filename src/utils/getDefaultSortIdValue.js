@@ -1,4 +1,4 @@
-const { IdentifierSystem } = require('./identifierSystem');
+const {IdentifierSystem} = require('./identifierSystem');
 
 /**
  * Gets defaultSortId value from the resource provided
@@ -7,6 +7,9 @@ const { IdentifierSystem } = require('./identifierSystem');
  * @returns {string|null}
  */
 function getDefaultSortIdValue(resource, defaultSortId) {
+    if (!defaultSortId) {
+        return null;
+    }
     // check for defaultSortId in resource
     if (resource[String(defaultSortId)]) {
         return resource[String(defaultSortId)];
