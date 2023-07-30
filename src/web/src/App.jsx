@@ -8,7 +8,7 @@ import PatientChatGptPage from './PatientChatGptPage';
 import ObservationGraph from "./ObservationGraph";
 import ObservationTimeline from "./ObservationTimeline";
 import PatientTimeline from "./PatientTimeline";
-import AccountPage from './pages/Account';
+import IndexPage from './pages/IndexPage';
 // import ErrorPage from "./error-page";
 
 function App() {
@@ -51,7 +51,7 @@ function App() {
                 <Route path="/patientTimeline" element={<PatientTimeline/>}/>
                 <Route path="/observationGraph" element={<ObservationGraph/>}/>
                 <Route path="/observationTimeline" element={<ObservationTimeline/>}/>
-                <Route path="/4_0_0/Patient" element={<AccountPage/>}/>
+                <Route path="/4_0_0/Patient" element={<IndexPage/>}/>
             </Routes>
         </BrowserRouter>
     );

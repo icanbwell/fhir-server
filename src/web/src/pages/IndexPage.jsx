@@ -7,7 +7,7 @@ import {useEffect, useState} from 'react';
 import FhirApi from '../fhirApi';
 
 // Main Component
-const AccountPage = () => {
+const IndexPage = () => {
     const [
         /** @type {Object[]} */ resources,
         setResources
@@ -20,6 +20,7 @@ const AccountPage = () => {
                 const patientId = `john-muir-health-e.k-4ea143ZrQGvdUvf-b2y.tdyiVMBWgblY4f6y2zis3`;
                 const fhirApi = new FhirApi();
                 const data = await fhirApi.getResource({id: patientId});
+                console.log('Account Page received data');
                 console.log(data);
                 if (data.entry) {
                     setResources(data.entry);
@@ -52,7 +53,7 @@ const AccountPage = () => {
                     //     fullResource={fullResource}
                     //     index={index}
                     // />
-                    <div>Resource</div>
+                    <div>id: {res.id}</div>
                 );
             })}
         </main>
@@ -62,4 +63,4 @@ const AccountPage = () => {
     );
 };
 
-export default AccountPage;
+export default IndexPage;
