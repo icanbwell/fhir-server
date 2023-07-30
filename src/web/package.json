@@ -20,6 +20,7 @@
     "react-router-dom": "^6.14.1",
     "react-scripts": "^5.0.1",
     "react-vertical-timeline-component": "^3.6.0",
+    "typeface-roboto": "^1.1.13",
     "web-vitals": "^2.1.4"
   },
   "homepage": "/web",
