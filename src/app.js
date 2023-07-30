@@ -275,13 +275,7 @@ function createApp({fnCreateContainer, trackMetrics}) {
 
         // Serve static files from the React app
         webRouter.use('/web', express.static(path.join(__dirname, 'web/build')));
-        // Always serve the React app for any other request
-        webRouter.get('/web', (req, res) => {
-            const path1 = path.join(__dirname, 'web/build', 'index.html');
-            // console.log(`Route: /web: ${path1}`);
-            // console.log(`Received /web ${req.method} request at ${req.url}`);
-            res.sendFile(path1);
-        });
+        // Any request that uses /web should go to React
         webRouter.get('/web/*', (req, res) => { // support sub-paths also
             const path1 = path.join(__dirname, 'web/build', 'index.html');
             // console.log(`Route: /web/*: ${path1}`);
