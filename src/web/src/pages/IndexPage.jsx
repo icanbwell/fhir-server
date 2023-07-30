@@ -5,6 +5,7 @@ import Header from '../partials/Header';
 // import Footer from '../partials/Footer';
 import {useEffect, useState} from 'react';
 import FhirApi from '../fhirApi';
+import AccountPage from './AccountPage';
 
 // Main Component
 const IndexPage = () => {
@@ -53,7 +54,8 @@ const IndexPage = () => {
                     //     fullResource={fullResource}
                     //     index={index}
                     // />
-                    <div>id: {res.id}</div>
+                    // <div>id: {res.id}</div>
+                    <AccountPage resource={res}/>
                 );
             })}
         </main>
