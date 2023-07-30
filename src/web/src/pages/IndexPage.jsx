@@ -5,7 +5,7 @@ import Header from '../partials/Header';
 // import Footer from '../partials/Footer';
 import {useEffect, useState} from 'react';
 import FhirApi from '../fhirApi';
-import AccountPage from './AccountPage';
+import Patient from './Patient';
 
 // Main Component
 const IndexPage = () => {
@@ -55,7 +55,7 @@ const IndexPage = () => {
                     //     index={index}
                     // />
                     // <div>id: {res.id}</div>
-                    <AccountPage resource={res}/>
+                    <Patient resource={res}/>
                 );
             })}
         </main>
