@@ -8,6 +8,7 @@ import PatientChatGptPage from './PatientChatGptPage';
 import ObservationGraph from "./ObservationGraph";
 import ObservationTimeline from "./ObservationTimeline";
 import PatientTimeline from "./PatientTimeline";
+import AccountPage from './pages/Account';
 // import ErrorPage from "./error-page";
 
 function App() {
@@ -36,6 +37,9 @@ function App() {
                     <li>
                         <Link to="/observationTimeline">Observation Timeline</Link>
                     </li>
+                    <li>
+                        <Link to="/4_0_0/Patient">Patient Page</Link>
+                    </li>
                 </ul>
             </nav>
 
@@ -47,6 +51,7 @@ function App() {
                 <Route path="/patientTimeline" element={<PatientTimeline/>}/>
                 <Route path="/observationGraph" element={<ObservationGraph/>}/>
                 <Route path="/observationTimeline" element={<ObservationTimeline/>}/>
+                <Route path="/4_0_0/Patient" element={<AccountPage/>}/>
             </Routes>
         </BrowserRouter>
     );
