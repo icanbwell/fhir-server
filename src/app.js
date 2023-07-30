@@ -277,10 +277,16 @@ function createApp({fnCreateContainer, trackMetrics}) {
         webRouter.use('/web', express.static(path.join(__dirname, 'web/build')));
         // Always serve the React app for any other request
         webRouter.get('/web', (req, res) => {
-            res.sendFile(path.join(__dirname, 'web/build', 'index.html'));
+            const path1 = path.join(__dirname, 'web/build', 'index.html');
+            // console.log(`Route: /web: ${path1}`);
+            // console.log(`Received /web ${req.method} request at ${req.url}`);
+            res.sendFile(path1);
         });
         webRouter.get('/web/*', (req, res) => { // support sub-paths also
-            res.sendFile(path.join(__dirname, 'web/build', 'index.html'));
+            const path1 = path.join(__dirname, 'web/build', 'index.html');
+            // console.log(`Route: /web/*: ${path1}`);
+            // console.log(`Received /web/* ${req.method} request at ${req.url}`);
+            res.sendFile(path1);
         });
         app.use(webRouter);
     }
