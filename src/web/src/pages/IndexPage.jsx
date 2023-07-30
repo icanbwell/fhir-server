@@ -1,4 +1,5 @@
 // Importing the required components
+import React from 'react';
 import Head from '../partials/Head';
 import Header from '../partials/Header';
 // import ResourceItem from '../partials/ResourceItem';
@@ -6,6 +7,7 @@ import Header from '../partials/Header';
 import {useEffect, useState} from 'react';
 import FhirApi from '../fhirApi';
 import Patient from './Patient';
+import ResourceHeader from '../partials/ResourceHeader';
 
 // Main Component
 const IndexPage = () => {
@@ -46,7 +48,7 @@ const IndexPage = () => {
         <Header resources={resources}/>
         <main>
             {resources && resources.map((fullResource, index) => {
-                const res = fullResource.resource || fullResource;
+                const resource = fullResource.resource || fullResource;
                 return (
                     // <ResourceItem
                     //     key={index}
@@ -55,7 +57,11 @@ const IndexPage = () => {
                     //     index={index}
                     // />
                     // <div>id: {res.id}</div>
-                    <Patient resource={res}/>
+                    <React.Fragment>
+                        <ResourceHeader resource={resource}/>
+                        <Patient resource={resource}/>
+                    </React.Fragment>
+
                 );
             })}
         </main>
