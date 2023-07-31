@@ -1,76 +1,70 @@
 import React from 'react';
+import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from '@mui/material';
 
-class Extension extends React.Component {
-    render() {
-        let { extensions } = this.props;
+function Extensions({ extensions }) {
+  // Ensure `extensions` is an array
+  if (!Array.isArray(extensions)) {
+    extensions = [extensions];
+  }
 
-        if (!Array.isArray(extensions)) {
-            extensions = [extensions];
-        }
-
-        if (!extensions || extensions.length === 0 || !extensions[0]) {
-            return null;
-        }
-
-        return (
-            <>
-                <h4>Extension</h4>
-                <table className="table">
-                    <thead>
-                        <tr>
-                          <th scope="col">Id</th>
-                          <th scope="col">Url</th>
-                          <th scope="col">Detail Url</th>
-                          <th scope="col">Value</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                    {extensions.map(extension => {
-                        if (extension && extension.extension) {
-                            return extension.extension.map(detailExtension => {
-                                if (detailExtension) {
-                                    return (
-                                        <tr key={detailExtension.url}>
-                                            <td>{extension.id}</td>
-                                            <td>{extension.url}</td>
-                                            <td>{detailExtension.url}</td>
-                                            <td>
-                                                {detailExtension.valueCodeableConcept ?
-                                                    `${detailExtension.valueCodeableConcept.coding[0].code} (${detailExtension.valueCodeableConcept.text})`
-                                                    : detailExtension.valueRange ?
-                                                        `${detailExtension.valueRange.low.value} ${detailExtension.valueRange.low.unit} to ${detailExtension.valueRange.high.value} ${detailExtension.valueRange.high.unit}`
-                                                        :
-                                                        `${detailExtension.valueString}${detailExtension.valueUri}`
-                                                }
-                                            </td>
-                                        </tr>
-                                    )
-                                }
-                                return null;
-                            });
-                        } else if (extension) {
-                            return (
-                                <tr key={extension.id}>
-                                    <td>{extension.id}</td>
-                                    <td>{extension.url}</td>
-                                    <td></td>
-                                    <td>
-                                        {extension.valueCodeableConcept ?
-                                            `${extension.valueCodeableConcept.coding[0].code} (${extension.valueCodeableConcept.text})`
-                                            :
-                                            `${extension.valueString}${extension.valueUri}`
-                                        }
-                                    </td>
-                                </tr>
-                            );
+  return (
+    extensions && extensions.length > 0 && extensions[0] ? (
+      <div>
+        <Typography variant="h4">Extension</Typography>
+        <TableContainer>
+          <Table>
+            <TableHead>
+              <TableRow>
+                <TableCell>Id</TableCell>
+                <TableCell>Url</TableCell>
+                <TableCell>Detail Url</TableCell>
+                <TableCell>Value</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {extensions.map((extension) => {
+                if (extension && extension.extension) {
+                  return extension.extension.map((detailExtension) => {
+                    if (detailExtension) {
+                      return (
+                        <TableRow key={detailExtension.id}>
+                          <TableCell>{extension.id}</TableCell>
+                          <TableCell>{extension.url}</TableCell>
+                          <TableCell>{detailExtension.url}</TableCell>
+                          <TableCell>
+                            {detailExtension.valueCodeableConcept ?
+                              `${detailExtension.valueCodeableConcept.coding[0].code} (${detailExtension.valueCodeableConcept.text})`
+                              : detailExtension.valueRange ?
+                                `${detailExtension.valueRange.low.value} ${detailExtension.valueRange.low.unit} to ${detailExtension.valueRange.high.value} ${detailExtension.valueRange.high.unit}`
+                                : `${detailExtension.valueString}${detailExtension.valueUri}`
+                            }
+                          </TableCell>
+                        </TableRow>
+                      );
+                    }
+                  })
+                } else if (extension) {
+                  return (
+                    <TableRow key={extension.id}>
+                      <TableCell>{extension.id}</TableCell>
+                      <TableCell>{extension.url}</TableCell>
+                      <TableCell></TableCell>
+                      <TableCell>
+                        {extension.valueCodeableConcept ?
+                          `${extension.valueCodeableConcept.coding[0].code} (${extension.valueCodeableConcept.text})`
+                          : `${extension.valueString}${extension.valueUri}`
                         }
-                        return null;
-                    })}
-                    </tbody>
-                </table>
-            </>
-        );
-    }
+                      </TableCell>
+                    </TableRow>
+                  )
+                }
+              })}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </div>
+    ) : null
+  );
 }
 
 export default Extension;
