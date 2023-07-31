@@ -1,7 +1,7 @@
 import React from 'react';
 import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from '@mui/material';
 
-function Extensions({ extensions }) {
+function Extension({ extensions }) {
   // Ensure `extensions` is an array
   if (!Array.isArray(extensions)) {
     extensions = [extensions];

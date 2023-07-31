@@ -2,8 +2,7 @@
 import React from 'react';
 import Head from '../partials/Head';
 import Header from '../partials/Header';
-// import ResourceItem from '../partials/ResourceItem';
-// import Footer from '../partials/Footer';
+import Footer from '../partials/Footer';
 import {useEffect, useState} from 'react';
 import FhirApi from '../fhirApi';
 import Patient from './Patient';
@@ -14,6 +13,11 @@ const IndexPage = () => {
     const [
         /** @type {Object[]} */ resources,
         setResources
+    ] = useState('');
+
+    const [
+        /** @type {Object} */ bundle,
+        setBundle
     ] = useState('');
 
 
@@ -27,6 +31,7 @@ const IndexPage = () => {
                 console.log(data);
                 if (data.entry) {
                     setResources(data.entry);
+                    setBundle(data);
                 } else {
                     setResources([data]);
                 }
@@ -65,7 +70,11 @@ const IndexPage = () => {
                 );
             })}
         </main>
-        {/*<Footer url={url} meta={meta}/>*/}
+        {
+            bundle && (
+                <Footer url={bundle.url} meta={bundle.meta}/>
+            )
+        }
         </body>
         </html>
     );

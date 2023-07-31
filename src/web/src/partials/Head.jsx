@@ -1,9 +1,5 @@
 import React from 'react';
 import Title from '../partials/Title';
-// import '../css/bootstrap.min.css';
-// import '../css/font-awesome.min.css';
-// import '../css/datepicker.min.css';
-// import '../css/app.css';
 
 class Header extends React.Component {
   render() {

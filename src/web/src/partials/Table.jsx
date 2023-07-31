@@ -1,7 +1,7 @@
 import React from 'react';
 import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Typography } from '@mui/material';
 
-function Table({name, rows, columns}) {
+function TableComponent({name, rows, columns}) {
     if (!Array.isArray(rows)) {
         rows = [rows];
     }
@@ -37,4 +37,4 @@ function Table({name, rows, columns}) {
     }
 }
 
-export default Table;
+export default TableComponent;

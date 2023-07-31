@@ -1,8 +1,4 @@
 import React from 'react';
-// import '../css/bootstrap.min.css';
-// import '../css/font-awesome.min.css';
-// import '../css/datepicker.min.css';
-// import '../css/app.css';
 
 class Title extends React.Component {
     render() {

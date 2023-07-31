@@ -4,7 +4,6 @@ import Typography from "@mui/material/Typography";
 // import your partials as components
 import CodeableConcept from "../partials/CodeableConcept";
 import HumanNames from "../partials/HumanNames";
-// ...
 
 const PatientContact = ({value, name, resourceType}) => {
     // Ensure 'value' is always an array
