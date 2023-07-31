@@ -29,10 +29,8 @@ function App() {
         {basename: "/web"}
     );
 
-    // 1️⃣ Changed from App to Root
+    // 1️Changed from App to Root
     function Root() {
-        // 2️⃣ `BrowserRouter` component removed, but the <Routes>/<Route>
-        // component below are unchanged
         return (
             <Routes>
                 <Route path="/" element={<HomePage/>}/>
@@ -42,9 +40,9 @@ function App() {
                 <Route path="/patientTimeline" element={<PatientTimeline/>}/>
                 <Route path="/observationGraph" element={<ObservationGraph/>}/>
                 <Route path="/observationTimeline" element={<ObservationTimeline/>}/>
-                <Route path="/4_0_0/Patient/id:?" element={<IndexPage/>}/>
-                <Route path="/4_0_0/Practitioner/" element={<IndexPage/>}/>
-                <Route path="/4_0_0/Practitioner/id:?" element={<IndexPage/>}/>
+                <Route path="/4_0_0/Patient/:id?" element={<IndexPage/>}/>
+                <Route path="/4_0_0/Practitioner/:id/*" element={<IndexPage/>}/>
+                <Route path="/4_0_0/Practitioner/*" element={<IndexPage/>}/>
             </Routes>
         );
     }

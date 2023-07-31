@@ -1,5 +1,5 @@
 import React from 'react';
-import { useLocation } from 'react-router-dom';
+import {useLocation, useParams} from 'react-router-dom';
 import Head from '../partials/Head';
 import Header from '../partials/Header';
 import Footer from '../partials/Footer';
@@ -9,7 +9,7 @@ import ResourceHeader from '../partials/ResourceHeader';
 import Practitioner from './Practitioner';
 
 // Main Component
-const IndexPage = ({id}) => {
+const IndexPage = () => {
     const [
         /** @type {Object[]} */ resources,
         setResources
@@ -20,11 +20,14 @@ const IndexPage = ({id}) => {
         setBundle
     ] = useState('');
 
+    const {id} = useParams();
+
     const location = useLocation();
     const queryString = location.search;
     const searchParams = new URLSearchParams(location.search);
 
-    console.log('Full query string:', queryString);
+    console.log('id: ', id);
+    console.log('Full query string: ', queryString);
 
     useEffect(() => {
         const callApi = async () => {
