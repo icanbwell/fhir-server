@@ -8,6 +8,7 @@ const {assertTypeEquals} = require('../../utils/assertType');
 const {FhirTypesManager} = require('../../fhir/fhirTypesManager');
 const {QueryParameterValue} = require('./queryParameterValue');
 const {ParsedArgs} = require('./parsedArgs');
+const {ConfigManager} = require('../../utils/configManager');
 
 /**
  * @classdesc This classes parses an array of args into structured ParsedArgsItem array
@@ -16,13 +17,20 @@ class R4ArgsParser {
     /**
      *  constructor
      * @param {FhirTypesManager} fhirTypesManager
+     * @param {ConfigManager} configManager
      */
-    constructor({fhirTypesManager,}) {
+    constructor({fhirTypesManager, configManager}) {
         /**
          * @type {FhirTypesManager}
          */
         this.fhirTypesManager = fhirTypesManager;
         assertTypeEquals(fhirTypesManager, FhirTypesManager);
+
+        /**
+         * @type {ConfigManager}
+         */
+        this.configManager = configManager;
+        assertTypeEquals(configManager, ConfigManager);
     }
 
     /**
@@ -102,6 +110,9 @@ class R4ArgsParser {
              * @type {string | string[]}
              */
             let queryParameterValue = args[`${argName}`];
+            if (queryParameter === '_elements' && queryParameterValue && !queryParameterValue.includes(this.configManager.defaultSortId)) {
+                queryParameterValue += `,${this.configManager.defaultSortId}`;
+            }
             if (!propertyObj) {
                 // In case of an unrecognized argument while searching and handling type is strict throw an error.
                 // https://www.hl7.org/fhir/search.html#errors

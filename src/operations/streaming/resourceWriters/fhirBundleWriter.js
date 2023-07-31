@@ -3,7 +3,6 @@ const {assertIsValid, assertTypeEquals} = require('../../../utils/assertType');
 const {getCircularReplacer} = require('../../../utils/getCircularReplacer');
 const {FhirResourceWriterBase} = require('./fhirResourceWriterBase');
 const {fhirContentTypes} = require('../../../utils/contentTypes');
-const {getDefaultSortIdValue} = require('../../../utils/getDefaultSortIdValue');
 const {ConfigManager} = require('../../../utils/configManager');
 const {logInfo} = require('../../common/logging');
 const {RethrownError} = require('../../../utils/rethrownError');
@@ -97,7 +96,7 @@ class FhirBundleWriter extends FhirResourceWriterBase {
                     this.push(',' + resourceJson, encoding);
                 }
                 // Depending on DEFAULT_SORT_ID, the last id can be either id or any other field.
-                this._lastid = getDefaultSortIdValue(chunk, this.defaultSortId);
+                this._lastid = chunk[this.defaultSortId];
             }
             callback();
         } catch (e) {
