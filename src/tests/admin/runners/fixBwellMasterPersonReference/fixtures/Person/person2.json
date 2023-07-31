@@ -1,0 +1,13 @@
+{
+    "resourceType": "Person",
+    "id": "2",
+    "meta": {
+        "source": "bwell",
+        "security": [
+            {
+                "system": "https://www.icanbwell.com/owner",
+                "code": "proa"
+            }
+        ]
+    }
+}
