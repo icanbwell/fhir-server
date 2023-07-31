@@ -80,6 +80,13 @@ class MergeResourceValidator {
          */
         let resourcesIncomingArray = FhirResourceCreator.createArray(incomingObjects);
 
+        resourcesIncomingArray = resourcesIncomingArray.map(resource => {
+            if (resource.id && typeof resource.id === 'number') {
+                resource.id = String(resource.id);
+            }
+            return resource;
+        });
+
         const {
             /** @type {MergeResultEntry[]} */ mergePreCheckErrors,
             /** @type {Resource[]} */ validResources
