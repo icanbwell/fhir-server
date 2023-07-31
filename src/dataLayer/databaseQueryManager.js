@@ -342,7 +342,7 @@ class DatabaseQueryManager {
             /**
              * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>[]}
              */
-            const collections = await this.resourceLocator.getOrCreateCollectionsAsync({resources: resources});
+            const collections = await this.resourceLocator.getOrCreateCollectionsAsync({resources});
             const query = {
                 _uuid: {$in: resources.map(r => r._uuid)}
             };

@@ -34,7 +34,8 @@ class ReferenceGlobalIdHandler extends PreSaveHandler {
          * @type {string[]}
          */
         const sourceAssigningAuthorityCodes = resource.meta.security.filter(
-            s => s.system === SecurityTagSystem.sourceAssigningAuthority).map(s => s.code);
+            s => s.system === SecurityTagSystem.sourceAssigningAuthority
+        ).map(s => s.code);
         assertIsValid(sourceAssigningAuthorityCodes.length > 0,
             `No sourceAssigningAuthority codes found for resource id: ${resource.id}`);
         /**
