@@ -1,12 +1,9 @@
 import './App.css';
 import React from 'react';
 import {
-    BrowserRouter,
     Routes,
     Route,
-    Link,
     createBrowserRouter,
-    createRoutesFromElements,
     RouterProvider
 } from 'react-router-dom';
 import HomePage from './HomePage';

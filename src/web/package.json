@@ -6,6 +6,7 @@
     "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
     "@emotion/react": "^11.11.1",
     "@emotion/styled": "^11.11.0",
+    "@fontsource/roboto": "^5.0.5",
     "@mui/icons-material": "^5.14.0",
     "@mui/material": "^5.14.0",
     "@mui/styles": "^5.14.0",
@@ -20,7 +21,6 @@
     "react-router-dom": "^6.14.1",
     "react-scripts": "^5.0.1",
     "react-vertical-timeline-component": "^3.6.0",
-    "typeface-roboto": "^1.1.13",
     "web-vitals": "^2.1.4"
   },
   "homepage": "/",
