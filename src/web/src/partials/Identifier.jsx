@@ -35,7 +35,7 @@ function Identifier({identifiers, resourceType, name}) {
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        {identifiers.map(identifier => {
+                        {identifiers && identifiers.map(identifier => {
                             if (identifier) {
                                 return (
                                     <TableRow key={identifier.id}>

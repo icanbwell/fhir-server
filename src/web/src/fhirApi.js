@@ -27,11 +27,13 @@ class FhirApi {
     /**
      * gets fhir bundle
      * @param {string} resourceType
+     * @param {string} id
      * @param {string} [query]
-     * @returns {Promise<any>}
+     * @returns {Promise<{status: number, json: Object}>}
      */
-    async getBundleAsync({resourceType, query}) {
-        const url = `/4_0_0/${resourceType}` + (query ? `?${query}` : '');
+    async getBundleAsync({resourceType, id, query}) {
+        const url = `/4_0_0/${resourceType}` + (id ? `/${id}/` : '') + (query ? `?${query}` : '');
+        console.log(`url: ${url}`);
         const response = await fetch(url,
             {
                 method: 'GET',
@@ -39,7 +41,10 @@ class FhirApi {
                     'Accept': 'application/json'
                 },
             });
-        return await response.json();
+        const status = response.status;
+        console.log(`status: ${status}`);
+        const responseJson = await response.json();
+        return {status, json: responseJson};
     }
 }
 

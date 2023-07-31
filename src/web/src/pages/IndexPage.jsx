@@ -20,11 +20,38 @@ const IndexPage = () => {
         setBundle
     ] = useState('');
 
+    const [
+        /** @type {Object} */ status,
+        setStatus
+    ] = useState('');
+
     const {id} = useParams();
 
     const location = useLocation();
     const queryString = location.search;
     const searchParams = new URLSearchParams(location.search);
+
+    function getMain() {
+        return <>
+            {resources && resources.map((fullResource, index) => {
+                const resource = fullResource.resource || fullResource;
+                return (
+                    // <ResourceItem
+                    //     key={index}
+                    //     res={res}
+                    //     fullResource={fullResource}
+                    //     index={index}
+                    // />
+                    // <div>id: {res.id}</div>
+                    <React.Fragment>
+                        <ResourceHeader resource={resource}/>
+                        <Practitioner resource={resource} index={index}/>
+                    </React.Fragment>
+
+                );
+            })}
+        </>;
+    }
 
     console.log('id: ', id);
     console.log('Full query string: ', queryString);
@@ -36,14 +63,16 @@ const IndexPage = () => {
                 // const id = `1679033641-1`;
                 const resourceType = `Practitioner`;
                 const fhirApi = new FhirApi();
-                const data = await fhirApi.getBundleAsync({resourceType});
+                const {json, status} = await fhirApi.getBundleAsync({resourceType, id, queryString});
                 console.log('Page received data');
-                console.log(data);
-                if (data.entry) {
-                    setResources(data.entry);
-                    setBundle(data);
+                console.log(json);
+                setStatus(status);
+                if (json.entry) {
+                    setResources(json.entry);
+                    setBundle(json);
                 } else {
-                    setResources([data]);
+                    console.log('Received non-bundle:', json);
+                    setResources([json]);
                 }
             } catch (error) {
                 console.error(error);
@@ -62,23 +91,7 @@ const IndexPage = () => {
         <body className="container-fluid p-0">
         <Header resources={resources}/>
         <main>
-            {resources && resources.map((fullResource, index) => {
-                const resource = fullResource.resource || fullResource;
-                return (
-                    // <ResourceItem
-                    //     key={index}
-                    //     res={res}
-                    //     fullResource={fullResource}
-                    //     index={index}
-                    // />
-                    // <div>id: {res.id}</div>
-                    <React.Fragment>
-                        <ResourceHeader resource={resource}/>
-                        <Practitioner resource={resource} index={index}/>
-                    </React.Fragment>
-
-                );
-            })}
+            {status === 200 ? getMain() : <div>Not Found</div>}
         </main>
         {
             bundle && (
