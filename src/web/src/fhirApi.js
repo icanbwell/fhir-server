@@ -23,6 +23,24 @@ class FhirApi {
             });
         return await response.json();
     }
+
+    /**
+     * gets fhir bundle
+     * @param {string} resourceType
+     * @param {string} [query]
+     * @returns {Promise<any>}
+     */
+    async getBundleAsync({resourceType, query}) {
+        const url = `/4_0_0/${resourceType}` + (query ? `?${query}` : '');
+        const response = await fetch(url,
+            {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json'
+                },
+            });
+        return await response.json();
+    }
 }
 
 export default FhirApi;
