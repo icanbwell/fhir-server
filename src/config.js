@@ -25,7 +25,7 @@ mongoUrl = encodeURI(mongoUrl);
  */
 const options = {
     appName: 'fhir',
-    keepAlive: true,
+    // keepAlive: true,
     connectTimeoutMS: env.MONGO_CONNECT_TIMEOUT ? parseInt(env.MONGO_CONNECT_TIMEOUT) : 60 * 60 * 1000,
     socketTimeoutMS: env.MONGO_SOCKET_TIMEOUT ? parseInt(env.MONGO_SOCKET_TIMEOUT) : 60 * 60 * 1000,
     retryReads: true,
