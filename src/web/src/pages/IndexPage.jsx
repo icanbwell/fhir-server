@@ -7,6 +7,7 @@ import {useEffect, useState} from 'react';
 import FhirApi from '../fhirApi';
 import Patient from './Patient';
 import ResourceHeader from '../partials/ResourceHeader';
+import Practitioner from './Practitioner';
 
 // Main Component
 const IndexPage = () => {
@@ -24,9 +25,11 @@ const IndexPage = () => {
     useEffect(() => {
         const callApi = async () => {
             try {
-                const patientId = `john-muir-health-e.k-4ea143ZrQGvdUvf-b2y.tdyiVMBWgblY4f6y2zis3`;
+                // const patientId = `john-muir-health-e.k-4ea143ZrQGvdUvf-b2y.tdyiVMBWgblY4f6y2zis3`;
+                const id = `1679033641-1`;
+                const resourceType = `Practitioner`;
                 const fhirApi = new FhirApi();
-                const data = await fhirApi.getResource({id: patientId});
+                const data = await fhirApi.getResource({id: id, resourceType});
                 console.log('Account Page received data');
                 console.log(data);
                 if (data.entry) {
@@ -64,7 +67,7 @@ const IndexPage = () => {
                     // <div>id: {res.id}</div>
                     <React.Fragment>
                         <ResourceHeader resource={resource}/>
-                        <Patient resource={resource}/>
+                        <Practitioner resource={resource} index={index}/>
                     </React.Fragment>
 
                 );

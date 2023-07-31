@@ -40,6 +40,9 @@ function App() {
                     <li>
                         <Link to="/4_0_0/Patient">Patient Page</Link>
                     </li>
+                    <li>
+                        <Link to="/4_0_0/Practitioner">Practitioner Page</Link>
+                    </li>
                 </ul>
             </nav>
 
@@ -52,6 +55,7 @@ function App() {
                 <Route path="/observationGraph" element={<ObservationGraph/>}/>
                 <Route path="/observationTimeline" element={<ObservationTimeline/>}/>
                 <Route path="/4_0_0/Patient" element={<IndexPage/>}/>
+                <Route path="/4_0_0/Practitioner" element={<IndexPage/>}/>
             </Routes>
         </BrowserRouter>
     );

@@ -12,8 +12,8 @@ class FhirApi {
         return await response.json();
     }
 
-    async getResource({id}) {
-        const url = `/4_0_0/Patient/${id}/`;
+    async getResource({id, resourceType}) {
+        const url = `/4_0_0/${resourceType}/${id}/`;
         const response = await fetch(url,
             {
                 method: 'GET',
