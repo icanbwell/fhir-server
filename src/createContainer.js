@@ -91,7 +91,10 @@ const {ResourceConverterFactory} = require('./chatgpt/resourceConverters/resourc
 const {LinkedPatientsFinder} = require('./utils/linkedPatientsFinder');
 const {ConsentManager} = require('./operations/search/consentManger');
 const {SearchQueryBuilder} = require('./operations/search/searchQueryBuilder');
-
+const {MergeValidator} = require('./operations/merge/mergeValidator');
+const {ParametersResourceValidator} = require('./operations/merge/validators/parameterResourceValidator');
+const {BundleResourceValidator} = require('./operations/merge/validators/bundleResourceValidator');
+const {MergeResourceValidator} = require('./operations/merge/validators/mergeResourceValidator');
 
 /**
  * Creates a container and sets up all the services
@@ -310,6 +313,25 @@ const createContainer = function () {
             }
         )
     );
+
+    container.register('mergeValidator', (c) => new MergeValidator(
+        {
+            validators: [
+                new ParametersResourceValidator(),
+                new BundleResourceValidator({
+                    resourceValidator: c.resourceValidator
+                }),
+                new MergeResourceValidator({
+                    scopesManager: c.scopesManager,
+                    mergeManager: c.mergeManager,
+                    databaseBulkLoader: c.databaseBulkLoader,
+                    preSaveManager: c.preSaveManager,
+                    configManager: c.configManager
+                })
+            ]
+        }
+    ));
+
     container.register('databaseBulkInserter', (c) => new DatabaseBulkInserter(
             {
                 resourceManager: c.resourceManager,
@@ -447,7 +469,6 @@ const createContainer = function () {
         {
             mergeManager: c.mergeManager,
             postRequestProcessor: c.postRequestProcessor,
-            mongoCollectionManager: c.mongoCollectionManager,
             changeEventProducer: c.changeEventProducer,
             databaseBulkLoader: c.databaseBulkLoader,
             databaseBulkInserter: c.databaseBulkInserter,
@@ -455,12 +476,10 @@ const createContainer = function () {
             fhirLoggingManager: c.fhirLoggingManager,
             scopesValidator: c.scopesValidator,
             bundleManager: c.bundleManager,
-            resourceLocatorFactory: c.resourceLocatorFactory,
-            resourceValidator: c.resourceValidator,
-            preSaveManager: c.preSaveManager,
             sensitiveDataProcessor: c.sensitiveDataProcessor,
             configManager: c.configManager,
-            bwellPersonFinder: c.bwellPersonFinder
+            bwellPersonFinder: c.bwellPersonFinder,
+            mergeValidator: c.mergeValidator
         }
     ));
     container.register('everythingOperation', (c) => new EverythingOperation({

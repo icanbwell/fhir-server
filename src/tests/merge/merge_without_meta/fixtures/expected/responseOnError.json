@@ -1,0 +1,35 @@
+[
+    {
+        "created": false,
+        "id": "1",
+        "issue": {
+            "code": "exception",
+            "details": {
+                "text": "Error merging: {\"resourceType\":\"Person\",\"id\":\"1\",\"birthDate\":\"1991-09-11\"}"
+            },
+            "diagnostics": "Either id passed in resource should be uuid or meta.security tag with system: https://www.icanbwell.com/owner or https://www.icanbwell.com/sourceAssigningAuthority should be present",
+            "expression": [
+                "Person/1"
+            ],
+            "severity": "error"
+        },
+        "operationOutcome": {
+            "issue": [
+                {
+                    "code": "exception",
+                    "details": {
+                        "text": "Error merging: {\"resourceType\":\"Person\",\"id\":\"1\",\"birthDate\":\"1991-09-11\"}"
+                    },
+                    "diagnostics": "Either id passed in resource should be uuid or meta.security tag with system: https://www.icanbwell.com/owner or https://www.icanbwell.com/sourceAssigningAuthority should be present",
+                    "expression": [
+                        "Person/1"
+                    ],
+                    "severity": "error"
+                }
+            ],
+            "resourceType": "OperationOutcome"
+        },
+        "resourceType": "Person",
+        "updated": false
+    }
+]

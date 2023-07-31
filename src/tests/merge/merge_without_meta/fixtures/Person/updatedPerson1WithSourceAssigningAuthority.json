@@ -1,0 +1,15 @@
+[
+    {
+        "id": "1",
+        "resourceType": "Person",
+        "birthDate": "1991-09-11",
+        "meta": {
+            "security": [
+                {
+                    "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+                    "code": "bwell"
+                }
+            ]
+        }
+    }
+]

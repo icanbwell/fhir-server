@@ -1,6 +1,6 @@
 const {logDebug, logError} = require('../common/logging');
 const deepcopy = require('deepcopy');
-const {ForbiddenError, BadRequestError} = require('../../utils/httpErrors');
+const {BadRequestError} = require('../../utils/httpErrors');
 const moment = require('moment-timezone');
 const env = require('var');
 const sendToS3 = require('../../utils/aws-s3');
@@ -23,10 +23,10 @@ const {ResourceValidator} = require('../common/resourceValidator');
 const {RethrownError} = require('../../utils/rethrownError');
 const {PreSaveManager} = require('../../preSaveHandlers/preSave');
 const {ConfigManager} = require('../../utils/configManager');
-const {SecurityTagSystem} = require('../../utils/securityTagSystem');
 const {MergeResultEntry} = require('../common/mergeResultEntry');
 const {MongoFilterGenerator} = require('../../utils/mongoFilterGenerator');
 const {DatabaseAttachmentManager} = require('../../dataLayer/databaseAttachmentManager');
+const {isUuid} = require('../../utils/uid.util');
 const Mutex = require('async-mutex').Mutex;
 const mutex = new Mutex();
 
@@ -137,8 +137,6 @@ class MergeManager {
         {
             resourceToMerge,
             currentResource,
-            user,
-            scope,
             currentDate,
             requestId,
         }) {
@@ -149,27 +147,18 @@ class MergeManager {
         assertIsValid(uuid, `No uuid found for resource ${resourceToMerge.resourceType}/${resourceToMerge.id}`);
 
         // found an existing resource
-        /**
-         * @type {Resource}
-         */
-        let foundResource = currentResource;
-        if (!(this.scopesManager.isAccessToResourceAllowedBySecurityTags({
-                resource: foundResource, user, scope
-            }
-        ))) {
-            throw new ForbiddenError(
-                'user ' + user + ' with scopes [' + scope + '] has no access to resource ' +
-                foundResource.resourceType + ' with id ' + resourceToMerge.id);
-        }
-
         await this.preSaveManager.preSaveAsync(currentResource);
 
         /**
          * @type {Resource|null}
          */
-        const {updatedResource: patched_resource_incoming, patches} = await this.resourceMerger.mergeResourceAsync(
-            {currentResource, resourceToMerge, databaseAttachmentManager: this.databaseAttachmentManager});
-
+        const {
+            updatedResource: patched_resource_incoming, patches
+        } = await this.resourceMerger.mergeResourceAsync({
+            currentResource,
+            resourceToMerge,
+            databaseAttachmentManager: this.databaseAttachmentManager
+        });
         if (this.configManager.logAllMerges) {
             await sendToS3('logs',
                 resourceToMerge.resourceType,
@@ -206,7 +195,6 @@ class MergeManager {
             requestId,
             resourceToMerge,
             user,
-            scope,
         }
     ) {
         assertTypeEquals(resourceToMerge, Resource);
@@ -219,29 +207,7 @@ class MergeManager {
             }
         );
 
-        // Check resource has a owner tag before inserting the document.
-        if (!this.scopesManager.doesResourceHaveOwnerTags(resourceToMerge)) {
-            throw new BadRequestError(
-                new Error(
-                    `Resource ${resourceToMerge.resourceType}/${resourceToMerge.id}` +
-                    ' is missing a security access tag with system: ' +
-                    `${SecurityTagSystem.owner}`
-                )
-            );
-        }
-
-        if (!(this.scopesManager.isAccessToResourceAllowedBySecurityTags({
-            resource: resourceToMerge, user, scope
-        }))) {
-            throw new ForbiddenError(
-                'user ' + user + ' with scopes [' + scope + '] has no access to resource ' +
-                resourceToMerge.resourceType + ' with id ' + resourceToMerge.id);
-        }
-
-        // Check if meta & meta.source exists in resourceToMerge
-        if (this.configManager.requireMetaSourceTags && (!resourceToMerge.meta || !resourceToMerge.meta.source)) {
-            throw new BadRequestError(new Error('Unable to create resource. Missing either metadata or metadata source.'));
-        } else {
+        if (resourceToMerge.meta) {
             resourceToMerge.meta.versionId = '1';
             resourceToMerge.meta.lastUpdated = new Date(moment.utc().format('YYYY-MM-DDTHH:mm:ssZ'));
         }
@@ -316,29 +282,26 @@ class MergeManager {
                     );
                 } else {
                     currentResource = await databaseQueryManager.findOneAsync({
-                        query:
-                            this.mongoFilterGenerator.generateFilterForUuid(
-                                {
-                                    uuid
-                                }
-                            )
+                        query: this.mongoFilterGenerator.generateFilterForUuid({uuid})
                     });
                 }
 
                 // check if resource was found in database or not
                 if (currentResource && currentResource.meta) {
-                    if (currentResource.meta.source || (resourceToMerge && resourceToMerge.meta && resourceToMerge.meta.source)) {
-                        await this.mergeExistingAsync(
-                            {
-                                resourceToMerge, currentResource, user, scope, currentDate, requestId
-                            }
-                        );
-                    } else if (this.configManager.requireMetaSourceTags) {
-                        throw new BadRequestError(new Error(
-                            'Unable to create resource. Missing either metadata or metadata source.'
-                        ));
-                    }
+                    await this.mergeExistingAsync(
+                        {
+                            resourceToMerge, currentResource, user, scope, currentDate, requestId
+                        }
+                    );
                 } else {
+                    // Check if meta & meta.source exists in resource
+                    if (this.configManager.requireMetaSourceTags && (!resourceToMerge.meta || !resourceToMerge.meta.source)) {
+                        throw new BadRequestError(
+                            new Error(
+                                'Unable to merge resource. Missing either metadata or metadata source.'
+                            )
+                        );
+                    }
                     resourceToMerge = await this.databaseAttachmentManager.transformAttachments(resourceToMerge);
                     await this.mergeInsertAsync({
                         requestId,
@@ -402,7 +365,7 @@ class MergeManager {
                             created: false,
                             updated: false,
                             issue: (operationOutcome.issue && operationOutcome.issue.length > 0) ? operationOutcome.issue[0] : null,
-                            operationOutcome: operationOutcome
+                            operationOutcome
                         },
                     }
                 );
@@ -433,8 +396,6 @@ class MergeManager {
         }
     ) {
         try {
-            resources_incoming = await async.map(resources_incoming,
-                async resource => await this.preSaveManager.preSaveAsync(resource));
             /**
              * @type {string[]}
              */
@@ -633,18 +594,18 @@ class MergeManager {
                 const issue = (operationOutcome.issue && operationOutcome.issue.length > 0) ? operationOutcome.issue[0] : null;
                 return new MergeResultEntry(
                     {
-                        id: id,
+                        id,
                         uuid: resourceToMerge._uuid,
                         sourceAssigningAuthority: resourceToMerge._sourceAssigningAuthority,
                         created: false,
                         updated: false,
-                        issue: issue,
-                        operationOutcome: operationOutcome,
-                        resourceType: resourceType
+                        issue,
+                        operationOutcome,
+                        resourceType
                     }
                 );
             }
-            if (!(resourceToMerge.resourceType)) {
+            if (!resourceToMerge.resourceType) {
                 /**
                  * @type {OperationOutcome}
                  */
@@ -667,14 +628,52 @@ class MergeManager {
                 const issue = (operationOutcome.issue && operationOutcome.issue.length > 0) ? operationOutcome.issue[0] : null;
                 return new MergeResultEntry(
                     {
-                        id: id,
+                        id,
                         uuid: resourceToMerge._uuid,
                         sourceAssigningAuthority: resourceToMerge._sourceAssigningAuthority,
                         created: false,
                         updated: false,
-                        issue: issue,
-                        operationOutcome: operationOutcome,
-                        resourceType: resourceType
+                        issue,
+                        operationOutcome,
+                        resourceType
+                    }
+                );
+            }
+            if (
+                !isUuid(resourceToMerge.id) &&
+                !this.scopesManager.doesResourceHaveSourceAssigningAuthority(resourceToMerge) &&
+                !this.scopesManager.doesResourceHaveOwnerTags(resourceToMerge)
+            ) {
+                /**
+                 * @type {OperationOutcome}
+                 */
+                const operationOutcome = new OperationOutcome({
+                    resourceType: 'OperationOutcome',
+                    issue: [
+                        new OperationOutcomeIssue({
+                            severity: 'error',
+                            code: 'exception',
+                            details: new CodeableConcept({
+                                text: 'Error merging: ' + JSON.stringify(resourceToMerge.toJSON())
+                            }),
+                            diagnostics: 'Either id passed in resource should be uuid or meta.security tag with system: https://www.icanbwell.com/owner or https://www.icanbwell.com/sourceAssigningAuthority should be present',
+                            expression: [
+                                resourceType + '/' + id
+                            ]
+                        })
+                    ]
+                });
+                const issue = (operationOutcome.issue && operationOutcome.issue.length > 0) ? operationOutcome.issue[0] : null;
+                return new MergeResultEntry(
+                    {
+                        id,
+                        uuid: resourceToMerge._uuid,
+                        sourceAssigningAuthority: resourceToMerge._sourceAssigningAuthority,
+                        created: false,
+                        updated: false,
+                        issue,
+                        operationOutcome,
+                        resourceType
                     }
                 );
             }
@@ -699,13 +698,13 @@ class MergeManager {
                     });
                     return new MergeResultEntry(
                         {
-                            id: id,
+                            id,
                             uuid: resourceToMerge._uuid,
                             sourceAssigningAuthority: resourceToMerge._sourceAssigningAuthority,
                             created: false,
                             updated: false,
                             issue: (operationOutcome.issue && operationOutcome.issue.length > 0) ? operationOutcome.issue[0] : null,
-                            operationOutcome: operationOutcome,
+                            operationOutcome,
                             resourceType: resourceToMerge.resourceType
                         }
                     );
@@ -713,10 +712,6 @@ class MergeManager {
             }
 
             //----- validate schema ----
-            // Check if meta & meta.source exists in resource
-            if (this.configManager.requireMetaSourceTags && (!resourceToMerge.meta || !resourceToMerge.meta.source)) {
-                throw new BadRequestError(new Error('Unable to merge resource. Missing either metadata or metadata source.'));
-            }
             // The FHIR validator wants meta.lastUpdated to be string instead of data
             // So we copy the resource and change meta.lastUpdated to string to pass the FHIR validator
             const resourceObjectToValidate = deepcopy(resourceToMerge.toJSON());
@@ -733,17 +728,17 @@ class MergeManager {
              * @type {OperationOutcome|null}
              */
             const validationOperationOutcome = await this.resourceValidator.validateResourceAsync({
-                id: id,
+                id,
                 resourceType: resourceObjectToValidate.resourceType,
                 resourceToValidate: resourceObjectToValidate,
-                path: path,
-                currentDate: currentDate,
+                path,
+                currentDate,
                 resourceObj: resourceToMerge
             });
             if (validationOperationOutcome) {
                 // noinspection JSValidateTypes
                 return {
-                    id: id,
+                    id,
                     created: false,
                     updated: false,
                     issue: (validationOperationOutcome.issue && validationOperationOutcome.issue.length > 0) ?
@@ -751,36 +746,6 @@ class MergeManager {
                     operationOutcome: validationOperationOutcome,
                     resourceType: resourceToMerge.resourceType
                 };
-            }
-            if (!this.scopesManager.doesResourceHaveOwnerTags(resourceToMerge)) {
-                const accessTagOperationOutcome = new OperationOutcome({
-                    resourceType: 'OperationOutcome',
-                    issue: [
-                        new OperationOutcomeIssue({
-                            severity: 'error',
-                            code: 'exception',
-                            details: new CodeableConcept({
-                                text: 'Error merging: ' + JSON.stringify(resourceToMerge.toJSON())
-                            }),
-                            diagnostics: 'Resource is missing a meta.security tag with system: ' +
-                                `${SecurityTagSystem.owner}`,
-                            expression: [
-                                resourceToMerge.resourceType + '/' + id
-                            ]
-                        })
-                    ]
-                });
-                return new MergeResultEntry({
-                        id: id,
-                        uuid: resourceToMerge._uuid,
-                        sourceAssigningAuthority: resourceToMerge._sourceAssigningAuthority,
-                        created: false,
-                        updated: false,
-                        issue: (accessTagOperationOutcome.issue && accessTagOperationOutcome.issue.length > 0) ? accessTagOperationOutcome.issue[0] : null,
-                        operationOutcome: accessTagOperationOutcome,
-                        resourceType: resourceToMerge.resourceType
-                    }
-                );
             }
 
             return null;

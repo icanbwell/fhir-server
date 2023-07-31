@@ -156,7 +156,7 @@ class ScopesManager {
     }
 
     /**
-     * Returns whether the resource has an access tag
+     * Returns whether the resource has an owner tag
      * @param {Resource} resource
      * @return {boolean}
      */
@@ -170,7 +170,7 @@ class ScopesManager {
     }
 
     /**
-     * Returns whether the resource has an access tag
+     * Returns whether the resource has meta.source
      * @param {Resource} resource
      * @return {boolean}
      */
@@ -179,6 +179,20 @@ class ScopesManager {
             resource &&
             resource.meta &&
             resource.meta.source
+        );
+    }
+
+    /**
+     * Returns whether the resource has a sourceAssigningAuthority tag
+     * @param {Resource} resource
+     * @return {boolean}
+     */
+    doesResourceHaveSourceAssigningAuthority(resource) {
+        return (
+            resource &&
+            resource.meta &&
+            resource.meta.security &&
+            resource.meta.security.some(s => s.system === SecurityTagSystem.sourceAssigningAuthority)
         );
     }
 

@@ -42,7 +42,7 @@ describe('GraphQL CarePlan Tests', () => {
                 .post('/4_0_0/Patient/1/$merge')
                 .send(patientBundleResource)
                 .set(getHeaders())
-                .expect(200);
+                .expect(400);
 
             logInfo('------- response 2 ------------');
             logInfo('', {'resp': resp.body});
