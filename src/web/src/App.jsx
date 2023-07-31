@@ -55,6 +55,7 @@ function App() {
                 <Route path="/observationGraph" element={<ObservationGraph/>}/>
                 <Route path="/observationTimeline" element={<ObservationTimeline/>}/>
                 <Route path="/4_0_0/Patient/id:?" element={<IndexPage/>}/>
+                <Route path="/4_0_0/Practitioner/" element={<IndexPage/>}/>
                 <Route path="/4_0_0/Practitioner/id:?" element={<IndexPage/>}/>
             </Routes>
         </BrowserRouter>

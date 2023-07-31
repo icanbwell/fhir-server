@@ -52,7 +52,3 @@ function Footer({searchUtils, body, locals, total, url, user, requestId, oauth_s
 }
 
 export default Footer;
-
-// Remove the below script imports if the required functionalities are handled in the React way.
-// <script type="text/javascript" src="/js/footernav.js"></script>
-// <script type="text/javascript" src="/js/bootstrap.bundle.min.js"></script>

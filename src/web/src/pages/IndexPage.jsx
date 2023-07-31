@@ -1,5 +1,5 @@
-// Importing the required components
 import React from 'react';
+import { useLocation } from 'react-router-dom';
 import Head from '../partials/Head';
 import Header from '../partials/Header';
 import Footer from '../partials/Footer';
@@ -20,6 +20,11 @@ const IndexPage = ({id}) => {
         setBundle
     ] = useState('');
 
+    const location = useLocation();
+    const queryString = location.search;
+    const searchParams = new URLSearchParams(location.search);
+
+    console.log('Full query string:', queryString);
 
     useEffect(() => {
         const callApi = async () => {

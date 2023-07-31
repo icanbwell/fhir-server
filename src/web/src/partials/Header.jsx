@@ -35,12 +35,12 @@ class Header extends React.Component {
                         }
                     </nav>
                 </header>
-                {resources && resources.length === 0 &&
-                    <React.Fragment>
-                        <br/>
-                        <h2 style={{textAlign: "center"}}>No Resources Found</h2>
-                    </React.Fragment>
-                }
+                {/*{resources && resources.length === 0 &&*/}
+                {/*    <React.Fragment>*/}
+                {/*        <br/>*/}
+                {/*        <h2 style={{textAlign: "center"}}>No Resources Found</h2>*/}
+                {/*    </React.Fragment>*/}
+                {/*}*/}
             </React.Fragment>
         );
     }
