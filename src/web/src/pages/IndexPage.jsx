@@ -6,7 +6,7 @@ import Footer from '../partials/Footer';
 import {useEffect, useState} from 'react';
 import FhirApi from '../fhirApi';
 import ResourceHeader from '../partials/ResourceHeader';
-import Practitioner from './Practitioner';
+import ResourceItem from './ResourceItem';
 
 // Main Component
 const IndexPage = () => {
@@ -45,7 +45,7 @@ const IndexPage = () => {
                     // <div>id: {res.id}</div>
                     <React.Fragment>
                         <ResourceHeader resource={resource}/>
-                        <Practitioner resource={resource} index={index}/>
+                        <ResourceItem resource={resource} index={index}/>
                     </React.Fragment>
 
                 );
