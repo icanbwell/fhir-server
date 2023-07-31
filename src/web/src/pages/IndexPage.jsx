@@ -34,7 +34,7 @@ const IndexPage = ({id}) => {
                 const resourceType = `Practitioner`;
                 const fhirApi = new FhirApi();
                 const data = await fhirApi.getBundleAsync({resourceType});
-                console.log('Account Page received data');
+                console.log('Page received data');
                 console.log(data);
                 if (data.entry) {
                     setResources(data.entry);
