@@ -81,7 +81,7 @@ class MergeResourceValidator {
         let resourcesIncomingArray = FhirResourceCreator.createArray(incomingObjects);
 
         resourcesIncomingArray = resourcesIncomingArray.map(resource => {
-            if (resource.id && typeof resource.id === 'number') {
+            if (resource.id) {
                 resource.id = String(resource.id);
             }
             return resource;
