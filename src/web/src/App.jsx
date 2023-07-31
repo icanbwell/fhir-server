@@ -23,12 +23,9 @@ import Root from './pages/Root';
 
 function App() {
     const router = createBrowserRouter(
-        [
-            {
-                "path": "/",
-                element: <HomePage/>
-            }
-        ],
+        createRoutesFromElements(
+            <Route path="/" element={<HomePage/>}/>
+        ),
         // createRoutesFromElements(
         //     <Routes>
         //         <Route path="/" element={<HomePage/>}/>
