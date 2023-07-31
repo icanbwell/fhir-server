@@ -10,10 +10,6 @@ import Paper from '@mui/material/Paper';
 
 const useStyles = makeStyles({
     table: {
-        minWidth: 650,
-        "& .MuiTableCell-root": {
-            border: '1px solid black'
-        }
     },
 });
 
