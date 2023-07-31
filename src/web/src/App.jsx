@@ -26,7 +26,7 @@ function App() {
         [
             {path: "*", Component: Root},
         ],
-        {basename: "/web"}
+        {basename: "/"}
     );
 
     // 1️Changed from App to Root

@@ -19,8 +19,10 @@ const passport = require('passport');
 const path = require('path');
 const contentType = require('content-type');
 const httpContext = require('express-http-context');
-const { REQUEST_ID_TYPE} = require('../constants');
+const {REQUEST_ID_TYPE} = require('../constants');
 const {convertErrorToOperationOutcome} = require('../utils/convertErrorToOperationOutcome');
+const {shouldReturnHtml} = require('../utils/requestHelpers');
+
 class MyFHIRServer {
     /**
      * constructor
@@ -243,16 +245,28 @@ class MyFHIRServer {
      */
     configureHtmlRenderer() {
         if (isTrue(env.RENDER_HTML)) {
-            this.app.use((
-                /** @type {import('express').Request} */ req,
-                /** @type {import('express').Response} */ res,
-                /** @type {import('express').NextFunction} */ next
-            ) => htmlRenderer({
-                container: this.container,
-                req,
-                res,
-                next
-            }));
+            // Serve static files from the React app
+            this.app.use('/', express.static(path.join(__dirname, '../web/build')));
+            // Any request that uses /web should go to React
+            this.app.get('/4_0_0/*', (req, res, next) => { // support sub-paths also
+                if (shouldReturnHtml(req)) {
+                    if (req.cookies && req.cookies['web2']) {
+                        const path1 = path.join(__dirname, '../web/build', 'index.html');
+                        console.log(`Route: /web/*: ${path1}`);
+                        console.log(`Received /web/* ${req.method} request at ${req.url}`);
+                        res.sendFile(path1);
+                    } else {
+                        htmlRenderer({
+                            container: this.container,
+                            req,
+                            res,
+                            next
+                        });
+                    }
+                } else {
+                    next();
+                }
+            });
         }
         return this;
     }
