@@ -1,0 +1,120 @@
+{
+    "resourceType": "Person",
+    "id": "1",
+    "meta": {
+        "versionId": "1",
+        "lastUpdated": {
+            "$date": {
+                "$numberLong": "1690552726000"
+            }
+        },
+        "source": "proa",
+        "security": [
+            {
+                "system": "https://www.icanbwell.com/owner",
+                "code": "bwell"
+            },
+            {
+                "system": "https://www.icanbwell.com/access",
+                "code": "bwell"
+            },
+            {
+                "system": "https://www.icanbwell.com/sourceAssigningAuthority",
+                "code": "bwell"
+            }
+        ]
+    },
+    "identifier": [
+        {
+            "id": "sourceId",
+            "system": "https://www.icanbwell.com/sourceId",
+            "value": "1"
+        },
+        {
+            "id": "uuid",
+            "system": "https://www.icanbwell.com/uuid",
+            "value": "61abdd48-df46-5e98-ac6c-fde3cace4d07"
+        }
+    ],
+    "birthDate": "2001-12-16",
+    "link": [
+        {
+            "target": {
+                "extension": [
+                    {
+                        "id": "sourceId",
+                        "url": "https://www.icanbwell.com/sourceId",
+                        "valueString": "Patient/1"
+                    },
+                    {
+                        "id": "uuid",
+                        "url": "https://www.icanbwell.com/uuid",
+                        "valueString": "Patient/5902c735-072c-5df3-b3b9-8b10bd3df720"
+                    },
+                    {
+                        "id": "sourceAssigningAuthority",
+                        "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                        "valueString": "bwell"
+                    }
+                ],
+                "reference": "Patient/1",
+                "_sourceAssigningAuthority": "mps-api",
+                "_uuid": "Patient/5902c735-072c-5df3-b3b9-8b10bd3df720",
+                "_sourceId": "Patient/1"
+            }
+        },
+        {
+            "target": {
+                "extension": [
+                    {
+                        "id": "sourceId",
+                        "url": "https://www.icanbwell.com/sourceId",
+                        "valueString": "Patient/1"
+                    },
+                    {
+                        "id": "uuid",
+                        "url": "https://www.icanbwell.com/uuid",
+                        "valueString": "Patient/5902c735-072c-5df3-b3b9-8b10bd3df720"
+                    },
+                    {
+                        "id": "sourceAssigningAuthority",
+                        "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                        "valueString": "bwell"
+                    }
+                ],
+                "reference": "Patient/1",
+                "_sourceAssigningAuthority": "mps-api",
+                "_uuid": "Patient/5902c735-072c-5df3-b3b9-8b10bd3df720",
+                "_sourceId": "Patient/1"
+            }
+        },
+        {
+            "target": {
+                "extension": [
+                    {
+                        "id": "sourceId",
+                        "url": "https://www.icanbwell.com/sourceId",
+                        "valueString": "Person/2"
+                    },
+                    {
+                        "id": "uuid",
+                        "url": "https://www.icanbwell.com/uuid",
+                        "valueString": "Person/5902c735-072c-5df3-b3b9-8b10bd3df720"
+                    },
+                    {
+                        "id": "sourceAssigningAuthority",
+                        "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                        "valueString": "bwell"
+                    }
+                ],
+                "reference": "Person/2",
+                "_sourceAssigningAuthority": "mps-api",
+                "_uuid": "Person/5902c735-072c-5df3-b3b9-8b10bd3df720",
+                "_sourceId": "Person/2"
+            }
+        }
+    ],
+    "_sourceAssigningAuthority": "bwell",
+    "_uuid": "61abdd48-df46-5e98-ac6c-fde3cace4d07",
+    "_sourceId": "1"
+}

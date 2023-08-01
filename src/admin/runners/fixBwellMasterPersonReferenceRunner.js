@@ -14,15 +14,29 @@ const { generateUUID } = require('../../utils/uid.util');
  * @classdesc Changes reference from id to uuid in person resource
  */
 class FixBwellMasterPersonReferenceRunner extends FixReferenceIdRunner {
-    constructor(args) {
+    /**
+     * @param {Object} args
+     * @param {string[]} preLoadCollections
+     * @param {boolean} logUnresolvedReferencesToFile
+     */
+    constructor({ preLoadCollections, logUnresolvedReferencesToFile, ...args }) {
         super(args);
 
-        this.writeToFile = args.writeToFile;
-        if (this.writeToFile) {
+        /**
+         * @type {string[]}
+         */
+        this.preLoadCollections = preLoadCollections;
+
+        /**
+         * @type {boolean}
+         */
+        this.logUnresolvedReferencesToFile = logUnresolvedReferencesToFile;
+
+        if (this.logUnresolvedReferencesToFile) {
             /**
              * @type {require('fs').writeStream}
              */
-            this.writeStream = fs.createWriteStream(`unresolvedReferences-${generateUUID()}.txt`, {flags: 'w'});
+            this.writeStream = fs.createWriteStream(`unresolvedReferences-${generateUUID()}.txt`, { flags: 'w' });
 
             this.writeStream.write('{\n');
         }
@@ -32,7 +46,7 @@ class FixBwellMasterPersonReferenceRunner extends FixReferenceIdRunner {
      * @param {Resource} resource
      * @return {Promise<Reference>}
      */
-    async updateResourceReferenceAsync(resource) {
+    async updateResourceReferenceAsync(resource, isHistoryDoc) {
         /**
          * @type {Set<string>}
          */
@@ -50,51 +64,73 @@ class FixBwellMasterPersonReferenceRunner extends FixReferenceIdRunner {
                         return reference;
                     }
 
-                    // current reference with id
-                    let currentReference = reference._sourceId;
-
-                    if (!currentReference) {
-                        if (reference.extension) {
+                    // if reference is of type resource/id|sourceAssigningAuthority then sourceAssigningAuthority is correct
+                    // just take the uuid from reference and update it
+                    if (reference.reference.includes('|')) {
+                        let uuidReference = reference._uuid;
+                        if (!uuidReference) {
                             reference.extension.forEach(element => {
-                                if (element.url === IdentifierSystem.sourceId && element.valueString) {
-                                    currentReference = element.valueString;
+                                if (element.url === IdentifierSystem.uuid) {
+                                    uuidReference = element.valueString;
                                 }
                             });
                         }
+
+                        if (uuidReference) {
+                            reference.reference = uuidReference;
+                            reference._sourceId = uuidReference;
+                            reference.extension.forEach(element => {
+                                if (element.url === IdentifierSystem.sourceId) {
+                                    element.valueString = uuidReference;
+                                }
+                            });
+                        }
+                    } else {
+                        // current reference with id
+                        let currentReference = reference._sourceId;
 
                         if (!currentReference) {
-                            currentReference = reference.reference;
+                            if (reference.extension) {
+                                reference.extension.forEach(element => {
+                                    if (element.url === IdentifierSystem.sourceId && element.valueString) {
+                                        currentReference = element.valueString;
+                                    }
+                                });
+                            }
+
+                            if (!currentReference) {
+                                currentReference = reference.reference;
+                            }
                         }
-                    }
 
-                    if (this.caches.has(currentReference)) {
-                        const newReferences = Array.from(this.caches.get(currentReference));
+                        if (this.caches.has(currentReference)) {
+                            const newReferences = Array.from(this.caches.get(currentReference));
 
-                        if (newReferences.length > 1) {
-                            unresolvedReferencesSet.add(currentReference);
-                        } else if (newReferences.length === 1) {
-                            const { uuidReference, sourceAssigningAuthority } = JSON.parse(newReferences[0]);
+                            if (newReferences.length > 1) {
+                                unresolvedReferencesSet.add(currentReference);
+                            } else if (newReferences.length === 1) {
+                                const { uuidReference, sourceAssigningAuthority } = JSON.parse(newReferences[0]);
 
-                            // Update all the fields of the reference with correct fields
-                            reference.reference = reference.reference.replace(currentReference, uuidReference);
-                            reference.reference = reference.reference.replace(reference._sourceAssigningAuthority, sourceAssigningAuthority);
-                            reference._sourceId = uuidReference;
-                            reference._uuid = uuidReference;
-                            reference._sourceAssigningAuthority = sourceAssigningAuthority;
+                                // Update all the fields of the reference with correct fields
+                                reference.reference = uuidReference;
+                                reference._sourceId = uuidReference;
+                                reference._uuid = uuidReference;
+                                reference._sourceAssigningAuthority = sourceAssigningAuthority;
 
-                            reference.extension = reference.extension.map(extension => {
-                                if (extension.url === IdentifierSystem.sourceId || extension.url === IdentifierSystem.uuid) {
-                                    extension.valueString = uuidReference;
-                                } else if (extension.url === SecurityTagSystem.sourceAssigningAuthority) {
-                                    extension.valueString = sourceAssigningAuthority;
-                                }
+                                reference.extension = reference.extension.map(extension => {
+                                    if (extension.url === IdentifierSystem.sourceId || extension.url === IdentifierSystem.uuid) {
+                                        extension.valueString = uuidReference;
+                                    } else if (extension.url === SecurityTagSystem.sourceAssigningAuthority) {
+                                        extension.valueString = sourceAssigningAuthority;
+                                    }
 
-                                return extension;
-                            });
+                                    return extension;
+                                });
+                            }
                         }
                     }
                     return {...link, target: reference};
-                // remove duplicate fields as they were duplicates
+                    // remove duplicate fields as they were duplicates
                 }).filter(link => {
                     if (uuidSet.has(link.target._uuid)) {
                         return false;
@@ -120,8 +156,8 @@ class FixBwellMasterPersonReferenceRunner extends FixReferenceIdRunner {
         // if there are unResolvedReferences for the resource write them to the file
         const unresolvedReferences = Array.from(unresolvedReferencesSet);
 
-        if (unresolvedReferences.length) {
-            if (this.writeToFile) {
+        if (unresolvedReferences.length && !isHistoryDoc) {
+            if (this.logUnresolvedReferencesToFile) {
                 await this.writeStream.write(
                     `\t"${resource.resourceType}/${resource._uuid}": "${unresolvedReferences.join(',')}",\n`
                 );
@@ -157,7 +193,7 @@ class FixBwellMasterPersonReferenceRunner extends FixReferenceIdRunner {
             const currentResource = resource.clone();
 
             // Update resource references from cache
-            resource = await this.updateResourceReferenceAsync(resource);
+            resource = await this.updateResourceReferenceAsync(resource, isHistoryDoc);
 
             // for speed, first check if the incoming resource is exactly the same
             let updatedResourceJsonInternal = resource.toJSONInternal();
@@ -191,6 +227,13 @@ class FixBwellMasterPersonReferenceRunner extends FixReferenceIdRunner {
                 });
             }
 
+            if (!isHistoryDoc && operations.length > 0) {
+                if (this.historyUuidCache.has(doc.resourceType)) {
+                    this.historyUuidCache.set(doc.resourceType, []);
+                }
+                this.historyUuidCache.get(doc.resourceType).push(doc._uuid);
+            }
+
             return operations;
         } catch (e) {
             throw new RethrownError(
@@ -217,9 +260,7 @@ class FixBwellMasterPersonReferenceRunner extends FixReferenceIdRunner {
                 /**
                  * @type {string[]}
                  */
-                this.collections = [
-                    'Patient_4_0_0', 'Patient_4_0_0_History', 'Person_4_0_0', 'Person_4_0_0_History'
-                ];
+                this.collections = ['Person_4_0_0_History', 'Person_4_0_0'];
 
                 if (this.startFromCollection) {
                     this.collections = this.collections.filter(c => c >= this.startFromCollection);
@@ -236,7 +277,7 @@ class FixBwellMasterPersonReferenceRunner extends FixReferenceIdRunner {
             await this.preloadReferencesAsync({ mongoConfig });
 
             try {
-                for (const collectionName of ['Person_4_0_0', 'Person_4_0_0_History']) {
+                for (const collectionName of this.collections) {
                     this.adminLogger.logInfo(`Starting reference update for ${collectionName}`);
                     /**
                      * @type {boolean}
@@ -245,7 +286,11 @@ class FixBwellMasterPersonReferenceRunner extends FixReferenceIdRunner {
                     /**
                      * @type {import('mongodb').Filter<import('mongodb').Document>}
                      */
-                    const query = this.getQueryFromParameters({ queryPrefix: isHistoryCollection ? 'resource.' : '' });
+                    const query = this.getQueryForResource(isHistoryCollection);
+                    /**
+                     * @type {string}
+                     */
+                    const resourceName = collectionName.split('_')[0];
 
                     const startFromIdContainer = this.createStartFromIdContainer();
 
@@ -265,6 +310,8 @@ class FixBwellMasterPersonReferenceRunner extends FixReferenceIdRunner {
                             limit: this.limit,
                             useTransaction: this.useTransaction,
                             skip: this.skip,
+                            filterToIds: isHistoryCollection && this.historyUuidCache.has(resourceName) ? this.historyUuidCache.get(resourceName) : undefined,
+                            filterToIdProperty: isHistoryCollection && this.historyUuidCache.has(resourceName) ? 'resource._uuid' : undefined
                         });
 
                     } catch (e) {
@@ -285,7 +332,7 @@ class FixBwellMasterPersonReferenceRunner extends FixReferenceIdRunner {
                 this.adminLogger.logError(err.message, { stack: err.stack });
             }
 
-            if (this.writeToFile) {
+            if (this.logUnresolvedReferencesToFile) {
                 this.writeStream.write('}\n');
             }
             this.adminLogger.logInfo('Finished script');
@@ -305,7 +352,14 @@ class FixBwellMasterPersonReferenceRunner extends FixReferenceIdRunner {
     async preloadReferencesAsync({ mongoConfig }) {
         let promises = [];
 
-        this.collections.forEach(collectionName => {
+        if (this.preLoadCollections.length > 0 && this.preLoadCollections[0] === 'all') {
+            /**
+             * @type {string[]}
+             */
+            this.preLoadCollections = ['Person_4_0_0', 'Patient_4_0_0'];
+        }
+
+        this.preLoadCollections.forEach(collectionName => {
             promises.push(this.cacheReferencesAsync({ collectionName, mongoConfig }));
         });
 
@@ -319,6 +373,7 @@ class FixBwellMasterPersonReferenceRunner extends FixReferenceIdRunner {
      * @return {Promise<void>}
      */
     async cacheReferencesAsync({ mongoConfig, collectionName }) {
+        this.adminLogger.logInfo(`Starting reference caching for collection: ${collectionName}`);
         /**
          * @type {boolean}
          */
@@ -384,6 +439,7 @@ class FixBwellMasterPersonReferenceRunner extends FixReferenceIdRunner {
             await session.endSession();
             await client.close();
         }
+        this.adminLogger.logInfo(`Finished reference caching for collection: ${collectionName}`);
     }
 
     /**
@@ -438,6 +494,55 @@ class FixBwellMasterPersonReferenceRunner extends FixReferenceIdRunner {
         }
 
         this.caches.get(idReference).add(JSON.stringify({ uuidReference, sourceAssigningAuthority }));
+    }
+
+    /**
+     * Get query for the resources whose id might change
+     * @param {boolean} isHistoryCollection
+     * @returns {import('mongodb').Filter<import('mongodb').Document>}
+     */
+    getQueryForResource(isHistoryCollection) {
+        // create a query from the parameters
+        /**
+         * @type {import('mongodb').Filter<import('mongodb').Document>}
+         */
+        let query = this.getQueryFromParameters({ queryPrefix: isHistoryCollection ? 'resource.' : '' });
+
+        // query to get resources that needs to be changes
+        /**
+         * @type {import('mongodb').Filter<import('mongodb').Document>}
+         */
+        const filterQuery = [
+            {
+                [isHistoryCollection ? 'resource.meta.security' : 'meta.security']: {
+                    $elemMatch: {
+                        'system': SecurityTagSystem.access,
+                        'code': 'bwell'
+                    }
+                }
+            },
+            {
+                [isHistoryCollection ? 'resource.meta.security' : 'meta.security']: {
+                    $elemMatch: {
+                        'system': SecurityTagSystem.owner,
+                        'code': 'bwell'
+                    }
+                }
+            },
+        ];
+
+        // merge query and filterQuery
+        if (Object.keys(query).length) {
+            query = {
+                $and: [query, ...filterQuery]
+            };
+        } else {
+            query = {
+                $and: filterQuery
+            };
+        }
+
+        return query;
     }
 }
 

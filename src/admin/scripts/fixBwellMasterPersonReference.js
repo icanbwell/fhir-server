@@ -1,4 +1,3 @@
-// load config from .env.  Should be first thing so env vars are available to rest of the code
 console.log(`MONGO_URL=${process.env.MONGO_URL}`);
 const { createContainer } = require('../../createContainer');
 const { CommandLineParser } = require('./commandLineParser');
@@ -20,6 +19,13 @@ async function main() {
      */
     let collections = parameters.collections ?
         parameters.collections.split(',').map(x => x.trim()) :
+        ['all'];
+
+    /**
+     * @type {string[]}
+     */
+    let preLoadCollections = parameters.preLoadCollections ?
+        parameters.preLoadCollections.split(',').map(x => x.trim()) :
         ['all'];
 
     const batchSize = parameters.batchSize || process.env.BULK_BUFFER_SIZE || 10000;
@@ -50,6 +56,7 @@ async function main() {
             resourceLocatorFactory: c.resourceLocatorFactory,
             resourceMerger: c.resourceMerger,
             collections,
+            preLoadCollections,
             batchSize,
             afterLastUpdatedDate,
             beforeLastUpdatedDate,
@@ -59,7 +66,7 @@ async function main() {
             useTransaction: parameters.useTransaction ? true : false,
             skip: parameters.skip,
             startFromId: parameters.startFromId,
-            writeToFile: parameters.write ? true : false
+            logUnresolvedReferencesToFile: parameters.logUnresolvedReferencesToFile ? true : false
         }
     )
     );
@@ -79,15 +86,14 @@ async function main() {
  * nvm use
  * node src/admin/scripts/fixBwellMasterPersonReference.js --batchSize=10000
  * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/fixBwellMasterPersonReference.js --batchSize=10000
- * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/fixBwellMasterPersonReference.js --collections=Patient_4_0_0 --batchSize=10000
+ * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/fixBwellMasterPersonReference.js --collections=Person_4_0_0 --batchSize=10000
  * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/fixBwellMasterPersonReference.js --batchSize=10000 --startFromCollection Person_4_0_0
  * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/fixBwellMasterPersonReference.js --collections=all --batchSize=10000
- * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/fixBwellMasterPersonReference.js --batchSize=10000 --write
+ * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/fixBwellMasterPersonReference.js --batchSize=10000 --logUnresolvedReferencesToFile
  * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/fixBwellMasterPersonReference.js --batchSize=10000 --useTransaction
- * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/fixBwellMasterPersonReference.js --batchSize=10000 --useTransaction
+ * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/fixBwellMasterPersonReference.js --preLoadCollections=Patient_4_0_0 --batchSize=10000 --useTransaction
  * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/fixBwellMasterPersonReference.js --batchSize=10000 --useTransaction --startFromId=123
  * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/fixBwellMasterPersonReference.js --batchSize=10000 --useTransaction --skip 200000
- * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/fixBwellMasterPersonReference.js --batchSize=10000 --limit 10
  * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/fixBwellMasterPersonReference.js --batchSize=10000 --limit 10
  * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/fixBwellMasterPersonReference.js --batchSize=10000 --after 2021-12-31
  * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/fixBwellMasterPersonReference.js --batchSize=10000 --before 2021-12-31

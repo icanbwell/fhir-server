@@ -1,6 +1,6 @@
 {
     "resourceType": "Person",
-    "id": "1",
+    "id": "3",
     "meta": {
         "source": "bwell",
         "security": [
@@ -17,14 +17,7 @@
     "link": [
         {
             "target": {
-                "reference": "Person/2",
-                "display": "Eve Everywoman"
-            },
-            "assurance": "level3"
-        },
-        {
-            "target": {
-                "reference": "Patient/1",
+                "reference": "Person/1",
                 "display": "Eve Everywoman"
             },
             "assurance": "level3"
