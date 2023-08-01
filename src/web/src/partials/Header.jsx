@@ -2,6 +2,8 @@ import React from 'react';
 import {AppBar, Toolbar, Typography, IconButton, Button} from '@mui/material';
 import InfoIcon from '@mui/icons-material/Info';
 import LogoutIcon from '@mui/icons-material/Logout';
+import HomeIcon from '@mui/icons-material/Home';
+import {Link} from 'react-router-dom';
 
 class Header extends React.Component {
     constructor(props) {
@@ -18,9 +20,12 @@ class Header extends React.Component {
         return (
             <AppBar position="static">
                 <Toolbar>
-                    {/* Please replace this Typography with your logo */}
+                    <IconButton color="inherit" aria-label="home" id="home" component={Link} to="/">
+                        <HomeIcon/>
+                    </IconButton>
+
                     <Typography variant="h6" style={{flexGrow: 1}}>
-                        Helix FHIR Server - {deployEnvironment}
+                        Helix FHIR Server
                     </Typography>
                     <IconButton color="inherit" aria-label="information" id="appInfo">
                         <InfoIcon/>
