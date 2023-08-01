@@ -41,7 +41,7 @@ const IndexPage = () => {
                     </CardHeader>
                     <CardContent>
                         <ResourceHeader resource={resource}/>
-                        <ResourceItem resource={resource} index={index}/>
+                        <ResourceItem resourceType={resource.resourceType} resource={resource} index={index}/>
                         <Json index={index} resource={resource}/>
                     </CardContent>
                 </Card>
