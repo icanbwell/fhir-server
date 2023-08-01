@@ -1,5 +1,5 @@
 import React from "react";
-import {Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper} from "@mui/material";
+import {Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow} from "@mui/material";
 
 const DispenseRequest = ({name, value}) => {
 
@@ -25,7 +25,7 @@ const DispenseRequest = ({name, value}) => {
                                     </Typography>
                                 </React.Fragment>
                             )}
-                            <TableContainer component={Paper}>
+                            <TableContainer>
                                 <Table className="table">
                                     <TableHead>
                                         <TableRow>

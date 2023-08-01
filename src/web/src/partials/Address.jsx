@@ -1,5 +1,5 @@
 import React from 'react';
-import {Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper} from '@mui/material';
+import {Table, TableBody, TableCell, TableContainer, TableHead, TableRow} from '@mui/material';
 
 const Address = ({addresses, name, resourceType}) => {
     if (!Array.isArray(addresses)) {
@@ -10,7 +10,7 @@ const Address = ({addresses, name, resourceType}) => {
         addresses && addresses.length > 0 && addresses[0] ? (
             <div>
                 <h4>{name}</h4>
-                <TableContainer component={Paper}>
+                <TableContainer>
                     <Table>
                         <TableHead>
                             <TableRow>
@@ -48,6 +48,6 @@ const Address = ({addresses, name, resourceType}) => {
             </div>
         ) : null
     );
-}
+};
 
 export default Address;

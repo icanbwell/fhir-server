@@ -7,7 +7,6 @@ import DateTime from '../partials/DateTime';
 import Period from '../partials/Period';
 import CodeableConceptWithValue from '../partials/CodeableConceptWithValue';
 import {Box, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography} from '@mui/material';
-import Paper from '@mui/material/Paper';
 import Table from '../partials/Table';
 
 function Observation({resource}) {
@@ -72,7 +71,7 @@ function Observation({resource}) {
             />
 
             <Typography variant="h4">Value</Typography>
-            <TableContainer component={Paper}>
+            <TableContainer>
                 <Table>
                     <TableHead>
                         <TableRow>

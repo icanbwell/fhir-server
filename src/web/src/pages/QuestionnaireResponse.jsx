@@ -1,5 +1,5 @@
 import React from 'react';
-import {Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper} from '@mui/material';
+import {Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow} from '@mui/material';
 
 import Reference from '../partials/reference';
 
@@ -24,7 +24,7 @@ const QuestionnaireResponse = ({resource}) => {
 
             <div>
                 <Typography variant="h4">Item</Typography>
-                <TableContainer component={Paper}>
+                <TableContainer>
                     <Table>
                         <TableHead>
                             <TableRow>

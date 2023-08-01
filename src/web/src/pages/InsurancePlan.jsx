@@ -1,5 +1,5 @@
 import React from 'react';
-import {Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper} from '@mui/material';
+import {Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow} from '@mui/material';
 
 function InsurancePlan({resource}) {
     return (
@@ -11,7 +11,7 @@ function InsurancePlan({resource}) {
             {/* <Reference references={resource.ownedBy} name="Owned By" /> */}
 
             {resource.plan && (
-                <TableContainer component={Paper}>
+                <TableContainer>
                     <Table sx={{minWidth: 650}} aria-label="simple table">
                         <TableHead>
                             <TableRow>

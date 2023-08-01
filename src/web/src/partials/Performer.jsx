@@ -1,5 +1,5 @@
 import React from "react";
-import {Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Link} from "@mui/material";
+import {Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Link} from "@mui/material";
 
 function Performer({performers, name}) {
     // Ensure performers is always an array
@@ -12,7 +12,7 @@ function Performer({performers, name}) {
     return (
         <div>
             <Typography variant="h4">{name}</Typography>
-            <TableContainer component={Paper}>
+            <TableContainer>
                 <Table>
                     <TableHead>
                         <TableRow>

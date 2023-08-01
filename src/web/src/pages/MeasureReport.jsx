@@ -1,5 +1,5 @@
 import React from 'react';
-import {Typography, Box, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper} from '@mui/material';
+import {Typography, Box, Table, TableBody, TableCell, TableContainer, TableHead, TableRow} from '@mui/material';
 import Code from '../partials/Code';
 import NameValue from '../partials/NameValue';
 import Uri from '../partials/Uri';
@@ -18,7 +18,7 @@ const MeasureReport = ({resource}) => {
             {resource.group && (
                 <Box>
                     <Typography variant="h4">Group</Typography>
-                    <TableContainer component={Paper}>
+                    <TableContainer>
                         <Table aria-label="simple table">
                             <TableHead>
                                 <TableRow>

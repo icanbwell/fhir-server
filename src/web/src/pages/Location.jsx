@@ -1,5 +1,5 @@
 import React from "react";
-import {Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper} from '@mui/material';
+import {Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow} from '@mui/material';
 import CodeableConcept from '../partials/CodeableConcept';
 import ContactPoint from '../partials/ContactPoint';
 import Address from '../partials/Address';
@@ -27,7 +27,7 @@ function Location({resource}) {
             <Reference references={[resource.managingOrganization]} name="Managing Organization"/>
 
             {resource.hoursOfOperation &&
-                <TableContainer component={Paper}>
+                <TableContainer>
                     <Table>
                         <TableHead>
                             <TableRow>

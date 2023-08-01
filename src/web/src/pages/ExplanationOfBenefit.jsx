@@ -3,7 +3,6 @@ import {Typography, Link, Box, TableContainer, Table, TableHead, TableRow, Table
 import Code from '../partials/Code';
 import Reference from '../partials/Reference';
 import CodeableConcept from '../partials/CodeableConcept';
-import Paper from '@mui/material/Paper';
 
 const DomainResource = ({resource, admin, index}) => {
 
@@ -59,7 +58,7 @@ const DomainResource = ({resource, admin, index}) => {
             {resource.diagnosis &&
                 <div>
                     <Typography variant="h4">Diagnosis</Typography>
-                    <TableContainer component={Paper()}>
+                    <TableContainer>
                         <Table className="table" aria-label="simple table">
                             <TableHead>
                                 <TableRow>
@@ -102,7 +101,7 @@ const DomainResource = ({resource, admin, index}) => {
             {resource.procedure && (
                 <div>
                     <Typography variant="h4">Procedure</Typography>
-                    <TableContainer component={Paper}>
+                    <TableContainer>
                         <Table>
                             <TableHead>
                                 <TableRow>
@@ -130,7 +129,7 @@ const DomainResource = ({resource, admin, index}) => {
             {resource.item && (
                 <div>
                     <Typography variant="h4">Items</Typography>
-                    <TableContainer component={Paper}>
+                    <TableContainer>
                         <Table>
                             <TableHead>
                                 <TableRow>
@@ -190,7 +189,7 @@ const DomainResource = ({resource, admin, index}) => {
             {resource.adjudication && (
                 <div>
                     <Typography variant="h4">Adjudication</Typography>
-                    <TableContainer component={Paper}>
+                    <TableContainer>
                         <Table sx={{minWidth: 650}} aria-label="simple table">
                             <TableHead>
                                 <TableRow>
@@ -224,7 +223,7 @@ const DomainResource = ({resource, admin, index}) => {
             {resource.careTeam && (
                 <div>
                     <Typography variant="h4">Care Team</Typography>
-                    <TableContainer component={Paper}>
+                    <TableContainer>
                         <Table sx={{minWidth: 650}} aria-label="simple table">
                             <TableHead>
                                 <TableRow>
@@ -258,7 +257,7 @@ const DomainResource = ({resource, admin, index}) => {
             {resource.insurance && (
                 <div>
                     <Typography variant="h4">Insurance</Typography>
-                    <TableContainer component={Paper}>
+                    <TableContainer>
                         <Table>
                             <TableHead>
                                 <TableRow>
@@ -285,7 +284,7 @@ const DomainResource = ({resource, admin, index}) => {
             {resource.total && (
                 <div>
                     <Typography variant="h4">Totals</Typography>
-                    <TableContainer component={Paper}>
+                    <TableContainer>
                         <Table>
                             <TableHead>
                                 <TableRow>
@@ -321,7 +320,7 @@ const DomainResource = ({resource, admin, index}) => {
             {resource.supportingInfo && (
                 <div>
                     <Typography variant="h4">Supporting Info</Typography>
-                    <TableContainer component={Paper}>
+                    <TableContainer>
                         <Table aria-label="simple table">
                             <TableHead>
                                 <TableRow>

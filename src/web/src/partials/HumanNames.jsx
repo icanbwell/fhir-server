@@ -1,5 +1,5 @@
 import React from 'react';
-import {Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper} from '@mui/material';
+import {Table, TableBody, TableCell, TableContainer, TableHead, TableRow} from '@mui/material';
 import {Link} from 'react-router-dom';
 
 function HumanNames({names, resourceType}) {
@@ -14,7 +14,7 @@ function HumanNames({names, resourceType}) {
     return (
         <div>
             <h4>Names</h4>
-            <TableContainer component={Paper}>
+            <TableContainer>
                 <Table>
                     <TableHead>
                         <TableRow>

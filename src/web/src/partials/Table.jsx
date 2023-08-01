@@ -1,5 +1,5 @@
 import React from 'react';
-import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Typography } from '@mui/material';
+import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from '@mui/material';
 
 function TableComponent({name, rows, columns}) {
     if (!Array.isArray(rows)) {
@@ -10,7 +10,7 @@ function TableComponent({name, rows, columns}) {
         return (
             <div>
                 <Typography variant="h4">{name}</Typography>
-                <TableContainer component={Paper}>
+                <TableContainer>
                     <Table className="table" aria-label="simple table">
                         <TableHead>
                             <TableRow>

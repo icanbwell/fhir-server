@@ -1,5 +1,5 @@
 import React from 'react';
-import { Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper } from '@mui/material';
+import { Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material';
 import CodeableConcept from '../partials/CodeableConcept';
 
 function Timing({ timing, name }) {
@@ -12,7 +12,7 @@ function Timing({ timing, name }) {
         <div>
           <Typography variant="h4">{name}</Typography>
           {timingArray[0].count && (
-            <TableContainer component={Paper}>
+            <TableContainer>
               <Table aria-label="simple table">
                 <TableHead>
                   <TableRow>

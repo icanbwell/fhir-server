@@ -6,7 +6,6 @@ import TableCell from '@mui/material/TableCell';
 import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
-import Paper from '@mui/material/Paper';
 
 const useStyles = makeStyles({
     table: {
@@ -66,7 +65,7 @@ function Meta({meta, resource}) {
                 </a>
             </div>
             <h5>Security</h5>
-            <TableContainer component={Paper}>
+            <TableContainer>
                 <Table className={classes.table} aria-label="security table">
                     <TableHead>
                         <TableRow>
