@@ -3,7 +3,7 @@ import {useLocation, useParams} from 'react-router-dom';
 import {Accordion, Box, Container} from '@mui/material';
 import Header from '../partials/Header';
 import Footer from '../partials/Footer';
-import FhirApi from '../fhirApi';
+import FhirApi from '../utils/fhirApi';
 import SearchForm from '../partials/SearchForm';
 import AccordionSummary from '@mui/material/AccordionSummary';
 import AccordionDetails from '@mui/material/AccordionDetails';
@@ -35,7 +35,7 @@ const IndexPage = () => {
     const location = useLocation();
     const queryString = location.search;
 
-    console.log(`resourceType: ${resourceType}`);
+    console.log(`resourceType: ${resourceType}, queryString: ${queryString}, queryParameters: ${queryParameters}`);
 
     useEffect(() => {
         const callApi = async () => {

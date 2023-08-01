@@ -32,8 +32,23 @@ class FhirApi {
      * @param {string[]|undefined} queryParameters
      * @returns {Promise<{status: number, json: Object}>}
      */
-    async getBundleAsync({resourceType, id, query, queryParameters}) {
-        const url = new URL(`/4_0_0/${resourceType}` + (id ? `/${id}/` : '') + (query ? `?${query}` : ''), window.location.origin);
+    async getBundleAsync({resourceType, id, queryString, queryParameters}) {
+        let urlString = `/4_0_0/${resourceType}`;
+        if (id) {
+            urlString += `/${id}/`;
+        }
+
+        function stripFirstCharIfQuestionMark(str) {
+            if (str.charAt(0) === '?') {
+                return str.slice(1);
+            }
+            return str;
+        }
+
+        if (queryString) {
+            urlString += `?${stripFirstCharIfQuestionMark(queryString)}`;
+        }
+        const url = new URL(urlString, window.location.origin);
         if (queryParameters && queryParameters.length > 0) {
             queryParameters.forEach(queryParameter => {
                 const [name, value] = queryParameter.split('=');
