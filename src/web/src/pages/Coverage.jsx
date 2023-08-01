@@ -5,7 +5,7 @@ import Reference from '../partials/Reference';
 import CodeableConceptWithValue from '../partials/CodeableConceptWithValue';
 import Period from '../partials/Period';
 
-const DomainResource = ({resource, admin, index}) => {
+const Coverage = ({resource, admin, index}) => {
 
     return (
         <>
@@ -21,4 +21,4 @@ const DomainResource = ({resource, admin, index}) => {
     );
 };
 
-export default DomainResource;
+export default Coverage;

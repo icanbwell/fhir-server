@@ -1,5 +1,5 @@
 import React from 'react';
-import {Typography, Link, Box} from '@mui/material';
+import {Box} from '@mui/material';
 import NameValue from '../partials/NameValue';
 import DateTime from '../partials/DateTime';
 import Uri from '../partials/Uri';
