@@ -220,7 +220,14 @@ function createApp({fnCreateContainer, trackMetrics}) {
             resources: resourceDefinitions,
             user: req.user
         };
-        return res.render(__dirname + '/views/pages/home', home_options);
+        if (req.cookies && req.cookies['web2']) {
+            const path1 = path.join(__dirname, './web/build', 'index.html');
+            console.log(`Route: /web/*: ${path1}`);
+            console.log(`Received /web/* ${req.method} request at ${req.url}`);
+            return res.sendFile(path1);
+        } else {
+            return res.render(__dirname + '/views/pages/home', home_options);
+        }
     });
 
     app.get('/clean/:collection?', (req, res) => handleClean(
