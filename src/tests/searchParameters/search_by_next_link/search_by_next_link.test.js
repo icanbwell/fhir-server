@@ -1,4 +1,3 @@
-const { isUuid } = require('../../../utils/uid.util');
 var env = require('var');
 
 // test file
@@ -65,8 +64,9 @@ describe('Next link Tests', () => {
             expect(resp.body.link).toBeDefined();
             expect(resp.body.link.length).toEqual(2);
 
-            let nextLink = resp.body.link[1].url.replace('http://localhost:3000', '');
-            expect(isUuid(nextLink.split('=').pop())).toBeTrue();
+            let nextLink = resp.body.link.find(link => link.relation === 'next').url;
+            nextLink = nextLink.replace('http://localhost:3000', '');
+            expect(nextLink).toEqual('/4_0_0/Person?_count=1&_bundle=1&id%3Aabove=54fb81fc-9ca4-5f38-bcc6-e41e2af329ba');
 
             // response should have person1 as the only resource and nextLink should be present
             resp = await request
@@ -81,8 +81,81 @@ describe('Next link Tests', () => {
 
             expect(resp.body.link).toBeDefined();
             expect(resp.body.link.length).toEqual(2);
-            nextLink = resp.body.link[1].url.replace('http://localhost:3000', '');
-            expect(isUuid(nextLink.split('=').pop())).toBeTrue();
+            nextLink = resp.body.link.find(link => link.relation === 'next').url;
+            nextLink = nextLink.replace('http://localhost:3000', '');
+            expect(nextLink).toEqual('/4_0_0/Person?_count=1&_bundle=1&id%3Aabove=bc832f5e-ad84-5432-88d6-7f76e74848c7');
+
+            // response should not have any resource and nextLink should not be present
+            resp = await request
+                .get(nextLink)
+                .set(getHeaders());
+
+            expect(resp.body.entry).toBeDefined();
+            expect(resp.body.entry.length).toEqual(0);
+
+            expect(resp.body.link).toBeDefined();
+            expect(resp.body.link.length).toEqual(1);
+
+            // revert DEFAULT_SORT_ID to original value
+            env.DEFAULT_SORT_ID = defaultSortId;
+        });
+
+        test('next link is present and works', async () => {
+            // change DEFAULT_SORT_ID to _uuid
+            const defaultSortId = env.DEFAULT_SORT_ID;
+            env.DEFAULT_SORT_ID = '_uuid';
+
+            const request = await createTestRequest();
+
+            // add the resources to FHIR server
+            let resp = await request
+                .post('/4_0_0/Person/1/$merge')
+                .send(person1Resource)
+                .set(getHeaders());
+
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
+
+            resp = await request
+                .post('/4_0_0/Person/2/$merge')
+                .send(person2Resource)
+                .set(getHeaders());
+
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
+
+            // response should have person2 as the only resource and nextLink should be present
+            resp = await request
+                .get('/4_0_0/Person?_count=1&_bundle=1&_elements=id')
+                .set(getHeaders());
+
+            expect(resp.body.entry).toBeDefined();
+            expect(resp.body.entry.length).toEqual(1);
+            const person2 = resp.body.entry[0].resource;
+            expect(person2).toEqual({id: '2', resourceType: 'Person'});
+
+            expect(resp.body.link).toBeDefined();
+            expect(resp.body.link.length).toEqual(2);
+
+            let nextLink = resp.body.link.find(link => link.relation === 'next').url;
+            nextLink = nextLink.replace('http://localhost:3000', '');
+            expect(nextLink).toEqual('/4_0_0/Person?_count=1&_bundle=1&_elements=id&id%3Aabove=54fb81fc-9ca4-5f38-bcc6-e41e2af329ba');
+
+            // response should have person1 as the only resource and nextLink should be present
+            resp = await request
+                .get(nextLink)
+                .set(getHeaders());
+
+            expect(resp.body.entry).toBeDefined();
+            expect(resp.body.entry.length).toEqual(1);
+            const person1 = resp.body.entry[0].resource;
+            expect(person1).toEqual({id: '1', resourceType: 'Person'});
+
+            expect(resp.body.link).toBeDefined();
+            expect(resp.body.link.length).toEqual(2);
+            nextLink = resp.body.link.find(link => link.relation === 'next').url;
+            nextLink = nextLink.replace('http://localhost:3000', '');
+            expect(nextLink).toEqual('/4_0_0/Person?_count=1&_bundle=1&_elements=id&id%3Aabove=bc832f5e-ad84-5432-88d6-7f76e74848c7');
 
             // response should not have any resource and nextLink should not be present
             resp = await request

@@ -695,7 +695,8 @@ const createContainer = function () {
     ));
 
     container.register('r4ArgsParser', (c) => new R4ArgsParser({
-        fhirTypesManager: c.fhirTypesManager
+        fhirTypesManager: c.fhirTypesManager,
+        configManager: c.configManager
     }));
 
     container.register('uuidToIdReplacer', (c) => new UuidToIdReplacer({
