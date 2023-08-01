@@ -1,12 +1,17 @@
 import React, {useEffect, useState} from 'react';
 import {useLocation, useParams} from 'react-router-dom';
-import {Container, Box, Card, CardContent, CardHeader} from '@mui/material';
+import {Container, Box, Card, CardContent, CardHeader, Accordion} from '@mui/material';
 import Header from '../partials/Header';
 import Footer from '../partials/Footer';
 import FhirApi from '../fhirApi';
 import ResourceHeader from '../partials/ResourceHeader';
 import ResourceItem from './ResourceItem';
 import Json from '../partials/Json';
+import SearchForm from '../partials/SearchForm';
+import AccordionSummary from '@mui/material/AccordionSummary';
+import AccordionDetails from '@mui/material/AccordionDetails';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import Typography from '@mui/material/Typography';
 
 // Main Component
 const IndexPage = () => {
@@ -16,6 +21,13 @@ const IndexPage = () => {
     const [loading, setLoading] = useState(true);
 
     const {id} = useParams();
+
+    const [expanded, setExpanded] = useState(false);
+
+    const handleExpand = () => {
+        setExpanded(!expanded);
+    };
+
     const location = useLocation();
     const queryString = location.search;
 
@@ -24,7 +36,7 @@ const IndexPage = () => {
             const resource = fullResource.resource || fullResource;
             return (
                 <Card key={index}>
-                    <CardHeader title={`${index+1}. ${resource.resourceType}/${resource.id}`}>
+                    <CardHeader title={`${index + 1}. ${resource.resourceType}/${resource.id}`}>
                     </CardHeader>
                     <CardContent>
                         <ResourceHeader resource={resource}/>
@@ -69,8 +81,20 @@ const IndexPage = () => {
     return (
         <Container maxWidth={false}>
             <Header resources={resources}/>
+            <Accordion expanded={expanded} onChange={handleExpand}>
+                <AccordionSummary
+                    expandIcon={<ExpandMoreIcon/>}
+                    aria-controls={`searchCollapse`}
+                    id={`searchAccordion`}
+                >
+                    <Typography>Search</Typography>
+                </AccordionSummary>
+                <AccordionDetails>
+                    <SearchForm></SearchForm>
+                </AccordionDetails>
+            </Accordion>
             <Box my={2}>
-                {!loading && status === 200 ? getMain() : <div>Not Found</div>}
+                {loading ? '' : status === 200 ? getMain() : <div>Not Found</div>}
             </Box>
             {bundle && <Footer url={bundle.url} meta={bundle.meta}/>}
         </Container>

@@ -1,75 +1,81 @@
-import React, { useState } from 'react';
-import { Button, TextField, InputAdornment, FormControl, InputLabel, IconButton } from '@mui/material';
-import CloseIcon from '@mui/icons-material/Close';
+import React, {useState} from 'react';
+import TextField from '@mui/material/TextField';
+import Button from '@mui/material/Button';
+import Box from '@mui/material/Box';
+import Grid from '@mui/material/Grid';
+import {DatePicker} from '@mui/x-date-pickers/DatePicker';
 
-const SearchForm = ({ url, resourceDefinition, advSearchFormData, lastUpdateStart, lastUpdateEnd, formData, body, limit }) => {
-    const hasResource = resourceDefinition !== undefined;
-    const resourceName = hasResource ? resourceDefinition.name : '';
+export default function SearchForm() {
+    const [start, setStart] = React.useState('');
+    const [end, setEnd] = React.useState('');
+    const [text1, setText1] = useState("");
+    const [text2, setText2] = useState("");
+
+    const handleTextChange = (setText) => (event) => {
+        setText(event.target.value);
+    };
+
+    const resetFields = () => {
+        setStart(null);
+        setEnd(null);
+        setText1("");
+        setText2("");
+    };
+
+    const search = () => {
+        // Perform search with dateRange, text1, and text2
+        console.log(start, end, text1, text2);
+    };
 
     return (
-        url && url.includes('/_search') ?
-            <form action={`/4_0_0/${resourceName}/_search`} id="searchForm" method="post">
-                {/* ... More code ... */}
-                {advSearchFormData.map((data, i) => (
-                    <div className="row mb-2 flex-nowrap" key={i}>
-                        <TextField
-                            label={data.label}
-                            id={data.name}
-                            name={`${data.name}${!data.useExactMatch ? ':contains' : ''}`}
-                            value={data.value}
-                            autoComplete="nope"
-                            InputProps={{
-                                endAdornment:
-                                <InputAdornment position="end">
-                                    <IconButton>
-                                        <CloseIcon />
-                                    </IconButton>
-                                </InputAdornment>
-                            }}
-                        />
-                    </div>
-                ))}
-                {/* ... More code ... */}
-                {formData.map((data, j) => (
-                    data.name === 'date' ?
-                    <div className="form-group" key={j}>
-                        <TextField
-                            label={data.label}
-                            id="datePicker"
-                            name={data.name}
-                            value={data.value}
-                            autoComplete="off"
-                            placeholder="YYYY-MM-DD"
-                        />
-                    </div> :
-                    <div className="form-group form-group-clear" key={j}>
-                        <TextField
-                            label={data.label}
-                            id={data.name}
-                            name={`${data.name}${!data.useExactMatch ? ':contains' : ''}`}
-                            value={data.value}
-                            placeholder={data.label}
-                            autoComplete="off"
-                            InputProps={{
-                                endAdornment:
-                                <InputAdornment position="end">
-                                    <IconButton>
-                                        <CloseIcon />
-                                    </IconButton>
-                                </InputAdornment>
-                            }}
-                        />
-                    </div>
-                ))}
-                {/* ... More code ... */}
-                <Button type="button" id="resetFormButton">Reset</Button>
-                <Button type="submit">
-                    <i className="fa fa-search"></i>
-                    Search
-                </Button>
-                {/* ... More code ... */}
-            </form> : null
+        <Box
+            component="form"
+            sx={{
+                '& .MuiTextField-root': {m: 1, width: {xs: '90%', sm: '25ch'}},
+            }}
+            noValidate
+            autoComplete="off"
+        >
+            <Grid container spacing={2}>
+                <Grid item xs={12}>
+                    <DatePicker
+                        label="Start"
+                        value={start}
+                        onChange={(newValue) => setStart(newValue)}
+                    />
+                    <DatePicker
+                        label="End"
+                        value={end}
+                        onChange={(newValue) => setEnd(newValue)}
+                    />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                    <TextField
+                        name="text1"
+                        label="Text 1"
+                        type="text"
+                        value={text1}
+                        onChange={handleTextChange(setText1)}
+                        fullWidth
+                    />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                    <TextField
+                        name="text2"
+                        label="Text 2"
+                        type="text"
+                        value={text2}
+                        onChange={handleTextChange(setText2)}
+                        fullWidth
+                    />
+                </Grid>
+            </Grid>
+            <Button variant="contained" color="primary" onClick={search}>
+                Search
+            </Button>
+            <Button variant="outlined" color="secondary" onClick={resetFields}>
+                Reset
+            </Button>
+        </Box>
     );
-};
-
-export default SearchForm;
+}

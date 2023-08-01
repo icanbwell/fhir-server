@@ -14,7 +14,6 @@ import ObservationGraph from "./ObservationGraph";
 import ObservationTimeline from "./ObservationTimeline";
 import PatientTimeline from "./PatientTimeline";
 import IndexPage from './pages/IndexPage';
-import Root from './pages/Root';
 
 // import ErrorPage from "./error-page";
 
