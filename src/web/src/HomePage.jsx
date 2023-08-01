@@ -38,6 +38,7 @@ const Home = ({resources, url, currentYear, meta}) => {
     };
 
     useEffect(() => {
+        document.title = 'Helix FHIR Server';
     }, []);
 
     // noinspection JSValidateTypes
