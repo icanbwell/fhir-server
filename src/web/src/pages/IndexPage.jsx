@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import {useLocation, useParams} from 'react-router-dom';
-import {Container, Box} from '@mui/material';
+import {Container, Box, Card, CardContent, CardHeader} from '@mui/material';
 import Header from '../partials/Header';
 import Footer from '../partials/Footer';
 import FhirApi from '../fhirApi';
@@ -23,11 +23,15 @@ const IndexPage = () => {
         return resources.map((fullResource, index) => {
             const resource = fullResource.resource || fullResource;
             return (
-                <React.Fragment key={index}>
-                    <ResourceHeader resource={resource}/>
-                    <ResourceItem resource={resource} index={index}/>
-                    <Json index={index} resource={resource}/>
-                </React.Fragment>
+                <Card key={index}>
+                    <CardHeader title={`${resource.resourceType}/${resource.id}`}>
+                    </CardHeader>
+                    <CardContent>
+                        <ResourceHeader resource={resource}/>
+                        <ResourceItem resource={resource} index={index}/>
+                        <Json index={index} resource={resource}/>
+                    </CardContent>
+                </Card>
             );
         });
     };
