@@ -8,8 +8,13 @@ import {DatePicker} from '@mui/x-date-pickers/DatePicker';
 export default function SearchForm() {
     const [start, setStart] = React.useState('');
     const [end, setEnd] = React.useState('');
-    const [text1, setText1] = useState("");
-    const [text2, setText2] = useState("");
+    const [givenName, setGivenName] = useState("");
+    const [familyName, setFamilyName] = useState("");
+    const [email, setEmail] = useState("");
+    const [security, setSecurity] = useState("");
+    const [id, setId] = useState("");
+    const [identifier, setIdentifier] = useState("");
+    const [source, setSource] = useState("");
 
     const handleTextChange = (setText) => (event) => {
         setText(event.target.value);
@@ -18,13 +23,18 @@ export default function SearchForm() {
     const resetFields = () => {
         setStart(null);
         setEnd(null);
-        setText1("");
-        setText2("");
+        setGivenName("");
+        setFamilyName("");
+        setEmail("");
+        setSecurity("");
+        setId("");
+        setIdentifier("");
+        setSource("");
     };
 
     const search = () => {
-        // Perform search with dateRange, text1, and text2
-        console.log(start, end, text1, text2);
+        // Perform search with dateRange, givenName, and familyName
+        console.log(start, end, givenName, familyName, email, security, id, identifier, source);
     };
 
     return (
@@ -49,32 +59,70 @@ export default function SearchForm() {
                         onChange={(newValue) => setEnd(newValue)}
                     />
                 </Grid>
-                <Grid item xs={12} sm={6}>
+                <Grid item xs={12}>
                     <TextField
-                        name="text1"
-                        label="Text 1"
+                        name="givenName"
+                        label="Given (Name)"
                         type="text"
-                        value={text1}
-                        onChange={handleTextChange(setText1)}
+                        value={givenName}
+                        onChange={handleTextChange(setGivenName)}
                         fullWidth
                     />
-                </Grid>
-                <Grid item xs={12} sm={6}>
                     <TextField
-                        name="text2"
-                        label="Text 2"
+                        name="familyName"
+                        label="Family (Name)"
                         type="text"
-                        value={text2}
-                        onChange={handleTextChange(setText2)}
+                        value={familyName}
+                        onChange={handleTextChange(setFamilyName)}
+                        fullWidth
+                    />
+                    <TextField
+                        name="email"
+                        label="Email"
+                        type="text"
+                        value={email}
+                        onChange={handleTextChange(setEmail)}
+                        fullWidth
+                    />
+                    <TextField
+                        name="security"
+                        label="Security"
+                        type="text"
+                        value={security}
+                        onChange={handleTextChange(setSecurity)}
+                        fullWidth
+                    />
+                    <TextField
+                        name="id"
+                        label="Id"
+                        type="text"
+                        value={id}
+                        onChange={handleTextChange(setId)}
+                        fullWidth
+                    />
+                    <TextField
+                        name="identifier"
+                        label="Identifier"
+                        type="text"
+                        value={identifier}
+                        onChange={handleTextChange(setIdentifier)}
+                        fullWidth
+                    />
+                    <TextField
+                        name="source"
+                        label="Source"
+                        type="text"
+                        value={source}
+                        onChange={handleTextChange(setSource)}
                         fullWidth
                     />
                 </Grid>
             </Grid>
-            <Button variant="contained" color="primary" onClick={search}>
-                Search
-            </Button>
             <Button variant="outlined" color="secondary" onClick={resetFields}>
                 Reset
+            </Button>
+            <Button variant="contained" color="primary" onClick={search}>
+                Search
             </Button>
         </Box>
     );
