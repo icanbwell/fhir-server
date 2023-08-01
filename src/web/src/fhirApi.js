@@ -29,11 +29,18 @@ class FhirApi {
      * @param {string} resourceType
      * @param {string} id
      * @param {string} [query]
+     * @param {string[]|undefined} queryParameters
      * @returns {Promise<{status: number, json: Object}>}
      */
-    async getBundleAsync({resourceType, id, query}) {
-        const url = `/4_0_0/${resourceType}` + (id ? `/${id}/` : '') + (query ? `?${query}` : '');
-        const response = await fetch(url,
+    async getBundleAsync({resourceType, id, query, queryParameters}) {
+        const url = new URL(`/4_0_0/${resourceType}` + (id ? `/${id}/` : '') + (query ? `?${query}` : ''), window.location.origin);
+        if (queryParameters && queryParameters.length > 0) {
+            queryParameters.forEach(queryParameter => {
+                const [name, value] = queryParameter.split('=');
+                url.searchParams.append(name, value);
+            });
+        }
+        const response = await fetch(url.toString(),
             {
                 method: 'GET',
                 headers: {

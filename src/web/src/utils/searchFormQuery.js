@@ -34,6 +34,42 @@ class SearchFormQuery {
         this.identifier = identifier;
         this.source = source;
     }
+
+    /**
+     * returns the query parameters as an array of strings
+     * @returns {string[]}
+     */
+    getQueryParameters() {
+        const queryParameters = [];
+        if (this.start) {
+            queryParameters.push(`_lastUpdated=gt${this.start.toISOString()}`);
+        }
+        if (this.end) {
+            queryParameters.push(`_lastUpdated=lt${this.end.toISOString()}`);
+        }
+        if (this.givenName) {
+            queryParameters.push(`given=${this.givenName}`);
+        }
+        if (this.familyName) {
+            queryParameters.push(`family=${this.familyName}`);
+        }
+        if (this.email) {
+            queryParameters.push(`email=${this.email}`);
+        }
+        if (this.security) {
+            queryParameters.push(`_security=${this.security}`);
+        }
+        if (this.id) {
+            queryParameters.push(`id=${this.id}`);
+        }
+        if (this.identifier) {
+            queryParameters.push(`identifier=${this.identifier}`);
+        }
+        if (this.source) {
+            queryParameters.push(`_source=${this.source}`);
+        }
+        return queryParameters;
+    }
 }
 
 export default SearchFormQuery;

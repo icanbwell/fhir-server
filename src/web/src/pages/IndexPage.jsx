@@ -19,6 +19,7 @@ const IndexPage = () => {
     const [bundle, setBundle] = useState('');
     const [status, setStatus] = useState('');
     const [loading, setLoading] = useState(true);
+    const [queryParameters, setQueryParameters] = useState([]);
 
     const {id} = useParams();
 
@@ -55,7 +56,14 @@ const IndexPage = () => {
                 document.title = 'Helix FHIR Server';
                 const resourceType = 'Practitioner';
                 const fhirApi = new FhirApi();
-                const {json, status} = await fhirApi.getBundleAsync({resourceType, id, queryString});
+                const {json, status} = await fhirApi.getBundleAsync(
+                    {
+                        resourceType,
+                        id,
+                        queryString,
+                        queryParameters
+                    }
+                );
                 setStatus(status);
                 if (json.entry) {
                     setResources(json.entry);
@@ -76,7 +84,7 @@ const IndexPage = () => {
             }
         };
         callApi().catch(console.error);
-    }, [id, queryString]);
+    }, [id, queryString, queryParameters]);
 
     /**
      * Handle search event from child component
@@ -85,6 +93,7 @@ const IndexPage = () => {
     const handleSearch = (searchFormQuery) => {
         // You can handle the event and data here
         console.log("Child button clicked!", searchFormQuery);
+        setQueryParameters(searchFormQuery.getQueryParameters());
     };
 
     return (
