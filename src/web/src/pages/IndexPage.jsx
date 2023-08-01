@@ -1,17 +1,15 @@
 import React, {useEffect, useState} from 'react';
 import {useLocation, useParams} from 'react-router-dom';
-import {Container, Box, Card, CardContent, CardHeader, Accordion} from '@mui/material';
+import {Accordion, Box, Container} from '@mui/material';
 import Header from '../partials/Header';
 import Footer from '../partials/Footer';
 import FhirApi from '../fhirApi';
-import ResourceHeader from '../partials/ResourceHeader';
-import ResourceItem from './ResourceItem';
-import Json from '../partials/Json';
 import SearchForm from '../partials/SearchForm';
 import AccordionSummary from '@mui/material/AccordionSummary';
 import AccordionDetails from '@mui/material/AccordionDetails';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import Typography from '@mui/material/Typography';
+import ResourceCard from './ResourceCard';
 
 /**
  * IndexPage
@@ -38,23 +36,6 @@ const IndexPage = () => {
     const queryString = location.search;
 
     console.log(`resourceType: ${resourceType}`);
-
-    const getMain = () => {
-        return resources.map((fullResource, index) => {
-            const resource = fullResource.resource || fullResource;
-            return (
-                <Card key={index}>
-                    <CardHeader title={`(${index + 1}) ${resource.resourceType}/${resource.id}`}>
-                    </CardHeader>
-                    <CardContent>
-                        <ResourceHeader resource={resource}/>
-                        <ResourceItem resourceType={resource.resourceType} resource={resource} index={index}/>
-                        <Json index={index} resource={resource}/>
-                    </CardContent>
-                </Card>
-            );
-        });
-    };
 
     useEffect(() => {
         const callApi = async () => {
@@ -120,7 +101,12 @@ const IndexPage = () => {
                 </AccordionDetails>
             </Accordion>
             <Box my={2}>
-                {loading ? '' : status === 200 ? getMain() : <div>Not Found</div>}
+                {loading ? '' : status === 200 ? resources.map((fullResource, index) => {
+                    const resource = fullResource.resource || fullResource;
+                    return (
+                        <ResourceCard key={index} index={index} resource={resource}/>
+                    );
+                }) : <div>Not Found</div>}
             </Box>
             {bundle && <Footer url={bundle.url} meta={bundle.meta}/>}
         </Container>
