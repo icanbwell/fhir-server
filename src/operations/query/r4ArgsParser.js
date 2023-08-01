@@ -110,6 +110,7 @@ class R4ArgsParser {
              * @type {string | string[]}
              */
             let queryParameterValue = args[`${argName}`];
+            // if _elements parameter is passed we should also fetch _uuid to generate the nextLink if not present already
             if (queryParameter === '_elements' && queryParameterValue && !queryParameterValue.includes(this.configManager.defaultSortId)) {
                 queryParameterValue += `,${this.configManager.defaultSortId}`;
             }
