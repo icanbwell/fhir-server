@@ -68,20 +68,22 @@ class FixBwellMasterPersonReferenceRunner extends FixReferenceIdRunner {
                     // just take the uuid from reference and update it
                     if (reference.reference.includes('|')) {
                         let uuidReference = reference._uuid;
+                        const sourceAssigningAuthority = reference.reference.split('|')[1];
                         if (!uuidReference) {
-                            reference.extension.forEach(element => {
-                                if (element.url === IdentifierSystem.uuid) {
-                                    uuidReference = element.valueString;
-                                }
-                            });
+                            const uuidIdentifier = reference.extension.find(element => element.url === IdentifierSystem.uuid);
+                            if (uuidIdentifier && uuidIdentifier.valueString) {
+                                uuidReference = uuidIdentifier.valueString;
+                            }
                         }
 
                         if (uuidReference) {
                             reference.reference = uuidReference;
                             reference._sourceId = uuidReference;
-                            reference.extension.forEach(element => {
-                                if (element.url === IdentifierSystem.sourceId) {
-                                    element.valueString = uuidReference;
+                            reference.extension.forEach(extension => {
+                                if (extension.url === IdentifierSystem.sourceId) {
+                                    extension.valueString = uuidReference;
+                                } else if (extension.url === SecurityTagSystem.sourceAssigningAuthority) {
+                                    extension.valueString = sourceAssigningAuthority;
                                 }
                             });
                         }
@@ -260,7 +262,7 @@ class FixBwellMasterPersonReferenceRunner extends FixReferenceIdRunner {
                 /**
                  * @type {string[]}
                  */
-                this.collections = ['Person_4_0_0_History', 'Person_4_0_0'];
+                this.collections = ['Person_4_0_0', 'Person_4_0_0_History'];
 
                 if (this.startFromCollection) {
                     this.collections = this.collections.filter(c => c >= this.startFromCollection);
@@ -513,14 +515,6 @@ class FixBwellMasterPersonReferenceRunner extends FixReferenceIdRunner {
          * @type {import('mongodb').Filter<import('mongodb').Document>}
          */
         const filterQuery = [
-            {
-                [isHistoryCollection ? 'resource.meta.security' : 'meta.security']: {
-                    $elemMatch: {
-                        'system': SecurityTagSystem.access,
-                        'code': 'bwell'
-                    }
-                }
-            },
             {
                 [isHistoryCollection ? 'resource.meta.security' : 'meta.security']: {
                     $elemMatch: {
