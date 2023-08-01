@@ -1,11 +1,14 @@
-const AccountPage = ({resource}) => {
-    return (
-        <div>
-            <div>resourceType: {resource.resourceType}</div>
-            <div>id: {resource.id}</div>
-        </div>
-    );
+import React from 'react';
+import {Link, Box} from '@mui/material';
+import Reference from '../partials/Reference';
 
+const Account = ({resource, admin, index}) => {
+
+    return (
+        <Box>
+            <Reference references={resource.subject} name="Subject"/>
+        </Box>
+    );
 };
 
-export default AccountPage;
+export default Account;
