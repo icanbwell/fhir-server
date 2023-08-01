@@ -1,7 +1,7 @@
 import React, {useState, useEffect} from "react";
 import {Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography, Link} from "@mui/material";
 
-function CodeableConcepts({name, codeableConceptsWithValue, codePropertyName, searchParameter, resourceType}) {
+function CodeableConceptWithValue({name, codeableConceptsWithValue, codePropertyName, searchParameter, resourceType}) {
     const [codeableConcepts, setCodeableConcepts] = useState([]);
 
     useEffect(() => {
@@ -98,4 +98,4 @@ function CodeableConcepts({name, codeableConceptsWithValue, codePropertyName, se
     );
 }
 
-export default CodeableConcepts;
+export default CodeableConceptWithValue;
