@@ -1,10 +1,31 @@
 // HomePage.js
 import {resourceDefinitions} from './utils/reactResourceDefinitions';
 import React, {useEffect} from 'react';
-import {Table, TableBody, TableCell, TableContainer, TableHead, TableRow, IconButton} from '@mui/material';
+import {Table, TableBody, TableCell, TableContainer, TableHead, TableRow, IconButton, Container} from '@mui/material';
 import DescriptionIcon from '@mui/icons-material/Description';
 
+import {makeStyles} from '@mui/styles';
+import Header from './partials/Header';
+import Footer from './partials/Footer';
+import {useNavigate} from 'react-router-dom';
+
+
 const Home = ({resources, url, currentYear, meta}) => {
+    const useStyles = makeStyles({
+        row: {
+            '&:nth-of-type(odd)': {
+                backgroundColor: '#f2f2f2',  // Light gray for odd rows
+            },
+            '&:nth-of-type(even)': {
+                backgroundColor: '#ffffff',  // White for even rows
+            },
+        },
+    });
+
+    const classes = useStyles();
+
+    const navigate = useNavigate();
+
     const searchResource = (resourceName) => {
         // implementation of searchResource
     };
@@ -18,8 +39,10 @@ const Home = ({resources, url, currentYear, meta}) => {
     useEffect(() => {
     }, []);
 
+    // noinspection JSValidateTypes
     return (
-        <div>
+        <Container>
+            <Header resources={resourceDefinitions}/>
             <TableContainer>
                 <Table stickyHeader className="sticky-table">
                     <TableHead>
@@ -30,9 +53,13 @@ const Home = ({resources, url, currentYear, meta}) => {
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        {resourceDefinitions.map((resource) => (
-                            <TableRow key={resource.name} onClick={() => searchResource(resource.name)}
-                                      className="row-click">
+                        {resourceDefinitions.map(resource => (
+                            <TableRow key={resource.name}
+                                      onClick={() => {
+                                          searchResource(resource.name);
+                                          navigate(`/4_0_0/${resource.name}`); // navigate to the desired path
+                                      }}
+                                      className={classes.row}>
                                 <TableCell>{resource.name}</TableCell>
                                 <TableCell className="pe-5 position-relative">
                                     {resource.description}
@@ -50,7 +77,8 @@ const Home = ({resources, url, currentYear, meta}) => {
                     </TableBody>
                 </Table>
             </TableContainer>
-        </div>
+            <Footer/>
+        </Container>
     );
 };
 
