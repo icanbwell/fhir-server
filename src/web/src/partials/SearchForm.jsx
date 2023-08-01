@@ -5,7 +5,7 @@ import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
 import {DatePicker} from '@mui/x-date-pickers/DatePicker';
 
-export default function SearchForm() {
+export default function SearchForm({onSearch}) {
     const [start, setStart] = React.useState('');
     const [end, setEnd] = React.useState('');
     const [givenName, setGivenName] = useState("");
@@ -34,7 +34,16 @@ export default function SearchForm() {
 
     const search = () => {
         // Perform search with dateRange, givenName, and familyName
-        console.log(start, end, givenName, familyName, email, security, id, identifier, source);
+        onSearch({
+            start,
+            end, givenName,
+            familyName,
+            email,
+            security,
+            id,
+            identifier,
+            source
+        });
     };
 
     return (

@@ -78,6 +78,13 @@ const IndexPage = () => {
         callApi().catch(console.error);
     }, [id, queryString]);
 
+    const handleSearch = (dataFromChild) => {
+        // You can handle the event and data here
+        console.log("Child button clicked!", dataFromChild);
+        const {start, end, givenName, familyName, email, security, id, identifier, source} = dataFromChild;
+        console.log(start, end, givenName, familyName, email, security, id, identifier, source);
+    };
+
     return (
         <Container maxWidth={false}>
             <Header resources={resources}/>
@@ -90,7 +97,7 @@ const IndexPage = () => {
                     <Typography>Advanced Search</Typography>
                 </AccordionSummary>
                 <AccordionDetails>
-                    <SearchForm></SearchForm>
+                    <SearchForm onSearch={handleSearch}></SearchForm>
                 </AccordionDetails>
             </Accordion>
             <Box my={2}>
