@@ -12,6 +12,7 @@ const northWellBwellPerson = require('./fixtures/Person/northwell-bwell-person.j
 const northWellClientPerson = require('./fixtures/Person/northwell-client.json');
 const task1 = require('./fixtures/Task/task1.json');
 const task2 = require('./fixtures/Task/task2.json');
+const task3 = require('./fixtures/Task/task3.json');
 
 // expected
 const expectedTasksResponse = require('./fixtures/expected/expected_tasks.json');
@@ -126,6 +127,13 @@ describe('Patient Tests', () => {
             resp = await request
                 .post('/4_0_0/Task/1/$merge?validate=true')
                 .send(task2)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
+
+            resp = await request
+                .post('/4_0_0/Task/1/$merge?validate=true')
+                .send(task3)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveMergeResponse({created: true});
