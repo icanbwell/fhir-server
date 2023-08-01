@@ -5,7 +5,7 @@ import AccordionDetails from '@mui/material/AccordionDetails';
 import Typography from '@mui/material/Typography';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
-const Json = ({index, res}) => {
+const Json = ({index, resource}) => {
     const [expanded, setExpanded] = useState(false);
 
     const handleExpand = () => {
@@ -27,7 +27,7 @@ const Json = ({index, res}) => {
                     (Use _format=json on url if you want JUST the raw json)
                     <pre>
             <code>
-              {JSON.stringify(res, null, 4)}
+              {JSON.stringify(resource, null, 4)}
             </code>
           </pre>
                 </Typography>

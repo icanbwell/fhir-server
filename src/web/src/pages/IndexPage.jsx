@@ -6,6 +6,7 @@ import Footer from '../partials/Footer';
 import FhirApi from '../fhirApi';
 import ResourceHeader from '../partials/ResourceHeader';
 import ResourceItem from './ResourceItem';
+import Json from '../partials/Json';
 
 // Main Component
 const IndexPage = () => {
@@ -25,6 +26,7 @@ const IndexPage = () => {
                 <React.Fragment key={index}>
                     <ResourceHeader resource={resource}/>
                     <ResourceItem resource={resource} index={index}/>
+                    <Json index={index} resource={resource}/>
                 </React.Fragment>
             );
         });
@@ -44,7 +46,7 @@ const IndexPage = () => {
                     setBundle(json);
                     document.title = resourceType;
                 } else {
-                    setResources(json ? [json]: []);
+                    setResources(json ? [json] : []);
                     if (json.id) {
                         document.title = `${json.id} (${resourceType})`;
                     } else {

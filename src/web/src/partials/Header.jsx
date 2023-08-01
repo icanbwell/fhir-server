@@ -1,4 +1,7 @@
 import React from 'react';
+import {AppBar, Toolbar, Typography, IconButton, Button} from '@mui/material';
+import InfoIcon from '@mui/icons-material/Info';
+import LogoutIcon from '@mui/icons-material/Logout';
 
 class Header extends React.Component {
     constructor(props) {
@@ -13,35 +16,22 @@ class Header extends React.Component {
     render() {
         const {deployEnvironment, environment, resources} = this.state;
         return (
-            <React.Fragment>
-                <header>
-                    <nav className="navbar px-3 pt-2">
-                        <a href="/" title="Go to Home Page" className="px-3 helix-logo"></a>
-                        <h5 className="flex-grow-1 px-3 mb-0">Helix FHIR Server - {deployEnvironment}</h5>
-                        <button
-                            type="button"
-                            id="appInfo"
-                            className="btn btn-light fa fa-info ms-2"
-                            title="Information"
-                            data-bs-toggle="modal"
-                            data-bs-target="#appInfoModal"
-                        ></button>
-
-                        {environment &&
-                            <a id="btnLogout" className="btn btn-success btn-sm ms-2" href="/logout_action">
-                                <i className="fa fa-sign-out"></i>
-                                Logout
-                            </a>
-                        }
-                    </nav>
-                </header>
-                {/*{resources && resources.length === 0 &&*/}
-                {/*    <React.Fragment>*/}
-                {/*        <br/>*/}
-                {/*        <h2 style={{textAlign: "center"}}>No Resources Found</h2>*/}
-                {/*    </React.Fragment>*/}
-                {/*}*/}
-            </React.Fragment>
+            <AppBar position="static">
+                <Toolbar>
+                    {/* Please replace this Typography with your logo */}
+                    <Typography variant="h6" style={{flexGrow: 1}}>
+                        Helix FHIR Server - {deployEnvironment}
+                    </Typography>
+                    <IconButton color="inherit" aria-label="information" id="appInfo">
+                        <InfoIcon/>
+                    </IconButton>
+                    {environment &&
+                        <Button color="inherit" startIcon={<LogoutIcon/>} id="btnLogout" href="/logout_action">
+                            Logout
+                        </Button>
+                    }
+                </Toolbar>
+            </AppBar>
         );
     }
 }
