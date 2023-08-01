@@ -1,7 +1,7 @@
 import React from 'react';
 import {Typography} from '@mui/material';
 
-const DateTime = ({name, value}) => {
+const Decimal = ({name, value}) => {
     if (!value) return null;
 
     return (
@@ -11,4 +11,4 @@ const DateTime = ({name, value}) => {
     );
 };
 
-export default DateTime;
+export default Decimal;

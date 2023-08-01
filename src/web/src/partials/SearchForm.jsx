@@ -6,7 +6,7 @@ import Grid from '@mui/material/Grid';
 import {DatePicker} from '@mui/x-date-pickers/DatePicker';
 import SearchFormQuery from '../utils/searchFormQuery';
 
-export default function SearchForm({onSearch}) {
+export default function SearchForm({onSearch, resourceType}) {
     const [start, setStart] = React.useState('');
     const [end, setEnd] = React.useState('');
     const [givenName, setGivenName] = useState("");

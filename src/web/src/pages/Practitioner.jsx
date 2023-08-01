@@ -1,5 +1,5 @@
 import React from 'react';
-import {Table, TableHead, TableBody, TableRow, TableCell, Typography} from '@mui/material';
+import {Table, TableHead, TableBody, TableRow, TableCell, Typography, Box} from '@mui/material';
 import ResourceHeader from '../partials/ResourceHeader';
 import HumanNames from '../partials/HumanNames';
 import CodeableConcept from '../partials/CodeableConcept';
@@ -8,7 +8,7 @@ import ReverseReference from '../partials/ReverseReference';
 
 function Practitioner({resource, index}) {
     return (
-        <div key={index} className="resource-item">
+        <Box key={index}>
             <ResourceHeader res={resource}/>
             <HumanNames names={resource.name} resourceType={resource.resourceType}/>
             <Typography variant="h4">Gender</Typography>
@@ -58,7 +58,7 @@ function Practitioner({resource, index}) {
                 id={resource.id}
                 name="Schedule (also check schedules on PractitionerRole)"
             />
-        </div>
+        </Box>
     );
 }
 

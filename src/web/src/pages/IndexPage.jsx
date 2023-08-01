@@ -13,7 +13,12 @@ import AccordionDetails from '@mui/material/AccordionDetails';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import Typography from '@mui/material/Typography';
 
-// Main Component
+/**
+ * IndexPage
+ * Note: Any route parameters are available via useParams()
+ * @returns {Element}
+ * @constructor
+ */
 const IndexPage = () => {
     const [resources, setResources] = useState('');
     const [bundle, setBundle] = useState('');
@@ -21,7 +26,7 @@ const IndexPage = () => {
     const [loading, setLoading] = useState(true);
     const [queryParameters, setQueryParameters] = useState([]);
 
-    const {id} = useParams();
+    const {id, resourceType} = useParams();
 
     const [expanded, setExpanded] = useState(false);
 
@@ -32,12 +37,14 @@ const IndexPage = () => {
     const location = useLocation();
     const queryString = location.search;
 
+    console.log(`resourceType: ${resourceType}`);
+
     const getMain = () => {
         return resources.map((fullResource, index) => {
             const resource = fullResource.resource || fullResource;
             return (
                 <Card key={index}>
-                    <CardHeader title={`${index + 1}. ${resource.resourceType}/${resource.id}`}>
+                    <CardHeader title={`(${index + 1}) ${resource.resourceType}/${resource.id}`}>
                     </CardHeader>
                     <CardContent>
                         <ResourceHeader resource={resource}/>
@@ -54,7 +61,6 @@ const IndexPage = () => {
             try {
                 setLoading(true);
                 document.title = 'Helix FHIR Server';
-                const resourceType = 'Practitioner';
                 const fhirApi = new FhirApi();
                 const {json, status} = await fhirApi.getBundleAsync(
                     {
@@ -64,12 +70,14 @@ const IndexPage = () => {
                         queryParameters
                     }
                 );
+                // noinspection JSCheckFunctionSignatures
                 setStatus(status);
                 if (json.entry) {
                     setResources(json.entry);
                     setBundle(json);
                     document.title = resourceType;
                 } else {
+                    // noinspection JSCheckFunctionSignatures
                     setResources(json ? [json] : []);
                     if (json.id) {
                         document.title = `${json.id} (${resourceType})`;
@@ -84,7 +92,7 @@ const IndexPage = () => {
             }
         };
         callApi().catch(console.error);
-    }, [id, queryString, queryParameters]);
+    }, [id, queryString, queryParameters, resourceType]);
 
     /**
      * Handle search event from child component
