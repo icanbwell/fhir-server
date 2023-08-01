@@ -19,6 +19,7 @@ const Home = ({resources, url, currentYear, meta}) => {
             '&:nth-of-type(even)': {
                 backgroundColor: '#ffffff',  // White for even rows
             },
+            cursor: 'pointer',
         },
     });
 
