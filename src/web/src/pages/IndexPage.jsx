@@ -78,11 +78,13 @@ const IndexPage = () => {
         callApi().catch(console.error);
     }, [id, queryString]);
 
-    const handleSearch = (dataFromChild) => {
+    /**
+     * Handle search event from child component
+     * @param {SearchFormQuery} searchFormQuery
+     */
+    const handleSearch = (searchFormQuery) => {
         // You can handle the event and data here
-        console.log("Child button clicked!", dataFromChild);
-        const {start, end, givenName, familyName, email, security, id, identifier, source} = dataFromChild;
-        console.log(start, end, givenName, familyName, email, security, id, identifier, source);
+        console.log("Child button clicked!", searchFormQuery);
     };
 
     return (
