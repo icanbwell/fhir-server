@@ -24,7 +24,7 @@ const IndexPage = () => {
             const resource = fullResource.resource || fullResource;
             return (
                 <Card key={index}>
-                    <CardHeader title={`${resource.resourceType}/${resource.id}`}>
+                    <CardHeader title={`${index+1}. ${resource.resourceType}/${resource.id}`}>
                     </CardHeader>
                     <CardContent>
                         <ResourceHeader resource={resource}/>
