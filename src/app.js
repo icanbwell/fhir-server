@@ -93,6 +93,12 @@ function createApp({fnCreateContainer, trackMetrics}) {
      */
     const app = express();
 
+    /**
+     * @type {SimpleContainer}
+     */
+    const container = fnCreateContainer();
+    const configManager = container.configManager;
+
     const httpProtocol = env.ENVIRONMENT === 'local' ? 'http' : 'https';
 
     // middleware to parse cookies
@@ -220,10 +226,10 @@ function createApp({fnCreateContainer, trackMetrics}) {
             resources: resourceDefinitions,
             user: req.user
         };
-        if (req.cookies && req.cookies['web2']) {
+        if (!configManager.disableNewUI && ((req.cookies && req.cookies['web2']) || configManager.showNewUI)) {
             const path1 = path.join(__dirname, './web/build', 'index.html');
-            console.log(`Route: /web/*: ${path1}`);
-            console.log(`Received /web/* ${req.method} request at ${req.url}`);
+            // console.log(`Route: /web/*: ${path1}`);
+            // console.log(`Received /web/* ${req.method} request at ${req.url}`);
             return res.sendFile(path1);
         } else {
             return res.render(__dirname + '/views/pages/home', home_options);
@@ -331,16 +337,16 @@ function createApp({fnCreateContainer, trackMetrics}) {
                         /**
                          * @type {SimpleContainer}
                          */
-                        const container = req1.container;
-                        if (container) {
+                        const container1 = req1.container;
+                        if (container1) {
                             /**
                              * @type {PostRequestProcessor}
                              */
-                            const postRequestProcessor = container.postRequestProcessor;
+                            const postRequestProcessor = container1.postRequestProcessor;
                             /**
                              * @type {RequestSpecificCache}
                              */
-                            const requestSpecificCache = container.requestSpecificCache;
+                            const requestSpecificCache = container1.requestSpecificCache;
                             if (postRequestProcessor) {
                                 const requestId = httpContext.get(REQUEST_ID_TYPE.SYSTEM_GENERATED_REQUEST_ID);
                                 await postRequestProcessor.executeAsync({requestId});

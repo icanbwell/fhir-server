@@ -22,6 +22,7 @@ const httpContext = require('express-http-context');
 const {REQUEST_ID_TYPE} = require('../constants');
 const {convertErrorToOperationOutcome} = require('../utils/convertErrorToOperationOutcome');
 const {shouldReturnHtml} = require('../utils/requestHelpers');
+const {ConfigManager} = require('../utils/configManager');
 
 class MyFHIRServer {
     /**
@@ -48,6 +49,12 @@ class MyFHIRServer {
          */
         this.fhirRouter = this.container.fhirRouter;
         assertTypeEquals(this.fhirRouter, FhirRouter);
+
+        /**
+         * @type {ConfigManager}
+         */
+        this.configManager = this.container.configManager;
+        assertTypeEquals(this.configManager, ConfigManager);
 
         let {server = {}} = this.config;
         this.env = {
@@ -250,10 +257,10 @@ class MyFHIRServer {
             // Any request that uses /web should go to React
             this.app.get('/4_0_0/*', (req, res, next) => { // support sub-paths also
                 if (shouldReturnHtml(req)) {
-                    if (req.cookies && req.cookies['web2']) {
+                    if (!this.configManager.disableNewUI && ((req.cookies && req.cookies['web2']) || this.configManager.showNewUI)) {
                         const path1 = path.join(__dirname, '../web/build', 'index.html');
-                        console.log(`Route: /web/*: ${path1}`);
-                        console.log(`Received /web/* ${req.method} request at ${req.url}`);
+                        // console.log(`Route: /web/*: ${path1}`);
+                        // console.log(`Received /web/* ${req.method} request at ${req.url}`);
                         res.sendFile(path1);
                     } else {
                         htmlRenderer({

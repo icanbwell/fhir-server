@@ -1,7 +1,6 @@
 import React from 'react';
 import {Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow} from '@mui/material';
-
-import Reference from '../partials/reference';
+import Reference from '../partials/Reference';
 
 const QuestionnaireResponse = ({resource}) => {
     return (
