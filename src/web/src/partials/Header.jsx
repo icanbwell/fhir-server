@@ -1,5 +1,5 @@
 import React from 'react';
-import {AppBar, Toolbar, Typography, IconButton, Button, Box, Alert} from '@mui/material';
+import {AppBar, Toolbar, Typography, IconButton, Button, Alert} from '@mui/material';
 import InfoIcon from '@mui/icons-material/Info';
 import LogoutIcon from '@mui/icons-material/Logout';
 import HomeIcon from '@mui/icons-material/Home';
@@ -50,6 +50,7 @@ class Header extends React.Component {
 
 
     render() {
+        // eslint-disable-next-line no-unused-vars
         const {deployEnvironment, environment, resources} = this.state;
         return (
             <React.Fragment>
