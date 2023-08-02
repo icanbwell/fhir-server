@@ -413,13 +413,7 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                             `size: ${memoryManager.formatBytes(bytesLoaded)} ` +
                             `mem: ${memoryManager.memoryUsed} ` +
                             `lastId: ${previouslyCheckedId}`);
-                        if (Object.prototype.hasOwnProperty.call(this, 'historyUuidCache') && doc._uuid && !sourceCollectionName.includes('_History')) {
-                            if (!this.historyUuidCache.has(doc.resourceType)) {
-                                this.historyUuidCache.set(doc.resourceType, new Set());
-                            }
-                            let historyUuidCacheSet = this.historyUuidCache.get(doc.resourceType);
-                            historyUuidCacheSet.add(doc._uuid);
-                        }
+
                         /**
                          * @type {import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>[]}
                          */
@@ -427,6 +421,19 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                         for (const bulkOperation of bulkOperations) {
                             operations.push(bulkOperation);
                             startFromIdContainer.numOperations += 1;
+                        }
+
+                        if (
+                            Object.prototype.hasOwnProperty.call(this, 'historyUuidCache') &&
+                            doc._uuid &&
+                            !sourceCollectionName.includes('_History') &&
+                            bulkOperations.length > 0
+                        ) {
+                            if (!this.historyUuidCache.has(doc.resourceType)) {
+                                this.historyUuidCache.set(doc.resourceType, new Set());
+                            }
+                            let historyUuidCacheSet = this.historyUuidCache.get(doc.resourceType);
+                            historyUuidCacheSet.add(doc._uuid);
                         }
 
                         startFromIdContainer.convertedIds += 1;
