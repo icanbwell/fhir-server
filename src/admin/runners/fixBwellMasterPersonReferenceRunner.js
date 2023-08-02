@@ -229,13 +229,6 @@ class FixBwellMasterPersonReferenceRunner extends FixReferenceIdRunner {
                 });
             }
 
-            if (!isHistoryDoc && operations.length > 0) {
-                if (this.historyUuidCache.has(doc.resourceType)) {
-                    this.historyUuidCache.set(doc.resourceType, []);
-                }
-                this.historyUuidCache.get(doc.resourceType).push(doc._uuid);
-            }
-
             return operations;
         } catch (e) {
             throw new RethrownError(
@@ -312,7 +305,7 @@ class FixBwellMasterPersonReferenceRunner extends FixReferenceIdRunner {
                             limit: this.limit,
                             useTransaction: this.useTransaction,
                             skip: this.skip,
-                            filterToIds: isHistoryCollection && this.historyUuidCache.has(resourceName) ? this.historyUuidCache.get(resourceName) : undefined,
+                            filterToIds: isHistoryCollection && this.historyUuidCache.has(resourceName) ? Array.from(this.historyUuidCache.get(resourceName)) : undefined,
                             filterToIdProperty: isHistoryCollection && this.historyUuidCache.has(resourceName) ? 'resource._uuid' : undefined
                         });
 
