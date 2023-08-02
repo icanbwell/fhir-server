@@ -1,0 +1,26 @@
+{
+    "resourceType": "Person",
+    "id": "4",
+    "meta": {
+        "source": "bwell",
+        "security": [
+            {
+                "system": "https://www.icanbwell.com/owner",
+                "code": "bwell"
+            },
+            {
+                "system": "https://www.icanbwell.com/access",
+                "code": "bwell"
+            }
+        ]
+    },
+    "link": [
+        {
+            "target": {
+                "reference": "Patient/1|thedacare",
+                "display": "Eve Everywoman"
+            },
+            "assurance": "level3"
+        }
+    ]
+}
