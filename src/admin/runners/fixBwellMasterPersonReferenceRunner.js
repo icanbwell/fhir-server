@@ -69,7 +69,7 @@ class FixBwellMasterPersonReferenceRunner extends FixReferenceIdRunner {
                     if (reference.reference.includes('|')) {
                         let uuidReference = reference._uuid;
                         const sourceAssigningAuthority = reference.reference.split('|')[1];
-                        if (!uuidReference) {
+                        if (!uuidReference && reference.extension) {
                             const uuidIdentifier = reference.extension.find(element => element.url === IdentifierSystem.uuid);
                             if (uuidIdentifier && uuidIdentifier.valueString) {
                                 uuidReference = uuidIdentifier.valueString;
@@ -79,13 +79,15 @@ class FixBwellMasterPersonReferenceRunner extends FixReferenceIdRunner {
                         if (uuidReference) {
                             reference.reference = uuidReference;
                             reference._sourceId = uuidReference;
-                            reference.extension.forEach(extension => {
-                                if (extension.url === IdentifierSystem.sourceId) {
-                                    extension.valueString = uuidReference;
-                                } else if (extension.url === SecurityTagSystem.sourceAssigningAuthority) {
-                                    extension.valueString = sourceAssigningAuthority;
-                                }
-                            });
+                            if (reference.extension) {
+                                reference.extension.forEach(extension => {
+                                    if (extension.url === IdentifierSystem.sourceId) {
+                                        extension.valueString = uuidReference;
+                                    } else if (extension.url === SecurityTagSystem.sourceAssigningAuthority) {
+                                        extension.valueString = sourceAssigningAuthority;
+                                    }
+                                });
+                            }
                         }
                     } else {
                         // current reference with id
@@ -119,15 +121,17 @@ class FixBwellMasterPersonReferenceRunner extends FixReferenceIdRunner {
                                 reference._uuid = uuidReference;
                                 reference._sourceAssigningAuthority = sourceAssigningAuthority;
 
-                                reference.extension = reference.extension.map(extension => {
-                                    if (extension.url === IdentifierSystem.sourceId || extension.url === IdentifierSystem.uuid) {
-                                        extension.valueString = uuidReference;
-                                    } else if (extension.url === SecurityTagSystem.sourceAssigningAuthority) {
-                                        extension.valueString = sourceAssigningAuthority;
-                                    }
+                                if (reference.extension) {
+                                    reference.extension = reference.extension.map(extension => {
+                                        if (extension.url === IdentifierSystem.sourceId || extension.url === IdentifierSystem.uuid) {
+                                            extension.valueString = uuidReference;
+                                        } else if (extension.url === SecurityTagSystem.sourceAssigningAuthority) {
+                                            extension.valueString = sourceAssigningAuthority;
+                                        }
 
-                                    return extension;
-                                });
+                                        return extension;
+                                    });
+                                }
                             }
                         }
                     }
