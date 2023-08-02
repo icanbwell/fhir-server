@@ -26,12 +26,12 @@
   "link": [
     {
       "target": {
-        "reference": "Person/760afbca-86ba-42a2-b192-300b23cdbbf1"
+        "reference": "Person/northwell-person|mps-api"
       }
     },
     {
       "target": {
-        "reference": "Patient/e4864130-01e2-4368-abe9-8e2c521171d1"
+        "reference": "Patient/northwell-patient-1"
       }
     }
   ]

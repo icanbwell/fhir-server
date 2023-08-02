@@ -26,12 +26,12 @@
   "link": [
     {
       "target": {
-        "reference": "Person/1f4a7635-2a45-4059-80e0-6b07466edc21"
+        "reference": "Person/mps-person|mps-api"
       }
     },
     {
       "target": {
-        "reference": "Patient/49d410d2-b090-4f9c-ad9a-efac145bf81a"
+        "reference": "Patient/mps-patient-1"
       }
     }
   ]
