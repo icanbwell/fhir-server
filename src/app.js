@@ -278,26 +278,6 @@ function createApp({fnCreateContainer, trackMetrics}) {
         app.use(cors(fhirServerConfig.server.corsOptions));
     }
 
-    if (process.env.OPENAI_API_KEY) {
-        // eslint-disable-next-line new-cap
-        const webRouter = express.Router({mergeParams: true}); // https://expressjs.com/en/4x/api.html#express.router
-        if (isTrue(env.AUTH_ENABLED)) {
-            webRouter.use(passport.initialize());
-            webRouter.use(passport.authenticate('adminStrategy', {session: false}, null));
-        }
-
-        // Serve static files from the React app
-        webRouter.use('/web', express.static(path.join(__dirname, 'web/build')));
-        // Any request that uses /web should go to React
-        webRouter.get('/web/*', (req, res) => { // support sub-paths also
-            const path1 = path.join(__dirname, 'web/build', 'index.html');
-            // console.log(`Route: /web/*: ${path1}`);
-            // console.log(`Received /web/* ${req.method} request at ${req.url}`);
-            res.sendFile(path1);
-        });
-        app.use(webRouter);
-    }
-
     // eslint-disable-next-line new-cap
     const adminRouter = express.Router({mergeParams: true});
     if (isTrue(env.AUTH_ENABLED)) {
@@ -373,6 +353,12 @@ function createApp({fnCreateContainer, trackMetrics}) {
     app.locals.currentYear = new Date().getFullYear();
     app.locals.deployEnvironment = env.ENVIRONMENT;
     app.locals.deployVersion = getImageVersion();
+
+    app.get('/robots.txt', (req, res) => {
+        // Your logic for the route goes here
+        // If the resource is not found, send a 404 response
+        res.status(404).send('Not Found');
+    });
 
     // enables access to reverse proxy information
     // https://expressjs.com/en/guide/behind-proxies.html
