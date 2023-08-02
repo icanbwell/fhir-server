@@ -4,6 +4,7 @@ const person2Resource = require('./fixtures/Person/person2.json');
 const person3Resource = require('./fixtures/Person/person3.json');
 const person4Resource = require('./fixtures/Person/person4.json');
 const person5Resource = require('./fixtures/Person/person5.json');
+const person6Resource = require('./fixtures/Person/person6.json');
 const patient1Resource = require('./fixtures/Patient/patient1.json');
 const patient2Resource = require('./fixtures/Patient/patient2.json');
 
@@ -20,6 +21,7 @@ const expectedPerson5AfterRun = require('./fixtures/expected/expectedPerson5Afte
 
 const expectedPerson2 = require('./fixtures/expected/expectedPerson2.json');
 const expectedPerson3 = require('./fixtures/expected/expectedPerson3.json');
+const expectedPerson6 = require('./fixtures/expected/expectedPerson6.json');
 const expectedPatient1 = require('./fixtures/expected/expectedPatient1.json');
 const expectedPatient2 = require('./fixtures/expected/expectedPatient2.json');
 
@@ -110,6 +112,14 @@ describe('Person Tests', () => {
             expect(resp).toHaveMergeResponse({ created: true });
 
             resp = await request
+                .post('/4_0_0/Person/$merge')
+                .send(person6Resource)
+                .set(getHeaders())
+                .expect(200);
+
+            expect(resp).toHaveMergeResponse({ created: true });
+
+            resp = await request
                 .post('/4_0_0/Patient/$merge')
                 .send(patient1Resource)
                 .set(getHeaders())
@@ -136,6 +146,15 @@ describe('Person Tests', () => {
             expect(person2BeforeRun).toEqual(expectedPerson2);
 
             resp = await request
+                .get(`/4_0_0/Person/${expectedPerson6.id}`)
+                .set(getHeaders())
+                .expect(200);
+
+            const person6BeforeRun = resp.body;
+            delete person6BeforeRun.meta.lastUpdated;
+            expect(person6BeforeRun).toEqual(expectedPerson6);
+
+            resp = await request
                 .get(`/4_0_0/Patient/${expectedPatient1.id}`)
                 .set(getHeaders())
                 .expect(200);
@@ -148,7 +167,7 @@ describe('Person Tests', () => {
 
             // run admin runner
             const collections = ['all'];
-            const preLoadCollections = ['Patient_4_0_0', 'Patient_4_0_0_History', 'Person_4_0_0', 'Person_4_0_0_History'];
+            const preLoadCollections = ['all'];
             const batchSize = 10000;
 
             container.register('fixBwellMasterPersonReference', (c) => new FixBwellMasterPersonReferenceRunner(
@@ -192,6 +211,15 @@ describe('Person Tests', () => {
             const person2AfterRun = resp.body;
             delete person2AfterRun.meta.lastUpdated;
             expect(person2AfterRun).toEqual(expectedPerson2);
+
+            resp = await request
+                .get(`/4_0_0/Person/${expectedPerson6.id}`)
+                .set(getHeaders())
+                .expect(200);
+
+            const person6AfterRun = resp.body;
+            delete person6AfterRun.meta.lastUpdated;
+            expect(person6AfterRun).toEqual(expectedPerson6);
 
             resp = await request
                 .get(`/4_0_0/Patient/${expectedPatient1.id}`)
@@ -280,7 +308,7 @@ describe('Person Tests', () => {
 
             // run admin runner
             const collections = ['all'];
-            const preLoadCollections = ['Patient_4_0_0', 'Patient_4_0_0_History', 'Person_4_0_0', 'Person_4_0_0_History'];
+            const preLoadCollections = ['all'];
             const batchSize = 10000;
 
             container.register('fixBwellMasterPersonReference', (c) => new FixBwellMasterPersonReferenceRunner(
@@ -407,7 +435,7 @@ describe('Person Tests', () => {
 
             // run admin runner
             const collections = ['all'];
-            const preLoadCollections = ['Patient_4_0_0', 'Patient_4_0_0_History', 'Person_4_0_0', 'Person_4_0_0_History'];
+            const preLoadCollections = ['all'];
             const batchSize = 10000;
 
             container.register('fixBwellMasterPersonReference', (c) => new FixBwellMasterPersonReferenceRunner(
@@ -518,7 +546,7 @@ describe('Person Tests', () => {
 
             // run admin runner
             const collections = ['all'];
-            const preLoadCollections = ['Patient_4_0_0', 'Patient_4_0_0_History', 'Person_4_0_0', 'Person_4_0_0_History'];
+            const preLoadCollections = ['all'];
             const batchSize = 10000;
 
             container.register('fixBwellMasterPersonReference', (c) => new FixBwellMasterPersonReferenceRunner(
@@ -607,7 +635,7 @@ describe('Person Tests', () => {
 
             // run admin runner
             const collections = ['all'];
-            const preLoadCollections = ['Patient_4_0_0', 'Patient_4_0_0_History', 'Person_4_0_0', 'Person_4_0_0_History'];
+            const preLoadCollections = ['all'];
             const batchSize = 10000;
 
             container.register('fixBwellMasterPersonReference', (c) => new FixBwellMasterPersonReferenceRunner(
