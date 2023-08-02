@@ -45,7 +45,7 @@ class Header extends React.Component {
 
     switchToOldUI = () => {
         this.deleteCookie("web2");
-        window.location.href = "/";
+        window.location.reload();
     };
 
 

@@ -56,43 +56,13 @@
     </div>
 </div>
 
-<% if(resources != null && resources.length === 0){ %><br/><h2 style="text-align: center">No Resources Found</h2><% } %>
-
-<script>
-    function setCookie(name, value, days) {
-        const date = new Date();
-        date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
-        const expires = "expires=" + date.toUTCString();
-        document.cookie = name + "=" + value + ";" + expires + ";path=/";
-    }
-
-    function getCookie(name) {
-        const cookieName = name + "=";
-        const decodedCookie = decodeURIComponent(document.cookie);
-        const cookies = decodedCookie.split(';');
-        for (let i = 0; i < cookies.length; i++) {
-            let cookie = cookies[i];
-            while (cookie.charAt(0) === ' ') {
-                cookie = cookie.substring(1);
-            }
-            if (cookie.indexOf(cookieName) === 0) {
-                return cookie.substring(cookieName.length, cookie.length);
-            }
-        }
-        return "";
-    }
-
-    function switchToNewUI() {
-        setCookie("web2", "1", 300);
-        window.location.href = "/";
-    }
-</script>
-
 <div class="container-fluid" id="switchToNewUI">
     <div class="alert alert-info" role="alert">
-        Want to try out the new UI? (You can always switch back) <a href="#" class="alert-link"
-                                                                    onclick="switchToNewUI()">Switch to New UI</a>
+        Want to try out the new UI? (You can always switch back) <a id="switchToNewUILink" href="#" class="alert-link">Switch
+            to New UI</a>
     </div>
 </div>
 
+<script type="text/javascript" src="/js/cookieHelper.js"></script>
 
+<% if(resources != null && resources.length === 0){ %><br/><h2 style="text-align: center">No Resources Found</h2><% } %>
