@@ -255,25 +255,30 @@ class MyFHIRServer {
             // Serve static files from the React app
             this.app.use('/', express.static(path.join(__dirname, '../web/build')));
             // Any request that uses /web should go to React
-            this.app.get('/4_0_0/*', (req, res, next) => { // support sub-paths also
-                if (shouldReturnHtml(req)) {
-                    if (!this.configManager.disableNewUI && ((req.cookies && req.cookies['web2']) || this.configManager.showNewUI)) {
-                        const path1 = path.join(__dirname, '../web/build', 'index.html');
-                        // console.log(`Route: /web/*: ${path1}`);
-                        // console.log(`Received /web/* ${req.method} request at ${req.url}`);
-                        res.sendFile(path1);
+            this.app.use((
+                    /** @type {import('express').Request} */ req,
+                    /** @type {import('express').Response} */ res,
+                    /** @type {import('express').NextFunction} */ next
+                ) => {
+                    if (shouldReturnHtml(req)) {
+                        if (!this.configManager.disableNewUI && ((req.cookies && req.cookies['web2']) || this.configManager.showNewUI)) {
+                            const path1 = path.join(__dirname, '../web/build', 'index.html');
+                            // console.log(`Route: /web/*: ${path1}`);
+                            // console.log(`Received /web/* ${req.method} request at ${req.url}`);
+                            return res.sendFile(path1);
+                        } else {
+                            return htmlRenderer({
+                                container: this.container,
+                                req,
+                                res,
+                                next
+                            });
+                        }
                     } else {
-                        htmlRenderer({
-                            container: this.container,
-                            req,
-                            res,
-                            next
-                        });
+                        next();
                     }
-                } else {
-                    next();
                 }
-            });
+            );
         }
         return this;
     }
