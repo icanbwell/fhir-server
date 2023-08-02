@@ -276,16 +276,56 @@ class FixBwellMasterPersonReferenceRunner extends FixReferenceIdRunner {
             await this.preloadReferencesAsync({ mongoConfig });
 
             try {
-                for (const collectionName of this.collections) {
+                // update main resources
+                for (const collectionName of this.collections.filter(collection => !collection.includes('_History'))) {
                     this.adminLogger.logInfo(`Starting reference update for ${collectionName}`);
-                    /**
-                     * @type {boolean}
-                     */
-                    const isHistoryCollection = collectionName.includes('_History');
                     /**
                      * @type {import('mongodb').Filter<import('mongodb').Document>}
                      */
-                    const query = this.getQueryForResource(isHistoryCollection);
+                    const query = this.getQueryForResource(false);
+
+                    const startFromIdContainer = this.createStartFromIdContainer();
+
+                    try {
+                        this.adminLogger.logInfo(`query: ${mongoQueryStringify(query)}`);
+
+                        await this.runForQueryBatchesAsync({
+                            config: mongoConfig,
+                            sourceCollectionName: collectionName,
+                            destinationCollectionName: collectionName,
+                            query,
+                            startFromIdContainer,
+                            fnCreateBulkOperationAsync: async (doc) => await this.processRecordAsync(doc),
+                            ordered: false,
+                            batchSize: this.batchSize,
+                            skipExistingIds: false,
+                            limit: this.limit,
+                            useTransaction: this.useTransaction,
+                            skip: this.skip
+                        });
+
+                    } catch (e) {
+                        this.adminLogger.logError(`Got error ${e}.  At ${startFromIdContainer.startFromId}`);
+                        throw new RethrownError(
+                            {
+                                message: `Error processing ids of collection ${collectionName} ${e.message}`,
+                                error: e,
+                                args: {
+                                    query
+                                },
+                                source: 'FixReferenceIdRunner.processAsync'
+                            }
+                        );
+                    }
+                }
+
+                // updating history resources
+                for (const collectionName of this.collections.filter(collection => collection.includes('_History'))) {
+                    this.adminLogger.logInfo(`Starting reference update for ${collectionName}`);
+                    /**
+                     * @type {import('mongodb').Filter<import('mongodb').Document>}
+                     */
+                    const query = this.getQueryForResource(true);
                     /**
                      * @type {string}
                      */
@@ -306,11 +346,9 @@ class FixBwellMasterPersonReferenceRunner extends FixReferenceIdRunner {
                             ordered: false,
                             batchSize: this.batchSize,
                             skipExistingIds: false,
-                            limit: this.limit,
                             useTransaction: this.useTransaction,
-                            skip: this.skip,
-                            filterToIds: isHistoryCollection && this.historyUuidCache.has(resourceName) ? Array.from(this.historyUuidCache.get(resourceName)) : undefined,
-                            filterToIdProperty: isHistoryCollection && this.historyUuidCache.has(resourceName) ? 'resource._uuid' : undefined
+                            filterToIds: this.historyUuidCache.has(resourceName) ? Array.from(this.historyUuidCache.get(resourceName)) : undefined,
+                            filterToIdProperty: this.historyUuidCache.has(resourceName) ? 'resource._uuid' : undefined
                         });
 
                     } catch (e) {
