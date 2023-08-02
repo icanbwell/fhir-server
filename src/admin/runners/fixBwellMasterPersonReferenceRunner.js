@@ -32,6 +32,11 @@ class FixBwellMasterPersonReferenceRunner extends FixReferenceIdRunner {
          */
         this.logUnresolvedReferencesToFile = logUnresolvedReferencesToFile;
 
+        /**
+         * @type {Map<string, Set<string>>}
+         */
+        this.historyUuidsToUpdate = new Map();
+
         if (this.logUnresolvedReferencesToFile) {
             /**
              * @type {require('fs').writeStream}
@@ -233,6 +238,14 @@ class FixBwellMasterPersonReferenceRunner extends FixReferenceIdRunner {
                 });
             }
 
+            if (operations.length > 0 && !isHistoryDoc) {
+                const resourceName = resource.resourceType;
+                if (!this.historyUuidsToUpdate.has(resourceName)) {
+                    this.historyUuidsToUpdate.set(resourceName, new Set());
+                }
+                this.historyUuidsToUpdate.get(resourceName).add(resource._uuid);
+            }
+
             return operations;
         } catch (e) {
             throw new RethrownError(
@@ -347,8 +360,8 @@ class FixBwellMasterPersonReferenceRunner extends FixReferenceIdRunner {
                             batchSize: this.batchSize,
                             skipExistingIds: false,
                             useTransaction: this.useTransaction,
-                            filterToIds: this.historyUuidCache.has(resourceName) ? Array.from(this.historyUuidCache.get(resourceName)) : undefined,
-                            filterToIdProperty: this.historyUuidCache.has(resourceName) ? 'resource._uuid' : undefined
+                            filterToIds: this.historyUuidsToUpdate.has(resourceName) ? Array.from(this.historyUuidsToUpdate.get(resourceName)) : [],
+                            filterToIdProperty: 'resource._uuid'
                         });
 
                     } catch (e) {
