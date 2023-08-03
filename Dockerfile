@@ -29,10 +29,10 @@ RUN apt-get -y update && apt-get -y --no-install-recommends install autoconf bui
 RUN npm install -g npm@latest && npm upgrade --global yarn
 # RUN npm install -g npm@latest && npm upgrade --global yarn && yarn set version berry
 
-RUN mkdir -p /srv/src/web
-COPY src/web /srv/src/web
-RUN if [ "$NODE_ENV" = "development" ] ; then echo 'building development' && cd /srv/src/web && rm --force package-lock.json && yarn install --no-optional; else echo 'building production' && cd /srv/src/web && rm --force package-lock.json && yarn cache clean && yarn config delete proxy && yarn config delete https-proxy && yarn config delete registry && yarn install --no-optional --production=true --network-timeout 1000000; fi
-RUN cd /srv/src/web && npm run build
+RUN mkdir -p /srv/src/src/web
+COPY src/web /srv/src/src/web
+RUN if [ "$NODE_ENV" = "development" ] ; then echo 'building development' && cd /srv/src/src/web && rm --force package-lock.json && yarn install --no-optional; else echo 'building production' && cd /srv/src/web && rm --force package-lock.json && yarn cache clean && yarn config delete proxy && yarn config delete https-proxy && yarn config delete registry && yarn install --no-optional --production=true --network-timeout 1000000; fi
+RUN cd /srv/src/src/web && npm run build
 
 
 FROM node:18.16.0-bullseye-slim
@@ -63,7 +63,7 @@ COPY --chown=node:node . /srv/src
 
 # Copy code from multi-stage build above
 COPY --from=build /srv/src/node_modules /srv/src/node_modules
-COPY --from=build_react /srv/src/web/build /srv/src/web/build
+COPY --from=build_react /srv/src/src/web/build /srv/src/src/web/build
 #COPY --from=build /srv/src/rds-combined-ca-bundle.pem /srv/src/rds-combined-ca-bundle.pem
 
 # this gets replaced by the command in docker-compose
