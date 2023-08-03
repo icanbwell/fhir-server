@@ -167,10 +167,10 @@ class BwellPersonFinder {
 
         while (await linkedPersonCursor.hasNext()) {
             let linkedPerson = await linkedPersonCursor.next();
-            const linkedReferences = this.getAllLinkedReferencesFromPerson(linkedPerson, currentReferences);
-            nextRefToCurrRefsMap.set(`${PERSON_REFERENCE_PREFIX}${linkedPerson.id}`, linkedReferences);
-
             const personUuid = linkedPerson._uuid;
+            const linkedReferences = this.getAllLinkedReferencesFromPerson(linkedPerson, currentReferences);
+            nextRefToCurrRefsMap.set(`${PERSON_REFERENCE_PREFIX}${personUuid}`, linkedReferences);
+
             // a bwell person can be linked to multiple patients or persons.
             if (this.isBwellPerson(linkedPerson)) {
                 const bwellPerson = `${PERSON_REFERENCE_PREFIX}${personUuid}`;
