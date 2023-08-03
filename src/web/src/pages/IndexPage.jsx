@@ -97,6 +97,7 @@ const IndexPage = ({search}) => {
         console.log("Child button clicked!", searchFormQuery);
         setQueryParameters(searchFormQuery.getQueryParameters());
         setSearchClicked(true);
+        setSearchTabExpanded(false);
     };
 
     return (

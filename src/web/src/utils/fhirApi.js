@@ -55,6 +55,11 @@ class FhirApi {
                 url.searchParams.append(name, value);
             });
         }
+        // add limit of 10 for results
+        if (!url.searchParams.has('_count')) {
+            url.searchParams.append('_count', 10);
+        }
+
         const response = await fetch(url.toString(),
             {
                 method: 'GET',
