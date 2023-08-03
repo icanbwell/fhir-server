@@ -266,7 +266,8 @@ class FixBwellMasterPersonReferenceRunner extends FixReferenceIdRunner {
                 await collection.createIndex(
                     {
                         'resource.meta.security.system': 1,
-                        'resource.meta.security.code': 1
+                        'resource.meta.security.code': 1,
+                        '_id': 1
                     },
                     {
                         name: indexName
