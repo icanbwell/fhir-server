@@ -1,0 +1,84 @@
+{
+    "id": "1",
+    "identifier": [
+        {
+            "id": "sourceId",
+            "system": "https://www.icanbwell.com/sourceId",
+            "value": "1"
+        },
+        {
+            "id": "uuid",
+            "system": "https://www.icanbwell.com/uuid",
+            "value": "db356f0e-80f5-5067-b442-e4a1a37adedb"
+        }
+    ],
+    "link": [
+        {
+            "assurance": "level3",
+            "target": {
+                "display": "Eve Everywoman",
+                "extension": [
+                    {
+                        "id": "sourceId",
+                        "url": "https://www.icanbwell.com/sourceId",
+                        "valueString": "Person/2"
+                    },
+                    {
+                        "id": "uuid",
+                        "url": "https://www.icanbwell.com/uuid",
+                        "valueString": "Person/e33e5aac-1e38-5dcb-98a6-6b3f47b0b8d5"
+                    },
+                    {
+                        "id": "sourceAssigningAuthority",
+                        "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                        "valueString": "rise_silver"
+                    }
+                ],
+                "reference": "Person/2"
+            }
+        },
+        {
+            "assurance": "level3",
+            "target": {
+                "display": "Eve Everywoman",
+                "extension": [
+                    {
+                        "id": "sourceId",
+                        "url": "https://www.icanbwell.com/sourceId",
+                        "valueString": "Patient/1"
+                    },
+                    {
+                        "id": "uuid",
+                        "url": "https://www.icanbwell.com/uuid",
+                        "valueString": "Patient/db356f0e-80f5-5067-b442-e4a1a37adedb"
+                    },
+                    {
+                        "id": "sourceAssigningAuthority",
+                        "url": "https://www.icanbwell.com/sourceAssigningAuthority",
+                        "valueString": "rise_silver"
+                    }
+                ],
+                "reference": "Patient/1"
+            }
+        }
+    ],
+    "meta": {
+        "security": [
+            {
+                "code": "rise_silver",
+                "system": "https://www.icanbwell.com/owner"
+            },
+            {
+                "code": "rise_silver",
+                "system": "https://www.icanbwell.com/access"
+            },
+            {
+                "code": "rise_silver",
+                "system": "https://www.icanbwell.com/sourceAssigningAuthority"
+            }
+        ],
+        "source": "bwell",
+        "versionId": "1"
+    },
+    "resourceType": "Person"
+}
