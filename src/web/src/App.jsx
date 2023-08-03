@@ -14,6 +14,7 @@ import ObservationGraph from "./ObservationGraph";
 import ObservationTimeline from "./ObservationTimeline";
 import PatientTimeline from "./PatientTimeline";
 import IndexPage from './pages/IndexPage';
+import SearchPage from './pages/SearchPage';
 
 // import ErrorPage from "./error-page";
 
@@ -36,6 +37,7 @@ function App() {
                 <Route path="/patientTimeline" element={<PatientTimeline/>}/>
                 <Route path="/observationGraph" element={<ObservationGraph/>}/>
                 <Route path="/observationTimeline" element={<ObservationTimeline/>}/>
+                <Route path="/4_0_0/:resourceType/_search/*" element={<SearchPage/>}/>
                 <Route path="/4_0_0/:resourceType/:id/*" element={<IndexPage/>}/>
                 <Route path="/4_0_0/:resourceType/*" element={<IndexPage/>}/>
             </Routes>

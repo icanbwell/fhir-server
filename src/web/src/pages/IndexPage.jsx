@@ -17,11 +17,12 @@ import ResourceCard from './ResourceCard';
  * @returns {Element}
  * @constructor
  */
-const IndexPage = () => {
+const IndexPage = ({search}) => {
     const [resources, setResources] = useState('');
     const [bundle, setBundle] = useState('');
     const [status, setStatus] = useState('');
     const [loading, setLoading] = useState(true);
+    const [searchClicked, setSearchClicked] = useState(false);
     const [queryParameters, setQueryParameters] = useState([]);
 
     const {id, resourceType} = useParams();
@@ -35,13 +36,18 @@ const IndexPage = () => {
     const location = useLocation();
     const queryString = location.search;
 
-    console.log(`resourceType: ${resourceType}, queryString: ${queryString}, queryParameters: ${queryParameters}`);
+    console.log(`id: ${id}, resourceType: ${resourceType}, queryString: ${queryString},` +
+        ` queryParameters: ${queryParameters}, search: ${search}`);
 
     useEffect(() => {
         const callApi = async () => {
+            document.title = 'Helix FHIR Server';
+            if (search && !searchClicked) {
+                setExpanded(true);
+                return;
+            }
             try {
                 setLoading(true);
-                document.title = 'Helix FHIR Server';
                 const fhirApi = new FhirApi();
                 const {json, status} = await fhirApi.getBundleAsync(
                     {
@@ -83,6 +89,7 @@ const IndexPage = () => {
         // You can handle the event and data here
         console.log("Child button clicked!", searchFormQuery);
         setQueryParameters(searchFormQuery.getQueryParameters());
+        setSearchClicked(true);
     };
 
     return (
@@ -91,8 +98,10 @@ const IndexPage = () => {
             <Accordion expanded={expanded} onChange={handleExpand}>
                 <AccordionSummary
                     expandIcon={<ExpandMoreIcon/>}
-                    aria-controls={`searchCollapse`}
-                    id={`searchAccordion`}
+                    aria-controls={`
+    searchCollapse`}
+                    id={`
+    searchAccordion`}
                 >
                     <Typography>Advanced Search</Typography>
                 </AccordionSummary>
