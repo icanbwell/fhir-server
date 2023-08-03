@@ -61,6 +61,9 @@ const IndexPage = ({search}) => {
                         queryParameters
                     }
                 );
+                if (status === 401) {
+                    window.location.reload();
+                }
                 // noinspection JSCheckFunctionSignatures
                 setStatus(status);
                 if (json.entry) {
