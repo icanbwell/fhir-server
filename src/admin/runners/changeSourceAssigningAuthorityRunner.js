@@ -3,6 +3,7 @@ const { mongoQueryStringify } = require('../../utils/mongoQueryStringify');
 const { SecurityTagSystem } = require('../../utils/securityTagSystem');
 const { FixReferenceIdRunner } = require('./fixReferenceIdRunner');
 const { assertIsValid } = require('../../utils/assertType');
+const { ReferenceParser } = require('../../utils/referenceParser');
 
 /**
  * @classdesc Changes sourceAssigningAuthority of the resource
@@ -49,12 +50,15 @@ class ChangeSourceAssigningAuthorityRunner extends FixReferenceIdRunner {
         await resource.updateReferencesAsync(
             {
                 fnUpdateReferenceAsync: async (reference) => {
-                    if (reference?.reference && reference.reference.includes(this.oldSourceAssigningAuthority)) {
-                        reference.reference = reference.reference.replace(
-                            this.oldSourceAssigningAuthority, this.newSourceAssigningAuthority
-                        );
-                    } else if (reference && reference._sourceAssigningAuthority === this.oldSourceAssigningAuthority) {
-                        reference._sourceAssigningAuthority = this.newSourceAssigningAuthority;
+                    if (reference?.reference) {
+                        const {id, sourceAssigningAuthority, resourceType} = ReferenceParser.parseReference(reference.reference);
+                        if (sourceAssigningAuthority) {
+                            reference.reference = ReferenceParser.createReference({
+                                id, sourceAssigningAuthority, resourceType
+                            });
+                        } else if (reference._sourceAssigningAuthority === this.oldSourceAssigningAuthority) {
+                            reference._sourceAssigningAuthority = this.newSourceAssigningAuthority;
+                        }
                     }
                 }
             }
@@ -84,7 +88,8 @@ class ChangeSourceAssigningAuthorityRunner extends FixReferenceIdRunner {
                 await collection.createIndex(
                     {
                         'resource.meta.security.system': 1,
-                        'resource.meta.security.code': 1
+                        'resource.meta.security.code': 1,
+                        '_id': 1
                     },
                     {
                         name: indexName
