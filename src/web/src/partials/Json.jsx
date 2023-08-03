@@ -1,36 +1,14 @@
-import React, {useState} from "react";
-import Accordion from '@mui/material/Accordion';
-import AccordionSummary from '@mui/material/AccordionSummary';
-import AccordionDetails from '@mui/material/AccordionDetails';
+import React from "react";
 import Typography from '@mui/material/Typography';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import {Link} from '@mui/material';
 
 const Json = ({index, resource}) => {
-    const [expanded, setExpanded] = useState(false);
-
-    const handleExpand = () => {
-        setExpanded(!expanded);
-    };
-
     return (
-        <Accordion expanded={expanded} onChange={handleExpand}>
-            <AccordionSummary
-                expandIcon={<ExpandMoreIcon/>}
-                aria-controls={`jsonCollapse${index}`}
-                id={`jsonAccordion${index}`}
-            >
-                <Typography>Raw Json</Typography>
-            </AccordionSummary>
-            <AccordionDetails>
-                <Typography variant="h4">Raw Json</Typography>
-                (Use _format=json on url if you want JUST the raw json)
-                <pre>
-                    <code>
-                      {JSON.stringify(resource, null, 4)}
-                    </code>
-                </pre>
-            </AccordionDetails>
-        </Accordion>
+        <React.Fragment>
+            <Typography variant="h4">Raw Json</Typography>
+            <Link href={`/4_0_0/${resource.resourceType}/${resource.id}?_format=json`} target="_blank"
+                  rel="noopener noreferrer">{`/4_0_0/${resource.resourceType}/${resource.id}?_format=json`}</Link>
+        </React.Fragment>
     );
 };
 
