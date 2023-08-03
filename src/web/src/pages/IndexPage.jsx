@@ -27,10 +27,11 @@ const IndexPage = ({search}) => {
 
     const {id, resourceType} = useParams();
 
-    const [expanded, setExpanded] = useState(false);
+    const [searchTabExpanded, setSearchTabExpanded] = useState(false);
+    const [resourceCardExpanded, setResourceCardExpanded] = useState(false);
 
     const handleExpand = () => {
-        setExpanded(!expanded);
+        setSearchTabExpanded(!searchTabExpanded);
     };
 
     const location = useLocation();
@@ -40,10 +41,13 @@ const IndexPage = ({search}) => {
         ` queryParameters: ${queryParameters}, search: ${search}`);
 
     useEffect(() => {
+        if (id) {
+            setResourceCardExpanded(true);
+        }
         const callApi = async () => {
             document.title = 'Helix FHIR Server';
             if (search && !searchClicked) {
-                setExpanded(true);
+                setSearchTabExpanded(true);
                 return;
             }
             try {
@@ -95,7 +99,7 @@ const IndexPage = ({search}) => {
     return (
         <Container maxWidth={false}>
             <Header resources={resources}/>
-            <Accordion expanded={expanded} onChange={handleExpand}>
+            <Accordion expanded={searchTabExpanded} onChange={handleExpand}>
                 <AccordionSummary
                     expandIcon={<ExpandMoreIcon/>}
                     aria-controls={`searchCollapse`}
@@ -111,7 +115,7 @@ const IndexPage = ({search}) => {
                 {loading ? '' : status === 200 ? resources.map((fullResource, index) => {
                     const resource = fullResource.resource || fullResource;
                     return (
-                        <ResourceCard key={index} index={index} resource={resource}/>
+                        <ResourceCard key={index} index={index} resource={resource} expanded={resourceCardExpanded}/>
                     );
                 }) : <div>Not Found</div>}
             </Box>

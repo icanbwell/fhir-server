@@ -2,7 +2,7 @@ import {Button, Card, CardContent, CardHeader, Collapse} from '@mui/material';
 import ResourceHeader from '../partials/ResourceHeader';
 import ResourceItem from './ResourceItem';
 import Json from '../partials/Json';
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {makeStyles} from '@mui/styles';
 
 const useStyles = makeStyles({
@@ -14,13 +14,20 @@ const useStyles = makeStyles({
     },
 });
 
-const ResourceCard = ({index, resource}) => {
+const ResourceCard = ({index, resource, expanded}) => {
     const classes = useStyles();
     const [open, setOpen] = useState(false);
 
     const handleOpen = () => {
         setOpen(!open);
     };
+
+    useEffect(() => {
+        if (expanded) {
+            setOpen(true);
+        }
+    }, [expanded]);
+
     return (
         <Card key={index}>
             <CardHeader title={`(${index + 1}) ${resource.resourceType}/${resource.id}`}
