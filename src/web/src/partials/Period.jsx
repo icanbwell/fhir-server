@@ -1,5 +1,5 @@
 import React from 'react';
-import { Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material';
+import {Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Box} from '@mui/material';
 
 const Period = ({ periods, name }) => {
   // Ensure periods is always an array
@@ -9,7 +9,7 @@ const Period = ({ periods, name }) => {
 
   if (periods && periods.length > 0 && periods[0]) {
     return (
-      <div>
+      <Box>
         <Typography variant="h4">{name}</Typography>
         <TableContainer>
           <Table>
@@ -29,7 +29,7 @@ const Period = ({ periods, name }) => {
             </TableBody>
           </Table>
         </TableContainer>
-      </div>
+      </Box>
     );
   }
 

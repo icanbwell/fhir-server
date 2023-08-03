@@ -1,5 +1,5 @@
 import React from 'react';
-import {Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Link} from '@mui/material';
+import {Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Link, Box} from '@mui/material';
 
 const Coding = ({codings, name, resourceType, searchParameter}) => {
 
@@ -10,7 +10,7 @@ const Coding = ({codings, name, resourceType, searchParameter}) => {
 
     return (
         codings && codings.length > 0 && codings[0] && (
-            <div>
+            <Box>
                 <Typography variant="h4">{name}</Typography>
                 <TableContainer>
                     <Table>
@@ -48,7 +48,7 @@ const Coding = ({codings, name, resourceType, searchParameter}) => {
                         </TableBody>
                     </Table>
                 </TableContainer>
-            </div>
+            </Box>
         )
     );
 };

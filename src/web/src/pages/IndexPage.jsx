@@ -17,31 +17,41 @@ import ResourceCard from './ResourceCard';
  * @returns {Element}
  * @constructor
  */
-const IndexPage = () => {
+const IndexPage = ({search}) => {
     const [resources, setResources] = useState('');
     const [bundle, setBundle] = useState('');
     const [status, setStatus] = useState('');
     const [loading, setLoading] = useState(true);
+    const [searchClicked, setSearchClicked] = useState(false);
     const [queryParameters, setQueryParameters] = useState([]);
 
     const {id, resourceType} = useParams();
 
-    const [expanded, setExpanded] = useState(false);
+    const [searchTabExpanded, setSearchTabExpanded] = useState(false);
+    const [resourceCardExpanded, setResourceCardExpanded] = useState(false);
 
     const handleExpand = () => {
-        setExpanded(!expanded);
+        setSearchTabExpanded(!searchTabExpanded);
     };
 
     const location = useLocation();
     const queryString = location.search;
 
-    console.log(`resourceType: ${resourceType}, queryString: ${queryString}, queryParameters: ${queryParameters}`);
+    console.log(`id: ${id}, resourceType: ${resourceType}, queryString: ${queryString},` +
+        ` queryParameters: ${queryParameters}, search: ${search}`);
 
     useEffect(() => {
+        if (id) {
+            setResourceCardExpanded(true);
+        }
         const callApi = async () => {
+            document.title = 'Helix FHIR Server';
+            if (search && !searchClicked) {
+                setSearchTabExpanded(true);
+                return;
+            }
             try {
                 setLoading(true);
-                document.title = 'Helix FHIR Server';
                 const fhirApi = new FhirApi();
                 const {json, status} = await fhirApi.getBundleAsync(
                     {
@@ -73,7 +83,7 @@ const IndexPage = () => {
             }
         };
         callApi().catch(console.error);
-    }, [id, queryString, queryParameters, resourceType]);
+    }, [id, queryString, queryParameters, resourceType, search, searchClicked]);
 
     /**
      * Handle search event from child component
@@ -83,12 +93,13 @@ const IndexPage = () => {
         // You can handle the event and data here
         console.log("Child button clicked!", searchFormQuery);
         setQueryParameters(searchFormQuery.getQueryParameters());
+        setSearchClicked(true);
     };
 
     return (
         <Container maxWidth={false}>
             <Header resources={resources}/>
-            <Accordion expanded={expanded} onChange={handleExpand}>
+            <Accordion expanded={searchTabExpanded} onChange={handleExpand}>
                 <AccordionSummary
                     expandIcon={<ExpandMoreIcon/>}
                     aria-controls={`searchCollapse`}
@@ -104,7 +115,7 @@ const IndexPage = () => {
                 {loading ? '' : status === 200 ? resources.map((fullResource, index) => {
                     const resource = fullResource.resource || fullResource;
                     return (
-                        <ResourceCard key={index} index={index} resource={resource}/>
+                        <ResourceCard key={index} index={index} resource={resource} expanded={resourceCardExpanded}/>
                     );
                 }) : <div>Not Found</div>}
             </Box>

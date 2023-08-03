@@ -1,5 +1,5 @@
 import React from 'react';
-import { Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material';
+import {Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Box} from '@mui/material';
 import CodeableConcept from '../partials/CodeableConcept';
 
 function Timing({ timing, name }) {
@@ -9,7 +9,7 @@ function Timing({ timing, name }) {
   return (
     <>
       {timingArray && timingArray.length > 0 && timingArray[0] && (timingArray[0].count || timingArray[0].code) && (
-        <div>
+        <Box>
           <Typography variant="h4">{name}</Typography>
           {timingArray[0].count && (
             <TableContainer>
@@ -38,7 +38,7 @@ function Timing({ timing, name }) {
           {timingArray.map((t, index) => (
             <CodeableConcept key={index} resourceType="" codeableConcepts={t.code} name="Timing Code" searchParameter="" />
           ))}
-        </div>
+        </Box>
       )}
     </>
   );

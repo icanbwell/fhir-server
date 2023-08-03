@@ -1,12 +1,13 @@
 import React from 'react';
+import {Box, Typography} from '@mui/material';
 
 const Narrative = ({ value, name }) => {
     if (value !== undefined && value.div !== undefined) {
         return (
-            <div>
-                <h4>{name}</h4>&nbsp;
-                <div dangerouslySetInnerHTML={{ __html: value.div }} />
-            </div>
+            <Box>
+                <Typography variant="h4">{name}</Typography>&nbsp;
+                <Box dangerouslySetInnerHTML={{ __html: value.div }} />
+            </Box>
         );
     } else {
         return null;

@@ -3,15 +3,15 @@ import Narrative from '../partials/Narrative';
 import Identifier from '../partials/Identifier';
 import Meta from '../partials/Meta';
 import Extension from '../partials/Extension';
-import {Box} from '@mui/material';
+import {Box, Link} from '@mui/material';
 
 function ResourceHeader({resource}) {
     if (!resource) return null;
     return (
         <Box>
-            <a title="Direct link to Resource" href={`/4_0_0/${resource.resourceType}/${resource.id}`}>
+            <Link title="Direct link to Resource" href={`/4_0_0/${resource.resourceType}/${resource.id}`}>
                 {resource.resourceType}/{resource.id}
-            </a>
+            </Link>
 
             <Narrative name='Text' value={resource.text}/>
             <Identifier resourceType={resource.resourceType} identifiers={resource.identifier} name="Identifier"/>

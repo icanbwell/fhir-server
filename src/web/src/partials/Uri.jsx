@@ -1,17 +1,17 @@
 import React from 'react';
-import { Typography, Link } from '@mui/material';
+import {Typography, Link, Box} from '@mui/material';
 
 function Uri({name, value}) {
     return (
         value &&
-        <div>
+        <Box>
             <Typography variant="body1" display="inline">
                 <b>{name}:</b>&nbsp
             </Typography>
             <Link href={value}>
                 {value}
             </Link>
-        </div>
+        </Box>
     );
 }
 

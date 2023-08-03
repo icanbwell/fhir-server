@@ -1,5 +1,5 @@
 import React from 'react';
-import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from '@mui/material';
+import {Box, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography} from '@mui/material';
 
 function TableComponent({name, rows, columns}) {
     if (!Array.isArray(rows)) {
@@ -8,7 +8,7 @@ function TableComponent({name, rows, columns}) {
 
     if (rows && rows.length > 0 && rows[0]) {
         return (
-            <div>
+            <Box>
                 <Typography variant="h4">{name}</Typography>
                 <TableContainer>
                     <Table className="table" aria-label="simple table">
@@ -30,7 +30,7 @@ function TableComponent({name, rows, columns}) {
                         </TableBody>
                     </Table>
                 </TableContainer>
-            </div>
+            </Box>
         );
     } else {
         return null;

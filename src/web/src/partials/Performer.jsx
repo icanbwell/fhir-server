@@ -1,5 +1,5 @@
 import React from "react";
-import {Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Link} from "@mui/material";
+import {Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Link, Box} from "@mui/material";
 
 function Performer({performers, name}) {
     // Ensure performers is always an array
@@ -10,7 +10,7 @@ function Performer({performers, name}) {
     }
 
     return (
-        <div>
+        <Box>
             <Typography variant="h4">{name}</Typography>
             <TableContainer>
                 <Table>
@@ -49,7 +49,7 @@ function Performer({performers, name}) {
                     </TableBody>
                 </Table>
             </TableContainer>
-        </div>
+        </Box>
     );
 }
 

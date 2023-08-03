@@ -1,5 +1,5 @@
 import React from 'react';
-import {Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography} from '@mui/material';
+import {Box, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography} from '@mui/material';
 
 function Extension({extensions}) {
     // Ensure `extensions` is an array
@@ -9,7 +9,7 @@ function Extension({extensions}) {
 
     return (
         extensions && extensions.length > 0 && extensions[0] ? (
-            <div>
+            <Box>
                 <Typography variant="h4">Extension</Typography>
                 <TableContainer>
                     <Table>
@@ -62,7 +62,7 @@ function Extension({extensions}) {
                         </TableBody>
                     </Table>
                 </TableContainer>
-            </div>
+            </Box>
         ) : null
     );
 }

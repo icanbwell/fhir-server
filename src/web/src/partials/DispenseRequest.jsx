@@ -1,5 +1,5 @@
 import React from "react";
-import {Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow} from "@mui/material";
+import {Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Box} from "@mui/material";
 
 const DispenseRequest = ({name, value}) => {
 
@@ -8,7 +8,7 @@ const DispenseRequest = ({name, value}) => {
     }
 
     return (
-        <div>
+        <Box>
             {value && value.length > 0 && value[0] && (
                 <React.Fragment>
                     <Typography variant="h4">{name}</Typography>
@@ -57,7 +57,7 @@ const DispenseRequest = ({name, value}) => {
                     ))}
                 </React.Fragment>
             )}
-        </div>
+        </Box>
     );
 };
 

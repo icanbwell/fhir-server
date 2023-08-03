@@ -59,7 +59,7 @@ const Home = ({resources, url, currentYear, meta}) => {
                             <TableRow key={resource.name}
                                       onClick={() => {
                                           searchResource(resource.name);
-                                          navigate(`/4_0_0/${resource.name}`); // navigate to the desired path
+                                          navigate(`/4_0_0/${resource.name}/_search`);
                                       }}
                                       className={classes.row}>
                                 <TableCell>{resource.name}</TableCell>

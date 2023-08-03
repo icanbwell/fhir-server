@@ -63,17 +63,15 @@ export default function SearchForm({onSearch, resourceType}) {
             <Grid container spacing={2}>
                 <Grid item xs={12}>
                     <DatePicker
-                        label="Start"
+                        label="Last Updated After"
                         value={start}
                         onChange={(newValue) => setStart(newValue)}
                     />
                     <DatePicker
-                        label="End"
+                        label="Last Updated Before"
                         value={end}
                         onChange={(newValue) => setEnd(newValue)}
                     />
-                </Grid>
-                <Grid item xs={12}>
                     <TextField
                         name="givenName"
                         label="Given (Name)"

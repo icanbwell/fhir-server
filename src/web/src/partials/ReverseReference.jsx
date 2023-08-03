@@ -1,5 +1,5 @@
 import React from 'react';
-import {Typography, Link} from '@mui/material';
+import {Typography, Link, Box} from '@mui/material';
 
 function ReverseReference({name, id, reverseReferences}) {
     // Ensure reverseReferences is an array
@@ -9,7 +9,7 @@ function ReverseReference({name, id, reverseReferences}) {
 
     return (
         reverseReferences && reverseReferences.length > 0 && reverseReferences[0] ? (
-            <div>
+            <Box>
                 <Typography variant="h4">{name}</Typography>
                 {
                     reverseReferences.map((reference, index) =>
@@ -23,7 +23,7 @@ function ReverseReference({name, id, reverseReferences}) {
                         ) : null
                     )
                 }
-            </div>
+            </Box>
         ) : null
     );
 }

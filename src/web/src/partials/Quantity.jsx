@@ -1,5 +1,5 @@
 import React from 'react';
-import {Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow} from '@mui/material';
+import {Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Box} from '@mui/material';
 
 function Quantity({value = [], name = ''}) {
     if (!Array.isArray(value)) {
@@ -8,7 +8,7 @@ function Quantity({value = [], name = ''}) {
 
     if (value && value.length > 0 && value[0]) {
         return (
-            <div>
+            <Box>
                 <Typography variant="h4">{name}</Typography>
                 <TableContainer>
                     <Table>
@@ -34,7 +34,7 @@ function Quantity({value = [], name = ''}) {
                         </TableBody>
                     </Table>
                 </TableContainer>
-            </div>
+            </Box>
         );
     }
 

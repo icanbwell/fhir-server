@@ -6,6 +6,7 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Typography from '@mui/material/Typography';
+import {Box} from '@mui/material';
 
 function Position({positions, name}) {
     // Ensure positions is an array
@@ -15,7 +16,7 @@ function Position({positions, name}) {
 
     if (positions && positions.length > 0 && positions[0]) {
         return (
-            <div>
+            <Box>
                 <Typography variant="h4">{name}</Typography>
                 <TableContainer>
                     <Table>
@@ -51,7 +52,7 @@ function Position({positions, name}) {
                         </TableBody>
                     </Table>
                 </TableContainer>
-            </div>
+            </Box>
         );
     } else {
         return null;
