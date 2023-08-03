@@ -1,4 +1,5 @@
 /* eslint-disable security/detect-object-injection */
+const { PERSON_PROXY_PREFIX } = require('../constants');
 const { DatabaseQueryFactory } = require('../dataLayer/databaseQueryFactory');
 const { assertTypeEquals } = require('./assertType');
 const { BwellPersonFinder } = require('./bwellPersonFinder');
@@ -83,7 +84,8 @@ class LinkedPatientsFinder {
             const patientId = patientReference.replace(patientReferencePrefix, '');
             const data = patientToBwellPersonAndClientIds[patientId] || {};
             data.bwellMasterPerson = bwellPersonReference.replace(personReferencePrefix, '');
-            data.patientIds = linkedPatientIds[data.bwellMasterPerson];
+            data.patientIds = [...linkedPatientIds[data.bwellMasterPerson], `${PERSON_PROXY_PREFIX}${data.bwellMasterPerson}`];
+            // also add bwell-mater-person proxy
             patientToBwellPersonAndClientIds[patientId] = data;
         }
 

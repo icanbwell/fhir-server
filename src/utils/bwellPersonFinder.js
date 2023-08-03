@@ -2,7 +2,7 @@ const {assertTypeEquals} = require('./assertType');
 const {PATIENT_REFERENCE_PREFIX, PERSON_REFERENCE_PREFIX, PERSON_PROXY_PREFIX} = require('../constants');
 const {DatabaseQueryFactory} = require('../dataLayer/databaseQueryFactory');
 const {SecurityTagSystem} = require('./securityTagSystem');
-const { isUuid } = require('./uid.util');
+const { isUuid, generateUUIDv5 } = require('./uid.util');
 
 const BwellMasterPersonCode = 'bwell';
 const MaxDepthForBFS = 3;
@@ -78,14 +78,18 @@ class BwellPersonFinder {
          * check if proxy patient is bwell master person,
          * it must be available in patientsToBwellPerson Map
          */
-        for (const /**@type {string} */ masterPerson of patientsToBwellPerson.values()) {
-            const personID = masterPerson.replace(`${PERSON_REFERENCE_PREFIX}`, '');
-            const proxyPatient = `${PERSON_PROXY_PREFIX}${personID}`;
-            if (proxyPatientIds.has(proxyPatient)) {
-                patientsToBwellPerson.set(proxyPatient, masterPerson);
-                proxyPatientIds.delete(proxyPatient);
+        const masterPersons = new Set(patientsToBwellPerson.values());
+        proxyPatientIds.forEach((id) => {
+            const idWithoutPrefix = id.replace(PERSON_PROXY_PREFIX, '');
+            // for master person, source-assigning authority will be bwell
+            const uuid = isUuid(idWithoutPrefix) ? idWithoutPrefix : generateUUIDv5(`${idWithoutPrefix}|bwell`);
+            const uuidReference = `${PERSON_REFERENCE_PREFIX}${uuid}`;
+            if (masterPersons.has(uuidReference)) {
+                patientsToBwellPerson.set(id, uuidReference);
+                proxyPatientIds.delete(id);
             }
-        }
+        });
+
         // Process remaining proxy patient, it can be non master person ID only
         const proxyPatientsToBwellPerson = await this.searchForBwellPersonsAsync({
             currentReferences: [...proxyPatientIds].map((proxyPatent) => `${PERSON_REFERENCE_PREFIX}${proxyPatent.replace(`${PERSON_PROXY_PREFIX}`, '')}`),
