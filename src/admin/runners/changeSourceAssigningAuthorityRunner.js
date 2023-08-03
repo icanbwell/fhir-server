@@ -52,9 +52,9 @@ class ChangeSourceAssigningAuthorityRunner extends FixReferenceIdRunner {
                 fnUpdateReferenceAsync: async (reference) => {
                     if (reference?.reference) {
                         const {id, sourceAssigningAuthority, resourceType} = ReferenceParser.parseReference(reference.reference);
-                        if (sourceAssigningAuthority) {
+                        if (sourceAssigningAuthority === this.oldSourceAssigningAuthority) {
                             reference.reference = ReferenceParser.createReference({
-                                id, sourceAssigningAuthority, resourceType
+                                id, sourceAssigningAuthority: this.newSourceAssigningAuthority, resourceType
                             });
                         } else if (reference._sourceAssigningAuthority === this.oldSourceAssigningAuthority) {
                             reference._sourceAssigningAuthority = this.newSourceAssigningAuthority;
