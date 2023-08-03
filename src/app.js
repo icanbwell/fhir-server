@@ -221,16 +221,15 @@ function createApp({fnCreateContainer, trackMetrics}) {
     // render the home page
     app.get('/', (
         /** @type {import('express').Request} */ req,
-        /** @type {import('express').Response} */ res,) => {
+        /** @type {import('express').Response} */ res,
+        next) => {
         const home_options = {
             resources: resourceDefinitions,
             user: req.user
         };
         if (!configManager.disableNewUI && ((req.cookies && req.cookies['web2']) || configManager.showNewUI)) {
-            const path1 = path.join(__dirname, './web/build', 'index.html');
-            // console.log(`Route: /web/*: ${path1}`);
-            // console.log(`Received /web/* ${req.method} request at ${req.url}`);
-            return res.sendFile(path1);
+            // fall through to the handler in fhirServer.js
+            next();
         } else {
             return res.render(__dirname + '/views/pages/home', home_options);
         }
