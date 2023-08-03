@@ -22,15 +22,13 @@ const Json = ({index, resource}) => {
                 <Typography>Raw Json</Typography>
             </AccordionSummary>
             <AccordionDetails>
-                <Typography>
-                    <h4>Raw Json</h4>
-                    (Use _format=json on url if you want JUST the raw json)
-                    <pre>
-            <code>
-              {JSON.stringify(resource, null, 4)}
-            </code>
-          </pre>
-                </Typography>
+                <Typography variant="h4">Raw Json</Typography>
+                (Use _format=json on url if you want JUST the raw json)
+                <pre>
+                    <code>
+                      {JSON.stringify(resource, null, 4)}
+                    </code>
+                </pre>
             </AccordionDetails>
         </Accordion>
     );

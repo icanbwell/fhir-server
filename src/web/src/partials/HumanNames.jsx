@@ -1,5 +1,5 @@
 import React from 'react';
-import {Table, TableBody, TableCell, TableContainer, TableHead, TableRow} from '@mui/material';
+import {Box, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography} from '@mui/material';
 import {Link} from 'react-router-dom';
 
 function HumanNames({names, resourceType}) {
@@ -12,8 +12,8 @@ function HumanNames({names, resourceType}) {
     }
 
     return (
-        <div>
-            <h4>Names</h4>
+        <Box>
+            <Typography variant="h4">Names</Typography>
             <TableContainer>
                 <Table>
                     <TableHead>
@@ -54,7 +54,7 @@ function HumanNames({names, resourceType}) {
                     </TableBody>
                 </Table>
             </TableContainer>
-        </div>
+        </Box>
     );
 }
 

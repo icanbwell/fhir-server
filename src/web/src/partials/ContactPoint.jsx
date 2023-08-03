@@ -1,5 +1,5 @@
 import React from 'react';
-import {Table, TableBody, TableCell, TableContainer, TableHead, TableRow} from '@mui/material';
+import {Box, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography} from '@mui/material';
 
 function ContactPoint({contacts, name, resourceType}) {
 
@@ -14,8 +14,8 @@ function ContactPoint({contacts, name, resourceType}) {
     }
 
     return (
-        <div>
-            <h4>{name}</h4>
+        <Box>
+            <Typography variant="h4">{name}</Typography>
             <TableContainer>
                 <Table>
                     <TableHead>
@@ -52,7 +52,7 @@ function ContactPoint({contacts, name, resourceType}) {
                     </TableBody>
                 </Table>
             </TableContainer>
-        </div>
+        </Box>
     );
 }
 

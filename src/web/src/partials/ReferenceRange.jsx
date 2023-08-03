@@ -1,12 +1,12 @@
 import React from 'react';
-import {Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography} from '@mui/material';
+import {Box, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography} from '@mui/material';
 
 const ReferenceRange = ({referenceRange, name}) => {
     referenceRange = Array.isArray(referenceRange) ? referenceRange : [referenceRange];
 
     return (
         referenceRange && referenceRange.length > 0 && referenceRange[0] ?
-            <div>
+            <Box>
                 <Typography variant="h4">{name}</Typography>
                 <TableContainer>
                     <Table>
@@ -31,7 +31,7 @@ const ReferenceRange = ({referenceRange, name}) => {
                         </TableBody>
                     </Table>
                 </TableContainer>
-            </div> : null
+            </Box> : null
     );
 };
 

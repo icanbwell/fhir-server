@@ -1,5 +1,5 @@
 import React from 'react';
-import {Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow} from '@mui/material';
+import {Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Box} from '@mui/material';
 
 const Annotation = ({annotations}) => {
 
@@ -14,7 +14,7 @@ const Annotation = ({annotations}) => {
     }
 
     return (
-        <div>
+        <Box>
             <Typography variant="h4">Names</Typography>
             <TableContainer>
                 <Table>
@@ -36,7 +36,7 @@ const Annotation = ({annotations}) => {
                     </TableBody>
                 </Table>
             </TableContainer>
-        </div>
+        </Box>
     );
 };
 

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Typography, Table, TableHead, TableBody, TableRow, TableCell, Link } from '@mui/material';
+import {Typography, Table, TableHead, TableBody, TableRow, TableCell, Link, Box} from '@mui/material';
 
 const Participant = ({ name, participants }) => {
     if (!Array.isArray(participants)) {
@@ -7,7 +7,7 @@ const Participant = ({ name, participants }) => {
     }
     if (participants && participants.length > 0 && participants[0]) {
         return (
-            <div>
+            <Box>
                 <Typography variant="h4">{name}</Typography>
                 <Table className="table">
                     <TableHead>
@@ -59,7 +59,7 @@ const Participant = ({ name, participants }) => {
                         })}
                     </TableBody>
                 </Table>
-            </div>
+            </Box>
         );
     } else {
         return null;

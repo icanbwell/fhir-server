@@ -1,13 +1,13 @@
 import React from 'react';
-import { Typography, Link } from '@mui/material';
+import {Typography, Link, Box} from '@mui/material';
 
 const Canonical = ({name, value}) => {
     return (
         value && (
-            <div>
+            <Box>
                 <Typography variant="body1" component="b">{`${name}:`}&nbsp</Typography>
                 <Link href={value}>{value}</Link>
-            </div>
+            </Box>
         )
     );
 };
