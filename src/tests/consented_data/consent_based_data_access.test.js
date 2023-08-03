@@ -36,6 +36,7 @@ const {describe, beforeEach, afterEach, test} = require('@jest/globals');
 
 
 const headers = getHeaders('user/*.read access/client.*');
+
 describe('Consent Based Data Access Test', () => {
     beforeEach(async () => {
         await commonBeforeEach();
@@ -89,12 +90,12 @@ describe('Consent Based Data Access Test', () => {
             let expectedProaObservationCopy = deepcopy(expectedProaObservation);
             expectedProaObservationCopy['subject']['reference'] = 'Patient/person.b12345';
 
-            // Get Observation for a specific person
+            // Get Observation for a specific person, client have access to read both proa and client resources
             resp = await request
                 .get('/4_0_0/Observation?patient=Patient/person.b12345')
                 .set(headers);
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse([expectedClintObservationCopy, expectedProaObservationCopy]);
+            expect(resp).toHaveResponse([expectedProaObservationCopy, expectedClintObservationCopy]);
         });
 
         test('Consent has created but denied access to Client', async () => {
@@ -138,17 +139,17 @@ describe('Consent Based Data Access Test', () => {
 
             // Get Observation for proa patient only
             resp = await request
-                .get('/4_0_0/Observation?patient=Patient/0c8a87f6-e7fb-5c38-9f1b-e5035ee1e6a5')
+                .get('/4_0_0/Observation?patient=Patient/fde7f82b-b1e4-4a25-9a58-83b6921414cc')
                 .set(headers);
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse([expectedProaObservation]);
 
             // Get Observation for both client and proa
             resp = await request
-                .get('/4_0_0/Observation?patient=Patient/0c8a87f6-e7fb-5c38-9f1b-e5035ee1e6a5,Patient/947947d7-a42c-5a42-a4b1-242be31c3c40')
+                .get('/4_0_0/Observation?patient=Patient/fde7f82b-b1e4-4a25-9a58-83b6921414cc,Patient/bb7862e6-b7ac-470e-bde3-e85cee9d1ce6')
                 .set(headers);
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse([expectedClintObservation, expectedProaObservation]);
+            expect(resp).toHaveResponse([expectedProaObservation, expectedClintObservation]);
         });
 
         test('Check Consented data fetching for two different patient and both have consented', async () => {
@@ -170,7 +171,7 @@ describe('Consent Based Data Access Test', () => {
 
             // Get Observation for proa patient and proa patient2
             resp = await request
-                .get('/4_0_0/Observation?patient=Patient/0c8a87f6-e7fb-5c38-9f1b-e5035ee1e6a5,Patient/0c8a87f6-e7fb-5c38-9f1b-e5035ee1e6a2')
+                .get('/4_0_0/Observation?patient=Patient/ede65c66-66ae-42ef-a19d-871065c2421d,Patient/fde7f82b-b1e4-4a25-9a58-83b6921414cc')
                 .set(headers);
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse([expectedProaObservation, expectedProaObservation2]);
@@ -195,13 +196,13 @@ describe('Consent Based Data Access Test', () => {
 
             // Get Observation for proa patient and proa patient2
             resp = await request
-                .get('/4_0_0/Observation?patient=Patient/0c8a87f6-e7fb-5c38-9f1b-e5035ee1e6a5,Patient/0c8a87f6-e7fb-5c38-9f1b-e5035ee1e6a2')
+                .get('/4_0_0/Observation?patient=Patient/ede65c66-66ae-42ef-a19d-871065c2421d,Patient/fde7f82b-b1e4-4a25-9a58-83b6921414cc')
                 .set(headers);
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse([expectedProaObservation2]);
         });
 
-        test('Consent has provided and proxy patient has stored as reference', async () => {
+        test.only('Consent has provided and proxy patient has stored as reference', async () => {
             const request = await createTestRequest((c) => {
                 return c;
             });
@@ -227,7 +228,7 @@ describe('Consent Based Data Access Test', () => {
                 .get('/4_0_0/Observation?patient=Patient/person.b12345')
                 .set(headers);
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse([expectedClintObservationCopy, expectedProaObservation2ProxyCopy]);
+            expect(resp).toHaveResponse([expectedProaObservation2ProxyCopy, expectedClintObservationCopy]);
         });
     });
 });

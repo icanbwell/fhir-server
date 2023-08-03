@@ -35,14 +35,14 @@
         },
         {
             "target": {
-                "reference": "Person/c1234567",
+                "reference": "Person/c1234567|client",
                 "type": "Person"
             },
             "assurance": "level4"
         },
         {
             "target": {
-                "reference": "Person/p1234567",
+                "reference": "Person/p1234567|proa",
                 "type": "Person"
             },
             "assurance": "level4"
