@@ -228,8 +228,8 @@ function createApp({fnCreateContainer, trackMetrics}) {
         };
         if (!configManager.disableNewUI && ((req.cookies && req.cookies['web2']) || configManager.showNewUI)) {
             const path1 = path.join(__dirname, './web/build', 'index.html');
-            console.log(`Route: /web/*: ${path1}`);
-            console.log(`Received /web/* ${req.method} request at ${req.url}`);
+            // console.log(`Route: /web/*: ${path1}`);
+            // console.log(`Received /web/* ${req.method} request at ${req.url}`);
             return res.sendFile(path1);
         } else {
             return res.render(__dirname + '/views/pages/home', home_options);
