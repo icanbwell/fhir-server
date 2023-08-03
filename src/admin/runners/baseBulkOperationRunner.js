@@ -7,6 +7,7 @@ const moment = require('moment-timezone');
 const {MongoNetworkTimeoutError} = require('mongodb');
 const {MemoryManager} = require('../../utils/memoryManager');
 const sizeof = require('object-sizeof');
+const { MongoServerError } = require('mongodb');
 const {RethrownError} = require('../../utils/rethrownError');
 const {sliceIntoChunks} = require('../../utils/list.util');
 
@@ -97,21 +98,25 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
             // );
 
             // first get the count
-            const numberOfSourceDocuments = await sourceCollection.countDocuments(query, {});
-            // this.adminLogger.logInfo(
-            //     `Sending distinct count query to Mongo: ${mongoQueryStringify(query)}. ` +
-            //     `for ${sourceCollectionName} and ${destinationCollectionName}`
-            // );
-            /**
-             * @type {number}
-             */
-            const numberOfSourceDocumentsWithDistinctId = await this.mongoCollectionManager.distinctCountAsync(
-                {
-                    collection: sourceCollection,
-                    query,
-                    groupKey: 'id'
-                });
-            const numberOfDestinationDocuments = await destinationCollection.countDocuments(query, {});
+            let numberOfSourceDocuments, useLimit;
+            // If count query does not return in 30 seconds, use skip and limit params to restrict the query
+            try {
+                numberOfSourceDocuments = await sourceCollection.countDocuments(query, {maxTimeMS: 30000});
+            } catch (e){
+                if ((e instanceof MongoServerError) && limit){
+                    numberOfSourceDocuments = await sourceCollection.countDocuments(query, {skip, limit});
+                    useLimit = true;
+                } else {
+                    numberOfSourceDocuments = await sourceCollection.countDocuments(query, {});
+                }
+            }
+
+            let numberOfDestinationDocuments;
+            if (useLimit) {
+                numberOfDestinationDocuments = await destinationCollection.countDocuments(query, {skip, limit});
+            } else {
+                numberOfDestinationDocuments = await destinationCollection.countDocuments(query, {});
+            }
             // this.adminLogger.logInfo(
             //     `Count in source: ${numberOfSourceDocuments.toLocaleString('en-US')}, ` +
             //     `Count in source distinct by id: ${numberOfSourceDocumentsWithDistinctId.toLocaleString('en-US')}, ` +
@@ -178,10 +183,14 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
             // this.adminLogger.logInfo(
             //     `Getting count afterward in ${destinationCollectionName}: ${mongoQueryStringify(originalQuery)}`
             // );
-            const numberOfDestinationDocumentsAtEnd = await destinationCollection.countDocuments(originalQuery, {});
+            let numberOfDestinationDocumentsAtEnd;
+            if (useLimit){
+                numberOfDestinationDocumentsAtEnd = await destinationCollection.countDocuments(originalQuery, {skip, limit});
+            } else {
+                numberOfDestinationDocumentsAtEnd = await destinationCollection.countDocuments(originalQuery, {});
+            }
             this.adminLogger.logInfo(
                 `Count in source: ${numberOfSourceDocuments.toLocaleString('en-US')}, ` +
-                `Count in source distinct by id: ${numberOfSourceDocumentsWithDistinctId.toLocaleString('en-US')}, ` +
                 `destination: ${numberOfDestinationDocumentsAtEnd.toLocaleString('en-US')}`
             );
 
