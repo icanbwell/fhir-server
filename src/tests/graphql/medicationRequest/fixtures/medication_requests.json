@@ -25,6 +25,13 @@
     "medicationCodeableConcept": {
       "coding": [
         {
+          "system": "http://hl7.org/fhir/sid/ndc",
+          "code": "0002-0800-01",
+          "display": "Lipitor"
+        },
+        {
+          "system": "http://www.nlm.nih.gov/research/umls/rxnorm",
+          "code": "104922",
           "display": "Lipitor"
         }
       ],

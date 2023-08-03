@@ -1,0 +1,1128 @@
+{
+  "resourceType": "Bundle",
+  "entry": [
+    {
+      "resource": {
+        "resourceType": "Patient",
+        "language": "en",
+        "extension": [
+          {
+            "extension": [
+              {
+                "url": "ombCategory"
+              },
+              {
+                "url": "text",
+                "valueString": "White"
+              }
+            ],
+            "url": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-race"
+          },
+          {
+            "extension": [
+              {
+                "url": "ombCategory"
+              },
+              {
+                "url": "text",
+                "valueString": "Hispanic or Latino"
+              }
+            ],
+            "url": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-ethnicity"
+          },
+          {
+            "url": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-birthsex",
+            "valueCode": "F"
+          },
+          {
+            "url": "http://hl7.org/fhir/StructureDefinition/patient-birthPlace",
+            "valueAddress": {
+              "city": "San Juan",
+              "state": "Puerto Rico",
+              "country": "PR"
+            }
+          },
+          {
+            "url": "http://synthetichealth.github.io/synthea/disability-adjusted-life-years",
+            "valueDecimal": 0
+          },
+          {
+            "url": "http://synthetichealth.github.io/synthea/quality-adjusted-life-years",
+            "valueDecimal": 38
+          },
+          {
+            "extension": [
+              {
+                "url": "ombCategory",
+                "valueCoding": {
+                  "system": "urn:oid:2.16.840.1.113883.6.238",
+                  "code": "2106-3",
+                  "display": "White"
+                }
+              },
+              {
+                "url": "text",
+                "valueString": "White"
+              }
+            ],
+            "url": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-race"
+          },
+          {
+            "extension": [
+              {
+                "url": "ombCategory",
+                "valueCoding": {
+                  "system": "urn:oid:2.16.840.1.113883.6.238",
+                  "code": "2135-2",
+                  "display": "Hispanic or Latino"
+                }
+              },
+              {
+                "url": "text",
+                "valueString": "Hispanic or Latino"
+              }
+            ],
+            "url": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-ethnicity"
+          }
+        ],
+        "identifier": [
+          {
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+                  "code": "MB",
+                  "display": "Member Number"
+                }
+              ]
+            },
+            "system": "https://sources.aetna.com/patient/identifier/memberid/81",
+            "value": "111111111"
+          }
+        ],
+        "active": true,
+        "name": [
+          {
+            "use": "official",
+            "text": "Ashlee Newton",
+            "family": "Newton",
+            "given": [
+              "Ashlee"
+            ]
+          }
+        ],
+        "telecom": [
+          {
+            "system": "phone",
+            "value": "555-338-2918",
+            "use": "home",
+            "rank": 1
+          },
+          {
+            "system": "email",
+            "value": "ashlee_newton@test.com",
+            "use": "work",
+            "rank": 2
+          }
+        ],
+        "gender": "female",
+        "birthDate": "1983-12-01",
+        "address": [
+          {
+            "extension": [
+              {
+                "extension": [
+                  {
+                    "url": "latitude",
+                    "valueDecimal": 41.785374
+                  },
+                  {
+                    "url": "longitude",
+                    "valueDecimal": -72.65838
+                  }
+                ],
+                "url": "http://hl7.org/fhir/StructureDefinition/geolocation"
+              }
+            ],
+            "text": "257 Schoen Annex, Hartford, CT ",
+            "line": [
+              "257 Schoen Annex"
+            ],
+            "city": "Hartford",
+            "state": "CT",
+            "country": "US"
+          },
+          {
+            "extension": [
+              {
+                "extension": [
+                  {
+                    "url": "latitude",
+                    "valueDecimal": 41.78537300919756
+                  },
+                  {
+                    "url": "longitude",
+                    "valueDecimal": -72.65837526144423
+                  }
+                ],
+                "url": "http://hl7.org/fhir/StructureDefinition/geolocation"
+              }
+            ],
+            "text": "257 Schoen Annex, Hartford, CT ",
+            "line": [
+              "257 Schoen Annex"
+            ],
+            "city": "Hartford",
+            "state": "CT",
+            "country": "US"
+          }
+        ],
+        "maritalStatus": {
+          "coding": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/v3-MaritalStatus",
+              "code": "S",
+              "display": "S"
+            }
+          ]
+        },
+        "multipleBirthBoolean": false,
+        "communication": [
+          {
+            "language": {
+              "coding": [
+                {
+                  "system": "urn:ietf:bcp:47",
+                  "code": "en",
+                  "display": "English"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Condition",
+        "clinicalStatus": {
+          "text": "Active"
+        },
+        "verificationStatus": {
+          "text": "Confirmed"
+        },
+        "category": [
+          {
+            "text": "Problem List Item"
+          },
+          {
+            "text": "Health Concern"
+          }
+        ],
+        "code": {
+          "text": "Tendinopathy of patella"
+        },
+        "onsetPeriod": {
+          "start": "2019-09-26T00:00:00.000Z",
+          "end": "2019-09-26T00:00:00.000Z"
+        },
+        "recordedDate": "2019-09-26T00:00:00.000Z"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Observation",
+        "status": "final",
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                "code": "laboratory",
+                "display": "Laboratory"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "82667-7",
+              "display": "Total score [DAST-10]"
+            }
+          ]
+        },
+        "effectiveDateTime": "2022-05-26T03:30:18-04:00",
+        "valueQuantity": {
+          "value": 2,
+          "unit": "{score}",
+          "system": "http://unitsofmeasure.org",
+          "code": "{score}"
+        }
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Observation",
+        "status": "final",
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                "code": "laboratory",
+                "display": "Laboratory"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "82667-7",
+              "display": "Total score [DAST-10]"
+            }
+          ]
+        },
+        "effectiveDateTime": "2019-05-09T03:36:21-04:00",
+        "valueQuantity": {
+          "value": 1,
+          "unit": "{score}",
+          "system": "http://unitsofmeasure.org",
+          "code": "{score}"
+        }
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Observation",
+        "status": "final",
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                "code": "laboratory",
+                "display": "Laboratory"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "82667-7",
+              "display": "Total score [DAST-10]"
+            }
+          ]
+        },
+        "effectiveDateTime": "2018-05-03T03:31:25-04:00",
+        "valueQuantity": {
+          "value": 2,
+          "unit": "{score}",
+          "system": "http://unitsofmeasure.org",
+          "code": "{score}"
+        }
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Observation",
+        "status": "final",
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                "code": "laboratory",
+                "display": "Laboratory"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "82667-7",
+              "display": "Total score [DAST-10]"
+            }
+          ]
+        },
+        "effectiveDateTime": "2017-04-27T03:04:24-04:00",
+        "valueQuantity": {
+          "value": 9,
+          "unit": "{score}",
+          "system": "http://unitsofmeasure.org",
+          "code": "{score}"
+        }
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Procedure",
+        "status": "completed",
+        "code": {
+          "coding": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "454711000124102",
+              "display": "Depression screening using Patient Health Questionnaire Two-Item score (procedure)"
+            }
+          ]
+        },
+        "encounter": {
+          "reference": "Encounter/aetna-sandbox-1b087914-3de5-4fae-9c21-0e9b8f606969"
+        },
+        "performedDateTime": "2019-03-21T02:33:30-04:00",
+        "location": {
+          "reference": "Location/aetna-sandbox-3698b5b0-9d02-42c0-b38e-0867e30620fb",
+          "display": "ST FRANCIS HOSPITAL & MEDICAL CENTER"
+        }
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "MedicationDispense",
+        "status": "completed",
+        "medicationCodeableConcept": {
+          "coding": [
+            {
+              "system": "http://www.nlm.nih.gov/research/umls/rxnorm",
+              "code": "308460",
+              "display": "Azithromycin 250 MG Oral Tablet"
+            },
+            {
+              "system": "http://hl7.org/fhir/sid/ndc",
+              "code": "68180-861-11",
+              "display": "Azithromycin (as azithromycin dihydrate) 250 mg oral tablet"
+            }
+          ],
+          "text": "Azithromycin 250 MG Oral Tablet"
+        },
+        "performer": [
+          {
+            "actor": {
+              "reference": "Practitioner/e068b883-ad2d-43b9-90f0-205969953db7"
+            }
+          }
+        ],
+        "location": {
+          "reference": "Location/2f3cf937-42b9-4805-9035-f6d88c427dc4"
+        },
+        "authorizingPrescription": [
+          {
+            "reference": "MedicationRequest/9e205ed9-0dfc-4514-943a-14c735c891b6"
+          }
+        ],
+        "type": {
+          "coding": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+              "code": "FFC",
+              "display": "First Fill - Complete"
+            }
+          ]
+        },
+        "quantity": {
+          "value": 6,
+          "system": "http://terminology.hl7.org/CodeSystem/v3-orderableDrugForm",
+          "code": "TAB"
+        },
+        "daysSupply": {
+          "value": 6,
+          "unit": "Day",
+          "system": "http://unitsofmeasure.org",
+          "code": "d"
+        },
+        "whenPrepared": "2020-07-09T17:13:00+05:00",
+        "whenHandedOver": "2020-07-09T17:13:00+05:00",
+        "note": [
+          {
+            "text": "Patient told to take with food"
+          }
+        ],
+        "dosageInstruction": [
+          {
+            "text": "One tablet at once",
+            "additionalInstruction": [
+              {
+                "coding": [
+                  {
+                    "system": "http://snomed.info/sct",
+                    "code": "311504000",
+                    "display": "With or after food"
+                  }
+                ]
+              }
+            ],
+            "timing": {
+              "repeat": {
+                "frequency": 1,
+                "period": 1,
+                "periodUnit": "d"
+              }
+            },
+            "route": {
+              "coding": [
+                {
+                  "system": "http://snomed.info/sct",
+                  "code": "26643006",
+                  "display": "Oral Route"
+                }
+              ]
+            },
+            "method": {
+              "coding": [
+                {
+                  "system": "http://snomed.info/sct",
+                  "code": "421521009",
+                  "display": "Swallow"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "MedicationRequest",
+        "status": "active",
+        "intent": "order",
+        "medicationCodeableConcept": {
+          "coding": [
+            {
+              "system": "http://www.nlm.nih.gov/research/umls/rxnorm",
+              "code": "308460",
+              "display": "Azithromycin 250 MG Oral Tablet"
+            },
+            {
+              "system": "http://hl7.org/fhir/sid/ndc",
+              "code": "68180-861-11",
+              "display": "Azithromycin (as azithromycin dihydrate) 250 mg oral tablet"
+            }
+          ],
+          "text": "Azithromycin 250 MG Oral Tablet"
+        },
+        "authoredOn": "2020-07-09",
+        "requester": {
+          "reference": "Practitioner/e068b883-ad2d-43b9-90f0-205969953db7"
+        },
+        "reasonCode": [
+          {
+            "coding": [
+              {
+                "system": "http://snomed.info/sct",
+                "code": "11840006",
+                "display": "Traveler's diarrhea"
+              }
+            ]
+          }
+        ],
+        "dosageInstruction": [
+          {
+            "text": "One tablet at once",
+            "additionalInstruction": [
+              {
+                "coding": [
+                  {
+                    "system": "http://snomed.info/sct",
+                    "code": "311504000",
+                    "display": "With or after food"
+                  }
+                ]
+              }
+            ],
+            "timing": {
+              "repeat": {
+                "frequency": 1,
+                "period": 1,
+                "periodUnit": "d"
+              }
+            },
+            "route": {
+              "coding": [
+                {
+                  "system": "http://snomed.info/sct",
+                  "code": "26643006",
+                  "display": "Oral Route"
+                }
+              ]
+            },
+            "method": {
+              "coding": [
+                {
+                  "system": "http://snomed.info/sct",
+                  "code": "421521009",
+                  "display": "Swallow"
+                }
+              ]
+            },
+            "doseAndRate": [
+              {
+                "type": {
+                  "coding": [
+                    {
+                      "system": "http://terminology.hl7.org/CodeSystem/dose-rate-type",
+                      "code": "ordered"
+                    }
+                  ]
+                },
+                "doseQuantity": {
+                  "value": 250,
+                  "unit": "mg",
+                  "system": "http://unitsofmeasure.org",
+                  "code": "mg"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Coverage",
+        "identifier": [
+          {
+            "id": "mbi",
+            "type": {
+              "coding": [
+                {
+                  "id": "type-mbi",
+                  "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+                  "code": "MBI"
+                }
+              ]
+            },
+            "system": "http://hl7.org/fhir/sid/us-mbi",
+            "value": "a"
+          },
+          {
+            "id": "sourceId",
+            "system": "https://www.icanbwell.com/sourceId",
+            "value": "3b8d95db-fa41-4d88-9769-9107293850e5"
+          },
+          {
+            "id": "uuid",
+            "system": "https://www.icanbwell.com/uuid",
+            "value": "3b8d95db-fa41-4d88-9769-9107293850e5"
+          }
+        ],
+        "status": "active",
+        "policyHolder": {
+          "reference": "Patient/99af9c84-630a-4db8-a725-85c10fd340ca"
+        },
+        "subscriber": {
+          "reference": "Patient/99af9c84-630a-4db8-a725-85c10fd340ca"
+        },
+        "subscriberId": "r",
+        "beneficiary": {
+          "reference": "Patient/99af9c84-630a-4db8-a725-85c10fd340ca"
+        },
+        "relationship": {
+          "coding": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/subscriber-relationship",
+              "code": "self"
+            }
+          ],
+          "text": "Self"
+        },
+        "period": {
+          "start": "2020-01-01"
+        },
+        "payor": [
+          {
+            "reference": "Organization/f5d09486-9adb-4571-8357-711d919ae762"
+          }
+        ],
+        "class": [
+          {
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/coverage-class",
+                  "code": "group",
+                  "display": "Group"
+                }
+              ],
+              "text": "An employee group"
+            },
+            "value": "MCHMO1",
+            "name": "MEDICARE HMO PLAN"
+          },
+          {
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/coverage-class",
+                  "code": "plan",
+                  "display": "Plan"
+                }
+              ],
+              "text": "A specific suite of benefits."
+            },
+            "value": "GR5",
+            "name": "GR5-HMO DEDUCTIBLE"
+          }
+        ],
+        "network": "GR5-HMO DEDUCTIBLE"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "ExplanationOfBenefit",
+        "status": "active",
+        "type": {
+          "coding": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/claim-type",
+              "code": "professional"
+            }
+          ],
+          "text": "Professional"
+        },
+        "use": "claim",
+        "patient": {
+          "reference": "Patient/99af9c84-630a-4db8-a725-85c10fd340ca"
+        },
+        "billablePeriod": {
+          "start": "2020-08-04",
+          "end": "2020-08-04"
+        },
+        "created": "2020-08-24T00:00:00-04:00",
+        "insurer": {
+          "reference": "Organization/f5d09486-9adb-4571-8357-711d919ae762"
+        },
+        "provider": {
+          "reference": "Practitioner/e068b883-ad2d-43b9-90f0-205969953db7"
+        },
+        "outcome": "complete",
+        "insurance": [
+          {
+            "coverage": {
+              "reference": "Coverage/7dee7f29-43f2-4207-bda1-d9b374d0491d"
+            }
+          }
+        ],
+        "item": [
+          {
+            "sequence": 1,
+            "productOrService": {
+              "coding": [
+                {
+                  "system": "http://www.ama-assn.org/go/cpt",
+                  "code": "75710",
+                  "display": "Diagnostic Radiology Procedures of the Aorta and Arteries"
+                }
+              ]
+            },
+            "servicedDate": "2020-08-04",
+            "adjudication": [
+              {
+                "category": {
+                  "coding": [
+                    {
+                      "system": "http://hl7.org/fhir/us/carin-bb/CodeSystem/C4BBAdjudication",
+                      "code": "paidbypatient",
+                      "display": "Paid by Patient"
+                    }
+                  ]
+                },
+                "amount": {
+                  "value": 5,
+                  "currency": "USD"
+                }
+              },
+              {
+                "category": {
+                  "coding": [
+                    {
+                      "system": "http://hl7.org/fhir/us/carin-bb/CodeSystem/C4BBAdjudication",
+                      "code": "paidtoprovider"
+                    }
+                  ],
+                  "text": "Paid by insurance"
+                },
+                "amount": {
+                  "value": 40,
+                  "currency": "USD"
+                }
+              },
+              {
+                "category": {
+                  "coding": [
+                    {
+                      "system": "http://hl7.org/fhir/us/carin-bb/CodeSystem/C4BBAdjudication",
+                      "code": "deductible",
+                      "display": "Deductible"
+                    }
+                  ]
+                },
+                "amount": {
+                  "value": 5,
+                  "currency": "USD"
+                }
+              },
+              {
+                "category": {
+                  "coding": [
+                    {
+                      "system": "http://hl7.org/fhir/us/carin-bb/CodeSystem/C4BBPayerAdjudicationStatus",
+                      "code": "innetwork",
+                      "display": "In Network"
+                    }
+                  ],
+                  "text": "Indicates the claim or claim line was paid in network. This does not indicate the contracting status of the provider"
+                }
+              }
+            ]
+          },
+          {
+            "sequence": 2,
+            "productOrService": {
+              "coding": [
+                {
+                  "system": "http://www.ama-assn.org/go/cpt",
+                  "code": "37228",
+                  "display": "Endovascular Revascularization"
+                }
+              ]
+            },
+            "servicedDate": "2020-08-04",
+            "adjudication": [
+              {
+                "category": {
+                  "coding": [
+                    {
+                      "system": "http://hl7.org/fhir/us/carin-bb/CodeSystem/C4BBAdjudication",
+                      "code": "paidbypatient",
+                      "display": "Paid by Patient"
+                    }
+                  ]
+                },
+                "amount": {
+                  "value": 250,
+                  "currency": "USD"
+                }
+              },
+              {
+                "category": {
+                  "coding": [
+                    {
+                      "system": "http://hl7.org/fhir/us/carin-bb/CodeSystem/C4BBAdjudication",
+                      "code": "paidtoprovider"
+                    }
+                  ],
+                  "text": "Paid by insurance"
+                },
+                "amount": {
+                  "value": 250,
+                  "currency": "USD"
+                }
+              },
+              {
+                "category": {
+                  "coding": [
+                    {
+                      "system": "http://hl7.org/fhir/us/carin-bb/CodeSystem/C4BBAdjudication",
+                      "code": "deductible",
+                      "display": "Deductible"
+                    }
+                  ]
+                },
+                "amount": {
+                  "value": 50,
+                  "currency": "USD"
+                }
+              },
+              {
+                "category": {
+                  "coding": [
+                    {
+                      "system": "http://hl7.org/fhir/us/carin-bb/CodeSystem/C4BBPayerAdjudicationStatus",
+                      "code": "innetwork",
+                      "display": "In Network"
+                    }
+                  ],
+                  "text": "Indicates the claim or claim line was paid in network. This does not indicate the contracting status of the provider"
+                }
+              }
+            ]
+          }
+        ],
+        "total": [
+          {
+            "category": {
+              "coding": [
+                {
+                  "system": "http://hl7.org/fhir/us/carin-bb/CodeSystem/C4BBAdjudication",
+                  "code": "paidbypatient",
+                  "display": "Paid by Patient"
+                }
+              ]
+            },
+            "amount": {
+              "value": 255,
+              "currency": "USD"
+            }
+          },
+          {
+            "category": {
+              "coding": [
+                {
+                  "system": "http://hl7.org/fhir/us/carin-bb/CodeSystem/C4BBAdjudication",
+                  "code": "paidtoprovider"
+                }
+              ],
+              "text": "Paid by insurance"
+            },
+            "amount": {
+              "value": 290,
+              "currency": "USD"
+            }
+          },
+          {
+            "category": {
+              "coding": [
+                {
+                  "system": "http://hl7.org/fhir/us/carin-bb/CodeSystem/C4BBAdjudication",
+                  "code": "deductible",
+                  "display": "Deductible"
+                }
+              ]
+            },
+            "amount": {
+              "value": 100,
+              "currency": "USD"
+            }
+          }
+        ],
+        "payment": {
+          "amount": {
+            "value": 290,
+            "currency": "USD"
+          }
+        }
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Encounter",
+        "status": "unknown",
+        "class": {
+          "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+          "code": "AMB"
+        },
+        "type": [
+          {
+            "coding": [
+              {
+                "system": "http://www.ama-assn.org/go/cpt",
+                "code": "99234",
+                "display": "Observation or Inpatient Care Services (Including Admission and Discharge Services)"
+              }
+            ]
+          }
+        ],
+        "participant": [
+          {
+            "type": [
+              {
+                "coding": [
+                  {
+                    "system": "http://terminology.hl7.org/CodeSystem/v3-ParticipationType",
+                    "code": "PPRF",
+                    "display": "primary performer"
+                  }
+                ]
+              }
+            ],
+            "period": {
+              "start": "2019-03-21T01:00:00-04:00",
+              "end": "2019-03-21T01:15:00-04:00"
+            },
+            "individual": {
+              "reference": "Practitioner/aetna-sandbox-05492895-65d3-392b-9b5c-6bf70d8981f5",
+              "display": "Dr. Sarita Dibbert"
+            }
+          }
+        ],
+        "period": {
+          "start": "2019-03-21T01:00:00-04:00",
+          "end": "2019-03-21T01:15:00-04:00"
+        },
+        "location": [
+          {
+            "location": {
+              "reference": "Location/aetna-sandbox-479a099c-7fbd-3877-9f33-dace3ab7f7e6",
+              "display": "ST FRANCIS HOSPITAL & MEDICAL CENTER"
+            }
+          }
+        ],
+        "serviceProvider": {
+          "reference": "Organization/aetna-sandbox-d09a394f-fe5e-350a-87c6-96d65e0d08f8",
+          "display": "ST FRANCIS HOSPITAL & MEDICAL CENTER"
+        }
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "CarePlan",
+        "text": {
+          "status": "generated",
+          "div": "CarePlan"
+        },
+        "status": "active",
+        "intent": "order",
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://hl7.org/fhir/us/core/CodeSystem/careplan-category",
+                "code": "assess-plan"
+              }
+            ]
+          },
+          {
+            "coding": [
+              {
+                "system": "http://snomed.info/sct",
+                "code": "698360004",
+                "display": "Diabetes self management plan"
+              }
+            ],
+            "text": "Diabetes self management plan"
+          }
+        ],
+        "title": "Diabetes self management plan",
+        "period": {
+          "start": "2012-03-03T01:45:51+00:00",
+          "end": "2013-03-03T01:45:51+00:00"
+        },
+        "activity": [
+          {
+            "detail": {
+              "code": {
+                "coding": [
+                  {
+                    "system": "http://snomed.info/sct",
+                    "code": "160670007",
+                    "display": "Diabetic diet"
+                  }
+                ],
+                "text": "Diabetic diet"
+              },
+              "status": "in-progress"
+            }
+          },
+          {
+            "detail": {
+              "code": {
+                "coding": [
+                  {
+                    "system": "http://snomed.info/sct",
+                    "code": "229065009",
+                    "display": "Exercise therapy"
+                  }
+                ],
+                "text": "Exercise therapy"
+              },
+              "status": "in-progress"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Immunization",
+        "status": "completed",
+        "vaccineCode": {
+          "coding": [
+            {
+              "system": "https://fhir.cerner.com/ec2458f2-1e24-41c8-b71b-0e701af7583d/codeSet/72",
+              "code": "2798767",
+              "display": "tetanus toxoid"
+            },
+            {
+              "system": "http://hl7.org/fhir/sid/cvx",
+              "code": "112",
+              "display": "tetanus toxoid, unspecified formulation"
+            },
+            {
+              "system": "http://hl7.org/fhir/sid/cvx",
+              "code": "CVX 212",
+              "display": "tetanus toxoid, unspecified formulation"
+            },
+            {
+              "system": "http://hl7.org/fhir/sid/cvx",
+              "code": "212",
+              "display": "tetanus toxoid, unspecified formulation"
+            }
+          ],
+          "text": "tetanus toxoid"
+        },
+        "patient": {
+          "reference": "Patient/99af9c84-630a-4db8-a725-85c10fd340ca"
+        },
+        "encounter": {
+          "reference": "Encounter/89798260-1481-487e-af7c-d687860b70c6"
+        },
+        "occurrenceDateTime": "2012-10-20T00:00:00.000Z",
+        "doseQuantity": {
+          "value": 5,
+          "unit": "mL",
+          "system": "http://unitsofmeasure.org",
+          "code": "mL"
+        },
+        "protocolApplied": [
+          {
+            "targetDisease": [
+              {
+                "coding": [
+                  {
+                    "system": "https://fhir.cerner.com/ec2458f2-1e24-41c8-b71b-0e701af7583d/codeSet/4003106",
+                    "code": "2289043429",
+                    "display": "COVID-19"
+                  },
+                  {
+                    "system": "http://hl7.org/fhir/sid/cvx",
+                    "code": "213",
+                    "display": "SARS-COV-2 (COVID-19) vaccine, UNSPECIFIED"
+                  }
+                ],
+                "text": "COVID-19"
+              }
+            ],
+            "doseNumberPositiveInt": 1
+          },
+          {
+            "targetDisease": [
+              {
+                "coding": [
+                  {
+                    "system": "https://fhir.cerner.com/ec2458f2-1e24-41c8-b71b-0e701af7583d/codeSet/4003106",
+                    "code": "2289043429",
+                    "display": "COVID-19"
+                  },
+                  {
+                    "system": "http://hl7.org/fhir/sid/cvx",
+                    "code": "213",
+                    "display": "SARS-COV-2 (COVID-19) vaccine, UNSPECIFIED"
+                  }
+                ],
+                "text": "COVID-19"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

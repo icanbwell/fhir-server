@@ -84,8 +84,10 @@ const {ReferenceGlobalIdHandler} = require('./preSaveHandlers/handlers/reference
 const {OwnerColumnHandler} = require('./preSaveHandlers/handlers/ownerColumnHandler');
 const {HashReferencesEnrichmentProvider} = require('./enrich/providers/hashedReferencesEnrichmentProvider');
 const {SensitiveDataProcessor} = require('./utils/sensitiveDataProcessor');
-const {ChatGPTManager} = require('./chatgpt/chatgptManager');
+const {ChatGPTLangChainManager} = require('./chatgpt/chatgptLangChainManager');
 const {FhirResourceWriterFactory} = require('./operations/streaming/resourceWriters/fhirResourceWriterFactory');
+const {FhirToSummaryDocumentConverter} = require('./chatgpt/fhirToDocumentConverters/fhirToSummaryDocumentConverter');
+const {ResourceConverterFactory} = require('./chatgpt/resourceConverters/resourceConverterFactory');
 const {LinkedPatientsFinder} = require('./utils/linkedPatientsFinder');
 const {ConsentManager} = require('./operations/search/consentManger');
 const {SearchQueryBuilder} = require('./operations/search/searchQueryBuilder');
@@ -701,7 +703,15 @@ const createContainer = function () {
         databaseQueryFactory: c.databaseQueryFactory
     }));
 
-    container.register('chatgptManager', () => new ChatGPTManager());
+    container.register('fhirToDocumentConverter', () => new FhirToSummaryDocumentConverter(
+        {
+            resourceConverterFactory: new ResourceConverterFactory()
+        }
+    ));
+
+    container.register('chatgptManager', (c) => new ChatGPTLangChainManager({
+        fhirToDocumentConverter: c.fhirToDocumentConverter
+    }));
     container.register('fhirResourceWriterFactory', (c) => new FhirResourceWriterFactory(
         {
             configManager: c.configManager

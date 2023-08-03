@@ -24,7 +24,9 @@ const {describe, test} = require('@jest/globals');
 const {MemoryVectorStore} = require('langchain/vectorstores/memory');
 const {Document} = require('langchain/document');
 const {ConsoleCallbackHandler} = require('langchain/callbacks');
-const {ChatGPTManager} = require('../../chatgpt/chatgptManager');
+const {ChatGPTLangChainManager} = require('../../chatgpt/chatgptLangChainManager');
+const {FhirToSummaryDocumentConverter} = require('../../chatgpt/fhirToDocumentConverters/fhirToSummaryDocumentConverter');
+const {ResourceConverterFactory} = require('../../chatgpt/resourceConverters/resourceConverterFactory');
 
 // const describeIf = process.env.OPENAI_API_KEY ? describe : describe.skip;
 
@@ -126,7 +128,12 @@ describe('ChatGPT Tests', () => {
                 return;
             }
 
-            const chatGPTManager = new ChatGPTManager();
+            const fhirToDocumentConverter = new FhirToSummaryDocumentConverter({
+                resourceConverterFactory: new ResourceConverterFactory()
+            });
+            const chatGPTManager = new ChatGPTLangChainManager({
+                fhirToDocumentConverter
+            });
             const result = await chatGPTManager.getFhirQueryAsync({
                 baseUrl: 'https://fhir.icanbwell.com/4_0_0',
                 query: 'Find me all conditions that are diabetes'
@@ -139,7 +146,12 @@ describe('ChatGPT Tests', () => {
                 return;
             }
 
-            const chatGPTManager = new ChatGPTManager();
+            const fhirToDocumentConverter = new FhirToSummaryDocumentConverter({
+                resourceConverterFactory: new ResourceConverterFactory()
+            });
+            const chatGPTManager = new ChatGPTLangChainManager({
+                fhirToDocumentConverter
+            });
             const result = await chatGPTManager.getFhirQueryAsync({
                 baseUrl: 'https://fhir.icanbwell.com/4_0_0',
                 query: 'Find all patients that are older than 10 years old'
@@ -151,7 +163,12 @@ describe('ChatGPT Tests', () => {
             if (!process.env.OPENAI_API_KEY) {
                 return;
             }
-            const chatGPTManager = new ChatGPTManager();
+            const fhirToDocumentConverter = new FhirToSummaryDocumentConverter({
+                resourceConverterFactory: new ResourceConverterFactory()
+            });
+            const chatGPTManager = new ChatGPTLangChainManager({
+                fhirToDocumentConverter
+            });
             const result = await chatGPTManager.getFhirQueryAsync({
                 baseUrl: 'https://fhir.icanbwell.com/4_0_0',
                 query: 'Find me all conditions that are diabetes for this patient',
@@ -413,7 +430,12 @@ describe('ChatGPT Tests', () => {
                 return;
             }
 
-            const chatGPTManager = new ChatGPTManager();
+            const fhirToDocumentConverter = new FhirToSummaryDocumentConverter({
+                resourceConverterFactory: new ResourceConverterFactory()
+            });
+            const chatGPTManager = new ChatGPTLangChainManager({
+                fhirToDocumentConverter
+            });
             const patientResources = patientBundleResource.entry.map(
                 e => new Document(
                     {
@@ -520,12 +542,17 @@ describe('ChatGPT Tests', () => {
                 return;
             }
 
-            const chatGPTManager = new ChatGPTManager();
+            const fhirToDocumentConverter = new FhirToSummaryDocumentConverter({
+                resourceConverterFactory: new ResourceConverterFactory()
+            });
+            const chatGPTManager = new ChatGPTLangChainManager({
+                fhirToDocumentConverter
+            });
             const result = await chatGPTManager.answerQuestionAsync({
                 bundle: patientBundleResource,
                 question: 'Create a clinical summary to share with my doctor'
             });
-            console.log(result);
+            console.log(result.responseText);
             // expect(result).toStrictEqual('<h1>Clinical Summary</h1>  <p>Date: 2023-07-10</p>  <p>Patient Name: John Doe</p>  <p>Gender: Male</p>  <p>Date of Birth: 1980-01-01</p>  <p>Address: 123 Main St, Anytown, USA</p>  <p>Contact Number: (555) 123-4567</p>  <h2>Allergies</h2>  <ul>    <li>Penicillin</li>    <li>Latex</li>  </ul>  <h2>Medications</h2>  <ul>    <li>Metoprolol - 50mg, once daily</li>    <li>Levothyroxine - 100mcg, once daily</li>  </ul>  <h2>Conditions</h2>  <ul>    <li>Hypertension</li>    <li>Hypothyroidism</li>  </ul>  <h2>Immunizations</h2>  <ul>    <li>Influenza - 2022-10-15</li>    <li>Tetanus - 2021-07-01</li>  </ul>  <h2>Recent Lab Results</h2>  <ul>    <li>Complete Blood Count - 2023-06-30</li>    <li>Cholesterol Panel - 2023-06-15</li>  </ul>');
         });
         test('ChatGPT with FHIR record with json documents about vaccination date with compressor', async () => {
@@ -533,12 +560,17 @@ describe('ChatGPT Tests', () => {
                 return;
             }
 
-            const chatGPTManager = new ChatGPTManager();
+            const fhirToDocumentConverter = new FhirToSummaryDocumentConverter({
+                resourceConverterFactory: new ResourceConverterFactory()
+            });
+            const chatGPTManager = new ChatGPTLangChainManager({
+                fhirToDocumentConverter
+            });
             const result = await chatGPTManager.answerQuestionAsync({
                 bundle: patientBundleResource,
                 question: 'When did this patient receive the tetanus vaccine'
             });
-            console.log(result);
+            console.log(result.responseText);
         });
     });
 });

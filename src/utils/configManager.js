@@ -323,6 +323,23 @@ class ConfigManager {
     get logStreamSteps() {
         return isTrue(env.LOG_STREAM_STEPS);
     }
+
+    /**
+     * whether to show the new UI or the old one
+     * @returns {boolean}
+     */
+    get showNewUI() {
+        return isTrue(env.SHOW_NEW_UI);
+    }
+
+    /**
+     * whether to disable the new UI
+     * @returns {boolean}
+     * @constructor
+     */
+    get disableNewUI() {
+        return isTrue(env.DISABLE_NEW_UI);
+    }
 }
 
 module.exports = {

@@ -82,6 +82,9 @@ update:down
 upgrade_packages:down
 	. ${NVM_DIR}/nvm.sh && nvm use && \
 	yarn install --no-optional && \
+	ncu -u --reject @sentry/node && \
+	cd src/web && \
+	yarn install --no-optional && \
 	ncu -u --reject @sentry/node
 
 .PHONY:tests
@@ -159,11 +162,6 @@ setup-pre-commit:
 .PHONY:run-pre-commit
 run-pre-commit: setup-pre-commit
 	./.git/hooks/pre-commit
-
-.PHONY:graphqlv1
-graphqlv1:
-	docker run --rm -it --name pythongenerator --mount type=bind,source="${PWD}"/src,target=/src python:3.8-slim-buster sh -c "pip install lxml jinja2 && python3 src/graphql/v1/generator/generate_classes.py" && \
-	graphql-schema-linter src/graphql/v1/**/*.graphql
 
 .PHONY:graphql
 graphql:

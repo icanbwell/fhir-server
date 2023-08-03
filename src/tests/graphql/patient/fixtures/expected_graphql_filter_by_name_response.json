@@ -1,0 +1,97 @@
+[
+  {
+    "allergyIntolerance": [
+      {
+        "category": [
+          "environment"
+        ],
+        "code": {
+          "text": "Mold (organism)"
+        },
+        "criticality": "low",
+        "id": "0af7ad3f-9f37-1a62-09e4-4ca127531c51",
+        "type": "allergy"
+      }
+    ],
+    "birthDate": "2017-01-01",
+    "careTeam": [
+      {
+        "category": [
+          {
+            "coding": [
+              {
+                "code": "favorite-practitioners",
+                "system": "www.icanbwell.com/care-team-category"
+              }
+            ]
+          }
+        ],
+        "id": "68ea6705-c595-445b-9782-a54accfc5d06",
+        "name": "Favorites",
+        "resourceType": "CareTeam",
+        "status": "active"
+      }
+    ],
+    "explanationOfBenefit": [
+      {
+        "id": "WPS-Claim-230916613369",
+        "identifier": [
+          {
+            "system": "https://www.wpshealth.com/",
+            "value": "230916613369"
+          },
+          {
+            "system": "https://www.icanbwell.com/sourceId",
+            "value": "WPS-Claim-230916613369"
+          },
+          {
+            "system": "https://www.icanbwell.com/uuid",
+            "value": "2eb828dc-51bc-5140-a85e-ae80d04a9cf1"
+          }
+        ]
+      }
+    ],
+    "id": "WPS-0559166162",
+    "name": [
+      {
+        "family": "PATIENT1",
+        "given": [
+          "SHYLA"
+        ]
+      }
+    ]
+  },
+  {
+    "allergyIntolerance": [],
+    "birthDate": "2017-01-01",
+    "careTeam": [],
+    "explanationOfBenefit": [
+      {
+        "id": "WPS-Claim-429017018331",
+        "identifier": [
+          {
+            "system": "https://www.wpshealth.com/",
+            "value": "429017018331"
+          },
+          {
+            "system": "https://www.icanbwell.com/sourceId",
+            "value": "WPS-Claim-429017018331"
+          },
+          {
+            "system": "https://www.icanbwell.com/uuid",
+            "value": "232a204b-3881-56c8-b240-a4faf159ffed"
+          }
+        ]
+      }
+    ],
+    "id": "WPS-5458231534",
+    "name": [
+      {
+        "family": "PATIENT2",
+        "given": [
+          "SHYLA"
+        ]
+      }
+    ]
+  }
+]

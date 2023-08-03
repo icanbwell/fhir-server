@@ -19,8 +19,11 @@ const passport = require('passport');
 const path = require('path');
 const contentType = require('content-type');
 const httpContext = require('express-http-context');
-const { REQUEST_ID_TYPE} = require('../constants');
+const {REQUEST_ID_TYPE} = require('../constants');
 const {convertErrorToOperationOutcome} = require('../utils/convertErrorToOperationOutcome');
+const {shouldReturnHtml} = require('../utils/requestHelpers');
+const {ConfigManager} = require('../utils/configManager');
+
 class MyFHIRServer {
     /**
      * constructor
@@ -46,6 +49,12 @@ class MyFHIRServer {
          */
         this.fhirRouter = this.container.fhirRouter;
         assertTypeEquals(this.fhirRouter, FhirRouter);
+
+        /**
+         * @type {ConfigManager}
+         */
+        this.configManager = this.container.configManager;
+        assertTypeEquals(this.configManager, ConfigManager);
 
         let {server = {}} = this.config;
         this.env = {
@@ -243,16 +252,33 @@ class MyFHIRServer {
      */
     configureHtmlRenderer() {
         if (isTrue(env.RENDER_HTML)) {
+            // Serve static files from the React app
+            this.app.use('/', express.static(path.join(__dirname, '../web/build')));
+            // Any request that uses /web should go to React
             this.app.use((
-                /** @type {import('express').Request} */ req,
-                /** @type {import('express').Response} */ res,
-                /** @type {import('express').NextFunction} */ next
-            ) => htmlRenderer({
-                container: this.container,
-                req,
-                res,
-                next
-            }));
+                    /** @type {import('express').Request} */ req,
+                    /** @type {import('express').Response} */ res,
+                    /** @type {import('express').NextFunction} */ next
+                ) => {
+                    if (shouldReturnHtml(req)) {
+                        if (!this.configManager.disableNewUI && ((req.cookies && req.cookies['web2']) || this.configManager.showNewUI)) {
+                            const path1 = path.join(__dirname, '../web/build', 'index.html');
+                            // console.log(`Route: /web/*: ${path1}`);
+                            // console.log(`Received /web/* ${req.method} request at ${req.url}`);
+                            return res.sendFile(path1);
+                        } else {
+                            return htmlRenderer({
+                                container: this.container,
+                                req,
+                                res,
+                                next
+                            });
+                        }
+                    } else {
+                        next();
+                    }
+                }
+            );
         }
         return this;
     }

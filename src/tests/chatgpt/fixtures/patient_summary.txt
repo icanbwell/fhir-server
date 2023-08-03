@@ -1,0 +1,107 @@
+Patient Summary:
+- ID: john-muir-health-e.k-4ea143ZrQGvdUvf-b2y.tdyiVMBWgblY4f6y2zis3
+- Last Updated: April 6, 2023
+- Source: https://vteapif1.aetna.com/fhirdemo/v2/patientaccess//Patient/aetna-sandbox-235672cf-a9e7-45cc-8983-ca797d4fa2a3
+- Language: English
+- Race: White
+- Ethnicity: Hispanic or Latino
+- Gender: Female
+- Birth Date: December 1, 1983
+- Birth Place: San Juan, Puerto Rico, PR
+- Disability Adjusted Life Years: 0
+- Quality Adjusted Life Years: 38
+- Marital Status: Single
+- Multiple Birth: No
+- Communication Language: English
+- Identifier: Member Number - 111111111
+- Contact Information: Phone - 555-338-2918 (Home), Email - ashlee_newton@test.com (Work)
+- Address: 257 Schoen Annex, Hartford, CT, US
+Condition Summary:
+- ID: john-muir-health-e6vIeMKuCsAXr-ZBHhvFUFM0NlOt19ai8L6tO0IRwIW83
+- Last Updated: May 2, 2023
+- Source: https://fhir.johnmuirhealth.com/fhir-prd/api/FHIR/R4//Condition/e6vIeMKuCsAXr-ZBHhvFUFM0NlOt19ai8L6tO0IRwIW83
+- Clinical Status: Active
+- Verification Status: Confirmed
+- Category: Problem List Item, Health Concern
+- Code: Tendinopathy of patella (M67.969)
+- Subject: Patient ID: john-muir-health-e.k-4ea143ZrQGvdUvf-b2y.tdyiVMBWgblY4f6y2zis3
+- Onset Period: September 26, 2019
+- Recorded Date: September 26, 2019
+Observation Summary:
+- ID: aetna-sandbox-72138539-13ba-4151-8546-c7181f4486a7
+- Status: Final
+- Category: Laboratory
+- Code: Total score [DAST-10] (LOINC code: 82667-7)
+- Subject: Patient/99af9c84-630a-4db8-a725-85c10fd340ca (Source: john_muir_health)
+- Effective Date/Time: May 26, 2022, 03:30:18 AM (Eastern Daylight Time)
+- Value: 2 {score}
+Observation Summary:
+- ID: aetna-sandbox-fe0f0b3b-74cd-4388-8ba1-c2c9d3059cfe
+- Status: Final
+- Category: Laboratory
+- Code: Total score [DAST-10] (LOINC code: 82667-7)
+- Subject: Patient/99af9c84-630a-4db8-a725-85c10fd340ca (Source: john_muir_health)
+- Effective Date/Time: May 9, 2019, 03:36:21 AM (Eastern Daylight Time)
+- Value: 1 {score}
+Observation Summary:
+- ID: aetna-sandbox-be03f51a-bd9d-459a-8da0-d8650c600870
+- Status: Final
+- Category: Laboratory
+- Code: Total score [DAST-10] (LOINC code: 82667-7)
+- Subject: Patient/99af9c84-630a-4db8-a725-85c10fd340ca (Source: john_muir_health)
+- Effective Date/Time: May 3, 2018, 03:31:25 AM (Eastern Daylight Time)
+- Value: 2 {score}
+Procedure Summary:
+- ID: aetna-sandbox-994e5bd2-3d50-4a14-be1d-53df89e161ad
+- Last Updated: 2023-04-06T13:15:55.000Z
+- Status: Completed
+- Code: Depression screening using Patient Health Questionnaire Two-Item score (procedure)
+- Subject: Patient/99af9c84-630a-4db8-a725-85c10fd340ca
+- Encounter: Encounter/aetna-sandbox-1b087914-3de5-4fae-9c21-0e9b8f606969
+- Performed Date/Time: 2019-03-21T02:33:30-04:00
+- Location: ST FRANCIS HOSPITAL & MEDICAL CENTER
+Medication Dispense Summary:
+- ID: 1808cbf7-cb3c-4249-b4ac-de07380c9fa2
+- Last Updated: 2023-02-24T13:53:14.000Z
+- Status: Completed
+- Medication: Azithromycin 250 MG Oral Tablet
+- Subject: Patient/99af9c84-630a-4db8-a725-85c10fd340ca
+- Performer: Practitioner/e068b883-ad2d-43b9-90f0-205969953db7
+- Location: Location/2f3cf937-42b9-4805-9035-f6d88c427dc4
+- Prescription: MedicationRequest/9e205ed9-0dfc-4514-943a-14c735c891b6
+- Type: First Fill - Complete
+- Quantity: 6 tablets
+- Days Supply: 6 days
+- Date Prepared: 2020-07-09T17:13:00+05:00
+- Date Handed Over: 2020-07-09T17:13:00+05:00
+- Note: Patient told to take with food
+- Dosage Instruction: One tablet at once, to be taken orally, with or after food, once a day
+Medication Request Summary:
+- Prescription Number: access-1234A
+- Status: active
+- Intent: order
+- Medication: Azithromycin 250 MG Oral Tablet
+- Subject: Patient/99af9c84-630a-4db8-a725-85c10fd340ca
+- Authored On: 2020-07-09
+- Requester: Practitioner/e068b883-ad2d-43b9-90f0-205969953db7
+- Reason: Traveler's diarrhea
+- Dosage Instruction: Take one tablet at once, with or after food, orally. The dose is 250 mg.
+Coverage Summary:
+- Coverage ID: 3b8d95db-fa41-4d88-9769-9107293850e5
+- Status: active
+- Policy Holder: Patient/99af9c84-630a-4db8-a725-85c10fd340ca
+- Subscriber: Patient/99af9c84-630a-4db8-a725-85c10fd340ca
+- Subscriber ID: r
+- Beneficiary: Patient/99af9c84-630a-4db8-a725-85c10fd340ca
+- Relationship: Self
+- Period: Start date - 2020-01-01
+- Payor: Organization/f5d09486-9adb-4571-8357-711d919ae762
+- Class: MCHMO1 (MEDICARE HMO PLAN), GR5 (GR5-HMO DEDUCTIBLE)
+- Network: GR5-HMO DEDUCTIBLE
+Explanation Of Benefit Summary:
+This is an ExplanationOfBenefit resource that represents a claim for professional services. The claim was created on August 24, 2020, and is currently active. The patient, insurer, and provider are referenced by their respective identifiers. The claim includes two items, each with their own adjudication details. The total amount paid by the patient is $255, and the total amount paid by insurance is $290. The payment amount is $290.
+Care Plan summary:
+This is a CarePlan resource with the title "Diabetes self management plan". It is an active order with the intent to assess and plan. The plan includes activities such as a diabetic diet and exercise therapy. The plan period is from March 3, 2012, to March 3, 2013.
+Immunization Summary:
+This is an Immunization resource that represents a completed vaccination. The immunization is for tetanus toxoid and was administered on October 20, 2012. The dose quantity is 5 mL. The protocol applied includes two doses of COVID-19 vaccine.
+

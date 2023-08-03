@@ -26,6 +26,28 @@ function removeAllGeneralPractitioner(arr, id) {
 
 module.exports = {
     Patient: {
+        /**
+         * @param {Resource|null} parent
+         * @param {Object} args
+         * @param {GraphQLContext} context
+         * @param {Object} info
+         * @return {Promise<Resource>}
+         */
+        // eslint-disable-next-line no-unused-vars
+        name: async (parent, args, context, info) => {
+            // noinspection JSValidateTypes
+            /**
+             * @type {Patient|null}
+             */
+            const patient = parent;
+            if (!patient) {
+                return patient;
+            }
+            if (patient && patient.name && args.use && Array.isArray(args.use)) {
+                return patient.name.filter(n => args.use.includes(n.use));
+            }
+            return patient.name;
+        },
         // eslint-disable-next-line no-unused-vars
         /**
          * @param {Resource|null} parent
