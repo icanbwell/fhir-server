@@ -58,7 +58,11 @@ const fhirFilterTypes = {
     /**
      * usage: ?param=url
      */
-    canonical: 'canonical'
+    canonical: 'canonical',
+    /**
+     * usage: ?param=<lt...>number|system|code
+     */
+    quantity: 'quantity'
 };
 /**
  Try to keep this in list in alphabetical order to make it easier to search

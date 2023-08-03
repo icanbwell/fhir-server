@@ -102,6 +102,9 @@ class R4ArgsParser {
             /**
              * @type {SearchParameterDefinition}
              */
+            if (!queryParameter.startsWith('_')) {
+                queryParameter = queryParameter.replace('_', '-');
+            }
             let propertyObj = searchParameterQueries[`${resourceType}`][`${queryParameter}`];
             if (!propertyObj) {
                 propertyObj = searchParameterQueries['Resource'][`${queryParameter}`];
