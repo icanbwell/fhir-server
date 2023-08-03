@@ -289,37 +289,6 @@ class FixBwellMasterPersonReferenceRunner extends FixReferenceIdRunner {
     }
 
     /**
-     * drops meta.security index from the collection
-     * @param {string} collectionName
-     * @param {{connection: string, db_name: string, options: import('mongodb').MongoClientOptions}} mongoConfig
-     * @returns {Promise<void>}
-     */
-    async dropIndexesofCollection({ collectionName, mongoConfig }) {
-        const { collection, session, client } = await this.createSingeConnectionAsync({ mongoConfig, collectionName });
-
-        try {
-            const indexName = 'fixBwellMasterPersonReference_meta.security_1';
-
-            if (await collection.indexExists(indexName)) {
-                this.adminLogger.logInfo(`Dropping index ${indexName} for collection ${collectionName}`);
-                await collection.dropIndex(indexName);
-            }
-        } catch (e) {
-            console.log(e);
-            throw new RethrownError(
-                {
-                    message: `Error dropping indexes for collection ${collectionName}, ${e.message}`,
-                    error: e,
-                    source: 'FixBwellMasterPersonReferenceRunner.dropIndexesofCollection'
-                }
-            );
-        } finally {
-            await session.endSession();
-            await client.close();
-        }
-    }
-
-    /**
      * Runs a loop to process all the documents
      * @returns {Promise<void>}
      */
@@ -381,10 +350,6 @@ class FixBwellMasterPersonReferenceRunner extends FixReferenceIdRunner {
                             useTransaction: this.useTransaction,
                             skip: this.skip
                         });
-
-                        // if (isHistoryCollection) {
-                        //     await this.dropIndexesofCollection({collectionName, mongoConfig});
-                        // }
                     } catch (e) {
                         this.adminLogger.logError(`Got error ${e}.  At ${startFromIdContainer.startFromId}`);
                         throw new RethrownError(
