@@ -98,10 +98,8 @@ const IndexPage = ({search}) => {
             <Accordion expanded={expanded} onChange={handleExpand}>
                 <AccordionSummary
                     expandIcon={<ExpandMoreIcon/>}
-                    aria-controls={`
-    searchCollapse`}
-                    id={`
-    searchAccordion`}
+                    aria-controls={`searchCollapse`}
+                    id={`searchAccordion`}
                 >
                     <Typography>Advanced Search</Typography>
                 </AccordionSummary>
