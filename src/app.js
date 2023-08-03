@@ -228,8 +228,8 @@ function createApp({fnCreateContainer, trackMetrics}) {
         };
         if (!configManager.disableNewUI && ((req.cookies && req.cookies['web2']) || configManager.showNewUI)) {
             const path1 = path.join(__dirname, './web/build', 'index.html');
-            // console.log(`Route: /web/*: ${path1}`);
-            // console.log(`Received /web/* ${req.method} request at ${req.url}`);
+            console.log(`Route: /web/*: ${path1}`);
+            console.log(`Received /web/* ${req.method} request at ${req.url}`);
             return res.sendFile(path1);
         } else {
             return res.render(__dirname + '/views/pages/home', home_options);
@@ -269,6 +269,8 @@ function createApp({fnCreateContainer, trackMetrics}) {
         express.static(path.join(__dirname, '../node_modules/fontawesome-4.7/fonts'))
     );
     app.use('/js', express.static(path.join(__dirname, '../node_modules/bootstrap/dist/js')));
+    // serve react js and css files
+    app.use('/static', express.static(path.join(__dirname, './web/build/static')));
 
 
     if (isTrue(env.AUTH_ENABLED)) {
