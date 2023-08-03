@@ -63,6 +63,9 @@ class FhirApi {
                 },
             });
         const status = response.status;
+        if (status === 404 || status === 401) {
+            return {status, json: {}};
+        }
         const responseJson = await response.json();
         return {status, json: responseJson};
     }
