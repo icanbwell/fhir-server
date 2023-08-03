@@ -249,6 +249,77 @@ class FixBwellMasterPersonReferenceRunner extends FixReferenceIdRunner {
     }
 
     /**
+     * Adds meta.security index to the collection
+     * @param {string} collectionName
+     * @param {{connection: string, db_name: string, options: import('mongodb').MongoClientOptions}} mongoConfig
+     * @returns {Promise<void>}
+     */
+    async addIndexesToCollection({ collectionName, mongoConfig }) {
+        const { collection, session, client } = await this.createSingeConnectionAsync({ mongoConfig, collectionName });
+
+        try {
+            const indexName = 'fixBwellMasterPersonReference_meta.security_1';
+
+            if (!await collection.indexExists(indexName)) {
+                this.adminLogger.logInfo(`Creating index ${indexName} for collection ${collectionName}`);
+
+                await collection.createIndex(
+                    {
+                        'resource.meta.security.system': 1,
+                        'resource.meta.security.code': 1
+                    },
+                    {
+                        name: indexName
+                    }
+                );
+            }
+        } catch (e) {
+
+            throw new RethrownError(
+                {
+                    message: `Error creating indexes for collection ${collectionName}, ${e.message}`,
+                    error: e,
+                    source: 'FixBwellMasterPersonReferenceRunner.addIndexesToCollection'
+                }
+            );
+        } finally {
+            await session.endSession();
+            await client.close();
+        }
+    }
+
+    /**
+     * drops meta.security index from the collection
+     * @param {string} collectionName
+     * @param {{connection: string, db_name: string, options: import('mongodb').MongoClientOptions}} mongoConfig
+     * @returns {Promise<void>}
+     */
+    async dropIndexesofCollection({ collectionName, mongoConfig }) {
+        const { collection, session, client } = await this.createSingeConnectionAsync({ mongoConfig, collectionName });
+
+        try {
+            const indexName = 'fixBwellMasterPersonReference_meta.security_1';
+
+            if (await collection.indexExists(indexName)) {
+                this.adminLogger.logInfo(`Dropping index ${indexName} for collection ${collectionName}`);
+                await collection.dropIndex(indexName);
+            }
+        } catch (e) {
+            console.log(e);
+            throw new RethrownError(
+                {
+                    message: `Error dropping indexes for collection ${collectionName}, ${e.message}`,
+                    error: e,
+                    source: 'FixBwellMasterPersonReferenceRunner.dropIndexesofCollection'
+                }
+            );
+        } finally {
+            await session.endSession();
+            await client.close();
+        }
+    }
+
+    /**
      * Runs a loop to process all the documents
      * @returns {Promise<void>}
      */
@@ -277,13 +348,20 @@ class FixBwellMasterPersonReferenceRunner extends FixReferenceIdRunner {
 
             try {
                 // update main resources
-                for (const collectionName of this.collections.filter(collection => !collection.includes('_History'))) {
+                for (const collectionName of this.collections) {
                     this.adminLogger.logInfo(`Starting reference update for ${collectionName}`);
+                    /**
+                     * @type {boolean}
+                     */
+                    const isHistoryCollection = collectionName.includes('_History');
                     /**
                      * @type {import('mongodb').Filter<import('mongodb').Document>}
                      */
-                    const query = this.getQueryForResource(false);
+                    const query = this.getQueryForResource(isHistoryCollection);
 
+                    if (isHistoryCollection) {
+                        await this.addIndexesToCollection({collectionName, mongoConfig});
+                    }
                     const startFromIdContainer = this.createStartFromIdContainer();
 
                     try {
@@ -304,53 +382,9 @@ class FixBwellMasterPersonReferenceRunner extends FixReferenceIdRunner {
                             skip: this.skip
                         });
 
-                    } catch (e) {
-                        this.adminLogger.logError(`Got error ${e}.  At ${startFromIdContainer.startFromId}`);
-                        throw new RethrownError(
-                            {
-                                message: `Error processing ids of collection ${collectionName} ${e.message}`,
-                                error: e,
-                                args: {
-                                    query
-                                },
-                                source: 'FixReferenceIdRunner.processAsync'
-                            }
-                        );
-                    }
-                }
-
-                // updating history resources
-                for (const collectionName of this.collections.filter(collection => collection.includes('_History'))) {
-                    this.adminLogger.logInfo(`Starting reference update for ${collectionName}`);
-                    /**
-                     * @type {import('mongodb').Filter<import('mongodb').Document>}
-                     */
-                    const query = this.getQueryForResource(true);
-                    /**
-                     * @type {string}
-                     */
-                    const resourceName = collectionName.split('_')[0];
-
-                    const startFromIdContainer = this.createStartFromIdContainer();
-
-                    try {
-                        this.adminLogger.logInfo(`query: ${mongoQueryStringify(query)}`);
-
-                        await this.runForQueryBatchesAsync({
-                            config: mongoConfig,
-                            sourceCollectionName: collectionName,
-                            destinationCollectionName: collectionName,
-                            query,
-                            startFromIdContainer,
-                            fnCreateBulkOperationAsync: async (doc) => await this.processRecordAsync(doc),
-                            ordered: false,
-                            batchSize: this.batchSize,
-                            skipExistingIds: false,
-                            useTransaction: this.useTransaction,
-                            filterToIds: this.historyUuidCache.has(resourceName) ? Array.from(this.historyUuidCache.get(resourceName)) : [],
-                            filterToIdProperty: 'resource._uuid'
-                        });
-
+                        if (isHistoryCollection) {
+                            await this.dropIndexesofCollection({collectionName, mongoConfig});
+                        }
                     } catch (e) {
                         this.adminLogger.logError(`Got error ${e}.  At ${startFromIdContainer.startFromId}`);
                         throw new RethrownError(
