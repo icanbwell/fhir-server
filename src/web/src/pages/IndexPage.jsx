@@ -79,7 +79,7 @@ const IndexPage = ({search}) => {
             }
         };
         callApi().catch(console.error);
-    }, [id, queryString, queryParameters, resourceType]);
+    }, [id, queryString, queryParameters, resourceType, search, searchClicked]);
 
     /**
      * Handle search event from child component
