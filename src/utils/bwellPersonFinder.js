@@ -105,7 +105,7 @@ class BwellPersonFinder {
     /**
      * Finds bwell master person for given references and returns a map of `reference -> masterPersonReference`
      * @typedef {Object} Options
-     * @property {string[]} currentReferences Current Resource References
+     * @property {string[]} currentReferences Current Resource References. If can be sourceId or uuid
      * @property {import('../dataLayer/databaseQueryManager').DatabaseQueryManager} databaseQueryManager
      * @property {number} level BFS Level
      * @property {Set<string>} visitedReferences Visited References
@@ -170,13 +170,14 @@ class BwellPersonFinder {
             const linkedReferences = this.getAllLinkedReferencesFromPerson(linkedPerson, currentReferences);
             nextRefToCurrRefsMap.set(`${PERSON_REFERENCE_PREFIX}${linkedPerson.id}`, linkedReferences);
 
+            const personUuid = linkedPerson._uuid;
             // a bwell person can be linked to multiple patients or persons.
             if (this.isBwellPerson(linkedPerson)) {
-                const bwellPerson = `${PERSON_REFERENCE_PREFIX}${linkedPerson.id}`;
+                const bwellPerson = `${PERSON_REFERENCE_PREFIX}${personUuid}`;
                 bwellPersonToCurrRefsMap.set(bwellPerson, linkedReferences);
             } else {
                 // next references to process
-                nextRefToProcess.add(`${PERSON_REFERENCE_PREFIX}${linkedPerson.id}`);
+                nextRefToProcess.add(`${PERSON_REFERENCE_PREFIX}${personUuid}`);
             }
         }
 
@@ -246,7 +247,7 @@ class BwellPersonFinder {
     /**
      * Gets intersection of all references linked to the person
      * @param {Person} person
-     * @param {string[]} referencesToSearchFrom references to search from
+     * @param {string[]} referencesToSearchFrom references to search from If can be uuid reference or sourceId reference
      * @return {string[]} references linked to given person
      */
     getAllLinkedReferencesFromPerson(person, referencesToSearchFrom) {
@@ -269,8 +270,10 @@ class BwellPersonFinder {
         links.forEach((link) => {
             // check if reference is included in referencesToSearchFrom, then add it to array
             const reference = link.target;
-            if (reference && reference.reference && referencesToSearchFrom.includes(reference.reference)) {
-                linkedIds.push(reference.reference);
+            if (reference && reference._uuid && referencesToSearchFrom.includes(reference._uuid)) {
+                linkedIds.push(reference._uuid);
+            } else if (reference && reference._sourceId && referencesToSearchFrom.includes(reference._sourceId)) {
+                linkedIds.push(reference._sourceId);
             }
         });
 
@@ -300,14 +303,14 @@ class BwellPersonFinder {
         // iterate over linked Persons (breadth search)
         while (!foundPersonId && (await linkedPersons.hasNext())) {
             let nextPerson = await linkedPersons.next();
-
+            const nextPersonId = nextPerson._uuid;
             if (this.isBwellPerson(nextPerson)) {
-                foundPersonId = nextPerson.id;
+                foundPersonId = nextPersonId;
             }
             else {
                 // recurse through to next layer of linked Persons (depth search)
                 foundPersonId = await this.searchForBwellPersonAsync({
-                    currentSubject: `Person/${nextPerson.id}`,
+                    currentSubject: `Person/${nextPersonId}`,
                     databaseQueryManager: databaseQueryManager,
                     visitedSubjects: visitedSubjects
                 });
