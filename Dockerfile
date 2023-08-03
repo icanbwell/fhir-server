@@ -31,7 +31,7 @@ RUN npm install -g npm@latest && npm upgrade --global yarn
 
 RUN mkdir -p /srv/src/src/web
 COPY src/web /srv/src/src/web
-RUN if [ "$NODE_ENV" = "development" ] ; then echo 'building development' && cd /srv/src/src/web && rm --force package-lock.json && yarn install --no-optional; else echo 'building production' && cd /srv/src/web && rm --force package-lock.json && yarn cache clean && yarn config delete proxy && yarn config delete https-proxy && yarn config delete registry && yarn install --no-optional --production=true --network-timeout 1000000; fi
+RUN if [ "$NODE_ENV" = "development" ] ; then echo 'building development' && cd /srv/src/src/web && rm --force package-lock.json && yarn install --no-optional; else echo 'building production' && cd /srv/src/src/web && rm --force package-lock.json && yarn cache clean && yarn config delete proxy && yarn config delete https-proxy && yarn config delete registry && yarn install --no-optional --production=true --network-timeout 1000000; fi
 RUN cd /srv/src/src/web && npm run build
 
 
