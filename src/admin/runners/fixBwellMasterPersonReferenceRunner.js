@@ -382,9 +382,9 @@ class FixBwellMasterPersonReferenceRunner extends FixReferenceIdRunner {
                             skip: this.skip
                         });
 
-                        if (isHistoryCollection) {
-                            await this.dropIndexesofCollection({collectionName, mongoConfig});
-                        }
+                        // if (isHistoryCollection) {
+                        //     await this.dropIndexesofCollection({collectionName, mongoConfig});
+                        // }
                     } catch (e) {
                         this.adminLogger.logError(`Got error ${e}.  At ${startFromIdContainer.startFromId}`);
                         throw new RethrownError(
