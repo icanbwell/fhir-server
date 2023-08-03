@@ -1,3 +1,11 @@
+// load config from .env.  Should be first thing so env vars are available to rest of the code
+const path = require('path');
+const dotenv = require('dotenv');
+const pathToEnv = path.resolve(__dirname, '.env');
+dotenv.config({
+    path: pathToEnv
+});
+console.log(`Reading config from ${pathToEnv}`);
 console.log(`MONGO_URL=${process.env.MONGO_URL}`);
 const { createContainer } = require('../../createContainer');
 const { CommandLineParser } = require('./commandLineParser');

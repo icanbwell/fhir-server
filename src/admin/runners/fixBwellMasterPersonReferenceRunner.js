@@ -69,7 +69,7 @@ class FixBwellMasterPersonReferenceRunner extends FixReferenceIdRunner {
                     if (reference.reference.includes('|')) {
                         let uuidReference = reference._uuid;
                         const sourceAssigningAuthority = reference.reference.split('|')[1];
-                        if (!uuidReference) {
+                        if (!uuidReference && reference.extension) {
                             const uuidIdentifier = reference.extension.find(element => element.url === IdentifierSystem.uuid);
                             if (uuidIdentifier && uuidIdentifier.valueString) {
                                 uuidReference = uuidIdentifier.valueString;
@@ -79,13 +79,15 @@ class FixBwellMasterPersonReferenceRunner extends FixReferenceIdRunner {
                         if (uuidReference) {
                             reference.reference = uuidReference;
                             reference._sourceId = uuidReference;
-                            reference.extension.forEach(extension => {
-                                if (extension.url === IdentifierSystem.sourceId) {
-                                    extension.valueString = uuidReference;
-                                } else if (extension.url === SecurityTagSystem.sourceAssigningAuthority) {
-                                    extension.valueString = sourceAssigningAuthority;
-                                }
-                            });
+                            if (reference.extension) {
+                                reference.extension.forEach(extension => {
+                                    if (extension.url === IdentifierSystem.sourceId) {
+                                        extension.valueString = uuidReference;
+                                    } else if (extension.url === SecurityTagSystem.sourceAssigningAuthority) {
+                                        extension.valueString = sourceAssigningAuthority;
+                                    }
+                                });
+                            }
                         }
                     } else {
                         // current reference with id
@@ -119,15 +121,17 @@ class FixBwellMasterPersonReferenceRunner extends FixReferenceIdRunner {
                                 reference._uuid = uuidReference;
                                 reference._sourceAssigningAuthority = sourceAssigningAuthority;
 
-                                reference.extension = reference.extension.map(extension => {
-                                    if (extension.url === IdentifierSystem.sourceId || extension.url === IdentifierSystem.uuid) {
-                                        extension.valueString = uuidReference;
-                                    } else if (extension.url === SecurityTagSystem.sourceAssigningAuthority) {
-                                        extension.valueString = sourceAssigningAuthority;
-                                    }
+                                if (reference.extension) {
+                                    reference.extension = reference.extension.map(extension => {
+                                        if (extension.url === IdentifierSystem.sourceId || extension.url === IdentifierSystem.uuid) {
+                                            extension.valueString = uuidReference;
+                                        } else if (extension.url === SecurityTagSystem.sourceAssigningAuthority) {
+                                            extension.valueString = sourceAssigningAuthority;
+                                        }
 
-                                    return extension;
-                                });
+                                        return extension;
+                                    });
+                                }
                             }
                         }
                     }
@@ -245,6 +249,46 @@ class FixBwellMasterPersonReferenceRunner extends FixReferenceIdRunner {
     }
 
     /**
+     * Adds meta.security index to the collection
+     * @param {string} collectionName
+     * @param {{connection: string, db_name: string, options: import('mongodb').MongoClientOptions}} mongoConfig
+     * @returns {Promise<void>}
+     */
+    async addIndexesToCollection({ collectionName, mongoConfig }) {
+        const { collection, session, client } = await this.createSingeConnectionAsync({ mongoConfig, collectionName });
+
+        try {
+            const indexName = 'fixBwellMasterPersonReference_meta.security_1';
+
+            if (!await collection.indexExists(indexName)) {
+                this.adminLogger.logInfo(`Creating index ${indexName} for collection ${collectionName}`);
+
+                await collection.createIndex(
+                    {
+                        'resource.meta.security.system': 1,
+                        'resource.meta.security.code': 1
+                    },
+                    {
+                        name: indexName
+                    }
+                );
+            }
+        } catch (e) {
+
+            throw new RethrownError(
+                {
+                    message: `Error creating indexes for collection ${collectionName}, ${e.message}`,
+                    error: e,
+                    source: 'FixBwellMasterPersonReferenceRunner.addIndexesToCollection'
+                }
+            );
+        } finally {
+            await session.endSession();
+            await client.close();
+        }
+    }
+
+    /**
      * Runs a loop to process all the documents
      * @returns {Promise<void>}
      */
@@ -272,6 +316,7 @@ class FixBwellMasterPersonReferenceRunner extends FixReferenceIdRunner {
             await this.preloadReferencesAsync({ mongoConfig });
 
             try {
+                // update main resources
                 for (const collectionName of this.collections) {
                     this.adminLogger.logInfo(`Starting reference update for ${collectionName}`);
                     /**
@@ -282,11 +327,10 @@ class FixBwellMasterPersonReferenceRunner extends FixReferenceIdRunner {
                      * @type {import('mongodb').Filter<import('mongodb').Document>}
                      */
                     const query = this.getQueryForResource(isHistoryCollection);
-                    /**
-                     * @type {string}
-                     */
-                    const resourceName = collectionName.split('_')[0];
 
+                    if (isHistoryCollection) {
+                        await this.addIndexesToCollection({collectionName, mongoConfig});
+                    }
                     const startFromIdContainer = this.createStartFromIdContainer();
 
                     try {
@@ -304,11 +348,8 @@ class FixBwellMasterPersonReferenceRunner extends FixReferenceIdRunner {
                             skipExistingIds: false,
                             limit: this.limit,
                             useTransaction: this.useTransaction,
-                            skip: this.skip,
-                            filterToIds: isHistoryCollection && this.historyUuidCache.has(resourceName) ? Array.from(this.historyUuidCache.get(resourceName)) : undefined,
-                            filterToIdProperty: isHistoryCollection && this.historyUuidCache.has(resourceName) ? 'resource._uuid' : undefined
+                            skip: this.skip
                         });
-
                     } catch (e) {
                         this.adminLogger.logError(`Got error ${e}.  At ${startFromIdContainer.startFromId}`);
                         throw new RethrownError(
