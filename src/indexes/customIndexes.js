@@ -1043,7 +1043,7 @@ module.exports = {
             {
                 keys: {
                     'identifier.system': 1,
-                    'identifier.value': 1
+                    'identifier.value': 1,
                 },
                 options: {
                     name: 'identifier.system_1_identifier.value_1'
