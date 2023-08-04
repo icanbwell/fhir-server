@@ -280,6 +280,7 @@ class FixBwellMasterPersonReferenceRunner extends FixReferenceIdRunner {
      * @returns {String[]}
      */
     async getUuidsForMainResource({ collectionName, mongoConfig }) {
+        this.adminLogger.logInfo(`Fetching ${collectionName} _uuids from db`);
         let result = [];
         /**
          * @type {Object}
@@ -300,7 +301,14 @@ class FixBwellMasterPersonReferenceRunner extends FixReferenceIdRunner {
             /**
              * @type {import('mongodb').FindCursor<import('mongodb').WithId<import('mongodb').Document>>}
              */
-            result = await collection.find(query, { projection }).map(doc => doc._uuid).toArray();
+            const cursor = collection.find(query, { projection });
+            while (await cursor.hasNext()) {
+                const doc = await cursor.next();
+                if (doc && doc._uuid) {
+                    result.push(doc._uuid);
+                }
+            }
+            this.adminLogger.logInfo(`Successfully fetched ${collectionName} _uuids from db`);
         } catch (e) {
             console.log(e);
             throw new RethrownError(
