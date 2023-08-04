@@ -5,8 +5,6 @@ const person2Resource = require('./fixtures/Person/person2.json');
 const patient1Resource = require('./fixtures/Patient/patient1.json');
 
 // expected
-const expectedPatient1BeforeRun = require('./fixtures/expected/expected_patient1_before_run.json');
-
 const expectedPatient1AfterRun = require('./fixtures/expected/expected_patient1.json');
 
 const {
@@ -78,7 +76,8 @@ describe('Person Tests', () => {
                 }),
                 level: 1
             });
-            expect(patientReferencesBeforeRun).toEqual([expectedPatient1BeforeRun.id]);
+            // will not be able to find because of wrong uuid reference
+            expect(patientReferencesBeforeRun).toEqual([]);
 
             // run admin runner
             const collections = ['all'];
@@ -116,8 +115,7 @@ describe('Person Tests', () => {
                 }),
                 level: 1
             });
-
-            expect(patientReferencesAfterRun).toEqual([expectedPatient1AfterRun.id]);
+            expect(patientReferencesAfterRun).toEqual([expectedPatient1AfterRun['identifier'][1]['value']]);
         });
     });
 });
