@@ -16,6 +16,7 @@ const {
 const {describe, beforeEach, afterEach, expect, test} = require('@jest/globals');
 const {assertTypeEquals} = require('../../../utils/assertType');
 const {MockKafkaClient} = require('../../mocks/mockKafkaClient');
+const { generateUUIDv5 } = require('../../../utils/uid.util');
 
 describe('Patient Change Event Tests', () => {
     let requestId;
@@ -232,7 +233,7 @@ describe('Patient Change Event Tests', () => {
             const messageValue2 = JSON.parse(messages[1].value);
             expect(messageValue2.resourceType).toBe('AuditEvent');
             expect(messageValue2.action).toBe('U');
-            expect(messageValue2.agent[0].who.reference).toBe('Patient/person.81236');
+            expect(messageValue2.agent[0].who.reference).toBe(`Patient/person.${generateUUIDv5('81236|bwell')}`);
         });
         test('creating a new observation updates patient if no associated proxy patient', async () => {
             const request = await createTestRequest();
@@ -382,7 +383,7 @@ describe('Patient Change Event Tests', () => {
             const messageValue2 = JSON.parse(messages[1].value);
             expect(messageValue2.resourceType).toBe('AuditEvent');
             expect(messageValue2.action).toBe('U');
-            expect(messageValue2.agent[0].who.reference).toBe('Patient/person.81236');
+            expect(messageValue2.agent[0].who.reference).toBe(`Patient/person.${generateUUIDv5('81236|bwell')}`);
             const messageValue3 = JSON.parse(messages[2].value);
             expect(messageValue3.resourceType).toBe('AuditEvent');
             expect(messageValue3.action).toBe('C');

@@ -1,10 +1,10 @@
 const {assertTypeEquals} = require('./assertType');
-const {PATIENT_REFERENCE_PREFIX, PERSON_REFERENCE_PREFIX, PERSON_PROXY_PREFIX} = require('../constants');
+const {PATIENT_REFERENCE_PREFIX, PERSON_REFERENCE_PREFIX, PERSON_PROXY_PREFIX, BWELL_PERSON_SOURCE_ASSIGNING_AUTHORITY} = require('../constants');
 const {DatabaseQueryFactory} = require('../dataLayer/databaseQueryFactory');
 const {SecurityTagSystem} = require('./securityTagSystem');
 const { isUuid, generateUUIDv5 } = require('./uid.util');
 
-const BwellMasterPersonCode = 'bwell';
+const BwellMasterPersonCode = BWELL_PERSON_SOURCE_ASSIGNING_AUTHORITY;
 const MaxDepthForBFS = 3;
 
 class BwellPersonFinder {
@@ -44,7 +44,7 @@ class BwellPersonFinder {
 
     /**
      * finds bwell person Ids associated with patientsIds
-     * @param {string[]} patientIds List of patient Ids
+     * @param {string[]} patientIds List of patient and proxy-patient ids
      * @returns {Promise<Map<string, string>>} Returns map with key as patientId and value as master-persons-id
      */
     async getBwellPersonIdsAsync({
@@ -81,8 +81,12 @@ class BwellPersonFinder {
         const masterPersons = new Set(patientsToBwellPerson.values());
         proxyPatientIds.forEach((id) => {
             const idWithoutPrefix = id.replace(PERSON_PROXY_PREFIX, '');
-            // for master person, source-assigning authority will be bwell
-            const uuid = isUuid(idWithoutPrefix) ? idWithoutPrefix : generateUUIDv5(`${idWithoutPrefix}|bwell`);
+            /**
+             * masterPersons is an array of uuid-reference but proxy-patient can be a source-id/uuid
+             * To check given proxy-patient is a master person, we can generate uuid from the proxy-patient-id
+             * and check if its present in masterPerson array
+             */
+            const uuid = isUuid(idWithoutPrefix) ? idWithoutPrefix : generateUUIDv5(`${idWithoutPrefix}|${BWELL_PERSON_SOURCE_ASSIGNING_AUTHORITY}`);
             const uuidReference = `${PERSON_REFERENCE_PREFIX}${uuid}`;
             if (masterPersons.has(uuidReference)) {
                 patientsToBwellPerson.set(id, uuidReference);
@@ -107,14 +111,14 @@ class BwellPersonFinder {
     }
 
     /**
-     * Finds bwell master person for given references and returns a map of `reference -> masterPersonReference`
+     * Finds bwell master person for given references and returns a map of `reference -> uuid masterPersonReference`
      * @typedef {Object} Options
      * @property {string[]} currentReferences Current Resource References. If can be sourceId or uuid
      * @property {import('../dataLayer/databaseQueryManager').DatabaseQueryManager} databaseQueryManager
      * @property {number} level BFS Level
      * @property {Set<string>} visitedReferences Visited References
      * @param {Options}
-     * @returns Map of Reference to BwellMasterPerson
+     * @returns Returns a map of currentReference -> bwell-master-person uuid reference
      */
     async searchForBwellPersonsAsync({ currentReferences, databaseQueryManager, level, visitedReferences }) {
         if (level === MaxDepthForBFS || currentReferences.length === 0) {
