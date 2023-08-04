@@ -1039,6 +1039,15 @@ module.exports = {
                 options: {
                     name: 'for_reference_status_uuid'
                 }
+            },
+            {
+                keys: {
+                    'identifier.system': 1,
+                    'identifier.value': 1,
+                },
+                options: {
+                    name: 'identifier.system_1_identifier.value_1'
+                }
             }
         ],
         'Vitals_4_0_0': [
