@@ -107,7 +107,7 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                     useLimit = true;
                     try {
                         numberOfSourceDocuments = await sourceCollection.countDocuments(query, {skip, limit, maxTimeMS: 30000});
-                    } catch (e){
+                    } catch (ex){
                         numberOfSourceDocuments = limit;
                     }
                 } else {
@@ -119,7 +119,7 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
             if (useLimit) {
                 try {
                     numberOfDestinationDocuments = await destinationCollection.countDocuments(query, {skip, limit, maxTimeMS: 30000});
-                } catch (e){
+                } catch (ex){
                     numberOfDestinationDocuments = limit;
                 }
             } else {
@@ -195,7 +195,7 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
             if (useLimit){
                 try {
                     numberOfDestinationDocumentsAtEnd = await destinationCollection.countDocuments(originalQuery, {skip, limit, maxTimeMS: 30000});
-                } catch (e){
+                } catch (ex){
                     numberOfDestinationDocumentsAtEnd = limit;
                 }
             } else {

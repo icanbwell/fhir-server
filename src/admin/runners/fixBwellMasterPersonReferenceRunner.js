@@ -336,10 +336,17 @@ class FixBwellMasterPersonReferenceRunner extends FixReferenceIdRunner {
 
                     try {
                         this.adminLogger.logInfo(`query: ${mongoQueryStringify(query)}`);
-                        let projection = {"_id":1, "_uuid": 1, "_sourceId":1, "id":1, "link": 1, "resourceType": 1};
+                        let projection = {
+                            '_id': 1,
+                            '_uuid': 1,
+                            '_sourceId': 1,
+                            'id': 1,
+                            'link': 1,
+                            'resourceType': 1,
+                        };
                         if (isHistoryCollection){
                             delete projection._id;
-                            projection = {"_id": 1, "resource": projection};
+                            projection = { '_id': 1, 'resource': projection };
                         }
 
                         await this.runForQueryBatchesAsync({
