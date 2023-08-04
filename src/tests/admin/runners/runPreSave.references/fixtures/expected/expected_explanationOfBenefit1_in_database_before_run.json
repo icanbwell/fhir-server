@@ -4,7 +4,6 @@
   },
   "_sourceAssigningAuthority": "centene",
   "_sourceId": "Centene-3289",
-  "_uuid": "e1d85740-3060-509e-b9fd-006449e88271",
   "billablePeriod": {
     "end": "2021-04-21T11:00:00.000Z",
     "start": "2021-04-17T01:00:00.000Z"

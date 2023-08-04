@@ -161,7 +161,7 @@ class RunPreSaveRunner extends BaseBulkOperationRunner {
                 /**
                  * @type {import('mongodb').Filter<import('mongodb').Document>}
                  */
-                let query = {_sourceAssigningAuthority: {$not: {$type: 'string'}}};
+                let query;
                 if (this.beforeLastUpdatedDate && this.afterLastUpdatedDate) {
                     query = {
                         'meta.lastUpdated': {
@@ -181,6 +181,16 @@ class RunPreSaveRunner extends BaseBulkOperationRunner {
                             $gt: this.afterLastUpdatedDate,
                         }
                     };
+                }
+                if (query) {
+                    query = {
+                        $and: [
+                            query,
+                            {_uuid: {$exists: false}}
+                        ]
+                    };
+                } else {
+                    query = {_uuid: {$exists: false}};
                 }
                 try {
                     await this.runForQueryBatchesAsync(
