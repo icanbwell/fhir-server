@@ -147,7 +147,7 @@
               "valueString": "healthsystem1"
             }
           ],
-          "reference": "Patient/00100000000"
+          "reference": "Patient/person.m65633"
         },
         "valueBoolean": false
       }
