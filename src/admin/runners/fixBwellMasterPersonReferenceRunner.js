@@ -290,6 +290,50 @@ class FixBwellMasterPersonReferenceRunner extends FixReferenceIdRunner {
     }
 
     /**
+     * Fetch list of uuids of main resource for history processing
+     * @param {string} collectionName
+     * @param {{connection: string, db_name: string, options: import('mongodb').MongoClientOptions}} mongoConfig
+     * @returns {String[]}
+     */
+    async getUuidsForMainResource({ collectionName, mongoConfig }) {
+        let result = [];
+        /**
+         * @type {Object}
+         */
+        let projection = {
+            _uuid: 1,
+        };
+        /**
+         * @type {require('mongodb').collection}
+         */
+        const { collection, session, client } = await this.createSingeConnectionAsync({ mongoConfig, collectionName });
+
+        try {
+            /**
+             * @type {import('mongodb').Filter<import('mongodb').Document>}
+             */
+            const query = this.getQueryForResource(false);
+            /**
+             * @type {import('mongodb').FindCursor<import('mongodb').WithId<import('mongodb').Document>>}
+             */
+            result = await collection.find(query, { projection }).map(doc => doc._uuid).toArray();
+        } catch (e) {
+            console.log(e);
+            throw new RethrownError(
+                {
+                    message: `Error fetching uuids for collection ${collectionName}, ${e.message}`,
+                    error: e,
+                    source: 'FixBwellMasterPersonReferenceRunner.getUuidsForMainResource',
+                },
+            );
+        } finally {
+            await session.endSession();
+            await client.close();
+        }
+        return result;
+    }
+
+    /**
      * Runs a loop to process all the documents
      * @returns {Promise<void>}
      */
@@ -362,7 +406,12 @@ class FixBwellMasterPersonReferenceRunner extends FixReferenceIdRunner {
                             limit: this.limit,
                             useTransaction: this.useTransaction,
                             skip: this.skip,
-                            projection: projection
+                            projection: projection,
+                            filterToIds: isHistoryCollection ? await this.getUuidsForMainResource({
+                                collectionName: collectionName.replace('_History', ''),
+                                mongoConfig,
+                            }) : undefined,
+                            filterToIdProperty: isHistoryCollection ? 'resource._uuid' : undefined
                         });
                     } catch (e) {
                         this.adminLogger.logError(`Got error ${e}.  At ${startFromIdContainer.startFromId}`);
