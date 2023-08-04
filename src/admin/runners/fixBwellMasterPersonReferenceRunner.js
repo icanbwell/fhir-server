@@ -1,8 +1,6 @@
 const deepEqual = require('fast-deep-equal');
 const fs = require('fs');
 const { IdentifierSystem } = require('../../utils/identifierSystem');
-const { MongoJsonPatchHelper } = require('../../utils/mongoJsonPatchHelper');
-const { compare } = require('fast-json-patch');
 const { FhirResourceCreator } = require('../../fhir/fhirResourceCreator');
 const { RethrownError } = require('../../utils/rethrownError');
 const { mongoQueryStringify } = require('../../utils/mongoQueryStringify');
@@ -210,28 +208,14 @@ class FixBwellMasterPersonReferenceRunner extends FixReferenceIdRunner {
             }
 
             if (isHistoryDoc) {
-                updatedResourceJsonInternal = { resource: updatedResourceJsonInternal };
-                currentResourceJsonInternal = { resource: currentResourceJsonInternal };
+                updatedResourceJsonInternal = { ...doc, resource: updatedResourceJsonInternal };
             }
-
             /**
              * @type {import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>}
              */
-            // batch up the calls to update
-            const patches = compare(currentResourceJsonInternal, updatedResourceJsonInternal);
-
-            const updateOperation = MongoJsonPatchHelper.convertJsonPatchesToMongoUpdateCommand({ patches });
-
-            if (Object.keys(updateOperation).length > 0) {
-                operations.push({
-                    updateOne: {
-                        filter: {
-                            _id: doc._id
-                        },
-                        update: updateOperation
-                    }
-                });
-            }
+                // batch up the calls to update
+            const result = { replaceOne: { filter: { _id: doc._id }, replacement: updatedResourceJsonInternal } };
+            operations.push(result);
 
             return operations;
         } catch (e) {
@@ -380,18 +364,6 @@ class FixBwellMasterPersonReferenceRunner extends FixReferenceIdRunner {
 
                     try {
                         this.adminLogger.logInfo(`query: ${mongoQueryStringify(query)}`);
-                        let projection = {
-                            '_id': 1,
-                            '_uuid': 1,
-                            '_sourceId': 1,
-                            'id': 1,
-                            'link': 1,
-                            'resourceType': 1,
-                        };
-                        if (isHistoryCollection){
-                            delete projection._id;
-                            projection = { '_id': 1, 'resource': projection };
-                        }
 
                         await this.runForQueryBatchesAsync({
                             config: mongoConfig,
@@ -406,7 +378,6 @@ class FixBwellMasterPersonReferenceRunner extends FixReferenceIdRunner {
                             limit: this.limit,
                             useTransaction: this.useTransaction,
                             skip: this.skip,
-                            projection: projection,
                             filterToIds: isHistoryCollection ? await this.getUuidsForMainResource({
                                 collectionName: collectionName.replace('_History', ''),
                                 mongoConfig,
