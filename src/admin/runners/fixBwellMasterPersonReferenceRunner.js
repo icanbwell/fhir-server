@@ -336,6 +336,11 @@ class FixBwellMasterPersonReferenceRunner extends FixReferenceIdRunner {
 
                     try {
                         this.adminLogger.logInfo(`query: ${mongoQueryStringify(query)}`);
+                        let projection = {"_id":1, "_uuid": 1, "_sourceId":1, "id":1, "link": 1, "resourceType": 1};
+                        if (isHistoryCollection){
+                            delete projection._id;
+                            projection = {"_id": 1, "resource": projection};
+                        }
 
                         await this.runForQueryBatchesAsync({
                             config: mongoConfig,
@@ -349,7 +354,8 @@ class FixBwellMasterPersonReferenceRunner extends FixReferenceIdRunner {
                             skipExistingIds: false,
                             limit: this.limit,
                             useTransaction: this.useTransaction,
-                            skip: this.skip
+                            skip: this.skip,
+                            projection: projection
                         });
                     } catch (e) {
                         this.adminLogger.logError(`Got error ${e}.  At ${startFromIdContainer.startFromId}`);

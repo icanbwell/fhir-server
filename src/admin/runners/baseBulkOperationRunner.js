@@ -104,8 +104,12 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                 numberOfSourceDocuments = await sourceCollection.countDocuments(query, {maxTimeMS: 30000});
             } catch (e){
                 if ((e instanceof MongoServerError) && limit){
-                    numberOfSourceDocuments = await sourceCollection.countDocuments(query, {skip, limit});
                     useLimit = true;
+                    try {
+                        numberOfSourceDocuments = await sourceCollection.countDocuments(query, {skip, limit, maxTimeMS: 30000});
+                    } catch (e){
+                        numberOfSourceDocuments = limit;
+                    }
                 } else {
                     numberOfSourceDocuments = await sourceCollection.countDocuments(query, {});
                 }
@@ -113,7 +117,11 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
 
             let numberOfDestinationDocuments;
             if (useLimit) {
-                numberOfDestinationDocuments = await destinationCollection.countDocuments(query, {skip, limit});
+                try {
+                    numberOfDestinationDocuments = await destinationCollection.countDocuments(query, {skip, limit, maxTimeMS: 30000});
+                } catch (e){
+                    numberOfDestinationDocuments = limit;
+                }
             } else {
                 numberOfDestinationDocuments = await destinationCollection.countDocuments(query, {});
             }
@@ -185,7 +193,11 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
             // );
             let numberOfDestinationDocumentsAtEnd;
             if (useLimit){
-                numberOfDestinationDocumentsAtEnd = await destinationCollection.countDocuments(originalQuery, {skip, limit});
+                try {
+                    numberOfDestinationDocumentsAtEnd = await destinationCollection.countDocuments(originalQuery, {skip, limit, maxTimeMS: 30000});
+                } catch (e){
+                    numberOfDestinationDocumentsAtEnd = limit;
+                }
             } else {
                 numberOfDestinationDocumentsAtEnd = await destinationCollection.countDocuments(originalQuery, {});
             }
