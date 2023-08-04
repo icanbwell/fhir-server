@@ -33,6 +33,11 @@ class ProxyPatientReferenceEnrichmentProvider extends EnrichmentProvider {
                                 reference.reference = proxyPatientPersonId.startsWith('Patient/') ?
                                     proxyPatientPersonId : `Patient/${proxyPatientPersonId}`;
                             }
+                            // if proxy-patient-ids include uuid reference
+                            else if (reference._uuid && proxyPatientIds.includes(reference._uuid)) {
+                                reference.reference = proxyPatientPersonId.startsWith('Patient/') ?
+                                proxyPatientPersonId : `Patient/${proxyPatientPersonId}`;
+                            }
                             return reference;
                         }
                     });
