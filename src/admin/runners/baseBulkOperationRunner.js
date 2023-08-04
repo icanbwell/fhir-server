@@ -345,20 +345,21 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                 }
 
                 let loopNumber = 0;
+                let {
+                    session,
+                    sessionId,
+                    sourceDb,
+                    destinationCollection,
+                    sourceCollection,
+                    sourceClient,
+                    destinationClient
+                } = await this.createConnectionAsync(
+                    {
+                        config, destinationCollectionName, sourceCollectionName
+                    });
                 for (const uuidListChunk of uuidListChunks) {
                     loopNumber += 1;
-                    let {
-                        session,
-                        sessionId,
-                        sourceDb,
-                        destinationCollection,
-                        sourceCollection,
-                        sourceClient,
-                        destinationClient
-                    } = await this.createConnectionAsync(
-                        {
-                            config, destinationCollectionName, sourceCollectionName
-                        });
+                    this.adminLogger.logInfo(`Starting loop for uuidChunk ${loopNumber}/${uuidListChunks.length}`);
 
                     this.adminLogger.logInfo(
                         `Sending query to Mongo: ${mongoQueryStringify(query)}. ` +
@@ -570,10 +571,10 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                         }
                     }
                     continueLoop = false; // done
-                    session.endSession();
-                    await this.mongoDatabaseManager.disconnectClientAsync(sourceClient);
-                    await this.mongoDatabaseManager.disconnectClientAsync(destinationClient);
                 }
+                session.endSession();
+                await this.mongoDatabaseManager.disconnectClientAsync(sourceClient);
+                await this.mongoDatabaseManager.disconnectClientAsync(destinationClient);
                 this.adminLogger.logInfo('=== Finished ' +
                     `${sourceCollectionName} ` +
                     `Scanned: ${startFromIdContainer.numScanned.toLocaleString('en-US')} of ` +
