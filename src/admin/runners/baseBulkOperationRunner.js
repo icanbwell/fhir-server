@@ -58,6 +58,7 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
      * @param {number|undefined} [skip]
      * @param {string[]|undefined} [filterToIds]
      * @param {string|undefined} [filterToIdProperty]
+     * @param {boolean} useEstimatedCount
      * @returns {Promise<string>}
      */
     async runForQueryBatchesAsync(
@@ -78,7 +79,8 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
             useTransaction,
             skip,
             filterToIds,
-            filterToIdProperty
+            filterToIdProperty,
+            useEstimatedCount = false
         }
     ) {
         try {
@@ -92,16 +94,20 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                 sourceCollection
             } = await this.createConnectionAsync({config, destinationCollectionName, sourceCollectionName});
 
-            // this.adminLogger.logInfo(
-            //     `Sending count query to Mongo: ${mongoQueryStringify(query)}. ` +
-            //     `for ${sourceCollectionName} and ${destinationCollectionName}`
-            // );
+            this.adminLogger.logInfo(
+                `Sending count query to Mongo: ${mongoQueryStringify(query)}. ` +
+                `for ${sourceCollectionName}`
+            );
 
             // first get the count
             let numberOfSourceDocuments, useLimit;
             // If count query does not return in 30 seconds, use skip and limit params to restrict the query
             try {
-                numberOfSourceDocuments = await sourceCollection.countDocuments(query, {maxTimeMS: 30000});
+                if (useEstimatedCount){
+                    numberOfSourceDocuments = await sourceCollection.estimatedDocumentCount();
+                } else {
+                    numberOfSourceDocuments = await sourceCollection.countDocuments(query, {maxTimeMS: 30000});
+                }
             } catch (e){
                 if ((e instanceof MongoServerError) && limit){
                     useLimit = true;
@@ -115,21 +121,34 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                 }
             }
 
+            this.adminLogger.logInfo(
+                `Sending count query to Mongo: ${mongoQueryStringify(query)}. ` +
+                `for ${destinationCollectionName}`,
+            );
+
             let numberOfDestinationDocuments;
-            if (useLimit) {
-                try {
-                    numberOfDestinationDocuments = await destinationCollection.countDocuments(query, {skip, limit, maxTimeMS: 30000});
-                } catch (ex){
-                    numberOfDestinationDocuments = limit;
-                }
+            if (useEstimatedCount) {
+                numberOfDestinationDocuments = await destinationCollection.estimatedDocumentCount();
             } else {
-                numberOfDestinationDocuments = await destinationCollection.countDocuments(query, {});
+                if (useLimit) {
+                    try {
+                        numberOfDestinationDocuments = await destinationCollection.countDocuments(query, {
+                            skip,
+                            limit,
+                            maxTimeMS: 30000,
+                        });
+                    } catch (ex) {
+                        numberOfDestinationDocuments = limit;
+                    }
+                } else {
+                    numberOfDestinationDocuments = await destinationCollection.countDocuments(query, {});
+                }
+
             }
-            // this.adminLogger.logInfo(
-            //     `Count in source: ${numberOfSourceDocuments.toLocaleString('en-US')}, ` +
-            //     `Count in source distinct by id: ${numberOfSourceDocumentsWithDistinctId.toLocaleString('en-US')}, ` +
-            //     `destination: ${numberOfDestinationDocuments.toLocaleString('en-US')}`
-            // );
+            this.adminLogger.logInfo(
+                `Count in source: ${numberOfSourceDocuments.toLocaleString('en-US')}, ` +
+                `destination: ${numberOfDestinationDocuments.toLocaleString('en-US')}`
+            );
 
             if (numberOfSourceDocuments === numberOfDestinationDocuments) {
                 if (skipWhenCountIsSame) {
@@ -188,18 +207,26 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                 });
 
             // get the count at the end
-            // this.adminLogger.logInfo(
-            //     `Getting count afterward in ${destinationCollectionName}: ${mongoQueryStringify(originalQuery)}`
-            // );
+            this.adminLogger.logInfo(
+                `Getting count afterward in ${destinationCollectionName}: ${mongoQueryStringify(originalQuery)}`
+            );
             let numberOfDestinationDocumentsAtEnd;
-            if (useLimit){
-                try {
-                    numberOfDestinationDocumentsAtEnd = await destinationCollection.countDocuments(originalQuery, {skip, limit, maxTimeMS: 30000});
-                } catch (ex){
-                    numberOfDestinationDocumentsAtEnd = limit;
-                }
+            if (useEstimatedCount) {
+                numberOfDestinationDocumentsAtEnd = await destinationCollection.estimatedDocumentCount();
             } else {
-                numberOfDestinationDocumentsAtEnd = await destinationCollection.countDocuments(originalQuery, {});
+                if (useLimit) {
+                    try {
+                        numberOfDestinationDocumentsAtEnd = await destinationCollection.countDocuments(originalQuery, {
+                            skip,
+                            limit,
+                            maxTimeMS: 30000,
+                        });
+                    } catch (ex) {
+                        numberOfDestinationDocumentsAtEnd = limit;
+                    }
+                } else {
+                    numberOfDestinationDocumentsAtEnd = await destinationCollection.countDocuments(originalQuery, {});
+                }
             }
             this.adminLogger.logInfo(
                 `Count in source: ${numberOfSourceDocuments.toLocaleString('en-US')}, ` +

@@ -382,7 +382,8 @@ class FixBwellMasterPersonReferenceRunner extends FixReferenceIdRunner {
                                 collectionName: collectionName.replace('_History', ''),
                                 mongoConfig,
                             }) : undefined,
-                            filterToIdProperty: isHistoryCollection ? 'resource._uuid' : undefined
+                            filterToIdProperty: isHistoryCollection ? 'resource._uuid' : undefined,
+                            useEstimatedCount: true
                         });
                     } catch (e) {
                         this.adminLogger.logError(`Got error ${e}.  At ${startFromIdContainer.startFromId}`);
