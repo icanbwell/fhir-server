@@ -317,7 +317,7 @@ const referenceQueryBuilder = function ({target_type, target, field, exists_flag
     }
     // eslint-disable-next-line security/detect-unsafe-regex
     const regex = /http(.*)?\/(\w+\/.+)$/;
-    const match = target.match(regex);
+    const match = typeof target === 'string' && target.match(regex);
 
     // Check if target is a url
     if (match) {
@@ -402,7 +402,7 @@ const referenceQueryBuilderOptimized = function (
     }
     // eslint-disable-next-line security/detect-unsafe-regex
     const regex = /http(.*)?\/(\w+\/.+)$/;
-    const match = target.match(regex);
+    const match = typeof target === 'string' && target.match(regex);
 
     // Check if target is a url
     if (match) {
