@@ -3,6 +3,7 @@ const Resource = require('./classes/4_0_0/resources/resource');
 const {assertIsValid} = require('../utils/assertType');
 const {VERSIONS} = require('../middleware/fhir/utils/constants');
 const {RethrownError} = require('../utils/rethrownError');
+const {BadRequestError} = require('../utils/httpErrors');
 
 class FhirResourceCreator {
     /**
@@ -22,7 +23,7 @@ class FhirResourceCreator {
             }
             if (!obj.resourceType) {
                 // noinspection ExceptionCaughtLocallyJS
-                throw new Error('resourceType is null');
+                throw new BadRequestError(new Error('resourceType is null'));
             }
             const ResourceCreator = getResource(VERSIONS['4_0_0'], obj.resourceType);
             return new ResourceCreator(obj);
