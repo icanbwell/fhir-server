@@ -144,7 +144,7 @@ const tokenQueryBuilder = function ({target, type, field, required, exists_flag}
     }
 
     if (value) {
-        if (value.includes(',')) {
+        if (typeof value === 'string' && value.includes(',')) {
             const values = value.split(',');
             queryBuilder[`${field}.${type}`] = {
                 $in: values
@@ -196,7 +196,7 @@ const tokenQueryContainsBuilder = function ({target, type, field, required, exis
         return queryBuilder;
     }
 
-    if (target.includes('|')) {
+    if (typeof target === 'string' && target.includes('|')) {
         [system, value] = target.split('|');
 
     } else {
@@ -220,7 +220,7 @@ const tokenQueryContainsBuilder = function ({target, type, field, required, exis
     }
 
     if (value) {
-        if (value.includes(',')) {
+        if (typeof value === 'string' && value.includes(',')) {
             const values = value.split(',');
             queryBuilder[`${field}.${type}`] = {
                 $regex: values.map(v => escapeRegExp(v)).join('|'),
@@ -324,7 +324,7 @@ const referenceQueryBuilder = function ({target_type, target, field, exists_flag
         queryBuilder[`${field}`] = match[2];
     }
     // target = type/id
-    else if (target.includes(',')) { // list was passed
+    else if (typeof target === 'string' && target.includes(',')) { // list was passed
         const searchItems = target.split(',');
         const fullResourceTypeAndIdList = [];
         for (const searchItem of searchItems) {
@@ -336,7 +336,7 @@ const referenceQueryBuilder = function ({target_type, target, field, exists_flag
             }
         }
         queryBuilder[`${field}`] = {$in: fullResourceTypeAndIdList.map(s => `${s}`)};
-    } else if (target.includes('/')) {
+    } else if (typeof target === 'string' && target.includes('/')) {
         const [type, id] = target.split('/');
         if (id.includes(',')) {
             const idList = id.split(',');
@@ -409,7 +409,7 @@ const referenceQueryBuilderOptimized = function (
         queryBuilder[`${field}`] = match[2];
     }
     // target = type/id
-    else if (target.includes(',')) { // list was passed
+    else if (typeof target === 'string' && target.includes(',')) { // list was passed
         const searchItems = target.split(',');
         const fullResourceTypeAndIdList = [];
         for (const searchItem of searchItems) {
@@ -421,7 +421,7 @@ const referenceQueryBuilderOptimized = function (
             }
         }
         queryBuilder[`${field}`] = {$in: fullResourceTypeAndIdList.map(s => `${s}`)};
-    } else if (target.includes('/')) {
+    } else if (typeof target === 'string' && target.includes('/')) {
         const {resourceType, id} = ReferenceParser.parseReference(target);
         if (id.includes(',')) {
             const idList = id.split(',');
