@@ -17,6 +17,7 @@ const { AdminLogger } = require('../../../../admin/adminLogger');
 const { FixReferenceIdHapiRunner } = require('../../../../admin/runners/fixReferenceIdHapiRunner');
 const { assertTypeEquals } = require('../../../../utils/assertType');
 const { PersonToPatientIdsExpander } = require('../../../../utils/personToPatientIdsExpander');
+const { IdentifierSystem } = require('../../../../utils/identifierSystem');
 
 describe('Person Tests', () => {
     beforeEach(async () => {
@@ -116,7 +117,8 @@ describe('Person Tests', () => {
             });
 
             // will find it correctly after fix
-            expect(patientReferencesAfterRun).toEqual([expectedPatient1AfterRun['identifier'][1]['value']]);
+            const patientUuid = expectedPatient1AfterRun.identifier.find((v) => v.system === IdentifierSystem.uuid);
+            expect(patientReferencesAfterRun).toEqual([patientUuid.value]);
         });
     });
 });

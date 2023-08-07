@@ -92,7 +92,7 @@ describe('Consent Based Data Access Test', () => {
 
             // Get Observation for a specific person, client have access to read both proa and client resources
             resp = await request
-                .get('/4_0_0/Observation?patient=Patient/person.b12345')
+                .get('/4_0_0/Observation?patient=Patient/person.b12345&_sort=_uuid')
                 .set(headers);
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse([expectedProaObservationCopy, expectedClintObservationCopy]);
@@ -117,7 +117,7 @@ describe('Consent Based Data Access Test', () => {
 
             // Get Observation for a specific person
             resp = await request
-                .get('/4_0_0/Observation?patient=Patient/person.b12345')
+                .get('/4_0_0/Observation?patient=Patient/person.b12345&_sort=_uuid')
                 .set(headers);
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse([expectedClintObservationCopy]);
@@ -139,14 +139,14 @@ describe('Consent Based Data Access Test', () => {
 
             // Get Observation for proa patient only
             resp = await request
-                .get('/4_0_0/Observation?patient=Patient/fde7f82b-b1e4-4a25-9a58-83b6921414cc')
+                .get('/4_0_0/Observation?patient=Patient/fde7f82b-b1e4-4a25-9a58-83b6921414cc&_sort=_uuid')
                 .set(headers);
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse([expectedProaObservation]);
 
             // Get Observation for both client and proa
             resp = await request
-                .get('/4_0_0/Observation?patient=Patient/fde7f82b-b1e4-4a25-9a58-83b6921414cc,Patient/bb7862e6-b7ac-470e-bde3-e85cee9d1ce6')
+                .get('/4_0_0/Observation?patient=Patient/fde7f82b-b1e4-4a25-9a58-83b6921414cc,Patient/bb7862e6-b7ac-470e-bde3-e85cee9d1ce6&_sort=_uuid')
                 .set(headers);
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse([expectedProaObservation, expectedClintObservation]);
@@ -171,7 +171,7 @@ describe('Consent Based Data Access Test', () => {
 
             // Get Observation for proa patient and proa patient2
             resp = await request
-                .get('/4_0_0/Observation?patient=Patient/ede65c66-66ae-42ef-a19d-871065c2421d,Patient/fde7f82b-b1e4-4a25-9a58-83b6921414cc')
+                .get('/4_0_0/Observation?patient=Patient/ede65c66-66ae-42ef-a19d-871065c2421d,Patient/fde7f82b-b1e4-4a25-9a58-83b6921414cc&_sort=_uuid')
                 .set(headers);
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse([expectedProaObservation, expectedProaObservation2]);
@@ -196,13 +196,13 @@ describe('Consent Based Data Access Test', () => {
 
             // Get Observation for proa patient and proa patient2
             resp = await request
-                .get('/4_0_0/Observation?patient=Patient/ede65c66-66ae-42ef-a19d-871065c2421d,Patient/fde7f82b-b1e4-4a25-9a58-83b6921414cc')
+                .get('/4_0_0/Observation?patient=Patient/ede65c66-66ae-42ef-a19d-871065c2421d,Patient/fde7f82b-b1e4-4a25-9a58-83b6921414cc&_sort=_uuid')
                 .set(headers);
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse([expectedProaObservation2]);
         });
 
-        test.only('Consent has provided and proxy patient has stored as reference', async () => {
+        test('Consent has provided and proxy patient has stored as reference', async () => {
             const request = await createTestRequest((c) => {
                 return c;
             });
@@ -225,7 +225,7 @@ describe('Consent Based Data Access Test', () => {
 
             // Get Observation for a specific person
             resp = await request
-                .get('/4_0_0/Observation?patient=Patient/person.b12345')
+                .get('/4_0_0/Observation?patient=Patient/person.b12345&_sort=_uuid')
                 .set(headers);
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse([expectedProaObservation2ProxyCopy, expectedClintObservationCopy]);
