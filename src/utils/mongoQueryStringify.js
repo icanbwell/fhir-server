@@ -4,6 +4,7 @@
  * @returns {string|undefined}
  */
 const {assertIsValid} = require('./assertType');
+const {BadRequestError} = require('./httpErrors');
 const mongoQueryStringify = (query) => {
 
     const isArray = (value) => {
@@ -85,7 +86,11 @@ const mongoQueryStringify = (query) => {
     }
 
     if (isDate(query)) {
-        return `ISODate('${query.toISOString()}')`;
+        try {
+            return `ISODate('${query.toISOString()}')`;
+        } catch (err) {
+            throw new BadRequestError(err);
+        }
     }
 
     if (nullDataTypes(query)) {
