@@ -58,6 +58,7 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
      * @param {number|undefined} [skip]
      * @param {string[]|undefined} [filterToIds]
      * @param {string|undefined} [filterToIdProperty]
+     * @param {boolean} useEstimatedCount
      * @returns {Promise<string>}
      */
     async runForQueryBatchesAsync(
@@ -78,7 +79,8 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
             useTransaction,
             skip,
             filterToIds,
-            filterToIdProperty
+            filterToIdProperty,
+            useEstimatedCount = false
         }
     ) {
         try {
@@ -92,36 +94,61 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                 sourceCollection
             } = await this.createConnectionAsync({config, destinationCollectionName, sourceCollectionName});
 
-            // this.adminLogger.logInfo(
-            //     `Sending count query to Mongo: ${mongoQueryStringify(query)}. ` +
-            //     `for ${sourceCollectionName} and ${destinationCollectionName}`
-            // );
+            this.adminLogger.logInfo(
+                `Sending count query to Mongo: ${mongoQueryStringify(query)}. ` +
+                `for ${sourceCollectionName}`
+            );
 
             // first get the count
             let numberOfSourceDocuments, useLimit;
             // If count query does not return in 30 seconds, use skip and limit params to restrict the query
             try {
-                numberOfSourceDocuments = await sourceCollection.countDocuments(query, {maxTimeMS: 30000});
+                if (useEstimatedCount){
+                    numberOfSourceDocuments = await sourceCollection.estimatedDocumentCount();
+                } else {
+                    numberOfSourceDocuments = await sourceCollection.countDocuments(query, {maxTimeMS: 30000});
+                }
             } catch (e){
                 if ((e instanceof MongoServerError) && limit){
-                    numberOfSourceDocuments = await sourceCollection.countDocuments(query, {skip, limit});
                     useLimit = true;
+                    try {
+                        numberOfSourceDocuments = await sourceCollection.countDocuments(query, {skip, limit, maxTimeMS: 30000});
+                    } catch (ex){
+                        numberOfSourceDocuments = limit;
+                    }
                 } else {
                     numberOfSourceDocuments = await sourceCollection.countDocuments(query, {});
                 }
             }
 
+            this.adminLogger.logInfo(
+                `Sending count query to Mongo: ${mongoQueryStringify(query)}. ` +
+                `for ${destinationCollectionName}`,
+            );
+
             let numberOfDestinationDocuments;
-            if (useLimit) {
-                numberOfDestinationDocuments = await destinationCollection.countDocuments(query, {skip, limit});
+            if (useEstimatedCount) {
+                numberOfDestinationDocuments = await destinationCollection.estimatedDocumentCount();
             } else {
-                numberOfDestinationDocuments = await destinationCollection.countDocuments(query, {});
+                if (useLimit) {
+                    try {
+                        numberOfDestinationDocuments = await destinationCollection.countDocuments(query, {
+                            skip,
+                            limit,
+                            maxTimeMS: 30000,
+                        });
+                    } catch (ex) {
+                        numberOfDestinationDocuments = limit;
+                    }
+                } else {
+                    numberOfDestinationDocuments = await destinationCollection.countDocuments(query, {});
+                }
+
             }
-            // this.adminLogger.logInfo(
-            //     `Count in source: ${numberOfSourceDocuments.toLocaleString('en-US')}, ` +
-            //     `Count in source distinct by id: ${numberOfSourceDocumentsWithDistinctId.toLocaleString('en-US')}, ` +
-            //     `destination: ${numberOfDestinationDocuments.toLocaleString('en-US')}`
-            // );
+            this.adminLogger.logInfo(
+                `Count in source: ${numberOfSourceDocuments.toLocaleString('en-US')}, ` +
+                `destination: ${numberOfDestinationDocuments.toLocaleString('en-US')}`
+            );
 
             if (numberOfSourceDocuments === numberOfDestinationDocuments) {
                 if (skipWhenCountIsSame) {
@@ -180,14 +207,26 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                 });
 
             // get the count at the end
-            // this.adminLogger.logInfo(
-            //     `Getting count afterward in ${destinationCollectionName}: ${mongoQueryStringify(originalQuery)}`
-            // );
+            this.adminLogger.logInfo(
+                `Getting count afterward in ${destinationCollectionName}: ${mongoQueryStringify(originalQuery)}`
+            );
             let numberOfDestinationDocumentsAtEnd;
-            if (useLimit){
-                numberOfDestinationDocumentsAtEnd = await destinationCollection.countDocuments(originalQuery, {skip, limit});
+            if (useEstimatedCount) {
+                numberOfDestinationDocumentsAtEnd = await destinationCollection.estimatedDocumentCount();
             } else {
-                numberOfDestinationDocumentsAtEnd = await destinationCollection.countDocuments(originalQuery, {});
+                if (useLimit) {
+                    try {
+                        numberOfDestinationDocumentsAtEnd = await destinationCollection.countDocuments(originalQuery, {
+                            skip,
+                            limit,
+                            maxTimeMS: 30000,
+                        });
+                    } catch (ex) {
+                        numberOfDestinationDocumentsAtEnd = limit;
+                    }
+                } else {
+                    numberOfDestinationDocumentsAtEnd = await destinationCollection.countDocuments(originalQuery, {});
+                }
             }
             this.adminLogger.logInfo(
                 `Count in source: ${numberOfSourceDocuments.toLocaleString('en-US')}, ` +
@@ -306,20 +345,21 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                 }
 
                 let loopNumber = 0;
+                let {
+                    session,
+                    sessionId,
+                    sourceDb,
+                    destinationCollection,
+                    sourceCollection,
+                    sourceClient,
+                    destinationClient
+                } = await this.createConnectionAsync(
+                    {
+                        config, destinationCollectionName, sourceCollectionName
+                    });
                 for (const uuidListChunk of uuidListChunks) {
                     loopNumber += 1;
-                    let {
-                        session,
-                        sessionId,
-                        sourceDb,
-                        destinationCollection,
-                        sourceCollection,
-                        sourceClient,
-                        destinationClient
-                    } = await this.createConnectionAsync(
-                        {
-                            config, destinationCollectionName, sourceCollectionName
-                        });
+                    this.adminLogger.logInfo(`Starting loop for uuidChunk ${loopNumber}/${uuidListChunks.length}`);
 
                     this.adminLogger.logInfo(
                         `Sending query to Mongo: ${mongoQueryStringify(query)}. ` +
@@ -531,10 +571,10 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
                         }
                     }
                     continueLoop = false; // done
-                    session.endSession();
-                    await this.mongoDatabaseManager.disconnectClientAsync(sourceClient);
-                    await this.mongoDatabaseManager.disconnectClientAsync(destinationClient);
                 }
+                session.endSession();
+                await this.mongoDatabaseManager.disconnectClientAsync(sourceClient);
+                await this.mongoDatabaseManager.disconnectClientAsync(destinationClient);
                 this.adminLogger.logInfo('=== Finished ' +
                     `${sourceCollectionName} ` +
                     `Scanned: ${startFromIdContainer.numScanned.toLocaleString('en-US')} of ` +

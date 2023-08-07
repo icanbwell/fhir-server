@@ -1,8 +1,6 @@
 const deepEqual = require('fast-deep-equal');
 const fs = require('fs');
 const { IdentifierSystem } = require('../../utils/identifierSystem');
-const { MongoJsonPatchHelper } = require('../../utils/mongoJsonPatchHelper');
-const { compare } = require('fast-json-patch');
 const { FhirResourceCreator } = require('../../fhir/fhirResourceCreator');
 const { RethrownError } = require('../../utils/rethrownError');
 const { mongoQueryStringify } = require('../../utils/mongoQueryStringify');
@@ -210,28 +208,14 @@ class FixBwellMasterPersonReferenceRunner extends FixReferenceIdRunner {
             }
 
             if (isHistoryDoc) {
-                updatedResourceJsonInternal = { resource: updatedResourceJsonInternal };
-                currentResourceJsonInternal = { resource: currentResourceJsonInternal };
+                updatedResourceJsonInternal = { ...doc, resource: updatedResourceJsonInternal };
             }
-
             /**
              * @type {import('mongodb').BulkWriteOperation<import('mongodb').DefaultSchema>}
              */
-            // batch up the calls to update
-            const patches = compare(currentResourceJsonInternal, updatedResourceJsonInternal);
-
-            const updateOperation = MongoJsonPatchHelper.convertJsonPatchesToMongoUpdateCommand({ patches });
-
-            if (Object.keys(updateOperation).length > 0) {
-                operations.push({
-                    updateOne: {
-                        filter: {
-                            _id: doc._id
-                        },
-                        update: updateOperation
-                    }
-                });
-            }
+                // batch up the calls to update
+            const result = { replaceOne: { filter: { _id: doc._id }, replacement: updatedResourceJsonInternal } };
+            operations.push(result);
 
             return operations;
         } catch (e) {
@@ -287,6 +271,58 @@ class FixBwellMasterPersonReferenceRunner extends FixReferenceIdRunner {
             await session.endSession();
             await client.close();
         }
+    }
+
+    /**
+     * Fetch list of uuids of main resource for history processing
+     * @param {string} collectionName
+     * @param {{connection: string, db_name: string, options: import('mongodb').MongoClientOptions}} mongoConfig
+     * @returns {String[]}
+     */
+    async getUuidsForMainResource({ collectionName, mongoConfig }) {
+        this.adminLogger.logInfo(`Fetching ${collectionName} _uuids from db`);
+        let result = [];
+        /**
+         * @type {Object}
+         */
+        let projection = {
+            _uuid: 1,
+        };
+        /**
+         * @type {require('mongodb').collection}
+         */
+        const { collection, session, client } = await this.createSingeConnectionAsync({ mongoConfig, collectionName });
+
+        try {
+            /**
+             * @type {import('mongodb').Filter<import('mongodb').Document>}
+             */
+            const query = this.getQueryForResource(false);
+            /**
+             * @type {import('mongodb').FindCursor<import('mongodb').WithId<import('mongodb').Document>>}
+             */
+            const cursor = collection.find(query, { projection });
+            while (await cursor.hasNext()) {
+                const doc = await cursor.next();
+                if (doc && doc._uuid) {
+                    result.push(doc._uuid);
+                }
+            }
+            this.adminLogger.logInfo(`Successfully fetched ${collectionName} _uuids from db`);
+        } catch (e) {
+            console.log(e);
+            throw new RethrownError(
+                {
+                    message: `Error fetching uuids for collection ${collectionName}, ${e.message}`,
+                    error: e,
+                    source: 'FixBwellMasterPersonReferenceRunner.getUuidsForMainResource',
+                },
+            );
+        } finally {
+            await session.endSession();
+            await client.close();
+        }
+        return result;
     }
 
     /**
@@ -349,7 +385,13 @@ class FixBwellMasterPersonReferenceRunner extends FixReferenceIdRunner {
                             skipExistingIds: false,
                             limit: this.limit,
                             useTransaction: this.useTransaction,
-                            skip: this.skip
+                            skip: this.skip,
+                            filterToIds: isHistoryCollection ? await this.getUuidsForMainResource({
+                                collectionName: collectionName.replace('_History', ''),
+                                mongoConfig,
+                            }) : undefined,
+                            filterToIdProperty: isHistoryCollection ? 'resource._uuid' : undefined,
+                            useEstimatedCount: true
                         });
                     } catch (e) {
                         this.adminLogger.logError(`Got error ${e}.  At ${startFromIdContainer.startFromId}`);
