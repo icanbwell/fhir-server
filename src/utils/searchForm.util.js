@@ -386,7 +386,8 @@ const getFieldValue = (res, name) => {
                 .join(',<br>');
         case 'identifier':
             return (res.identifier || [])
-                .map(n => `${n.value}(${n.system})`)
+                .filter(n => n)
+                .map(n => `${n.value ? n.value : ''}${n.system ? `(${n.system})` : ''}`)
                 .join(',<br>');
         case '_security':
             return (res.meta && res.meta.security || [])
