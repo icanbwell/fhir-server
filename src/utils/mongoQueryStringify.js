@@ -88,8 +88,8 @@ const mongoQueryStringify = (query) => {
     if (isDate(query)) {
         try {
             return `ISODate('${query.toISOString()}')`;
-        } catch (err) {
-            throw new BadRequestError(err);
+        } catch {
+            throw new BadRequestError(new Error(`${query} is not a valid DateTime value`));
         }
     }
 
