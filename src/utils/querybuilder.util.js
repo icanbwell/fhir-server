@@ -7,6 +7,7 @@ const moment = require('moment-timezone');
 const {escapeRegExp} = require('./regexEscaper');
 const {UrlParser} = require('./urlParser');
 const {ReferenceParser} = require('./referenceParser');
+const {BadRequestError} = require('./httpErrors');
 /**
  * @name stringQueryBuilder
  * @description builds mongo default query for string inputs, no modifiers
@@ -824,6 +825,9 @@ const dateQueryBuilder = function ({date, type, path}) {
 const dateQueryBuilderNative = function ({dateSearchParameter, type, path}) {
     const regex = /([a-z]+)(.+)/;
     const matches = dateSearchParameter.match(regex);
+    if (!matches) {
+        throw new BadRequestError(new Error(`Invalid date parameter value: ${dateSearchParameter}`));
+    }
     const operation = matches[1];
     const date = moment.utc(matches[2]).toDate();
     const query = {};

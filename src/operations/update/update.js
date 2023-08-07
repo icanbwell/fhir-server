@@ -207,7 +207,7 @@ class UpdateOperation {
 
         if (env.VALIDATE_SCHEMA || parsedArgs['_validate']) {
             // Truncate id to 64 so it passes the validator since we support more than 64 internally
-            resource_incoming_json.id = resource_incoming_json.id.slice(0, 64);
+            resource_incoming_json.id = id.slice(0, 64);
             /**
              * @type {OperationOutcome|null}
              */

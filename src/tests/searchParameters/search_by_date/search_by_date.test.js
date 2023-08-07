@@ -151,5 +151,24 @@ describe('Observation Tests', () => {
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedObservationResources3);
         });
+
+        test('search by date value doesn\'t work', async () => {
+            const request = await createTestRequest();
+            // ARRANGE
+            // add the resources to FHIR server
+            let resp = await request
+                .post('/4_0_0/Observation/1/$merge?validate=true')
+                .send(observation3Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({ created: true });
+
+            // ACT & ASSERT
+            // search by date and make sure we get the right Observation back
+            resp = await request
+                .get('/4_0_0/Observation/?_bundle=1&_lastUpdated=2019-10-16T22:12:29.000Z')
+                .set(getHeaders())
+                .expect(400);
+        });
     });
 });
