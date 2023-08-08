@@ -38,37 +38,38 @@ class PatientProxyQueryRewriter extends QueryRewriter {
         const queryParameterValues = parsedArg.queryParameterValue.values;
         if (queryParameterValues && queryParameterValues.length > 0) {
             /**
-             * @type {string[]}
+             * @type {{queryParametersWithProxyPatientIds: string[], queryParametersWithoutProxyPatientIds: string[]}}
              */
-            const queryParameterValuesToProcess = queryParameterValues.filter(a =>
-                typeof a === 'string' && (
-                    a.startsWith(patientReferencePlusPersonProxyPrefix) ||
-                    (!includePatientPrefix && a.startsWith(personProxyPrefix))
-                )
-            );
-            /**
-             * @type {string[]}
-             */
-            const queryParameterValuesToNotProcess = queryParameterValues.filter(a =>
-                !(typeof a === 'string' && (
-                    a.startsWith(patientReferencePlusPersonProxyPrefix) ||
-                    (!includePatientPrefix && a.startsWith(personProxyPrefix))
-                ))
-            );
-            if (queryParameterValuesToProcess.length > 0) {
+            const {queryParametersWithProxyPatientIds, queryParametersWithoutProxyPatientIds} =
+                queryParameterValues.reduce((queryParametersMap, queryParameterValue) => {
+                    if (typeof queryParameterValue === 'string' && (
+                        queryParameterValue.startsWith(patientReferencePlusPersonProxyPrefix) ||
+                        (!includePatientPrefix && queryParameterValue.startsWith(personProxyPrefix))
+                    )) {
+                        queryParametersMap.queryParametersWithProxyPatientIds.push(queryParameterValue);
+                    } else {
+                        queryParametersMap.queryParametersWithoutProxyPatientIds.push(queryParameterValue);
+                    }
+                    return queryParametersMap;
+                }, {
+                    queryParametersWithProxyPatientIds: [],
+                    queryParametersWithoutProxyPatientIds: []
+                });
+
+            if (queryParametersWithProxyPatientIds.length > 0) {
                 /**
                  * @type {string[]}
                  */
                 const patientProxyIds = await this.personToPatientIdsExpander.getPatientProxyIdsAsync(
                     {
                         base_version,
-                        ids: queryParameterValuesToProcess,
+                        ids: queryParametersWithProxyPatientIds,
                         includePatientPrefix
                     }
                 );
 
                 parsedArg.queryParameterValue = new QueryParameterValue({
-                    value: [...patientProxyIds, ...queryParameterValuesToNotProcess],
+                    value: [...patientProxyIds, ...queryParametersWithoutProxyPatientIds],
                     operator: '$or'
                 });
             }
