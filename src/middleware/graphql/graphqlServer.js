@@ -9,6 +9,7 @@ const {REQUEST_ID_TYPE} = require('../../constants');
 const {loadFilesSync} = require('@graphql-tools/load-files');
 const {mergeTypeDefs} = require('@graphql-tools/merge');
 const {FhirDataSource} = require('../../graphql/v2/dataSource');
+const {buildSubgraphSchema} = require('@apollo/subgraph');
 
 const {
     ApolloServerPluginLandingPageLocalDefault,
@@ -109,8 +110,9 @@ const graphql = async (fnCreateContainer) => {
     const server = new ApolloServer(
         {
             // schema: schemaWithResolvers,
-            typeDefs: typeDefs,
-            resolvers: resolvers,
+            schema: buildSubgraphSchema({ typeDefs, resolvers }),
+            // typeDefs: typeDefs,
+            // resolvers: resolvers,
             introspection: true,
             cache: 'bounded',
             plugins: plugins,
