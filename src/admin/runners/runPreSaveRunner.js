@@ -112,7 +112,7 @@ class RunPreSaveRunner extends BaseBulkOperationRunner {
         const updatedResourceJsonInternal = updatedResource.toJSONInternal();
         const currentResourceJsonInternal = currentResource.toJSONInternal();
         if (deepEqual(updatedResourceJsonInternal, currentResourceJsonInternal) === true) {
-            // console.log('No change detected for ');
+            this.adminLogger.logInfo(`No change in resource: ${doc.resourceType}/${doc.id}`);
             return operations;
         }
 
