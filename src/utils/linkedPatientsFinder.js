@@ -1,5 +1,5 @@
 /* eslint-disable security/detect-object-injection */
-const { PERSON_PROXY_PREFIX } = require('../constants');
+const { PERSON_PROXY_PREFIX, PATIENT_REFERENCE_PREFIX } = require('../constants');
 const { DatabaseQueryFactory } = require('../dataLayer/databaseQueryFactory');
 const { assertTypeEquals } = require('./assertType');
 const { BwellPersonFinder } = require('./bwellPersonFinder');
@@ -47,16 +47,23 @@ class LinkedPatientsFinder {
     /**
      * Get bwell master person and all linked patients for given patient ids.
      * @typedef {Object} GetPersonAndBwellPersonOptions - Function Options
-     * @property {string[]} patientIds - array of patient ids
+     * @property {import('./searchFilterFromParsedReference').IdToReferenceMap} patientIdToRefMap - PatientId -> ParseRefer Map containing info about ids
      * @param {GetPersonAndBwellPersonOptions} options
      * @returns {{[patientId: string]: { bwellMasterPerson: string, patientIds: string[] }}}
      */
-    async getBwellPersonAndAllClientIds({patientIds}) {
-        // if prefix then remove it
-        const patientIdWithOutPrefix = patientIds.map((patientId) => patientId.replace(patientReferencePrefix, ''));
+    async getBwellPersonAndAllClientIds({patientIdToRefMap}) {
+        // correct the id -> ref Map
+        /**@type {import('./searchFilterFromParsedReference').IdToReferenceMap} */
+        const idToRefMap = {};
+        Object.entries(patientIdToRefMap).forEach(([id, ref]) => {
+          // build map without any prefix
+          const idWithoutPrefix = id.replace(PATIENT_REFERENCE_PREFIX, '');
+          idToRefMap[`${idWithoutPrefix}`] = ref;
+        });
+
         // get hash-map of patientId to bwell-person
         const patientToBwellMasterPerson = await this.bwellPersonFinder.getBwellPersonIdsAsync({
-            patientIds: patientIdWithOutPrefix,
+           patientIdToRefMap: idToRefMap,
         });
 
         /**@type {Set<string>} */
