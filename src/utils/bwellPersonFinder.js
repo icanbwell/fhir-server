@@ -69,7 +69,7 @@ class BwellPersonFinder {
             base_version: '4_0_0'
         });
 
-        const patientsToBwellPerson = await this.searchForBwellPersonsAsync({
+        const patientsToBwellPersonRefs = await this.searchForBwellPersonsAsync({
             idToRefMap: onlyPatientIdToRefMap,
             databaseQueryManager,
             level: 0,
@@ -80,7 +80,7 @@ class BwellPersonFinder {
          * check if proxy patient is bwell master person,
          * it must be available in patientsToBwellPerson Map
          */
-        const masterPersons = new Set(patientsToBwellPerson.values());
+        const masterPersonUuidRefs = new Set(patientsToBwellPersonRefs.values());
         proxyPatientIds.forEach((id) => {
             const idWithoutPrefix = id.replace(PERSON_PROXY_PREFIX, '');
             /**
@@ -90,14 +90,14 @@ class BwellPersonFinder {
              */
             const uuid = isUuid(idWithoutPrefix) ? idWithoutPrefix : generateUUIDv5(`${idWithoutPrefix}|${BWELL_PERSON_SOURCE_ASSIGNING_AUTHORITY}`);
             const uuidReference = `${PERSON_REFERENCE_PREFIX}${uuid}`;
-            if (masterPersons.has(uuidReference)) {
-                patientsToBwellPerson.set(id, uuidReference);
+            if (masterPersonUuidRefs.has(uuidReference)) {
+                patientsToBwellPersonRefs.set(`${PATIENT_REFERENCE_PREFIX}${id}`, uuidReference);
                 proxyPatientIds.delete(id);
             }
         });
 
         // Process remaining proxy patient, it can be non master person ID only
-        const proxyPatientsToBwellPerson = await this.searchForBwellPersonsAsync({
+        const proxyPatientsToBwellPersonRefs = await this.searchForBwellPersonsAsync({
             idToRefMap: [...proxyPatientIds].reduce((map, proxyPatent) => {
                 const personId = proxyPatent.replace(`${PERSON_PROXY_PREFIX}`, '');
                 const { id, resourceType } = ReferenceParser.parseReference(`${PERSON_REFERENCE_PREFIX}${personId}`);
@@ -110,12 +110,12 @@ class BwellPersonFinder {
         });
 
         // Add remaining proxy patient to patient master person map
-        for (const [proxyPatient, masterPerson] of proxyPatientsToBwellPerson.entries()) {
-            const personID = proxyPatient.replace(`${PERSON_REFERENCE_PREFIX}`, '');
-            patientsToBwellPerson.set(`${PERSON_PROXY_PREFIX}${personID}`, masterPerson);
+        for (const [personRefOfProxyPatient, masterPersonRef] of proxyPatientsToBwellPersonRefs.entries()) {
+            const personID = personRefOfProxyPatient.replace(`${PERSON_REFERENCE_PREFIX}`, '');
+            patientsToBwellPersonRefs.set(`${PATIENT_REFERENCE_PREFIX}${PERSON_PROXY_PREFIX}${personID}`, masterPersonRef);
         }
 
-        return patientsToBwellPerson;
+        return patientsToBwellPersonRefs;
     }
 
     /**
