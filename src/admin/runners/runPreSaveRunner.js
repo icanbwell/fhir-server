@@ -4,6 +4,7 @@ const {PreSaveManager} = require('../../preSaveHandlers/preSave');
 const deepEqual = require('fast-deep-equal');
 const moment = require('moment-timezone');
 const {FhirResourceCreator} = require('../../fhir/fhirResourceCreator');
+const {SecurityTagSystem} = require('../../utils/securityTagSystem');
 
 /**
  * @classdesc runs preSave() on every record
@@ -96,8 +97,21 @@ class RunPreSaveRunner extends BaseBulkOperationRunner {
     async processRecordAsync(doc) {
         const operations = [];
         if (!doc.meta || !doc.meta.security) {
-            this.adminLogger.logInfo(`Resource without meta.security found ${doc.resourceType}/${doc.id}`);
-            return operations;
+            if (doc.meta && !doc.meta.security && doc.meta.source === 'http://medstarhealth.org/questionnaireresponse') {
+                doc.meta.security = [
+                    {
+                        system: SecurityTagSystem.owner,
+                        code: 'medstar'
+                    },
+                    {
+                        system: SecurityTagSystem.access,
+                        code: 'medstar'
+                    }
+                ];
+            } else {
+                this.adminLogger.logInfo(`Resource without meta.security found ${doc.resourceType}/${doc.id}`);
+                return operations;
+            }
         }
         assertIsValid(doc.resourceType);
         /**
