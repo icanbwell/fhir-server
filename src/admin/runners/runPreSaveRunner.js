@@ -96,6 +96,7 @@ class RunPreSaveRunner extends BaseBulkOperationRunner {
     async processRecordAsync(doc) {
         const operations = [];
         if (!doc.meta || !doc.meta.security) {
+            this.adminLogger.logInfo(`Resource without meta.security found ${doc.resourceType}/${doc.id}`);
             return operations;
         }
         assertIsValid(doc.resourceType);
