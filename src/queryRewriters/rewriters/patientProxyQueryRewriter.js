@@ -1,4 +1,3 @@
-const async = require('async');
 const {QueryRewriter} = require('./queryRewriter');
 const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
 const {PersonToPatientIdsExpander} = require('../../utils/personToPatientIdsExpander');
@@ -29,6 +28,55 @@ class PatientProxyQueryRewriter extends QueryRewriter {
     }
 
     /**
+     * updates the queryParameters
+     * @param {ParsedArgs} parsedArgs
+     * @param {string} base_version
+     * @param {boolean} includePatientPrefix
+     * @returns {ParsedArgsItem}
+     */
+    async rewriteQueryParametersAsync({ parsedArg, base_version, includePatientPrefix }) {
+        const queryParameterValues = parsedArg.queryParameterValue.values;
+        if (queryParameterValues && queryParameterValues.length > 0) {
+            /**
+             * @type {string[]}
+             */
+            const queryParameterValuesToProcess = queryParameterValues.filter(a =>
+                typeof a === 'string' && (
+                    a.startsWith(patientReferencePlusPersonProxyPrefix) ||
+                    (!includePatientPrefix && a.startsWith(personProxyPrefix))
+                )
+            );
+            /**
+             * @type {string[]}
+             */
+            const queryParameterValuesToNotProcess = queryParameterValues.filter(a =>
+                !(typeof a === 'string' && (
+                    a.startsWith(patientReferencePlusPersonProxyPrefix) ||
+                    (!includePatientPrefix && a.startsWith(personProxyPrefix))
+                ))
+            );
+            if (queryParameterValuesToProcess.length > 0) {
+                /**
+                 * @type {string[]}
+                 */
+                const patientProxyIds = await this.personToPatientIdsExpander.getPatientProxyIdsAsync(
+                    {
+                        base_version,
+                        ids: queryParameterValuesToProcess,
+                        includePatientPrefix
+                    }
+                );
+
+                parsedArg.queryParameterValue = new QueryParameterValue({
+                    value: [...patientProxyIds, ...queryParameterValuesToNotProcess],
+                    operator: '$or'
+                });
+            }
+        }
+        return parsedArg;
+    }
+
+    /**
      * rewrites the args
      * @param {string} base_version
      * @param {ParsedArgs} parsedArgs
@@ -41,56 +89,27 @@ class PatientProxyQueryRewriter extends QueryRewriter {
         assertIsValid(base_version);
         // const foo = undefined[1];
 
-        for (const parsedArg of parsedArgs.parsedArgItems) {
-            if (resourceType === 'Patient') {
-                if (parsedArg.queryParameter === 'id' || parsedArg.queryParameter === '_id') {
-                    const queryParameterValues = parsedArg.queryParameterValue.values;
-                    if (queryParameterValues && queryParameterValues.length > 0) {
-                        if (queryParameterValues.some(
-                            a => a.startsWith(personProxyPrefix) ||
-                                a.startsWith(patientReferencePlusPersonProxyPrefix))
-                        ) {
-                            const patientProxyIds = await async.flatMapSeries(
-                                queryParameterValues,
-                                async a => a.startsWith(personProxyPrefix) ||
-                                a.startsWith(patientReferencePlusPersonProxyPrefix) ?
-                                    await this.personToPatientIdsExpander.getPatientProxyIdsAsync(
-                                        {
-                                            base_version,
-                                            id: a,
-                                            includePatientPrefix: false
-                                        }) : a
-                            );
-                            parsedArg.queryParameterValue = new QueryParameterValue({
-                                value: patientProxyIds,
-                                operator: '$or'
+        if (parsedArgs?.parsedArgItems) {
+            parsedArgs.parsedArgItems = await Promise.all(
+                parsedArgs.parsedArgItems.map(async parsedArg => {
+                    if (resourceType === 'Patient') {
+                        if (parsedArg.queryParameter === 'id' || parsedArg.queryParameter === '_id') {
+                            parsedArg = await this.rewriteQueryParametersAsync({
+                                parsedArg,
+                                base_version,
+                                includePatientPrefix: false
                             });
                         }
-                    }
-                }
-            } else { // resourceType other than Patient
-                const queryParameterValues = parsedArg.queryParameterValue.values;
-                if (queryParameterValues && queryParameterValues.length > 0) {
-                    if (queryParameterValues.some(
-                        a => typeof a === 'string' &&
-                            a.startsWith(patientReferencePlusPersonProxyPrefix))) {
-                        // replace with patient ids from person
-                        const patientProxyIds = await async.flatMapSeries(
-                            queryParameterValues,
-                            async a => a.startsWith(patientReferencePlusPersonProxyPrefix) ?
-                                await this.personToPatientIdsExpander.getPatientProxyIdsAsync(
-                                    {
-                                        base_version,
-                                        id: a, includePatientPrefix: true
-                                    }) : a
-                        );
-                        parsedArg.queryParameterValue = new QueryParameterValue({
-                            value: patientProxyIds,
-                            operator: '$or'
+                    } else { // resourceType other than Patient
+                        parsedArg = await this.rewriteQueryParametersAsync({
+                            parsedArg,
+                            base_version,
+                            includePatientPrefix: true
                         });
                     }
-                }
-            }
+                    return parsedArg;
+                })
+            );
         }
 
         return parsedArgs;

@@ -31,21 +31,26 @@ class PersonToPatientIdsExpander {
     /**
      * replaces patient proxy with actual patient ids
      * @param {string} base_version
-     * @param {string} id
+     * @param {string|string[]} ids
      * @param {boolean} includePatientPrefix
      * @return {Promise<string|string[]>}
      */
-    async getPatientProxyIdsAsync({base_version, id, includePatientPrefix}) {
+    async getPatientProxyIdsAsync({base_version, ids, includePatientPrefix}) {
         const databaseQueryManager = this.databaseQueryFactory.createQuery({
             resourceType: 'Person',
             base_version: base_version
         });
-        // 1. Get person id from id
-        const personId = id.replace(patientReferencePlusPersonProxyPrefix, '').replace(personProxyPrefix, '');
+
+        // 1. Get person ids from id
+        const personIds = Array.isArray(ids) ? ids.map(id =>
+                id.replace(patientReferencePlusPersonProxyPrefix, '').replace(personProxyPrefix, '')
+            ) : [
+                ids.replace(patientReferencePlusPersonProxyPrefix, '').replace(personProxyPrefix, '')
+            ];
         // 2. Get that Person resource from the database
         let patientIds = await this.getPatientIdsFromPersonAsync(
             {
-                personIds: [ personId ],
+                personIds,
                 totalProcessedPersonIds: new Set(),
                 databaseQueryManager,
                 level: 1
@@ -53,14 +58,14 @@ class PersonToPatientIdsExpander {
         );
         if (patientIds && patientIds.length > 0) {
             // Also include the proxy patient ID for resources that are associated with the proxy patient directly
-            patientIds.push(`${personProxyPrefix}${personId}`);
+            personIds.forEach(personId => patientIds.push(`${personProxyPrefix}${personId}`));
             if (includePatientPrefix) {
                 patientIds = patientIds.map(p => `${patientReferencePrefix}${p}`);
             }
             // 4. return a csv of those patient ids (remove duplicates)
             return Array.from(new Set(patientIds));
         }
-        return id;
+        return ids;
     }
 
     /**
