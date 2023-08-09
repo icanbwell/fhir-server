@@ -60,6 +60,7 @@ services:
             ENABLE_ACCESS_TAG_UPDATE: '0'
             DD_TRACE_ENABLED: 'False'
             ENABLE_CONSENTED_DATA_ACCESS: '1'
+            FHIR_VALIDATION_URL: 'http://hapi-fhir-server:8080/fhir'
         ports:
             - '3000:3000'
         volumes:

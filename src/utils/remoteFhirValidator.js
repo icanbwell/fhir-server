@@ -49,7 +49,8 @@ class RemoteFhirValidator {
             {
                 method: 'POST',
                 headers: {
-                    'Accept': 'application/json'
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/fhir+json',
                 },
                 body: JSON.stringify(profileJson)
             });
@@ -88,7 +89,8 @@ class RemoteFhirValidator {
             {
                 method: 'POST',
                 headers: {
-                    'Accept': 'application/json'
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/fhir+json',
                 },
                 body: JSON.stringify(resourceBody)
             });

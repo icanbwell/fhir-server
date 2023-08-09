@@ -131,7 +131,10 @@ class ResourceValidator {
                 }
             }
         }
-        return this.remoteFhirValidator.validateResourceAsync(
+        /**
+         * @type {OperationOutcome|null}
+         */
+        const operationOutcome = await this.remoteFhirValidator.validateResourceAsync(
             {
                 resourceBody: resourceToValidateJson,
                 resourceName,
@@ -139,6 +142,11 @@ class ResourceValidator {
                 resourceObj
             }
         );
+        if (operationOutcome && operationOutcome.issue && operationOutcome.issue.length > 0) {
+            // remove any warnings avoid noise
+            operationOutcome.issue = operationOutcome.issue.filter(issue => issue.severity === 'error');
+        }
+        return operationOutcome;
     }
 
 }
