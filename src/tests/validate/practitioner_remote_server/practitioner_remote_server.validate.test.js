@@ -15,7 +15,9 @@ const {
 const {describe, beforeEach, afterEach, test} = require('@jest/globals');
 const {RemoteFhirValidator} = require('../../../utils/remoteFhirValidator');
 const {ConfigManager} = require('../../../utils/configManager');
+// eslint-disable-next-line no-unused-vars
 const OperationOutcome = require('../../../fhir/classes/4_0_0/resources/operationOutcome');
+// eslint-disable-next-line no-unused-vars
 const OperationOutcomeIssue = require('../../../fhir/classes/4_0_0/backbone_elements/operationOutcomeIssue');
 
 class MockRemoteFhirValidator extends RemoteFhirValidator {
@@ -29,29 +31,6 @@ class MockRemoteFhirValidator extends RemoteFhirValidator {
         }
     ) {
         super({configManager});
-    }
-
-    async fetchProfile({url}) {
-        expect(url).toEqual('http://hl7.org/fhir/us/core/StructureDefinition/us-core-practitioner');
-        return USCorePractitionerProfile;
-    }
-
-    async updateProfile({profileJson}) {
-        expect(profileJson).toEqual(USCorePractitionerProfile);
-        return {};
-    }
-
-    // eslint-disable-next-line no-unused-vars
-    async validateResourceAsync({resourceBody, resourceName, path}) {
-        return new OperationOutcome({
-            issue: [
-                new OperationOutcomeIssue({
-                    severity: 'error',
-                    code: 'invalid',
-                    diagnostics: 'Invalid resource',
-                })
-            ]
-        });
     }
 }
 
