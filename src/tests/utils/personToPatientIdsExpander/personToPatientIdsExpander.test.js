@@ -31,7 +31,7 @@ describe('personToPatientIdsExpanders Test', () => {
 
         let result = await personToPatientIdsExpander.getPatientProxyIdsAsync({
             base_version: '4_0_0',
-            id: 'person.00701751-032e-5b40-94c1-7265c0d547fe',
+            ids: 'person.00701751-032e-5b40-94c1-7265c0d547fe',
             includePatientPrefix: true
         });
         expect(result).toEqual('person.00701751-032e-5b40-94c1-7265c0d547fe');
@@ -44,7 +44,7 @@ describe('personToPatientIdsExpanders Test', () => {
 
         result = await personToPatientIdsExpander.getPatientProxyIdsAsync({
             base_version: '4_0_0',
-            id: 'person.00701751-032e-5b40-94c1-7265c0d547fe',
+            ids: 'person.00701751-032e-5b40-94c1-7265c0d547fe',
             includePatientPrefix: true
         });
         expect(result.length).toEqual(2);
@@ -67,7 +67,7 @@ describe('personToPatientIdsExpanders Test', () => {
 
         result = await personToPatientIdsExpander.getPatientProxyIdsAsync({
             base_version: '4_0_0',
-            id: 'person.00701751-032e-5b40-94c1-7265c0d547fe',
+            ids: 'person.00701751-032e-5b40-94c1-7265c0d547fe',
             includePatientPrefix: true
         });
         expect(result.length).toEqual(4);
