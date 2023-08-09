@@ -40,6 +40,17 @@ class MockConfigManager extends ConfigManager {
 }
 
 describe('Practitioner Update Tests', () => {
+    const mockRemoteFhirValidator = new MockRemoteFhirValidator({
+        configManager: new ConfigManager()
+    });
+    const mockFetchProfile = jest.spyOn(mockRemoteFhirValidator, 'fetchProfile');
+    mockFetchProfile.mockImplementation(() => USCorePractitionerProfile);
+    const mockUpdateProfile = jest.spyOn(mockRemoteFhirValidator, 'updateProfile');
+    mockUpdateProfile.mockImplementation(() => {
+    });
+    const mockValidateResourceAsync = jest.spyOn(mockRemoteFhirValidator, 'validateResourceAsync');
+    mockValidateResourceAsync.mockImplementation(() => null);
+
     beforeEach(async () => {
         await commonBeforeEach();
     });
@@ -50,17 +61,6 @@ describe('Practitioner Update Tests', () => {
 
     describe('Practitioner Validate', () => {
         test('Valid resource without profile', async () => {
-            const mockRemoteFhirValidator = new MockRemoteFhirValidator({
-                configManager: new ConfigManager()
-            });
-            const mockFetchProfile = jest.spyOn(mockRemoteFhirValidator, 'fetchProfile');
-            mockFetchProfile.mockImplementation(() => USCorePractitionerProfile);
-            const mockUpdateProfile = jest.spyOn(mockRemoteFhirValidator, 'updateProfile');
-            mockUpdateProfile.mockImplementation(() => {
-            });
-            const mockValidateResourceAsync = jest.spyOn(mockRemoteFhirValidator, 'validateResourceAsync');
-            mockValidateResourceAsync.mockImplementation(() => null);
-
             const request = await createTestRequest((c) => {
                 c.register('configManager', () => new MockConfigManager());
                 c.register('remoteFhirValidator', () => mockRemoteFhirValidator);
@@ -86,17 +86,6 @@ describe('Practitioner Update Tests', () => {
             mockValidateResourceAsync.mockClear();
         });
         test('Valid resource with profile', async () => {
-            const mockRemoteFhirValidator = new MockRemoteFhirValidator({
-                configManager: new ConfigManager()
-            });
-            const mockFetchProfile = jest.spyOn(mockRemoteFhirValidator, 'fetchProfile');
-            mockFetchProfile.mockImplementation(() => USCorePractitionerProfile);
-            const mockUpdateProfile = jest.spyOn(mockRemoteFhirValidator, 'updateProfile');
-            mockUpdateProfile.mockImplementation(() => {
-            });
-            const mockValidateResourceAsync = jest.spyOn(mockRemoteFhirValidator, 'validateResourceAsync');
-            mockValidateResourceAsync.mockImplementation(() => null);
-
             const request = await createTestRequest((c) => {
                 c.register('configManager', () => new MockConfigManager());
                 c.register('remoteFhirValidator', () => mockRemoteFhirValidator);
