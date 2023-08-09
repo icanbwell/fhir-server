@@ -356,6 +356,22 @@ class ConfigManager {
     get logValidationFailures() {
         return isTrue(env.LOG_VALIDATION_FAILURES);
     }
+
+    /**
+     * whether to log all saves
+     * @returns {boolean}
+     */
+    get logAllSaves() {
+        return isTrue(env.LOG_ALL_SAVES);
+    }
+
+    /**
+     * whether to validate schemas
+     * @returns {boolean}
+     */
+    get validateSchema() {
+        return isTrue(env.VALIDATE_SCHEMA);
+    }
 }
 
 module.exports = {

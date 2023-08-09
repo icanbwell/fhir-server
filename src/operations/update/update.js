@@ -1,9 +1,7 @@
-const env = require('var');
 const moment = require('moment-timezone');
 const sendToS3 = require('../../utils/aws-s3');
 const { FieldMapper } = require('../query/filters/fieldMapper');
 const {NotValidatedError, ForbiddenError, BadRequestError} = require('../../utils/httpErrors');
-const {isTrue} = require('../../utils/isTrue');
 const {validationsFailedCounter} = require('../../utils/prometheus.utils');
 const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
 const {ChangeEventProducer} = require('../../utils/changeEventProducer');
@@ -190,7 +188,7 @@ class UpdateOperation {
         let resource_incoming_json = body;
         let {base_version, id} = parsedArgs;
 
-        if (isTrue(env.LOG_ALL_SAVES)) {
+        if (this.configManager.logAllSaves) {
             await sendToS3('logs',
                 resourceType,
                 resource_incoming_json,
@@ -205,7 +203,7 @@ class UpdateOperation {
          */
         let resource_incoming = FhirResourceCreator.createByResourceType(resource_incoming_json, resourceType);
 
-        if (env.VALIDATE_SCHEMA || parsedArgs['_validate']) {
+        if (this.configManager.validateSchema || parsedArgs['_validate']) {
             // Truncate id to 64 so it passes the validator since we support more than 64 internally
             resource_incoming_json.id = id.slice(0, 64);
             /**
@@ -222,7 +220,7 @@ class UpdateOperation {
                 });
             if (validationOperationOutcome) {
                 validationsFailedCounter.inc({action: currentOperationName, resourceType}, 1);
-                if (isTrue(env.LOG_VALIDATION_FAILURES)) {
+                if (this.configManager.logValidationFailures) {
                     await sendToS3('validation_failures',
                         resourceType,
                         resource_incoming_json,
@@ -424,7 +422,7 @@ class UpdateOperation {
                 };
             }
         } catch (e) {
-            if (isTrue(env.LOG_VALIDATION_FAILURES)) {
+            if (this.configManager.logValidationFailures) {
                 await sendToS3('errors',
                     resourceType,
                     resource_incoming_json,
