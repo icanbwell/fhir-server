@@ -31,7 +31,7 @@ class ResourceValidator {
      * validates a resource
      * @param {string} id
      * @param {string} resourceType
-     * @param {Object|Resource} resourceToValidateJson
+     * @param {Object|Resource} resourceToValidate
      * @param {string} path
      * @param {string} currentDate
      * @param {Object} resourceObj
