@@ -25,7 +25,7 @@
     {
       "id": "00100000000",
       "target": {
-        "reference": "Patient/00100000000"
+        "reference": "Patient/00100000000|medstar"
       },
       "assurance": "level4"
     }

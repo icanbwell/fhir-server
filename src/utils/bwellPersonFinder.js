@@ -1,10 +1,10 @@
 const {assertTypeEquals} = require('./assertType');
-const {PATIENT_REFERENCE_PREFIX, PERSON_REFERENCE_PREFIX, PERSON_PROXY_PREFIX} = require('../constants');
+const {PATIENT_REFERENCE_PREFIX, PERSON_REFERENCE_PREFIX, PERSON_PROXY_PREFIX, BWELL_PERSON_SOURCE_ASSIGNING_AUTHORITY} = require('../constants');
 const {DatabaseQueryFactory} = require('../dataLayer/databaseQueryFactory');
 const {SecurityTagSystem} = require('./securityTagSystem');
-const { isUuid } = require('./uid.util');
+const { isUuid, generateUUIDv5 } = require('./uid.util');
 
-const BwellMasterPersonCode = 'bwell';
+const BwellMasterPersonCode = BWELL_PERSON_SOURCE_ASSIGNING_AUTHORITY;
 const MaxDepthForBFS = 3;
 
 class BwellPersonFinder {
@@ -44,7 +44,7 @@ class BwellPersonFinder {
 
     /**
      * finds bwell person Ids associated with patientsIds
-     * @param {string[]} patientIds List of patient Ids
+     * @param {string[]} patientIds List of patient and proxy-patient ids
      * @returns {Promise<Map<string, string>>} Returns map with key as patientId and value as master-persons-id
      */
     async getBwellPersonIdsAsync({
@@ -78,14 +78,22 @@ class BwellPersonFinder {
          * check if proxy patient is bwell master person,
          * it must be available in patientsToBwellPerson Map
          */
-        for (const /**@type {string} */ masterPerson of patientsToBwellPerson.values()) {
-            const personID = masterPerson.replace(`${PERSON_REFERENCE_PREFIX}`, '');
-            const proxyPatient = `${PERSON_PROXY_PREFIX}${personID}`;
-            if (proxyPatientIds.has(proxyPatient)) {
-                patientsToBwellPerson.set(proxyPatient, masterPerson);
-                proxyPatientIds.delete(proxyPatient);
+        const masterPersons = new Set(patientsToBwellPerson.values());
+        proxyPatientIds.forEach((id) => {
+            const idWithoutPrefix = id.replace(PERSON_PROXY_PREFIX, '');
+            /**
+             * masterPersons is an array of uuid-reference but proxy-patient can be a source-id/uuid
+             * To check given proxy-patient is a master person, we can generate uuid from the proxy-patient-id
+             * and check if its present in masterPerson array
+             */
+            const uuid = isUuid(idWithoutPrefix) ? idWithoutPrefix : generateUUIDv5(`${idWithoutPrefix}|${BWELL_PERSON_SOURCE_ASSIGNING_AUTHORITY}`);
+            const uuidReference = `${PERSON_REFERENCE_PREFIX}${uuid}`;
+            if (masterPersons.has(uuidReference)) {
+                patientsToBwellPerson.set(id, uuidReference);
+                proxyPatientIds.delete(id);
             }
-        }
+        });
+
         // Process remaining proxy patient, it can be non master person ID only
         const proxyPatientsToBwellPerson = await this.searchForBwellPersonsAsync({
             currentReferences: [...proxyPatientIds].map((proxyPatent) => `${PERSON_REFERENCE_PREFIX}${proxyPatent.replace(`${PERSON_PROXY_PREFIX}`, '')}`),
@@ -103,14 +111,14 @@ class BwellPersonFinder {
     }
 
     /**
-     * Finds bwell master person for given references and returns a map of `reference -> masterPersonReference`
+     * Finds bwell master person for given references and returns a map of `reference -> uuid masterPersonReference`
      * @typedef {Object} Options
-     * @property {string[]} currentReferences Current Resource References
+     * @property {string[]} currentReferences Current Resource References. If can be sourceId or uuid
      * @property {import('../dataLayer/databaseQueryManager').DatabaseQueryManager} databaseQueryManager
      * @property {number} level BFS Level
      * @property {Set<string>} visitedReferences Visited References
      * @param {Options}
-     * @returns Map of Reference to BwellMasterPerson
+     * @returns Returns a map of currentReference -> bwell-master-person uuid reference
      */
     async searchForBwellPersonsAsync({ currentReferences, databaseQueryManager, level, visitedReferences }) {
         if (level === MaxDepthForBFS || currentReferences.length === 0) {
@@ -167,16 +175,17 @@ class BwellPersonFinder {
 
         while (await linkedPersonCursor.hasNext()) {
             let linkedPerson = await linkedPersonCursor.next();
+            const personUuid = linkedPerson._uuid;
             const linkedReferences = this.getAllLinkedReferencesFromPerson(linkedPerson, currentReferences);
-            nextRefToCurrRefsMap.set(`${PERSON_REFERENCE_PREFIX}${linkedPerson.id}`, linkedReferences);
+            nextRefToCurrRefsMap.set(`${PERSON_REFERENCE_PREFIX}${personUuid}`, linkedReferences);
 
             // a bwell person can be linked to multiple patients or persons.
             if (this.isBwellPerson(linkedPerson)) {
-                const bwellPerson = `${PERSON_REFERENCE_PREFIX}${linkedPerson.id}`;
+                const bwellPerson = `${PERSON_REFERENCE_PREFIX}${personUuid}`;
                 bwellPersonToCurrRefsMap.set(bwellPerson, linkedReferences);
             } else {
                 // next references to process
-                nextRefToProcess.add(`${PERSON_REFERENCE_PREFIX}${linkedPerson.id}`);
+                nextRefToProcess.add(`${PERSON_REFERENCE_PREFIX}${personUuid}`);
             }
         }
 
@@ -246,7 +255,7 @@ class BwellPersonFinder {
     /**
      * Gets intersection of all references linked to the person
      * @param {Person} person
-     * @param {string[]} referencesToSearchFrom references to search from
+     * @param {string[]} referencesToSearchFrom references to search from If can be uuid reference or sourceId reference
      * @return {string[]} references linked to given person
      */
     getAllLinkedReferencesFromPerson(person, referencesToSearchFrom) {
@@ -269,8 +278,10 @@ class BwellPersonFinder {
         links.forEach((link) => {
             // check if reference is included in referencesToSearchFrom, then add it to array
             const reference = link.target;
-            if (reference && reference.reference && referencesToSearchFrom.includes(reference.reference)) {
-                linkedIds.push(reference.reference);
+            if (reference && reference._uuid && referencesToSearchFrom.includes(reference._uuid)) {
+                linkedIds.push(reference._uuid);
+            } else if (reference && reference._sourceId && referencesToSearchFrom.includes(reference._sourceId)) {
+                linkedIds.push(reference._sourceId);
             }
         });
 
@@ -300,14 +311,14 @@ class BwellPersonFinder {
         // iterate over linked Persons (breadth search)
         while (!foundPersonId && (await linkedPersons.hasNext())) {
             let nextPerson = await linkedPersons.next();
-
+            const nextPersonId = nextPerson._uuid;
             if (this.isBwellPerson(nextPerson)) {
-                foundPersonId = nextPerson.id;
+                foundPersonId = nextPersonId;
             }
             else {
                 // recurse through to next layer of linked Persons (depth search)
                 foundPersonId = await this.searchForBwellPersonAsync({
-                    currentSubject: `Person/${nextPerson.id}`,
+                    currentSubject: `Person/${nextPersonId}`,
                     databaseQueryManager: databaseQueryManager,
                     visitedSubjects: visitedSubjects
                 });

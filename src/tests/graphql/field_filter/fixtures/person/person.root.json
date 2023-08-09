@@ -43,7 +43,7 @@
     "link": [
         {
             "target": {
-                "reference": "Person/person-123-a",
+                "reference": "Person/person-123-a|medstar",
                 "type": "Person"
             },
             "assurance": "level4"

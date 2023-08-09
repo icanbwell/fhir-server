@@ -4,8 +4,6 @@ const person2Resource = require('./fixtures/Person/person2.json');
 const patient1Resource = require('./fixtures/Patient/patient1.json');
 
 // expected
-const expectedPatient1BeforeRun = require('./fixtures/expected/expected_patient1_before_run.json');
-
 const expectedPatient1AfterRun = require('./fixtures/expected/expected_patient1.json');
 
 const {
@@ -19,6 +17,7 @@ const { AdminLogger } = require('../../../../admin/adminLogger');
 const { FixReferenceIdHapiRunner } = require('../../../../admin/runners/fixReferenceIdHapiRunner');
 const { assertTypeEquals } = require('../../../../utils/assertType');
 const { PersonToPatientIdsExpander } = require('../../../../utils/personToPatientIdsExpander');
+const { IdentifierSystem } = require('../../../../utils/identifierSystem');
 
 describe('Person Tests', () => {
     beforeEach(async () => {
@@ -77,7 +76,8 @@ describe('Person Tests', () => {
                 }),
                 level: 1
             });
-            expect(patientReferencesBeforeRun).toEqual([expectedPatient1BeforeRun.id]);
+            // will not be able to find patient due to wrong uuid of person
+            expect(patientReferencesBeforeRun).toEqual([]);
 
             // run admin runner
             const collections = ['all'];
@@ -116,7 +116,9 @@ describe('Person Tests', () => {
                 level: 1
             });
 
-            expect(patientReferencesAfterRun).toEqual([expectedPatient1AfterRun.id]);
+            // will find it correctly after fix
+            const patientUuid = expectedPatient1AfterRun.identifier.find((v) => v.system === IdentifierSystem.uuid);
+            expect(patientReferencesAfterRun).toEqual([patientUuid.value]);
         });
     });
 });
