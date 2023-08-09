@@ -571,7 +571,8 @@ const createContainer = function () {
         {
             scopesManager: c.scopesManager,
             fhirLoggingManager: c.fhirLoggingManager,
-            resourceValidator: c.resourceValidator
+            resourceValidator: c.resourceValidator,
+            configManager: c.configManager,
         }
     ));
     container.register('graphOperation', (c) => new GraphOperation(

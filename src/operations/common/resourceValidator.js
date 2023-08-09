@@ -52,14 +52,14 @@ class ResourceValidator {
          * @type {OperationOutcome | null}
          */
         const validationOperationOutcome = this.configManager.fhirValidationUrl ?
-            validateResource(
+            await this.validateResourceFromServerAsync(
                 {
                     resourceBody: resourceToValidateJson,
                     resourceName: resourceType,
                     path,
                     resourceObj
                 }
-            ) : await this.validateResourceFromServerAsync(
+            ) : validateResource(
                 {
                     resourceBody: resourceToValidateJson,
                     resourceName: resourceType,
