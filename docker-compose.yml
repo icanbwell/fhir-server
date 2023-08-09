@@ -134,7 +134,7 @@ services:
             - SERVER_SERVLET_CONTEXTPATH=/
 
     hapi-fhir-server:
-      image: hapiproject/hapi:latest
+      image: hapiproject/hapi:v6.6.0
       ports:
         - "3001:8080"
 
