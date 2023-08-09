@@ -23,10 +23,10 @@ const contentType = require('content-type');
 const {getValidateMissingVariableValuesPlugin} = require('./plugins/graphqlValidateMissingVariableValuesPlugin');
 const httpContext = require('express-http-context');
 /**
- * @param {function (): SimpleContainer} fnCreateContainer
+ * @param {SimpleContainer} container
  * @return {Promise<e.Router>}
  */
-const graphql = async (fnCreateContainer) => {
+const graphql = async (container) => {
     const typesArray = loadFilesSync(join(__dirname, '../../graphql/v2/schemas/'), {recursive: true});
     const typeDefs = mergeTypeDefs(typesArray);
 
@@ -56,8 +56,6 @@ const graphql = async (fnCreateContainer) => {
      * @return {Promise<GraphQLContext>}
      */
     async function getContext({req, res}) {
-        const container = fnCreateContainer();
-
         /**
          * @type {import('content-type').ContentType}
          */

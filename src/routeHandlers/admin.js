@@ -85,12 +85,12 @@ async function synchronizeIndexesAsync(
 
 /**
  * Handles admin routes
- * @param {function (): SimpleContainer} fnCreateContainer
+ * @param {SimpleContainer} container
  * @param {import('http').IncomingMessage} req
  * @param {import('express').Response} res
  */
 async function handleAdmin(
-    fnCreateContainer,
+    container,
     req,
     res
 ) {
@@ -111,10 +111,6 @@ async function handleAdmin(
         logInfo(`op=${operation}`, {});
 
         // set up all the standard services in the container
-        /**
-         * @type {SimpleContainer}
-         */
-        const container = fnCreateContainer();
         /**
          * @type {ScopesManager}
          */
