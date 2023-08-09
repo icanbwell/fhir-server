@@ -35,6 +35,8 @@ class ResourceValidator {
      * @param {string} path
      * @param {string} currentDate
      * @param {Object} resourceObj
+     * @param {boolean|undefined} useRemoteFhirValidatorIfAvailable
+     * @param {string|undefined} profile
      * @returns {OperationOutcome | null}
      */
     async validateResourceAsync(
@@ -45,7 +47,8 @@ class ResourceValidator {
             path,
             currentDate,
             resourceObj = null,
-            useRemoteFhirValidatorIfAvailable = false
+            useRemoteFhirValidatorIfAvailable = false,
+            profile
         }
     ) {
         const resourceToValidateJson = (resourceToValidate instanceof Resource) ? resourceToValidate.toJSON() : resourceToValidate;
@@ -58,7 +61,8 @@ class ResourceValidator {
                     resourceBody: resourceToValidateJson,
                     resourceName: resourceType,
                     path,
-                    resourceObj
+                    resourceObj,
+                    profile
                 }
             ) : validateResource(
                 {
@@ -107,6 +111,7 @@ class ResourceValidator {
      * @param {string} resourceName - name of resource in url
      * @param {string} path - req.path from express
      * @param {Object} resourceObj - fhir resource object
+     * @param {string|undefined} profile
      * @returns {OperationOutcome|null} Response<null|OperationOutcome> - either null if no errors or response to send client.
      */
     async validateResourceFromServerAsync(
@@ -114,18 +119,25 @@ class ResourceValidator {
             resourceBody,
             resourceName,
             path,
-            resourceObj = null
+            resourceObj = null,
+            profile
         }) {
         const resourceToValidateJson = (resourceBody instanceof Resource) ? resourceBody.toJSON() : resourceBody;
 
+        if (profile) {
+            const profileJson = await this.remoteFhirValidator.fetchProfile({url: profile});
+            if (profileJson) {
+                await this.remoteFhirValidator.updateProfile({profileJson});
+            }
+        }
         // first read the profiles specified in the resource and send to fhir validator
         if (resourceToValidateJson.meta && resourceToValidateJson.meta.profile && resourceToValidateJson.meta.profile.length > 0) {
             /**
              * @type {string[]}
              */
-            const profiles = resourceToValidateJson.meta.profile;
-            for (const profile of profiles) {
-                const profileJson = await this.remoteFhirValidator.fetchProfile({url: profile});
+            const metaProfiles = resourceToValidateJson.meta.profile;
+            for (const metaProfile of metaProfiles) {
+                const profileJson = await this.remoteFhirValidator.fetchProfile({url: metaProfile});
                 if (profileJson) {
                     await this.remoteFhirValidator.updateProfile({profileJson});
                 }
@@ -139,7 +151,8 @@ class ResourceValidator {
                 resourceBody: resourceToValidateJson,
                 resourceName,
                 path,
-                resourceObj
+                resourceObj,
+                profile
             }
         );
         if (operationOutcome && operationOutcome.issue && operationOutcome.issue.length > 0) {

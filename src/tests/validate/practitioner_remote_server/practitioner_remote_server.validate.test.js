@@ -85,6 +85,31 @@ describe('Practitioner Update Tests', () => {
             mockUpdateProfile.mockClear();
             mockValidateResourceAsync.mockClear();
         });
+        test('Valid resource without profile but passed in url', async () => {
+            const request = await createTestRequest((c) => {
+                c.register('configManager', () => new MockConfigManager());
+                c.register('remoteFhirValidator', () => mockRemoteFhirValidator);
+                return c;
+            });
+            let resp = await request
+                .get('/4_0_0/Practitioner')
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResourceCount(0);
+
+            resp = await request
+                .post('/4_0_0/Practitioner/$validate?profile=http://hl7.org/fhir/us/core/StructureDefinition/us-core-practitioner')
+                .send(validPractitionerResourceWithoutProfile)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedValidPractitionerResponse);
+            expect(mockFetchProfile).toHaveBeenCalledTimes(1);
+            expect(mockUpdateProfile).toHaveBeenCalledTimes(1);
+            expect(mockValidateResourceAsync).toHaveBeenCalledTimes(1);
+            mockFetchProfile.mockClear();
+            mockUpdateProfile.mockClear();
+            mockValidateResourceAsync.mockClear();
+        });
         test('Valid resource with profile', async () => {
             const request = await createTestRequest((c) => {
                 c.register('configManager', () => new MockConfigManager());

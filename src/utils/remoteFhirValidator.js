@@ -3,6 +3,7 @@ const OperationOutcome = require('../fhir/classes/4_0_0/resources/operationOutco
 const OperationOutcomeIssue = require('../fhir/classes/4_0_0/backbone_elements/operationOutcomeIssue');
 const CodeableConcept = require('../fhir/classes/4_0_0/complex_types/codeableConcept');
 const {ConfigManager} = require('./configManager');
+const {logInfo} = require('../operations/common/logging');
 
 class RemoteFhirValidator {
     /**
@@ -64,9 +65,10 @@ class RemoteFhirValidator {
      * @param {string} resourceName - name of resource in url
      * @param {string} path - req.path from express
      * @param {Object} resourceObj - fhir resource object
+     * @param {string|undefined} profile
      * @returns {OperationOutcome|null} Response<null|OperationOutcome> - either null if no errors or response to send client.
      */
-    async validateResourceAsync({resourceBody, resourceName, path}) {
+    async validateResourceAsync({resourceBody, resourceName, path, profile}) {
         if (resourceBody.resourceType !== resourceName) {
             return new OperationOutcome({
                 issue: [
@@ -85,6 +87,11 @@ class RemoteFhirValidator {
         assertIsValid(fhirValidationUrl, 'fhirValidationUrl must be specified');
         const url = new URL(fhirValidationUrl);
         url.pathname += `/${resourceName}/$validate`;
+        if (profile) {
+            url.searchParams.append('profile', profile);
+        }
+        logInfo(`validateResourceAsync: Calling HAPI FHIR ${url.toString()}`, {url});
+
         const response = await fetch(url,
             {
                 method: 'POST',
