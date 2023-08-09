@@ -3,7 +3,7 @@ const { ReferenceParser } = require('./referenceParser');
 
 /**
  * Map of id -> id, resourceType and sourceAssigningAuthority
- * @typedef {{[id: string]: { id: string; resourceType: string; sourceAssigningAuthority: string | undefined }} IdToReferenceMap
+ * @typedef {{ id: string; resourceType: string; sourceAssigningAuthority: string | undefined }[]} IReferences
  */
 
 /**
@@ -13,40 +13,55 @@ class SearchFilterFromReference {
   /**
    * Build search query from idToRefMap for given property
    * if property name is not passed, then filter will be base on _uuid and _sourceId
-   * @param {IdToReferenceMap} idToRefMap id -> Ref Map
+   * @example
+   * ```js
+   * const idToRefMap = {
+   *    'patientId1': { id: 'patientId1', resourceType: 'Patient', sourceAssigningAuthority: 'northwell' }
+   *    'bb7862e6-b7ac-470e-bde3-e85cee9d1ce6': { id: 'bb7862e6-b7ac-470e-bde3-e85cee9d1ce6', resourceType: 'Patient' }
+   * }
+   *
+   * // query generated will be
+   * [{
+   *   '_uuid': { '$in': ['bb7862e6-b7ac-470e-bde3-e85cee9d1ce6']},
+   * }, {
+   *   '$and': [
+   *      { '_sourceId': { '$in': ['bb7862e6-b7ac-470e-bde3-e85cee9d1ce6']}, },
+   *      { '_sourceAssigningAuthority': 'northwell' },
+   *   ]
+   * }]
+   * ```
+   * @param {IReferences} references Array of references
    * @param {string|undefined|null} property Related property name to make query on. Query will be based on property._uuid or property._sourceId
    * @returns {{[field: string]: { ['$in']: string[]}}} Array of filter queries generated using property name and idToRefMap
    */
-  static buildFilter(idToRefMap, property) {
-    const ids = Object.keys(idToRefMap);
+  static buildFilter(references, property) {
     const prop = property ? `${property}.` : '';
     const includePrefix = !!property;
 
     const filters = [];
-    const uuidsRefs = [];
-    const nonUuidsRefs = [];
-    const nonUuidRefsWithSourceAssigningAuthority = [];
+    const uuidOrItsRefs = [];
+    const sourceIdOrItsRefs = [];
+    const sourceIdOrItsRefWithSourceAssigningAuthority = [];
 
     // separate all types of references
-    ids.forEach((id) => {
+    references.forEach((reference) => {
+      const { id, resourceType, sourceAssigningAuthority } = reference;
       if (ReferenceParser.isUuidReference(id)) {
-        const { resourceType } = idToRefMap[`${id}`];
+
+        const uuidToPush = includePrefix ? ReferenceParser.createReference({ id, resourceType }) : id;
         // add ResourceType/id
-        uuidsRefs.push(ReferenceParser.createReference({
-          id,
-          resourceType,
-        }));
+        uuidOrItsRefs.push(uuidToPush);
       } else {
-        const ref = idToRefMap[`${id}`];
-        if (ref && ref.sourceAssigningAuthority) {
-          const { resourceType } = ref;
+        if (sourceAssigningAuthority) {
           // push ResourceType/id|sourceAssigningAuthority
-          nonUuidRefsWithSourceAssigningAuthority
-            .push(ReferenceParser.createReference({ resourceType, id, sourceAssigningAuthority: ref.sourceAssigningAuthority }));
+          const idToPush = includePrefix ? ReferenceParser.createReference({ id, resourceType, sourceAssigningAuthority }) :
+            ReferenceParser.createReference({ id, sourceAssigningAuthority });
+          sourceIdOrItsRefWithSourceAssigningAuthority
+            .push(ReferenceParser.createReference(idToPush));
         } else {
-          const { resourceType } = idToRefMap[`${id}`];
+          const sourceIdToPush = includePrefix ? ReferenceParser.createReference({ id, resourceType }) : id;
           // push to non uuids as ResourceType/id
-          nonUuidsRefs.push(ReferenceParser.createReference({ resourceType, id }));
+          sourceIdOrItsRefs.push(sourceIdToPush);
         }
       }
     });
@@ -55,28 +70,28 @@ class SearchFilterFromReference {
      * Group on basis of sourceAssigningAuthority
      * @type {{[sourceAssigningAuthority: string]: string[]}}
      */
-    const groupOfIdsWithSourceAssigningAuthority = groupByLambda(
-      nonUuidRefsWithSourceAssigningAuthority,
-      r => ReferenceParser.getSourceAssigningAuthority(r)
+    const groupOfIdOrItsRefsWithSourceAssigningAuthority = groupByLambda(
+      sourceIdOrItsRefWithSourceAssigningAuthority,
+      idOrRef => ReferenceParser.getSourceAssigningAuthority(idOrRef)
     );
 
     // add uuid filter
     filters.push({
       [`${prop}_uuid`]: {
-        '$in': includePrefix ? [...uuidsRefs] : uuidsRefs.map(u => ReferenceParser.parseReference(u).id)
+        '$in': uuidOrItsRefs
       }
     });
 
     // add sourceId filter
     filters.push({
       [`${prop}_sourceId`]: {
-        '$in': includePrefix ? [...nonUuidsRefs] : nonUuidsRefs.map(u => ReferenceParser.parseReference(u).id)
+        '$in': sourceIdOrItsRefs
       },
     });
 
     // sourceId + sourceAssigning Authority
-    Object.entries(groupOfIdsWithSourceAssigningAuthority)
-      .forEach(([sourceAssigningAuthority, referenceWithSourceAssigningAuthority]) => {
+    Object.entries(groupOfIdOrItsRefsWithSourceAssigningAuthority)
+      .forEach(([sourceAssigningAuthority, idOrItsRefWithSourceAssigningAuthority]) => {
         filters.push(
           {
             '$and': [
@@ -85,10 +100,8 @@ class SearchFilterFromReference {
               },
               {
                 [`${prop}_sourceId`]: {
-                  '$in': includePrefix ?
-                    referenceWithSourceAssigningAuthority.flatMap(r => ReferenceParser.createReferenceWithoutSourceAssigningAuthority(r)) :
-                    referenceWithSourceAssigningAuthority.flatMap(r => ReferenceParser.parseReference(r).id)
-                    .map((r) => r)
+                  // for Patient/id|walgreens -> Patient/id and for id|walgreens -> id
+                  '$in': idOrItsRefWithSourceAssigningAuthority.flatMap((ref) => ReferenceParser.createReferenceWithoutSourceAssigningAuthority(ref)),
                 }
               }
             ]

@@ -47,22 +47,23 @@ class BwellPersonFinder {
 
     /**
      * finds bwell person Ids associated with patientsIds
-     * @param {{ patientIdToRefMap: import('./searchFilterFromReference').IdToReferenceMap}} options List of patient and proxy-patient ids
+     * @param {{ patientReferences: import('./searchFilterFromReference').IReferences}} options List of patient and proxy-patient References
      * @returns {Promise<Map<string, string>>} Returns map with key as patientId and value as master-persons-id
      */
     async getBwellPersonIdsAsync({
-        patientIdToRefMap
+        patientReferences
     }) {
-        /**@type {import('./searchFilterFromReference').IdToReferenceMap} */
-        const onlyPatientIdToRefMap = {};
-        /**@type {string[]} */
+        /**@type {import('./searchFilterFromReference').IReferences} */
+        const onlyPatientRefs = [];
+        /**@type {Set<string>} */
         const proxyPatientIds = new Set();
 
-        Object.keys(patientIdToRefMap).forEach((id) => {
+        patientReferences.forEach((ref) => {
+            const {id} = ref;
             if (id.startsWith(`${PERSON_PROXY_PREFIX}`)) {
                 proxyPatientIds.add(id);
             } else {
-                onlyPatientIdToRefMap[`${id}`] = patientIdToRefMap[`${id}`];
+                onlyPatientRefs.push(ref);
             }
         });
         const databaseQueryManager = this.databaseQueryFactory.createQuery({
@@ -71,7 +72,7 @@ class BwellPersonFinder {
         });
 
         const patientsToBwellPersonRefs = await this.searchForBwellPersonsAsync({
-            idToRefMap: onlyPatientIdToRefMap,
+            references: onlyPatientRefs,
             databaseQueryManager,
             level: 0,
             visitedReferences: new Set(),
@@ -99,12 +100,12 @@ class BwellPersonFinder {
 
         // Process remaining proxy patient, it can be non master person ID only
         const proxyPatientsToBwellPersonRefs = await this.searchForBwellPersonsAsync({
-            idToRefMap: [...proxyPatientIds].reduce((map, proxyPatent) => {
+            references: Array.from(proxyPatientIds).reduce((/**@type {Array<import('./searchFilterFromReference').IReferences>}*/refs, proxyPatent) => {
                 const personId = proxyPatent.replace(`${PERSON_PROXY_PREFIX}`, '');
                 const { id, resourceType } = ReferenceParser.parseReference(`${PERSON_REFERENCE_PREFIX}${personId}`);
-                map[`${personId}`] = { resourceType, id };
-                return map;
-            }, {}),
+                refs.push({ resourceType, id });
+                return refs;
+            }, []),
             databaseQueryManager,
             level: 0,
             visitedReferences: new Set(),
@@ -122,7 +123,7 @@ class BwellPersonFinder {
     /**
      * Finds bwell master person for given references and returns a map of `reference -> uuid masterPersonReference`
      * @typedef {Object} Options
-     * @property {import('./searchFilterFromReference').IdToReferenceMap} idToRefMap
+     * @property {import('./searchFilterFromReference').IReferences} references
      * @property {import('../dataLayer/databaseQueryManager').DatabaseQueryManager} databaseQueryManager
      * @property {number} level BFS Level (Starting with 0)
      * @property {Set<string>} visitedReferences Visited References
@@ -130,11 +131,11 @@ class BwellPersonFinder {
      * @returns Returns a map of currentReference -> bwell-master-person uuid reference
      */
     async searchForBwellPersonsAsync({
-        databaseQueryManager, level, visitedReferences, idToRefMap
+        databaseQueryManager, level, visitedReferences, references
     }) {
-        if (level === MaxDepthForBFS || !idToRefMap || Object.keys(idToRefMap).length === 0) {
+        if (level === MaxDepthForBFS || !references || Object.keys(references).length === 0) {
             let message = `Maximum recursion depth of ${MaxDepthForBFS} reached while recursively fetching master-person`;
-            logWarn(message, { currentMapToProcess: idToRefMap, totalProcessedReferences: Array.from(visitedReferences)});
+            logWarn(message, { currentReferences: references, totalProcessedReferences: Array.from(visitedReferences)});
             /**@type {Map<string, string>} */
             const emptyMap = new Map();
             return emptyMap;
@@ -145,26 +146,25 @@ class BwellPersonFinder {
          * @type {string[]}
          **/
         let currentReferences = [];
-        const idToRefMapToProcess = Object.keys(idToRefMap)
+        const referencesToProcess = references
             // filter all not visited
             .filter((r) => {
-                const { id, resourceType } = idToRefMap[`${r}`];
-                const currReference = ReferenceParser.createReference({ id, resourceType});
-                currentReferences.push(currReference);
+                const currReferenceStr = ReferenceParser.createReference({...r});
+                currentReferences.push(currReferenceStr);
 
-                const isNotVisited = !visitedReferences.has(currReference);
+                const isNotVisited = !visitedReferences.has(currReferenceStr);
                 if (isNotVisited) {
                     // visit it
-                    visitedReferences.add(currReference);
+                    visitedReferences.add(currReferenceStr);
                 }
                 return isNotVisited;
             })
             // create idToRef Map
-            .reduce((/**@type {import('./searchFilterFromReference').IdToReferenceMap}*/prev, key) => {
+            .reduce((/**@type {import('./searchFilterFromReference').IReferences}*/refs, ref) => {
                 // add all unvisited ref to the map
-                prev[`${key}`] = idToRefMap[`${key}`];
-                return prev;
-            }, {});
+                refs.push(ref);
+                return refs;
+            }, []);
 
         /**
          * @type {Map<string, string[]>}
@@ -184,7 +184,7 @@ class BwellPersonFinder {
 
 
         // build query based on map
-        const searchFilters = SearchFilterFromReference.buildFilter(idToRefMapToProcess, 'link.target');
+        const searchFilters = SearchFilterFromReference.buildFilter(referencesToProcess, 'link.target');
 
         // get all persons who have reference of currentReferencesToProcess
         let linkedPersonCursor = await databaseQueryManager.findAsync({
@@ -214,12 +214,12 @@ class BwellPersonFinder {
             databaseQueryManager,
             level: level + 1,
             visitedReferences,
-            idToRefMap: Array.from(nextRefToProcess).reduce((nextIdToRefMap, ref) => {
+            references: Array.from(nextRefToProcess).reduce((nextRefs, ref) => {
                 const { id, resourceType } = ReferenceParser.parseReference(ref);
                 // no need of sourceAssigning authority as all are uuids
-                nextIdToRefMap[`${id}`] = { id, resourceType };
-                return nextIdToRefMap;
-            }, {})
+                nextRefs.push({ id, resourceType });
+                return nextRefs;
+            }, [])
         });
 
         /**@type {Map<string, string>} */
@@ -281,8 +281,12 @@ class BwellPersonFinder {
             const reference = link.target;
             if (reference && reference._uuid && referencesToSearchFrom.includes(reference._uuid)) {
                 linkedIds.push(reference._uuid);
-            } else if (reference && reference._sourceId && referencesToSearchFrom.includes(reference._sourceId)) {
-                linkedIds.push(reference._sourceId);
+            } else if (reference && reference._sourceId) {
+                // covers both the cases Resource/id or Resource/id|sourceAssigningAuthority
+                const refString = ReferenceParser.createReference({ id: reference._sourceId, sourceAssigningAuthority: reference._sourceAssigningAuthority });
+                if (referencesToSearchFrom.includes(refString)) {
+                    linkedIds.push(refString);
+                }
             }
         });
 
