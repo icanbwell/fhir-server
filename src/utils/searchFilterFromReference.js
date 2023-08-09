@@ -57,7 +57,7 @@ class SearchFilterFromReference {
           const idToPush = includePrefix ? ReferenceParser.createReference({ id, resourceType, sourceAssigningAuthority }) :
             ReferenceParser.createReference({ id, sourceAssigningAuthority });
           sourceIdOrItsRefWithSourceAssigningAuthority
-            .push(ReferenceParser.createReference(idToPush));
+            .push(idToPush);
         } else {
           const sourceIdToPush = includePrefix ? ReferenceParser.createReference({ id, resourceType }) : id;
           // push to non uuids as ResourceType/id

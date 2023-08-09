@@ -90,7 +90,7 @@ class ReferenceParser {
      */
     static createReferenceWithoutSourceAssigningAuthority(reference) {
         const { id, resourceType } = ReferenceParser.parseReference(reference);
-        return ReferenceParser.createReference(resourceType, id);
+        return ReferenceParser.createReference({resourceType, id});
     }
 
 }
