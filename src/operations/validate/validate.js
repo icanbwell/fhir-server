@@ -162,7 +162,8 @@ class ValidateOperation {
                 resourceToValidate: resourceObjectToValidate,
                 path: path,
                 currentDate: currentDate,
-                resourceObj: resourceToValidate
+                resourceObj: resourceToValidate,
+                useRemoteFhirValidatorIfAvailable: true
             });
         if (validationOperationOutcome) {
             validationsFailedCounter.inc({action: currentOperationName, resourceType}, 1);
