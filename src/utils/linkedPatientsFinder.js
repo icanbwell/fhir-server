@@ -21,56 +21,63 @@ class LinkedPatientsFinder {
      * @param {LinkedPatientsFinderConstructionParams} params
      */
     constructor({
-      databaseQueryFactory,
-      bwellPersonFinder,
-      personToPatientIdsExpander,
+        databaseQueryFactory,
+        bwellPersonFinder,
+        personToPatientIdsExpander,
     }) {
-      /**
-       * @type {DatabaseQueryFactory}
-       */
-      this.databaseQueryFactory = databaseQueryFactory;
-      assertTypeEquals(databaseQueryFactory, DatabaseQueryFactory);
+        /**
+         * @type {DatabaseQueryFactory}
+         */
+        this.databaseQueryFactory = databaseQueryFactory;
+        assertTypeEquals(databaseQueryFactory, DatabaseQueryFactory);
 
-      /**
-       * @type {BwellPersonFinder}
-       */
-      this.bwellPersonFinder = bwellPersonFinder;
-      assertTypeEquals(bwellPersonFinder, BwellPersonFinder);
+        /**
+         * @type {BwellPersonFinder}
+         */
+        this.bwellPersonFinder = bwellPersonFinder;
+        assertTypeEquals(bwellPersonFinder, BwellPersonFinder);
 
-      /**
-       * @type {PersonToPatientIdsExpander}
-       */
-      this.personToPatientIdsExpander = personToPatientIdsExpander;
-      assertTypeEquals(personToPatientIdsExpander, PersonToPatientIdsExpander);
+        /**
+         * @type {PersonToPatientIdsExpander}
+         */
+        this.personToPatientIdsExpander = personToPatientIdsExpander;
+        assertTypeEquals(
+            personToPatientIdsExpander,
+            PersonToPatientIdsExpander,
+        );
     }
 
     /**
      * Get bwell master person and all linked patients for given patient ids.
      * @typedef {Object} GetPersonAndBwellPersonOptions - Function Options
-     * @property {import('./searchFilterFromReference').IReferences} patientReferences - Array of references
+     * @property {import('../operations/query/filters/searchFilterFromReference').IReferences} patientReferences - Array of references
      * @param {GetPersonAndBwellPersonOptions} options
      * @returns {{[patientId: string]: { bwellMasterPerson: string, patientIds: string[] }}}
      */
-    async getBwellPersonAndAllClientIds({patientReferences}) {
+    async getBwellPersonAndAllClientIds({ patientReferences }) {
         // get hash-map of patientId to bwell-person
-        const patientToBwellMasterPerson = await this.bwellPersonFinder.getBwellPersonIdsAsync({
-           patientReferences,
-        });
+        const patientToBwellMasterPerson =
+            await this.bwellPersonFinder.getBwellPersonIdsAsync({
+                patientReferences,
+            });
 
         /**@type {Set<string>} */
         const bwellMasterPersons = new Set();
 
         patientToBwellMasterPerson.forEach((masterPerson) => {
-          bwellMasterPersons.add(masterPerson);
+            bwellMasterPersons.add(masterPerson);
         });
 
         // get all linked patient ids
         /**
          * @type {{[masterPersonId: string]: string[];}}
          * */
-        const linkedPatientIds = await this.personToPatientIdsExpander.getAllRelatedPatients({
-          base_version: '4_0_0', idsSet: bwellMasterPersons, toMap: true,
-        });
+        const linkedPatientIds =
+            await this.personToPatientIdsExpander.getAllRelatedPatients({
+                base_version: '4_0_0',
+                idsSet: bwellMasterPersons,
+                toMap: true,
+            });
 
         /**
          * @type {{[patientId: string]: { bwellMasterPerson: string, patientIds: string[] }}}
@@ -78,11 +85,23 @@ class LinkedPatientsFinder {
         const patientToBwellPersonAndClientIds = {};
 
         // form the result to return
-        for (const [patientReference, bwellPersonReference] of patientToBwellMasterPerson.entries()) {
-            const patientId = patientReference.replace(patientReferencePrefix, '');
+        for (const [
+            patientReference,
+            bwellPersonReference,
+        ] of patientToBwellMasterPerson.entries()) {
+            const patientId = patientReference.replace(
+                patientReferencePrefix,
+                '',
+            );
             const data = patientToBwellPersonAndClientIds[patientId] || {};
-            data.bwellMasterPerson = bwellPersonReference.replace(personReferencePrefix, '');
-            data.patientIds = [...linkedPatientIds[data.bwellMasterPerson], `${PERSON_PROXY_PREFIX}${data.bwellMasterPerson}`];
+            data.bwellMasterPerson = bwellPersonReference.replace(
+                personReferencePrefix,
+                '',
+            );
+            data.patientIds = [
+                ...linkedPatientIds[data.bwellMasterPerson],
+                `${PERSON_PROXY_PREFIX}${data.bwellMasterPerson}`,
+            ];
             // also add bwell-mater-person proxy
             patientToBwellPersonAndClientIds[patientId] = data;
         }
@@ -92,5 +111,5 @@ class LinkedPatientsFinder {
 }
 
 module.exports = {
-  LinkedPatientsFinder
+    LinkedPatientsFinder,
 };

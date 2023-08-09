@@ -3,7 +3,7 @@ const {PATIENT_REFERENCE_PREFIX, PERSON_REFERENCE_PREFIX, PERSON_PROXY_PREFIX, B
 const {DatabaseQueryFactory} = require('../dataLayer/databaseQueryFactory');
 const {SecurityTagSystem} = require('./securityTagSystem');
 const { isUuid, generateUUIDv5 } = require('./uid.util');
-const { SearchFilterFromReference } = require('./searchFilterFromReference');
+const { SearchFilterFromReference } = require('../operations/query/filters/searchFilterFromReference');
 const { ReferenceParser } = require('./referenceParser');
 const { logWarn } = require('../operations/common/logging');
 
@@ -47,13 +47,13 @@ class BwellPersonFinder {
 
     /**
      * finds bwell person Ids associated with patientsIds
-     * @param {{ patientReferences: import('./searchFilterFromReference').IReferences}} options List of patient and proxy-patient References
+     * @param {{ patientReferences: import('../operations/query/filters/searchFilterFromReference').IReferences}} options List of patient and proxy-patient References
      * @returns {Promise<Map<string, string>>} Returns map with key as patientId and value as master-persons-id
      */
     async getBwellPersonIdsAsync({
         patientReferences
     }) {
-        /**@type {import('./searchFilterFromReference').IReferences} */
+        /**@type {import('../operations/query/filters/searchFilterFromReference').IReferences} */
         const onlyPatientRefs = [];
         /**@type {Set<string>} */
         const proxyPatientIds = new Set();
@@ -99,13 +99,14 @@ class BwellPersonFinder {
         });
 
         // Process remaining proxy patient, it can be non master person ID only
+        const proxyReferenceArr = Array.from(proxyPatientIds).reduce((/**@type {Array<import('../operations/query/filters/searchFilterFromReference').IReferences>}*/refs, proxyPatent) => {
+            const personId = proxyPatent.replace(`${PERSON_PROXY_PREFIX}`, '');
+            const { id, resourceType } = ReferenceParser.parseReference(`${PERSON_REFERENCE_PREFIX}${personId}`);
+            refs.push({ resourceType, id });
+            return refs;
+        }, []);
         const proxyPatientsToBwellPersonRefs = await this.searchForBwellPersonsAsync({
-            references: Array.from(proxyPatientIds).reduce((/**@type {Array<import('./searchFilterFromReference').IReferences>}*/refs, proxyPatent) => {
-                const personId = proxyPatent.replace(`${PERSON_PROXY_PREFIX}`, '');
-                const { id, resourceType } = ReferenceParser.parseReference(`${PERSON_REFERENCE_PREFIX}${personId}`);
-                refs.push({ resourceType, id });
-                return refs;
-            }, []),
+            references: proxyReferenceArr,
             databaseQueryManager,
             level: 0,
             visitedReferences: new Set(),
@@ -123,7 +124,7 @@ class BwellPersonFinder {
     /**
      * Finds bwell master person for given references and returns a map of `reference -> uuid masterPersonReference`
      * @typedef {Object} Options
-     * @property {import('./searchFilterFromReference').IReferences} references
+     * @property {import('../operations/query/filters/searchFilterFromReference').IReferences} references
      * @property {import('../dataLayer/databaseQueryManager').DatabaseQueryManager} databaseQueryManager
      * @property {number} level BFS Level (Starting with 0)
      * @property {Set<string>} visitedReferences Visited References
@@ -160,7 +161,7 @@ class BwellPersonFinder {
                 return isNotVisited;
             })
             // create idToRef Map
-            .reduce((/**@type {import('./searchFilterFromReference').IReferences}*/refs, ref) => {
+            .reduce((/**@type {import('../operations/query/filters/searchFilterFromReference').IReferences}*/refs, ref) => {
                 // add all unvisited ref to the map
                 refs.push(ref);
                 return refs;
@@ -189,7 +190,7 @@ class BwellPersonFinder {
         // get all persons who have reference of currentReferencesToProcess
         let linkedPersonCursor = await databaseQueryManager.findAsync({
             query: {
-                '$or': [...searchFilters]
+                '$or': searchFilters
             }
         });
 
@@ -209,17 +210,18 @@ class BwellPersonFinder {
             }
         }
 
+        const nextRefArray = Array.from(nextRefToProcess).reduce((nextRefs, ref) => {
+            const { id, resourceType } = ReferenceParser.parseReference(ref);
+            // no need of sourceAssigning authority as all are uuids
+            nextRefs.push({ id, resourceType });
+            return nextRefs;
+        }, []);
         // find bwell person from next level
         const nextRefToBwellPersonMap = await this.searchForBwellPersonsAsync({
             databaseQueryManager,
             level: level + 1,
             visitedReferences,
-            references: Array.from(nextRefToProcess).reduce((nextRefs, ref) => {
-                const { id, resourceType } = ReferenceParser.parseReference(ref);
-                // no need of sourceAssigning authority as all are uuids
-                nextRefs.push({ id, resourceType });
-                return nextRefs;
-            }, [])
+            references: nextRefArray,
         });
 
         /**@type {Map<string, string>} */

@@ -10,7 +10,7 @@ const { PATIENT_REFERENCE_PREFIX } = require('../../constants');
 const {SearchQueryBuilder} = require('./searchQueryBuilder');
 const { BadRequestError } = require('../../utils/httpErrors');
 const { logError } = require('../common/logging');
-const { SearchFilterFromReference } = require('../../utils/searchFilterFromReference');
+const { SearchFilterFromReference } = require('../query/filters/searchFilterFromReference');
 const { ReferenceParser } = require('../../utils/referenceParser');
 
 class ConsentManager {
@@ -269,19 +269,19 @@ class ConsentManager {
      * return id -> Reference map for all resource references
      * @param {string} resourceType
      * @param {import('../query/parsedArgs').ParsedArgs} parsedArgs
-     * @returns {import('../../utils/searchFilterFromReference').IReferences} Array of resource Id's present in query
+     * @returns {import('../query/filters/searchFilterFromReference').IReferences} Array of resource Id's present in query
      */
     getResourceReferencesFromFilter(resourceType, parsedArgs) {
         assertIsValid(typeof resourceType === 'string');
         assertIsValid(parsedArgs instanceof ParsedArgs);
 
-        /**@type {import('../../utils/searchFilterFromReference').IReferences} */
+        /**@type {import('../query/filters/searchFilterFromReference').IReferences} */
         let idReferenceMap;
 
         const modifiersToSkip = ['not'];
 
         idReferenceMap = parsedArgs.parsedArgItems
-            .reduce((/**@type {import('../../utils/searchFilterFromReference').IReferences}*/refs, /**@type {import('../query/parsedArgsItem').ParsedArgsItem}*/currArg) => {
+            .reduce((/**@type {import('../query/filters/searchFilterFromReference').IReferences}*/refs, /**@type {import('../query/parsedArgsItem').ParsedArgsItem}*/currArg) => {
                 const queryParamReferences = currArg.references;
                 // if modifier is 'not' then skip the addition
                 if (currArg.modifiers.some((v) => modifiersToSkip.includes(v))) {
@@ -308,7 +308,7 @@ class ConsentManager {
     /**
      * For array of patientIds passed, checks if there are more than two resources for
      * any id. If its there, then throws a bad-request error else returns true
-     * @param {import('../../utils/searchFilterFromReference').IReferences} references Passed PatientIds in query.
+     * @param {import('../query/filters/searchFilterFromReference').IReferences} references Passed PatientIds in query.
      */
     async validatePatientIdsAsync(references) {
         /**

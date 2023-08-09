@@ -1,5 +1,5 @@
-const { groupByLambda } = require('./list.util');
-const { ReferenceParser } = require('./referenceParser');
+const { groupByLambda } = require('../../../utils/list.util');
+const { ReferenceParser } = require('../../../utils/referenceParser');
 
 /**
  * Map of id -> id, resourceType and sourceAssigningAuthority
