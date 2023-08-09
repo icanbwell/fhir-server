@@ -5,6 +5,10 @@ const CodeableConcept = require('../fhir/classes/4_0_0/complex_types/codeableCon
 const {ConfigManager} = require('./configManager');
 
 class RemoteFhirValidator {
+    /**
+     * constructor
+     * @param {ConfigManager} configManager
+     */
     constructor(
         {
             configManager

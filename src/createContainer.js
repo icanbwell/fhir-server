@@ -95,6 +95,7 @@ const {MergeValidator} = require('./operations/merge/mergeValidator');
 const {ParametersResourceValidator} = require('./operations/merge/validators/parameterResourceValidator');
 const {BundleResourceValidator} = require('./operations/merge/validators/bundleResourceValidator');
 const {MergeResourceValidator} = require('./operations/merge/validators/mergeResourceValidator');
+const {RemoteFhirValidator} = require('./utils/remoteFhirValidator');
 
 /**
  * Creates a container and sets up all the services
@@ -166,7 +167,17 @@ const createContainer = function () {
         fhirLoggingManager: c.fhirLoggingManager,
         configManager: c.configManager
     }));
-    container.register('resourceValidator', () => new ResourceValidator());
+    container.register('remoteFhirValidator', (c) => new RemoteFhirValidator(
+        {
+            configManager: c.configManager,
+        }
+    ));
+    container.register('resourceValidator', (c) => new ResourceValidator(
+        {
+            configManager: c.configManager,
+            remoteFhirValidator: c.remoteFhirValidator,
+        }
+    ));
     container.register('fhirLoggingManager', (c) => new FhirLoggingManager({
         scopesManager: c.scopesManager,
         imageVersion: getImageVersion()
