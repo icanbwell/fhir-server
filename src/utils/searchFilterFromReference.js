@@ -7,15 +7,17 @@ const { ReferenceParser } = require('./referenceParser');
  */
 
 /**
- * Create filter from parseReferences based on _uuid, _sourceId and _sourceAssigningAuthority
+ * Create filter from references based on _uuid, _sourceId and _sourceAssigningAuthority
  */
-class SearchFilterFromParsedReference {
+class SearchFilterFromReference {
   /**
    * Build search query from idToRefMap for given property
+   * if property name is not passed, then filter will be base on _uuid and _sourceId
    * @param {IdToReferenceMap} idToRefMap id -> Ref Map
    * @param {string|undefined|null} property Related property name to make query on. Query will be based on property._uuid or property._sourceId
+   * @returns {{[field: string]: { ['$in']: string[]}}} Array of filter queries generated using property name and idToRefMap
    */
-  static buildQuery(idToRefMap, property) {
+  static buildFilter(idToRefMap, property) {
     const ids = Object.keys(idToRefMap);
     const prop = property ? `${property}.` : '';
     const includePrefix = !!property;
@@ -97,4 +99,4 @@ class SearchFilterFromParsedReference {
   }
 }
 
-module.exports = { SearchFilterFromParsedReference };
+module.exports = { SearchFilterFromReference };

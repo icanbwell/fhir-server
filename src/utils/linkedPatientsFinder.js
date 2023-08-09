@@ -47,13 +47,13 @@ class LinkedPatientsFinder {
     /**
      * Get bwell master person and all linked patients for given patient ids.
      * @typedef {Object} GetPersonAndBwellPersonOptions - Function Options
-     * @property {import('./searchFilterFromParsedReference').IdToReferenceMap} patientIdToRefMap - PatientId -> ParseRefer Map containing info about ids
+     * @property {import('./searchFilterFromReference').IdToReferenceMap} patientIdToRefMap - PatientId -> ParseRefer Map containing info about ids
      * @param {GetPersonAndBwellPersonOptions} options
      * @returns {{[patientId: string]: { bwellMasterPerson: string, patientIds: string[] }}}
      */
     async getBwellPersonAndAllClientIds({patientIdToRefMap}) {
         // correct the id -> ref Map
-        /**@type {import('./searchFilterFromParsedReference').IdToReferenceMap} */
+        /**@type {import('./searchFilterFromReference').IdToReferenceMap} */
         const idToRefMap = {};
         Object.entries(patientIdToRefMap).forEach(([id, ref]) => {
           // build map without any prefix

@@ -10,7 +10,7 @@ const { PATIENT_REFERENCE_PREFIX } = require('../../constants');
 const {SearchQueryBuilder} = require('./searchQueryBuilder');
 const { BadRequestError } = require('../../utils/httpErrors');
 const { logError } = require('../common/logging');
-const { SearchFilterFromParsedReference } = require('../../utils/searchFilterFromParsedReference');
+const { SearchFilterFromReference } = require('../../utils/searchFilterFromReference');
 
 class ConsentManager {
     /**
@@ -269,19 +269,19 @@ class ConsentManager {
      * return id -> Reference map for all resource references
      * @param {string} resourceType
      * @param {import('../query/parsedArgs').ParsedArgs} parsedArgs
-     * @returns {import('../../utils/searchFilterFromParsedReference').IdToReferenceMap} Array of resource Id's present in query
+     * @returns {import('../../utils/searchFilterFromReference').IdToReferenceMap} Array of resource Id's present in query
      */
     getResourceReferencesFromFilter(resourceType, parsedArgs) {
         assertIsValid(typeof resourceType === 'string');
         assertIsValid(parsedArgs instanceof ParsedArgs);
 
-        /**@type {import('../../utils/searchFilterFromParsedReference').IdToReferenceMap} */
+        /**@type {import('../../utils/searchFilterFromReference').IdToReferenceMap} */
         let idReferenceMap;
 
         const modifiersToSkip = ['not'];
 
         idReferenceMap = parsedArgs.parsedArgItems
-            .reduce((/**@type {import('../../utils/searchFilterFromParsedReference').IdToReferenceMap}*/idRefMap, /**@type {import('../query/parsedArgsItem').ParsedArgsItem}*/currArg) => {
+            .reduce((/**@type {import('../../utils/searchFilterFromReference').IdToReferenceMap}*/idRefMap, /**@type {import('../query/parsedArgsItem').ParsedArgsItem}*/currArg) => {
                 const queryParamReferences = currArg.references;
                 // if modifier is 'not' then skip the addition
                 if (currArg.modifiers.some((v) => modifiersToSkip.includes(v))) {
@@ -338,7 +338,7 @@ class ConsentManager {
         // find all patients for given array of ids.
         const cursor = await query.findAsync({
             query: {
-                '$or': SearchFilterFromParsedReference.buildQuery(idToRefMap, null),
+                '$or': SearchFilterFromReference.buildFilter(idToRefMap, null),
             },
             options: { projection: { id: 1, _sourceId: 1, _uuid: 1 } }
         });
