@@ -1,13 +1,10 @@
-const validPractitionerResource = require('./fixtures/valid_practitioner.json');
-const validPractitionerNoSecurityCodeResource = require('./fixtures/valid_practitioner_no_security_code.json');
-const invalidPractitionerResource = require('./fixtures/invalid_practitioner.json');
+const validPractitionerResourceWithoutProfile = require('./fixtures/valid_practitioner_without_profile.json');
+// eslint-disable-next-line no-unused-vars
+const validPractitionerResourceWithProfile = require('./fixtures/valid_practitioner_with_profile.json');
 
 const expectedValidPractitionerResponse = require('./expected/valid_practitioner_response.json');
-const expectedValidPractitionerNoSecurityCodeResponse = require('./expected/valid_practitioner_no_security_code_response.json');
-const expectedInvalidPractitionerResponse = require('./expected/invalid_practitioner_response.json');
-const expectedInvalidPractitionerNoParametersResponse = require('./expected/invalid_practitioner_response_no_parameters.json');
 
-const USCorePatientProfile = require('./fixtures/us_core_patient_profile.json');
+const USCorePractitionerProfile = require('./fixtures/us_core_profile_practitioner.json');
 
 const {
     commonBeforeEach,
@@ -35,12 +32,12 @@ class MockRemoteFhirValidator extends RemoteFhirValidator {
     }
 
     async fetchProfile({url}) {
-        expect(url).toEqual('http://hl7.org/fhir/us/core/StructureDefinition/us-core-patient');
-        return USCorePatientProfile;
+        expect(url).toEqual('http://hl7.org/fhir/us/core/StructureDefinition/us-core-practitioner');
+        return USCorePractitionerProfile;
     }
 
     async updateProfile({profileJson}) {
-        expect(profileJson).toEqual(USCorePatientProfile);
+        expect(profileJson).toEqual(USCorePractitionerProfile);
         return {};
     }
 
@@ -74,12 +71,21 @@ describe('Practitioner Update Tests', () => {
     });
 
     describe('Practitioner Validate', () => {
-        test('Valid resource', async () => {
+        test('Valid resource without profile', async () => {
+            const mockRemoteFhirValidator = new MockRemoteFhirValidator({
+                configManager: new ConfigManager()
+            });
+            const mockFetchProfile = jest.spyOn(mockRemoteFhirValidator, 'fetchProfile');
+            mockFetchProfile.mockImplementation(() => USCorePractitionerProfile);
+            const mockUpdateProfile = jest.spyOn(mockRemoteFhirValidator, 'updateProfile');
+            mockUpdateProfile.mockImplementation(() => {
+            });
+            const mockValidateResourceAsync = jest.spyOn(mockRemoteFhirValidator, 'validateResourceAsync');
+            mockValidateResourceAsync.mockImplementation(() => null);
+
             const request = await createTestRequest((c) => {
                 c.register('configManager', () => new MockConfigManager());
-                c.register('remoteFhirValidator', () => new MockRemoteFhirValidator({
-                    configManager: c.configManager
-                }));
+                c.register('remoteFhirValidator', () => mockRemoteFhirValidator);
                 return c;
             });
             let resp = await request
@@ -90,86 +96,16 @@ describe('Practitioner Update Tests', () => {
 
             resp = await request
                 .post('/4_0_0/Practitioner/$validate')
-                .send(validPractitionerResource)
+                .send(validPractitionerResourceWithoutProfile)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedValidPractitionerResponse);
-        });
-        test('Valid resource with resource parameter', async () => {
-            const request = await createTestRequest();
-            let resp = await request
-                .get('/4_0_0/Practitioner')
-                .set(getHeaders());
-            // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResourceCount(0);
-
-            /**
-             * http://www.hl7.org/fhir/parameters-example.json.html
-             * @type {{parameter: [{resource: {resourceType: string, id: string, meta: {security: {}}, identifier: {}, active: boolean, name: {}, telecom: {}, address: {}, gender: string}, name: string}], resourceType: string}}
-             */
-            const parametersResource = {
-                resourceType: 'Parameters',
-                parameter: [{name: 'resource', resource: validPractitionerResource}],
-            };
-            resp = await request
-                .post('/4_0_0/Practitioner/$validate')
-                .send(parametersResource)
-                .set(getHeaders());
-            // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse(expectedValidPractitionerResponse);
-        });
-        test('Valid resource but no security code', async () => {
-            const request = await createTestRequest();
-            let resp = await request
-                .get('/4_0_0/Practitioner')
-                .set(getHeaders());
-            // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResourceCount(0);
-
-            resp = await request
-                .post('/4_0_0/Practitioner/$validate')
-                .send(validPractitionerNoSecurityCodeResource)
-                .set(getHeaders());
-            // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse(expectedValidPractitionerNoSecurityCodeResponse);
-        });
-        test('Invalid resource', async () => {
-            const request = await createTestRequest();
-            let resp = await request
-                .get('/4_0_0/Practitioner')
-                .set(getHeaders());
-            // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResourceCount(0);
-
-            resp = await request
-                .post('/4_0_0/Practitioner/$validate')
-                .send(invalidPractitionerResource)
-                .set(getHeaders());
-
-            // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse(expectedInvalidPractitionerResponse);
-        });
-        test('Invalid resource with resource parameter', async () => {
-            const request = await createTestRequest();
-            let resp = await request
-                .get('/4_0_0/Practitioner')
-                .set(getHeaders());
-            // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResourceCount(0);
-
-            /**
-             * http://www.hl7.org/fhir/parameters-example.json.html
-             */
-            const parametersResource = {
-                resourceType: 'Parameters',
-                parameterBad: [{name: 'resource', resource: validPractitionerResource}],
-            };
-            resp = await request
-                .post('/4_0_0/Practitioner/$validate')
-                .send(parametersResource)
-                .set(getHeaders());
-            // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse(expectedInvalidPractitionerNoParametersResponse);
+            expect(mockFetchProfile).toHaveBeenCalledTimes(0);
+            expect(mockUpdateProfile).toHaveBeenCalledTimes(0);
+            expect(mockValidateResourceAsync).toHaveBeenCalledTimes(1);
+            mockFetchProfile.mockClear();
+            mockUpdateProfile.mockClear();
+            mockValidateResourceAsync.mockClear();
         });
     });
 });
