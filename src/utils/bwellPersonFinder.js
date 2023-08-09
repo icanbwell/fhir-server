@@ -5,6 +5,7 @@ const {SecurityTagSystem} = require('./securityTagSystem');
 const { isUuid, generateUUIDv5 } = require('./uid.util');
 const { SearchFilterFromReference } = require('./searchFilterFromReference');
 const { ReferenceParser } = require('./referenceParser');
+const { logWarn } = require('../operations/common/logging');
 
 const BwellMasterPersonCode = BWELL_PERSON_SOURCE_ASSIGNING_AUTHORITY;
 const MaxDepthForBFS = 3;
@@ -123,7 +124,7 @@ class BwellPersonFinder {
      * @typedef {Object} Options
      * @property {import('./searchFilterFromReference').IdToReferenceMap} idToRefMap
      * @property {import('../dataLayer/databaseQueryManager').DatabaseQueryManager} databaseQueryManager
-     * @property {number} level BFS Level
+     * @property {number} level BFS Level (Starting with 0)
      * @property {Set<string>} visitedReferences Visited References
      * @param {Options}
      * @returns Returns a map of currentReference -> bwell-master-person uuid reference
@@ -132,6 +133,8 @@ class BwellPersonFinder {
         databaseQueryManager, level, visitedReferences, idToRefMap
     }) {
         if (level === MaxDepthForBFS || !idToRefMap || Object.keys(idToRefMap).length === 0) {
+            let message = `Maximum recursion depth of ${MaxDepthForBFS} reached while recursively fetching master-person`;
+            logWarn(message, { currentMapToProcess: idToRefMap, totalProcessedReferences: Array.from(visitedReferences)});
             /**@type {Map<string, string>} */
             const emptyMap = new Map();
             return emptyMap;
