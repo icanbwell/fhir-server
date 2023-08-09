@@ -185,14 +185,23 @@ class SecurityTagManager {
                     const patientFilterList = patientFilterProperty;
                     patientsUuidQuery = {
                         '$or': patientFilterList.map(p => {
+                                // if patient itself then search by _uuid
+                                if (p === 'id') {
+                                    return {'_uuid': inQuery};
+                                }
                                 return {[p.replace('.reference', '._uuid')]: inQuery};
                             }
                         )
                     };
                 } else {
-                    patientsUuidQuery = {
-                        [patientFilterProperty.replace('.reference', '._uuid')]: inQuery
-                    };
+                    // if patient itself then search by _uuid
+                    if (patientFilterProperty === 'id') {
+                        patientsUuidQuery = {'_uuid': inQuery};
+                    } else {
+                        patientsUuidQuery = {
+                            [patientFilterProperty.replace('.reference', '._uuid')]: inQuery
+                        };
+                    }
                 }
             }
         }
@@ -215,12 +224,21 @@ class SecurityTagManager {
                     const patientFilterList = patientFilterProperty;
                     patientsNonUuidQuery = {
                         '$or': patientFilterList.map(p => {
+                                // if patient itself then search by _sourceId
+                                if (p === 'id') {
+                                    return {'_sourceId': inQuery};
+                                }
                                 return {[p.replace('.reference', '._sourceId')]: inQuery};
                             }
                         )
                     };
                 } else {
-                    patientsNonUuidQuery = {[patientFilterProperty.replace('.reference', '._sourceId')]: inQuery};
+                    // if patient itself then search by _sourceId
+                    if (patientFilterProperty === 'id') {
+                        patientsNonUuidQuery = {'_sourceId': inQuery};
+                    } else {
+                        patientsNonUuidQuery = {[patientFilterProperty.replace('.reference', '._sourceId')]: inQuery};
+                    }
                 }
             }
         }

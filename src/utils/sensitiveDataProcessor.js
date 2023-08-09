@@ -182,7 +182,7 @@ class SensitiveDataProcessor {
         let bwellMasterPerson = await this.bwellPersonFinder.getBwellPersonIdAsync({patientId: patientIdWithOutPrefix});
         // Fetch all patient linked with the bwell master person
         return await this.personToPatientIdsExpander.getPatientProxyIdsAsync({
-            base_version: '4_0_0', id: `person.${bwellMasterPerson}`, includePatientPrefix: true
+            base_version: '4_0_0', ids: `person.${bwellMasterPerson}`, includePatientPrefix: true
         });
     }
 

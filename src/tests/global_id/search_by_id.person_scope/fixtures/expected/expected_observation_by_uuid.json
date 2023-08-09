@@ -74,15 +74,15 @@
             {
               "id": "uuid",
               "url": "https://www.icanbwell.com/uuid",
-              "valueString": "Patient/8b4f5ad7-d7e0-5b49-a5fb-0330001efa25"
+              "valueString": "Patient/6b4cd535-4038-5da7-9c1e-43b5a05c793b"
             },
             {
               "id": "sourceAssigningAuthority",
               "url": "https://www.icanbwell.com/sourceAssigningAuthority",
-              "valueString": "C"
+              "valueString": "medstar"
             }
           ],
-          "reference": "Patient/patient1"
+          "reference": "Patient/patient1|medstar"
         },
         "valueBoolean": false
       }
@@ -91,7 +91,7 @@
   "meta": {
     "tag": [
       {
-        "display": "db.Observation_4_0_0.find({'$and':[{'_uuid':'7fcfcd47-31f1-5044-be40-cd2d0059bd67'},{'subject._sourceId':{'$in':['Patient/patient1','Patient/person.person1']}}]}, {}).sort({'id':1}).limit(1000)",
+        "display": "db.Observation_4_0_0.find({'$and':[{'_uuid':'7fcfcd47-31f1-5044-be40-cd2d0059bd67'},{'$or':[{'subject._uuid':{'$in':['Patient/6b4cd535-4038-5da7-9c1e-43b5a05c793b']}},{'subject._sourceId':{'$in':['Patient/person.person1']}}]}]}, {}).sort({'id':1}).limit(1000)",
         "system": "https://www.icanbwell.com/query"
       },
       {

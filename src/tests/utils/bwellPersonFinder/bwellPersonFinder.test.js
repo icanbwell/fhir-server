@@ -11,6 +11,7 @@ const {
     createTestRequest, getTestContainer
 } = require('../../common');
 const { describe, expect, test, beforeEach, afterEach} = require('@jest/globals');
+const { generateUUIDv5 } = require('../../../utils/uid.util');
 
 describe('bwellPersonFinder Tests', () => {
     beforeEach(async () => {
@@ -63,7 +64,7 @@ describe('bwellPersonFinder Tests', () => {
         const bwellPersonFinder = getTestContainer().bwellPersonFinder;
         const result = await bwellPersonFinder.getBwellPersonIdAsync({ patientId: '1234' });
 
-        expect(result).toEqual('81236');
+        expect(result).toEqual(generateUUIDv5(['81236', '|', 'bwell'].join('')));
     });
 
     test('search works with indirectly linked bwell Person', async () => {
@@ -93,7 +94,7 @@ describe('bwellPersonFinder Tests', () => {
         const bwellPersonFinder = getTestContainer().bwellPersonFinder;
         const result = await bwellPersonFinder.getBwellPersonIdAsync({ patientId: '1234' });
 
-        expect(result).toEqual('81236');
+        expect(result).toEqual(generateUUIDv5(['81236', '|', 'bwell'].join('')));
     });
 
     test('search works with cycle and no linked bwell Person', async () => {
@@ -146,6 +147,6 @@ describe('bwellPersonFinder Tests', () => {
         const bwellPersonFinder = getTestContainer().bwellPersonFinder;
         const result = await bwellPersonFinder.getBwellPersonIdAsync({ patientId: '1234' });
 
-        expect(result).toEqual('81236');
+        expect(result).toEqual(generateUUIDv5(['81236', '|', 'bwell'].join('')));
     });
 });
