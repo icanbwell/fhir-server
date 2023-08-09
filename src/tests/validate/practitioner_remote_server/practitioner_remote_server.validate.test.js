@@ -1,5 +1,4 @@
 const validPractitionerResourceWithoutProfile = require('./fixtures/valid_practitioner_without_profile.json');
-// eslint-disable-next-line no-unused-vars
 const validPractitionerResourceWithProfile = require('./fixtures/valid_practitioner_with_profile.json');
 
 const expectedValidPractitionerResponse = require('./expected/valid_practitioner_response.json');
@@ -81,6 +80,42 @@ describe('Practitioner Update Tests', () => {
             expect(resp).toHaveResponse(expectedValidPractitionerResponse);
             expect(mockFetchProfile).toHaveBeenCalledTimes(0);
             expect(mockUpdateProfile).toHaveBeenCalledTimes(0);
+            expect(mockValidateResourceAsync).toHaveBeenCalledTimes(1);
+            mockFetchProfile.mockClear();
+            mockUpdateProfile.mockClear();
+            mockValidateResourceAsync.mockClear();
+        });
+        test('Valid resource with profile', async () => {
+            const mockRemoteFhirValidator = new MockRemoteFhirValidator({
+                configManager: new ConfigManager()
+            });
+            const mockFetchProfile = jest.spyOn(mockRemoteFhirValidator, 'fetchProfile');
+            mockFetchProfile.mockImplementation(() => USCorePractitionerProfile);
+            const mockUpdateProfile = jest.spyOn(mockRemoteFhirValidator, 'updateProfile');
+            mockUpdateProfile.mockImplementation(() => {
+            });
+            const mockValidateResourceAsync = jest.spyOn(mockRemoteFhirValidator, 'validateResourceAsync');
+            mockValidateResourceAsync.mockImplementation(() => null);
+
+            const request = await createTestRequest((c) => {
+                c.register('configManager', () => new MockConfigManager());
+                c.register('remoteFhirValidator', () => mockRemoteFhirValidator);
+                return c;
+            });
+            let resp = await request
+                .get('/4_0_0/Practitioner')
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResourceCount(0);
+
+            resp = await request
+                .post('/4_0_0/Practitioner/$validate')
+                .send(validPractitionerResourceWithProfile)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedValidPractitionerResponse);
+            expect(mockFetchProfile).toHaveBeenCalledTimes(1);
+            expect(mockUpdateProfile).toHaveBeenCalledTimes(1);
             expect(mockValidateResourceAsync).toHaveBeenCalledTimes(1);
             mockFetchProfile.mockClear();
             mockUpdateProfile.mockClear();
