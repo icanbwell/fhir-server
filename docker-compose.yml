@@ -132,6 +132,11 @@ services:
             - 'JVM_OPTS=-Xms32M -Xmx64M'
             - SERVER_SERVLET_CONTEXTPATH=/
 
+    hapi-fhir-server:
+      image: hapiproject/hapi:latest
+      ports:
+        - "3001:8080"
+
 volumes:
     mongo_data:
     es_data:

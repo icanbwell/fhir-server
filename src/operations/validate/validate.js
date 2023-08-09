@@ -12,6 +12,7 @@ const {ParsedArgs} = require('../query/parsedArgs');
 const {SecurityTagSystem} = require('../../utils/securityTagSystem');
 const {FhirResourceCreator} = require('../../fhir/fhirResourceCreator');
 const deepcopy = require('deepcopy');
+const {ConfigManager} = require('../../utils/configManager');
 
 class ValidateOperation {
     /**
@@ -19,11 +20,14 @@ class ValidateOperation {
      * @param {ScopesManager} scopesManager
      * @param {FhirLoggingManager} fhirLoggingManager
      * @param {ResourceValidator} resourceValidator
+     * @param {ConfigManager} configManager
      */
     constructor(
         {
-            scopesManager, fhirLoggingManager,
-            resourceValidator
+            scopesManager,
+            fhirLoggingManager,
+            resourceValidator,
+            configManager
         }
     ) {
         /**
@@ -41,6 +45,12 @@ class ValidateOperation {
          */
         this.resourceValidator = resourceValidator;
         assertTypeEquals(resourceValidator, ResourceValidator);
+
+        /**
+         * @type {ConfigManager}
+         */
+        this.configManager = configManager;
+        assertTypeEquals(configManager, ConfigManager);
     }
 
     /**
