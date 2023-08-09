@@ -87,6 +87,11 @@ class RunPreSaveRunner extends BaseBulkOperationRunner {
          * @type {number|undefined}
          */
         this.limit = limit;
+
+        /**
+         * @type {Set<string>}
+         */
+        this.sourceOfResourcesWithoutMetaSecurityTag = new Set();
     }
 
     /**
@@ -109,7 +114,10 @@ class RunPreSaveRunner extends BaseBulkOperationRunner {
                     }
                 ];
             } else {
-                this.adminLogger.logInfo(`Resource without meta.security found ${doc.resourceType}/${doc.id}`);
+                if (doc.meta) {
+                    this.sourceOfResourcesWithoutMetaSecurityTag.add(doc.meta.source);
+                }
+                this.adminLogger.logInfo(`Resource without meta.security${!doc.meta?.source ? ' and meta.source' : ''} found ${doc.resourceType}/${doc.id}`);
                 return operations;
             }
         }
@@ -231,6 +239,7 @@ class RunPreSaveRunner extends BaseBulkOperationRunner {
                 }
                 console.log(`Finished loop ${collectionName}`);
             }
+            this.adminLogger.logInfo(`Resources without meta.security has meta.source: ${Array.from(this.sourceOfResourcesWithoutMetaSecurityTag)}`);
             console.log('Finished script');
             console.log('Shutting down');
             await this.shutdown();
