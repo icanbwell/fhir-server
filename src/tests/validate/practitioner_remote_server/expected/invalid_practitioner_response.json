@@ -1,19 +1,28 @@
 {
-    "resourceType": "OperationOutcome",
-    "issue": [
-        {
-            "severity": "error",
-            "code": "invalid",
-            "details": {
-                "text": "/4_0_0/Practitioner/$validate should be array :{\"type\":\"array\"}: at position .identifier[0].type.coding"
-            }
-        },
-        {
-            "severity": "error",
-            "code": "invalid",
-            "details": {
-                "text": "/4_0_0/Practitioner/$validate should match exactly one schema in oneOf :{\"passingSchemas\":null}: at position root"
-            }
-        }
-    ]
+  "details": {
+    "text": "{\"resourceType\":\"Practitioner\",\"id\":\"4657\",\"meta\":{\"security\":[{\"system\":\"https://www.icanbwell.com/access\",\"code\":\"medstar\"},{\"system\":\"https://www.icanbwell.com/owner\",\"code\":\"medstar\"}]},\"active\":true,\"name\":[{\"use\":\"usual\",\"family\":\"AL-ANI MBBS\",\"given\":[\"AWSSE\"]}],\"telecom\":[],\"address\":[{\"use\":\"work\",\"type\":\"physical\",\"text\":\"MedStar Adult Medicine at MUMH\",\"line\":[\"33RD STREET PROFESSIONAL BLDG,G\",\"200 EAST 33RD STREET\"],\"city\":\"BALTIMORE\",\"state\":\"MD\",\"postalCode\":\"21218\",\"country\":\"USA\"}],\"gender\":\"unknown\"}"
+  },
+  "expression": [
+    "Practitioner/4657"
+  ],
+  "issue": [
+    {
+      "code": "processing",
+      "details": {
+        "coding": [
+          {
+            "code": "VALIDATION_VAL_PROFILE_UNKNOWN_NOT_POLICY",
+            "system": "http://hl7.org/fhir/java-core-messageId"
+          }
+        ]
+      },
+      "diagnostics": "Profile reference 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-patient' has not been checked because it is unknown, and the validator is set to not fetch unknown profiles",
+      "location": [
+        "Patient.meta.profile[0]",
+        "Line 1, Col 2"
+      ],
+      "severity": "error"
+    }
+  ],
+  "resourceType": "OperationOutcome"
 }
