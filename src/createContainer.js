@@ -176,6 +176,7 @@ const createContainer = function () {
         {
             configManager: c.configManager,
             remoteFhirValidator: c.remoteFhirValidator,
+            databaseQueryFactory: c.databaseQueryFactory,
         }
     ));
     container.register('fhirLoggingManager', (c) => new FhirLoggingManager({

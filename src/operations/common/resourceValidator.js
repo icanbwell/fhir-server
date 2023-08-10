@@ -7,14 +7,17 @@ const {assertTypeEquals} = require('../../utils/assertType');
 const {ConfigManager} = require('../../utils/configManager');
 const {RemoteFhirValidator} = require('../../utils/remoteFhirValidator');
 const OperationOutcomeIssue = require('../../fhir/classes/4_0_0/backbone_elements/operationOutcomeIssue');
+const {DatabaseQueryFactory} = require('../../dataLayer/databaseQueryFactory');
+const {VERSIONS} = require('../../middleware/fhir/utils/constants');
 
 class ResourceValidator {
     /**
      * constructor
      * @param {ConfigManager} configManager
      * @param {RemoteFhirValidator} remoteFhirValidator
+     * @param {DatabaseQueryFactory} databaseQueryFactory
      */
-    constructor({configManager, remoteFhirValidator}) {
+    constructor({configManager, remoteFhirValidator, databaseQueryFactory}) {
         /**
          * @type {ConfigManager}
          */
@@ -26,6 +29,12 @@ class ResourceValidator {
          */
         this.remoteFhirValidator = remoteFhirValidator;
         assertTypeEquals(remoteFhirValidator, RemoteFhirValidator);
+
+        /**
+         * @type {DatabaseQueryFactory}
+         */
+        this.databaseQueryFactory = databaseQueryFactory;
+        assertTypeEquals(databaseQueryFactory, DatabaseQueryFactory);
     }
 
     /**
@@ -127,8 +136,26 @@ class ResourceValidator {
         const resourceToValidateJson = (resourceBody instanceof Resource) ? resourceBody.toJSON() : resourceBody;
 
         if (profile) {
-            const profileJson = await this.remoteFhirValidator.fetchProfile({url: profile});
+            // see if profile exists in our fhir server already
+            /**
+             * @type {DatabaseQueryManager}
+             */
+            const databaseQueryManager = this.databaseQueryFactory.createQuery(
+                {resourceType: 'StructureDefinition', base_version: VERSIONS['4_0_0']}
+            );
+            /**
+             * @type {Resource|null}
+             */
+            const profileResource = await databaseQueryManager.findOneAsync(
+                {
+                    query: {url: profile}
+                }
+            );
+            const profileJson = profileResource ?
+                profileResource.toJSON() :
+                await this.remoteFhirValidator.fetchProfile({url: profile});
             if (profileJson) {
+                // write profile to our fhir server
                 await this.remoteFhirValidator.updateProfile({profileJson});
             }
         }
