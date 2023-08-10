@@ -18,6 +18,9 @@ const {ConfigManager} = require('../../../utils/configManager');
 const OperationOutcome = require('../../../fhir/classes/4_0_0/resources/operationOutcome');
 // eslint-disable-next-line no-unused-vars
 const OperationOutcomeIssue = require('../../../fhir/classes/4_0_0/backbone_elements/operationOutcomeIssue');
+const nock = require('nock');
+
+const fhirValidationUrl = 'http://foo/fhir';
 
 class MockRemoteFhirValidator extends RemoteFhirValidator {
     /**
@@ -35,7 +38,7 @@ class MockRemoteFhirValidator extends RemoteFhirValidator {
 
 class MockConfigManager extends ConfigManager {
     get fhirValidationUrl() {
-        return 'foo';
+        return fhirValidationUrl;
     }
 }
 
@@ -63,9 +66,39 @@ describe('Practitioner Update Tests', () => {
         test('Valid resource without profile', async () => {
             const request = await createTestRequest((c) => {
                 c.register('configManager', () => new MockConfigManager());
-                c.register('remoteFhirValidator', () => mockRemoteFhirValidator);
+                // c.register('remoteFhirValidator', () => mockRemoteFhirValidator);
                 return c;
             });
+
+            nock('http://hl7.org')
+                .get('/fhir/us/core/StructureDefinition/us-core-practitioner')
+                .reply(200, USCorePractitionerProfile);
+
+            // http://foo/fhir/StructureDefinition
+            nock(`${fhirValidationUrl}`, {
+                reqheaders: {
+                    'accept-encoding': 'gzip, deflate',
+                    'accept': 'application/json',
+                    'content-type': 'application/fhir+json',
+                },
+            })
+                .post('/StructureDefinition', USCorePractitionerProfile)
+                .reply(200, {});
+
+            nock(`${fhirValidationUrl}`, {
+                reqheaders: {
+                    'accept-encoding': 'gzip, deflate',
+                    'accept': 'application/json',
+                    'content-type': 'application/fhir+json',
+                    'content-length': 863
+                },
+            })
+                .post(
+                    '/Practitioner/$validate?profile=http://hl7.org/fhir/us/core/StructureDefinition/us-core-practitioner',
+                    validPractitionerResourceWithoutProfile
+                )
+                .reply(200, expectedValidPractitionerResponse);
+
             let resp = await request
                 .get('/4_0_0/Practitioner')
                 .set(getHeaders());
@@ -73,7 +106,7 @@ describe('Practitioner Update Tests', () => {
             expect(resp).toHaveResourceCount(0);
 
             resp = await request
-                .post('/4_0_0/Practitioner/$validate')
+                .post('/4_0_0/Practitioner/$validate?profile=http://hl7.org/fhir/us/core/StructureDefinition/us-core-practitioner')
                 .send(validPractitionerResourceWithoutProfile)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction

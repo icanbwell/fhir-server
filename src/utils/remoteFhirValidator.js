@@ -4,6 +4,7 @@ const OperationOutcomeIssue = require('../fhir/classes/4_0_0/backbone_elements/o
 const CodeableConcept = require('../fhir/classes/4_0_0/complex_types/codeableConcept');
 const {ConfigManager} = require('./configManager');
 const {logInfo} = require('../operations/common/logging');
+const request = require('superagent');
 
 class RemoteFhirValidator {
     /**
@@ -26,14 +27,12 @@ class RemoteFhirValidator {
      */
     async fetchProfile({url}) {
         assertIsValid(url, 'url must be specified');
-        const response = await fetch(url,
-            {
-                method: 'GET',
-                headers: {
-                    'Accept': 'application/json'
-                },
-            });
-        return await response.json();
+        const response = await request
+            .get(url.toString())
+            .set('Accept', 'application/json');
+
+        return response.body;
+
     }
 
     /**
@@ -46,16 +45,13 @@ class RemoteFhirValidator {
         assertIsValid(fhirValidationUrl, 'fhirValidationUrl must be specified');
         const url = new URL(fhirValidationUrl);
         url.pathname += '/StructureDefinition';
-        const response = await fetch(url,
-            {
-                method: 'POST',
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/fhir+json',
-                },
-                body: JSON.stringify(profileJson)
-            });
-        return await response.json();
+        const response = await request
+            .post(url.toString())
+            .set('Accept', 'application/json')
+            .set('Content-Type', 'application/fhir+json')
+            .send(profileJson);
+
+        return response.body;
     }
 
     /**
@@ -92,16 +88,13 @@ class RemoteFhirValidator {
         }
         logInfo(`validateResourceAsync: Calling HAPI FHIR ${url.toString()}`, {url});
 
-        const response = await fetch(url,
-            {
-                method: 'POST',
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/fhir+json',
-                },
-                body: JSON.stringify(resourceBody)
-            });
-        return await response.json();
+        const response = await request
+            .post(url.toString())
+            .set('Accept', 'application/json')
+            .set('Content-Type', 'application/fhir+json')
+            .send(resourceBody);
+
+        return response.body;
     }
 }
 
