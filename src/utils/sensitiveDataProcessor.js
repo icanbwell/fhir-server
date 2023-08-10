@@ -70,6 +70,7 @@ class SensitiveDataProcessor {
      * 4. Create a map for patient specific security tags that needs to be updated.
      * 5. Update the secutiry access tags for each resource.
      * @param {Resource} resource
+     * @param {boolean|undefined} [returnUpdatedResources]
      */
     async updateResourceSecurityAccessTag({
         resource,

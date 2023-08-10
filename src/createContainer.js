@@ -575,6 +575,8 @@ const createContainer = function () {
             fhirLoggingManager: c.fhirLoggingManager,
             resourceValidator: c.resourceValidator,
             configManager: c.configManager,
+            databaseQueryFactory: c.databaseQueryFactory,
+            searchManager: c.searchManager,
         }
     ));
     container.register('graphOperation', (c) => new GraphOperation(

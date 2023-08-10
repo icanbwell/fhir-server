@@ -1,12 +1,14 @@
+const {FhirResourceCreator} = require('../../fhir/fhirResourceCreator');
+
 class MergeValidator {
     /**
-     * @param {Validators[]} validators
+     * @param {BaseValidator[]} validators
      */
     constructor({
-        validators
-    }) {
+                    validators
+                }) {
         /**
-         * @type {Validators[]}
+         * @type {BaseValidator[]}
          */
         this.validators = validators;
     }
@@ -21,19 +23,19 @@ class MergeValidator {
      * @param {string} resourceType
      * @param {string|null} scope
      * @param {string|null} user
-     * @returns {Promise<{mergePreCheckErrors: MergeResultEntry[], resourcesIncomingArray: Resources[], wasIncomingAList: boolean}>}
+     * @returns {Promise<{mergePreCheckErrors: MergeResultEntry[], resourcesIncomingArray: Resource[], wasIncomingAList: boolean}>}
      */
     async validate({
-        base_version,
-        currentDate,
-        currentOperationName,
-        incomingObjects,
-        path,
-        requestId,
-        resourceType,
-        scope,
-        user
-    }) {
+                       base_version,
+                       currentDate,
+                       currentOperationName,
+                       incomingObjects,
+                       path,
+                       requestId,
+                       resourceType,
+                       scope,
+                       user
+                   }) {
         /**
          * @type {MergeResultEntry[]}
          */
@@ -43,12 +45,21 @@ class MergeValidator {
          */
         let wasIncomingAList = false;
 
+        /**
+         * @type {Resource[]|Resource}
+         */
+        let incomingResources = Array.isArray(incomingObjects) ?
+            incomingObjects.map(o => FhirResourceCreator.create(o)) :
+            FhirResourceCreator.create(incomingObjects);
+
         for (const validator of this.validators) {
-            let { validatedObjects, preCheckErrors, wasAList } = await validator.validate({
+            let {
+                validatedObjectsByValidator, preCheckErrors, wasAList
+            } = await validator.validate({
                 base_version,
                 currentDate,
                 currentOperationName,
-                incomingObjects,
+                incomingResources,
                 path,
                 requestId,
                 resourceType,
@@ -56,7 +67,7 @@ class MergeValidator {
                 user
             });
 
-            incomingObjects = validatedObjects;
+            incomingResources = validatedObjectsByValidator;
             if (wasAList) {
                 wasIncomingAList = true;
             }
@@ -64,7 +75,7 @@ class MergeValidator {
             mergePreCheckErrors.push(...preCheckErrors);
         }
 
-        return {mergePreCheckErrors, resourcesIncomingArray: incomingObjects, wasIncomingAList};
+        return {mergePreCheckErrors, resourcesIncomingArray: incomingResources, wasIncomingAList};
     }
 }
 

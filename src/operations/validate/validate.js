@@ -13,6 +13,9 @@ const {SecurityTagSystem} = require('../../utils/securityTagSystem');
 const {FhirResourceCreator} = require('../../fhir/fhirResourceCreator');
 const deepcopy = require('deepcopy');
 const {ConfigManager} = require('../../utils/configManager');
+const {DatabaseQueryFactory} = require('../../dataLayer/databaseQueryFactory');
+const {isTrue} = require('../../utils/isTrue');
+const {SearchManager} = require('../search/searchManager');
 
 class ValidateOperation {
     /**
@@ -21,13 +24,17 @@ class ValidateOperation {
      * @param {FhirLoggingManager} fhirLoggingManager
      * @param {ResourceValidator} resourceValidator
      * @param {ConfigManager} configManager
+     * @param {DatabaseQueryFactory} databaseQueryFactory
+     * @param {SearchManager} searchManager
      */
     constructor(
         {
             scopesManager,
             fhirLoggingManager,
             resourceValidator,
-            configManager
+            configManager,
+            databaseQueryFactory,
+            searchManager
         }
     ) {
         /**
@@ -51,6 +58,18 @@ class ValidateOperation {
          */
         this.configManager = configManager;
         assertTypeEquals(configManager, ConfigManager);
+
+        /**
+         * @type {DatabaseQueryFactory}
+         */
+        this.databaseQueryFactory = databaseQueryFactory;
+        assertTypeEquals(databaseQueryFactory, DatabaseQueryFactory);
+
+        /**
+         * @type {SearchManager}
+         */
+        this.searchManager = searchManager;
+        assertTypeEquals(searchManager, SearchManager);
     }
 
     /**
@@ -66,11 +85,25 @@ class ValidateOperation {
         assertTypeEquals(parsedArgs, ParsedArgs);
         const currentOperationName = 'validate';
 
+        const {id, resource, base_version} = parsedArgs;
         /**
          * @type {number}
          */
         const startTime = Date.now();
-        const path = requestInfo.path;
+        const {
+            /** @type {string[]} */
+            patientIdsFromJwtToken,
+            /** @type {boolean} */
+            isUser,
+            /** @type {string} */
+            personIdFromJwtToken,
+            /** @type {string | null} */
+            user,
+            /** @type {string | null} */
+            scope,
+            /** @type {string} */
+            path,
+        } = requestInfo;
 
         /**
          * @type {string}
@@ -82,11 +115,120 @@ class ValidateOperation {
         // https://www.hl7.org/fhir/resource-operation-validate.html
         // 1. Resource is sent in the body
         // 2. Resource is sent inside a Parameters resource in the body
+        // 3. id of the resource is sent in the url
 
         /**
-         * @type {Object|null}
+         * @type {{resourceType: string, parameter: Object[]}|null}
          */
-        let resource_incoming = parsedArgs.resource ? parsedArgs.resource : requestInfo.body;
+        let resource_incoming = resource;
+        // if id of the resource is sent in url then use that
+        if (id) {
+            // retrieve the resource from the database
+            /**
+             * @type {boolean}
+             */
+            const useAccessIndex = (this.configManager.useAccessIndex || isTrue(parsedArgs['_useAccessIndex']));
+
+            /**
+             * @type {{base_version, columns: Set, query: import('mongodb').Document}}
+             */
+            const {
+                /** @type {import('mongodb').Document}**/
+                query,
+                // /** @type {Set} **/
+                // columns
+            } = await this.searchManager.constructQueryAsync(
+                {
+                    user,
+                    scope,
+                    isUser,
+                    patientIdsFromJwtToken,
+                    resourceType,
+                    useAccessIndex,
+                    personIdFromJwtToken,
+                    parsedArgs
+                }
+            );
+
+            const databaseQueryManager = this.databaseQueryFactory.createQuery(
+                {resourceType, base_version}
+            );
+            /**
+             * @type {DatabasePartitionedCursor}
+             */
+            const cursor = await databaseQueryManager.findAsync({query});
+            let operationOutcome = null;
+            while (await cursor.hasNext()) {
+                resource_incoming = await cursor.next();
+                const operationOutcomeForResource = await this.validateResourceAsync(
+                    {
+                        resource_incoming,
+                        resourceType,
+                        path,
+                        currentDate,
+                        parsedArgs,
+                        currentOperationName,
+                        requestInfo,
+                        startTime
+                    });
+                if (operationOutcome) {
+                    // combine the operation outcome issues
+                    if (operationOutcome.issue) {
+                        operationOutcome.issue = operationOutcome.issue.concat(operationOutcomeForResource.issue);
+                    } else {
+                        operationOutcome.issue = operationOutcomeForResource.issue;
+                    }
+                } else {
+                    operationOutcome = operationOutcomeForResource;
+                }
+            }
+            return operationOutcome;
+        }
+        if (!resource) {
+            resource_incoming = requestInfo.body;
+        }
+        return await this.validateResourceAsync(
+            {
+                resource_incoming,
+                resourceType,
+                path,
+                currentDate,
+                parsedArgs,
+                currentOperationName,
+                requestInfo,
+                startTime
+            }
+        );
+    }
+
+    /**
+     * validates a resource
+     * @param {Object} resource_incoming
+     * @param {string} resourceType
+     * @param {string} path
+     * @param currentDate
+     * @param parsedArgs
+     * @param currentOperationName
+     * @param requestInfo
+     * @param startTime
+     * @returns {Promise<OperationOutcome>}
+     */
+    async validateResourceAsync(
+        {
+            resource_incoming,
+            resourceType,
+            path,
+            currentDate,
+            parsedArgs,
+            currentOperationName,
+            requestInfo,
+            startTime
+        }
+    ) {
+        /**
+         * @type {string}
+         */
+        let specifiedProfile = parsedArgs.profile;
 
         // check if this is a Parameters resourceType
         if (resource_incoming.resourceType === 'Parameters') {
@@ -113,6 +255,13 @@ class ValidateOperation {
                 });
             }
             // find the actual resource in the parameter called resource
+            /**
+             * @type {string|null}
+             */
+            const profileParameter = getFirstElementOrNull(parametersResource.parameter.filter(p => p.profile));
+            if (profileParameter) {
+                specifiedProfile = profileParameter;
+            }
             const resourceParameter = getFirstElementOrNull(parametersResource.parameter.filter(p => p.resource));
             if (!resourceParameter || !resourceParameter.resource) {
                 /**
@@ -164,7 +313,7 @@ class ValidateOperation {
                 currentDate: currentDate,
                 resourceObj: resourceToValidate,
                 useRemoteFhirValidatorIfAvailable: true,
-                profile: parsedArgs.profile,
+                profile: specifiedProfile,
             });
         if (validationOperationOutcome) {
             validationsFailedCounter.inc({action: currentOperationName, resourceType}, 1);

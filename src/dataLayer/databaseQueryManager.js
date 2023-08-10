@@ -10,7 +10,7 @@ const {getCircularReplacer} = require('../utils/getCircularReplacer');
 const {MongoFilterGenerator} = require('../utils/mongoFilterGenerator');
 const {SecurityTagStructure} = require('../fhir/securityTagStructure');
 const {FhirResourceCreator} = require('../fhir/fhirResourceCreator');
-const { DatabaseAttachmentManager } = require('./databaseAttachmentManager');
+const {DatabaseAttachmentManager} = require('./databaseAttachmentManager');
 const {DELETE} = require('../constants').GRIDFS;
 
 /**
@@ -41,12 +41,12 @@ class DatabaseQueryManager {
      * @param {DatabaseAttachmentManager} databaseAttachmentManager
      */
     constructor({
-        resourceLocatorFactory,
-        resourceType,
-        base_version,
-        mongoFilterGenerator,
-        databaseAttachmentManager
-    }) {
+                    resourceLocatorFactory,
+                    resourceType,
+                    base_version,
+                    mongoFilterGenerator,
+                    databaseAttachmentManager
+                }) {
         assertTypeEquals(resourceLocatorFactory, ResourceLocatorFactory);
         /**
          * @type {string}
@@ -193,7 +193,11 @@ class DatabaseQueryManager {
             /**
              * @type {import('mongodb').Collection<import('mongodb').DefaultSchema>[]}
              */
-            const collections = await this.resourceLocator.getOrCreateCollectionsForQueryAsync({query, extraInfo});
+            const collections = await this.resourceLocator.getOrCreateCollectionsForQueryAsync(
+                {
+                    query, extraInfo
+                }
+            );
             /**
              * @type {CursorInfo[]}
              */
@@ -241,8 +245,8 @@ class DatabaseQueryManager {
                     cursor = collection.aggregate(query);
                 } else {
                     /**
-                 * @type {import('mongodb').AggregationCursor<Document>}
-                 */
+                     * @type {import('mongodb').AggregationCursor<Document>}
+                     */
                     cursor = collection.aggregate(
                         [
                             {
