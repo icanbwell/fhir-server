@@ -27,11 +27,11 @@ const {ConfigManager} = require('../utils/configManager');
 class MyFHIRServer {
     /**
      * constructor
-     * @param {SimpleContainer} container
+     * @param {function (): SimpleContainer} fnGetContainer
      * @param {Object} config
      * @param {import('express').Express} app
      */
-    constructor(container, config = {}, app = null) {
+    constructor(fnGetContainer, config = {}, app = null) {
         this.config = config;
         // validate(this.config); // TODO: REMOVE: logger in future versions, emit notices for now
         /**
@@ -42,7 +42,7 @@ class MyFHIRServer {
         /**
          * @type {SimpleContainer}
          */
-        this.container = container;
+        this.container = fnGetContainer();
 
         /**
          * @type {FhirRouter}

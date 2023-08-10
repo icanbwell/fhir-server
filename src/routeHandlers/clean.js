@@ -9,14 +9,15 @@ const {logInfo} = require('../operations/common/logging');
 
 /**
  * Handles clean
- * @param {SimpleContainer} container
+ * @param {function (): SimpleContainer} fnGetContainer
  * @param {import('http').IncomingMessage} req
  * @param {import('express').Response} res
  * @return {Promise<void>}
  */
-module.exports.handleClean = async ({container, req, res}) => {
+module.exports.handleClean = async ({fnGetContainer, req, res}) => {
     if (!env.DISABLE_CLEAN_ENDPOINT) {
         logInfo('Running clean', {});
+        const container = fnGetContainer();
         /**
          * @type {MongoDatabaseManager}
          */

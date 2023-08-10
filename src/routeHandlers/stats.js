@@ -9,13 +9,13 @@ const {logInfo} = require('../operations/common/logging');
 
 /**
  * Handles stats
- * @param {SimpleContainer} container
+ * @param {function (): SimpleContainer} fnGetContainer
  * @param {import('http').IncomingMessage} req
  * @param {import('express').Response} res
  * @return {Promise<void>}
  */
 // eslint-disable-next-line no-unused-vars
-module.exports.handleStats = async ({container, req, res}) => {
+module.exports.handleStats = async ({fnGetContainer, req, res}) => {
     logInfo('Running stats', {});
 
     /**
@@ -31,6 +31,7 @@ module.exports.handleStats = async ({container, req, res}) => {
         return {name: collection_name, count: count};
     }
 
+    const container = fnGetContainer();
     /**
      * @type {MongoDatabaseManager}
      */

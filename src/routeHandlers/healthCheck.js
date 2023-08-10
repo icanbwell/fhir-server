@@ -4,9 +4,12 @@
 
 const {handleKafkaHealthCheck} = require('../utils/kafkaHealthCheck');
 
+let container;
+
 // Does a health check for the app
-module.exports.handleHealthCheck = async (container, req, res) => {
+module.exports.handleHealthCheck = async (fnGetContainer, req, res) => {
     let status;
+    container = container || fnGetContainer();
     // check kafka connection
     try {
         if ( await handleKafkaHealthCheck(container)) {

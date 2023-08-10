@@ -6,9 +6,12 @@ const {handleKafkaHealthCheck} = require('../utils/kafkaHealthCheck');
 const {handleLogHealthCheck} = require('../utils/logHealthCheck');
 const {handleHealthCheckQuery} = require('../utils/mongoDBHealthCheck');
 
+let container;
+
 // Does a health check for the app
-module.exports.handleFullHealthCheck = async (container, req, res) => {
+module.exports.handleFullHealthCheck = async (fnGetContainer, req, res) => {
     let status = {};
+    container = container || fnGetContainer();
 
     // check kafka connection
     try {

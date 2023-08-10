@@ -37,12 +37,12 @@ const {logInfo} = require('./operations/common/logging');
 
 /**
  * Creates the FHIR app
- * @param {SimpleContainer} container
+ * @param {function (): SimpleContainer} fnGetContainer
  * @param {import('express').Express} app1
  * @returns {MyFHIRServer}
  */
-function createFhirApp(container, app1) {
-    return new MyFHIRServer(container, fhirServerConfig, app1)
+function createFhirApp(fnGetContainer, app1) {
+    return new MyFHIRServer(fnGetContainer, fhirServerConfig, app1)
         .configureMiddleware()
         .configureSession()
         .configureHelmet()
@@ -79,11 +79,11 @@ function createFhirApp(container, app1) {
 
 /**
  * Creates the app
- * @param {function (): SimpleContainer} fnCreateContainer
+ * @param {function (): SimpleContainer} fnGetContainer
  * @param {boolean} trackMetrics
  * @return {import('express').Express}
  */
-function createApp({fnCreateContainer, trackMetrics}) {
+function createApp({fnGetContainer, trackMetrics}) {
     const swaggerUi = require('swagger-ui-express');
     // eslint-disable-next-line security/detect-non-literal-require
     const swaggerDocument = require(env.SWAGGER_CONFIG_URL);
@@ -96,7 +96,7 @@ function createApp({fnCreateContainer, trackMetrics}) {
     /**
      * @type {SimpleContainer}
      */
-    const container = fnCreateContainer();
+    const container = fnGetContainer();
     const configManager = container.configManager;
 
     const httpProtocol = env.ENVIRONMENT === 'local' ? 'http' : 'https';
@@ -199,11 +199,11 @@ function createApp({fnCreateContainer, trackMetrics}) {
     });
 
     app.get('/health', (req, res) => handleHealthCheck(
-        container, req, res
+        fnGetContainer, req, res
     ));
 
     app.get('/full-healthcheck', (req, res) => handleFullHealthCheck(
-        container, req, res
+        fnGetContainer, req, res
     ));
 
     app.get('/live', (req, res) => handleMemoryCheck(req, res));
@@ -236,11 +236,11 @@ function createApp({fnCreateContainer, trackMetrics}) {
     });
 
     app.get('/clean/:collection?', (req, res) => handleClean(
-        {container, req, res}
+        {fnGetContainer, req, res}
     ));
 
     app.get('/stats', (req, res) => handleStats(
-        {container, req, res}
+        {fnGetContainer, req, res}
     ));
 
     app.get('/.well-known/smart-configuration', handleSmartConfiguration);
@@ -286,7 +286,7 @@ function createApp({fnCreateContainer, trackMetrics}) {
         adminRouter.use(passport.authenticate('adminStrategy', {session: false}, null));
     }
     const adminHandler = (req, res) => handleAdmin(
-        container, req, res
+        fnGetContainer, req, res
     );
     adminRouter.get('/admin/:op?', adminHandler);
     adminRouter.post('/admin/:op?', adminHandler);
@@ -301,7 +301,7 @@ function createApp({fnCreateContainer, trackMetrics}) {
     if (isTrue(env.ENABLE_GRAPHQL)) {
         app.use(cors(fhirServerConfig.server.corsOptions));
 
-        graphql(container)
+        graphql(fnGetContainer)
             .then((graphqlMiddleware) => {
                 // eslint-disable-next-line new-cap
                 const router = express.Router();
@@ -344,12 +344,12 @@ function createApp({fnCreateContainer, trackMetrics}) {
                 app.use('/graphql', router);
             })
             .then((_) => {
-                createFhirApp(container, app);
+                createFhirApp(fnGetContainer, app);
                 // getRoutes(app);
             });
 
     } else {
-        createFhirApp(container, app);
+        createFhirApp(fnGetContainer, app);
     }
     app.locals.currentYear = new Date().getFullYear();
     app.locals.deployEnvironment = env.ENVIRONMENT;
