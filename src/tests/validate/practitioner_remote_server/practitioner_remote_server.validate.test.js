@@ -291,7 +291,7 @@ describe('Practitioner Update Tests', () => {
             expect(uploadProfileScope.isDone()).toBeTruthy();
             expect(validationScope.isDone()).toBeTruthy();
         });
-        test('Valid resource profile in url not body', async () => {
+        test('Invalid resource', async () => {
             const request = await createTestRequest((c) => {
                 c.register('configManager', () => new MockConfigManager());
                 return c;
