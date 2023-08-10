@@ -41,12 +41,18 @@ describe('Practitioner Update Tests', () => {
 
             const profile = deepcopy(USCorePractitionerProfile);
             profile.meta = profile.meta || {};
-            profile.meta.security = [{
-                system: SecurityTagSystem.owner,
-                code: profile.publisher || 'profile',
-            }];
+            profile.meta.versionId = '1';
             profile.meta.source = 'http://foo/fhir/StructureDefinition/us-core-practitioner';
-
+            profile.meta.security = [
+                {
+                    system: SecurityTagSystem.owner,
+                    code: profile.publisher || 'profile',
+                },
+                {
+                    system: SecurityTagSystem.sourceAssigningAuthority,
+                    code: profile.publisher || 'profile',
+                },
+            ];
 
             // http://foo/fhir/StructureDefinition
             const uploadProfileScope = nock(`${fhirValidationUrl}`, {
@@ -56,7 +62,7 @@ describe('Practitioner Update Tests', () => {
                     'content-type': 'application/fhir+json',
                 },
             })
-                .post('/StructureDefinition', profile)
+                .post('/StructureDefinition')
                 .reply(200, {});
 
             const validationScope = nock(`${fhirValidationUrl}`, {
