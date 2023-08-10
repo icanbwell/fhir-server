@@ -101,8 +101,31 @@ class RunPreSaveRunner extends BaseBulkOperationRunner {
      */
     async processRecordAsync(doc) {
         const operations = [];
+        assertIsValid(doc.resourceType);
         if (!doc.meta || !doc.meta.security) {
-            if (doc.meta && !doc.meta.security && doc.meta.source === 'http://medstarhealth.org/questionnaireresponse') {
+            if (doc.meta && !doc.meta.security && doc.resourceType === 'PractitionerRole' && (
+                doc.meta.source === 'https://www.wpshealth.com/medical_claims' ||
+                doc.meta.source === 'https://www.wpshealth.com/rx_claims'
+            )) {
+                doc.meta.security = [
+                    {
+                        'system': 'https://www.icanbwell.com/owner',
+                        'code': 'thedacare'
+                    },
+                    {
+                        'system': 'https://www.icanbwell.com/access',
+                        'code': 'thedacare'
+                    },
+                    {
+                        'system': 'https://www.icanbwell.com/access',
+                        'code': 'wps'
+                    },
+                    {
+                        'system': 'https://www.icanbwell.com/vendor',
+                        'code': 'wps'
+                    }
+                ];
+            } else if (doc.meta && !doc.meta.security && !doc.meta.source && doc.resourceType === 'QuestionnaireResponse') {
                 doc.meta.security = [
                     {
                         system: SecurityTagSystem.owner,
@@ -121,7 +144,6 @@ class RunPreSaveRunner extends BaseBulkOperationRunner {
                 return operations;
             }
         }
-        assertIsValid(doc.resourceType);
         /**
          * @type {Resource}
          */
