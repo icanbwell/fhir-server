@@ -284,10 +284,15 @@ class BwellPersonFinder {
             if (reference && reference._uuid && referencesToSearchFrom.includes(reference._uuid)) {
                 linkedIds.push(reference._uuid);
             } else if (reference && reference._sourceId) {
-                // covers both the cases Resource/id or Resource/id|sourceAssigningAuthority
-                const refString = ReferenceParser.createReference({ id: reference._sourceId, sourceAssigningAuthority: reference._sourceAssigningAuthority });
-                if (referencesToSearchFrom.includes(refString)) {
+                const id = reference._sourceId;
+                const sourceAssigningAuthority = reference._sourceAssigningAuthority;
+                const refString = ReferenceParser.createReference({ id, sourceAssigningAuthority });
+                if (sourceAssigningAuthority && referencesToSearchFrom.includes(refString)) {
+                    // if id|source was present in referencesToSearchFrom
                     linkedIds.push(refString);
+                } else if (referencesToSearchFrom.includes(id)) {
+                    // if sourceId is present in referencesToSearchFrom
+                    linkedIds.push(id);
                 }
             }
         });
