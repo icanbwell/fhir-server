@@ -25,7 +25,7 @@ class RemoteFhirValidator {
      * @param {string} url
      * @returns {Promise<Object>}
      */
-    async fetchProfile({url}) {
+    async fetchProfileAsync({url}) {
         assertIsValid(url, 'url must be specified');
         const response = await request
             .get(url.toString())
@@ -39,7 +39,7 @@ class RemoteFhirValidator {
      * @param {Object} profileJson
      * @returns {Promise<void>}
      */
-    async updateProfile({profileJson}) {
+    async updateProfileAsync({profileJson}) {
         const fhirValidationUrl = this.configManager.fhirValidationUrl;
         assertIsValid(fhirValidationUrl, 'fhirValidationUrl must be specified');
         const url = new URL(fhirValidationUrl);

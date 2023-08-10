@@ -173,10 +173,10 @@ class ResourceValidator {
             if (profileResource) {
                 // profile found in our fhir server, so use it
                 const profileJson1 = profileResource.toJSON();
-                await this.remoteFhirValidator.updateProfile({profileJson: profileJson1});
+                await this.remoteFhirValidator.updateProfileAsync({profileJson: profileJson1});
             } else {
                 // profile not found in our fhir server, so fetch from remote fhir server
-                const profileJson = await this.remoteFhirValidator.fetchProfile({url: profile});
+                const profileJson = await this.remoteFhirValidator.fetchProfileAsync({url: profile});
                 if (profileJson) {
                     // write to our fhir server
                     /**
@@ -210,7 +210,7 @@ class ResourceValidator {
                     await databaseUpdateManager.replaceOneAsync({
                         doc: profileResourceNew,
                     });
-                    await this.remoteFhirValidator.updateProfile({profileJson: profileResourceNew.toJSON()});
+                    await this.remoteFhirValidator.updateProfileAsync({profileJson: profileResourceNew.toJSON()});
                 }
             }
         }
@@ -221,9 +221,9 @@ class ResourceValidator {
              */
             const metaProfiles = resourceToValidateJson.meta.profile;
             for (const metaProfile of metaProfiles) {
-                const profileJson = await this.remoteFhirValidator.fetchProfile({url: metaProfile});
+                const profileJson = await this.remoteFhirValidator.fetchProfileAsync({url: metaProfile});
                 if (profileJson) {
-                    await this.remoteFhirValidator.updateProfile({profileJson});
+                    await this.remoteFhirValidator.updateProfileAsync({profileJson});
                 }
             }
         }
