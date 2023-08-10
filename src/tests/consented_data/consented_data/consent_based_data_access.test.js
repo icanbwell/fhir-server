@@ -31,7 +31,7 @@ const {
     commonAfterEach,
     getHeaders,
     createTestRequest
-} = require('../common');
+} = require('../../common');
 const {describe, beforeEach, afterEach, test} = require('@jest/globals');
 
 

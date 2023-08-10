@@ -186,7 +186,7 @@ class DatabaseQueryManager {
      * @param {import('mongodb').Filter<import('mongodb').DefaultSchema>} query
      * @param {import('mongodb').FindOptions<import('mongodb').DefaultSchema>} options
      * @param {Object} extraInfo
-     * @return {DatabasePartitionedCursor}
+     * @return {Promise<DatabasePartitionedCursor>}
      */
     async findAsync({query, options = null, extraInfo = {}}) {
         try {
