@@ -189,6 +189,11 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
          * @type {Map<string, number>}
          */
         this.cacheMisses = new Map();
+
+        /**
+         * @type {string[]|null}
+         */
+        this.collectionsInDb = null;
     }
 
     /**
@@ -556,6 +561,15 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
     }
 
     /**
+     * Checks if collection exists in db
+     * @param {string} collectionName
+     * @returns {boolean}
+     */
+    collectionExistsInDb({collectionName}) {
+        return this.collectionsInDb.includes(collectionName);
+    }
+
+    /**
      * Adds reference indexes to the collection
      * @param {string} collectionName
      * @param {Object[]|undefined} referenceFieldNames
@@ -571,43 +585,45 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
         const { collection, session, client } = await this.createSingeConnectionAsync({ mongoConfig, collectionName });
 
         try {
-            if (referenceFieldNames) {
-                for (let reference of referenceFieldNames) {
-                    const indexName = `fixReference_${reference.field}_1`;
+            if (this.collectionExistsInDb({ collectionName })) {
+                if (referenceFieldNames) {
+                    for (let reference of referenceFieldNames) {
+                        const indexName = `fixReference_${reference.field}_1`;
 
-                    if (!await collection.indexExists(indexName)) {
-                        this.adminLogger.logInfo(`Creating index ${indexName} for collection ${collectionName}`);
+                        if (!await collection.indexExists(indexName)) {
+                            this.adminLogger.logInfo(`Creating index ${indexName} for collection ${collectionName}`);
 
-                        try {
-                            await collection.createIndex(
-                                {
-                                    [isHistoryCollection ? `resource.${reference.field}._sourceId` : `${reference.field}._sourceId`]: 1,
-                                    [isHistoryCollection ? 'resource._uuid' : '_uuid']: 1
-                                },
-                                {
-                                    name: indexName
+                            try {
+                                await collection.createIndex(
+                                    {
+                                        [isHistoryCollection ? `resource.${reference.field}._sourceId` : `${reference.field}._sourceId`]: 1,
+                                        [isHistoryCollection ? 'resource._uuid' : '_uuid']: 1
+                                    },
+                                    {
+                                        name: indexName
+                                    }
+                                );
+                            } catch (err) {
+                                // if index already exists with different name then continue
+                                if (err.code === 85) {
+                                    this.adminLogger.logInfo(`${indexName} already exists in collection with different name, skipping this`);
+                                } else {
+                                    throw new Error(err);
                                 }
-                            );
-                        } catch (err) {
-                            // if index already exists with different name then continue
-                            if (err.code === 85) {
-                                this.adminLogger.logInfo(`${indexName} already exists in collection with different name, skipping this`);
-                            } else {
-                                throw new Error(err);
                             }
                         }
                     }
-                }
-            } else {
-                const indexName = 'fixReference_sourceId_1';
+                } else {
+                    const indexName = 'fixReference_sourceId_1';
 
-                if (isHistoryCollection && !await collection.indexExists(indexName)) {
-                    this.adminLogger.logInfo(`Creating index ${indexName} for collection ${collectionName}`);
+                    if (isHistoryCollection && !await collection.indexExists(indexName)) {
+                        this.adminLogger.logInfo(`Creating index ${indexName} for collection ${collectionName}`);
 
-                    await collection.createIndex(
-                        { 'resource._sourceId': 1, 'resource._uuid': 1 },
-                        { name: indexName }
-                    );
+                        await collection.createIndex(
+                            { 'resource._sourceId': 1, 'resource._uuid': 1 },
+                            { name: indexName }
+                        );
+                    }
                 }
             }
         } catch (e) {
@@ -636,21 +652,23 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
         const { collection, session, client } = await this.createSingeConnectionAsync({ mongoConfig, collectionName });
 
         try {
-            if (referenceFieldNames) {
-                for (let reference of referenceFieldNames) {
-                    const indexName = `fixReference_${reference.field}_1`;
+            if (this.collectionExistsInDb({ collectionName })) {
+                if (referenceFieldNames) {
+                    for (let reference of referenceFieldNames) {
+                        const indexName = `fixReference_${reference.field}_1`;
+
+                        if (await collection.indexExists(indexName)) {
+                            this.adminLogger.logInfo(`Dropping index ${indexName} for collection ${collectionName}`);
+                            await collection.dropIndex(indexName);
+                        }
+                    }
+                } else {
+                    const indexName = 'fixReference_sourceId_1';
 
                     if (await collection.indexExists(indexName)) {
                         this.adminLogger.logInfo(`Dropping index ${indexName} for collection ${collectionName}`);
                         await collection.dropIndex(indexName);
                     }
-                }
-            } else {
-                const indexName = 'fixReference_sourceId_1';
-
-                if (await collection.indexExists(indexName)) {
-                    this.adminLogger.logInfo(`Dropping index ${indexName} for collection ${collectionName}`);
-                    await collection.dropIndex(indexName);
                 }
             }
         } catch (e) {
@@ -1084,6 +1102,10 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
          * @type {require('mongodb').db}
          */
         const db = client.db(mongoConfig.db_name);
+
+        if (!this.collectionsInDb) {
+            this.collectionsInDb = (await db.listCollections().toArray()).map(c => c.name);
+        }
 
         /**
          * @type {require('mongodb').Collection<import('mongodb').Document>|undefined}
