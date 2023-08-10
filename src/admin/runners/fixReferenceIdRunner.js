@@ -566,6 +566,9 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
      * @returns {boolean}
      */
     collectionExistsInDb({collectionName}) {
+        if (!this.collectionsInDb) {
+            throw new Error('Please Run createSingleCollections before using this function');
+        }
         return this.collectionsInDb.includes(collectionName);
     }
 
@@ -605,6 +608,7 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
                                 );
                             } catch (err) {
                                 // if index already exists with different name then continue
+                                // code 85 represents index already exists
                                 if (err.code === 85) {
                                     this.adminLogger.logInfo(`${indexName} already exists in collection with different name, skipping this`);
                                 } else {
