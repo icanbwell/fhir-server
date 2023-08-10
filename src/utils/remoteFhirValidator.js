@@ -23,7 +23,7 @@ class RemoteFhirValidator {
     /**
      * fetches a profile from a remote FHIR server
      * @param {string} url
-     * @returns {Promise<void>}
+     * @returns {Promise<Object>}
      */
     async fetchProfile({url}) {
         assertIsValid(url, 'url must be specified');
@@ -32,7 +32,6 @@ class RemoteFhirValidator {
             .set('Accept', 'application/json');
 
         return response.body;
-
     }
 
     /**
