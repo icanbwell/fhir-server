@@ -6,6 +6,7 @@ const {getCircularReplacer} = require('../../utils/getCircularReplacer');
 const {assertTypeEquals} = require('../../utils/assertType');
 const {ConfigManager} = require('../../utils/configManager');
 const {RemoteFhirValidator} = require('../../utils/remoteFhirValidator');
+const OperationOutcomeIssue = require('../../fhir/classes/4_0_0/backbone_elements/operationOutcomeIssue');
 
 class ResourceValidator {
     /**
@@ -79,11 +80,12 @@ class ResourceValidator {
             ];
             if (!(validationOperationOutcome['details']) || !(validationOperationOutcome['details']['text'])) {
                 validationOperationOutcome['details'] = {
-                    text: ''
+                    text: JSON.stringify(resourceToValidateJson, getCircularReplacer())
                 };
+            } else {
+                validationOperationOutcome['details']['text'] = validationOperationOutcome['details']['text'] +
+                    ',' + JSON.stringify(resourceToValidateJson, getCircularReplacer());
             }
-            validationOperationOutcome['details']['text'] = validationOperationOutcome['details']['text'] +
-                ',' + JSON.stringify(resourceToValidateJson, getCircularReplacer());
 
             if (this.configManager.logValidationFailures) {
                 await sendToS3('validation_failures',
@@ -158,6 +160,18 @@ class ResourceValidator {
         if (operationOutcome && operationOutcome.issue && operationOutcome.issue.length > 0) {
             // remove any warnings avoid noise
             operationOutcome.issue = operationOutcome.issue.filter(issue => issue.severity === 'error');
+        }
+        if (!operationOutcome.issue || operationOutcome.issue.length === 0) {
+            operationOutcome.issue = new OperationOutcomeIssue({
+                'code': 'informational',
+                'details': {
+                    'text': 'OK'
+                },
+                'expression': [
+                    'Practitioner'
+                ],
+                'severity': 'information'
+            });
         }
         return operationOutcome;
     }

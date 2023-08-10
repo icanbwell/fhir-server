@@ -2,6 +2,7 @@ const validPractitionerResourceWithoutProfile = require('./fixtures/valid_practi
 const validPractitionerResourceWithProfile = require('./fixtures/valid_practitioner_with_profile.json');
 
 const expectedValidPractitionerResponse = require('./expected/valid_practitioner_response.json');
+const expectedValidPractitionerResponseWithProfile = require('./expected/valid_practitioner_response_with_profile.json');
 
 const USCorePractitionerProfile = require('./fixtures/us_core_profile_practitioner.json');
 
@@ -12,7 +13,6 @@ const {
     createTestRequest,
 } = require('../../common');
 const {describe, beforeEach, afterEach, test} = require('@jest/globals');
-const {RemoteFhirValidator} = require('../../../utils/remoteFhirValidator');
 const {ConfigManager} = require('../../../utils/configManager');
 // eslint-disable-next-line no-unused-vars
 const OperationOutcome = require('../../../fhir/classes/4_0_0/resources/operationOutcome');
@@ -22,20 +22,6 @@ const nock = require('nock');
 
 const fhirValidationUrl = 'http://foo/fhir';
 
-class MockRemoteFhirValidator extends RemoteFhirValidator {
-    /**
-     * constructor
-     * @param {ConfigManager} configManager
-     */
-    constructor(
-        {
-            configManager
-        }
-    ) {
-        super({configManager});
-    }
-}
-
 class MockConfigManager extends ConfigManager {
     get fhirValidationUrl() {
         return fhirValidationUrl;
@@ -43,17 +29,6 @@ class MockConfigManager extends ConfigManager {
 }
 
 describe('Practitioner Update Tests', () => {
-    const mockRemoteFhirValidator = new MockRemoteFhirValidator({
-        configManager: new ConfigManager()
-    });
-    const mockFetchProfile = jest.spyOn(mockRemoteFhirValidator, 'fetchProfile');
-    mockFetchProfile.mockImplementation(() => USCorePractitionerProfile);
-    const mockUpdateProfile = jest.spyOn(mockRemoteFhirValidator, 'updateProfile');
-    mockUpdateProfile.mockImplementation(() => {
-    });
-    const mockValidateResourceAsync = jest.spyOn(mockRemoteFhirValidator, 'validateResourceAsync');
-    mockValidateResourceAsync.mockImplementation(() => null);
-
     beforeEach(async () => {
         await commonBeforeEach();
     });
@@ -63,19 +38,66 @@ describe('Practitioner Update Tests', () => {
     });
 
     describe('Practitioner Validate', () => {
-        test('Valid resource without profile', async () => {
+        test('Valid resource no profile', async () => {
             const request = await createTestRequest((c) => {
                 c.register('configManager', () => new MockConfigManager());
-                // c.register('remoteFhirValidator', () => mockRemoteFhirValidator);
                 return c;
             });
 
-            nock('http://hl7.org')
+            const validationScope = nock(`${fhirValidationUrl}`, {
+                reqheaders: {
+                    'accept-encoding': 'gzip, deflate',
+                    'accept': 'application/json',
+                    'content-type': 'application/fhir+json',
+                    'content-length': 863
+                },
+            })
+                .post(
+                    '/Practitioner/$validate',
+                    validPractitionerResourceWithoutProfile
+                )
+                .reply(200, {
+                        'issue': {
+                            'code': 'informational',
+                            'details': {
+                                'text': 'OK'
+                            },
+                            'expression': [
+                                'Practitioner'
+                            ],
+                            'severity': 'information'
+                        },
+                        'resourceType': 'OperationOutcome'
+                    }
+                );
+
+            let resp = await request
+                .get('/4_0_0/Practitioner')
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResourceCount(0);
+
+            resp = await request
+                .post('/4_0_0/Practitioner/$validate')
+                .send(validPractitionerResourceWithoutProfile)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedValidPractitionerResponse);
+
+            expect(validationScope.isDone()).toBeTruthy();
+        });
+        test('Valid resource profile in url not body', async () => {
+            const request = await createTestRequest((c) => {
+                c.register('configManager', () => new MockConfigManager());
+                return c;
+            });
+
+            const getProfileScope = nock('http://hl7.org')
                 .get('/fhir/us/core/StructureDefinition/us-core-practitioner')
                 .reply(200, USCorePractitionerProfile);
 
             // http://foo/fhir/StructureDefinition
-            nock(`${fhirValidationUrl}`, {
+            const uploadProfileScope = nock(`${fhirValidationUrl}`, {
                 reqheaders: {
                     'accept-encoding': 'gzip, deflate',
                     'accept': 'application/json',
@@ -85,7 +107,7 @@ describe('Practitioner Update Tests', () => {
                 .post('/StructureDefinition', USCorePractitionerProfile)
                 .reply(200, {});
 
-            nock(`${fhirValidationUrl}`, {
+            const validationScope = nock(`${fhirValidationUrl}`, {
                 reqheaders: {
                     'accept-encoding': 'gzip, deflate',
                     'accept': 'application/json',
@@ -97,7 +119,20 @@ describe('Practitioner Update Tests', () => {
                     '/Practitioner/$validate?profile=http://hl7.org/fhir/us/core/StructureDefinition/us-core-practitioner',
                     validPractitionerResourceWithoutProfile
                 )
-                .reply(200, expectedValidPractitionerResponse);
+                .reply(200, {
+                        'issue': {
+                            'code': 'informational',
+                            'details': {
+                                'text': 'OK'
+                            },
+                            'expression': [
+                                'Practitioner'
+                            ],
+                            'severity': 'information'
+                        },
+                        'resourceType': 'OperationOutcome'
+                    }
+                );
 
             let resp = await request
                 .get('/4_0_0/Practitioner')
@@ -111,44 +146,57 @@ describe('Practitioner Update Tests', () => {
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedValidPractitionerResponse);
-            expect(mockFetchProfile).toHaveBeenCalledTimes(0);
-            expect(mockUpdateProfile).toHaveBeenCalledTimes(0);
-            expect(mockValidateResourceAsync).toHaveBeenCalledTimes(1);
-            mockFetchProfile.mockClear();
-            mockUpdateProfile.mockClear();
-            mockValidateResourceAsync.mockClear();
+            expect(getProfileScope.isDone()).toBeTruthy();
+            expect(uploadProfileScope.isDone()).toBeTruthy();
+            expect(validationScope.isDone()).toBeTruthy();
         });
-        test('Valid resource without profile but passed in url', async () => {
+        test('Valid resource profile in body not url', async () => {
             const request = await createTestRequest((c) => {
                 c.register('configManager', () => new MockConfigManager());
-                c.register('remoteFhirValidator', () => mockRemoteFhirValidator);
                 return c;
             });
-            let resp = await request
-                .get('/4_0_0/Practitioner')
-                .set(getHeaders());
-            // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResourceCount(0);
 
-            resp = await request
-                .post('/4_0_0/Practitioner/$validate?profile=http://hl7.org/fhir/us/core/StructureDefinition/us-core-practitioner')
-                .send(validPractitionerResourceWithoutProfile)
-                .set(getHeaders());
-            // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse(expectedValidPractitionerResponse);
-            expect(mockFetchProfile).toHaveBeenCalledTimes(1);
-            expect(mockUpdateProfile).toHaveBeenCalledTimes(1);
-            expect(mockValidateResourceAsync).toHaveBeenCalledTimes(1);
-            mockFetchProfile.mockClear();
-            mockUpdateProfile.mockClear();
-            mockValidateResourceAsync.mockClear();
-        });
-        test('Valid resource with profile', async () => {
-            const request = await createTestRequest((c) => {
-                c.register('configManager', () => new MockConfigManager());
-                c.register('remoteFhirValidator', () => mockRemoteFhirValidator);
-                return c;
-            });
+            const getProfileScope = nock('http://hl7.org')
+                .get('/fhir/us/core/StructureDefinition/us-core-practitioner')
+                .reply(200, USCorePractitionerProfile);
+
+            // http://foo/fhir/StructureDefinition
+            const uploadProfileScope = nock(`${fhirValidationUrl}`, {
+                reqheaders: {
+                    'accept-encoding': 'gzip, deflate',
+                    'accept': 'application/json',
+                    'content-type': 'application/fhir+json',
+                },
+            })
+                .post('/StructureDefinition', USCorePractitionerProfile)
+                .reply(200, {});
+
+            const validationScope = nock(`${fhirValidationUrl}`, {
+                reqheaders: {
+                    'accept-encoding': 'gzip, deflate',
+                    'accept': 'application/json',
+                    'content-type': 'application/fhir+json'
+                },
+            })
+                .post(
+                    '/Practitioner/$validate',
+                    validPractitionerResourceWithProfile
+                )
+                .reply(200, {
+                        'issue': {
+                            'code': 'informational',
+                            'details': {
+                                'text': 'OK'
+                            },
+                            'expression': [
+                                'Practitioner'
+                            ],
+                            'severity': 'information'
+                        },
+                        'resourceType': 'OperationOutcome'
+                    }
+                );
+
             let resp = await request
                 .get('/4_0_0/Practitioner')
                 .set(getHeaders());
@@ -160,13 +208,10 @@ describe('Practitioner Update Tests', () => {
                 .send(validPractitionerResourceWithProfile)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse(expectedValidPractitionerResponse);
-            expect(mockFetchProfile).toHaveBeenCalledTimes(1);
-            expect(mockUpdateProfile).toHaveBeenCalledTimes(1);
-            expect(mockValidateResourceAsync).toHaveBeenCalledTimes(1);
-            mockFetchProfile.mockClear();
-            mockUpdateProfile.mockClear();
-            mockValidateResourceAsync.mockClear();
+            expect(resp).toHaveResponse(expectedValidPractitionerResponseWithProfile);
+            expect(getProfileScope.isDone()).toBeTruthy();
+            expect(uploadProfileScope.isDone()).toBeTruthy();
+            expect(validationScope.isDone()).toBeTruthy();
         });
     });
 });
