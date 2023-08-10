@@ -200,6 +200,9 @@ class ResourceValidator {
                             })
                         ];
                     }
+                    if (!profileResourceNew.meta.source) {
+                        profileResourceNew.meta.source = profileResourceNew.url;
+                    }
                     const databaseUpdateManager = this.databaseUpdateFactory.createDatabaseUpdateManager(
                         {resourceType: 'StructureDefinition', base_version: VERSIONS['4_0_0']}
                     );

@@ -39,6 +39,15 @@ describe('Practitioner Update Tests', () => {
                 return c;
             });
 
+            const profile = deepcopy(USCorePractitionerProfile);
+            profile.meta = profile.meta || {};
+            profile.meta.security = [{
+                system: SecurityTagSystem.owner,
+                code: profile.publisher || 'profile',
+            }];
+            profile.meta.source = 'http://foo/fhir/StructureDefinition/us-core-practitioner';
+
+
             // http://foo/fhir/StructureDefinition
             const uploadProfileScope = nock(`${fhirValidationUrl}`, {
                 reqheaders: {
@@ -47,7 +56,7 @@ describe('Practitioner Update Tests', () => {
                     'content-type': 'application/fhir+json',
                 },
             })
-                .post('/StructureDefinition', USCorePractitionerProfile)
+                .post('/StructureDefinition', profile)
                 .reply(200, {});
 
             const validationScope = nock(`${fhirValidationUrl}`, {
@@ -81,13 +90,6 @@ describe('Practitioner Update Tests', () => {
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResourceCount(0);
-
-            const profile = deepcopy(USCorePractitionerProfile);
-            profile.meta = profile.meta || {};
-            profile.meta.security = [{
-                system: SecurityTagSystem.owner,
-                code: profile.publisher || 'profile',
-            }];
 
             resp = await request
                 .post('/4_0_0/StructureDefinition/$merge')

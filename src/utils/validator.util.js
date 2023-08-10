@@ -8,9 +8,7 @@ const OperationOutcomeIssue = require('../fhir/classes/4_0_0/backbone_elements/o
 const CodeableConcept = require('../fhir/classes/4_0_0/complex_types/codeableConcept');
 const {validateReferences} = require('./referenceValidator');
 
-// Create this once for the app since it is an expensive operation
-const validator = new JSONValidator();
-const schema = validator.schema;
+const schema = require('../fhir/generator/json/fhir.schema.json');
 
 /**
  * By default, ajv uses fhir.json.schema but only returns first error it finds.
