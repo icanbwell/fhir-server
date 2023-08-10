@@ -712,7 +712,7 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
                  */
                 let collectionsFinished = [];
                 const ReferenceStatusInterval = setInterval(() => {
-                    this.adminLogger.logInfo(`Reference Update finished for ${collectionsFinished.length} collections, Collection Names: ${collectionsFinished.join(', ')}`);
+                    this.adminLogger.logInfo(`Reference Update finished for ${collectionsFinished.length}/${this.collections.length} collections, Collection Names: ${collectionsFinished.join(', ')}`);
                 }, 5000);
 
                 // if there is an exception, continue processing from the last id
@@ -855,8 +855,8 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
                             }
                         }
 
-                        // dropping indexes on reference fields
-                        await this.dropIndexesofCollection({collectionName, referenceFieldNames, mongoConfig});
+                        // // dropping indexes on reference fields
+                        // await this.dropIndexesofCollection({collectionName, referenceFieldNames, mongoConfig});
                     }
 
                     collectionsFinished.push(collectionName);
@@ -891,7 +891,7 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
                 collectionsFinished = [];
                 clearInterval(ReferenceStatusInterval);
                 const idStatusInterval = setInterval(() => {
-                    this.adminLogger.logInfo(`Id Update finished for ${collectionsFinished.length} collections, Collection Names: ${collectionsFinished.join(', ')}`);
+                    this.adminLogger.logInfo(`Id Update finished for ${collectionsFinished.length}/${this.proaCollections.length} collections, Collection Names: ${collectionsFinished.join(', ')}`);
                 }, 5000);
 
                 const updateCollectionids = async (collectionName) => {
@@ -954,8 +954,8 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
                         }
                     }
 
-                    // droping indexes on _sourceId fields
-                    await this.dropIndexesofCollection({collectionName, mongoConfig});
+                    // // droping indexes on _sourceId fields
+                    // await this.dropIndexesofCollection({collectionName, mongoConfig});
 
                     collectionsFinished.push(collectionName);
                     this.adminLogger.logInfo(`Finished loop ${collectionName}`);
