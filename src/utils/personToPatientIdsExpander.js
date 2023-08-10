@@ -31,21 +31,26 @@ class PersonToPatientIdsExpander {
     /**
      * replaces patient proxy with actual patient ids
      * @param {string} base_version
-     * @param {string} id
+     * @param {string|string[]} ids
      * @param {boolean} includePatientPrefix
      * @return {Promise<string|string[]>}
      */
-    async getPatientProxyIdsAsync({base_version, id, includePatientPrefix}) {
+    async getPatientProxyIdsAsync({base_version, ids, includePatientPrefix}) {
         const databaseQueryManager = this.databaseQueryFactory.createQuery({
             resourceType: 'Person',
             base_version: base_version
         });
-        // 1. Get person id from id
-        const personId = id.replace(patientReferencePlusPersonProxyPrefix, '').replace(personProxyPrefix, '');
+
+        // 1. Get person ids from id
+        const personIds = Array.isArray(ids) ? ids.map(id =>
+                id.replace(patientReferencePlusPersonProxyPrefix, '').replace(personProxyPrefix, '')
+            ) : [
+                ids.replace(patientReferencePlusPersonProxyPrefix, '').replace(personProxyPrefix, '')
+            ];
         // 2. Get that Person resource from the database
         let patientIds = await this.getPatientIdsFromPersonAsync(
             {
-                personIds: [ personId ],
+                personIds,
                 totalProcessedPersonIds: new Set(),
                 databaseQueryManager,
                 level: 1
@@ -53,14 +58,14 @@ class PersonToPatientIdsExpander {
         );
         if (patientIds && patientIds.length > 0) {
             // Also include the proxy patient ID for resources that are associated with the proxy patient directly
-            patientIds.push(`${personProxyPrefix}${personId}`);
+            personIds.forEach(personId => patientIds.push(`${personProxyPrefix}${personId}`));
             if (includePatientPrefix) {
                 patientIds = patientIds.map(p => `${patientReferencePrefix}${p}`);
             }
             // 4. return a csv of those patient ids (remove duplicates)
             return Array.from(new Set(patientIds));
         }
-        return id;
+        return ids;
     }
 
     /**
@@ -137,7 +142,7 @@ class PersonToPatientIdsExpander {
         const personResourceCursor = await databaseQueryManager.findAsync(
             {
                 query: FilterById.getListFilter(personIds),
-                options: {projection: {id: 1, link: 1, _id: 0}}
+                options: { projection: { id: 1, link: 1, _id: 0, _uuid: 1 } }
             }
         );
         /**
@@ -147,14 +152,17 @@ class PersonToPatientIdsExpander {
         let personIdsToRecurse = [];
         while (await personResourceCursor.hasNext()) {
             let person = await personResourceCursor.next();
-            if (person && person.link && person.link.length > 0 && !totalProcessedPersonIds.has(person.id)) {
-                const linkedPatients = personToLinkedPatient.get(person.id) || new Set();
+            const personId = person._uuid;
+            const uuidKey = '_uuid';
+
+            if (person && person.link && person.link.length > 0 && !totalProcessedPersonIds.has(personId)) {
+                const linkedPatients = personToLinkedPatient.get(personId) || new Set();
 
                 const patientIdsToAdd = person.link
-                    .filter(l => l.target && l.target.reference &&
-                        (l.target.reference.startsWith(patientReferencePrefix) || l.target.type === 'Patient'))
+                    .filter(l => l.target && l.target[`${uuidKey}`] &&
+                        (l.target[`${uuidKey}`].startsWith(patientReferencePrefix) || l.target.type === 'Patient'))
                     .map(l => {
-                        const patientId = l.target.reference.replace(patientReferencePrefix, '');
+                        const patientId = l.target[`${uuidKey}`].replace(patientReferencePrefix, '');
                         if (toMap === true) {
                             // add linked patient id to the person
                             linkedPatients.add(patientId);
@@ -162,19 +170,18 @@ class PersonToPatientIdsExpander {
                         return patientId;
                     });
 
-                // todo: add patients to map
                 patientIds = patientIds.concat(patientIdsToAdd);
 
                 const personResourceWithPersonReferenceLink = person.link
-                    .filter(l => l.target && l.target.reference &&
-                        (l.target.reference.startsWith(personReferencePrefix) || l.target.type === 'Person'))
+                    .filter(l => l.target && l.target[`${uuidKey}`] &&
+                        (l.target[`${uuidKey}`].startsWith(personReferencePrefix) || l.target.type === 'Person'))
                     .map(l => {
-                        const linkedPersonId = l.target.reference.replace(personReferencePrefix, '');
-                        if (toMap === true){
+                        const linkedPersonId = l.target[`${uuidKey}`].replace(personReferencePrefix, '');
+                        if (toMap === true) {
                             const personsOfLinkedPerson = linkedPersonToPersons.get(linkedPersonId) || new Set();
                             // add person to linked person
                             // it can be possible that 1 person can be linked to 2 curr persons
-                            personsOfLinkedPerson.add(person.id);
+                            personsOfLinkedPerson.add(personId);
                             linkedPersonToPersons.set(linkedPersonId, personsOfLinkedPerson);
                         }
                         return linkedPersonId;
@@ -183,7 +190,7 @@ class PersonToPatientIdsExpander {
                 personIdsToRecurse = personIdsToRecurse.concat(personResourceWithPersonReferenceLink);
 
                 // finally update the sets
-                personToLinkedPatient.set(person.id, linkedPatients);
+                personToLinkedPatient.set(personId, linkedPatients);
             }
         }
 

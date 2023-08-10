@@ -83,6 +83,16 @@ class ReferenceParser {
         return sourceAssigningAuthority;
     }
 
+    /**
+     * returns sourceAssigningAuthority from reference
+     * @param {string} reference
+     * @return {string}
+     */
+    static createReferenceWithoutSourceAssigningAuthority(reference) {
+        const { id, resourceType } = ReferenceParser.parseReference(reference);
+        return ReferenceParser.createReference({resourceType, id});
+    }
+
 }
 
 module.exports = {

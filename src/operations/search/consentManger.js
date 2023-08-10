@@ -8,6 +8,10 @@ const { QueryParameterValue } = require('../query/queryParameterValue');
 const { isUuid } = require('../../utils/uid.util');
 const { PATIENT_REFERENCE_PREFIX } = require('../../constants');
 const {SearchQueryBuilder} = require('./searchQueryBuilder');
+const { BadRequestError } = require('../../utils/httpErrors');
+const { logError } = require('../common/logging');
+const { SearchFilterFromReference } = require('../query/filters/searchFilterFromReference');
+const { ReferenceParser } = require('../../utils/referenceParser');
 
 class ConsentManager {
     /**
@@ -59,7 +63,7 @@ class ConsentManager {
 
     /**
      * @description Fetches all the consent resources linked to a patient IDs.
-     * @param {String[]} patientIds
+     * @param {string[]} patientIds
      * @returns Consent resource list
      */
     async getConsentResources(patientIds, ownerTags) {
@@ -133,10 +137,20 @@ class ConsentManager {
         // 1. Check resourceType is specific to Patient
         if (this.patientFilterManager.isPatientRelatedResource({ resourceType })) {
             // 2. Get (proxy) patient IDs from parsedArgs the filters
-            let patientIds = this.getResourceIdsFromFilter('Patient', parsedArgs);
-            if (patientIds && patientIds.length > 0) {
+            const patientReferences = this.getResourceReferencesFromFilter('Patient', parsedArgs);
+            if (patientReferences && patientReferences.length > 0) {
+                /**
+                 * validate if multiple resources are present for passed patient-ids
+                 * validating for consent only, coz for all other cases security-tags are already added to filter
+                 * hence no unnecessary access is possible
+                */
+                await this.validatePatientIdsAsync(patientReferences);
+
                 // Get b.Well Master Person and/or Person map for each patient IDs
-                const bwellPersonsAndClientPatientsIdMap = await this.linkedPatientsFinder.getBwellPersonAndAllClientIds({ patientIds });
+                const bwellPersonsAndClientPatientsIdMap = await this
+                    .linkedPatientsFinder
+                    .getBwellPersonAndAllClientIds({ patientReferences });
+
                 // Get all patient IDs that connected to bwell master person of input (proxy)patient
                 const extendedPatientIds = new Set();
                 /**
@@ -250,36 +264,122 @@ class ConsentManager {
     }
 
     /**
-     * Get ResourceIds from ParsedArgs filter.
-     * For eg, if patient filter is used, then return the patient ids passed
+     * Get ResourceReferences from ParsedArgs filter.
+     * For eg, if patient filter is used, then return the patient references passed
+     * return id -> Reference map for all resource references
      * @param {string} resourceType
      * @param {import('../query/parsedArgs').ParsedArgs} parsedArgs
-     * @returns {string[]} Array of resource Id's present in query
+     * @returns {import('../query/filters/searchFilterFromReference').IReferences} Array of resource Id's present in query
      */
-    getResourceIdsFromFilter(resourceType, parsedArgs) {
+    getResourceReferencesFromFilter(resourceType, parsedArgs) {
         assertIsValid(typeof resourceType === 'string');
         assertIsValid(parsedArgs instanceof ParsedArgs);
+
+        /**@type {import('../query/filters/searchFilterFromReference').IReferences} */
+        let idReferenceMap;
+
         const modifiersToSkip = ['not'];
 
-        /**@type {Set<string>} */
-        const resourceIds = parsedArgs.parsedArgItems
-            .reduce((/**@type {Set<string>}*/ids, /**@type {import('../query/parsedArgsItem').ParsedArgsItem}*/currArg) => {
+        idReferenceMap = parsedArgs.parsedArgItems
+            .reduce((/**@type {import('../query/filters/searchFilterFromReference').IReferences}*/refs, /**@type {import('../query/parsedArgsItem').ParsedArgsItem}*/currArg) => {
                 const queryParamReferences = currArg.references;
-                // if modifier is 'not' then skip the addition of the ids to set
+                // if modifier is 'not' then skip the addition
                 if (currArg.modifiers.some((v) => modifiersToSkip.includes(v))) {
-                    return ids;
+                    return refs;
                 }
 
                 // if referenceType is equal to resourceType, then add the id
                 queryParamReferences.forEach((reference) => {
                     if (reference.resourceType === resourceType) {
-                        ids.add(reference.id);
+                        // add the reference
+                        refs.push({
+                            resourceType: reference.resourceType,
+                            id: reference.id,
+                            sourceAssigningAuthority: reference.sourceAssigningAuthority,
+                        });
                     }
                 });
-                return ids;
-            }, new Set());
+                return refs;
+            }, []);
 
-        return Array.from(resourceIds);
+        return idReferenceMap;
+    }
+
+    /**
+     * For array of patientIds passed, checks if there are more than two resources for
+     * any id. If its there, then throws a bad-request error else returns true
+     * @param {import('../query/filters/searchFilterFromReference').IReferences} references Passed PatientIds in query.
+     */
+    async validatePatientIdsAsync(references) {
+        /**
+         * PatientId -> No of Patient Resources
+         * @type {Map<string, number>}
+         * */
+        const patientIdToCount = new Map();
+        /**@type {Set<string>} */
+        const idsWithMultipleResourcesSet = new Set();
+
+        references.forEach((ref) => {
+            const { id, sourceAssigningAuthority } = ref;
+            /** for uuid -> uuid, and for id and sourceAssigningAuthority -> id|sourceAssigningAuthority  */
+            const idWithSourceAssigningAuthority = ReferenceParser.createReference({ id, sourceAssigningAuthority });
+            // initial count as zero
+            patientIdToCount.set(idWithSourceAssigningAuthority, 0);
+        });
+
+
+        const query = this.databaseQueryFactory.createQuery({
+            resourceType: 'Patient',
+            base_version: '4_0_0',
+        });
+
+        // find all patients for given array of ids.
+        const cursor = await query.findAsync({
+            query: {
+                '$or': SearchFilterFromReference.buildFilter(references, null),
+            },
+            options: { projection: { id: 1, _sourceId: 1, _uuid: 1 } }
+        });
+
+        while (await cursor.hasNext()) {
+            const patient = await cursor.next();
+            /**
+             * PatientIdsSet can have sourceId as well as uuid so check both of them.
+             * One of them will be present inside the set
+             * @type {string | null}
+             */
+            let patientId;
+            if (
+                // cover all the possible cases
+                (patient._uuid && (patientId = patient._uuid) && patientIdToCount.has(patientId)) ||
+                (patient._sourceId && patient._sourceAssigningAuthority && (patientId = `${patient._sourceId}|${patient._sourceAssigningAuthority}`) && patientIdToCount.has(patientId)) ||
+                (patient._sourceId && (patientId = patient._sourceId) && patientIdToCount.has(patientId))
+            ) {
+                let count = patientIdToCount.get(patientId) + 1;
+                // this means duplicate resource is present
+                if (count > 1) {
+                    idsWithMultipleResourcesSet.add(`${PATIENT_REFERENCE_PREFIX}${patientId}`);
+                }
+
+                // update the count
+                patientIdToCount.set(patientId, count);
+            }
+        }
+
+        /**@type {string[]} */
+        const idsWithMultipleResources = Array.from(idsWithMultipleResourcesSet);
+        if (idsWithMultipleResources.length > 0) {
+            const message = [
+                'Multiple Patient Resources are present for passed patientIds: [',
+                idsWithMultipleResources.map((s) => `'${s}'`).join(','),
+                ']'
+            ].join('');
+            logError(`ConsentManager.validatePatientIdsAsync: Bad Request, ${message}`);
+            throw new BadRequestError(new Error(message), { patientIds: idsWithMultipleResources });
+        }
+
+        // if validation is success, return true
+        return true;
     }
 }
 

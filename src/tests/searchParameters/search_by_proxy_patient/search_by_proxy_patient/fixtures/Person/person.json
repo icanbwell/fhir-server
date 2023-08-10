@@ -99,14 +99,14 @@
     {
       "id": "8175a01c-41a3-44f7-9a18-db5077c674fb",
       "target": {
-        "reference": "Patient/00100000000"
+        "reference": "Patient/00100000000|healthsystem1"
       },
       "assurance": "level4"
     },
     {
       "id": "4223ad68-2cd2-482f-8d47-fc09be3ddbc1",
       "target": {
-        "reference": "Patient/00200000000"
+        "reference": "Patient/00200000000|healthsystem2"
       },
       "assurance": "level4"
     }

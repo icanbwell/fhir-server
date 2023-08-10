@@ -44,6 +44,7 @@
         {
             "target": {
                 "reference": "Person/person-123-a",
+                "_sourceAssigningAuthority": "medstar",
                 "type": "Person"
             },
             "assurance": "level4"
@@ -51,6 +52,7 @@
         {
             "target": {
                 "reference": "Person/person-123-b",
+                "_sourceAssigningAuthority": "medstar",
                 "type": "Person"
             },
             "assurance": "level4"

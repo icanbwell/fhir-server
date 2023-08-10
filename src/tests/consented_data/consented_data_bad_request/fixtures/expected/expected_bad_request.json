@@ -1,0 +1,12 @@
+{
+  "resourceType": "OperationOutcome",
+  "issue": [
+    {
+      "severity": "error",
+      "code": "invalid",
+      "details": {
+        "text": "Multiple Patient Resources are present for passed patientIds: ['Patient/test-patient']"
+      }
+    }
+  ]
+}

@@ -1,0 +1,51 @@
+{
+    "resourceType": "Person",
+    "id": "b1234567",
+    "meta": {
+        "source": "bwell",
+        "security": [
+            {
+                "system": "https://www.icanbwell.com/access",
+                "code": "bwell"
+            },
+            {
+                "system": "https://www.icanbwell.com/owner",
+                "code": "bwell"
+            }
+        ]
+    },
+    "name": [
+        {
+            "use": "official",
+            "family": "Irving",
+            "given": [
+                "Lloyd"
+            ]
+        }
+    ],
+    "gender": "male",
+    "birthDate": "1996-03-03",
+    "link": [
+        {
+            "target": {
+                "reference": "Patient/b234567",
+                "type": "Patient"
+            },
+            "assurance": "level4"
+        },
+        {
+            "target": {
+                "reference": "Person/c1234567|client",
+                "type": "Person"
+            },
+            "assurance": "level4"
+        },
+        {
+            "target": {
+                "reference": "Person/p1234567|proa",
+                "type": "Person"
+            },
+            "assurance": "level4"
+        }
+    ]
+}

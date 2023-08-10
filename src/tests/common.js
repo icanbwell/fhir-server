@@ -49,7 +49,7 @@ module.exports.createTestApp = (fnUpdateContainer) => {
      * @type {SimpleContainer}
      */
     testContainer = createTestContainer(fnUpdateContainer);
-    return createApp({fnCreateContainer: () => testContainer, trackMetrics: false});
+    return createApp({fnGetContainer: () => testContainer, trackMetrics: false});
 };
 
 /**

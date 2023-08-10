@@ -1,0 +1,49 @@
+{
+  "resourceType": "Consent",
+  "id": "35d6a817-6e77-4be9-b060-025d31e58cf6",
+  "meta": {
+    "source": "proa",
+    "lastUpdated": "2022-09-08T14:05:09.000Z",
+    "security": [
+      {
+        "system": "https://www.icanbwell.com/access",
+        "code": "proa"
+      },
+      {
+        "system": "https://www.icanbwell.com/owner",
+        "code": "proa"
+      }
+    ]
+  },
+  "status": "active",
+  "category": [
+    {
+      "coding": [
+        {
+          "system": "http://loinc.org",
+          "code": "59284-0"
+        }
+      ]
+    }
+  ],
+  "scope": {
+    "coding": [
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/consentscope",
+        "code": "patient-privacy"
+      }
+    ]
+  },
+  "patient": {
+    "reference": "Patient/fde7f82b-b1e4-4a25-9a58-83b6921414cc"
+  },
+  "dateTime": "2022-09-08T14:05:07.350Z",
+  "provision": {
+    "type": "permit",
+    "class": [
+      {
+        "code": "/dataSharingConsent"
+      }
+    ]
+  }
+}

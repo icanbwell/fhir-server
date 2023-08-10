@@ -141,7 +141,7 @@
     {
       "id": "5ab5aad4-d481-45fa-93dd-8ec418490670",
       "target": {
-        "reference": "Patient/ed69a49cbccc4adb8805b411a7d9fbd4"
+        "reference": "Patient/ed69a49cbccc4adb8805b411a7d9fbd4|mps-api"
       }
     }
   ]
