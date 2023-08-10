@@ -49,7 +49,7 @@ describe('Practitioner Update Tests', () => {
                     'content-type': 'application/fhir+json',
                 },
             })
-                .post('/StructureDefinition', USCorePractitionerProfile)
+                .post('/StructureDefinition', body => body.id === 'us-core-practitioner')
                 .reply(200, {});
 
             const validationScope = nock(`${fhirValidationUrl}`, {

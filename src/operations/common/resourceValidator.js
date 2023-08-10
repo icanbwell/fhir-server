@@ -173,8 +173,6 @@ class ResourceValidator {
             if (profileResource) {
                 // profile found in our fhir server, so use it
                 const profileJson1 = profileResource.toJSON();
-                // remove the lastUpdated field since the server should set it
-                delete profileJson1.meta.lastUpdated;
                 await this.remoteFhirValidator.updateProfile({profileJson: profileJson1});
             } else {
                 // profile not found in our fhir server, so fetch from remote fhir server
