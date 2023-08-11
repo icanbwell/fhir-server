@@ -603,7 +603,9 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
                                         [isHistoryCollection ? 'resource._uuid' : '_uuid']: 1
                                     },
                                     {
-                                        name: indexName
+                                        name: indexName,
+                                        maxTimeMS: 6 * 60 * 60 * 1000,
+                                        session: session
                                     }
                                 );
                             } catch (err) {
@@ -625,7 +627,11 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
 
                         await collection.createIndex(
                             { 'resource._sourceId': 1, 'resource._uuid': 1 },
-                            { name: indexName }
+                            {
+                                name: indexName,
+                                maxTimeMS: 6 * 60 * 60 * 1000,
+                                session: session,
+                            },
                         );
                     }
                 }
@@ -727,7 +733,7 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
                 const mainCollectionsList = this.collections.filter(coll => !coll.endsWith('_History')).sort();
                 const historyCollectionsList = this.collections.filter(coll => coll.endsWith('_History')).sort();
 
-                this.adminLogger.logInfo(`Starting loop for ${this.collections.join(',')}. useTransaction: ${this.useTransaction}`);
+                this.adminLogger.logInfo(`Starting reference updates for ${this.collections.join(',')}. useTransaction: ${this.useTransaction}`);
 
                 /**
                  * @type {string[]}
@@ -735,7 +741,7 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
                 let collectionsFinished = [];
                 const ReferenceStatusInterval = setInterval(() => {
                     this.adminLogger.logInfo(`Reference Update finished for ${collectionsFinished.length}/${this.collections.length} collections, Collection Names: ${collectionsFinished.join(', ')}`);
-                }, 5000);
+                }, 300000);
 
                 // if there is an exception, continue processing from the last id
                 const updateCollectionReferences = async (collectionName) => {
@@ -797,6 +803,7 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
 
                         if (!referenceArray.length){
                             this.adminLogger.logInfo(`Procesing not required for ${collectionName}`);
+                            collectionsFinished.push(collectionName);
                             return;
                         }
                         const totalLoops = Math.ceil(referenceArray.length / this.referenceBatchSize);
@@ -863,6 +870,7 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
                                     this.historyUuidCache.delete(resourceName);
                                 }
                             } catch (e) {
+                                console.log(e.message);
                                 this.adminLogger.logError(`Got error ${e}.  At ${startFromIdContainer.startFromId}`);
                                 throw new RethrownError(
                                     {
@@ -895,18 +903,22 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
 
                 let queue = async.queue(updateCollectionReferences, this.collectionConcurrency);
                 let queueErrored = false;
-                queue.error(function() {
+                const adminLogger = this.adminLogger;
+                queue.error(function(err, task) {
+                    adminLogger.logError(err, { task });
                     queueErrored = true;
                 });
-                queue.push(mainCollectionsList);
+                await queue.push(mainCollectionsList);
                 await queue.drain();
-                queue.push(historyCollectionsList);
+                await queue.push(historyCollectionsList);
                 await queue.drain();
                 if (queueErrored){
+                    this.adminLogger.logInfo('Reference processing Queue errored. Returning.');
                     return;
                 }
 
                 // changing the id of the resources
+                this.adminLogger.logInfo(`Starting id updates for ${this.proaCollections.join(',')}.`);
                 const mainProaCollectionsList = this.proaCollections.filter(coll => !coll.endsWith('_History')).sort();
                 const historyProaCollectionsList = this.proaCollections.filter(coll => coll.endsWith('_History')).sort();
                 this.historyUuidCache.clear();
@@ -914,7 +926,7 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
                 clearInterval(ReferenceStatusInterval);
                 const idStatusInterval = setInterval(() => {
                     this.adminLogger.logInfo(`Id Update finished for ${collectionsFinished.length}/${this.proaCollections.length} collections, Collection Names: ${collectionsFinished.join(', ')}`);
-                }, 5000);
+                }, 300000);
 
                 const updateCollectionids = async (collectionName) => {
                     this.adminLogger.logInfo(`Starting id updates for ${collectionName}`);
@@ -991,12 +1003,13 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
                     }
                 };
                 queue = async.queue(updateCollectionids, this.collectionConcurrency);
-                queue.error(function(err) {
+                queue.error(function(err, task) {
+                    adminLogger.logError(err, { task });
                     throw err;
                 });
-                queue.push(mainProaCollectionsList);
+                await queue.push(mainProaCollectionsList);
                 await queue.drain();
-                queue.push(historyProaCollectionsList);
+                await queue.push(historyProaCollectionsList);
                 await queue.drain();
                 clearInterval(idStatusInterval);
             } catch (err) {
