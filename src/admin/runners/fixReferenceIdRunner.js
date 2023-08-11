@@ -600,11 +600,13 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
                                 await collection.createIndex(
                                     {
                                         [isHistoryCollection ? `resource.${reference.field}._sourceId` : `${reference.field}._sourceId`]: 1,
-                                        [isHistoryCollection ? 'resource._uuid' : '_uuid']: 1
+                                        '_id': 1,
                                     },
                                     {
-                                        name: indexName
-                                    }
+                                        name: indexName,
+                                        maxTimeMS: 6 * 60 * 60 * 1000,
+                                        session: session,
+                                    },
                                 );
                             } catch (err) {
                                 // if index already exists with different name then continue
@@ -624,8 +626,12 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
                         this.adminLogger.logInfo(`Creating index ${indexName} for collection ${collectionName}`);
 
                         await collection.createIndex(
-                            { 'resource._sourceId': 1, 'resource._uuid': 1 },
-                            { name: indexName }
+                            { 'resource._sourceId': 1, '_id': 1 },
+                            {
+                                name: indexName,
+                                maxTimeMS: 6 * 60 * 60 * 1000,
+                                session: session,
+                            },
                         );
                     }
                 }
@@ -727,7 +733,7 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
                 const mainCollectionsList = this.collections.filter(coll => !coll.endsWith('_History')).sort();
                 const historyCollectionsList = this.collections.filter(coll => coll.endsWith('_History')).sort();
 
-                this.adminLogger.logInfo(`Starting loop for ${this.collections.join(',')}. useTransaction: ${this.useTransaction}`);
+                this.adminLogger.logInfo(`Starting reference updates for ${this.collections.join(',')}. useTransaction: ${this.useTransaction}`);
 
                 /**
                  * @type {string[]}
@@ -735,7 +741,7 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
                 let collectionsFinished = [];
                 const ReferenceStatusInterval = setInterval(() => {
                     this.adminLogger.logInfo(`Reference Update finished for ${collectionsFinished.length}/${this.collections.length} collections, Collection Names: ${collectionsFinished.join(', ')}`);
-                }, 5000);
+                }, 300000);
 
                 // if there is an exception, continue processing from the last id
                 const updateCollectionReferences = async (collectionName) => {
@@ -754,6 +760,19 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
                      * @type {string}
                      */
                     const resourceName = collectionName.split('_')[0];
+
+                    if (isHistoryCollection) {
+                        if (this.historyUuidCache.has(resourceName)) {
+                            const uuidCacheValue = Array.from(this.historyUuidCache.get(resourceName));
+                            if (uuidCacheValue.length === 0) {
+                                collectionsFinished.push(collectionName);
+                                return;
+                            }
+                        } else {
+                            collectionsFinished.push(collectionName);
+                            return;
+                        }
+                    }
 
                     // to store all the reference field names of the resource
                     /**
@@ -778,7 +797,9 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
                         referenceFieldNames = Array.from(referenceFieldNames);
 
                         // create indexes on reference fields
-                        await this.addIndexesToCollection({collectionName, referenceFieldNames, mongoConfig});
+                        if (!isHistoryCollection){
+                            await this.addIndexesToCollection({collectionName, referenceFieldNames, mongoConfig});
+                        }
 
                         /**
                          * @type {string[]}
@@ -797,6 +818,7 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
 
                         if (!referenceArray.length){
                             this.adminLogger.logInfo(`Procesing not required for ${collectionName}`);
+                            collectionsFinished.push(collectionName);
                             return;
                         }
                         const totalLoops = Math.ceil(referenceArray.length / this.referenceBatchSize);
@@ -845,7 +867,7 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
                                     config: mongoConfig,
                                     sourceCollectionName: collectionName,
                                     destinationCollectionName: collectionName,
-                                    query,
+                                    query: isHistoryCollection && this.historyUuidCache.has(resourceName) ? {} : query,
                                     projection: this.properties ? this.getProjection() : undefined,
                                     startFromIdContainer,
                                     fnCreateBulkOperationAsync: async (doc) =>
@@ -856,13 +878,12 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
                                     limit: this.limit,
                                     useTransaction: this.useTransaction,
                                     skip: this.skip,
+                                    useEstimatedCount: !!isHistoryCollection,
                                     filterToIds: isHistoryCollection && this.historyUuidCache.has(resourceName) ? Array.from(this.historyUuidCache.get(resourceName)) : undefined,
                                     filterToIdProperty: isHistoryCollection && this.historyUuidCache.has(resourceName) ? 'resource._uuid' : undefined
                                 });
-                                if (isHistoryCollection && this.historyUuidCache.has(resourceName)){
-                                    this.historyUuidCache.delete(resourceName);
-                                }
                             } catch (e) {
+                                console.log(e.message);
                                 this.adminLogger.logError(`Got error ${e}.  At ${startFromIdContainer.startFromId}`);
                                 throw new RethrownError(
                                     {
@@ -878,7 +899,9 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
                         }
 
                         // // dropping indexes on reference fields
-                        // await this.dropIndexesofCollection({collectionName, referenceFieldNames, mongoConfig});
+                        // if (!isHistoryCollection){
+                        //     await this.dropIndexesofCollection({collectionName, referenceFieldNames, mongoConfig});
+                        // }
                     }
 
                     collectionsFinished.push(collectionName);
@@ -895,7 +918,9 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
 
                 let queue = async.queue(updateCollectionReferences, this.collectionConcurrency);
                 let queueErrored = false;
-                queue.error(function() {
+                const adminLogger = this.adminLogger;
+                queue.error(function(err, task) {
+                    adminLogger.logError(err, { task });
                     queueErrored = true;
                 });
                 queue.push(mainCollectionsList);
@@ -903,10 +928,12 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
                 queue.push(historyCollectionsList);
                 await queue.drain();
                 if (queueErrored){
+                    this.adminLogger.logInfo('Reference processing Queue errored. Returning.');
                     return;
                 }
 
                 // changing the id of the resources
+                this.adminLogger.logInfo(`Starting id updates for ${this.proaCollections.join(',')}.`);
                 const mainProaCollectionsList = this.proaCollections.filter(coll => !coll.endsWith('_History')).sort();
                 const historyProaCollectionsList = this.proaCollections.filter(coll => coll.endsWith('_History')).sort();
                 this.historyUuidCache.clear();
@@ -914,7 +941,7 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
                 clearInterval(ReferenceStatusInterval);
                 const idStatusInterval = setInterval(() => {
                     this.adminLogger.logInfo(`Id Update finished for ${collectionsFinished.length}/${this.proaCollections.length} collections, Collection Names: ${collectionsFinished.join(', ')}`);
-                }, 5000);
+                }, 300000);
 
                 const updateCollectionids = async (collectionName) => {
                     this.adminLogger.logInfo(`Starting id updates for ${collectionName}`);
@@ -932,7 +959,9 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
                     const resourceName = collectionName.split('_')[0];
 
                     // create indexes on _sourceId field
-                    await this.addIndexesToCollection({collectionName, mongoConfig});
+                    if (!isHistoryCollection) {
+                        await this.addIndexesToCollection({collectionName, mongoConfig});
+                    }
 
                     // if query is not empty then run the query and process the records
                     if (Object.keys(query).length) {
@@ -942,7 +971,7 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
                                 config: mongoConfig,
                                 sourceCollectionName: collectionName,
                                 destinationCollectionName: collectionName,
-                                query,
+                                query: isHistoryCollection && this.historyUuidCache.has(resourceName) ? {} : query,
                                 projection: this.properties ? this.getProjection() : undefined,
                                 startFromIdContainer,
                                 fnCreateBulkOperationAsync: async (doc) =>
@@ -953,6 +982,7 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
                                 limit: this.limit,
                                 useTransaction: this.useTransaction,
                                 skip: this.skip,
+                                useEstimatedCount: !!isHistoryCollection,
                                 filterToIds: isHistoryCollection && this.historyUuidCache.has(resourceName) ? Array.from(this.historyUuidCache.get(resourceName)) : undefined,
                                 filterToIdProperty: isHistoryCollection && this.historyUuidCache.has(resourceName) ? 'resource._uuid' : undefined,
                             });
@@ -977,7 +1007,9 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
                     }
 
                     // // droping indexes on _sourceId fields
-                    // await this.dropIndexesofCollection({collectionName, mongoConfig});
+                    // if (!isHistoryCollection) {
+                    //     await this.dropIndexesofCollection({collectionName, mongoConfig});
+                    // }
 
                     collectionsFinished.push(collectionName);
                     this.adminLogger.logInfo(`Finished loop ${collectionName}`);
@@ -991,7 +1023,8 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
                     }
                 };
                 queue = async.queue(updateCollectionids, this.collectionConcurrency);
-                queue.error(function(err) {
+                queue.error(function(err, task) {
+                    adminLogger.logError(err, { task });
                     throw err;
                 });
                 queue.push(mainProaCollectionsList);
