@@ -945,7 +945,9 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
                     const resourceName = collectionName.split('_')[0];
 
                     // create indexes on _sourceId field
-                    await this.addIndexesToCollection({collectionName, mongoConfig});
+                    if (!isHistoryCollection) {
+                        await this.addIndexesToCollection({collectionName, mongoConfig});
+                    }
 
                     // if query is not empty then run the query and process the records
                     if (Object.keys(query).length) {
@@ -990,7 +992,9 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
                     }
 
                     // // droping indexes on _sourceId fields
-                    // await this.dropIndexesofCollection({collectionName, mongoConfig});
+                    // if (!isHistoryCollection) {
+                    //     await this.dropIndexesofCollection({collectionName, mongoConfig});
+                    // }
 
                     collectionsFinished.push(collectionName);
                     this.adminLogger.logInfo(`Finished loop ${collectionName}`);
