@@ -57,6 +57,12 @@
         },
         {
           "definition": {
+            "reference": "https://www.hl7.org/fhir/resource-operation-validate.html"
+          },
+          "name": "validate"
+        },
+        {
+          "definition": {
             "reference": "https://www.hl7.org/fhir/resource-operation-graph.html"
           },
           "name": "graph"
@@ -126,6 +132,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "merge"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/resource-operation-validate.html"
+          },
+          "name": "validate"
         },
         {
           "definition": {
@@ -204,6 +216,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "merge"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/resource-operation-validate.html"
+          },
+          "name": "validate"
         },
         {
           "definition": {
@@ -282,6 +300,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "merge"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/resource-operation-validate.html"
+          },
+          "name": "validate"
         },
         {
           "definition": {
@@ -369,6 +393,12 @@
         },
         {
           "definition": {
+            "reference": "https://www.hl7.org/fhir/resource-operation-validate.html"
+          },
+          "name": "validate"
+        },
+        {
+          "definition": {
             "reference": "https://www.hl7.org/fhir/resource-operation-graph.html"
           },
           "name": "graph"
@@ -438,6 +468,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "merge"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/resource-operation-validate.html"
+          },
+          "name": "validate"
         },
         {
           "definition": {
@@ -516,6 +552,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "merge"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/resource-operation-validate.html"
+          },
+          "name": "validate"
         },
         {
           "definition": {
@@ -594,6 +636,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "merge"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/resource-operation-validate.html"
+          },
+          "name": "validate"
         },
         {
           "definition": {
@@ -681,6 +729,12 @@
         },
         {
           "definition": {
+            "reference": "https://www.hl7.org/fhir/resource-operation-validate.html"
+          },
+          "name": "validate"
+        },
+        {
+          "definition": {
             "reference": "https://www.hl7.org/fhir/resource-operation-graph.html"
           },
           "name": "graph"
@@ -750,6 +804,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "merge"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/resource-operation-validate.html"
+          },
+          "name": "validate"
         },
         {
           "definition": {
@@ -828,6 +888,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "merge"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/resource-operation-validate.html"
+          },
+          "name": "validate"
         },
         {
           "definition": {
@@ -906,6 +972,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "merge"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/resource-operation-validate.html"
+          },
+          "name": "validate"
         },
         {
           "definition": {
@@ -993,6 +1065,12 @@
         },
         {
           "definition": {
+            "reference": "https://www.hl7.org/fhir/resource-operation-validate.html"
+          },
+          "name": "validate"
+        },
+        {
+          "definition": {
             "reference": "https://www.hl7.org/fhir/resource-operation-graph.html"
           },
           "name": "graph"
@@ -1062,6 +1140,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "merge"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/resource-operation-validate.html"
+          },
+          "name": "validate"
         },
         {
           "definition": {
@@ -1140,6 +1224,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "merge"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/resource-operation-validate.html"
+          },
+          "name": "validate"
         },
         {
           "definition": {
@@ -1218,6 +1308,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "merge"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/resource-operation-validate.html"
+          },
+          "name": "validate"
         },
         {
           "definition": {
@@ -1305,6 +1401,12 @@
         },
         {
           "definition": {
+            "reference": "https://www.hl7.org/fhir/resource-operation-validate.html"
+          },
+          "name": "validate"
+        },
+        {
+          "definition": {
             "reference": "https://www.hl7.org/fhir/resource-operation-graph.html"
           },
           "name": "graph"
@@ -1374,6 +1476,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "merge"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/resource-operation-validate.html"
+          },
+          "name": "validate"
         },
         {
           "definition": {
@@ -1452,6 +1560,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "merge"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/resource-operation-validate.html"
+          },
+          "name": "validate"
         },
         {
           "definition": {
@@ -1530,6 +1644,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "merge"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/resource-operation-validate.html"
+          },
+          "name": "validate"
         },
         {
           "definition": {
@@ -1617,6 +1737,12 @@
         },
         {
           "definition": {
+            "reference": "https://www.hl7.org/fhir/resource-operation-validate.html"
+          },
+          "name": "validate"
+        },
+        {
+          "definition": {
             "reference": "https://www.hl7.org/fhir/resource-operation-graph.html"
           },
           "name": "graph"
@@ -1686,6 +1812,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "merge"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/resource-operation-validate.html"
+          },
+          "name": "validate"
         },
         {
           "definition": {
@@ -1764,6 +1896,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "merge"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/resource-operation-validate.html"
+          },
+          "name": "validate"
         },
         {
           "definition": {
@@ -1842,6 +1980,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "merge"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/resource-operation-validate.html"
+          },
+          "name": "validate"
         },
         {
           "definition": {
@@ -1929,6 +2073,12 @@
         },
         {
           "definition": {
+            "reference": "https://www.hl7.org/fhir/resource-operation-validate.html"
+          },
+          "name": "validate"
+        },
+        {
+          "definition": {
             "reference": "https://www.hl7.org/fhir/resource-operation-graph.html"
           },
           "name": "graph"
@@ -1998,6 +2148,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "merge"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/resource-operation-validate.html"
+          },
+          "name": "validate"
         },
         {
           "definition": {
@@ -2076,6 +2232,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "merge"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/resource-operation-validate.html"
+          },
+          "name": "validate"
         },
         {
           "definition": {
@@ -2154,6 +2316,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "merge"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/resource-operation-validate.html"
+          },
+          "name": "validate"
         },
         {
           "definition": {
@@ -2241,6 +2409,12 @@
         },
         {
           "definition": {
+            "reference": "https://www.hl7.org/fhir/resource-operation-validate.html"
+          },
+          "name": "validate"
+        },
+        {
+          "definition": {
             "reference": "https://www.hl7.org/fhir/resource-operation-graph.html"
           },
           "name": "graph"
@@ -2310,6 +2484,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "merge"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/resource-operation-validate.html"
+          },
+          "name": "validate"
         },
         {
           "definition": {
@@ -2388,6 +2568,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "merge"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/resource-operation-validate.html"
+          },
+          "name": "validate"
         },
         {
           "definition": {
@@ -2466,6 +2652,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "merge"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/resource-operation-validate.html"
+          },
+          "name": "validate"
         },
         {
           "definition": {
@@ -2553,6 +2745,12 @@
         },
         {
           "definition": {
+            "reference": "https://www.hl7.org/fhir/resource-operation-validate.html"
+          },
+          "name": "validate"
+        },
+        {
+          "definition": {
             "reference": "https://www.hl7.org/fhir/resource-operation-graph.html"
           },
           "name": "graph"
@@ -2622,6 +2820,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "merge"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/resource-operation-validate.html"
+          },
+          "name": "validate"
         },
         {
           "definition": {
@@ -2700,6 +2904,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "merge"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/resource-operation-validate.html"
+          },
+          "name": "validate"
         },
         {
           "definition": {
@@ -2778,6 +2988,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "merge"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/resource-operation-validate.html"
+          },
+          "name": "validate"
         },
         {
           "definition": {
@@ -2865,6 +3081,12 @@
         },
         {
           "definition": {
+            "reference": "https://www.hl7.org/fhir/resource-operation-validate.html"
+          },
+          "name": "validate"
+        },
+        {
+          "definition": {
             "reference": "https://www.hl7.org/fhir/resource-operation-graph.html"
           },
           "name": "graph"
@@ -2934,6 +3156,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "merge"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/resource-operation-validate.html"
+          },
+          "name": "validate"
         },
         {
           "definition": {
@@ -3012,6 +3240,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "merge"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/resource-operation-validate.html"
+          },
+          "name": "validate"
         },
         {
           "definition": {
@@ -3090,6 +3324,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "merge"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/resource-operation-validate.html"
+          },
+          "name": "validate"
         },
         {
           "definition": {
@@ -3177,6 +3417,12 @@
         },
         {
           "definition": {
+            "reference": "https://www.hl7.org/fhir/resource-operation-validate.html"
+          },
+          "name": "validate"
+        },
+        {
+          "definition": {
             "reference": "https://www.hl7.org/fhir/resource-operation-graph.html"
           },
           "name": "graph"
@@ -3246,6 +3492,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "merge"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/resource-operation-validate.html"
+          },
+          "name": "validate"
         },
         {
           "definition": {
@@ -3333,9 +3585,9 @@
         },
         {
           "definition": {
-            "reference": "https://www.hl7.org/fhir/resource-operation-graph.html"
+            "reference": "https://www.hl7.org/fhir/resource-operation-validate.html"
           },
-          "name": "graph"
+          "name": "validate"
         },
         {
           "definition": {
@@ -3357,7 +3609,13 @@
         },
         {
           "definition": {
-            "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
+            "reference": "https://www.hl7.org/fhir/resource-operation-graph.html"
+          },
+          "name": "graph"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "expand"
         },
@@ -3402,6 +3660,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "merge"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/resource-operation-validate.html"
+          },
+          "name": "validate"
         },
         {
           "definition": {
@@ -3480,6 +3744,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "merge"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/resource-operation-validate.html"
+          },
+          "name": "validate"
         },
         {
           "definition": {
@@ -3558,6 +3828,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "merge"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/resource-operation-validate.html"
+          },
+          "name": "validate"
         },
         {
           "definition": {
@@ -3645,6 +3921,12 @@
         },
         {
           "definition": {
+            "reference": "https://www.hl7.org/fhir/resource-operation-validate.html"
+          },
+          "name": "validate"
+        },
+        {
+          "definition": {
             "reference": "https://www.hl7.org/fhir/resource-operation-graph.html"
           },
           "name": "graph"
@@ -3714,6 +3996,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "merge"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/resource-operation-validate.html"
+          },
+          "name": "validate"
         },
         {
           "definition": {
@@ -3792,6 +4080,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "merge"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/resource-operation-validate.html"
+          },
+          "name": "validate"
         },
         {
           "definition": {
@@ -3870,6 +4164,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "merge"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/resource-operation-validate.html"
+          },
+          "name": "validate"
         },
         {
           "definition": {
@@ -3948,6 +4248,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "merge"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/resource-operation-validate.html"
+          },
+          "name": "validate"
         },
         {
           "definition": {
@@ -4026,6 +4332,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "merge"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/resource-operation-validate.html"
+          },
+          "name": "validate"
         },
         {
           "definition": {
@@ -4104,6 +4416,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "merge"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/resource-operation-validate.html"
+          },
+          "name": "validate"
         },
         {
           "definition": {
@@ -4182,6 +4500,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "merge"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/resource-operation-validate.html"
+          },
+          "name": "validate"
         },
         {
           "definition": {
@@ -4260,6 +4584,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "merge"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/resource-operation-validate.html"
+          },
+          "name": "validate"
         },
         {
           "definition": {
@@ -4338,6 +4668,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "merge"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/resource-operation-validate.html"
+          },
+          "name": "validate"
         },
         {
           "definition": {
@@ -4416,6 +4752,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "merge"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/resource-operation-validate.html"
+          },
+          "name": "validate"
         },
         {
           "definition": {
@@ -4494,6 +4836,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "merge"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/resource-operation-validate.html"
+          },
+          "name": "validate"
         },
         {
           "definition": {
@@ -4572,6 +4920,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "merge"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/resource-operation-validate.html"
+          },
+          "name": "validate"
         },
         {
           "definition": {
@@ -4659,6 +5013,12 @@
         },
         {
           "definition": {
+            "reference": "https://www.hl7.org/fhir/resource-operation-validate.html"
+          },
+          "name": "validate"
+        },
+        {
+          "definition": {
             "reference": "https://www.hl7.org/fhir/resource-operation-graph.html"
           },
           "name": "graph"
@@ -4728,6 +5088,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "merge"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/resource-operation-validate.html"
+          },
+          "name": "validate"
         },
         {
           "definition": {
@@ -4806,6 +5172,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "merge"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/resource-operation-validate.html"
+          },
+          "name": "validate"
         },
         {
           "definition": {
@@ -4884,6 +5256,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "merge"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/resource-operation-validate.html"
+          },
+          "name": "validate"
         },
         {
           "definition": {
@@ -4962,6 +5340,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "merge"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/resource-operation-validate.html"
+          },
+          "name": "validate"
         },
         {
           "definition": {
@@ -5040,6 +5424,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "merge"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/resource-operation-validate.html"
+          },
+          "name": "validate"
         },
         {
           "definition": {
@@ -5118,6 +5508,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "merge"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/resource-operation-validate.html"
+          },
+          "name": "validate"
         },
         {
           "definition": {
@@ -5196,6 +5592,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "merge"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/resource-operation-validate.html"
+          },
+          "name": "validate"
         },
         {
           "definition": {
@@ -5274,6 +5676,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "merge"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/resource-operation-validate.html"
+          },
+          "name": "validate"
         },
         {
           "definition": {
@@ -5352,6 +5760,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "merge"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/resource-operation-validate.html"
+          },
+          "name": "validate"
         },
         {
           "definition": {
@@ -5439,6 +5853,12 @@
         },
         {
           "definition": {
+            "reference": "https://www.hl7.org/fhir/resource-operation-validate.html"
+          },
+          "name": "validate"
+        },
+        {
+          "definition": {
             "reference": "https://www.hl7.org/fhir/resource-operation-graph.html"
           },
           "name": "graph"
@@ -5508,6 +5928,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "merge"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/resource-operation-validate.html"
+          },
+          "name": "validate"
         },
         {
           "definition": {
@@ -5586,6 +6012,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "merge"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/resource-operation-validate.html"
+          },
+          "name": "validate"
         },
         {
           "definition": {
@@ -5664,6 +6096,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "merge"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/resource-operation-validate.html"
+          },
+          "name": "validate"
         },
         {
           "definition": {
@@ -5742,6 +6180,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "merge"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/resource-operation-validate.html"
+          },
+          "name": "validate"
         },
         {
           "definition": {
@@ -5820,6 +6264,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "merge"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/resource-operation-validate.html"
+          },
+          "name": "validate"
         },
         {
           "definition": {
@@ -5898,6 +6348,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "merge"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/resource-operation-validate.html"
+          },
+          "name": "validate"
         },
         {
           "definition": {
@@ -5976,6 +6432,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "merge"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/resource-operation-validate.html"
+          },
+          "name": "validate"
         },
         {
           "definition": {
@@ -6054,6 +6516,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "merge"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/resource-operation-validate.html"
+          },
+          "name": "validate"
         },
         {
           "definition": {
@@ -6132,6 +6600,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "merge"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/resource-operation-validate.html"
+          },
+          "name": "validate"
         },
         {
           "definition": {
@@ -6210,6 +6684,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "merge"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/resource-operation-validate.html"
+          },
+          "name": "validate"
         },
         {
           "definition": {
@@ -6288,6 +6768,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "merge"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/resource-operation-validate.html"
+          },
+          "name": "validate"
         },
         {
           "definition": {
@@ -6366,6 +6852,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "merge"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/resource-operation-validate.html"
+          },
+          "name": "validate"
         },
         {
           "definition": {
@@ -6453,6 +6945,12 @@
         },
         {
           "definition": {
+            "reference": "https://www.hl7.org/fhir/resource-operation-validate.html"
+          },
+          "name": "validate"
+        },
+        {
+          "definition": {
             "reference": "https://www.hl7.org/fhir/resource-operation-graph.html"
           },
           "name": "graph"
@@ -6522,6 +7020,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "merge"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/resource-operation-validate.html"
+          },
+          "name": "validate"
         },
         {
           "definition": {
@@ -6600,6 +7104,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "merge"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/resource-operation-validate.html"
+          },
+          "name": "validate"
         },
         {
           "definition": {
@@ -6678,6 +7188,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "merge"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/resource-operation-validate.html"
+          },
+          "name": "validate"
         },
         {
           "definition": {
@@ -6756,6 +7272,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "merge"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/resource-operation-validate.html"
+          },
+          "name": "validate"
         },
         {
           "definition": {
@@ -6822,6 +7344,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "everything"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
+          },
+          "name": "merge"
         },
         {
           "definition": {
@@ -6831,9 +7359,9 @@
         },
         {
           "definition": {
-            "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
+            "reference": "https://www.hl7.org/fhir/resource-operation-validate.html"
           },
-          "name": "merge"
+          "name": "validate"
         },
         {
           "definition": {
@@ -6912,6 +7440,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "merge"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/resource-operation-validate.html"
+          },
+          "name": "validate"
         },
         {
           "definition": {
@@ -6990,6 +7524,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "merge"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/resource-operation-validate.html"
+          },
+          "name": "validate"
         },
         {
           "definition": {
@@ -7068,6 +7608,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "merge"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/resource-operation-validate.html"
+          },
+          "name": "validate"
         },
         {
           "definition": {
@@ -7146,6 +7692,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "merge"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/resource-operation-validate.html"
+          },
+          "name": "validate"
         },
         {
           "definition": {
@@ -7224,6 +7776,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "merge"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/resource-operation-validate.html"
+          },
+          "name": "validate"
         },
         {
           "definition": {
@@ -7302,6 +7860,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "merge"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/resource-operation-validate.html"
+          },
+          "name": "validate"
         },
         {
           "definition": {
@@ -7380,6 +7944,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "merge"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/resource-operation-validate.html"
+          },
+          "name": "validate"
         },
         {
           "definition": {
@@ -7458,6 +8028,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "merge"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/resource-operation-validate.html"
+          },
+          "name": "validate"
         },
         {
           "definition": {
@@ -7536,6 +8112,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "merge"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/resource-operation-validate.html"
+          },
+          "name": "validate"
         },
         {
           "definition": {
@@ -7614,6 +8196,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "merge"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/resource-operation-validate.html"
+          },
+          "name": "validate"
         },
         {
           "definition": {
@@ -7692,6 +8280,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "merge"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/resource-operation-validate.html"
+          },
+          "name": "validate"
         },
         {
           "definition": {
@@ -7770,6 +8364,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "merge"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/resource-operation-validate.html"
+          },
+          "name": "validate"
         },
         {
           "definition": {
@@ -7848,6 +8448,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "merge"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/resource-operation-validate.html"
+          },
+          "name": "validate"
         },
         {
           "definition": {
@@ -7926,6 +8532,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "merge"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/resource-operation-validate.html"
+          },
+          "name": "validate"
         },
         {
           "definition": {
@@ -8004,6 +8616,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "merge"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/resource-operation-validate.html"
+          },
+          "name": "validate"
         },
         {
           "definition": {
@@ -8082,6 +8700,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "merge"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/resource-operation-validate.html"
+          },
+          "name": "validate"
         },
         {
           "definition": {
@@ -8160,6 +8784,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "merge"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/resource-operation-validate.html"
+          },
+          "name": "validate"
         },
         {
           "definition": {
@@ -8238,6 +8868,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "merge"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/resource-operation-validate.html"
+          },
+          "name": "validate"
         },
         {
           "definition": {
@@ -8316,6 +8952,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "merge"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/resource-operation-validate.html"
+          },
+          "name": "validate"
         },
         {
           "definition": {
@@ -8394,6 +9036,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "merge"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/resource-operation-validate.html"
+          },
+          "name": "validate"
         },
         {
           "definition": {
@@ -8472,6 +9120,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "merge"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/resource-operation-validate.html"
+          },
+          "name": "validate"
         },
         {
           "definition": {
@@ -8550,6 +9204,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "merge"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/resource-operation-validate.html"
+          },
+          "name": "validate"
         },
         {
           "definition": {
@@ -8628,6 +9288,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "merge"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/resource-operation-validate.html"
+          },
+          "name": "validate"
         },
         {
           "definition": {
@@ -8706,6 +9372,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "merge"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/resource-operation-validate.html"
+          },
+          "name": "validate"
         },
         {
           "definition": {
@@ -8784,6 +9456,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "merge"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/resource-operation-validate.html"
+          },
+          "name": "validate"
         },
         {
           "definition": {
@@ -8862,6 +9540,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "merge"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/resource-operation-validate.html"
+          },
+          "name": "validate"
         },
         {
           "definition": {
@@ -8940,6 +9624,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "merge"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/resource-operation-validate.html"
+          },
+          "name": "validate"
         },
         {
           "definition": {
@@ -9018,6 +9708,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "merge"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/resource-operation-validate.html"
+          },
+          "name": "validate"
         },
         {
           "definition": {
@@ -9096,6 +9792,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "merge"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/resource-operation-validate.html"
+          },
+          "name": "validate"
         },
         {
           "definition": {
@@ -9174,6 +9876,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "merge"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/resource-operation-validate.html"
+          },
+          "name": "validate"
         },
         {
           "definition": {
@@ -9252,6 +9960,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "merge"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/resource-operation-validate.html"
+          },
+          "name": "validate"
         },
         {
           "definition": {
@@ -9330,6 +10044,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "merge"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/resource-operation-validate.html"
+          },
+          "name": "validate"
         },
         {
           "definition": {
@@ -9408,6 +10128,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "merge"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/resource-operation-validate.html"
+          },
+          "name": "validate"
         },
         {
           "definition": {
@@ -9486,6 +10212,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "merge"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/resource-operation-validate.html"
+          },
+          "name": "validate"
         },
         {
           "definition": {
@@ -9564,6 +10296,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "merge"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/resource-operation-validate.html"
+          },
+          "name": "validate"
         },
         {
           "definition": {
@@ -9642,6 +10380,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "merge"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/resource-operation-validate.html"
+          },
+          "name": "validate"
         },
         {
           "definition": {
@@ -9720,6 +10464,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "merge"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/resource-operation-validate.html"
+          },
+          "name": "validate"
         },
         {
           "definition": {
@@ -9798,6 +10548,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "merge"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/resource-operation-validate.html"
+          },
+          "name": "validate"
         },
         {
           "definition": {
@@ -9876,6 +10632,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "merge"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/resource-operation-validate.html"
+          },
+          "name": "validate"
         },
         {
           "definition": {
@@ -9954,6 +10716,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "merge"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/resource-operation-validate.html"
+          },
+          "name": "validate"
         },
         {
           "definition": {
@@ -10032,6 +10800,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "merge"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/resource-operation-validate.html"
+          },
+          "name": "validate"
         },
         {
           "definition": {
@@ -10110,6 +10884,12 @@
             "reference": "https://www.hl7.org/fhir/patient-operation-everything.html"
           },
           "name": "merge"
+        },
+        {
+          "definition": {
+            "reference": "https://www.hl7.org/fhir/resource-operation-validate.html"
+          },
+          "name": "validate"
         },
         {
           "definition": {
