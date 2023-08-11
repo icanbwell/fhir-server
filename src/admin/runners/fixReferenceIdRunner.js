@@ -761,6 +761,19 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
                      */
                     const resourceName = collectionName.split('_')[0];
 
+                    if (isHistoryCollection) {
+                        if (this.historyUuidCache.has(resourceName)) {
+                            const uuidCacheValue = Array.from(this.historyUuidCache.get(resourceName));
+                            if (uuidCacheValue.length === 0) {
+                                collectionsFinished.push(collectionName);
+                                return;
+                            }
+                        } else {
+                            collectionsFinished.push(collectionName);
+                            return;
+                        }
+                    }
+
                     // to store all the reference field names of the resource
                     /**
                      * @type {Set<Object>}
@@ -854,7 +867,7 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
                                     config: mongoConfig,
                                     sourceCollectionName: collectionName,
                                     destinationCollectionName: collectionName,
-                                    query,
+                                    query: isHistoryCollection && this.historyUuidCache.has(resourceName) ? {} : query,
                                     projection: this.properties ? this.getProjection() : undefined,
                                     startFromIdContainer,
                                     fnCreateBulkOperationAsync: async (doc) =>
@@ -865,6 +878,7 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
                                     limit: this.limit,
                                     useTransaction: this.useTransaction,
                                     skip: this.skip,
+                                    useEstimatedCount: !!isHistoryCollection,
                                     filterToIds: isHistoryCollection && this.historyUuidCache.has(resourceName) ? Array.from(this.historyUuidCache.get(resourceName)) : undefined,
                                     filterToIdProperty: isHistoryCollection && this.historyUuidCache.has(resourceName) ? 'resource._uuid' : undefined
                                 });
@@ -957,7 +971,7 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
                                 config: mongoConfig,
                                 sourceCollectionName: collectionName,
                                 destinationCollectionName: collectionName,
-                                query,
+                                query: isHistoryCollection && this.historyUuidCache.has(resourceName) ? {} : query,
                                 projection: this.properties ? this.getProjection() : undefined,
                                 startFromIdContainer,
                                 fnCreateBulkOperationAsync: async (doc) =>
@@ -968,6 +982,7 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
                                 limit: this.limit,
                                 useTransaction: this.useTransaction,
                                 skip: this.skip,
+                                useEstimatedCount: !!isHistoryCollection,
                                 filterToIds: isHistoryCollection && this.historyUuidCache.has(resourceName) ? Array.from(this.historyUuidCache.get(resourceName)) : undefined,
                                 filterToIdProperty: isHistoryCollection && this.historyUuidCache.has(resourceName) ? 'resource._uuid' : undefined,
                             });
