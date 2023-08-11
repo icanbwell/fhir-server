@@ -868,9 +868,6 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
                                     filterToIds: isHistoryCollection && this.historyUuidCache.has(resourceName) ? Array.from(this.historyUuidCache.get(resourceName)) : undefined,
                                     filterToIdProperty: isHistoryCollection && this.historyUuidCache.has(resourceName) ? 'resource._uuid' : undefined
                                 });
-                                if (isHistoryCollection && this.historyUuidCache.has(resourceName)){
-                                    this.historyUuidCache.delete(resourceName);
-                                }
                             } catch (e) {
                                 console.log(e.message);
                                 this.adminLogger.logError(`Got error ${e}.  At ${startFromIdContainer.startFromId}`);
