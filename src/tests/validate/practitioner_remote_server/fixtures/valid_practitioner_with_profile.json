@@ -2,6 +2,7 @@
   "resourceType": "Practitioner",
   "id": "4657",
   "meta": {
+    "source": "http://fhir",
     "profile": [
       "http://hl7.org/fhir/us/core/StructureDefinition/us-core-practitioner"
     ],

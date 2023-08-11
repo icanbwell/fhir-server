@@ -124,7 +124,7 @@ describe('Practitioner Update Tests', () => {
             })
                 .post(
                     '/Practitioner/$validate',
-                    validPractitionerResourceWithProfile
+                    body => body.resourceType === 'Practitioner' && body.id === '4657'
                 )
                 .reply(200, {
                         'issue': {
@@ -148,11 +148,21 @@ describe('Practitioner Update Tests', () => {
             expect(resp).toHaveResourceCount(0);
 
             resp = await request
-                .post('/4_0_0/Practitioner/$validate')
+                .post('/4_0_0/Practitioner/$merge')
                 .send(validPractitionerResourceWithProfile)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse(expectedValidPractitionerResponseWithProfile);
+            expect(resp).toHaveMergeResponse({created: true});
+
+            resp = await request
+                .get('/4_0_0/Practitioner/4657/$validate')
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedValidPractitionerResponseWithProfile,
+                resource => {
+                    delete resource.details; // has lastUpdated
+                    return resource;
+                });
             expect(getProfileScope.isDone()).toBeTruthy();
             expect(uploadProfileScope.isDone()).toBeTruthy();
             expect(validationScope.isDone()).toBeTruthy();
@@ -187,7 +197,7 @@ describe('Practitioner Update Tests', () => {
             })
                 .post(
                     '/Practitioner/$validate?profile=http://hl7.org/fhir/us/core/StructureDefinition/us-core-practitioner',
-                    validPractitionerResourceWithoutProfile
+                    body => body.resourceType === 'Practitioner' && body.id === '4657'
                 )
                 .reply(200, {
                         'issue': {
@@ -211,11 +221,21 @@ describe('Practitioner Update Tests', () => {
             expect(resp).toHaveResourceCount(0);
 
             resp = await request
-                .post('/4_0_0/Practitioner/$validate?profile=http://hl7.org/fhir/us/core/StructureDefinition/us-core-practitioner')
+                .post('/4_0_0/Practitioner/$merge')
                 .send(validPractitionerResourceWithoutProfile)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse(expectedValidPractitionerResponse);
+            expect(resp).toHaveMergeResponse({created: true});
+
+            resp = await request
+                .get('/4_0_0/Practitioner/4657/$validate?profile=http://hl7.org/fhir/us/core/StructureDefinition/us-core-practitioner')
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedValidPractitionerResponse,
+                resource => {
+                    delete resource.details; // has lastUpdated
+                    return resource;
+                });
             expect(getProfileScope.isDone()).toBeTruthy();
             expect(uploadProfileScope.isDone()).toBeTruthy();
             expect(validationScope.isDone()).toBeTruthy();
@@ -261,7 +281,7 @@ describe('Practitioner Update Tests', () => {
             })
                 .post(
                     '/Practitioner/$validate?profile=http://hl7.org/fhir/us/core/StructureDefinition/us-core-practitioner',
-                    validPractitionerResourceWithoutProfile
+                    body => body.resourceType === 'Practitioner' && body.id === '4657'
                 )
                 .reply(200, {
                         'issue': {
@@ -292,11 +312,21 @@ describe('Practitioner Update Tests', () => {
             expect(resp).toHaveMergeResponse({created: true});
 
             resp = await request
-                .post('/4_0_0/Practitioner/$validate?profile=http://hl7.org/fhir/us/core/StructureDefinition/us-core-practitioner')
+                .post('/4_0_0/Practitioner/$merge')
                 .send(validPractitionerResourceWithoutProfile)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse(expectedValidPractitionerResponse);
+            expect(resp).toHaveMergeResponse({created: true});
+
+            resp = await request
+                .get('/4_0_0/Practitioner/4657/$validate?profile=http://hl7.org/fhir/us/core/StructureDefinition/us-core-practitioner')
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedValidPractitionerResponse,
+                resource => {
+                    delete resource.details; // has lastUpdated
+                    return resource;
+                });
             expect(uploadProfileScope.isDone()).toBeTruthy();
             expect(validationScope.isDone()).toBeTruthy();
         });
@@ -330,7 +360,7 @@ describe('Practitioner Update Tests', () => {
             })
                 .post(
                     '/Practitioner/$validate?profile=http://hl7.org/fhir/us/core/StructureDefinition/us-core-practitioner',
-                    invalidPractitionerResource
+                    body => body.resourceType === 'Practitioner' && body.id === '4657'
                 )
                 .reply(200, {
                         'resourceType': 'OperationOutcome',
@@ -363,11 +393,21 @@ describe('Practitioner Update Tests', () => {
             expect(resp).toHaveResourceCount(0);
 
             resp = await request
-                .post('/4_0_0/Practitioner/$validate?profile=http://hl7.org/fhir/us/core/StructureDefinition/us-core-practitioner')
+                .post('/4_0_0/Practitioner/$merge')
                 .send(invalidPractitionerResource)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse(expectedInvalidPractitionerResponse);
+            expect(resp).toHaveMergeResponse({created: true});
+
+            resp = await request
+                .get('/4_0_0/Practitioner/4657/$validate?profile=http://hl7.org/fhir/us/core/StructureDefinition/us-core-practitioner')
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedInvalidPractitionerResponse,
+                resource => {
+                    delete resource.details; // has lastUpdated
+                    return resource;
+                });
             expect(getProfileScope.isDone()).toBeTruthy();
             expect(uploadProfileScope.isDone()).toBeTruthy();
             expect(validationScope.isDone()).toBeTruthy();
