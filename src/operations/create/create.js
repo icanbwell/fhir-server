@@ -21,7 +21,6 @@ const {SecurityTagSystem} = require('../../utils/securityTagSystem');
 const {ConfigManager} = require('../../utils/configManager');
 const {FhirResourceCreator} = require('../../fhir/fhirResourceCreator');
 const { DatabaseAttachmentManager } = require('../../dataLayer/databaseAttachmentManager');
-const { SensitiveDataProcessor } = require('../../utils/sensitiveDataProcessor');
 const { BwellPersonFinder } = require('../../utils/bwellPersonFinder');
 
 class CreateOperation {
@@ -37,7 +36,6 @@ class CreateOperation {
      * @param {DatabaseBulkInserter} databaseBulkInserter
      * @param {ConfigManager} configManager
      * @param {DatabaseAttachmentManager} databaseAttachmentManager
-     * @param {SensitiveDataProcessor} sensitiveDataProcessor
      * @param {BwellPersonFinder} bwellPersonFinder
      */
     constructor(
@@ -52,7 +50,6 @@ class CreateOperation {
             databaseBulkInserter,
             configManager,
             databaseAttachmentManager,
-            sensitiveDataProcessor,
             bwellPersonFinder
         }
     ) {
@@ -109,12 +106,6 @@ class CreateOperation {
          */
         this.databaseAttachmentManager = databaseAttachmentManager;
         assertTypeEquals(databaseAttachmentManager, DatabaseAttachmentManager);
-
-        /**
-         * @type {SensitiveDataProcessor}
-         */
-        this.sensitiveDataProcessor = sensitiveDataProcessor;
-        assertTypeEquals(sensitiveDataProcessor, SensitiveDataProcessor);
 
         /**
          * @type {BwellPersonFinder}
@@ -265,14 +256,6 @@ class CreateOperation {
             // noinspection JSValidateTypes
             logDebug('Inserting', {user, args: {doc: doc}});
 
-            // The access tags are updated before updating the resources.
-            // If access tags is to be updated call the corresponding processor
-            if (this.configManager.enabledAccessTagUpdate) {
-                await this.sensitiveDataProcessor.updateResourceSecurityAccessTag({
-                    resource: doc,
-                });
-            }
-
             // Insert our resource record
             await this.databaseBulkInserter.insertOneAsync({requestId, resourceType, doc});
             /**
@@ -314,23 +297,6 @@ class CreateOperation {
                     await this.changeEventProducer.flushAsync({requestId});
                 }
             });
-            if (this.configManager.enabledAccessTagUpdate) {
-                this.postRequestProcessor.add({
-                    requestId,
-                    fnTask: async () => {
-                        if (mergeResults[0].resourceType === 'Consent' && (mergeResults[0].created || mergeResults[0].updated)) {
-                            await this.sensitiveDataProcessor.processPatientConsentChange({requestId: requestId, resources: [doc]});
-                        }
-                        if (
-                            mergeResults[0].resourceType === 'Person' &&
-                            (mergeResults[0].created || mergeResults[0].updated) &&
-                            this.bwellPersonFinder.isBwellPerson(doc)
-                        ) {
-                            await this.sensitiveDataProcessor.processPersonLinkChange({requestId: requestId, resources: [doc]});
-                        }
-                    }
-                });
-            }
 
             return doc;
         } catch (/** @type {Error} */ e) {

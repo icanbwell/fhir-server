@@ -22,8 +22,6 @@ const {ParsedArgs} = require('../query/parsedArgs');
 const {ConfigManager} = require('../../utils/configManager');
 const {FhirResourceCreator} = require('../../fhir/fhirResourceCreator');
 const {DatabaseAttachmentManager} = require('../../dataLayer/databaseAttachmentManager');
-const {SensitiveDataProcessor} = require('../../utils/sensitiveDataProcessor');
-const { matchPersonLinks } = require('../../utils/personLinksMatcher');
 const { BwellPersonFinder } = require('../../utils/bwellPersonFinder');
 const {RETRIEVE} = require('../../constants').GRIDFS;
 
@@ -45,7 +43,6 @@ class UpdateOperation {
      * @param {ResourceMerger} resourceMerger
      * @param {ConfigManager} configManager
      * @param {DatabaseAttachmentManager} databaseAttachmentManager
-     * @param {SensitiveDataProcessor} sensitiveDataProcessor
      * @param {BwellPersonFinder} bwellPersonFinder
      */
     constructor(
@@ -62,7 +59,6 @@ class UpdateOperation {
             resourceMerger,
             configManager,
             databaseAttachmentManager,
-            sensitiveDataProcessor,
             bwellPersonFinder
         }
     ) {
@@ -129,12 +125,6 @@ class UpdateOperation {
          */
         this.databaseAttachmentManager = databaseAttachmentManager;
         assertTypeEquals(databaseAttachmentManager, DatabaseAttachmentManager);
-
-        /**
-         * @type {SensitiveDataProcessor}
-         */
-        this.sensitiveDataProcessor = sensitiveDataProcessor;
-        assertTypeEquals(sensitiveDataProcessor, SensitiveDataProcessor);
 
         /**
          * @type {BwellPersonFinder}
@@ -326,14 +316,6 @@ class UpdateOperation {
             }
 
             if (doc) {
-                // The access tags are updated before updating the resources.
-                // If access tags is to be updated call the corresponding processor
-                if (this.configManager.enabledAccessTagUpdate) {
-                    await this.sensitiveDataProcessor.updateResourceSecurityAccessTag({
-                        resource: doc,
-                    });
-                }
-
                 /**
                  * @type {MergeResultEntry[]}
                  */
@@ -394,24 +376,7 @@ class UpdateOperation {
                         await this.changeEventProducer.flushAsync({requestId});
                     }
                 });
-                if (this.configManager.enabledAccessTagUpdate) {
-                    this.postRequestProcessor.add({
-                        requestId,
-                        fnTask: async () => {
-                            if (mergeResults[0].resourceType === 'Consent' && (mergeResults[0].created || mergeResults[0].updated)) {
-                                await this.sensitiveDataProcessor.processPatientConsentChange({requestId: requestId, resources: [doc]});
-                            }
-                            if (
-                                mergeResults[0].resourceType === 'Person' &&
-                                (mergeResults[0].created || mergeResults[0].updated) &&
-                                this.bwellPersonFinder.isBwellPerson(doc) &&
-                                !matchPersonLinks(doc.link, foundResource.link)
-                            ) {
-                                await this.sensitiveDataProcessor.processPersonLinkChange({requestId: requestId, resources: [doc]});
-                            }
-                        }
-                    });
-                }
+
                 return result;
             } else {
                 // not modified

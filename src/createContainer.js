@@ -83,7 +83,6 @@ const {GlobalIdEnrichmentProvider} = require('./enrich/providers/globalIdEnrichm
 const {ReferenceGlobalIdHandler} = require('./preSaveHandlers/handlers/referenceGlobalIdHandler');
 const {OwnerColumnHandler} = require('./preSaveHandlers/handlers/ownerColumnHandler');
 const {HashReferencesEnrichmentProvider} = require('./enrich/providers/hashedReferencesEnrichmentProvider');
-const {SensitiveDataProcessor} = require('./utils/sensitiveDataProcessor');
 const {ChatGPTLangChainManager} = require('./chatgpt/chatgptLangChainManager');
 const {FhirResourceWriterFactory} = require('./operations/streaming/resourceWriters/fhirResourceWriterFactory');
 const {FhirToSummaryDocumentConverter} = require('./chatgpt/fhirToDocumentConverters/fhirToSummaryDocumentConverter');
@@ -181,13 +180,6 @@ const createContainer = function () {
             requestSpecificCache: c.requestSpecificCache
         }
     ));
-    container.register('sensitiveDataProcessor', (c) => new SensitiveDataProcessor({
-        databaseQueryFactory: c.databaseQueryFactory,
-        patientFilterManager: c.patientFilterManager,
-        bwellPersonFinder: c.bwellPersonFinder,
-        personToPatientIdsExpander: c.personToPatientIdsExpander,
-        databaseBulkInserter: c.databaseBulkInserter
-    }));
     container.register('linkedPatientsFinder', (c) => new LinkedPatientsFinder({
         bwellPersonFinder: c.bwellPersonFinder,
         databaseQueryFactory: c.databaseQueryFactory,
@@ -439,7 +431,6 @@ const createContainer = function () {
                 databaseBulkInserter: c.databaseBulkInserter,
                 configManager: c.configManager,
                 databaseAttachmentManager: c.databaseAttachmentManager,
-                sensitiveDataProcessor: c.sensitiveDataProcessor,
                 bwellPersonFinder: c.bwellPersonFinder
             }
         )
@@ -460,7 +451,6 @@ const createContainer = function () {
                 resourceMerger: c.resourceMerger,
                 configManager: c.configManager,
                 databaseAttachmentManager: c.databaseAttachmentManager,
-                sensitiveDataProcessor: c.sensitiveDataProcessor,
                 bwellPersonFinder: c.bwellPersonFinder
             }
         )
@@ -476,7 +466,6 @@ const createContainer = function () {
             fhirLoggingManager: c.fhirLoggingManager,
             scopesValidator: c.scopesValidator,
             bundleManager: c.bundleManager,
-            sensitiveDataProcessor: c.sensitiveDataProcessor,
             configManager: c.configManager,
             bwellPersonFinder: c.bwellPersonFinder,
             mergeValidator: c.mergeValidator
@@ -551,7 +540,6 @@ const createContainer = function () {
             scopesValidator: c.scopesValidator,
             databaseBulkInserter: c.databaseBulkInserter,
             databaseAttachmentManager: c.databaseAttachmentManager,
-            sensitiveDataProcessor: c.sensitiveDataProcessor,
             configManager: c.configManager,
             bwellPersonFinder: c.bwellPersonFinder
         }
