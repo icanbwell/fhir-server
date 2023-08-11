@@ -116,92 +116,104 @@ class ValidateOperation {
         // 1. Resource is sent in the body
         // 2. Resource is sent inside a Parameters resource in the body
         // 3. id of the resource is sent in the url
-
-        /**
-         * @type {Resource|null}
-         */
-        let resource_incoming = null;
-        // if id of the resource is sent in url then use that
-        if (id) {
-            // retrieve the resource from the database
+        try {
             /**
-             * @type {boolean}
+             * @type {Resource|null}
              */
-            const useAccessIndex = (this.configManager.useAccessIndex || isTrue(parsedArgs['_useAccessIndex']));
+            let resource_incoming = null;
+            // if id of the resource is sent in url then use that
+            if (id) {
+                // retrieve the resource from the database
+                /**
+                 * @type {boolean}
+                 */
+                const useAccessIndex = (this.configManager.useAccessIndex || isTrue(parsedArgs['_useAccessIndex']));
 
-            /**
-             * @type {{base_version, columns: Set, query: import('mongodb').Document}}
-             */
-            const {
-                /** @type {import('mongodb').Document}**/
-                query,
-                // /** @type {Set} **/
-                // columns
-            } = await this.searchManager.constructQueryAsync(
-                {
-                    user,
-                    scope,
-                    isUser,
-                    patientIdsFromJwtToken,
-                    resourceType,
-                    useAccessIndex,
-                    personIdFromJwtToken,
-                    parsedArgs
-                }
-            );
-
-            const databaseQueryManager = this.databaseQueryFactory.createQuery(
-                {resourceType, base_version}
-            );
-            /**
-             * @type {DatabasePartitionedCursor}
-             */
-            const cursor = await databaseQueryManager.findAsync({query});
-            let operationOutcome = null;
-            while (await cursor.hasNext()) {
-                resource_incoming = await cursor.next();
-                const operationOutcomeForResource = await this.validateResourceAsync(
+                /**
+                 * @type {{base_version, columns: Set, query: import('mongodb').Document}}
+                 */
+                const {
+                    /** @type {import('mongodb').Document}**/
+                    query,
+                    // /** @type {Set} **/
+                    // columns
+                } = await this.searchManager.constructQueryAsync(
                     {
-                        resource_incoming,
+                        user,
+                        scope,
+                        isUser,
+                        patientIdsFromJwtToken,
                         resourceType,
-                        path,
-                        currentDate,
-                        parsedArgs,
-                        currentOperationName,
-                        requestInfo,
-                        startTime
-                    });
-                if (operationOutcome) {
-                    // combine the operation outcome issues
-                    if (operationOutcome.issue) {
-                        operationOutcome.issue = operationOutcome.issue.concat(operationOutcomeForResource.issue);
-                    } else {
-                        operationOutcome.issue = operationOutcomeForResource.issue;
+                        useAccessIndex,
+                        personIdFromJwtToken,
+                        parsedArgs
                     }
-                } else {
-                    operationOutcome = operationOutcomeForResource;
+                );
+
+                const databaseQueryManager = this.databaseQueryFactory.createQuery(
+                    {resourceType, base_version}
+                );
+                /**
+                 * @type {DatabasePartitionedCursor}
+                 */
+                const cursor = await databaseQueryManager.findAsync({query});
+                let operationOutcome = null;
+                while (await cursor.hasNext()) {
+                    resource_incoming = await cursor.next();
+                    const operationOutcomeForResource = await this.validateResourceAsync(
+                        {
+                            resource_incoming,
+                            resourceType,
+                            path,
+                            currentDate,
+                            parsedArgs,
+                            currentOperationName,
+                            requestInfo,
+                            startTime
+                        });
+                    if (operationOutcome) {
+                        // combine the operation outcome issues
+                        if (operationOutcome.issue) {
+                            operationOutcome.issue = operationOutcome.issue.concat(operationOutcomeForResource.issue);
+                        } else {
+                            operationOutcome.issue = operationOutcomeForResource.issue;
+                        }
+                    } else {
+                        operationOutcome = operationOutcomeForResource;
+                    }
                 }
+                return operationOutcome;
             }
-            return operationOutcome;
-        }
-        if (resource) {
-            resource_incoming = FhirResourceCreator.createByResourceType(resource, resourceType);
-        }
-        if (!resource) {
-            resource_incoming = FhirResourceCreator.createByResourceType(requestInfo.body, resourceType);
-        }
-        return await this.validateResourceAsync(
-            {
-                resource_incoming,
-                resourceType,
-                path,
-                currentDate,
-                parsedArgs,
-                currentOperationName,
-                requestInfo,
-                startTime
+            if (resource) {
+                resource_incoming = FhirResourceCreator.createByResourceType(resource, resource.resourceType);
             }
-        );
+            if (!resource) {
+                resource_incoming = FhirResourceCreator.createByResourceType(requestInfo.body, resourceType);
+            }
+            return await this.validateResourceAsync(
+                {
+                    resource_incoming,
+                    resourceType,
+                    path,
+                    currentDate,
+                    parsedArgs,
+                    currentOperationName,
+                    requestInfo,
+                    startTime
+                }
+            );
+        } catch (e) {
+            await this.fhirLoggingManager.logOperationFailureAsync(
+                {
+                    requestInfo,
+                    args: parsedArgs.getRawArgs(),
+                    resourceType,
+                    startTime,
+                    action: currentOperationName,
+                    error: e
+                });
+            throw e;
+        }
     }
 
     /**
