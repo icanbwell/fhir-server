@@ -784,7 +784,9 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
                         referenceFieldNames = Array.from(referenceFieldNames);
 
                         // create indexes on reference fields
-                        await this.addIndexesToCollection({collectionName, referenceFieldNames, mongoConfig});
+                        if (!isHistoryCollection){
+                            await this.addIndexesToCollection({collectionName, referenceFieldNames, mongoConfig});
+                        }
 
                         /**
                          * @type {string[]}
@@ -886,7 +888,9 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
                         }
 
                         // // dropping indexes on reference fields
-                        // await this.dropIndexesofCollection({collectionName, referenceFieldNames, mongoConfig});
+                        // if (!isHistoryCollection){
+                        //     await this.dropIndexesofCollection({collectionName, referenceFieldNames, mongoConfig});
+                        // }
                     }
 
                     collectionsFinished.push(collectionName);
