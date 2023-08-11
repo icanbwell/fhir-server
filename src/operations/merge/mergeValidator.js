@@ -54,7 +54,7 @@ class MergeValidator {
 
         for (const validator of this.validators) {
             let {
-                validatedObjectsByValidator, preCheckErrors, wasAList
+                validatedObjects: validatedObjectsByValidator, preCheckErrors, wasAList
             } = await validator.validate({
                 base_version,
                 currentDate,

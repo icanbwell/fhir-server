@@ -9,7 +9,7 @@ class ParametersResourceValidator extends BaseValidator{
      * @param {Resource|Resource[]} incomingResources
      * @returns {Promise<{validatedObjects: Resource[], preCheckErrors: OperationOutcome[], wasAList: boolean}>}
      */
-    async validate({ incomingObjects: incomingResources }) {
+    async validate({ incomingResources }) {
         // see if the resources were passed as parameters
         if (incomingResources.resourceType === 'Parameters') {
             // Unfortunately our FHIR schema resource creator does not support Parameters
