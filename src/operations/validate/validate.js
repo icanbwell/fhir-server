@@ -10,11 +10,11 @@ const {ResourceValidator} = require('../common/resourceValidator');
 const moment = require('moment-timezone');
 const {ParsedArgs} = require('../query/parsedArgs');
 const {SecurityTagSystem} = require('../../utils/securityTagSystem');
-const {FhirResourceCreator} = require('../../fhir/fhirResourceCreator');
 const {ConfigManager} = require('../../utils/configManager');
 const {DatabaseQueryFactory} = require('../../dataLayer/databaseQueryFactory');
 const {isTrue} = require('../../utils/isTrue');
 const {SearchManager} = require('../search/searchManager');
+const deepcopy = require('deepcopy');
 
 
 class ValidateOperation {
@@ -118,7 +118,7 @@ class ValidateOperation {
         // 3. id of the resource is sent in the url
         try {
             /**
-             * @type {Resource|null}
+             * @type {Object|null}
              */
             let resource_incoming = null;
             // if id of the resource is sent in url then use that
@@ -159,7 +159,7 @@ class ValidateOperation {
                 const cursor = await databaseQueryManager.findAsync({query});
                 let operationOutcome = null;
                 while (await cursor.hasNext()) {
-                    resource_incoming = await cursor.next();
+                    resource_incoming = (await cursor.next()).toJSON();
                     const operationOutcomeForResource = await this.validateResourceAsync(
                         {
                             resource_incoming,
@@ -185,10 +185,10 @@ class ValidateOperation {
                 return operationOutcome;
             }
             if (resource) {
-                resource_incoming = FhirResourceCreator.createByResourceType(resource, resource.resourceType);
+                resource_incoming = resource;
             }
             if (!resource) {
-                resource_incoming = FhirResourceCreator.createByResourceType(requestInfo.body, resourceType);
+                resource_incoming = requestInfo.body;
             }
             return await this.validateResourceAsync(
                 {
@@ -218,7 +218,7 @@ class ValidateOperation {
 
     /**
      * validates a resource
-     * @param {Resource} resource_incoming
+     * @param {Object} resource_incoming
      * @param {string} resourceType
      * @param {string} path
      * @param currentDate
@@ -307,7 +307,7 @@ class ValidateOperation {
 
         // The FHIR validator wants meta.lastUpdated to be string instead of data
         // So we copy the resource and change meta.lastUpdated to string to pass the FHIR validator
-        const resourceObjectToValidate = resource_incoming.clone();
+        const resourceObjectToValidate = deepcopy(resource_incoming);
         // Truncate id to 64 so it passes the validator since we support more than 64 internally
         if (resourceObjectToValidate.id) {
             resourceObjectToValidate.id = resourceObjectToValidate.id.slice(0, 64);
