@@ -908,9 +908,9 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
                     adminLogger.logError(err, { task });
                     queueErrored = true;
                 });
-                await queue.push(mainCollectionsList);
+                queue.push(mainCollectionsList);
                 await queue.drain();
-                await queue.push(historyCollectionsList);
+                queue.push(historyCollectionsList);
                 await queue.drain();
                 if (queueErrored){
                     this.adminLogger.logInfo('Reference processing Queue errored. Returning.');
@@ -1007,9 +1007,9 @@ class FixReferenceIdRunner extends BaseBulkOperationRunner {
                     adminLogger.logError(err, { task });
                     throw err;
                 });
-                await queue.push(mainProaCollectionsList);
+                queue.push(mainProaCollectionsList);
                 await queue.drain();
-                await queue.push(historyProaCollectionsList);
+                queue.push(historyProaCollectionsList);
                 await queue.drain();
                 clearInterval(idStatusInterval);
             } catch (err) {
