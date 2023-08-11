@@ -47,13 +47,12 @@ describe('Practitioner Update Tests', () => {
                 reqheaders: {
                     'accept-encoding': 'gzip, deflate',
                     'accept': 'application/json',
-                    'content-type': 'application/fhir+json',
-                    'content-length': 863
+                    'content-type': 'application/fhir+json'
                 },
             })
                 .post(
                     '/Practitioner/$validate',
-                    validPractitionerResourceWithoutProfile
+                    body => body.resourceType === 'Practitioner' && body.id === '4657'
                 )
                 .reply(200, {
                         'issue': {
@@ -87,7 +86,11 @@ describe('Practitioner Update Tests', () => {
                 .get('/4_0_0/Practitioner/4657/$validate')
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse(expectedValidPractitionerResponse);
+            expect(resp).toHaveResponse(expectedValidPractitionerResponse,
+                resource => {
+                    delete resource.details; // has lastUpdated
+                    return resource;
+                });
 
             expect(validationScope.isDone()).toBeTruthy();
         });

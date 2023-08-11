@@ -11,11 +11,11 @@ const moment = require('moment-timezone');
 const {ParsedArgs} = require('../query/parsedArgs');
 const {SecurityTagSystem} = require('../../utils/securityTagSystem');
 const {FhirResourceCreator} = require('../../fhir/fhirResourceCreator');
-const deepcopy = require('deepcopy');
 const {ConfigManager} = require('../../utils/configManager');
 const {DatabaseQueryFactory} = require('../../dataLayer/databaseQueryFactory');
 const {isTrue} = require('../../utils/isTrue');
 const {SearchManager} = require('../search/searchManager');
+
 
 class ValidateOperation {
     /**
@@ -118,9 +118,9 @@ class ValidateOperation {
         // 3. id of the resource is sent in the url
 
         /**
-         * @type {{resourceType: string, parameter: Object[]}|null}
+         * @type {Resource|null}
          */
-        let resource_incoming = resource;
+        let resource_incoming = null;
         // if id of the resource is sent in url then use that
         if (id) {
             // retrieve the resource from the database
@@ -184,8 +184,11 @@ class ValidateOperation {
             }
             return operationOutcome;
         }
+        if (resource) {
+            resource_incoming = FhirResourceCreator.createByResourceType(resource, resourceType);
+        }
         if (!resource) {
-            resource_incoming = requestInfo.body;
+            resource_incoming = FhirResourceCreator.createByResourceType(requestInfo.body, resourceType);
         }
         return await this.validateResourceAsync(
             {
@@ -203,7 +206,7 @@ class ValidateOperation {
 
     /**
      * validates a resource
-     * @param {Object} resource_incoming
+     * @param {Resource} resource_incoming
      * @param {string} resourceType
      * @param {string} path
      * @param currentDate
@@ -235,6 +238,9 @@ class ValidateOperation {
             // Unfortunately our FHIR schema resource creator does not support Parameters
             // const ParametersResourceCreator = getResource(base_version, 'Parameters');
             // const parametersResource = new ParametersResourceCreator(resource_incoming);
+            /**
+             * @type {Parameters|undefined}
+             */
             const parametersResource = resource_incoming;
             if (!parametersResource.parameter || parametersResource.parameter.length === 0) {
                 /**
@@ -262,6 +268,9 @@ class ValidateOperation {
             if (profileParameter) {
                 specifiedProfile = profileParameter;
             }
+            /**
+             * @type {Parameters|null}
+             */
             const resourceParameter = getFirstElementOrNull(parametersResource.parameter.filter(p => p.resource));
             if (!resourceParameter || !resourceParameter.resource) {
                 /**
@@ -284,14 +293,9 @@ class ValidateOperation {
             resource_incoming = resourceParameter.resource;
         }
 
-        /**
-         * @type {Resource}
-         */
-        const resourceToValidate = FhirResourceCreator.createByResourceType(resource_incoming, resourceType);
-
         // The FHIR validator wants meta.lastUpdated to be string instead of data
         // So we copy the resource and change meta.lastUpdated to string to pass the FHIR validator
-        const resourceObjectToValidate = deepcopy(resource_incoming);
+        const resourceObjectToValidate = resource_incoming.clone();
         // Truncate id to 64 so it passes the validator since we support more than 64 internally
         if (resourceObjectToValidate.id) {
             resourceObjectToValidate.id = resourceObjectToValidate.id.slice(0, 64);
@@ -311,7 +315,7 @@ class ValidateOperation {
                 resourceToValidate: resourceObjectToValidate,
                 path: path,
                 currentDate: currentDate,
-                resourceObj: resourceToValidate,
+                resourceObj: resource_incoming,
                 useRemoteFhirValidatorIfAvailable: true,
                 profile: specifiedProfile,
             });
@@ -327,7 +331,7 @@ class ValidateOperation {
                 });
             return validationOperationOutcome;
         }
-        if (!this.scopesManager.doesResourceHaveOwnerTags(resourceToValidate)) {
+        if (!this.scopesManager.doesResourceHaveOwnerTags(resource_incoming)) {
             return new OperationOutcome({
                 resourceType: 'OperationOutcome',
                 issue: [
@@ -335,7 +339,7 @@ class ValidateOperation {
                         severity: 'error',
                         code: 'invalid',
                         details: new CodeableConcept({
-                            text: `Resource ${resourceToValidate.resourceType}/${resourceToValidate.id}` +
+                            text: `Resource ${resource_incoming.resourceType}/${resource_incoming.id}` +
                                 ' is missing a security access tag with system: ' +
                                 `${SecurityTagSystem.owner}`
                         }),
