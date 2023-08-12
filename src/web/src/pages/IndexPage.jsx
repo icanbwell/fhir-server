@@ -1,15 +1,15 @@
 import React, {useEffect, useState} from 'react';
-import {useLocation, useParams} from 'react-router-dom';
-import {Accordion, Box, Container} from '@mui/material';
+import {useLocation, useNavigate, useParams} from 'react-router-dom';
+import {Accordion, Box, Container, LinearProgress} from '@mui/material';
 import Header from '../partials/Header';
 import Footer from '../partials/Footer';
-import FhirApi from '../utils/fhirApi';
 import SearchForm from '../partials/SearchForm';
 import AccordionSummary from '@mui/material/AccordionSummary';
 import AccordionDetails from '@mui/material/AccordionDetails';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import Typography from '@mui/material/Typography';
 import ResourceCard from './ResourceCard';
+import FhirApi from '../utils/fhirApi';
 
 /**
  * IndexPage
@@ -21,14 +21,14 @@ const IndexPage = ({search}) => {
     const [resources, setResources] = useState('');
     const [bundle, setBundle] = useState('');
     const [status, setStatus] = useState('');
-    const [loading, setLoading] = useState(true);
-    const [searchClicked, setSearchClicked] = useState(false);
-    const [queryParameters, setQueryParameters] = useState([]);
+    const [loading, setLoading] = useState(false);
 
     const {id, resourceType} = useParams();
 
     const [searchTabExpanded, setSearchTabExpanded] = useState(false);
     const [resourceCardExpanded, setResourceCardExpanded] = useState(false);
+
+    const navigate = useNavigate();
 
     const handleExpand = () => {
         setSearchTabExpanded(!searchTabExpanded);
@@ -37,8 +37,31 @@ const IndexPage = ({search}) => {
     const location = useLocation();
     const queryString = location.search;
 
+    function getBox() {
+        if (loading) {
+            return <LinearProgress/>;
+        }
+        if (parseInt(status) === 401) {
+            return <Box>Login Expired</Box>;
+        }
+        if (parseInt(status) !== 200 && parseInt(status) !== 404) {
+            return <Box>{status}</Box>;
+        }
+        if (resources.length === 0) {
+            return <Box>No Results Found</Box>;
+        }
+        return <>
+            {resources.map((fullResource, index) => {
+                const resource = fullResource.resource || fullResource;
+                return (
+                    <ResourceCard key={index} index={index} resource={resource} expanded={resourceCardExpanded}/>
+                );
+            })}
+        </>;
+    }
+
     console.log(`id: ${id}, resourceType: ${resourceType}, queryString: ${queryString},` +
-        ` queryParameters: ${queryParameters}, search: ${search}`);
+        ` search: ${search}`);
 
     useEffect(() => {
         if (id) {
@@ -46,7 +69,7 @@ const IndexPage = ({search}) => {
         }
         const callApi = async () => {
             document.title = 'Helix FHIR Server';
-            if (search && !searchClicked) {
+            if (search) {
                 setSearchTabExpanded(true);
                 return;
             }
@@ -57,8 +80,7 @@ const IndexPage = ({search}) => {
                     {
                         resourceType,
                         id,
-                        queryString,
-                        queryParameters
+                        queryString
                     }
                 );
                 if (status === 401) {
@@ -86,18 +108,28 @@ const IndexPage = ({search}) => {
             }
         };
         callApi().catch(console.error);
-    }, [id, queryString, queryParameters, resourceType, search, searchClicked]);
+    }, [id, queryString, resourceType, search]);
 
     /**
      * Handle search event from child component
      * @param {SearchFormQuery} searchFormQuery
      */
     const handleSearch = (searchFormQuery) => {
-        // You can handle the event and data here
-        console.log("Child button clicked!", searchFormQuery);
-        setQueryParameters(searchFormQuery.getQueryParameters());
-        setSearchClicked(true);
-        setSearchTabExpanded(false);
+        const fhirApi = new FhirApi();
+
+        /**
+         * @type {URL}
+         */
+        const newUrl = fhirApi.getUrl({
+            resourceType: resourceType,
+            id: id,
+            queryParameters: searchFormQuery.getQueryParameters(),
+        });
+        const relativePath = newUrl.pathname + newUrl.search + newUrl.hash;
+        console.info(`Navigating to ${relativePath}`);
+        navigate(relativePath);
+        // setSearchClicked(true);
+        // setSearchTabExpanded(false);
     };
 
     return (
@@ -116,12 +148,7 @@ const IndexPage = ({search}) => {
                 </AccordionDetails>
             </Accordion>
             <Box my={2}>
-                {loading ? '' : status === 200 ? resources.map((fullResource, index) => {
-                    const resource = fullResource.resource || fullResource;
-                    return (
-                        <ResourceCard key={index} index={index} resource={resource} expanded={resourceCardExpanded}/>
-                    );
-                }) : <div>Not Found</div>}
+                {getBox()}
             </Box>
             {bundle && <Footer url={bundle.url} meta={bundle.meta}/>}
         </Container>
