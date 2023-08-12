@@ -1,15 +1,15 @@
 import React, {useEffect, useState} from 'react';
-import {useLocation, useParams} from 'react-router-dom';
+import {useLocation, useNavigate, useParams} from 'react-router-dom';
 import {Accordion, Box, Container} from '@mui/material';
 import Header from '../partials/Header';
 import Footer from '../partials/Footer';
-import FhirApi from '../utils/fhirApi';
 import SearchForm from '../partials/SearchForm';
 import AccordionSummary from '@mui/material/AccordionSummary';
 import AccordionDetails from '@mui/material/AccordionDetails';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import Typography from '@mui/material/Typography';
 import ResourceCard from './ResourceCard';
+import FhirApi from '../utils/fhirApi';
 
 /**
  * IndexPage
@@ -29,6 +29,8 @@ const IndexPage = ({search}) => {
 
     const [searchTabExpanded, setSearchTabExpanded] = useState(false);
     const [resourceCardExpanded, setResourceCardExpanded] = useState(false);
+
+    const navigate = useNavigate();
 
     const handleExpand = () => {
         setSearchTabExpanded(!searchTabExpanded);
@@ -93,11 +95,21 @@ const IndexPage = ({search}) => {
      * @param {SearchFormQuery} searchFormQuery
      */
     const handleSearch = (searchFormQuery) => {
-        // You can handle the event and data here
-        console.log("Child button clicked!", searchFormQuery);
-        setQueryParameters(searchFormQuery.getQueryParameters());
-        setSearchClicked(true);
-        setSearchTabExpanded(false);
+        const fhirApi = new FhirApi();
+
+        /**
+         * @type {URL}
+         */
+        const newUrl = fhirApi.getUrl({
+            resourceType: resourceType,
+            id: id,
+            queryParameters: searchFormQuery.getQueryParameters(),
+        });
+        const relativePath = newUrl.pathname + newUrl.search + newUrl.hash;
+        console.info(`Navigating to ${relativePath}`);
+        navigate(relativePath);
+        // setSearchClicked(true);
+        // setSearchTabExpanded(false);
     };
 
     return (
