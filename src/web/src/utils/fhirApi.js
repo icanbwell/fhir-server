@@ -41,6 +41,7 @@ class FhirApi {
                 headers: {
                     'Accept': 'application/json'
                 },
+                cache: 'no-store' // This will bypass the cache so when we click back button the browser does not show the json
             });
         const status = response.status;
         if (status === 404 || status === 401) {
