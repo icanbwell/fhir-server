@@ -41,9 +41,9 @@ function Footer({searchUtils, body, locals, total, url, user, requestId, oauth_s
             )}
             <Box sx={{flexGrow: 1, pt: 2, textAlign: 'end'}}>
                 <Typography variant="body2">
-                    &copy; Copyright {currentYear} b.well Connected Health |
+                    &copy; Copyright {currentYear} b.well Connected Health |&nbsp;
                     <Link
-                        href="https://docs.google.com/document/d/1afAuyrckHabnCP-uhOqXOQzFUuA4e6yN/edit?usp=sharing&ouid=100180767885483338723&rtpof=true&sd=true"> Conditions
+                        href="https://docs.google.com/document/d/1afAuyrckHabnCP-uhOqXOQzFUuA4e6yN/edit?usp=sharing&ouid=100180767885483338723&rtpof=true&sd=true">Conditions
                         of Use</Link>
                 </Typography>
             </Box>

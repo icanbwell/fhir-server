@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import {useLocation, useNavigate, useParams} from 'react-router-dom';
-import {Accordion, Box, Container} from '@mui/material';
+import {Accordion, Box, Container, LinearProgress} from '@mui/material';
 import Header from '../partials/Header';
 import Footer from '../partials/Footer';
 import SearchForm from '../partials/SearchForm';
@@ -21,9 +21,7 @@ const IndexPage = ({search}) => {
     const [resources, setResources] = useState('');
     const [bundle, setBundle] = useState('');
     const [status, setStatus] = useState('');
-    const [loading, setLoading] = useState(true);
-    const [searchClicked, setSearchClicked] = useState(false);
-    const [queryParameters, setQueryParameters] = useState([]);
+    const [loading, setLoading] = useState(false);
 
     const {id, resourceType} = useParams();
 
@@ -39,8 +37,31 @@ const IndexPage = ({search}) => {
     const location = useLocation();
     const queryString = location.search;
 
+    function getBox() {
+        if (loading) {
+            return <LinearProgress/>;
+        }
+        if (parseInt(status) === 401) {
+            return <Box>Login Expired</Box>;
+        }
+        if (parseInt(status) !== 200 && parseInt(status) !== 404) {
+            return <Box>{status}</Box>;
+        }
+        if (resources.length === 0) {
+            return <Box>No Results Found</Box>;
+        }
+        return <>
+            {resources.map((fullResource, index) => {
+                const resource = fullResource.resource || fullResource;
+                return (
+                    <ResourceCard key={index} index={index} resource={resource} expanded={resourceCardExpanded}/>
+                );
+            })}
+        </>;
+    }
+
     console.log(`id: ${id}, resourceType: ${resourceType}, queryString: ${queryString},` +
-        ` queryParameters: ${queryParameters}, search: ${search}`);
+        ` search: ${search}`);
 
     useEffect(() => {
         if (id) {
@@ -48,7 +69,7 @@ const IndexPage = ({search}) => {
         }
         const callApi = async () => {
             document.title = 'Helix FHIR Server';
-            if (search && !searchClicked) {
+            if (search) {
                 setSearchTabExpanded(true);
                 return;
             }
@@ -59,8 +80,7 @@ const IndexPage = ({search}) => {
                     {
                         resourceType,
                         id,
-                        queryString,
-                        queryParameters
+                        queryString
                     }
                 );
                 if (status === 401) {
@@ -88,7 +108,7 @@ const IndexPage = ({search}) => {
             }
         };
         callApi().catch(console.error);
-    }, [id, queryString, queryParameters, resourceType, search, searchClicked]);
+    }, [id, queryString, resourceType, search]);
 
     /**
      * Handle search event from child component
@@ -128,12 +148,7 @@ const IndexPage = ({search}) => {
                 </AccordionDetails>
             </Accordion>
             <Box my={2}>
-                {loading ? '' : status === 200 ? resources.map((fullResource, index) => {
-                    const resource = fullResource.resource || fullResource;
-                    return (
-                        <ResourceCard key={index} index={index} resource={resource} expanded={resourceCardExpanded}/>
-                    );
-                }) : <div>Not Found</div>}
+                {getBox()}
             </Box>
             {bundle && <Footer url={bundle.url} meta={bundle.meta}/>}
         </Container>
