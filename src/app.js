@@ -340,8 +340,8 @@ function createApp({fnGetContainer, trackMetrics}) {
                 // noinspection JSCheckFunctionSignatures
                 router.use(graphqlMiddleware);
                 app.use('/graphqlv2', router);
-
                 app.use('/graphql', router);
+                app.use('/\\$graphql', router);
             })
             .then((_) => {
                 createFhirApp(fnGetContainer, app);

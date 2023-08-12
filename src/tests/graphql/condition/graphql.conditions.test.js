@@ -60,7 +60,35 @@ describe('GraphQL Condition Tests', () => {
             resp = await request
                 // .get('/graphql/?query=' + graphqlQueryText)
                 // .set(getHeaders())
+                .post('/graphql')
+                .send({
+                    operationName: null,
+                    variables: {},
+                    query: graphqlQueryText,
+                })
+                .set(getGraphQLHeaders());
+
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedConditionBundleResource);
+
+            resp = await request
+                // .get('/graphql/?query=' + graphqlQueryText)
+                // .set(getHeaders())
                 .post('/graphqlv2')
+                .send({
+                    operationName: null,
+                    variables: {},
+                    query: graphqlQueryText,
+                })
+                .set(getGraphQLHeaders());
+
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedConditionBundleResource);
+
+            resp = await request
+                // .get('/graphql/?query=' + graphqlQueryText)
+                // .set(getHeaders())
+                .post('/$graphql')
                 .send({
                     operationName: null,
                     variables: {},

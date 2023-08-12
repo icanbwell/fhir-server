@@ -44,7 +44,7 @@ const graphql = async (fnGetContainer) => {
             },
         }),
         getBundleMetaApolloServerPlugin(),
-        getApolloServerLoggingPlugin('graphqlv2'),
+        getApolloServerLoggingPlugin('graphql'),
         getAddRequestIdToResponseHeadersPlugin(),
         // ApolloServerPluginLandingPageDisabled()
         getValidateMissingVariableValuesPlugin(),
