@@ -1,6 +1,5 @@
 const {logDebug} = require('../common/logging');
 const {generateUUID} = require('../../utils/uid.util');
-const env = require('var');
 const moment = require('moment-timezone');
 const sendToS3 = require('../../utils/aws-s3');
 const {NotValidatedError, BadRequestError} = require('../../utils/httpErrors');
@@ -13,7 +12,6 @@ const {ScopesManager} = require('../security/scopesManager');
 const {FhirLoggingManager} = require('../common/fhirLoggingManager');
 const {ScopesValidator} = require('../security/scopesValidator');
 const {ResourceValidator} = require('../common/resourceValidator');
-const {isTrue} = require('../../utils/isTrue');
 const {DatabaseBulkInserter} = require('../../dataLayer/databaseBulkInserter');
 const {getCircularReplacer} = require('../../utils/getCircularReplacer');
 const {ParsedArgs} = require('../query/parsedArgs');
@@ -114,6 +112,7 @@ class CreateOperation {
         assertTypeEquals(bwellPersonFinder, BwellPersonFinder);
     }
 
+    // noinspection ExceptionCaughtLocallyJS
     /**
      * does a FHIR Create (POST)
      * @param {FhirRequestInfo} requestInfo
@@ -165,7 +164,7 @@ class CreateOperation {
          */
         const currentDate = moment.utc().format('YYYY-MM-DD');
 
-        if (isTrue(env.LOG_ALL_SAVES)) {
+        if (this.configManager.logAllSaves) {
             await sendToS3('logs',
                 resourceType,
                 resource_incoming,
@@ -179,7 +178,7 @@ class CreateOperation {
          */
         let resource = FhirResourceCreator.createByResourceType(resource_incoming, resourceType);
 
-        if (env.VALIDATE_SCHEMA || parsedArgs['_validate']) {
+        if (this.configManager.validateSchema || parsedArgs['_validate']) {
             /**
              * @type {OperationOutcome|null}
              */
@@ -300,7 +299,7 @@ class CreateOperation {
 
             return doc;
         } catch (/** @type {Error} */ e) {
-            if (isTrue(env.LOG_VALIDATION_FAILURES)) {
+            if (this.configManager.logValidationFailures) {
                 await sendToS3('errors',
                     resourceType,
                     resource_incoming,

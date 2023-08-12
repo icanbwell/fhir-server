@@ -332,6 +332,38 @@ class ConfigManager {
     get disableNewUI() {
         return isTrue(env.DISABLE_NEW_UI);
     }
+
+    /**
+     * url to fhir validation service e.g., http://localhost:8080/fhir/
+     * @returns {string|undefined}
+     */
+    get fhirValidationUrl() {
+        return env.FHIR_VALIDATION_URL;
+    }
+
+    /**
+     * whether to log validation failures
+     * @returns {boolean}
+     */
+    get logValidationFailures() {
+        return isTrue(env.LOG_VALIDATION_FAILURES);
+    }
+
+    /**
+     * whether to log all saves
+     * @returns {boolean}
+     */
+    get logAllSaves() {
+        return isTrue(env.LOG_ALL_SAVES);
+    }
+
+    /**
+     * whether to validate schemas
+     * @returns {boolean}
+     */
+    get validateSchema() {
+        return isTrue(env.VALIDATE_SCHEMA);
+    }
 }
 
 module.exports = {

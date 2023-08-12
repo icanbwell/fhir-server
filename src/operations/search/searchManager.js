@@ -46,7 +46,7 @@ class SearchManager {
      * @param {ScopesManager} scopesManager
      * @param {DatabaseAttachmentManager} databaseAttachmentManager
      * @param {FhirResourceWriterFactory} fhirResourceWriterFactory
-     * @param {ConsentManager} ConsentManager
+     * @param {ConsentManager} consentManager
      * @param {SearchQueryBuilder} searchQueryBuilder
      */
     constructor(

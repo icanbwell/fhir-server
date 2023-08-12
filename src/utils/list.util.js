@@ -122,7 +122,7 @@ const groupByLambda = function (sourceArray, fnKey) { // `sourceArray` is an arr
 /**
  * Gets the first element in an array if exists else returns null
  * @param {Object[]} sourceArray
- * @return {Object | null}
+ * @return {Object| string | null}
  */
 const getFirstElementOrNull = (sourceArray) => sourceArray.length === 0 ? null : sourceArray[0];
 

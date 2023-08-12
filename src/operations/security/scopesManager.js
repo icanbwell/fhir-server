@@ -157,7 +157,7 @@ class ScopesManager {
 
     /**
      * Returns whether the resource has an owner tag
-     * @param {Resource} resource
+     * @param {Resource|Object} resource
      * @return {boolean}
      */
     doesResourceHaveOwnerTags(resource) {

@@ -60,6 +60,7 @@ services:
             ENABLE_ACCESS_TAG_UPDATE: '0'
             DD_TRACE_ENABLED: 'False'
             ENABLE_CONSENTED_DATA_ACCESS: '1'
+            FHIR_VALIDATION_URL: 'http://hapi-fhir-server:8080/fhir'
         ports:
             - '3000:3000'
         volumes:
@@ -71,7 +72,7 @@ services:
             test: ['CMD-SHELL', 'curl --silent --fail localhost:3000/health || exit 1']
 
     mongo:
-        image: mongo:5.0.14
+        image: mongo:5.0.18
         ports:
             - '27017:27017'
         environment:
@@ -131,6 +132,11 @@ services:
             - KAFKA_BROKERCONNECT=kafka:9092
             - 'JVM_OPTS=-Xms32M -Xmx64M'
             - SERVER_SERVLET_CONTEXTPATH=/
+
+    hapi-fhir-server:
+      image: hapiproject/hapi:v6.6.0
+      ports:
+        - "3001:8080"
 
 volumes:
     mongo_data:
