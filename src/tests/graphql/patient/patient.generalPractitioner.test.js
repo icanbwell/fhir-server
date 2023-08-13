@@ -111,7 +111,7 @@ describe('GraphQL Patient Tests', () => {
             await internalAuditEventCollection.deleteMany({});
 
             resp = await request
-                .post('/graphqlv2')
+                .post('/graphql')
                 .send({
                     operationName: null,
                     variables: {},
@@ -167,7 +167,7 @@ describe('GraphQL Patient Tests', () => {
             expect(resp.body.length).toBe(2);
 
             await request
-                .post('/graphqlv2')
+                .post('/graphql')
                 .send({
                     operationName: null,
                     variables: {},
@@ -205,7 +205,7 @@ describe('GraphQL Patient Tests', () => {
             expect(resp.body.length).toBe(2);
 
             resp = await request
-                .post('/graphqlv2')
+                .post('/graphql')
                 .send({
                     operationName: null,
                     variables: {},
@@ -246,7 +246,7 @@ describe('GraphQL Patient Tests', () => {
             expect(resp.body.length).toBe(2);
 
             resp = await request
-                .post('/graphqlv2')
+                .post('/graphql')
                 .send({
                     operationName: null,
                     variables: {},
