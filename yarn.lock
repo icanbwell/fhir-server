@@ -4569,10 +4569,10 @@ dayjs@~1.8.24:
   resolved "https://registry.npmjs.org/dayjs/-/dayjs-1.8.36.tgz"
   integrity sha512-3VmRXEtw7RZKAf+4Tv1Ym9AGeo8r8+CjDi26x+7SYQil1UqtqdaokhzoEJohqlzt0m5kacJSDhJQkG/LWhpRBw==
 
-dd-trace@^4.11.0:
-  version "4.11.0"
-  resolved "https://registry.npmjs.org/dd-trace/-/dd-trace-4.11.0.tgz"
-  integrity sha512-uZOxLM/+ZAIO5dPrMY61IvOkuwb3rXNu2FSTN1XnU3rc27IUBHpfs7yiTqFJjwS3h2dnG3aNx2hRAzobz0I2pg==
+dd-trace@^4.11.1:
+  version "4.11.1"
+  resolved "https://registry.yarnpkg.com/dd-trace/-/dd-trace-4.11.1.tgz#69d4b1d26fde0a392b438db476d480ddacd3e39c"
+  integrity sha512-4HKackJ+Q5Z7qJ5RLI+J479Fp/gvZDCbXtb19dyZMVDbIXN2gX+pgoqMEKBTnldCzXiP8e4bWtXXrh5aI38wYA==
   dependencies:
     "@datadog/native-appsec" "^3.2.0"
     "@datadog/native-iast-rewriter" "2.0.1"
@@ -4585,7 +4585,7 @@ dd-trace@^4.11.0:
     crypto-randomuuid "^1.0.0"
     diagnostics_channel "^1.1.0"
     ignore "^5.2.4"
-    import-in-the-middle "^1.4.1"
+    import-in-the-middle "^1.4.2"
     int64-buffer "^0.1.9"
     ipaddr.js "^2.1.0"
     istanbul-lib-coverage "3.2.0"
@@ -6163,10 +6163,10 @@ import-fresh@^3.2.1:
     parent-module "^1.0.0"
     resolve-from "^4.0.0"
 
-import-in-the-middle@^1.4.1:
-  version "1.4.1"
-  resolved "https://registry.npmjs.org/import-in-the-middle/-/import-in-the-middle-1.4.1.tgz"
-  integrity sha512-hGG0PcCsykVo8MBVH8l0uEWLWW6DXMgJA9jvC0yps6M3uIJ8L/tagTCbyF8Ud5TtqJ8/jmZL1YkyySyeVkVQrA==
+import-in-the-middle@^1.4.2:
+  version "1.4.2"
+  resolved "https://registry.yarnpkg.com/import-in-the-middle/-/import-in-the-middle-1.4.2.tgz#2a266676e3495e72c04bbaa5ec14756ba168391b"
+  integrity sha512-9WOz1Yh/cvO/p69sxRmhyQwrIGGSp7EIdcb+fFNVi7CzQGQB8U1/1XrKVSbEd/GNOAeM0peJtmi7+qphe7NvAw==
   dependencies:
     acorn "^8.8.2"
     acorn-import-assertions "^1.9.0"

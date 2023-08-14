@@ -141,7 +141,10 @@ if (env.ACCESS_LOGS_CLUSTER_MONGO_URL) {
 accessLogsMongoConfig.options = {
     ...options,
     useUnifiedTopology: true,
-    writeConcern: { w: 1 },
+    writeConcern: {
+        w: 1,
+        wtimeoutMS: 30 * 1000
+    },
     maxPoolSize: 15
 };
 delete accessLogsMongoConfig.options.compressors;
