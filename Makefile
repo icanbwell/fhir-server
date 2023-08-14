@@ -12,6 +12,7 @@ publish:
 
 .PHONY:up
 up:
+	docker compose -f docker-compose.yml  -p fhir-dev build --parallel && \
 	docker compose -p fhir-dev -f docker-compose.yml up --detach && \
 	echo "\nwaiting for Mongo server to become healthy" && \
 	while [ "`docker inspect --format {{.State.Health.Status}} fhir-dev-mongo-1`" != "healthy" ] && [ "`docker inspect --format {{.State.Health.Status}} fhir-dev-mongo-1`" != "unhealthy" ] && [ "`docker inspect --format {{.State.Status}} fhir-dev-mongo-1`" != "restarting" ]; do printf "." && sleep 2; done && \
@@ -22,6 +23,7 @@ up:
 	echo FHIR server GraphQL: http://localhost:3000/graphql && \
 	echo FHIR server Metrics: http://localhost:3000/metrics && \
 	echo Kafka UI: http://localhost:9000 && \
+	echo HAPI UI: http://localhost:3001/fhir/ && \
 	echo FHIR server: http://localhost:3000
 
 .PHONY:up-offline

@@ -1,9 +1,7 @@
-const env = require('var');
 const moment = require('moment-timezone');
 const sendToS3 = require('../../utils/aws-s3');
 const { FieldMapper } = require('../query/filters/fieldMapper');
 const {NotValidatedError, ForbiddenError, BadRequestError} = require('../../utils/httpErrors');
-const {isTrue} = require('../../utils/isTrue');
 const {validationsFailedCounter} = require('../../utils/prometheus.utils');
 const {assertTypeEquals, assertIsValid} = require('../../utils/assertType');
 const {ChangeEventProducer} = require('../../utils/changeEventProducer');
@@ -22,8 +20,6 @@ const {ParsedArgs} = require('../query/parsedArgs');
 const {ConfigManager} = require('../../utils/configManager');
 const {FhirResourceCreator} = require('../../fhir/fhirResourceCreator');
 const {DatabaseAttachmentManager} = require('../../dataLayer/databaseAttachmentManager');
-const {SensitiveDataProcessor} = require('../../utils/sensitiveDataProcessor');
-const { matchPersonLinks } = require('../../utils/personLinksMatcher');
 const { BwellPersonFinder } = require('../../utils/bwellPersonFinder');
 const {RETRIEVE} = require('../../constants').GRIDFS;
 
@@ -45,7 +41,6 @@ class UpdateOperation {
      * @param {ResourceMerger} resourceMerger
      * @param {ConfigManager} configManager
      * @param {DatabaseAttachmentManager} databaseAttachmentManager
-     * @param {SensitiveDataProcessor} sensitiveDataProcessor
      * @param {BwellPersonFinder} bwellPersonFinder
      */
     constructor(
@@ -62,7 +57,6 @@ class UpdateOperation {
             resourceMerger,
             configManager,
             databaseAttachmentManager,
-            sensitiveDataProcessor,
             bwellPersonFinder
         }
     ) {
@@ -131,12 +125,6 @@ class UpdateOperation {
         assertTypeEquals(databaseAttachmentManager, DatabaseAttachmentManager);
 
         /**
-         * @type {SensitiveDataProcessor}
-         */
-        this.sensitiveDataProcessor = sensitiveDataProcessor;
-        assertTypeEquals(sensitiveDataProcessor, SensitiveDataProcessor);
-
-        /**
          * @type {BwellPersonFinder}
          */
         this.bwellPersonFinder = bwellPersonFinder;
@@ -190,7 +178,7 @@ class UpdateOperation {
         let resource_incoming_json = body;
         let {base_version, id} = parsedArgs;
 
-        if (isTrue(env.LOG_ALL_SAVES)) {
+        if (this.configManager.logAllSaves) {
             await sendToS3('logs',
                 resourceType,
                 resource_incoming_json,
@@ -205,7 +193,7 @@ class UpdateOperation {
          */
         let resource_incoming = FhirResourceCreator.createByResourceType(resource_incoming_json, resourceType);
 
-        if (env.VALIDATE_SCHEMA || parsedArgs['_validate']) {
+        if (this.configManager.validateSchema || parsedArgs['_validate']) {
             // Truncate id to 64 so it passes the validator since we support more than 64 internally
             resource_incoming_json.id = id.slice(0, 64);
             /**
@@ -222,7 +210,7 @@ class UpdateOperation {
                 });
             if (validationOperationOutcome) {
                 validationsFailedCounter.inc({action: currentOperationName, resourceType}, 1);
-                if (isTrue(env.LOG_VALIDATION_FAILURES)) {
+                if (this.configManager.logValidationFailures) {
                     await sendToS3('validation_failures',
                         resourceType,
                         resource_incoming_json,
@@ -326,14 +314,6 @@ class UpdateOperation {
             }
 
             if (doc) {
-                // The access tags are updated before updating the resources.
-                // If access tags is to be updated call the corresponding processor
-                if (this.configManager.enabledAccessTagUpdate) {
-                    await this.sensitiveDataProcessor.updateResourceSecurityAccessTag({
-                        resource: doc,
-                    });
-                }
-
                 /**
                  * @type {MergeResultEntry[]}
                  */
@@ -394,24 +374,7 @@ class UpdateOperation {
                         await this.changeEventProducer.flushAsync({requestId});
                     }
                 });
-                if (this.configManager.enabledAccessTagUpdate) {
-                    this.postRequestProcessor.add({
-                        requestId,
-                        fnTask: async () => {
-                            if (mergeResults[0].resourceType === 'Consent' && (mergeResults[0].created || mergeResults[0].updated)) {
-                                await this.sensitiveDataProcessor.processPatientConsentChange({requestId: requestId, resources: [doc]});
-                            }
-                            if (
-                                mergeResults[0].resourceType === 'Person' &&
-                                (mergeResults[0].created || mergeResults[0].updated) &&
-                                this.bwellPersonFinder.isBwellPerson(doc) &&
-                                !matchPersonLinks(doc.link, foundResource.link)
-                            ) {
-                                await this.sensitiveDataProcessor.processPersonLinkChange({requestId: requestId, resources: [doc]});
-                            }
-                        }
-                    });
-                }
+
                 return result;
             } else {
                 // not modified
@@ -424,7 +387,7 @@ class UpdateOperation {
                 };
             }
         } catch (e) {
-            if (isTrue(env.LOG_VALIDATION_FAILURES)) {
+            if (this.configManager.logValidationFailures) {
                 await sendToS3('errors',
                     resourceType,
                     resource_incoming_json,

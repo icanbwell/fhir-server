@@ -27,12 +27,39 @@ class FhirApi {
     /**
      * gets fhir bundle
      * @param {string} resourceType
-     * @param {string} id
-     * @param {string} [query]
-     * @param {string[]|undefined} queryParameters
+     * @param {string|undefined} [id]
+     * @param {string} [queryString]
+     * @param {string[]|undefined} [queryParameters]
      * @returns {Promise<{status: number, json: Object}>}
      */
     async getBundleAsync({resourceType, id, queryString, queryParameters}) {
+        const url = this.getUrl({resourceType, id, queryString, queryParameters});
+
+        const response = await fetch(url.toString(),
+            {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json'
+                },
+                cache: 'no-store' // This will bypass the cache so when we click back button the browser does not show the json
+            });
+        const status = response.status;
+        if (status === 404 || status === 401) {
+            return {status, json: {}};
+        }
+        const responseJson = await response.json();
+        return {status, json: responseJson};
+    }
+
+    /**
+     * gets url based on resource type and query parameters
+     * @param {string} resourceType
+     * @param {string|undefined} [id]
+     * @param {string} [queryString]
+     * @param {string[]|undefined} [queryParameters]
+     * @returns {URL}
+     */
+    getUrl({resourceType, id, queryString, queryParameters}) {
         let urlString = `/4_0_0/${resourceType}`;
         if (id) {
             urlString += `/${id}/`;
@@ -59,20 +86,7 @@ class FhirApi {
         if (!url.searchParams.has('_count')) {
             url.searchParams.append('_count', 10);
         }
-
-        const response = await fetch(url.toString(),
-            {
-                method: 'GET',
-                headers: {
-                    'Accept': 'application/json'
-                },
-            });
-        const status = response.status;
-        if (status === 404 || status === 401) {
-            return {status, json: {}};
-        }
-        const responseJson = await response.json();
-        return {status, json: responseJson};
+        return url;
     }
 }
 

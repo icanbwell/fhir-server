@@ -20,7 +20,7 @@ class ConsentManager {
      * @param {ConfigManager} configManager
      * @param {PatientFilterManager} patientFilterManager
      * @param {LinkedPatientsFinder} linkedPatientsFinder
-     * @param {SearchQueryBuilder} SearchQueryBuilder
+     * @param {SearchQueryBuilder} searchQueryBuilder
      */
     constructor(
         {

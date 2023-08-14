@@ -9,8 +9,9 @@ const {PreSaveManager} = require('../../../preSaveHandlers/preSave');
 const {ScopesManager} = require('../../security/scopesManager');
 const {SecurityTagSystem} = require('../../../utils/securityTagSystem');
 const {isUuid} = require('../../../utils/uid.util');
+const {BaseValidator} = require('./baseValidator');
 
-class MergeResourceValidator {
+class MergeResourceValidator extends BaseValidator {
     /**
      * @param {ScopesManager} scopesManager
      * @param {MergeManager} mergeManager
@@ -25,6 +26,7 @@ class MergeResourceValidator {
         preSaveManager,
         configManager
     }) {
+        super();
         /**
          * @type {ScopesManager}
          */
@@ -61,12 +63,12 @@ class MergeResourceValidator {
      * @param {string|null} user
      * @param {string|null} path
      * @param {date} currentDate
-     * @param {Object|Object[]} incomingObjects
+     * @param {Resource|Resource[]} incomingResources
      * @param {string} requestId
      * @param {string} base_version
-     * @returns {Promise<{preCheckErrors: MergeResultEntry[], validatedObjects: Resources[], wasAList: boolean}>}
+     * @returns {Promise<{preCheckErrors: MergeResultEntry[], validatedObjects: Resource[], wasAList: boolean}>}
      */
-    async validate({ scope, user, path, currentDate, incomingObjects, requestId, base_version }) {
+    async validate({ scope, user, path, currentDate, incomingResources, requestId, base_version }) {
         /**
          * @type {string[]}
          */
@@ -74,11 +76,11 @@ class MergeResourceValidator {
         /**
          * @type {boolean}
          */
-        const wasIncomingAList = Array.isArray(incomingObjects);
+        const wasIncomingAList = Array.isArray(incomingResources);
         /**
          * @type {Resource[]}
          */
-        let resourcesIncomingArray = FhirResourceCreator.createArray(incomingObjects);
+        let resourcesIncomingArray = FhirResourceCreator.createArray(incomingResources);
 
         resourcesIncomingArray = resourcesIncomingArray.map(resource => {
             if (resource.id) {

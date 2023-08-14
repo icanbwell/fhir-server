@@ -293,9 +293,11 @@ function toHaveResponse(resp, expectedIn, fnCleanResource) {
             cleanMeta(body);
             if (body.resourceType) {
                 const operationOutcome = validateResource(
-                    body,
-                    body.resourceType,
-                    ''
+                    {
+                        resourceBody: body,
+                        resourceName: body.resourceType,
+                        path: ''
+                    }
                 );
                 if (operationOutcome && operationOutcome.statusCode === 400) {
                     assertFail({
@@ -417,9 +419,11 @@ function toHaveGraphQLResponse(resp, expected, queryName, fnCleanResource) {
             cleanMeta(body);
             if (body.resourceType) {
                 const operationOutcome = validateResource(
-                    body,
-                    body.resourceType,
-                    ''
+                    {
+                        resourceBody: body,
+                        resourceName: body.resourceType,
+                        path: ''
+                    }
                 );
                 if (operationOutcome && operationOutcome.statusCode === 400) {
                     assertFail({
