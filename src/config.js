@@ -138,7 +138,12 @@ if (env.ACCESS_LOGS_CLUSTER_MONGO_URL) {
         db_name: dbName,
     };
 }
-accessLogsMongoConfig.options = {...options, useUnifiedTopology: true};
+accessLogsMongoConfig.options = {
+    ...options,
+    useUnifiedTopology: true,
+    writeConcern: { w: 1 },
+    maxPoolSize: 15
+};
 delete accessLogsMongoConfig.options.compressors;
 
 // Set up whitelist
