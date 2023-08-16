@@ -142,7 +142,7 @@ accessLogsMongoConfig.options = {
     ...options,
     useUnifiedTopology: true,
     writeConcern: { w: 1 },
-    maxPoolSize: 15
+    maxPoolSize: env.ACCESS_LOGS_MAX_POOL_SIZE ? parseInt(env.ACCESS_LOGS_MAX_POOL_SIZE) : 15
 };
 delete accessLogsMongoConfig.options.compressors;
 
