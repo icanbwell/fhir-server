@@ -11,6 +11,7 @@ const {
     PERSON_REFERENCE_PREFIX,
     PATIENT_REFERENCE_PREFIX,
     BWELL_PERSON_SOURCE_ASSIGNING_AUTHORITY,
+    PROXY_PERSON_CONSENT_CODING,
 } = require('../../constants');
 const ConsentActor = require('../../fhir/classes/4_0_0/backbone_elements/consentActor');
 const { assertTypeEquals } = require('../../utils/assertType');
@@ -278,13 +279,31 @@ class AddProxyPatientToConsentResourceRunner extends BaseBulkOperationRunner {
             ''
         )}`;
         /**@type {boolean} */
-        const isAlreadyPresent = provisionActor.some(
-            (actor) =>
+        const isAlreadyPresent = provisionActor.some((actor) => {
+            let alreadyPresent;
+            alreadyPresent =
                 actor.reference &&
                 actor.reference._uuid &&
                 typeof actor.reference._uuid === 'string' &&
-                actor.reference._uuid === proxyPatientReference
-        );
+                actor.reference._uuid === proxyPatientReference;
+
+            // check for coding
+            alreadyPresent =
+                alreadyPresent &&
+                actor.role &&
+                actor.role.coding &&
+                Array.isArray(actor.role.coding) &&
+                actor.role.coding.some((coding) => {
+                    return coding.code === PROXY_PERSON_CONSENT_CODING.CODE;
+                });
+
+            if (alreadyPresent) {
+                this.adminLogger.logger.warn(
+                    `[addProxyPersonReference] Proxy Person '${proxyPatientReference}' already present for ${resource._uuid}`
+                );
+            }
+            return alreadyPresent;
+        });
 
         if (isAlreadyPresent) {
             // proxy-patient reference is already present
@@ -294,8 +313,8 @@ class AddProxyPatientToConsentResourceRunner extends BaseBulkOperationRunner {
                 role: {
                     coding: [
                         {
-                            system: 'http://terminology.hl7.org/3.1.0/CodeSystem-v3-RoleCode.html',
-                            code: 'AUT',
+                            system: PROXY_PERSON_CONSENT_CODING.SYSTEM,
+                            code: PROXY_PERSON_CONSENT_CODING.CODE,
                         },
                     ],
                 },
