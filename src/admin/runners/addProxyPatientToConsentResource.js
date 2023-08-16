@@ -13,8 +13,11 @@ const {
     BWELL_PERSON_SOURCE_ASSIGNING_AUTHORITY,
 } = require('../../constants');
 const ConsentActor = require('../../fhir/classes/4_0_0/backbone_elements/consentActor');
+const { assertTypeEquals } = require('../../utils/assertType');
+const { BwellPersonFinder } = require('../../utils/bwellPersonFinder');
+const { PreSaveManager } = require('../../preSaveHandlers/preSave');
 
-const AvailableCollections = ['Consent_4_0_0', 'Consent_4_0_0_History', 'all'];
+const AvailableCollections = ['Consent_4_0_0', 'Consent_4_0_0_History'];
 class AddProxyPatientToConsentResourceRunner extends BaseBulkOperationRunner {
     /**
      * @typedef AddProxyPatientToConsentResourceRunnerParams
@@ -29,6 +32,8 @@ class AddProxyPatientToConsentResourceRunner extends BaseBulkOperationRunner {
      * @property {BwellPersonFinder} bwellPersonFinder
      * @property {PreSaveManager} preSaveManager
      * @property {boolean|undefined} useTransaction
+     * @property {Date|undefined} beforeLastUpdatedDate
+     * @property {Date|undefined} afterLastUpdatedDate
      * @param {AddProxyPatientToConsentResourceRunnerParams} options
      */
     constructor({
@@ -39,30 +44,42 @@ class AddProxyPatientToConsentResourceRunner extends BaseBulkOperationRunner {
         bwellPersonFinder,
         preSaveManager,
         useTransaction,
+        beforeLastUpdatedDate,
+        afterLastUpdatedDate,
         ...args
     }) {
         super(args);
 
-        /**@type {string[]} */
         if (collections.length === 1 && collections[0] === 'all') {
-            this.collections = ['Consent_4_0_0', 'Consent_4_0_0_History'];
+            /**@type {string[]} */
+            this.collections = [...AvailableCollections];
         } else {
+            /**@type {string[]} */
             this.collections = collections.filter(
-                (c) => AvailableCollections.includes(c) && c !== 'all'
+                (c) => AvailableCollections.includes(c)
             );
         }
+        /**@type {number|undefined} */
         this.skip = skip;
+        /**@type {number|undefined} */
         this.limit = limit;
+        /**@type {string|undefined} */
         this.startFromId = startFromId;
+        /**@type {boolean|undefined} */
         this.useTransaction = useTransaction;
-
+        /**@type {Date|undefined} */
+        this.afterLastUpdatedDate = afterLastUpdatedDate;
+        /**@type {Date|undefined} */
+        this.beforeLastUpdatedDate = beforeLastUpdatedDate;
         /**
-         * @type {import('../../utils/bwellPersonFinder').BwellPersonFinder}
+         * @type {BwellPersonFinder}
          */
         this.bwellPersonFinder = bwellPersonFinder;
+        assertTypeEquals(bwellPersonFinder, BwellPersonFinder);
 
-        /**@type {import('../../preSaveHandlers/preSave').PreSaveManager} */
+        /**@type {PreSaveManager} */
         this.preSaveManager = preSaveManager;
+        assertTypeEquals(preSaveManager, PreSaveManager);
 
         /**
          * @type {Map<string, Map<string, string> | Set<string>>}
@@ -123,6 +140,7 @@ class AddProxyPatientToConsentResourceRunner extends BaseBulkOperationRunner {
                 startFromId: this.startFromId,
                 isHistoryCollection,
             });
+
             try {
                 this.adminLogger.logInfo(
                     `[processAsync] Collection query: ${mongoQueryStringify(
@@ -511,6 +529,28 @@ class AddProxyPatientToConsentResourceRunner extends BaseBulkOperationRunner {
         const prefix = isHistoryCollection ? 'resource.' : '';
         const properties = ['_uuid', 'patient'];
         query.$and = properties.map((v) => this.filterPropExist(`${prefix}${v}`));
+
+        // add support for lastUpdated
+        if (this.beforeLastUpdatedDate && this.afterLastUpdatedDate) {
+            query.$and.push({
+                [`${prefix}meta.lastUpdated`]: {
+                    $lt: this.beforeLastUpdatedDate,
+                    $gt: this.afterLastUpdatedDate,
+                },
+            });
+        } else if (this.beforeLastUpdatedDate) {
+            query.$and.push({
+                [`${prefix}meta.lastUpdated`]: {
+                    $lt: this.beforeLastUpdatedDate,
+                },
+            });
+        } else if (this.afterLastUpdatedDate) {
+            query.$and.push({
+                [`${prefix}meta.lastUpdated`]: {
+                    $gt: this.afterLastUpdatedDate,
+                },
+            });
+        }
 
         if (!isHistoryCollection && startFromId) {
             const startId = isValidMongoObjectId(startFromId) ? new ObjectId(startFromId)

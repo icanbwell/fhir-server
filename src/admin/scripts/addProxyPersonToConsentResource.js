@@ -1,12 +1,13 @@
 // load config from .env.  Should be first thing so env vars are available to rest of the code
-const path = require('path');
-const dotenv = require('dotenv');
-const pathToEnv = path.resolve(__dirname, '.env');
-dotenv.config({
-    path: pathToEnv,
-});
-console.log(`Reading config from ${pathToEnv}`);
-console.log(`MONGO_URL=${process.env.MONGO_URL}`);
+if (process.argv.includes('--dotenv')) {
+    const path = require('path');
+    const dotenv = require('dotenv');
+    const pathToEnv = path.resolve(__dirname, '.env');
+    dotenv.config({
+        path: pathToEnv
+    });
+    console.log(`Reading config from ${pathToEnv}`);
+}
 const { createContainer } = require('../../createContainer');
 const { CommandLineParser } = require('./commandLineParser');
 const { AdminLogger } = require('../adminLogger');
@@ -24,6 +25,17 @@ async function main() {
      */
     const parameters = CommandLineParser.parseCommandLine();
     let currentDateTime = new Date();
+
+    /**
+     * @type {Date|undefined}
+     */
+    const afterLastUpdatedDate = parameters.after ? new Date(parameters.after) : undefined;
+
+    /**
+     * @type {Date|undefined}
+     */
+    const beforeLastUpdatedDate = parameters.before ? new Date(parameters.before) : undefined;
+
     /**
      * @type {string[]}
      */
@@ -55,6 +67,8 @@ async function main() {
                 useTransaction: parameters.useTransaction ? true : false,
                 bwellPersonFinder: c.bwellPersonFinder,
                 preSaveManager: c.preSaveManager,
+                beforeLastUpdatedDate,
+                afterLastUpdatedDate
             })
     );
 
@@ -71,7 +85,7 @@ async function main() {
 /**
  * To run this:
  * nvm use
- * node src/admin/scripts/changeSourceAssigningAuthority.js --batchSize=10000
+ * node src/admin/scripts/addProxyPersonToConsentResource.js --batchSize=10000
  * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/addProxyPersonToConsentResource.js --batchSize=10000
  * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/addProxyPersonToConsentResource.js --collections=Consent_4_0_0 --batchSize=10000
  * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/addProxyPersonToConsentResource.js --batchSize=10000
@@ -79,7 +93,8 @@ async function main() {
  * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/addProxyPersonToConsentResource.js --batchSize=10000 --useTransaction
  * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/addProxyPersonToConsentResource.js --batchSize=10000 --useTransaction --startFromId=123
  * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/addProxyPersonToConsentResource.js --batchSize=10000 --useTransaction --skip 200000
- * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/addProxyPersonToConsentResource.js --batchSize=10000 --limit 10
+ * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/addProxyPersonToConsentResource.js --batchSize=10000 --limit 10 --before 2023-10-28
+ * NODE_OPTIONS=--max_old_space_size=8192 node --max-old-space-size=8192 src/admin/scripts/addProxyPersonToConsentResource.js --batchSize=10000 --limit 10 --after 2023-10-28
  */
 console.log('Running main');
 main().catch((reason) => {
