@@ -67,16 +67,14 @@ class ResourceMerger {
         resourceToMerge.meta.lastUpdated = currentResource.meta.lastUpdated;
         resourceToMerge.meta.source = currentResource.meta.source;
 
-        if (!resourceToMerge._sourceAssigningAuthority) {
-            resourceToMerge._sourceAssigningAuthority = currentResource._sourceAssigningAuthority;
+        const currentSourceAssigningAuthority = currentResource.meta.security.find(
+            s => s.system === SecurityTagSystem.sourceAssigningAuthority
+        );
+        if (!resourceToMerge._sourceAssigningAuthority && currentSourceAssigningAuthority) {
             if (!resourceToMerge.meta.security) {
-                resourceToMerge.meta.security = [
-                    currentResource.meta.security.find(s => s.system === SecurityTagSystem.sourceAssigningAuthority)
-                ];
-            } else if (resourceToMerge.meta.security.some(s => s.system === SecurityTagSystem.sourceAssigningAuthority)) {
-                resourceToMerge.meta.security.push(
-                    currentResource.meta.security.find(s => s.system === SecurityTagSystem.sourceAssigningAuthority)
-                );
+                resourceToMerge.meta.security = [currentSourceAssigningAuthority];
+            } else if (!resourceToMerge.meta.security.some(s => s.system === SecurityTagSystem.sourceAssigningAuthority)) {
+                resourceToMerge.meta.security.push(currentSourceAssigningAuthority);
             }
         }
 
