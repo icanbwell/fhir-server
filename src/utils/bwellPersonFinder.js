@@ -134,7 +134,16 @@ class BwellPersonFinder {
     async searchForBwellPersonsAsync({
         databaseQueryManager, level, visitedReferences, references
     }) {
-        if (level === MaxDepthForBFS || !references || Object.keys(references).length === 0) {
+
+        if (!references || Object.keys(references).length === 0) {
+            let message = `No references were passed for depth: ${level}. Returning`;
+            logWarn(message, { currentReferences: references, totalProcessedReferences: Array.from(visitedReferences)});
+            /**@type {Map<string, string>} */
+            const emptyMap = new Map();
+            return emptyMap;
+        }
+
+        if (level === MaxDepthForBFS) {
             let message = `Maximum recursion depth of ${MaxDepthForBFS} reached while recursively fetching master-person`;
             logWarn(message, { currentReferences: references, totalProcessedReferences: Array.from(visitedReferences)});
             /**@type {Map<string, string>} */
