@@ -643,6 +643,42 @@ class BaseBulkOperationRunner extends BaseScriptRunner {
     }
 
     /**
+     * Creates a single connection and returns the collection instance
+     * @param {{connection: string, db_name: string, options: import('mongodb').MongoClientOptions }} mongoConfig
+     * @param {string} collectionName
+     * @returns {Promise<{collection: import('mongodb').Collection<import('mongodb').Document>|undefined, session: import('mongodb').ClientSession, sessionId: import('mongodb').ServerSessionId; client: import('mongodb').MongoClient}>}
+     */
+    async createSingeConnectionAsync({ mongoConfig, collectionName }) {
+        /**
+         * @type {import('mongodb').MongoClient}
+         */
+        const client = await this.mongoDatabaseManager.createClientAsync(mongoConfig);
+
+        /**
+         * @type {import('mongodb').ClientSession}
+         */
+        const session = client.startSession();
+        /**
+         * @type {import('mongodb').ServerSessionId}
+         */
+        let sessionId = session.serverSession.id;
+        this.adminLogger.logInfo('Started session', {'session id': sessionId});
+        /**
+         * @type {import('mongodb').Db}
+         */
+        const db = client.db(mongoConfig.db_name);
+
+        /**
+         * @type {import('mongodb').Collection<import('mongodb').Document>|undefined}
+         */
+        let collection;
+        if (collectionName) {
+            collection = db.collection(collectionName);
+        }
+        return { collection, session, client, sessionId };
+    }
+
+    /**
      *
      * @param {FindCursor<WithId<import('mongodb').Document>>} cursor
      * @returns {Promise<*>}

@@ -198,4 +198,8 @@ module.exports = {
     PERSON_REFERENCE_PREFIX: 'Person/',
     PERSON_PROXY_PREFIX: 'person.',
     BWELL_PERSON_SOURCE_ASSIGNING_AUTHORITY: 'bwell',
+    PROXY_PERSON_CONSENT_CODING: {
+        SYSTEM: 'http://terminology.hl7.org/3.1.0/CodeSystem-v3-RoleCode.html',
+        CODE: 'AUT'
+    },
 };
