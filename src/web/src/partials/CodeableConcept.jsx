@@ -51,8 +51,8 @@ function CodeableConcept({codeableConcepts, name, resourceType, searchParameter}
                         </TableHead>
                         <TableBody>
                             {codeableConcepts.map((codeableConcept, index) =>
-                                    codeableConcept.coding && codeableConcept.coding.map((coding) => (
-                                        <TableRow key={index}>
+                                    codeableConcept.coding && codeableConcept.coding.map((coding, index2) => (
+                                        <TableRow key={`${index}.${index2}`}>
                                             <TableCell>{coding.id}</TableCell>
                                             <TableCell>{codeableConcept.text || coding.display}</TableCell>
                                             {searchParameter ? (
