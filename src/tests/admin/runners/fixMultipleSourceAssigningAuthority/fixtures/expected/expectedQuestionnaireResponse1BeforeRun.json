@@ -1,0 +1,59 @@
+{
+    "_questionnaire": {
+        "extension": [
+            {
+                "url": "http://hl7.org/fhir/StructureDefinition/display",
+                "valueString": "Lifelines"
+            }
+        ]
+    },
+    "author": {
+        "reference": "Practitioner/f201"
+    },
+    "authored": "2013-06-18T00:00:00+01:00",
+    "id": "1",
+    "identifier": {
+        "system": "bwell"
+    },
+    "item": [
+        {
+            "answer": [
+                {
+                    "valueBoolean": true
+                }
+            ],
+            "linkId": "1",
+            "text": "Do you have allergies?"
+        }
+    ],
+    "meta": {
+        "security": [
+            {
+                "code": "bwell",
+                "system": "https://www.icanbwell.com/owner"
+            },
+            {
+                "code": "bwell",
+                "system": "https://www.icanbwell.com/sourceAssigningAuthority"
+            },
+            {
+                "code": "bwell",
+                "system": "https://www.icanbwell.com/sourceAssigningAuthority"
+            }
+        ],
+        "source": "bwell"
+    },
+    "resourceType": "QuestionnaireResponse",
+    "source": {
+        "reference": "Practitioner/f201"
+    },
+    "status": "completed",
+    "subject": {
+        "display": "Roel",
+        "reference": "Patient/f201"
+    },
+    "text": {
+        "status": "generated"
+    }
+}
+
