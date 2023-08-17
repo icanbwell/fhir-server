@@ -4,6 +4,7 @@ import InfoIcon from '@mui/icons-material/Info';
 import LogoutIcon from '@mui/icons-material/Logout';
 import HomeIcon from '@mui/icons-material/Home';
 import {Link} from 'react-router-dom';
+import BwellIcon from '../dist/images/bwell.png';
 
 class Header extends React.Component {
     constructor(props) {
@@ -57,11 +58,11 @@ class Header extends React.Component {
                 <AppBar position="static">
                     <Toolbar>
                         <IconButton color="inherit" aria-label="home" id="home" component={Link} to="/">
-                            <HomeIcon/>
+                            <img src={BwellIcon} alt="b.well Icon" style={{height: 24}}/>
                         </IconButton>
 
                         <Typography variant="h6" style={{flexGrow: 1}}>
-                            Helix FHIR Server
+                            FHIR Server
                         </Typography>
                         <IconButton color="inherit" aria-label="information" id="appInfo">
                             <InfoIcon/>
