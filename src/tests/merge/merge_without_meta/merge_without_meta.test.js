@@ -8,6 +8,7 @@ const person1UpdatedWithOwnerTag = require('./fixtures/Person/updatedPerson1With
 // expected
 const expectedPerson1BeforeUpdate = require('./fixtures/expected/expectedPerson1BeforeUpdate.json');
 const expectedPerson1AfterUpdate = require('./fixtures/expected/expectedPerson1AfterUpdate.json');
+const expectedPerson1AfterReferenceUpdate = require('./fixtures/expected/expectedPerson1AfterReferenceUpdate.json');
 const expectedResponseOnError = require('./fixtures/expected/responseOnError.json');
 const expectedResponseOnUpdate = require('./fixtures/expected/responseOnUpdate.json');
 
@@ -137,7 +138,7 @@ describe('Person Tests', () => {
                 .expect(200);
 
             delete resp.body.meta.lastUpdated;
-            expect(resp.body).toEqual(expectedPerson1AfterUpdate);
+            expect(resp.body).toEqual(expectedPerson1AfterReferenceUpdate);
         });
     });
 });
