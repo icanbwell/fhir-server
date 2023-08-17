@@ -28,7 +28,8 @@
   "devDependencies": {
     "@testing-library/react": "^14.0.0",
     "dotenv-cli": "^7.3.0",
-    "cra-build-watch": "^3.4.0"
+    "cra-build-watch": "^3.4.0",
+    "nock": "^13.3.3"
   },
   "homepage": "/",
   "scripts": {
