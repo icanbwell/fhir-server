@@ -16,7 +16,6 @@ const {describe, beforeEach, afterEach, test} = require('@jest/globals');
 const {AdminLogger} = require('../../../../admin/adminLogger');
 const {ConfigManager} = require('../../../../utils/configManager');
 const {FixMultipleSourceAssigningAuthorityRunner} = require('../../../../admin/runners/fixMultipleSourceAssigningAuthorityRunner');
-const {assertTypeEquals} = require('../../../../utils/assertType');
 
 class MockConfigManagerWithoutGlobalId extends ConfigManager {
     get enableGlobalIdSupport() {
@@ -103,7 +102,7 @@ describe('Fix Multiple Source Assigning Authority Tests', () => {
              * @type {FixMultipleSourceAssigningAuthorityRunner}
              */
             const fixMultipleSourceAssigningAuthorityRunner = container.fixMultipleSourceAssigningAuthorityRunner;
-            assertTypeEquals(fixMultipleSourceAssigningAuthorityRunner, FixMultipleSourceAssigningAuthorityRunner);
+            expect(fixMultipleSourceAssigningAuthorityRunner).toBeInstanceOf(FixMultipleSourceAssigningAuthorityRunner);
             await fixMultipleSourceAssigningAuthorityRunner.processAsync();
 
             // Check questionnaireResponse 1
