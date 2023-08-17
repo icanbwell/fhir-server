@@ -67,6 +67,8 @@ class ResourceMerger {
         resourceToMerge.meta.lastUpdated = currentResource.meta.lastUpdated;
         resourceToMerge.meta.source = currentResource.meta.source;
 
+        // copy sourceAssigningAuthority to be used in GlobalId handler while running preSave
+        // Will only be required when _uuid is passed in id field to update the resource
         const currentSourceAssigningAuthority = currentResource.meta.security.find(
             s => s.system === SecurityTagSystem.sourceAssigningAuthority
         );
