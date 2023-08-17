@@ -14,5 +14,5 @@ test('loads and displays greeting', async () => {
     );
 
     // ACT
-    await screen.findByText('Helix FHIR Server');
+    await screen.findByText('Patient/0003694e-6019-4f5c-a09d-1d740a6c4ea5');
 });

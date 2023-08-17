@@ -42,13 +42,13 @@ const DispenseRequest = ({name, value}) => {
                                     <TableBody>
                                         <TableRow>
                                             <TableCell>{dispenseRequest.dispenseInterval}</TableCell>
-                                            <TableCell>{dispenseRequest.validityPeriod ? dispenseRequest.validityPeriod.start : ''}</TableCell>
-                                            <TableCell>{dispenseRequest.validityPeriod ? dispenseRequest.validityPeriod.end : ''}</TableCell>
+                                            <TableCell>{dispenseRequest.validityPeriod?.start}</TableCell>
+                                            <TableCell>{dispenseRequest.validityPeriod?.end}</TableCell>
                                             <TableCell>{dispenseRequest.numberOfRepeatsAllowed}</TableCell>
-                                            <TableCell>{dispenseRequest.quantity ? dispenseRequest.quantity.value : ''}</TableCell>
-                                            <TableCell>{dispenseRequest.quantity ? dispenseRequest.quantity.unit : ''}</TableCell>
-                                            <TableCell>{dispenseRequest.expectedSupplyDuration}</TableCell>
-                                            <TableCell>{dispenseRequest.performer ? dispenseRequest.performer.reference : ''}</TableCell>
+                                            <TableCell>{dispenseRequest.quantity?.value }</TableCell>
+                                            <TableCell>{dispenseRequest.quantity?.unit}</TableCell>
+                                            <TableCell>{dispenseRequest.expectedSupplyDuration?.value}</TableCell>
+                                            <TableCell>{dispenseRequest.performer?.reference}</TableCell>
                                         </TableRow>
                                     </TableBody>
                                 </Table>
