@@ -3,6 +3,13 @@
         "id": "1",
         "resourceType": "Person",
         "birthDate": "1991-09-11",
+        "link": [
+            {
+                "target": {
+                    "reference": "Patient/1"
+                }
+            }
+        ],
         "meta": {
             "security": [
                 {

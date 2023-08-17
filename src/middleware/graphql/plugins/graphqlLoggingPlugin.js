@@ -77,7 +77,7 @@ class MyApolloServerLoggingPlugin /*extends ApolloServerPlugin*/ {
                             async (err) => {
                                 logError(`GraphQL Request Validation Error: ${err.message}`, {
                                     error: err,
-                                    source: 'GraphQLv2',
+                                    source: 'GraphQL',
                                     args: {
                                         endpoint: self.endpoint,
                                         operationName: req.operationName,
@@ -96,7 +96,7 @@ class MyApolloServerLoggingPlugin /*extends ApolloServerPlugin*/ {
                         if (err) {
                             logError(`GraphQL Request Execution Error: ${err.message}`, {
                                 error: err,
-                                source: 'GraphQLv2',
+                                source: 'GraphQL',
                                 args: {
                                     endpoint: self.endpoint,
                                     operationName: req.operationName,

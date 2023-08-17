@@ -72,7 +72,7 @@ services:
       test: [ 'CMD-SHELL', 'curl --silent --fail localhost:3000/health || exit 1' ]
 
   mongo:
-    image: mongo:5.0.19
+    image: mongo:5.0.18
     ports:
       - '27017:27017'
     environment:
@@ -90,7 +90,7 @@ services:
   #      MONGOCLIENT_DEFAULT_CONNECTION_URL: mongodb://mongo:27017
 
   zookeeper:
-    image: docker.io/bitnami/zookeeper:3.8.2
+    image: 'docker.io/bitnami/zookeeper:3.8.0'
     ports:
       - '2181:2181'
     environment:
@@ -100,7 +100,7 @@ services:
       test: [ 'CMD-SHELL', 'echo ruok | nc -w 2 zookeeper 2181' ]
 
   kafka:
-    image: docker.io/bitnami/kafka:3.5.1
+    image: 'docker.io/bitnami/kafka:3.2.1'
     ports:
       - '9092:9092'
     environment:
@@ -125,7 +125,7 @@ services:
         ]
 
   kafkaUI:
-    image: obsidiandynamics/kafdrop:3.31.0
+    image: 'obsidiandynamics/kafdrop:3.30.0'
     ports:
       - '9000:9000'
     environment:
@@ -137,6 +137,38 @@ services:
     image: hapiproject/hapi:v6.6.0
     ports:
       - "3001:8080"
+
+  elasticsearch:
+    #    image: bitnami/elasticsearch:7.9.3  # AWS Elastic Search supports upto 7.9
+    # using OpenDistro for best compatibility with AWS Managed ElasticSearch:
+    # https://opendistro.github.io/for-elasticsearch/downloads.html
+    image: opensearchproject/opensearch:2.9.0
+    container_name: elasticsearch
+    environment:
+      - cluster.name=odfe-cluster
+      - node.name=elasticsearch
+      - discovery.type=single-node
+      #      - cluster.initial_master_nodes=elasticsearch
+      - bootstrap.memory_lock=true # along with the memlock settings below, disables swapping
+      - "OPENSEARCH_JAVA_OPTS=-Xms512m -Xmx512m" # minimum and maximum Java heap size, recommend setting both to 50% of system RAM
+      - network.host=0.0.0.0 # required if not using the demo security configuration
+      #      - opendistro_security.disabled=true
+      - cluster.routing.allocation.disk.threshold_enabled=false
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      nofile:
+        soft: 65536 # maximum number of open files for the Elasticsearch user, set to at least 65536 on modern systems
+        hard: 65536
+    volumes:
+      - es_data:/usr/share/opensearch/data:delegated
+    #      - ./conf/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml:cached
+    ports:
+      - '9200:9200'
+      - '9600:9600' # required for Performance Analyzer
+    healthcheck:
+      test: [ "CMD-SHELL", "curl --silent --fail https://admin:admin@localhost:9200/_cluster/health --insecure || exit 1" ]
 
   elasticsearch:
     #    image: bitnami/elasticsearch:7.9.3  # AWS Elastic Search supports upto 7.9

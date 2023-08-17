@@ -74,7 +74,7 @@ describe('GraphQL Patient Tests', () => {
             await requestSpecificCache.clearAllAsync();
 
             resp = await request
-                .post('/graphqlv2')
+                .post('/graphql')
                 .send({
                     operationName: null,
                     variables: {},
