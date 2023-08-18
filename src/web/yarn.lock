@@ -1738,7 +1738,7 @@
   dependencies:
     "@babel/runtime" "^7.22.6"
 
-"@mui/material@^5.14.5":
+"@mui/material@^5.14.4":
   version "5.14.5"
   resolved "https://registry.yarnpkg.com/@mui/material/-/material-5.14.5.tgz#4610b381fd159cd208c28e1d1f29c303ea24a518"
   integrity sha512-4qa4GMfuZH0Ai3mttk5ccXP8a3sf7aPlAJwyMrUSz6h9hPri6BPou94zeu3rENhhmKLby9S/W1y+pmficy8JKA==
@@ -1775,7 +1775,7 @@
     csstype "^3.1.2"
     prop-types "^15.8.1"
 
-"@mui/styles@^5.14.5":
+"@mui/styles@^5.14.4":
   version "5.14.5"
   resolved "https://registry.yarnpkg.com/@mui/styles/-/styles-5.14.5.tgz#182759e844045b613a3c86266804642860c2fe53"
   integrity sha512-yss4BRGae6ib4gq6YpVLnPyhHiuSIENwlDPWrTEqgc1UhTMmDBGZ7ZCdZ15YGdwviJuNDDf5Bcp3GK4rE5wZNQ==
@@ -1828,7 +1828,7 @@
     prop-types "^15.8.1"
     react-is "^18.2.0"
 
-"@mui/x-date-pickers@^6.11.2":
+"@mui/x-date-pickers@^6.11.1":
   version "6.11.2"
   resolved "https://registry.yarnpkg.com/@mui/x-date-pickers/-/x-date-pickers-6.11.2.tgz#913038015c4c0f2f4a2bf8f79afa94707cd5df2e"
   integrity sha512-AOmXtnnAhjlku03oqRMOG1oJkxazBTz06A6a0iRz+1sUyBWbqz5kKH9eYUYQC4Tv3j2EciRpwyns5xwX3wpc1A==

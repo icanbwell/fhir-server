@@ -10,6 +10,7 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import Typography from '@mui/material/Typography';
 import ResourceCard from './ResourceCard';
 import FhirApi from '../utils/fhirApi';
+import SearchContainer from '../partials/SearchContainer';
 
 /**
  * IndexPage
@@ -144,7 +145,8 @@ const IndexPage = ({search}) => {
                     <Typography>Advanced Search</Typography>
                 </AccordionSummary>
                 <AccordionDetails>
-                    <SearchForm onSearch={handleSearch}></SearchForm>
+                    {/*<SearchForm onSearch={handleSearch}></SearchForm>*/}
+                    <SearchContainer></SearchContainer>
                 </AccordionDetails>
             </Accordion>
             <Box my={2}>
