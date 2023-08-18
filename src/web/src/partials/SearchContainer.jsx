@@ -4,6 +4,7 @@ import Tab from '@mui/material/Tab';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 import SearchForm from './SearchForm';
+import SearchBox from './SearchBox';
 
 function TabPanel(props) {
     const {children, value, index, ...other} = props;
@@ -40,14 +41,14 @@ const SearchContainer = ({onSearch, resourceType}) => {
         <>
             <Tabs value={value} onChange={handleChange}>
                 <Tab label="Advanced Search"/>
-                <Tab label="Tab Two"/>
+                <Tab label="ChatGPT Search"/>
                 <Tab label="Tab Three"/>
             </Tabs>
             <TabPanel value={value} index={0}>
                 <SearchForm onSearch={handleSearch}></SearchForm>
             </TabPanel>
             <TabPanel value={value} index={1}>
-                Content of Tab Two
+                <SearchBox></SearchBox>
             </TabPanel>
             <TabPanel value={value} index={2}>
                 Content of Tab Three

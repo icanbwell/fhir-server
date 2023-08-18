@@ -1,63 +1,45 @@
-import React, {useState} from 'react';
-import SearchIcon from '@mui/icons-material/Search';
-import InputBase from '@mui/material/InputBase';
-import {alpha, styled} from '@mui/material/styles';
+import React from 'react';
+import TextField from '@mui/material/TextField';
+import Button from '@mui/material/Button';
+import Box from '@mui/material/Box';
+import Grid from '@mui/material/Grid';
 
-const Search = styled('div')(({theme}) => ({
-    position: 'relative',
-    borderRadius: theme.shape.borderRadius,
-    backgroundColor: alpha(theme.palette.common.white, 0.15),
-    '&:hover': {
-        backgroundColor: alpha(theme.palette.common.white, 0.25),
-    },
-    marginRight: theme.spacing(2),
-    marginLeft: 0,
-    width: '100%',
-    [theme.breakpoints.up('sm')]: {
-        marginLeft: theme.spacing(3),
-        width: 'auto',
-    },
-}));
+export default function SearchBox({onSearch, resourceType}) {
+    const [searchText, setSearchText] = React.useState('');
 
-const SearchIconWrapper = styled('div')(({theme}) => ({
-    padding: theme.spacing(0, 2),
-    height: '100%',
-    position: 'absolute',
-    pointerEvents: 'none',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-}));
+    const handleTextChange = (setText) => (event) => {
+        setText(event.target.value);
+    };
 
-const StyledInputBase = styled(InputBase)(() => ({
-    color: 'inherit',
-    '& .MuiInputBase-input': {
-        padding: '8px 8px 8px 0px',
-        paddingLeft: `calc(1em + 25px)`,
-        width: '100%',
-    },
-}));
-
-const SearchBox = () => {
-    const [search, setSearch] = useState('');
-
-    const handleSearchChange = (event) => {
-        setSearch(event.target.value);
+    const search = () => {
+        onSearch({});
     };
 
     return (
-        <Search>
-            <SearchIconWrapper>
-                <SearchIcon/>
-            </SearchIconWrapper>
-            <StyledInputBase
-                placeholder="Search…"
-                inputProps={{'aria-label': 'search'}}
-                value={search}
-                onChange={handleSearchChange}
-            />
-        </Search>
+        <Box
+            component="form"
+            noValidate
+            autoComplete="off"
+        >
+            <Grid container spacing={2}>
+                <Grid item xs={12}>
+                    <TextField
+                        name="question"
+                        label="Question"
+                        type="text"
+                        value={searchText}
+                        onChange={handleTextChange(setSearchText)}
+                        fullWidth
+                        multiline
+                        rows={4}
+                    />
+                </Grid>
+                <Grid item xs={12}>
+                    <Button variant="contained" color="primary" onClick={search}>
+                        Search
+                    </Button>
+                </Grid>
+            </Grid>
+        </Box>
     );
-};
-
-export default SearchBox;
+}
