@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import {useLocation, useNavigate, useParams} from 'react-router-dom';
-import {Accordion, Box, Container, LinearProgress} from '@mui/material';
+import {Accordion, Alert, AlertTitle, Box, Container, LinearProgress} from '@mui/material';
 import Header from '../partials/Header';
 import Footer from '../partials/Footer';
 import AccordionSummary from '@mui/material/AccordionSummary';
@@ -53,10 +53,12 @@ const IndexPage = ({search}) => {
         }
         // If narrative is returned then show it at top level
         return <>
-            {resources && resources.length > 0 && resources[0].resource?.text &&
-                <Box>
-                    <Narrative name='Answer' value={resources[0].resource.text}/>
-                </Box>}
+            {resources && resources.length > 0 && resources[0].resource?.text?.div &&
+                <Alert severity="success">
+                    <AlertTitle>Answer</AlertTitle>
+                    <Box dangerouslySetInnerHTML={{__html: resources[0].resource?.text?.div}}/>
+                </Alert>
+            }
             {resources.map((fullResource, index) => {
                 const resource = fullResource.resource || fullResource;
                 return (
