@@ -42,8 +42,8 @@ class ChatGPTManager {
             }
         );
 
-        let startPrompt = 'You are a clinical software.  I will provide you information about a patient.' +
-            '\nUse only the following data to answer the user\'s question';
+        let startPrompt = 'Based on the following data that I will provide, please answer the question. ' +
+            '\nPlease use only the information I provide, and do not refer to external sources or general knowledge.';
 
         if (outputFormat === 'html') {
             startPrompt += '\nReply in HTML with just the body';

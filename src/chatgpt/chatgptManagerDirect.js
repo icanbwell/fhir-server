@@ -1,9 +1,9 @@
-const {Configuration, OpenAIApi} = require('openai');
 const {ChatGPTMessage} = require('./chatgptMessage');
 const {ChatGPTManager} = require('./chatgptManager');
 const {ChatGPTResponse} = require('./chatGPTResponse');
 const {ChatGPTContextLengthExceededError} = require('./chatgptContextLengthExceededError');
 const {ChatGPTError} = require('./chatgptError');
+const OpenAI = require('openai');
 
 class ChatGPTManagerDirect extends ChatGPTManager {
     /**
@@ -26,10 +26,10 @@ class ChatGPTManagerDirect extends ChatGPTManager {
      * @returns {Promise<ChatGPTResponse>}
      */
     async answerQuestionWithDocumentsAsync({documents, startPrompt, question,}) {
-        const configuration = new Configuration({
+        const configuration = {
             apiKey: process.env.OPENAI_API_KEY,
-        });
-        const openai = new OpenAIApi(configuration);
+        };
+        const openai = new OpenAI(configuration);
 
         const contextMessages = documents.map(
             d => new ChatGPTMessage(
@@ -72,11 +72,11 @@ class ChatGPTManagerDirect extends ChatGPTManager {
         const numberTokens = await this.getTokenCountAsync({documents: [{content: fullPrompt}]});
 
         try {
-            const chatCompletion = await openai.createChatCompletion(chatCompletionRequest);
-            const data = chatCompletion.data.choices[0].message;
-            const prompt_tokens = chatCompletion.data.usage.prompt_tokens;
-            const completion_tokens = chatCompletion.data.usage.completion_tokens;
-            const total_tokens = chatCompletion.data.usage.total_tokens;
+            const chatCompletion = await openai.chat.completions.create(chatCompletionRequest);
+            const data = chatCompletion.choices[0].message;
+            const prompt_tokens = chatCompletion.usage.prompt_tokens;
+            const completion_tokens = chatCompletion.usage.completion_tokens;
+            const total_tokens = chatCompletion.usage.total_tokens;
             console.log(`prompt_tokens: ${prompt_tokens}, completion_tokens: ${completion_tokens}, total: ${total_tokens}`);
             return new ChatGPTResponse({
                 responseText: data.content ? data.content : data,
@@ -105,13 +105,13 @@ class ChatGPTManagerDirect extends ChatGPTManager {
     }
 
     async listModelsAsync() {
-        const configuration = new Configuration({
+        const configuration = {
             apiKey: process.env.OPENAI_API_KEY,
-        });
-        const openai = new OpenAIApi(configuration);
-        const response = await openai.listModels();
+        };
+        const openai = new OpenAI(configuration);
+        const response = await openai.models.list();
         // noinspection UnnecessaryLocalVariableJS
-        const models = response.data.data.map(
+        const models = response.data.map(
             m => {
                 return {
                     'name': m.id

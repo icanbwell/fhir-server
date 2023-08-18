@@ -64,7 +64,8 @@ class ChatGPTLangChainManager extends ChatGPTManager {
             {
                 openAIApiKey: process.env.OPENAI_API_KEY,
                 temperature: 0,
-                modelName: 'gpt-3.5-turbo',
+                // modelName: 'gpt-3.5-turbo',
+                modelName: 'gpt-4',
                 // These tags will be attached to all calls made with this LLM.
                 tags: ['example', 'callbacks', 'constructor'],
                 // This handler will be used for all calls made with this LLM.
