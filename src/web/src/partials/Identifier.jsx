@@ -9,12 +9,15 @@ import TableRow from '@mui/material/TableRow';
 import {Typography} from '@mui/material';
 
 const useStyles = makeStyles({
-    table: {
-    },
+    table: {},
 });
 
 function Identifier({identifiers, resourceType, name}) {
     const classes = useStyles();
+
+    if (!identifiers || identifiers.length === 0) {
+        return (<></>);
+    }
 
     return (
         <React.Fragment>

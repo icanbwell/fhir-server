@@ -1,6 +1,5 @@
 import React from 'react';
 import {Box, Typography} from '@mui/material';
-import Reference from '../partials/Reference';
 
 const OperationOutcome = ({resource, admin, index}) => {
 
@@ -11,7 +10,9 @@ const OperationOutcome = ({resource, admin, index}) => {
                 resource.issue && resource.issue.map((issue, index) =>
                     (
                         <Box key={index}>
-                            {issue.severity} {issue.code} {issue.diagnostics}
+                            <Box>Severity: {issue.severity}</Box>
+                            <Box>Code: {issue.code}</Box>
+                            <Box>{issue.diagnostics}</Box>
                         </Box>
                     )
                 )
