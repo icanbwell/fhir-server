@@ -1,21 +1,33 @@
 const {encoding_for_model} = require('@dqbd/tiktoken');
 const sanitize = require('sanitize-html');
 const {filterXSS} = require('xss');
+const {assertTypeEquals} = require('../utils/assertType');
+const {VectorStoreFactory} = require('./vectorStores/vectorStoreFactory');
+const {BaseFhirToDocumentConverter} = require('./fhirToDocumentConverters/baseFhirToDocumentConverter');
 
 class ChatGPTManager {
     /**
      * constructor
      * @param {BaseFhirToDocumentConverter} fhirToDocumentConverter
+     * @param {VectorStoreFactory} vectorStoreFactory
      */
     constructor(
         {
-            fhirToDocumentConverter
+            fhirToDocumentConverter,
+            vectorStoreFactory
         }
     ) {
         /**
          * @type {BaseFhirToDocumentConverter}
          */
         this.fhirToDocumentConverter = fhirToDocumentConverter;
+        assertTypeEquals(fhirToDocumentConverter, BaseFhirToDocumentConverter);
+
+        /**
+         * @type {VectorStoreFactory}
+         */
+        this.vectorStoreFactory = vectorStoreFactory;
+        assertTypeEquals(vectorStoreFactory, VectorStoreFactory);
     }
 
     /**

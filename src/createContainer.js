@@ -95,6 +95,7 @@ const {ParametersResourceValidator} = require('./operations/merge/validators/par
 const {BundleResourceValidator} = require('./operations/merge/validators/bundleResourceValidator');
 const {MergeResourceValidator} = require('./operations/merge/validators/mergeResourceValidator');
 const {RemoteFhirValidator} = require('./utils/remoteFhirValidator');
+const {MemoryVectorStoreFactory} = require('./chatgpt/vectorStores/memoryVectorStoreFactory');
 
 /**
  * Creates a container and sets up all the services
@@ -713,8 +714,11 @@ const createContainer = function () {
         }
     ));
 
+    container.register('vectorStoreFactory', () => new MemoryVectorStoreFactory());
+
     container.register('chatgptManager', (c) => new ChatGPTLangChainManager({
-        fhirToDocumentConverter: c.fhirToDocumentConverter
+        fhirToDocumentConverter: c.fhirToDocumentConverter,
+        vectorStoreFactory: c.vectorStoreFactory,
     }));
     container.register('fhirResourceWriterFactory', (c) => new FhirResourceWriterFactory(
         {

@@ -9,13 +9,15 @@ class ChatGPTManagerDirect extends ChatGPTManager {
     /**
      * constructor
      * @param {BaseFhirToDocumentConverter} fhirToDocumentConverter
+     * @param {VectorStoreFactory} vectorStoreFactory
      */
     constructor(
         {
-            fhirToDocumentConverter
+            fhirToDocumentConverter,
+            vectorStoreFactory
         }
     ) {
-        super({fhirToDocumentConverter});
+        super({fhirToDocumentConverter, vectorStoreFactory});
     }
 
     /**

@@ -1,6 +1,3 @@
-const {Document} = require('langchain/document');
-const {OpenAIEmbeddings} = require('langchain/embeddings/openai');
-const {MemoryVectorStore} = require('langchain/vectorstores/memory');
 const {ConsoleCallbackHandler} = require('langchain/callbacks');
 const {LLMChainExtractor} = require('langchain/retrievers/document_compressors/chain_extract');
 const {ContextualCompressionRetriever} = require('langchain/retrievers/contextual_compression');
@@ -23,13 +20,15 @@ class ChatGPTLangChainManager extends ChatGPTManager {
     /**
      * constructor
      * @param {BaseFhirToDocumentConverter} fhirToDocumentConverter
+     * @param {VectorStoreFactory} vectorStoreFactory
      */
     constructor(
         {
-            fhirToDocumentConverter
+            fhirToDocumentConverter,
+            vectorStoreFactory
         }
     ) {
-        super({fhirToDocumentConverter});
+        super({fhirToDocumentConverter, vectorStoreFactory});
     }
 
     /**
@@ -50,18 +49,6 @@ class ChatGPTLangChainManager extends ChatGPTManager {
         // Next create a vector store to store the embedding vectors from the above documents
         // https://js.langchain.com/docs/modules/indexes/vector_stores/#which-one-to-pick
 
-        const langChainDocuments = documents.map(
-            doc => new Document(
-                {
-                    pageContent: doc.content,
-                    metadata: doc.metadata,
-                }
-            ));
-        const embeddings = new OpenAIEmbeddings();
-        const vectorStore = await MemoryVectorStore.fromDocuments(
-            langChainDocuments,
-            embeddings
-        );
 
         // Now create an OpenAI model.
         const model = new ChatOpenAI(
@@ -78,6 +65,11 @@ class ChatGPTLangChainManager extends ChatGPTManager {
                 verbose: true
             }
         );
+
+        /**
+         * @type {import('langchain/vectorstores').VectorStore}
+         */
+        const vectorStore = await this.vectorStoreFactory.fromDocumentsAsync({documents});
 
         // Now create a contextual compressor so we only pass documents to LLM that are similar to the query
         const baseCompressor = LLMChainExtractor.fromLLM(model);
