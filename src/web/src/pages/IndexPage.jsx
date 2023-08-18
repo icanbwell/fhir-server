@@ -142,11 +142,10 @@ const IndexPage = ({search}) => {
                     aria-controls={`searchCollapse`}
                     id={`searchAccordion`}
                 >
-                    <Typography>Advanced Search</Typography>
+                    <Typography>Search</Typography>
                 </AccordionSummary>
                 <AccordionDetails>
-                    {/*<SearchForm onSearch={handleSearch}></SearchForm>*/}
-                    <SearchContainer></SearchContainer>
+                    <SearchContainer onSearch={handleSearch}></SearchContainer>
                 </AccordionDetails>
             </Accordion>
             <Box my={2}>

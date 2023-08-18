@@ -3,6 +3,7 @@ import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
+import SearchForm from './SearchForm';
 
 function TabPanel(props) {
     const {children, value, index, ...other} = props;
@@ -24,22 +25,26 @@ function TabPanel(props) {
     );
 }
 
-const SearchContainer = () => {
+const SearchContainer = ({onSearch, resourceType}) => {
     const [value, setValue] = useState(0);
 
     const handleChange = (event, newValue) => {
         setValue(newValue);
     };
 
+    const handleSearch = (searchFormQuery) => {
+        onSearch(searchFormQuery);
+    };
+
     return (
         <>
             <Tabs value={value} onChange={handleChange}>
-                <Tab label="Tab One"/>
+                <Tab label="Advanced Search"/>
                 <Tab label="Tab Two"/>
                 <Tab label="Tab Three"/>
             </Tabs>
             <TabPanel value={value} index={0}>
-                Content of Tab One
+                <SearchForm onSearch={handleSearch}></SearchForm>
             </TabPanel>
             <TabPanel value={value} index={1}>
                 Content of Tab Two
