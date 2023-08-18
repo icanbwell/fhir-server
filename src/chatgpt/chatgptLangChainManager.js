@@ -97,9 +97,11 @@ Standalone question:`;
             condenseQuestionTemplate
         );
 
+        const currentDate = new Date().toISOString().split('T')[0];
+
         const answerTemplate = `Answer the question based only on the following context:
 {context}
-
+Current Date: ${currentDate}
 Question: {question}
 `;
         const ANSWER_PROMPT = PromptTemplate.fromTemplate(answerTemplate);
@@ -151,7 +153,6 @@ Question: {question}
                 question: question,
                 chat_history: [],
             });
-            console.log(res3);
 
             return new ChatGPTResponse({
                 responseText: res3.text,
