@@ -50,9 +50,9 @@ function CodeableConcept({codeableConcepts, name, resourceType, searchParameter}
                             </TableRow>
                         </TableHead>
                         <TableBody>
-                            {codeableConcepts.map((codeableConcept) =>
-                                    codeableConcept.coding && codeableConcept.coding.map((coding) => (
-                                        <TableRow key={coding.id}>
+                            {codeableConcepts.flatMap((codeableConcept, index) =>
+                                    codeableConcept.coding && codeableConcept.coding.map((coding, index2) => (
+                                        <TableRow key={`${index}.${index2}`}>
                                             <TableCell>{coding.id}</TableCell>
                                             <TableCell>{codeableConcept.text || coding.display}</TableCell>
                                             {searchParameter ? (
@@ -92,7 +92,7 @@ function CodeableConcept({codeableConcepts, name, resourceType, searchParameter}
             </React.Fragment>
         );
     } else {
-        return null;
+        return <></>;
     }
 }
 
