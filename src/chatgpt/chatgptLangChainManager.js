@@ -35,11 +35,21 @@ class ChatGPTLangChainManager extends ChatGPTManager {
      * answers the question with the provided documents and start prompt
      * @param {ChatGPTDocument[]} documents
      * @param {string} startPrompt
-     * @param string question
+     * @param {string} question
+     * @param {string} resourceType
+     * @param {string} resourceId
      * @returns {Promise<ChatGPTResponse>}
      */
-    // eslint-disable-next-line no-unused-vars
-    async answerQuestionWithDocumentsAsync({documents, startPrompt, question,}) {
+    async answerQuestionWithDocumentsAsync(
+        {
+            documents,
+            // eslint-disable-next-line no-unused-vars
+            startPrompt,
+            question,
+            resourceType,
+            resourceId
+        }
+    ) {
         // https://horosin.com/extracting-pdf-and-generating-json-data-with-gpts-langchain-and-nodejs
         // https://genesis-aka.net/information-technology/professional/2023/05/23/chatgpt-in-node-js-integrate-chatgpt-using-langchain-get-response-in-json/
         // https://dagster.io/blog/chatgpt-langchain
@@ -73,9 +83,17 @@ class ChatGPTLangChainManager extends ChatGPTManager {
 
         // Now create a contextual compressor so we only pass documents to LLM that are similar to the query
         const baseCompressor = LLMChainExtractor.fromLLM(model);
+        const filter = this.vectorStoreFactory.getFilter(
+            {
+                resourceType: resourceType,
+                id: resourceId
+            });
         const retriever = new ContextualCompressionRetriever({
             baseCompressor,
-            baseRetriever: vectorStore.asRetriever(),
+            baseRetriever: vectorStore.asRetriever(
+                10,
+                filter
+            ),
         });
         // https://python.langchain.com/docs/use_cases/question_answering/
         const relevantDocuments = await retriever.getRelevantDocuments(question);

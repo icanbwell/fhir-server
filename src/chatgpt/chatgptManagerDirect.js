@@ -24,10 +24,22 @@ class ChatGPTManagerDirect extends ChatGPTManager {
      * answers the question with the provided documents and start prompt
      * @param {ChatGPTDocument[]} documents
      * @param {string} startPrompt
-     * @param string question
+     * @param {string} question
+     * @param {string} resourceType
+     * @param {string} resourceId
      * @returns {Promise<ChatGPTResponse>}
      */
-    async answerQuestionWithDocumentsAsync({documents, startPrompt, question,}) {
+    async answerQuestionWithDocumentsAsync(
+        {
+            documents,
+            startPrompt,
+            question,
+            // eslint-disable-next-line no-unused-vars
+            resourceType,
+            // eslint-disable-next-line no-unused-vars
+            resourceId
+        }
+    ) {
         const configuration = {
             apiKey: process.env.OPENAI_API_KEY,
         };

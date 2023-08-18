@@ -87,11 +87,25 @@ class ChatGPTManager {
      * answers the question with the provided documents and start prompt
      * @param {ChatGPTDocument[]} documents
      * @param {string} startPrompt
-     * @param string question
+     * @param {string} question
+     * @param {string} resourceType
+     * @param {string} resourceId
      * @returns {Promise<ChatGPTResponse>}
      */
-    // eslint-disable-next-line no-unused-vars
-    async answerQuestionWithDocumentsAsync({documents, startPrompt, question,}) {
+    async answerQuestionWithDocumentsAsync(
+        {
+            // eslint-disable-next-line no-unused-vars
+            documents,
+            // eslint-disable-next-line no-unused-vars
+            startPrompt,
+            // eslint-disable-next-line no-unused-vars
+            question,
+            // eslint-disable-next-line no-unused-vars
+            resourceType,
+            // eslint-disable-next-line no-unused-vars
+            resourceId
+        }
+    ) {
         throw new Error('Not Implemented by subclass');
     }
 

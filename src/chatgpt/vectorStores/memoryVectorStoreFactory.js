@@ -17,6 +17,15 @@ class MemoryVectorStoreFactory extends VectorStoreFactory {
             embeddings
         );
     }
+
+    /**
+     * returns a filter for the vector store.  Each type of vector store has a different type of filter
+     * @param {{resourceType: string, id: string}} filter
+     * @returns {function(*): boolean| import('langchain/vectorstores').OpenSearchFilter}
+     */
+    getFilter(filter) {
+        return (document) => document.metadata.resourceType === filter.resourceType && document.metadata.id === filter.id;
+    }
 }
 
 module.exports = {

@@ -44,6 +44,16 @@ class VectorStoreFactory {
                 }
             ));
     }
+
+    /**
+     * returns a filter for the vector store.  Each type of vector store has a different type of filter
+     * @param {{resourceType: string, id: string}} filter
+     * @returns {function(*): boolean| import('langchain/vectorstores').OpenSearchFilter}
+     */
+    // eslint-disable-next-line no-unused-vars
+    getFilter(filter) {
+        throw new Error('Not Implemented by subclass');
+    }
 }
 
 module.exports = {
