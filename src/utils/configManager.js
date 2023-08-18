@@ -364,6 +364,22 @@ class ConfigManager {
     get validateSchema() {
         return isTrue(env.VALIDATE_SCHEMA);
     }
+
+    /**
+     * url to open search vector store
+     * @returns {string|undefined}
+     */
+    get openSearchVectorStoreUrl() {
+        return env.OPENSEARCH_VECTORSTORE_URL;
+    }
+
+    /**
+     * url to open search vector store
+     * @returns {string|undefined}
+     */
+    get openSearchVectorStoreIndexName() {
+        return env.OPENSEARCH_VECTORSTORE_INDEX || 'documents';
+    }
 }
 
 module.exports = {
