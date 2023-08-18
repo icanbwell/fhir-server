@@ -97,7 +97,7 @@ describe('Person and Patient $everything chatgpt Tests', () => {
 
             // ACT & ASSERT
             // First get patient everything
-            const question = "What is this patient's data of birth?";
+            const question = "What is this patient's date of birth?";
             const urlEncodedQuestion = encodeURIComponent(question);
             resp = await request
                 .get(`/4_0_0/Patient/patient1/$everything?_question=${urlEncodedQuestion}`)
@@ -195,7 +195,7 @@ describe('Person and Patient $everything chatgpt Tests', () => {
 
             // ACT & ASSERT
             // First get patient everything
-            const question = "What is this patient's data of birth?";
+            const question = "What is this patient's date of birth?";
             const urlEncodedQuestion = encodeURIComponent(question);
             resp = await request
                 .get(`/4_0_0/Patient/patient1/$everything?_question=${urlEncodedQuestion}`)

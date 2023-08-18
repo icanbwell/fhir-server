@@ -5,16 +5,19 @@ const {ConsoleCallbackHandler} = require('langchain/callbacks');
 const {LLMChainExtractor} = require('langchain/retrievers/document_compressors/chain_extract');
 const {ContextualCompressionRetriever} = require('langchain/retrievers/contextual_compression');
 const {
+    PromptTemplate,
     ChatPromptTemplate,
     SystemMessagePromptTemplate,
     HumanMessagePromptTemplate
 } = require('langchain/prompts');
-const {RetrievalQAChain, loadQAStuffChain, LLMChain} = require('langchain/chains');
+const {LLMChain} = require('langchain/chains');
 const {ChatGPTError} = require('./chatgptError');
 const {ChatGPTContextLengthExceededError} = require('./chatgptContextLengthExceededError');
 const {ChatOpenAI} = require('langchain/chat_models/openai');
 const {ChatGPTResponse} = require('./chatGPTResponse');
 const {ChatGPTManager} = require('./chatgptManager');
+const {RunnablePassthrough, RunnableSequence} = require('langchain/schema/runnable');
+const {StringOutputParser} = require('langchain/schema/output_parser');
 
 class ChatGPTLangChainManager extends ChatGPTManager {
     /**
@@ -36,6 +39,7 @@ class ChatGPTLangChainManager extends ChatGPTManager {
      * @param string question
      * @returns {Promise<ChatGPTResponse>}
      */
+    // eslint-disable-next-line no-unused-vars
     async answerQuestionWithDocumentsAsync({documents, startPrompt, question,}) {
         // https://horosin.com/extracting-pdf-and-generating-json-data-with-gpts-langchain-and-nodejs
         // https://genesis-aka.net/information-technology/professional/2023/05/23/chatgpt-in-node-js-integrate-chatgpt-using-langchain-get-response-in-json/
@@ -81,40 +85,74 @@ class ChatGPTLangChainManager extends ChatGPTManager {
             baseCompressor,
             baseRetriever: vectorStore.asRetriever(),
         });
-
-        const inputVariables = ['question'];
-        const prompt = new ChatPromptTemplate({
-            promptMessages: [
-                SystemMessagePromptTemplate.fromTemplate(
-                    startPrompt
-                ),
-                HumanMessagePromptTemplate.fromTemplate('{question}'),
-            ],
-            inputVariables: inputVariables,
-        });
-
-        // Create the chain to chain all the above processes
-        const chain = new RetrievalQAChain({
-            combineDocumentsChain: loadQAStuffChain(model, {prompt: prompt}),
-            retriever: retriever,
-            // memory: memory,
-            // returnSourceDocuments: true,
-            verbose: true
-        });
-
-        const parameters = {
-            query: question,
-            question: question
-        };
-        const fullPrompt = await prompt.format(parameters);
-
         // https://python.langchain.com/docs/use_cases/question_answering/
         const relevantDocuments = await retriever.getRelevantDocuments(question);
+        const condenseQuestionTemplate = `Given the following conversation and a follow up question, rephrase the follow up question to be a standalone question, in its original language.
+
+Chat History:
+{chat_history}
+Follow Up Input: {question}
+Standalone question:`;
+        const CONDENSE_QUESTION_PROMPT = PromptTemplate.fromTemplate(
+            condenseQuestionTemplate
+        );
+
+        const answerTemplate = `Answer the question based only on the following context:
+{context}
+
+Question: {question}
+`;
+        const ANSWER_PROMPT = PromptTemplate.fromTemplate(answerTemplate);
+
+        const combineDocumentsFn = (docs, separator = '\n\n') => {
+            const serializedDocs = docs.map((doc) => doc.pageContent);
+            return serializedDocs.join(separator);
+        };
+
+        const formatChatHistory = (chatHistory) => {
+            const formattedDialogueTurns = chatHistory.map(
+                (dialogueTurn) => `Human: ${dialogueTurn[0]}\nAssistant: ${dialogueTurn[1]}`
+            );
+            return formattedDialogueTurns.join('\n');
+        };
+
+        const standaloneQuestionChain = RunnableSequence.from([
+            {
+                question: (input) => input.question,
+                chat_history: (input) =>
+                    formatChatHistory(input.chat_history),
+            },
+            CONDENSE_QUESTION_PROMPT,
+            model,
+            new StringOutputParser(),
+        ]);
+
+        const answerChain = RunnableSequence.from([
+            {
+                context: retriever.pipe(combineDocumentsFn),
+                question: new RunnablePassthrough(),
+            },
+            ANSWER_PROMPT,
+            model,
+        ]);
+
+        const conversationalRetrievalQAChain =
+            standaloneQuestionChain.pipe(answerChain);
+
+        const fullPrompt = await ANSWER_PROMPT.format({
+            context: combineDocumentsFn(relevantDocuments),
+            question: question,
+        });
 
         const numberTokens = await this.getTokenCountAsync({documents: [{content: fullPrompt}]});
 
         try {
-            const res3 = await chain.call(parameters);
+            const res3 = await conversationalRetrievalQAChain.invoke({
+                question: question,
+                chat_history: [],
+            });
+            console.log(res3);
+
             return new ChatGPTResponse({
                 responseText: res3.text,
                 fullPrompt: fullPrompt,
