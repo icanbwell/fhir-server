@@ -22,6 +22,7 @@ const expectedPatientContainedResources = require('./fixtures/expected/expected_
 
 const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest, getHtmlHeaders} = require('../../common');
 const {describe, beforeEach, afterEach, test} = require('@jest/globals');
+const {MemoryVectorStoreFactory} = require('../../../chatgpt/vectorStores/memoryVectorStoreFactory');
 
 // const describeIf = process.env.OPENAI_API_KEY ? describe : describe.skip;
 
@@ -40,7 +41,10 @@ describe('Person and Patient $everything chatgpt Tests', () => {
             if (!process.env.OPENAI_API_KEY) {
                 return;
             }
-            const request = await createTestRequest();
+            const request = await createTestRequest((container) => {
+                container.register('vectorStoreFactory', () => new MemoryVectorStoreFactory());
+                return container;
+            });
             // ARRANGE
             // add the resources to FHIR server
             let resp = await request
