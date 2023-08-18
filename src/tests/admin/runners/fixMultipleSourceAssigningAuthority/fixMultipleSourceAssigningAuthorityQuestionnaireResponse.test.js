@@ -109,9 +109,7 @@ describe('Fix Multiple Source Assigning Authority Tests', () => {
             const questionnaireResponse1 = await questionnaireResponseCollection.findOne({id: questionnaireResponse1Resource.id});
             expect(questionnaireResponse1).toBeDefined();
             delete questionnaireResponse1._id;
-            expectedquestionnaireResponse1DatabaseAfterRun.meta.lastUpdated = questionnaireResponse1.meta.lastUpdated;
             expect(questionnaireResponse1).toStrictEqual(expectedquestionnaireResponse1DatabaseAfterRun);
-
         });
     });
 });
