@@ -10,6 +10,7 @@ import Typography from '@mui/material/Typography';
 import ResourceCard from './ResourceCard';
 import FhirApi from '../utils/fhirApi';
 import SearchContainer from '../partials/SearchContainer';
+import Narrative from '../partials/Narrative';
 
 /**
  * IndexPage
@@ -50,7 +51,12 @@ const IndexPage = ({search}) => {
         if (resources.length === 0) {
             return <Box>No Results Found</Box>;
         }
+        // If narrative is returned then show it at top level
         return <>
+            {resources && resources.length > 0 && resources[0].resource?.text &&
+                <Box>
+                    <Narrative name='Answer' value={resources[0].resource.text}/>
+                </Box>}
             {resources.map((fullResource, index) => {
                 const resource = fullResource.resource || fullResource;
                 return (
