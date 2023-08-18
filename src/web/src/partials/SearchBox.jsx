@@ -3,6 +3,7 @@ import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
+import SearchFormQuery from '../utils/searchFormQuery';
 
 export default function SearchBox({onSearch, resourceType}) {
     const [searchText, setSearchText] = React.useState('');
@@ -12,7 +13,13 @@ export default function SearchBox({onSearch, resourceType}) {
     };
 
     const search = () => {
-        onSearch({});
+        onSearch(
+            new SearchFormQuery(
+                {
+                    chatGptQuestion: searchText
+                }
+            )
+        );
     };
 
     return (

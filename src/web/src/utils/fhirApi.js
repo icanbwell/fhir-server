@@ -62,7 +62,10 @@ class FhirApi {
     getUrl({resourceType, id, queryString, queryParameters}) {
         let urlString = `/4_0_0/${resourceType}`;
         if (id) {
-            urlString += `/${id}/`;
+            urlString += `/${id}`;
+        }
+        if (queryParameters && queryParameters.find(a => a.startsWith('_question'))) {
+            urlString += `/$everything`;
         }
 
         function stripFirstCharIfQuestionMark(str) {

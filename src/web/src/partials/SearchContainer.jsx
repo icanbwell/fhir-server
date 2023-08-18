@@ -48,7 +48,7 @@ const SearchContainer = ({onSearch, resourceType}) => {
                 <SearchForm onSearch={handleSearch}></SearchForm>
             </TabPanel>
             <TabPanel value={value} index={1}>
-                <SearchBox></SearchBox>
+                <SearchBox onSearch={handleSearch}></SearchBox>
             </TabPanel>
             <TabPanel value={value} index={2}>
                 Content of Tab Three

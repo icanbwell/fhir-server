@@ -1,15 +1,16 @@
 class SearchFormQuery {
     /**
      * contains the query parameters for the search form
-     * @param {Date|undefined} start
-     * @param {Date|undefined} end
-     * @param {string|undefined} givenName
-     * @param {string|undefined} familyName
-     * @param {string|undefined} email
-     * @param {string|undefined} security
-     * @param {string|undefined} id
-     * @param {string|undefined}identifier
-     * @param {string|undefined}source
+     * @param {Date|undefined} [start]
+     * @param {Date|undefined} [end]
+     * @param {string|undefined} [givenName]
+     * @param {string|undefined} [familyName]
+     * @param {string|undefined} [email]
+     * @param {string|undefined} [security]
+     * @param {string|undefined} [id]
+     * @param {string|undefined} [identifier]
+     * @param {string|undefined} [source]
+     * @param {string|undefined} [chatGptQuestion]
      */
     constructor(
         {
@@ -21,7 +22,8 @@ class SearchFormQuery {
             security,
             id,
             identifier,
-            source
+            source,
+            chatGptQuestion
         }
     ) {
         this.start = start;
@@ -33,6 +35,7 @@ class SearchFormQuery {
         this.id = id;
         this.identifier = identifier;
         this.source = source;
+        this.chatGptQuestion = chatGptQuestion;
     }
 
     /**
@@ -67,6 +70,9 @@ class SearchFormQuery {
         }
         if (this.source) {
             queryParameters.push(`_source=${this.source}`);
+        }
+        if (this.chatGptQuestion) {
+            queryParameters.push(`_question=${this.chatGptQuestion}`);
         }
         return queryParameters;
     }
