@@ -1,12 +1,12 @@
 /* eslint-disable security/detect-object-injection */
-const { PERSON_PROXY_PREFIX } = require('../constants');
+const { PERSON_PROXY_PREFIX, PATIENT_REFERENCE_PREFIX, PERSON_REFERENCE_PREFIX } = require('../constants');
 const { DatabaseQueryFactory } = require('../dataLayer/databaseQueryFactory');
 const { assertTypeEquals } = require('./assertType');
 const { BwellPersonFinder } = require('./bwellPersonFinder');
 const { PersonToPatientIdsExpander } = require('./personToPatientIdsExpander');
 
-const patientReferencePrefix = 'Patient/';
-const personReferencePrefix = 'Person/';
+const patientReferencePrefix = PATIENT_REFERENCE_PREFIX;
+const personReferencePrefix = PERSON_REFERENCE_PREFIX;
 
 /**
  * Linked Patient Finder utility class
@@ -49,17 +49,35 @@ class LinkedPatientsFinder {
 
     /**
      * Get bwell master person and all linked patients for given patient ids.
+     * If onlyBwellPerson is passed as true, then returns map of patientId -> bwellPersonUuid.
+     * Note that this patientId is actually id|sourceAssigningAuthority is sourceAssigningAuthority is present in passed references
      * @typedef {Object} GetPersonAndBwellPersonOptions - Function Options
      * @property {import('../operations/query/filters/searchFilterFromReference').IReferences} patientReferences - Array of references
+     * @property {boolean} onlyBwellPerson Pass this true when you require only patient -> bwellPerson map. By default its false
      * @param {GetPersonAndBwellPersonOptions} options
-     * @returns {{[patientId: string]: { bwellMasterPerson: string, patientIds: string[] }}}
+     * @returns {{[patientId: string]: { bwellMasterPerson: string, patientIds: string[] }} | {[patientId: string]: string}}
      */
-    async getBwellPersonAndAllClientIds({ patientReferences }) {
+    async getBwellPersonAndAllClientIds({ patientReferences, onlyBwellPerson = false }) {
         // get hash-map of patientId to bwell-person
         const patientToBwellMasterPerson =
             await this.bwellPersonFinder.getBwellPersonIdsAsync({
                 patientReferences,
             });
+
+        if (onlyBwellPerson) {
+            // convert to patientReference -> bwellPersonUuid
+            const patientReferenceToMasterPersonUuid = {};
+            for (const [patientReference, bwellPerson] of patientToBwellMasterPerson.entries()) {
+                // reference without Patient prefix
+                const patientId = patientReference.replace(
+                    patientReferencePrefix,
+                    '',
+                );
+                // remove Person/ prefix
+                patientReferenceToMasterPersonUuid[`${patientId}`] = bwellPerson.replace(personReferencePrefix, '');
+            }
+            return patientReferenceToMasterPersonUuid;
+        }
 
         /**@type {Set<string>} */
         const bwellMasterPersons = new Set();

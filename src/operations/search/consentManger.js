@@ -6,7 +6,7 @@ const { ParsedArgs } = require('../query/parsedArgs');
 const { LinkedPatientsFinder } = require('../../utils/linkedPatientsFinder');
 const { QueryParameterValue } = require('../query/queryParameterValue');
 const { isUuid } = require('../../utils/uid.util');
-const { PATIENT_REFERENCE_PREFIX } = require('../../constants');
+const { PATIENT_REFERENCE_PREFIX, PERSON_REFERENCE_PREFIX, PERSON_PROXY_PREFIX, PROXY_PERSON_CONSENT_CODING } = require('../../constants');
 const {SearchQueryBuilder} = require('./searchQueryBuilder');
 const { BadRequestError } = require('../../utils/httpErrors');
 const { logError } = require('../common/logging');
@@ -63,32 +63,22 @@ class ConsentManager {
 
     /**
      * @description Fetches all the consent resources linked to a patient IDs.
-     * @param {string[]} patientIds
+     * @typedef {Object} ConsentQueryOptions
+     * @property {string[] | undefined} patientIds
+     * @property {string[]} ownerTags
+     * @property {string[] | undefined} bwellPersonIds
+     * @param {ConsentQueryOptions}
      * @returns Consent resource list
      */
-    async getConsentResources(patientIds, ownerTags) {
+    async getConsentResources({patientIds, ownerTags, bwellPersonIds}) {
         // Query to fetch only the active consents for any patient
-        const [uuidReferences, nonUuidReferences] = patientIds.reduce((result, patientId) => {
-            if (isUuid(patientId)) {
-                result[0].push(`${PATIENT_REFERENCE_PREFIX}${patientId}`);
-            } else {
-                result[1].push(`${PATIENT_REFERENCE_PREFIX}${patientId}`);
-            }
-            return result;
-        }, [[], []]);
-
-        const patientReferenceQuery = {
-            '$or': [
-                {'patient._uuid': { $in: uuidReferences }},
-                {'patient._sourceId': { $in: nonUuidReferences }},
-            ],
-        };
+        /**@type {{[key: string]: any} | undefined} */
+        let patientReferenceQuery;
 
         const query =
         {
             $and: [
                 {'provision.class.code': {$in: this.configManager.getDataSharingConsentCodes}},
-                patientReferenceQuery,
                 {'status': 'active'},
                 {'provision.type': 'permit'},
                 {'meta.security': {
@@ -99,6 +89,52 @@ class ConsentManager {
                 }}
             ]
         };
+
+        // if patient ids are passed
+        if (patientIds) {
+            const [uuidReferences, nonUuidReferences] = patientIds.reduce((result, patientId) => {
+                if (isUuid(patientId)) {
+                    result[0].push(`${PATIENT_REFERENCE_PREFIX}${patientId}`);
+                } else {
+                    result[1].push(`${PATIENT_REFERENCE_PREFIX}${patientId}`);
+                }
+                return result;
+            }, [[], []]);
+
+            patientReferenceQuery = {
+                '$or': [
+                    {'patient._uuid': { $in: uuidReferences }},
+                    {'patient._sourceId': { $in: nonUuidReferences }},
+                ],
+            };
+            query.$and.push(patientReferenceQuery);
+        }
+
+        // if proxyPerson is passed, then add the query
+        if (bwellPersonIds) {
+            // get all consents where provision.actor.reference is of proxy-person with valid code
+            let proxyPersonReferences = bwellPersonIds.map(
+                (p) => `${PATIENT_REFERENCE_PREFIX}${PERSON_PROXY_PREFIX}${p.replace(PERSON_REFERENCE_PREFIX, '')}`
+            );
+            query.$and.push({
+                '$and': [
+                    {
+                        'provision.actor.reference._uuid': {
+                            '$in': proxyPersonReferences,
+                        },
+                    },
+                    {
+                        'provision.actor.role.coding': {
+                            '$elemMatch': {
+                                'system': PROXY_PERSON_CONSENT_CODING.SYSTEM,
+                                'code': PROXY_PERSON_CONSENT_CODING.CODE,
+                            },
+                        }
+                    },
+                ]
+            });
+        }
+
         const consentDataBaseQueryManager = this.databaseQueryFactory.createQuery({
             resourceType: 'Consent',
             base_version: '4_0_0',
@@ -121,7 +157,7 @@ class ConsentManager {
      * @property {string} base_version Base Version
      * @property {string} resourceType Resource Type
      * @property {ParsedArgs} parsedArgs Args
-     * @property {Strint[]} securityTags security Tags
+     * @property {string[]} securityTags security Tags
      * @property {import('mongodb').Document} query
      * @property {boolean | undefined} useHistoryTable boolean to use history table or not
      * @param {RewriteConsentedQuery} param
@@ -146,49 +182,57 @@ class ConsentManager {
                 */
                 await this.validatePatientIdsAsync(patientReferences);
 
-                // Get b.Well Master Person and/or Person map for each patient IDs
-                const bwellPersonsAndClientPatientsIdMap = await this
-                    .linkedPatientsFinder
-                    .getBwellPersonAndAllClientIds({ patientReferences });
-
-                // Get all patient IDs that connected to bwell master person of input (proxy)patient
-                const extendedPatientIds = new Set();
                 /**
-                 * Reverse map of "inpput (proxy) Patient IDs" and Patient IDs linked to corrosponding bwell master person
-                 * @type {{[extendedPatientId: string]: [patientId: string]}
-                 * */
-                const extendedPatientIdsMap = new Map();
-                Object.keys(bwellPersonsAndClientPatientsIdMap).forEach((patientId) => {
-                    /**
-                     * Master Person and connected patient IDs
-                     * @type {{[bwellMasterPerson: string, patientIds: string[]]}}
-                     * */
-                    // eslint-disable-next-line security/detect-object-injection
-                    const personPatientMap = bwellPersonsAndClientPatientsIdMap[patientId];
-                    if (personPatientMap.patientIds) {
-                        personPatientMap.patientIds.forEach((extendedPatientId) => {
-                            extendedPatientIds.add(extendedPatientId);
-                            const inputPatientIds = extendedPatientIdsMap.get(extendedPatientId) || new Set();
-                            inputPatientIds.add(patientId);
-                            extendedPatientIdsMap.set(extendedPatientId, inputPatientIds);
-                        });
+                 * Get personRef to bwellMasterPersonUuid
+                 * @type {{[key: string]: string}}
+                 */
+                const patientIdToBwellPersonUuid = await this
+                    .linkedPatientsFinder
+                    .getBwellPersonAndAllClientIds({ patientReferences, onlyBwellPerson: true });
+                /**
+                 * @type {Set<string>}
+                 */
+                const bwellPersonUuids = new Set();
+                /**
+                 * Reverse map
+                 * @type {Map<string, Set<string>>}
+                 */
+                const bwellPersonToInputPatientId = new Map();
+                Object.entries(patientIdToBwellPersonUuid).forEach(([patientId, bwellPerson]) => {
+                    if (!bwellPersonToInputPatientId.has(bwellPerson)) {
+                        bwellPersonToInputPatientId.set(bwellPerson, new Set());
                     }
+                    bwellPersonToInputPatientId.get(bwellPerson).add(patientId);
+                    bwellPersonUuids.add(bwellPerson);
                 });
 
                 // Get Consent for each b.well master person
-                const consentResources = await this.getConsentResources([...extendedPatientIds], securityTags);
+                const consentResources = await this.getConsentResources({
+                    ownerTags: securityTags,
+                    bwellPersonIds: [...bwellPersonUuids],
+                });
 
                 /**
-                 * (Proxy) Patient Ids which have provided consent to view data
+                 * (Proxy) Patient Refs which have provided consent to view data
                  * @type {Set<string>}
                  */
                 let patientIdsWithConsent = new Set();
                 consentResources.forEach((consent) => {
-                    const consentPatientId = consent.patient.reference.replace(PATIENT_REFERENCE_PREFIX, '');
-                    if (extendedPatientIdsMap.has(consentPatientId)) {
-                        extendedPatientIdsMap.get(consentPatientId).forEach((inputPatientId) => {
-                            patientIdsWithConsent.add(inputPatientId);
+                    if (consent && consent.provision && Array.isArray(consent.provision.actor)) {
+                        const proxyPersonActor = consent.provision.actor.find((a) => {
+                            return a.role && Array.isArray(a.role.coding) && a.role.coding.find((c) => c.code === PROXY_PERSON_CONSENT_CODING.CODE);
                         });
+
+                        if (proxyPersonActor && proxyPersonActor.reference && proxyPersonActor.reference._uuid) {
+                            /**@type {string} */
+                            const uuidRef = proxyPersonActor.reference._uuid;
+                            const bwellPersonUuid = uuidRef.replace(PATIENT_REFERENCE_PREFIX, '').replace(PERSON_PROXY_PREFIX, '');
+                            if (bwellPersonToInputPatientId.has(bwellPersonUuid)) {
+                                bwellPersonToInputPatientId.get(bwellPersonUuid).forEach((patientId) => {
+                                    patientIdsWithConsent.add(patientId);
+                                });
+                            }
+                        }
                     }
                 });
                 if (patientIdsWithConsent.size > 0) {
@@ -214,12 +258,19 @@ class ConsentManager {
                             // update the query-param values
                             item.references.forEach((ref) => {
                                 if (ref.resourceType === 'Patient') {
-                                    if (patientIdsWithConsent.has(ref.id)) {
-                                        newQueryParamValues.push(`${ref.resourceType}/${ref.id}`);
+                                    // build the reference without any resourceType, as patientIdsWithConsent may include id|sourceAssigningAuthority
+                                    const patientRef = ReferenceParser.createReference({
+                                        id: ref.id,
+                                        sourceAssigningAuthority: ref.sourceAssigningAuthority,
+                                    });
+                                    if (patientIdsWithConsent.has(patientRef)) {
+                                        newQueryParamValues.push(patientRef);
                                     }
                                     // skip adding patient without consent
                                 } else if (ref.resourceType){
-                                    newQueryParamValues.push(`${ref.resourceType}/${ref.id}`);
+                                    // add the original reference
+                                    const refString = ReferenceParser.createReference(ref);
+                                    newQueryParamValues.push(refString);
                                 }
                             });
 
