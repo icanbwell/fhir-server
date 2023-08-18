@@ -3,7 +3,6 @@ import {useLocation, useNavigate, useParams} from 'react-router-dom';
 import {Accordion, Box, Container, LinearProgress} from '@mui/material';
 import Header from '../partials/Header';
 import Footer from '../partials/Footer';
-import SearchForm from '../partials/SearchForm';
 import AccordionSummary from '@mui/material/AccordionSummary';
 import AccordionDetails from '@mui/material/AccordionDetails';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
@@ -24,7 +23,7 @@ const IndexPage = ({search}) => {
     const [status, setStatus] = useState('');
     const [loading, setLoading] = useState(false);
 
-    const {id, resourceType} = useParams();
+    const {id, resourceType, operation} = useParams();
 
     const [searchTabExpanded, setSearchTabExpanded] = useState(false);
     const [resourceCardExpanded, setResourceCardExpanded] = useState(false);
@@ -62,7 +61,7 @@ const IndexPage = ({search}) => {
     }
 
     console.log(`id: ${id}, resourceType: ${resourceType}, queryString: ${queryString},` +
-        ` search: ${search}`);
+        ` search: ${search}, operation: ${operation}`);
 
     useEffect(() => {
         if (id) {
@@ -81,7 +80,8 @@ const IndexPage = ({search}) => {
                     {
                         resourceType,
                         id,
-                        queryString
+                        queryString,
+                        operation,
                     }
                 );
                 if (status === 401) {

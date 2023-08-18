@@ -30,10 +30,19 @@ class FhirApi {
      * @param {string|undefined} [id]
      * @param {string} [queryString]
      * @param {string[]|undefined} [queryParameters]
+     * @param {string|undefined} [operation]
      * @returns {Promise<{status: number, json: Object}>}
      */
-    async getBundleAsync({resourceType, id, queryString, queryParameters}) {
-        const url = this.getUrl({resourceType, id, queryString, queryParameters});
+    async getBundleAsync({resourceType, id, queryString, queryParameters, operation}) {
+        const url = this.getUrl(
+            {
+                resourceType,
+                id,
+                queryString,
+                queryParameters,
+                operation
+            }
+        );
 
         const response = await fetch(url.toString(),
             {
@@ -57,14 +66,25 @@ class FhirApi {
      * @param {string|undefined} [id]
      * @param {string} [queryString]
      * @param {string[]|undefined} [queryParameters]
+     * @param {string|undefined} [operation]
      * @returns {URL}
      */
-    getUrl({resourceType, id, queryString, queryParameters}) {
+    getUrl(
+        {
+            resourceType,
+            id,
+            queryString,
+            queryParameters,
+            operation
+        }
+    ) {
         let urlString = `/4_0_0/${resourceType}`;
         if (id) {
             urlString += `/${id}`;
         }
-        if (queryParameters && queryParameters.find(a => a.startsWith('_question'))) {
+        if (operation) {
+            urlString += `/${operation}`;
+        } else if (queryParameters && queryParameters.find(a => a.startsWith('_question'))) {
             urlString += `/$everything`;
         }
 
