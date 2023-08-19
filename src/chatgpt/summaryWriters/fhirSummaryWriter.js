@@ -5,6 +5,10 @@ const {ConfigManager} = require('../../utils/configManager');
 const Bundle = require('../../fhir/classes/4_0_0/resources/bundle');
 const BundleEntry = require('../../fhir/classes/4_0_0/backbone_elements/bundleEntry');
 const {BasePostSaveHandler} = require('../../utils/basePostSaveHandler');
+const {PatientFilterManager} = require('../../fhir/patientFilterManager');
+const {ReferenceParser} = require('../../utils/referenceParser');
+const {RethrownError} = require('../../utils/rethrownError');
+const {logTraceSystemEventAsync} = require('../../operations/common/systemEventLogging');
 
 class FhirSummaryWriter extends BasePostSaveHandler {
     /**
@@ -12,12 +16,14 @@ class FhirSummaryWriter extends BasePostSaveHandler {
      * @param {BaseFhirToDocumentConverter} fhirToDocumentConverter
      * @param {VectorStoreFactory} vectorStoreFactory
      * @param {ConfigManager} configManager
+     * @param {PatientFilterManager} patientFilterManager
      */
     constructor(
         {
             fhirToDocumentConverter,
             vectorStoreFactory,
-            configManager
+            configManager,
+            patientFilterManager
         }
     ) {
         super();
@@ -38,6 +44,12 @@ class FhirSummaryWriter extends BasePostSaveHandler {
          */
         this.configManager = configManager;
         assertTypeEquals(configManager, ConfigManager);
+
+        /**
+         * @type {PatientFilterManager}
+         */
+        this.patientFilterManager = patientFilterManager;
+        assertTypeEquals(patientFilterManager, PatientFilterManager);
     }
 
     /**
@@ -50,32 +62,73 @@ class FhirSummaryWriter extends BasePostSaveHandler {
      */
     // eslint-disable-next-line no-unused-vars
     async afterSaveAsync({requestId, eventType, resourceType, doc}) {
-        if (!this.configManager.writeFhirSummaryToVectorStore) {
-            return;
-        }
-        const bundle = new Bundle({
-            entry: [
-                new BundleEntry({
-                    resource: doc
-                })
-            ]
-        });
-        /**
-         * {ChatGPTDocument[]}
-         */
-        const documents = await this.fhirToDocumentConverter.convertBundleToDocumentsAsync(
-            {
-                resourceType,
-                id: doc.id,
-                bundle
+        try {
+            if (!this.configManager.writeFhirSummaryToVectorStore) {
+                return;
             }
-        );
 
-        /**
-         * @type {import('langchain/vectorstores').VectorStore}
-         */
-        const vectorStore = await this.vectorStoreFactory.createVectorStoreAsync();
-        await this.vectorStoreFactory.addDocumentsAsync({vectorStore, documents});
+            await logTraceSystemEventAsync(
+                {
+                    event: 'fhirSummaryWriter' + `_${resourceType}`,
+                    message: 'Write Fhir Summary',
+                    args: {
+                        resourceType,
+                        requestId,
+                        eventType,
+                        doc
+                    }
+                }
+            );
+            // get patient id from doc
+            /**
+             * @type {string|undefined}
+             */
+            let parentId;
+            /**
+             * @type {string|undefined}
+             */
+            let parentResourceType;
+            const patientProperty = this.patientFilterManager.getPatientPropertyForResource({resourceType});
+            if (patientProperty && doc[`${patientProperty}`]) {
+                const parentReference = doc[`${patientProperty}`].reference;
+                if (parentReference) {
+                    const {id1, resourceType1} = ReferenceParser.parseReference(parentReference);
+                    if (id1) {
+                        parentId = id1;
+                        if (resourceType1) {
+                            parentResourceType = resourceType1;
+                        }
+                    }
+                }
+            }
+            const bundle = new Bundle({
+                entry: [
+                    new BundleEntry({
+                        resource: doc
+                    })
+                ]
+            });
+            /**
+             * {ChatGPTDocument[]}
+             */
+            const documents = await this.fhirToDocumentConverter.convertBundleToDocumentsAsync(
+                {
+                    resourceType: parentResourceType || resourceType,
+                    id: parentId || doc.id,
+                    bundle
+                }
+            );
+
+            /**
+             * @type {import('langchain/vectorstores').VectorStore}
+             */
+            const vectorStore = await this.vectorStoreFactory.createVectorStoreAsync();
+            await this.vectorStoreFactory.addDocumentsAsync({vectorStore, documents});
+        } catch (e) {
+            throw new RethrownError({
+                message: 'Error in FhirSummaryWriter.afterSaveAsync(): ', error: e
+            });
+        }
     }
 
     /**

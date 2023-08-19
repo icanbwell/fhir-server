@@ -737,7 +737,8 @@ const createContainer = function () {
             {
                 fhirToDocumentConverter: c.fhirToDocumentConverter,
                 vectorStoreFactory: c.vectorStoreFactory,
-                configManager: c.configManager
+                configManager: c.configManager,
+                patientFilterManager: c.patientFilterManager
             }
         )
     );

@@ -15,6 +15,7 @@ const {BwellPersonFinder} = require('./bwellPersonFinder');
 const {RequestSpecificCache} = require('./requestSpecificCache');
 const {KafkaClientFactory} = require('./kafkaClientFactory');
 const {BasePostSaveHandler} = require('./basePostSaveHandler');
+const {RethrownError} = require('./rethrownError');
 
 const Mutex = require('async-mutex').Mutex;
 const mutex = new Mutex();
@@ -280,79 +281,85 @@ class ChangeEventProducer extends BasePostSaveHandler {
      * @return {Promise<void>}
      */
     async afterSaveAsync({requestId, eventType, resourceType, doc}) {
-        /**
-         * @type {string}
-         */
-        const currentDate = moment.utc().format('YYYY-MM-DD');
+        try {
+            /**
+             * @type {string}
+             */
+            const currentDate = moment.utc().format('YYYY-MM-DD');
 
-        let sourceType;
-        if (doc.extension && doc.extension.some(x => x.url === 'https://www.icanbwell.com/sourceType')) {
-            sourceType = doc.extension.find(x => x.url === 'https://www.icanbwell.com/sourceType').valueString;
-        }
+            let sourceType;
+            if (doc.extension && doc.extension.some(x => x.url === 'https://www.icanbwell.com/sourceType')) {
+                sourceType = doc.extension.find(x => x.url === 'https://www.icanbwell.com/sourceType').valueString;
+            }
 
-        /**
-         * @type {string|null}
-         */
-        const patientId = await this.resourceManager.getPatientIdFromResourceAsync(resourceType, doc);
-        await logTraceSystemEventAsync(
-            {
-                event: 'fireEventsAsync' + `_${resourceType}`,
-                message: 'Fire Events',
-                args: {
-                    resourceType,
-                    requestId,
-                    eventType,
-                    doc,
-                    patientId
+            /**
+             * @type {string|null}
+             */
+            const patientId = await this.resourceManager.getPatientIdFromResourceAsync(resourceType, doc);
+            await logTraceSystemEventAsync(
+                {
+                    event: 'fireEventsAsync' + `_${resourceType}`,
+                    message: 'Fire Events',
+                    args: {
+                        resourceType,
+                        requestId,
+                        eventType,
+                        doc,
+                        patientId
+                    }
+                }
+            );
+            if (patientId) {
+                if (eventType === 'C' && resourceType === 'Patient') {
+                    await this.onPatientCreateAsync(
+                        {
+                            requestId, patientId, timestamp: currentDate, sourceType
+                        });
+                } else {
+                    await this.onPatientChangeAsync({
+                            requestId, patientId, timestamp: currentDate, sourceType
+                        }
+                    );
+
+                    let personId = await this.bwellPersonFinder.getBwellPersonIdAsync({patientId: patientId});
+                    if (personId) {
+                        const proxyPatientId = `person.${personId}`;
+                        await this.onPatientChangeAsync({
+                                requestId, patientId: proxyPatientId, timestamp: currentDate, sourceType
+                            }
+                        );
+                    }
                 }
             }
-        );
-        if (patientId) {
-            if (eventType === 'C' && resourceType === 'Patient') {
-                await this.onPatientCreateAsync(
-                    {
-                        requestId, patientId, timestamp: currentDate, sourceType
-                    });
-            } else {
-                await this.onPatientChangeAsync({
-                        requestId, patientId, timestamp: currentDate, sourceType
-                    }
-                );
-
-                let personId = await this.bwellPersonFinder.getBwellPersonIdAsync({patientId: patientId});
-                if (personId) {
-                    const proxyPatientId = `person.${personId}`;
+            if (resourceType === 'Person' && this.bwellPersonFinder.isBwellPerson(doc)) {
+                const proxyPatientId = `person.${doc.id}`;
+                if (eventType === 'C') {
+                    await this.onPatientCreateAsync({
+                            requestId, patientId: proxyPatientId, timestamp: currentDate, sourceType
+                        }
+                    );
+                } else {
                     await this.onPatientChangeAsync({
                             requestId, patientId: proxyPatientId, timestamp: currentDate, sourceType
                         }
                     );
                 }
             }
-        }
-        if (resourceType === 'Person' && this.bwellPersonFinder.isBwellPerson(doc)) {
-            const proxyPatientId = `person.${doc.id}`;
-            if (eventType === 'C') {
-                await this.onPatientCreateAsync({
-                        requestId, patientId: proxyPatientId, timestamp: currentDate, sourceType
-                    }
-                );
-            } else {
-                await this.onPatientChangeAsync({
-                        requestId, patientId: proxyPatientId, timestamp: currentDate, sourceType
-                    }
-                );
+            if (resourceType === 'Consent') {
+                if (eventType === 'C') {
+                    await this.onConsentCreateAsync({
+                        requestId, id: doc.id, resourceType, timestamp: currentDate, sourceType
+                    });
+                } else {
+                    await this.onConsentChangeAsync({
+                        requestId, id: doc.id, resourceType, timestamp: currentDate, sourceType
+                    });
+                }
             }
-        }
-        if (resourceType === 'Consent') {
-            if (eventType === 'C') {
-                await this.onConsentCreateAsync({
-                    requestId, id: doc.id, resourceType, timestamp: currentDate, sourceType
-                });
-            } else {
-                await this.onConsentChangeAsync({
-                    requestId, id: doc.id, resourceType, timestamp: currentDate, sourceType
-                });
-            }
+        } catch (e) {
+            throw new RethrownError({
+                message: 'Error in ChangeEventProducer.afterSaveAsync(): ', error: e
+            });
         }
     }
 
