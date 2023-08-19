@@ -18,7 +18,7 @@ class FhirOpenSearchVectorStore extends OpenSearchVectorStore {
             {
                 index: {
                     _index: this.indexName,
-                    _id: documents[`${idx}`].metadata.resourceType + '|' + documents[`${idx}`].metadata.id,
+                    _id: documents[`${idx}`].metadata._id,
                 },
             },
             {

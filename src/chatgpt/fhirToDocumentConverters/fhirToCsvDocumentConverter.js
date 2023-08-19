@@ -46,6 +46,7 @@ class FhirToCsvDocumentConverter extends BaseFhirToDocumentConverter {
                     {
                         content: csv,
                         metadata: {
+                            _id: `${resourceType1}`,
                             id: '0',
                             reference: `${resourceType1}`,
                             resourceType: resourceType1,

@@ -38,6 +38,7 @@ class FhirToDocumentSplitter extends BaseFhirToDocumentConverter {
                     {
                         content: content,
                         metadata: {
+                            _id: `${resource.resourceType}/${resource.id}`,
                             id: resource.id,
                             reference: `${resource.resourceType}/${resource.id}`,
                             resourceType: resource.resourceType,

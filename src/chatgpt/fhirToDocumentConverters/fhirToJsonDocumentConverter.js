@@ -16,6 +16,7 @@ class FhirToJsonDocumentConverter extends BaseFhirToDocumentConverter {
                     {
                         content: JSON.stringify(e.resource),
                         metadata: {
+                            _id: `${e.resource.resourceType}/${e.resource.id}`,
                             id: e.resource.id,
                             reference: `${e.resource.resourceType}/${e.resource.id}`,
                             resourceType: e.resource.resourceType,
