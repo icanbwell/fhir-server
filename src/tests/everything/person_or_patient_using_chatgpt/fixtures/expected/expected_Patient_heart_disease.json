@@ -1,0 +1,60 @@
+{
+  "entry": [
+    {
+      "id": "patient1",
+      "resource": {
+        "birthDate": "2017-01-01",
+        "gender": "female",
+        "id": "patient1",
+        "identifier": [
+          {
+            "id": "sourceId",
+            "system": "https://www.icanbwell.com/sourceId",
+            "value": "patient1"
+          },
+          {
+            "id": "uuid",
+            "system": "https://www.icanbwell.com/uuid",
+            "value": "24a5930e-11b4-5525-b482-669174917044"
+          }
+        ],
+        "meta": {
+          "security": [
+            {
+              "code": "healthsystem1",
+              "system": "https://www.icanbwell.com/access"
+            },
+            {
+              "code": "healthsystem1",
+              "system": "https://www.icanbwell.com/owner"
+            },
+            {
+              "code": "healthsystem1",
+              "system": "https://www.icanbwell.com/sourceAssigningAuthority"
+            }
+          ],
+          "source": "http://healthsystem1health.org/provider",
+          "versionId": "1"
+        },
+        "name": [
+          {
+            "family": "PATIENT1",
+            "given": [
+              "SHYLA"
+            ],
+            "text": "t",
+            "use": "usual"
+          }
+        ],
+        "resourceType": "Patient",
+        "text": {
+          "div": "The text suggests that the patient has heart failure, which is a type of heart disease. So, yes, the patient has heart disease.",
+          "status": "generated"
+        }
+      }
+    }
+  ],
+  "resourceType": "Bundle",
+  "total": 1,
+  "type": "searchset"
+}

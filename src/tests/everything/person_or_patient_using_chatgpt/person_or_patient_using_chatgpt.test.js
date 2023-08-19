@@ -11,6 +11,9 @@ const patient2Resource = require('./fixtures/Patient/patient2.json');
 const observation1Resource = require('./fixtures/Observation/observation1.json');
 const observation2Resource = require('./fixtures/Observation/observation2.json');
 
+const condition1Resource = require('./fixtures/Condition/condition1.json');
+const condition2Resource = require('./fixtures/Condition/condition2.json');
+
 // expected
 const expectedPersonTopLevelResources = require('./fixtures/expected/expected_Person_personTopLevel.json');
 const expectedPersonTopLevelContainedResources = require('./fixtures/expected/expected_Person_personTopLevel_contained.json');
@@ -18,6 +21,7 @@ const expectedPerson1Resources = require('./fixtures/expected/expected_Person_pe
 const expectedPerson1ContainedResources = require('./fixtures/expected/expected_Person_person1_contained.json');
 
 const expectedPatientResources = require('./fixtures/expected/expected_Patient.json');
+const expectedPatientHeartDiseaseResources = require('./fixtures/expected/expected_Patient_heart_disease.json');
 const expectedPatientContainedResources = require('./fixtures/expected/expected_Patient_contained.json');
 
 const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest, getHtmlHeaders} = require('../../common');
@@ -98,11 +102,23 @@ describe('Person and Patient $everything chatgpt Tests', () => {
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveMergeResponse({created: true});
 
+            resp = await request
+                .post('/4_0_0/Condition/1/$merge?validate=true')
+                .send(condition1Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
+
+            resp = await request
+                .post('/4_0_0/Condition/2/$merge?validate=true')
+                .send(condition2Resource)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveMergeResponse({created: true});
 
             // ACT & ASSERT
             // First get patient everything
-            const question = "What is this patient's date of birth?";
-            const urlEncodedQuestion = encodeURIComponent(question);
+            const urlEncodedQuestion = encodeURIComponent("What is this patient's date of birth?");
             resp = await request
                 .get(`/4_0_0/Patient/patient1/$everything?_question=${urlEncodedQuestion}`)
                 .set(getHeaders());
@@ -113,6 +129,13 @@ describe('Person and Patient $everything chatgpt Tests', () => {
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedPatientContainedResources);
+
+            const urlEncodedQuestion2 = encodeURIComponent('Does this patient have heart disease?');
+            resp = await request
+                .get(`/4_0_0/Patient/patient1/$everything?_question=${urlEncodedQuestion2}`)
+                .set(getHeaders());
+            // noinspection JSUnresolvedFunction
+            expect(resp).toHaveResponse(expectedPatientHeartDiseaseResources);
 
             // Second get person everything from topLevel
             resp = await request
