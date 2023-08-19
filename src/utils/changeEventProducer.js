@@ -14,6 +14,7 @@ const Period = require('../fhir/classes/4_0_0/complex_types/period');
 const {BwellPersonFinder} = require('./bwellPersonFinder');
 const {RequestSpecificCache} = require('./requestSpecificCache');
 const {KafkaClientFactory} = require('./kafkaClientFactory');
+const {BasePostSaveHandler} = require('./basePostSaveHandler');
 
 const Mutex = require('async-mutex').Mutex;
 const mutex = new Mutex();
@@ -21,7 +22,7 @@ const mutex = new Mutex();
 /**
  * This class is used to produce change events
  */
-class ChangeEventProducer {
+class ChangeEventProducer extends BasePostSaveHandler {
     /**
      * Constructor
      * @param {KafkaClientFactory} kafkaClientFactory
@@ -39,6 +40,7 @@ class ChangeEventProducer {
                     bwellPersonFinder,
                     requestSpecificCache
                 }) {
+        super();
         /**
          * @type {KafkaClientFactory}
          */
@@ -277,7 +279,7 @@ class ChangeEventProducer {
      * @param {Resource} doc
      * @return {Promise<void>}
      */
-    async fireEventsAsync({requestId, eventType, resourceType, doc}) {
+    async afterSaveAsync({requestId, eventType, resourceType, doc}) {
         /**
          * @type {string}
          */

@@ -42,7 +42,7 @@ class ResourceMerger {
      * @param {boolean|undefined} [incrementVersion]
      * @param {string[]|undefined} [limitToPaths]
      * @param {DatabaseAttachmentManager|null} databaseAttachmentManager
-     * @returns {{updatedResource:Resource|null, patches: MergePatchEntry[]|null }} resource and patches
+     * @returns {Promise<{updatedResource:Resource|null, patches: MergePatchEntry[]|null }>} resource and patches
      */
     async mergeResourceAsync(
         {
@@ -93,14 +93,14 @@ class ResourceMerger {
                 resourceToMerge.id = currentResource.id;
             }
             if (!resourceToMerge.identifier || !resourceToMerge.identifier.some(s => s.system === IdentifierSystem.sourceId)) {
-                if (!resourceToMerge.identifier) {
-                    resourceToMerge.identifier = [
-                        getFirstElementOrNull(currentResource.identifier.filter(s => s.system === IdentifierSystem.sourceId))
-                    ];
-                } else {
+                if (resourceToMerge.identifier) {
                     resourceToMerge.identifier.push(
                         getFirstElementOrNull(currentResource.identifier.filter(s => s.system === IdentifierSystem.sourceId))
                     );
+                } else {
+                    resourceToMerge.identifier = [
+                        getFirstElementOrNull(currentResource.identifier.filter(s => s.system === IdentifierSystem.sourceId))
+                    ];
                 }
             }
         }
@@ -111,18 +111,18 @@ class ResourceMerger {
             (!resourceToMerge.identifier ||
                 !resourceToMerge.identifier.some(s => s.system === IdentifierSystem.uuid))
         ) {
-            if (!resourceToMerge.identifier) {
-                resourceToMerge.identifier = [
-                    getFirstElementOrNull(
-                        currentResource.identifier.filter(s => s.system === IdentifierSystem.uuid)
-                    )
-                ];
-            } else {
+            if (resourceToMerge.identifier) {
                 resourceToMerge.identifier.push(
                     getFirstElementOrNull(
                         currentResource.identifier.filter(s => s.system === IdentifierSystem.uuid)
                     )
                 );
+            } else {
+                resourceToMerge.identifier = [
+                    getFirstElementOrNull(
+                        currentResource.identifier.filter(s => s.system === IdentifierSystem.uuid)
+                    )
+                ];
             }
         }
 

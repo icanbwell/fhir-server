@@ -96,6 +96,7 @@ const {BundleResourceValidator} = require('./operations/merge/validators/bundleR
 const {MergeResourceValidator} = require('./operations/merge/validators/mergeResourceValidator');
 const {RemoteFhirValidator} = require('./utils/remoteFhirValidator');
 const {OpenSearchVectorStoreFactory} = require('./chatgpt/vectorStores/openSearchVectorStoreFactory');
+const {PostSaveProcessor} = require('./dataLayer/postSaveProcessor');
 
 /**
  * Creates a container and sets up all the services
@@ -344,7 +345,7 @@ const createContainer = function () {
                 postRequestProcessor: c.postRequestProcessor,
                 mongoCollectionManager: c.mongoCollectionManager,
                 resourceLocatorFactory: c.resourceLocatorFactory,
-                changeEventProducer: c.changeEventProducer,
+                postSaveProcessor: c.postSaveProcessor,
                 preSaveManager: c.preSaveManager,
                 requestSpecificCache: c.requestSpecificCache,
                 databaseUpdateFactory: c.databaseUpdateFactory,
@@ -437,7 +438,7 @@ const createContainer = function () {
             {
                 postRequestProcessor: c.postRequestProcessor,
                 auditLogger: c.auditLogger,
-                changeEventProducer: c.changeEventProducer,
+                postSaveProcessor: c.postSaveProcessor,
                 scopesManager: c.scopesManager,
                 fhirLoggingManager: c.fhirLoggingManager,
                 scopesValidator: c.scopesValidator,
@@ -453,7 +454,7 @@ const createContainer = function () {
             {
                 postRequestProcessor: c.postRequestProcessor,
                 auditLogger: c.auditLogger,
-                changeEventProducer: c.changeEventProducer,
+                postSaveProcessor: c.postSaveProcessor,
                 databaseQueryFactory: c.databaseQueryFactory,
                 scopesManager: c.scopesManager,
                 fhirLoggingManager: c.fhirLoggingManager,
@@ -473,7 +474,7 @@ const createContainer = function () {
         {
             mergeManager: c.mergeManager,
             postRequestProcessor: c.postRequestProcessor,
-            changeEventProducer: c.changeEventProducer,
+            postSaveProcessor: c.postSaveProcessor,
             databaseBulkLoader: c.databaseBulkLoader,
             databaseBulkInserter: c.databaseBulkInserter,
             scopesManager: c.scopesManager,
@@ -548,7 +549,7 @@ const createContainer = function () {
     container.register('patchOperation', (c) => new PatchOperation(
         {
             databaseQueryFactory: c.databaseQueryFactory,
-            changeEventProducer: c.changeEventProducer,
+            postSaveProcessor: c.postSaveProcessor,
             postRequestProcessor: c.postRequestProcessor,
             fhirLoggingManager: c.fhirLoggingManager,
             scopesValidator: c.scopesValidator,
@@ -730,6 +731,12 @@ const createContainer = function () {
             configManager: c.configManager
         }
     ));
+
+    container.register('postSaveProcessor', (c) => new PostSaveProcessor({
+        handlers: [
+            c.changeEventProducer
+        ]
+    }));
 
     return container;
 };
