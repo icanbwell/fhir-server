@@ -33,12 +33,14 @@ class ChatGPTManager {
     /**
      * Sends the bundle of FHIR resources to ChatGPT and asks the provided question.
      * Returns the result as HTML body
+     * @param {string} resourceType
+     * @param {string} id
      * @param {Bundle} bundle
-     * @param {str} question
+     * @param {string} question
      * @param {'html'|'text'|undefined} outputFormat
      * @return {Promise<ChatGPTResponse>}
      */
-    async answerQuestionAsync({bundle, question, outputFormat}) {
+    async answerQuestionAsync({resourceType, id, bundle, question, outputFormat}) {
         // https://horosin.com/extracting-pdf-and-generating-json-data-with-gpts-langchain-and-nodejs
         // https://genesis-aka.net/information-technology/professional/2023/05/23/chatgpt-in-node-js-integrate-chatgpt-using-langchain-get-response-in-json/
         // https://dagster.io/blog/chatgpt-langchain
@@ -50,6 +52,8 @@ class ChatGPTManager {
          */
         const documents = await this.fhirToDocumentConverter.convertBundleToDocumentsAsync(
             {
+                resourceType,
+                id,
                 bundle
             }
         );
@@ -67,7 +71,9 @@ class ChatGPTManager {
         const response = await this.answerQuestionWithDocumentsAsync({
             documents: documents,
             question,
-            startPrompt
+            startPrompt,
+            id,
+            resourceType
         });
         if (outputFormat === 'html') {
             response.responseText = filterXSS(
@@ -89,7 +95,7 @@ class ChatGPTManager {
      * @param {string} startPrompt
      * @param {string} question
      * @param {string} resourceType
-     * @param {string} resourceId
+     * @param {string} id
      * @returns {Promise<ChatGPTResponse>}
      */
     async answerQuestionWithDocumentsAsync(
@@ -103,7 +109,7 @@ class ChatGPTManager {
             // eslint-disable-next-line no-unused-vars
             resourceType,
             // eslint-disable-next-line no-unused-vars
-            resourceId
+            id
         }
     ) {
         throw new Error('Not Implemented by subclass');

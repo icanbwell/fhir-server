@@ -16,10 +16,12 @@ class FhirToSummaryDocumentConverter extends BaseFhirToDocumentConverter {
 
     /**
      * converts a FHIR bundle into documents for ChatGPT
+     * @param {string} resourceType
+     * @param {string} id
      * @param {Bundle} bundle
      * @returns {Promise<ChatGPTDocument[]>}
      */
-    async convertBundleToDocumentsAsync({bundle}) {
+    async convertBundleToDocumentsAsync({resourceType, id, bundle}) {
         // group by resource type
         /**
          * @type {Resource[]}
@@ -49,7 +51,9 @@ class FhirToSummaryDocumentConverter extends BaseFhirToDocumentConverter {
                         metadata: {
                             id: resource.id,
                             reference: `${resource.resourceType}/${resource.id}`,
-                            resourceType: resource.resourceType
+                            resourceType: resource.resourceType,
+                            parentResourceType: resourceType,
+                            parentId: id
                         }
                     }
                 )

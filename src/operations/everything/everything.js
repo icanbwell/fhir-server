@@ -66,6 +66,9 @@ class EverythingOperation {
         assertIsValid(res !== undefined, 'res is undefined');
         assertIsValid(resourceType !== undefined, 'resourceType is undefined');
         assertTypeEquals(parsedArgs, ParsedArgs);
+
+        const {id} = parsedArgs;
+
         const currentOperationName = 'everything';
         /**
          * @type {number}
@@ -100,6 +103,8 @@ class EverythingOperation {
                  */
                 const response = await this.chatgptManager.answerQuestionAsync(
                     {
+                        resourceType: resourceType,
+                        id: id,
                         bundle: bundle,
                         question: question.queryParameterValue.value,
                         outputFormat: 'html'

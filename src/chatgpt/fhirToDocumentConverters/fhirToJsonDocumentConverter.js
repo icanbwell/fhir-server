@@ -4,10 +4,12 @@ const {ChatGPTDocument} = require('../chatgptDocument');
 class FhirToJsonDocumentConverter extends BaseFhirToDocumentConverter {
     /**
      * converts a FHIR bundle into documents for ChatGPT
+     * @param {string} resourceType
+     * @param {string} id
      * @param {Bundle} bundle
      * @returns {Promise<ChatGPTDocument[]>}
      */
-    async convertBundleToDocumentsAsync({bundle}) {
+    async convertBundleToDocumentsAsync({resourceType, id, bundle}) {
         return bundle.entry.map(
             e => {
                 return new ChatGPTDocument(
@@ -16,7 +18,9 @@ class FhirToJsonDocumentConverter extends BaseFhirToDocumentConverter {
                         metadata: {
                             id: e.resource.id,
                             reference: `${e.resource.resourceType}/${e.resource.id}`,
-                            resourceType: e.resource.resourceType
+                            resourceType: e.resource.resourceType,
+                            parentResourceType: resourceType,
+                            parentId: id
                         }
                     });
             }

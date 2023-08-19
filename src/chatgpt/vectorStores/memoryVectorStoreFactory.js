@@ -24,7 +24,8 @@ class MemoryVectorStoreFactory extends VectorStoreFactory {
      * @returns {function(*): boolean| import('langchain/vectorstores').OpenSearchFilter}
      */
     getFilter(filter) {
-        return (document) => document.metadata.resourceType === filter.resourceType && document.metadata.id === filter.id;
+        return (document) => (document.metadata.resourceType === filter.resourceType && document.metadata.id === filter.id) ||
+            (document.metadata.parentResourceType === filter.resourceType && document.metadata.parentId === filter.id);
     }
 }
 

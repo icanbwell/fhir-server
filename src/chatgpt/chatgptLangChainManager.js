@@ -15,6 +15,7 @@ const {ChatGPTResponse} = require('./chatGPTResponse');
 const {ChatGPTManager} = require('./chatgptManager');
 const {RunnablePassthrough, RunnableSequence} = require('langchain/schema/runnable');
 const {StringOutputParser} = require('langchain/schema/output_parser');
+const {assertIsValid} = require('../utils/assertType');
 
 class ChatGPTLangChainManager extends ChatGPTManager {
     /**
@@ -37,7 +38,7 @@ class ChatGPTLangChainManager extends ChatGPTManager {
      * @param {string} startPrompt
      * @param {string} question
      * @param {string} resourceType
-     * @param {string} resourceId
+     * @param {string} id
      * @returns {Promise<ChatGPTResponse>}
      */
     async answerQuestionWithDocumentsAsync(
@@ -47,9 +48,11 @@ class ChatGPTLangChainManager extends ChatGPTManager {
             startPrompt,
             question,
             resourceType,
-            resourceId
+            id
         }
     ) {
+        assertIsValid(resourceType, 'resourceType is null');
+        assertIsValid(id, 'id is null');
         // https://horosin.com/extracting-pdf-and-generating-json-data-with-gpts-langchain-and-nodejs
         // https://genesis-aka.net/information-technology/professional/2023/05/23/chatgpt-in-node-js-integrate-chatgpt-using-langchain-get-response-in-json/
         // https://dagster.io/blog/chatgpt-langchain
@@ -86,7 +89,7 @@ class ChatGPTLangChainManager extends ChatGPTManager {
         const filter = this.vectorStoreFactory.getFilter(
             {
                 resourceType: resourceType,
-                id: resourceId
+                id: id
             });
         const retriever = new ContextualCompressionRetriever({
             baseCompressor,

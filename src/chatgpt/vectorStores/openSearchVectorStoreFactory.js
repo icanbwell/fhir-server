@@ -13,7 +13,7 @@ class OpenSearchVectorStoreFactory extends VectorStoreFactory {
      * @param {ConfigManager} configManager
      */
     constructor({
-        configManager
+                    configManager
                 }) {
         super();
 
@@ -23,6 +23,7 @@ class OpenSearchVectorStoreFactory extends VectorStoreFactory {
         this.configManager = configManager;
         assertTypeEquals(configManager, ConfigManager);
     }
+
     /**
      * creates a vector store from a list of langchain documents
      * @param {import('langchain/document').Document[]} langChainDocuments
@@ -40,6 +41,18 @@ class OpenSearchVectorStoreFactory extends VectorStoreFactory {
                 indexName: this.configManager.openSearchVectorStoreIndexName, // Will default to `documents`
             }
         );
+    }
+
+    /**
+     * gets a filter for the vector store
+     * @param {{resourceType: string, id: string}} filter
+     * @returns {function(*): boolean| import('langchain/vectorstores').OpenSearchFilter}
+     */
+    getFilter(filter) {
+        return {
+            parentResourceType: filter.resourceType,
+            parentId: filter.id
+        };
     }
 }
 

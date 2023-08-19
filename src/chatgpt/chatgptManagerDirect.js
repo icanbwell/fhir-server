@@ -26,7 +26,7 @@ class ChatGPTManagerDirect extends ChatGPTManager {
      * @param {string} startPrompt
      * @param {string} question
      * @param {string} resourceType
-     * @param {string} resourceId
+     * @param {string} id
      * @returns {Promise<ChatGPTResponse>}
      */
     async answerQuestionWithDocumentsAsync(
@@ -34,10 +34,8 @@ class ChatGPTManagerDirect extends ChatGPTManager {
             documents,
             startPrompt,
             question,
-            // eslint-disable-next-line no-unused-vars
             resourceType,
-            // eslint-disable-next-line no-unused-vars
-            resourceId
+            id
         }
     ) {
         const configuration = {
@@ -45,14 +43,17 @@ class ChatGPTManagerDirect extends ChatGPTManager {
         };
         const openai = new OpenAI(configuration);
 
-        const contextMessages = documents.map(
-            d => new ChatGPTMessage(
-                {
-                    role: 'system',
-                    content: d.content
-                }
-            )
-        );
+        const contextMessages = documents
+            .filter((document) => (document.metadata.resourceType === resourceType && document.metadata.id === id) ||
+                (document.metadata.parentResourceType === resourceType && document.metadata.parentId === id))
+            .map(
+                d => new ChatGPTMessage(
+                    {
+                        role: 'system',
+                        content: d.content
+                    }
+                )
+            );
 
         const systemMessages = [
             new ChatGPTMessage(

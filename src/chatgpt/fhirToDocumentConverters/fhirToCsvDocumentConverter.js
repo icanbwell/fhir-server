@@ -6,10 +6,12 @@ const {ChatGPTDocument} = require('../chatgptDocument');
 class FhirToCsvDocumentConverter extends BaseFhirToDocumentConverter {
     /**
      * converts a FHIR bundle into documents for ChatGPT
+     * @param {string} resourceType
+     * @param {string} id
      * @param {Bundle} bundle
      * @returns {Promise<ChatGPTDocument[]>}
      */
-    async convertBundleToDocumentsAsync({bundle}) {
+    async convertBundleToDocumentsAsync({resourceType, id, bundle}) {
         // group by resource type
         /**
          * @type {Resource[]}
@@ -33,7 +35,7 @@ class FhirToCsvDocumentConverter extends BaseFhirToDocumentConverter {
         const documents = [];
         for (
             const [
-                /** @type {string} */ resourceType,
+                /** @type {string} */ resourceType1,
                 /** @type {Resource[]} */ resources1
             ]
             of Object.entries(groupByResourceType)
@@ -45,8 +47,10 @@ class FhirToCsvDocumentConverter extends BaseFhirToDocumentConverter {
                         content: csv,
                         metadata: {
                             id: '0',
-                            reference: `${resourceType}`,
-                            resourceType: resourceType
+                            reference: `${resourceType1}`,
+                            resourceType: resourceType1,
+                            parentResourceType: resourceType,
+                            parentId: id
                         }
                     }
                 )
