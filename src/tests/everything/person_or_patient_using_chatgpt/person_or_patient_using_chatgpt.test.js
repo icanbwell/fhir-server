@@ -132,7 +132,7 @@ describe('Person and Patient $everything chatgpt Tests', () => {
 
             const urlEncodedQuestion2 = encodeURIComponent('Does this patient have heart disease?');
             resp = await request
-                .get(`/4_0_0/Patient/patient1/$everything?_question=${urlEncodedQuestion2}`)
+                .get(`/4_0_0/Patient/patient1/$everything?_question=${urlEncodedQuestion2}&_debug=1`)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
             expect(resp).toHaveResponse(expectedPatientHeartDiseaseResources);

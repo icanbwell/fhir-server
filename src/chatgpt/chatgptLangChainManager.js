@@ -55,7 +55,8 @@ class ChatGPTLangChainManager extends ChatGPTManager {
         const model = new ChatOpenAI(
             {
                 openAIApiKey: this.configManager.openAIApiKey,
-                temperature: 0,
+                temperature: 0, // make model more deterministic
+                topP: 0, // make model more deterministic
                 // modelName: 'gpt-3.5-turbo',
                 modelName: this.configManager.openAIModel,
                 // These tags will be attached to all calls made with this LLM.
