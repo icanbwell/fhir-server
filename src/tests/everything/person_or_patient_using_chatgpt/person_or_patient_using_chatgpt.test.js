@@ -154,7 +154,14 @@ describe('Person and Patient $everything chatgpt Tests', () => {
                 .get(`/4_0_0/Patient/patient1/$everything?_question=${urlEncodedQuestion2}&_debug=1`)
                 .set(getHeaders());
             // noinspection JSUnresolvedFunction
-            expect(resp).toHaveResponse(expectedPatientHeartDiseaseResources);
+            expect(resp).toHaveResponse(expectedPatientHeartDiseaseResources, (resource) => {
+                if (resource.text.div && resource.text.div.indexOf('heart') >= 0) {
+                    // handle the slight variations that ChatGPT produces
+                    resource.text.div = 'The text suggests that the patient has a heart condition, specifically heart failure, ' +
+                        'although it is unspecified.';
+                }
+                return resource;
+            });
 
             // Second get person everything from topLevel
             resp = await request
