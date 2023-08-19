@@ -15,7 +15,9 @@ const {ChatGPTResponse} = require('./chatGPTResponse');
 const {ChatGPTManager} = require('./chatgptManager');
 const {RunnablePassthrough, RunnableSequence} = require('langchain/schema/runnable');
 const {StringOutputParser} = require('langchain/schema/output_parser');
-const {assertIsValid} = require('../utils/assertType');
+const {assertIsValid, assertTypeEquals} = require('../utils/assertType');
+const {VectorStoreFilter} = require('./vectorStores/vectorStoreFilter');
+const {BaseVectorStoreManager} = require('./vectorStores/baseVectorStoreManager');
 
 class ChatGPTLangChainManager extends ChatGPTManager {
     /**
@@ -67,22 +69,33 @@ class ChatGPTLangChainManager extends ChatGPTManager {
         );
 
         /**
-         * @type {import('langchain/vectorstores').VectorStore}
+         * @type {BaseVectorStoreManager|undefined}
          */
-        const vectorStore = await this.vectorStoreFactory.createVectorStoreAsync();
+        const vectorStoreManager = await this.vectorStoreFactory.createVectorStoreAsync();
+        if (!vectorStoreManager) {
+            return new ChatGPTResponse(
+                {
+                    responseText: 'No vector store was configured',
+                    fullPrompt: '',
+                    numberTokens: 0,
+                    documents: []
+                }
+            );
+        }
+        assertTypeEquals(vectorStoreManager, BaseVectorStoreManager);
 
         // Now create a contextual compressor so we only pass documents to LLM that are similar to the query
         const baseCompressor = LLMChainExtractor.fromLLM(model);
-        const filter = this.vectorStoreFactory.getFilter(
-            {
-                resourceType: resourceType,
-                id: id
-            });
         const retriever = new ContextualCompressionRetriever({
             baseCompressor,
-            baseRetriever: vectorStore.asRetriever(
-                10,
-                filter
+            baseRetriever: vectorStoreManager.asRetriever({
+                    filter: new VectorStoreFilter(
+                        {
+                            resourceType: resourceType,
+                            id: id
+                        }
+                    )
+                }
             ),
         });
         // https://python.langchain.com/docs/use_cases/question_answering/

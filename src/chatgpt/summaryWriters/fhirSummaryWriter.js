@@ -67,68 +67,72 @@ class FhirSummaryWriter extends BasePostSaveHandler {
             if (!this.configManager.writeFhirSummaryToVectorStore) {
                 return;
             }
-
-            await logTraceSystemEventAsync(
-                {
-                    event: 'fhirSummaryWriter' + `_${resourceType}`,
-                    message: 'Write Fhir Summary',
-                    args: {
-                        resourceType,
-                        requestId,
-                        eventType,
-                        doc
+            /**
+             * @type {BaseVectorStoreManager|undefined}
+             */
+            const vectorStoreManager = await this.vectorStoreFactory.createVectorStoreAsync();
+            if (vectorStoreManager) {
+                await logTraceSystemEventAsync(
+                    {
+                        event: 'fhirSummaryWriter' + `_${resourceType}`,
+                        message: 'Write Fhir Summary',
+                        args: {
+                            resourceType,
+                            requestId,
+                            eventType,
+                            doc
+                        }
                     }
-                }
-            );
-            // get patient id from doc
-            /**
-             * @type {string|undefined}
-             */
-            let parentId;
-            /**
-             * @type {string|undefined}
-             */
-            let parentResourceType;
-            const patientProperty = this.patientFilterManager.getPatientPropertyForResource({resourceType});
-            if (resourceType !== 'Patient' && patientProperty) {
-                const parentReference = NestedPropertyReader.getNestedProperty({
-                    obj: doc,
-                    path: patientProperty
-                });
-                if (parentReference) {
+                );
+                // get patient id from doc
+                /**
+                 * @type {string|undefined}
+                 */
+                let parentId;
+                /**
+                 * @type {string|undefined}
+                 */
+                let parentResourceType;
+                const patientProperty = this.patientFilterManager.getPatientPropertyForResource({resourceType});
+                if (resourceType !== 'Patient' && patientProperty) {
+                    const parentReference = NestedPropertyReader.getNestedProperty({
+                        obj: doc,
+                        path: patientProperty
+                    });
                     if (parentReference) {
-                        const {id: id1, resourceType: resourceType1} = ReferenceParser.parseReference(parentReference);
-                        if (id1 && resourceType1 === 'Patient') {
-                            parentId = id1;
-                            parentResourceType = resourceType1;
+                        if (parentReference) {
+                            const {
+                                id: id1,
+                                resourceType: resourceType1
+                            } = ReferenceParser.parseReference(parentReference);
+                            if (id1 && resourceType1 === 'Patient') {
+                                parentId = id1;
+                                parentResourceType = resourceType1;
+                            }
                         }
                     }
                 }
-            }
-            const bundle = new Bundle({
-                entry: [
-                    new BundleEntry({
-                        resource: doc
-                    })
-                ]
-            });
-            const resourceInfo = {
-                resourceType: parentResourceType || resourceType,
-                id: parentId || doc.id,
-                bundle
-            };
-            /**
-             * {ChatGPTDocument[]}
-             */
-            const documents = await this.fhirToDocumentConverter.convertBundleToDocumentsAsync(
-                resourceInfo
-            );
+                const bundle = new Bundle({
+                    entry: [
+                        new BundleEntry({
+                            resource: doc
+                        })
+                    ]
+                });
+                const resourceInfo = {
+                    resourceType: parentResourceType || resourceType,
+                    id: parentId || doc.id,
+                    bundle
+                };
+                /**
+                 * {ChatGPTDocument[]}
+                 */
+                const documents = await this.fhirToDocumentConverter.convertBundleToDocumentsAsync(
+                    resourceInfo
+                );
 
-            /**
-             * @type {import('langchain/vectorstores').VectorStore}
-             */
-            const vectorStore = await this.vectorStoreFactory.createVectorStoreAsync();
-            await this.vectorStoreFactory.addDocumentsAsync({vectorStore, documents});
+                await vectorStoreManager.addDocumentsAsync({documents});
+            }
         } catch (e) {
             throw new RethrownError({
                 message: 'Error in FhirSummaryWriter.afterSaveAsync(): ', error: e

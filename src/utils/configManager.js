@@ -404,6 +404,14 @@ class ConfigManager {
     get writeFhirSummaryToVectorStore() {
         return isTrue(env.WRITE_FHIR_SUMMARY_TO_VECTORSTORE);
     }
+
+    /**
+     * returns whether to enable memory vector store
+     * @return {boolean}
+     */
+    get enableMemoryVectorStore() {
+        return false; // should only enable in unit tests
+    }
 }
 
 module.exports = {

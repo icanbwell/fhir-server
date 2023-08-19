@@ -41,7 +41,7 @@ const SearchContainer = ({onSearch, resourceType}) => {
         <>
             <Tabs value={value} onChange={handleChange}>
                 <Tab label="Advanced Search"/>
-                <Tab label="ChatGPT Search"/>
+                <Tab label="ChatGPT"/>
                 <Tab label="Tab Three"/>
             </Tabs>
             <TabPanel value={value} index={0}>

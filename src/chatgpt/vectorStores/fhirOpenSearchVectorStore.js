@@ -1,7 +1,7 @@
 const {OpenSearchVectorStore} = require('langchain/vectorstores/opensearch');
 
 /**
- * @classdesc Subclass of OpenSearchVectorStore that uses the document resourceType|id as the _id
+ * @classdesc Subclass of OpenSearchVectorStore that uses the document _id as the _id
  * which allows us to replace documents
  */
 class FhirOpenSearchVectorStore extends OpenSearchVectorStore {

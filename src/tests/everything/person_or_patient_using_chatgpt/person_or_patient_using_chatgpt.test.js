@@ -26,13 +26,16 @@ const expectedPatientContainedResources = require('./fixtures/expected/expected_
 
 const {commonBeforeEach, commonAfterEach, getHeaders, createTestRequest, getTestContainer} = require('../../common');
 const {describe, beforeEach, afterEach, test} = require('@jest/globals');
-const {MemoryVectorStoreFactory} = require('../../../chatgpt/vectorStores/memoryVectorStoreFactory');
 const {ConfigManager} = require('../../../utils/configManager');
 
 // const describeIf = process.env.OPENAI_API_KEY ? describe : describe.skip;
 
 class MockConfigManager extends ConfigManager {
     get writeFhirSummaryToVectorStore() {
+        return true;
+    }
+
+    get enableMemoryVectorStore() {
         return true;
     }
 }
@@ -54,7 +57,6 @@ describe('Person and Patient $everything chatgpt Tests', () => {
             }
             const request = await createTestRequest((container) => {
                 container.register('configManager', () => new MockConfigManager());
-                container.register('vectorStoreFactory', () => new MemoryVectorStoreFactory());
                 return container;
             });
             // ARRANGE
